@@ -1,0 +1,8 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_perpetual_protocol_fees
+      - name: raw_perpetual_protocol_trading_volume
+      - name: raw_perpetual_protocol_unique_traders

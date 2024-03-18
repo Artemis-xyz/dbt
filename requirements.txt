@@ -1,0 +1,5 @@
+dbt-bigquery==1.7.4       # via -r requirements.in
+dbt-core==1.7.8           # via -r requirements.in, dagster-dbt, dbt-bigquery, dbt-snowflake
+dbt-extractor==0.5.1      # via dbt-core
+dbt-semantic-interfaces==0.4.3  # via dbt-core
+dbt-snowflake==1.7.1      # via -r requirements.in

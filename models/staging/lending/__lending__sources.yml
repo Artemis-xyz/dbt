@@ -1,0 +1,37 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_compound_v2_lending_ethereum
+      - name: raw_compound_v3_lending_ethereum
+      - name: raw_compound_v3_lending_base
+      - name: raw_compound_v3_lending_polygon
+      - name: raw_compound_v3_lending_arbitrum
+      - name: raw_venus_v4_lending_bsc
+      - name: raw_aave_v2_ethereum_borrows_deposits_revenue
+      - name: raw_aave_v2_polygon_borrows_deposits_revenue
+      - name: raw_aave_v2_avalanche_borrows_deposits_revenue
+      - name: raw_aave_v3_ethereum_borrows_deposits_revenue
+      - name: raw_aave_v3_optimism_borrows_deposits_revenue
+      - name: raw_aave_v3_arbitrum_borrows_deposits_revenue
+      - name: raw_aave_v3_polygon_borrows_deposits_revenue
+      - name: raw_aave_v3_fantom_borrows_deposits_revenue
+      - name: raw_aave_v3_avalanche_borrows_deposits_revenue
+      - name: raw_aave_v3_harmony_borrows_deposits_revenue
+      - name: raw_aave_v3_metis_borrows_deposits_revenue
+      - name: raw_aave_v3_base_borrows_deposits_revenue
+      - name: raw_radiant_v2_bsc_borrows_deposits
+      - name: raw_radiant_v2_ethereum_borrows_deposits
+      - name: raw_radiant_v2_arbitrum_borrows_deposits
+      - name: raw_spark_ethereum_borrows_deposits
+      - name: raw_uwulend_ethereum_borrows_deposits
+      - name: raw_seamless_protocol_base_borrows_deposits
+      - name: raw_sonne_optimism_borrows_deposits
+      - name: raw_sonne_base_borrows_deposits
+      - name: raw_moonwell_base_borrows_deposits
+      - name: raw_benqi_avalanche_borrows_deposits
+      - name: raw_spark_gnosis_borrows_deposits
+  - name: SDO_DEV_LANDING
+    schema: SDO_DEV_LANDING
+    database: LANDING_DATABASE

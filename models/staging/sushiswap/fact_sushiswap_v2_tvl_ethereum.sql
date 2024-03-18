@@ -1,0 +1,13 @@
+{{
+    config(
+        materialized="table",
+        snowflake_warehouse="SUSHISWAP_TVL_SM",
+    )
+}}
+{{
+    fact_daily_uniswap_v2_fork_tvl(
+        "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac",
+        "ethereum",
+        "sushiswap_v2",
+    )
+}}

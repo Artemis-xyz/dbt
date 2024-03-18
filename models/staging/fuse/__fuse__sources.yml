@@ -1,0 +1,9 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_fuse_daa_txns_gas
+      - name: raw_fuse_daa
+      - name: raw_fuse_txns
+      - name: raw_fuse_gas

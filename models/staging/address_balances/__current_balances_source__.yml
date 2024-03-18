@@ -1,0 +1,10 @@
+sources:
+  - name: BALANCES
+    schema: PROD
+    database: PC_DBT_DB
+    tables:
+      - name: dim_arbitrum_current_balances
+      - name: dim_bsc_current_balances
+      - name: dim_optimism_current_balances
+      - name: dim_polygon_current_balances
+      - name: dim_base_current_balances

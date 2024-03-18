@@ -1,0 +1,12 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_bitcoin_daa
+      - name: raw_bitcoin_txns
+      - name: raw_bitcoin_addresses_with_balance_gte_point_zero_one
+      - name: raw_bitcoin_addresses_with_balance_gte_one
+      - name: raw_bitcoin_addresses_with_balance_gte_ten
+      - name: raw_bitcoin_addresses_with_balance_gte_one_hundred
+      - name: raw_bitcoin_hodl_wave

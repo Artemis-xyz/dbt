@@ -1,0 +1,27 @@
+models:
+- name: fact_chainlink_daily_req_unique_req_and_fees
+  tests:
+  - 'dbt_expectations.expect_table_row_count_to_be_between:':
+      min_value: 1
+      max_value: 1000000
+  columns:
+  - name: DATE
+    tests:
+    - not_null
+    - dbt_expectations.expect_column_to_exist
+    - dbt_expectations.expect_row_values_to_have_recent_data:
+        datepart: day
+        interval: 3
+        severity: warn
+  - name: TOTAL_REQUESTS
+    tests:
+    - not_null
+    - dbt_expectations.expect_column_to_exist
+  - name: TOTAL_UNIQUE_REQUESTERS
+    tests:
+    - not_null
+    - dbt_expectations.expect_column_to_exist
+  - name: TOTAL_USD_FEES
+    tests:
+    - not_null
+    - dbt_expectations.expect_column_to_exist

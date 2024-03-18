@@ -1,0 +1,68 @@
+models:
+- name: agg_defillama_protocol_fees_rev_tvl_dex_vol
+  tests:
+  - dbt_expectations.expect_compound_columns_to_be_unique:
+      column_list: ["date", "defillama_protocol_id"]
+  columns:
+      - name: date
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+              severity: warn
+      - name: defillama_protocol_id
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist
+          - dbt_expectations.expect_column_distinct_count_to_be_greater_than:
+              value: 800
+      - name: fees
+        tests:
+          - dbt_expectations.expect_column_to_exist
+          - dbt_expectations.expect_column_values_to_be_within_n_moving_stdevs:
+              date_column_name: DATE
+              period: day
+              lookback_periods: 1
+              trend_periods: 14
+              test_periods: 28
+              sigma_threshold: 3
+              take_logs: false
+              severity: warn
+      - name: revenue
+        tests:
+          - dbt_expectations.expect_column_to_exist
+          - dbt_expectations.expect_column_values_to_be_within_n_moving_stdevs:
+              date_column_name: DATE
+              period: day
+              lookback_periods: 1
+              trend_periods: 14
+              test_periods: 28
+              sigma_threshold: 3
+              take_logs: false
+              severity: warn
+      - name: dex_volumes
+        tests:
+          - dbt_expectations.expect_column_to_exist
+          - dbt_expectations.expect_column_values_to_be_within_n_moving_stdevs:
+              date_column_name: DATE
+              period: day
+              lookback_periods: 1
+              trend_periods: 14
+              test_periods: 28
+              sigma_threshold: 3
+              take_logs: false
+              severity: warn
+      - name: tvl
+        tests:
+          - dbt_expectations.expect_column_to_exist
+          - dbt_expectations.expect_column_values_to_be_within_n_moving_stdevs:
+              date_column_name: DATE
+              period: day
+              lookback_periods: 1
+              trend_periods: 14
+              test_periods: 28
+              sigma_threshold: 3
+              take_logs: false
+              severity: warn

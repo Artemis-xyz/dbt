@@ -1,0 +1,17 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_injective_dau
+      - name: raw_injective_daily_txns
+      - name: raw_injective_fees_native
+      - name: raw_injective_fees_native_all
+      - name: raw_injective_revenue
+      - name: raw_injective_mints
+  - name: PC_DBT_DB.PROD
+    schema: PROD
+    database: PC_DBT_DB
+    tables:
+      - name: fact_coingecko_token_date_adjusted_gold
+      - name: fact_injective_fees_native_all_silver
