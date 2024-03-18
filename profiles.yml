@@ -1,0 +1,33 @@
+snowflake-dagster:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: IYTNLTJ-MWB17343
+
+      # User/password auth
+      user: "{{ env_var('SYSTEM_SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SYSTEM_SNOWFLAKE_PASSWORD') }}"
+
+      role: PC_DBT_ROLE
+      database: PC_DBT_DB
+      warehouse: SMALL
+      schema: PROD
+      threads: 4
+      client_session_keep_alive: False
+      query_tag: DEV
+    # prod:
+    #   type: snowflake
+    #   account: IYTNLTJ-MWB17343
+
+    #   # User/password auth
+    #   user: "{{ env_var('SYSTEM_SNOWFLAKE_USER') }}"
+    #   password: "{{ env_var('SYSTEM_SNOWFLAKE_PASSWORD') }}"
+
+    #   role: PC_DBT_ROLE
+    #   database: PC_DBT_DB
+    #   warehouse: SMALL
+    #   schema: PROD
+    #   threads: 4
+    #   client_session_keep_alive: False
+    #   query_tag: PROD

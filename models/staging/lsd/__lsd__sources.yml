@@ -1,0 +1,10 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_lido_staked_eth_count
+      - name: raw_rocketpool_staking_minipool_count
+      - name: raw_frax_staked_eth_count
+      - name: raw_seth2_count
+      - name: raw_reth2_count

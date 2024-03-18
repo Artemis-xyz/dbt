@@ -1,0 +1,26 @@
+models:
+- name: fact_coingecko_nft_supply_and_owners
+  tests:
+    - dbt_expectations.expect_compound_columns_to_be_unique:
+        column_list: ["DATE", "COINGECKO_NFT_ID"]
+  columns:
+    - name: date
+      tests:
+        - not_null
+        - dbt_expectations.expect_column_to_exist
+        - dbt_expectations.expect_row_values_to_have_recent_data:
+            datepart: day
+            interval: 3
+            severity: warn         
+    - name: coingecko_nft_id
+      tests:
+        - not_null
+        - dbt_expectations.expect_column_to_exist
+    - name: nft_number_of_unique_addresses
+      tests:
+        - not_null
+        - dbt_expectations.expect_column_to_exist
+    - name: nft_total_supply
+      tests:
+        - not_null
+        - dbt_expectations.expect_column_to_exist
