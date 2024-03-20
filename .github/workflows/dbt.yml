@@ -24,6 +24,7 @@ jobs:
 
       - name: Build
         run: |
+          source .env.local
           dbt deps
           dbt compile
 
