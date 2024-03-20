@@ -1,0 +1,30 @@
+name: dbt
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'
+
+      - name: Check out current branch
+        uses: actions/checkout@v3
+
+      - name: Set up dependencies
+        run: |
+          pip install pip==23.1.2
+          pip install pip-tools==6.13.0
+          pip-sync dev-requirements.txt
+
+      - name: Build
+        run: |
+          source .env
+          dbt deps
+
+      # - name: dbt build --profiles-dir . --project-dir . -s fact_daily_app_datahub -s fact_daily_chain_datahub -s fact_daily_asset_metrics_datahub
