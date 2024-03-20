@@ -20,7 +20,7 @@ jobs:
         run: |
           pip install pip==23.1.2
           pip install pip-tools==6.13.0
-          pip-sync dev-requirements.txt
+          pip install -r requirements.txt
 
       - name: Build
         run: |
