@@ -22,8 +22,13 @@ jobs:
           pip install pip-tools==6.13.0
           pip install -r requirements.txt
 
+      - name: Set up environment variables
+        env:
+          SYSTEM_SNOWFLAKE_USER: ${{ secrets.SYSTEM_SNOWFLAKE_USER }}
+          SYSTEM_SNOWFLAKE_PASSWORD: ${{ secrets.SYSTEM_SNOWFLAKE_PASSWORD }}
+          SYSTEM_SNOWFLAKE_ROLE: ${{ secrets.SYSTEM_SNOWFLAKE_ROLE }}
+
       - name: Build
         run: |
-          source .env.prod
           dbt deps
           dbt compile
