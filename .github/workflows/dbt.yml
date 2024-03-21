@@ -27,5 +27,3 @@ jobs:
           source .env.local
           dbt deps
           dbt compile
-
-      # - name: dbt build --profiles-dir . --project-dir . -s fact_daily_app_datahub -s fact_daily_chain_datahub -s fact_daily_asset_metrics_datahub
