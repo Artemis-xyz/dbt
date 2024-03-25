@@ -2,18 +2,19 @@
 
 with
     arb_contracts as (
+
         select address, name, app as namespace, friendly_name, category
         from {{ ref("dim_contracts_gold") }}
         where chain = 'arbitrum'
     ),
-    prices as ({{ get_coingecko_price_with_latest("ethereum") }}),
+    prices as ({{ get_coingecko_price_for_trending("ethereum") }}),
     last_2_month as (
         select
             t.to_address to_address,
             from_address,
             date_trunc('day', block_timestamp) date,
             tx_fee,
-            price,
+            prices.price,
             arb_contracts.name,
             arb_contracts.namespace,
             arb_contracts.friendly_name,
@@ -26,7 +27,7 @@ with
             end as category
         from arbitrum_flipside.core.fact_transactions as t
         left join arb_contracts on lower(t.to_address) = lower(arb_contracts.address)
-        left join prices on date = prices.date
+        left join prices on date_trunc('day', block_timestamp) = prices.date
         where
             t.to_address is not null
             and t.block_timestamp >= dateadd(day, -60, current_date)

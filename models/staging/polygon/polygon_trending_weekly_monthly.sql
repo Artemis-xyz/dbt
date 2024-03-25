@@ -2,18 +2,19 @@
 
 with
     polygon_contracts as (
+
         select address, name, app as namespace, friendly_name, category
         from {{ ref("dim_contracts_gold") }}
         where chain = 'polygon'
     ),
-    prices as ({{ get_coingecko_price_with_latest("matic-network") }}),
+    prices as ({{ get_coingecko_price_for_trending("matic-network") }}),
     last_2_month as (
         select
             t.to_address to_address,
             from_address,
             date_trunc('day', block_timestamp) date,
             tx_fee,
-            price,
+            prices.price,
             polygon_contracts.name,
             polygon_contracts.namespace,
             polygon_contracts.friendly_name,
@@ -27,7 +28,7 @@ with
         from polygon_flipside.core.fact_transactions as t
         left join
             polygon_contracts on lower(t.to_address) = lower(polygon_contracts.address)
-        left join prices on date = prices.date
+        left join prices on date_trunc('day', block_timestamp) = prices.date
         where
             t.to_address is not null
             and t.block_timestamp >= dateadd(day, -60, current_date)

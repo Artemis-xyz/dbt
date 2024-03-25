@@ -29,6 +29,32 @@ with
         select id, max(extraction_date) as extraction_date
         from flattened_json
         group by 1
+    ),
+
+    prices as (
+        select hour, token_address, decimals, price
+        from ethereum_flipside.price.ez_hourly_token_prices
+    ),
+    decoded_transfers as (
+        select
+            id,
+            timestamp,
+            try_to_number(amount) as amount,
+            app_ids,
+            fee,
+            fee_address,
+            fee_chain,
+            from_address,
+            from_chain,
+            to_address,
+            to_chain,
+            token_address,
+            token_chain,
+            amount_usd,
+            symbol
+        from flattened_json t1
+        left join recent_data t2 using (id)
+        where t1.extraction_date = t2.extraction_date and token_address != ''
     )
 
 select
@@ -43,10 +69,14 @@ select
     from_chain,
     to_address,
     to_chain,
-    token_address,
+    decoded_transfers.token_address,
     token_chain,
-    amount_usd,
+    coalesce(
+        amount_usd, (amount * coalesce(price, 0)) / pow(10, decimals), 0
+    ) as amount_usd,
     symbol
-from flattened_json t1
-left join recent_data t2 using (id)
-where t1.extraction_date = t2.extraction_date and token_address != ''
+from decoded_transfers
+left join
+    prices
+    on decoded_transfers.token_address = prices.token_address
+    and date_trunc('hour', timestamp) = prices.hour

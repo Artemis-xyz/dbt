@@ -10,6 +10,7 @@ with
                     ref("ez_bsc_metrics_by_category"),
                     ref("ez_ethereum_metrics_by_category"),
                     ref("ez_near_metrics_by_category"),
+                    ref("ez_optimism_metrics_by_category"),
                     ref("ez_polygon_metrics_by_category"),
                     ref("ez_solana_metrics_by_category"),
                     ref("ez_tron_metrics_by_category"),

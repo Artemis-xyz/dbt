@@ -84,6 +84,9 @@ with
         select 'base' as chain, 8453 as id
         union
         select 'zksync' as chain, 324 as id
+        union
+        select 'linea' as chain, 59144 as id
+
     ),
 
     zksync_volume_and_fees_by_chain_and_symbol_v2 as (

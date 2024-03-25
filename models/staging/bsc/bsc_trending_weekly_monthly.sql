@@ -1,19 +1,20 @@
-{{ config(materialized="table", snowflake_warehouse="BAM_TRENDING_WAREHOUSE_LG") }}
+{{ config(materialized="table", snowflake_warehouse="BAM_TRENDING_WAREHOUSE_MD") }}
 
 with
     bsc_contracts as (
+
         select address, name, app as namespace, friendly_name, category
         from {{ ref("dim_contracts_gold") }}
         where chain = 'bsc'
     ),
-    prices as ({{ get_coingecko_price_with_latest("binancecoin") }}),
+    prices as ({{ get_coingecko_price_for_trending("binancecoin") }}),
     last_2_month as (
         select
             t.to_address to_address,
             from_address,
             date_trunc('day', block_timestamp) date,
             tx_fee,
-            price,
+            prices.price,
             bsc_contracts.name,
             bsc_contracts.namespace,
             bsc_contracts.friendly_name,
@@ -26,7 +27,7 @@ with
             end as category
         from bsc_flipside.core.fact_transactions as t
         left join bsc_contracts on lower(t.to_address) = lower(bsc_contracts.address)
-        left join prices on date = prices.date
+        left join prices on date_trunc('day', block_timestamp) = prices.date
         where
             t.to_address is not null
             and t.block_timestamp >= dateadd(day, -60, current_date)
