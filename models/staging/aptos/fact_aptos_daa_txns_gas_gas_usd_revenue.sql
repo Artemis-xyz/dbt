@@ -66,7 +66,7 @@ with
         select
             block_timestamp::date as date,
             sum(case when success = 'true' then 1 else 0 end) as txns,
-            sum(gas_used * gas_unit_price) / 1E9 as gas
+            sum(gas_used * gas_unit_price) / 1E8 as gas
         from aptos_flipside.core.fact_transactions
         where tx_type = 'user_transaction'
         group by block_timestamp::date

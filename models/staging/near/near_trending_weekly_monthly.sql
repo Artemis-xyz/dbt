@@ -2,18 +2,19 @@
 
 with
     near_contracts as (
+
         select address, name, app as namespace, friendly_name, category
         from {{ ref("dim_contracts_gold") }}
         where chain = 'near'
     ),
-    prices as ({{ get_coingecko_price_with_latest("near") }}),
+    prices as ({{ get_coingecko_price_for_trending("near") }}),
     last_2_month as (
         select
             t.tx_receiver to_address,
             tx_signer from_address,
             date_trunc('day', block_timestamp) date,
             transaction_fee / pow(10, 24) tx_fee,
-            price,
+            prices.price,
             near_contracts.name,
             near_contracts.namespace,
             near_contracts.friendly_name,
@@ -26,7 +27,7 @@ with
             end as category
         from near_flipside.core.fact_transactions as t
         left join near_contracts on lower(t.tx_receiver) = lower(near_contracts.address)
-        left join prices on date = prices.date
+        left join prices on date_trunc('day', block_timestamp) = prices.date
         where
             t.tx_receiver is not null
             and t.block_timestamp >= dateadd(day, -60, current_date)

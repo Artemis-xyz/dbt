@@ -51,7 +51,8 @@ with
                     'base' as destination_chain
                 from ethereum_flipside.core.ez_eth_transfers
                 where
-                    origin_to_address
+                    eth_to_address = lower('0x49048044d57e1c92a77f79988d21fa8faf74e97e')
+                    and origin_to_address
                     = lower('0x49048044d57e1c92a77f79988d21fa8faf74e97e')
                     {% if is_incremental() %}
 

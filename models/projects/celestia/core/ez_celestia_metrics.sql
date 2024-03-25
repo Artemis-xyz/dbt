@@ -33,7 +33,8 @@ with
                 }}
             )
         group by 1
-    )
+    ),
+    price_data as ({{ get_coingecko_metrics("celestia") }})
 
 select
     fundamental_data.date,
@@ -43,5 +44,10 @@ select
     coalesce(mints, 0) as mints,
     coalesce(unique_namespaces, 0) as unique_namespaces,
     coalesce(blob_size_mb, 0) as blob_size_mb,
-    coalesce(fees_for_blobs_native, 0) as fees_for_blobs_native
+    coalesce(fees_for_blobs_native, 0) as fees_for_blobs_native,
+    coalesce(fees_for_blobs_native, 0) * price as fees_for_blobs,
+    price,
+    market_cap,
+    fdmc
 from fundamental_data
+left join price_data on fundamental_data.date = price_data.date

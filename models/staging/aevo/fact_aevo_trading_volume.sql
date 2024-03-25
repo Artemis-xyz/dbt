@@ -9,14 +9,11 @@ with
     aevo_volume as (
         select
             to_date(value:date::string) as date,
-            value:volume::float as trading_volume,
-            value:type::string as type,
+            value:perp::float as trading_volume,
             'aevo' as app,
             'aevo' as chain,
             'DeFi' as category
         from latest_source_json, lateral flatten(input => parse_json(source_json))
-        where type = 'PERPETUAL'
     )
-
 select trading_volume, date, 'aevo' as app, 'aevo' as chain, 'DeFi' as category
 from aevo_volume

@@ -1,32 +1,33 @@
-{{ config(materialized="table", snowflake_warehouse="BAM_TRENDING_WAREHOUSE") }}
+{{ config(materialized="table", snowflake_warehouse="BAM_TRENDING_WAREHOUSE_MD") }}
 
 with
-    opt_contracts as (
+    avax_contracts as (
+
         select address, name, app as namespace, friendly_name, category
         from {{ ref("dim_contracts_gold") }}
-        where chain = 'optimism'
+        where chain = 'avalanche'
     ),
-    prices as ({{ get_coingecko_price_with_latest("ethereum") }}),
+    prices as ({{ get_coingecko_price_for_trending("avalanche-2") }}),
     last_2_day as (
         select
             t.to_address to_address,
             from_address,
             date_trunc('day', block_timestamp) date,
             tx_fee,
-            price,
-            opt_contracts.name,
-            opt_contracts.namespace,
-            opt_contracts.friendly_name,
+            prices.price,
+            avax_contracts.name,
+            avax_contracts.namespace,
+            avax_contracts.friendly_name,
             case
-                when opt_contracts.category is not null
-                then opt_contracts.category
+                when avax_contracts.category is not null
+                then avax_contracts.category
                 when t.input_data = '0x'
                 then 'EOA'
                 else null
             end as category
-        from optimism_flipside.core.fact_transactions as t
-        left join opt_contracts on lower(t.to_address) = lower(opt_contracts.address)
-        left join prices on date = prices.date
+        from avalanche_flipside.core.fact_transactions as t
+        left join avax_contracts on lower(t.to_address) = lower(avax_contracts.address)
+        left join prices on date_trunc('day', block_timestamp) = prices.date
         where
             t.to_address is not null
             and t.block_timestamp >= dateadd(day, -2, current_date)
