@@ -22,7 +22,7 @@ with
                     ref("fact_level_finance_trading_volume_gold"),
                     ref("fact_level_finance_unique_traders_gold"),
                     ref("fact_mux_trading_volume_unique_traders_gold"),
-                    ref("fact_drift_trading_volume_unique_traders_gold"),
+                    ref("fact_drift_trading_volume_gold"),
                     ref("fact_dydx_trading_volume_gold"),
                     ref("fact_dydx_unique_traders_gold"),
                     ref("fact_vertex_unique_traders_gold"),
