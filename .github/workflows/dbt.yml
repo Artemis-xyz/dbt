@@ -8,8 +8,12 @@ env:
   SYSTEM_SNOWFLAKE_USER: ${{ secrets.SYSTEM_SNOWFLAKE_USER }}
   SYSTEM_SNOWFLAKE_PASSWORD: ${{ secrets.SYSTEM_SNOWFLAKE_PASSWORD }}
   SYSTEM_SNOWFLAKE_ROLE: ${{ secrets.SYSTEM_SNOWFLAKE_ROLE }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v2
@@ -29,3 +33,26 @@ jobs:
         run: |
           dbt deps
           dbt compile
+
+  show:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'
+
+      - name: Check out current branch
+        uses: actions/checkout@v3
+
+      - name: Set up dependencies
+        run: |
+          pip install pip==23.1.2
+          pip install pip-tools==6.13.0
+          pip install -r requirements.txt
+
+      - name: Download manifest.json
+        run: |
+          wget https://artemis-xyz.github.io/dbt/manifest.json
+
+      - name: Show
+          dbt show --select state:modified+ --state
