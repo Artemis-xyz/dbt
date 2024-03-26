@@ -55,4 +55,5 @@ jobs:
           wget https://artemis-xyz.github.io/dbt/manifest.json
 
       - name: Show
+        run: |
           dbt show --select state:modified+ --state
