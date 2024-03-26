@@ -10,7 +10,8 @@ snowflake-dagster:
 
       role: "{{ env_var('SYSTEM_SNOWFLAKE_ROLE') }}"
       database: PC_DBT_DB
-      warehouse: SMALL
+      # TODO warehouse needs roles scoped
+      warehouse: ARTEMIS_DBT_PUBLIC_WAREHOUSE
       schema: PROD
       threads: 4
       client_session_keep_alive: False

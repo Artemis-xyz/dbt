@@ -40,4 +40,4 @@ jobs:
 
       - name: Show results of changed models
         run: |
-          dbt show --select state:modified+ --state .
+          source scripts/show_changed.sh
