@@ -40,4 +40,4 @@ jobs:
 
       - name: Show results of changed models
         run: |
-          source scripts/show_changed.sh
+          source dbt_scripts/show_changed.sh
