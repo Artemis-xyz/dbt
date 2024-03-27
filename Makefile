@@ -6,3 +6,6 @@ dbt-compile:
 
 dbt-test:
 	dbt test
+
+dbt-perms:
+	python dbt_scripts/grant_permissions.py
