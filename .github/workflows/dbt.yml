@@ -29,7 +29,7 @@ jobs:
           pip install pip-tools==6.13.0
           pip install -r requirements.txt
 
-      - name: Build
+      - name: Compile
         run: |
           dbt deps
           dbt compile
