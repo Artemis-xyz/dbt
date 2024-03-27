@@ -1,5 +1,5 @@
 models:
-  - name: fact_injective_revenue_silver
+  - name: fact_injective_revenue_native_silver
     tests:
       - "dbt_expectations.expect_table_row_count_to_be_between:":
           min_value: 1
@@ -9,7 +9,7 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_to_exist
-      - name: REVENUE
+      - name: REVENUE_NATIVE
         tests:
           - not_null
           - dbt_expectations.expect_column_to_exist

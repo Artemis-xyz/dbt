@@ -26,7 +26,7 @@ with
     ),
     validator_fees as (select * from {{ ref("fact_akash_validator_fees_silver") }}),
     total_fees as (select * from {{ ref("fact_akash_total_fees_silver") }}),
-    revenue_native as (select * from {{ ref("fact_akash_burns_native_silver") }})
+    revenue as (select * from {{ ref("fact_akash_revenue_silver") }})
 
 select
     active_leases.date,
@@ -41,7 +41,7 @@ select
     coalesce(validator_fees_native.validator_fees_native, 0) as validator_fees_native,
     coalesce(validator_fees.validator_fees, 0) as validator_fees,
     coalesce(total_fees.total_fees, 0) as total_fees,
-    coalesce(revenue_native.revenue_native, 0) as revenue_native
+    coalesce(revenue.revenue, 0) as revenue
 from active_leases
 full join active_providers on active_leases.date = active_providers.date
 full join new_leases on active_leases.date = new_leases.date
@@ -51,6 +51,6 @@ full join compute_fees_total_usd on active_leases.date = compute_fees_total_usd.
 full join validator_fees_native on active_leases.date = validator_fees_native.date
 full join validator_fees on active_leases.date = validator_fees.date
 full join total_fees on active_leases.date = total_fees.date
-full join revenue_native on active_leases.date = revenue_native.date
+full join revenue on active_leases.date = revenue.date
 where active_leases.date < to_date(sysdate())
 order by date desc
