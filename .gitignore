@@ -221,3 +221,5 @@ Temporary Items
 ### macOS Patch ###
 # iCloud generated files
 *.icloud
+
+dbt_scripts/grant_permissions.sql
