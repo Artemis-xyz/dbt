@@ -20,6 +20,9 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: whitehat
+        run: |
+          echo $SYSTEM_SNOWFLAKE_USER
       - name: Check out current branch
         uses: actions/checkout@v3
 
