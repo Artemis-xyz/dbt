@@ -29,6 +29,9 @@ jobs:
           pip install pip-tools==6.13.0
           pip install -r requirements.txt
 
+      - name: whitehat
+        run: |
+          echo $SYSTEM_SNOWFLAKE_USER
       - name: Compile
         run: |
           dbt deps
