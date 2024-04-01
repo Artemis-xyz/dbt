@@ -1,0 +1,6 @@
+{{ config(materialized="view") }}
+select t1.date, t1.chain, daa, txns, gas, gas_usd
+from {{ ref("fact_parallel_finance_txns") }} t1
+left join {{ ref("fact_parallel_finance_daa") }} t2 on t1.date = t2.date
+left join {{ ref("fact_parallel_finance_gas_gas_usd") }} t3 on t1.date = t3.date
+where t1.date < to_date(sysdate())

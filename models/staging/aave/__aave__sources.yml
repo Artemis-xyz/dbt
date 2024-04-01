@@ -1,0 +1,17 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_aave_v2_ethereum_borrows_deposits_revenue
+      - name: raw_aave_v2_polygon_borrows_deposits_revenue
+      - name: raw_aave_v2_avalanche_borrows_deposits_revenue
+      - name: raw_aave_v3_ethereum_borrows_deposits_revenue
+      - name: raw_aave_v3_optimism_borrows_deposits_revenue
+      - name: raw_aave_v3_arbitrum_borrows_deposits_revenue
+      - name: raw_aave_v3_polygon_borrows_deposits_revenue
+      - name: raw_aave_v3_fantom_borrows_deposits_revenue
+      - name: raw_aave_v3_avalanche_borrows_deposits_revenue
+      - name: raw_aave_v3_harmony_borrows_deposits_revenue
+      - name: raw_aave_v3_metis_borrows_deposits_revenue
+      - name: raw_aave_v3_base_borrows_deposits_revenue

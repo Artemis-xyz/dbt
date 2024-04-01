@@ -1,0 +1,7 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_swapsicle_mantle_trading_volume_tvl_fees
+      - name: raw_swapsicle_telos_trading_volume_tvl_fees

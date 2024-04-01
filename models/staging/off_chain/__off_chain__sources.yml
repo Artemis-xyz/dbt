@@ -1,0 +1,11 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING  
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_gold_price
+      - name: raw_nasdaq_price
+      - name: raw_spy_price
+  - name: SDO_DEV_LANDING
+    schema: SDO_DEV_LANDING  
+    database: LANDING_DATABASE

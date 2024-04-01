@@ -1,0 +1,20 @@
+select
+    namespace,
+    friendly_name,
+    sub_category,
+    category,
+    coingecko_id,
+    ecosystem_id,
+    artemis_id,
+    defillama_protocol_id,
+    parent_app as parent_namespace,
+    visibility,
+    symbol,
+    update_artemis_id as updated_artemis_id,
+    update_category as updated_category,
+    update_sub_category as updated_sub_category,
+    update_coingecko_id as updated_coingecko_id,
+    update_friendly_name as updated_friendly_name,
+    update_parent_namespace as updated_parent_namespace,
+    update_symbol as update_symbol
+from {{ source("SIGMA", "sigma_tagged_apps") }}

@@ -1,0 +1,11 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_dydx_trading_volume
+      - name: raw_dydx_unique_traders
+      - name: raw_dydx_v4_trading_volume
+      - name: raw_dydx_v4_txn_and_trading_fees
+      - name: raw_dydx_v4_unique_traders
+      - name: raw_dydx_v4_fees

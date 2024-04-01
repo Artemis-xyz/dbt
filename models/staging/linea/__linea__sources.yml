@@ -1,0 +1,8 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_linea_receipts_parquet
+      - name: raw_linea_traces_parquet
+      - name: raw_linea_transactions_parquet
