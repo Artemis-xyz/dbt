@@ -1,0 +1,6 @@
+sources:
+  - name: BALANCES
+    schema: PROD
+    database: PC_DBT_DB
+    tables:
+      - name: dim_arbitrum_current_balances

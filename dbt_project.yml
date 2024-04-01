@@ -34,9 +34,6 @@ models:
     metrics:
       contracts:
         +snowflake_warehouse: "DAILY_L1"
-    staging:
-      address_balances:
-        +snowflake_warehouse: "BALANCES_MD"
       defillama:
         +snowflake_warehouse: "DAILY_DEFILLAMA"
     bam_models:

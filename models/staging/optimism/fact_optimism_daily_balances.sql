@@ -1,5 +1,11 @@
 -- depends_on: {{ ref("fact_optimism_address_balances_by_token") }}
-{{ config(materialized="incremental", unique_key=["date", "address"]) }}
+{{
+    config(
+        materialized="incremental",
+        unique_key=["date", "address"],
+        snowflake_warehouse="BALANCES_MD",
+    )
+}}
 
 {{
     daily_address_balances(
