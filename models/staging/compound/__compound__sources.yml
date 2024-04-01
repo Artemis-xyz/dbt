@@ -1,0 +1,10 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_compound_v2_lending_ethereum
+      - name: raw_compound_v3_lending_ethereum
+      - name: raw_compound_v3_lending_base
+      - name: raw_compound_v3_lending_polygon
+      - name: raw_compound_v3_lending_arbitrum

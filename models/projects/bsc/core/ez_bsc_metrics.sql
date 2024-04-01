@@ -15,7 +15,8 @@ with
     defillama_data as ({{ get_defillama_metrics("bsc") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("bsc") }}),
     github_data as ({{ get_github_metrics("Binance Smart Chain") }}),
-    contract_data as ({{ get_contract_metrics("bsc") }})
+    contract_data as ({{ get_contract_metrics("bsc") }}),
+    nft_metrics as ({{ get_nft_metrics("bsc") }})
 select
     fundamental_data.date,
     fundamental_data.chain,
@@ -45,11 +46,13 @@ select
     stablecoin_total_supply,
     stablecoin_txns,
     stablecoin_dau,
-    stablecoin_transfer_volume
+    stablecoin_transfer_volume,
+    nft_trading_volume
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join github_data on fundamental_data.date = github_data.date
 left join contract_data on fundamental_data.date = contract_data.date
+left join nft_metrics on fundamental_data.date = nft_metrics.date
 where fundamental_data.date < to_date(sysdate())

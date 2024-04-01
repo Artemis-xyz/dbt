@@ -21,7 +21,8 @@ with
     issuance_data as (
         select date, validator_rewards as issuance
         from {{ ref("fact_avalanche_validator_rewards_silver") }}
-    )
+    ),
+    nft_metrics as ({{ get_nft_metrics("avalanche") }})
 
 select
     coalesce(fundamental_data.date, staking_data.date) as date,
@@ -55,7 +56,8 @@ select
     stablecoin_transfer_volume,
     total_staked_native,
     total_staked_usd,
-    issuance
+    issuance,
+    nft_trading_volume
 from staking_data
 left join fundamental_data on staking_data.date = fundamental_data.date
 left join price_data on staking_data.date = price_data.date
@@ -64,4 +66,5 @@ left join stablecoin_data on staking_data.date = stablecoin_data.date
 left join github_data on staking_data.date = github_data.date
 left join contract_data on staking_data.date = contract_data.date
 left join issuance_data on staking_data.date = issuance_data.date
+left join nft_metrics on staking_data.date = nft_metrics.date
 where coalesce(fundamental_data.date, staking_data.date) < to_date(sysdate())

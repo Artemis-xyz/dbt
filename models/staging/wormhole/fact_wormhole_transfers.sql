@@ -54,7 +54,11 @@ with
             symbol
         from flattened_json t1
         left join recent_data t2 using (id)
-        where t1.extraction_date = t2.extraction_date and token_address != ''
+        where
+            t1.extraction_date = t2.extraction_date
+            and token_address != ''
+            and lower(token_address)
+            != lower('0xcc8fa225d80b9c7d42f96e9570156c65d6caaa25')
     )
 
 select

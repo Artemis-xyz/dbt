@@ -38,7 +38,6 @@ select
     fundamental_data.date,
     fundamental_data.chain,
     txns,
-    txns as test,
     dau,
     fees,
     revenue,
