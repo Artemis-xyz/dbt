@@ -1,8 +1,0 @@
-sources:
-  - name: PROD_LANDING
-    schema: PROD_LANDING
-    database: LANDING_DATABASE
-    tables:
-      - name: raw_stride_daa
-      - name: raw_stride_gas
-      - name: raw_stride_txns

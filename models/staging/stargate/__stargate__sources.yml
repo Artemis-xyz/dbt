@@ -1,9 +1,0 @@
-sources:
-  - name: PROD_LANDING
-    schema: PROD_LANDING  
-    database: LANDING_DATABASE
-    tables: 
-    - name: raw_stargate_bridge_volume
-  - name: SDO_DEV_LANDING
-    schema: SDO_DEV_LANDING  
-    database: LANDING_DATABASE

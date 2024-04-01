@@ -1,9 +1,0 @@
-sources:
-  - name: PROD_LANDING
-    schema: PROD_LANDING
-    database: LANDING_DATABASE
-    tables:
-      - name: raw_fantom_contracts
-      - name: raw_fantom_daa
-      - name: raw_fantom_txns
-      - name: raw_fantom_gas

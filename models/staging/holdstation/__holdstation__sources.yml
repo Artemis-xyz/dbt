@@ -1,7 +1,0 @@
-sources:
-  - name: PROD_LANDING
-    schema: PROD_LANDING
-    database: LANDING_DATABASE
-    tables:
-      - name: raw_holdstation_trading_volume
-      - name: raw_holdstation_unique_traders

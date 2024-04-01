@@ -1,5 +1,0 @@
-models:
-- name: dim_contracts_silver
-  tests:
-    - dbt_expectations.expect_compound_columns_to_be_unique:
-        column_list: ["address", "chain"]

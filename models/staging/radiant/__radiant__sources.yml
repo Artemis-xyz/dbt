@@ -1,8 +1,0 @@
-sources:
-  - name: PROD_LANDING
-    schema: PROD_LANDING
-    database: LANDING_DATABASE
-    tables:
-      - name: raw_radiant_v2_bsc_borrows_deposits
-      - name: raw_radiant_v2_ethereum_borrows_deposits
-      - name: raw_radiant_v2_arbitrum_borrows_deposits

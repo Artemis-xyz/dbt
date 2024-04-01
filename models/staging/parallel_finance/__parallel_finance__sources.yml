@@ -1,8 +1,0 @@
-sources:
-  - name: PROD_LANDING
-    schema: PROD_LANDING
-    database: LANDING_DATABASE
-    tables:
-      - name: raw_parallel_finance_gas
-      - name: raw_parallel_finance_txns
-      - name: raw_parallel_finance_daa
