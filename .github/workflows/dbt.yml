@@ -23,6 +23,7 @@ jobs:
       - name: whitehat
         run: |
           echo $SYSTEM_SNOWFLAKE_USER
+
       - name: Check out current branch
         uses: actions/checkout@v3
 
