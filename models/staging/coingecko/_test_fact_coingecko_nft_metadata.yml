@@ -1,0 +1,8 @@
+models:
+- name: fact_coingecko_nft_metadata
+  columns:
+  - name: coingecko_nft_id
+    tests:
+      - not_null
+      - dbt_expectations.expect_column_to_exist
+      - unique

@@ -1,0 +1,141 @@
+-- init supply 360M AVAX tokens for validators
+-- https://cryptorank.io/price/avalanche/vesting
+select
+    to_date(date) as date, unlock_amount_native, allocation_type, 'avalanche' as chain
+from
+    (
+        values
+            -- Public Sale (2020-09-20) 59,760,000 16.7% TGE then 16.7% for 5 quarters
+            ('2020-09-20', 9979920, 'public_sale'),
+            ('2020-12-20', 9979920, 'public_sale'),
+            ('2021-03-20', 9979920, 'public_sale'),
+            ('2021-06-20', 9979920, 'public_sale'),
+            ('2021-09-20', 9979920, 'public_sale'),
+            ('2021-12-20', 9979920, 'public_sale'),
+            -- Community and Development Endowment (2020-09-20) 50,400,000 25% TGE
+            -- then 25% for 3 quarters
+            ('2020-09-20', 12600000, 'community_and_developement_endowment'),
+            ('2020-12-20', 12600000, 'community_and_developement_endowment'),
+            ('2021-03-20', 12600000, 'community_and_developement_endowment'),
+            ('2021-06-20', 12600000, 'community_and_developement_endowment'),
+            -- Private Sale (2020-09-20) 24,912,000 25% TGE then 25% for 3 quarters
+            ('2020-09-20', 6228000, 'private_sale'),
+            ('2020-12-20', 6228000, 'private_sale'),
+            ('2021-03-20', 6228000, 'private_sale'),
+            ('2021-06-20', 6228000, 'private_sale'),
+            -- Seed Round (2020-09-20) 18,000,000 25% TGE then 25% for 3 quarters
+            ('2020-09-20', 4500000, 'seed_round'),
+            ('2020-12-20', 4500000, 'seed_round'),
+            ('2021-03-20', 4500000, 'seed_round'),
+            ('2021-06-20', 4500000, 'seed_round'),
+            -- Public Sale Option A1 (2020-09-20) 7,200,000 25% TGE then 25% for 3
+            -- quarters
+            ('2020-09-20', 1800000, 'public_sale_option_a1'),
+            ('2020-12-20', 1800000, 'public_sale_option_a1'),
+            ('2021-03-20', 1800000, 'public_sale_option_a1'),
+            ('2021-06-20', 1800000, 'public_sale_option_a1'),
+            -- Public Sale Option B (2020-09-20) 4,824,000 100% TGE
+            ('2020-09-20', 4824000, 'public_sale_option_b'),
+            -- Testnet Incentive Program (2020-09-20) 2,232,000 25% TGE then 25% for 3
+            -- quarters
+            ('2020-09-20', 558000, 'testnet_incentive_program'),
+            ('2020-12-20', 558000, 'testnet_incentive_program'),
+            ('2021-03-20', 558000, 'testnet_incentive_program'),
+            ('2021-06-20', 558000, 'testnet_incentive_program'),
+            -- Team (2020-09-20) 72,000,000 6.25% TGE then 6.25% for 15 quarters 3
+            -- month cliff
+            ('2020-12-20', 4500000, 'team'),
+            ('2021-03-20', 4500000, 'team'),
+            ('2021-06-20', 4500000, 'team'),
+            ('2021-09-20', 4500000, 'team'),
+            ('2021-12-20', 4500000, 'team'),
+            ('2022-3-20', 4500000, 'team'),
+            ('2022-6-20', 4500000, 'team'),
+            ('2022-9-20', 4500000, 'team'),
+            ('2022-12-20', 4500000, 'team'),
+            ('2023-3-20', 4500000, 'team'),
+            ('2023-6-20', 4500000, 'team'),
+            ('2023-9-20', 4500000, 'team'),
+            ('2023-12-20', 4500000, 'team'),
+            ('2024-3-20', 4500000, 'team'),
+            ('2024-6-20', 4500000, 'team'),
+            ('2024-9-20', 4500000, 'team'),
+            -- Team (2020-09-20) 66,670,000 9.26% TGE then 2.5% for 39 quarters 3
+            -- month cliff
+            ('2020-12-20', 1666800, 'foundation'),
+            ('2021-03-20', 1666800, 'foundation'),
+            ('2021-06-20', 1666800, 'foundation'),
+            ('2021-09-20', 1666800, 'foundation'),
+            ('2021-12-20', 1666800, 'foundation'),
+            ('2022-3-20', 1666800, 'foundation'),
+            ('2022-6-20', 1666800, 'foundation'),
+            ('2022-9-20', 1666800, 'foundation'),
+            ('2022-12-20', 1666800, 'foundation'),
+            ('2023-3-20', 1666800, 'foundation'),
+            ('2023-6-20', 1666800, 'foundation'),
+            ('2023-9-20', 1666800, 'foundation'),
+            ('2023-12-20', 1666800, 'foundation'),
+            ('2024-3-20', 1666800, 'foundation'),
+            ('2024-6-20', 1666800, 'foundation'),
+            ('2024-9-20', 1666800, 'foundation'),
+            ('2024-12-20', 1666800, 'foundation'),
+            ('2025-3-20', 1666800, 'foundation'),
+            ('2025-6-20', 1666800, 'foundation'),
+            ('2025-9-20', 1666800, 'foundation'),
+            ('2025-12-20', 1666800, 'foundation'),
+            ('2026-3-20', 1666800, 'foundation'),
+            ('2026-6-20', 1666800, 'foundation'),
+            ('2026-9-20', 1666800, 'foundation'),
+            ('2026-12-20', 1666800, 'foundation'),
+            ('2027-3-20', 1666800, 'foundation'),
+            ('2027-6-20', 1666800, 'foundation'),
+            ('2027-9-20', 1666800, 'foundation'),
+            ('2027-12-20', 1666800, 'foundation'),
+            ('2028-3-20', 1666800, 'foundation'),
+            ('2028-6-20', 1666800, 'foundation'),
+            ('2028-9-20', 1666800, 'foundation'),
+            ('2028-12-20', 1666800, 'foundation'),
+            ('2029-3-20', 1666800, 'foundation'),
+            ('2029-6-20', 1666800, 'foundation'),
+            ('2029-9-20', 1666800, 'foundation'),
+            ('2029-12-20', 1666800, 'foundation'),
+            ('2030-3-20', 1666800, 'foundation'),
+            ('2030-6-20', 1666800, 'foundation'),
+            ('2030-9-20', 1666800, 'foundation'),
+            -- strategic partners (2020-09-20) 36,000,000 5.00% TGE then 6.25% for 15
+            -- quarters 3 month cliff
+            ('2020-12-20', 2250000, 'strategic_partners'),
+            ('2021-03-20', 2250000, 'strategic_partners'),
+            ('2021-06-20', 2250000, 'strategic_partners'),
+            ('2021-09-20', 2250000, 'strategic_partners'),
+            ('2021-12-20', 2250000, 'strategic_partners'),
+            ('2022-3-20', 2250000, 'strategic_partners'),
+            ('2022-6-20', 2250000, 'strategic_partners'),
+            ('2022-9-20', 2250000, 'strategic_partners'),
+            ('2022-12-20', 2250000, 'strategic_partners'),
+            ('2023-3-20', 2250000, 'strategic_partners'),
+            ('2023-6-20', 2250000, 'strategic_partners'),
+            ('2023-9-20', 2250000, 'strategic_partners'),
+            ('2023-12-20', 2250000, 'strategic_partners'),
+            ('2024-3-20', 2250000, 'strategic_partners'),
+            ('2024-6-20', 2250000, 'strategic_partners'),
+            ('2024-9-20', 2250000, 'strategic_partners'),
+            -- Airdrop (2020-09-20) 18,000,000 5.00% TGE then 6.25% for 15 quarters 3
+            -- month cliff
+            ('2020-12-20', 1125000, 'airdrop'),
+            ('2021-03-20', 1125000, 'airdrop'),
+            ('2021-06-20', 1125000, 'airdrop'),
+            ('2021-09-20', 1125000, 'airdrop'),
+            ('2021-12-20', 1125000, 'airdrop'),
+            ('2022-3-20', 1125000, 'airdrop'),
+            ('2022-6-20', 1125000, 'airdrop'),
+            ('2022-9-20', 1125000, 'airdrop'),
+            ('2022-12-20', 1125000, 'airdrop'),
+            ('2023-3-20', 1125000, 'airdrop'),
+            ('2023-6-20', 1125000, 'airdrop'),
+            ('2023-9-20', 1125000, 'airdrop'),
+            ('2023-12-20', 1125000, 'airdrop'),
+            ('2024-3-20', 1125000, 'airdrop'),
+            ('2024-6-20', 1125000, 'airdrop'),
+            ('2024-9-20', 1125000, 'airdrop')
+    ) as t(date, unlock_amount_native, allocation_type)

@@ -1,0 +1,12 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_akash_active_providers
+      - name: raw_akash_active_leases
+      - name: raw_akash_new_leases
+      - name: raw_akash_compute_fees_native
+      - name: raw_akash_compute_fees_usdc
+      - name: raw_akash_compute_fees_total_usd
+      - name: raw_akash_validator_fees

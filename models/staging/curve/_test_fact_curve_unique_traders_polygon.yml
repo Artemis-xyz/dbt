@@ -1,0 +1,31 @@
+models:
+  - name: fact_curve_unique_traders_polygon
+    tests:
+      - "dbt_expectations.expect_table_row_count_to_be_between:":
+          min_value: 1
+          max_value: 1000000
+    columns:
+      - name: DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+              severity: warn
+      - name: CHAIN
+        tests:
+          - dbt_expectations.expect_column_to_exist
+      - name: unique_traders
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist
+          - dbt_expectations.expect_column_values_to_be_within_n_moving_stdevs:
+              date_column_name: DATE
+              period: day
+              lookback_periods: 1
+              trend_periods: 14
+              test_periods: 28
+              sigma_threshold: 3
+              take_logs: true
+              severity: warn
