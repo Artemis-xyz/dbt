@@ -19,6 +19,7 @@ with
     issuance_data as (
         select date, chain, issuance from {{ ref("fact_solana_issuance_silver") }}
     ),
+    nft_metrics as ({{ get_nft_metrics("solana") }}),
     {% if not is_incremental() %}
         unrefreshed_data as (
             select
@@ -164,7 +165,8 @@ select
     stablecoin_transfer_volume,
     total_staked_native,
     total_staked_usd,
-    issuance
+    issuance,
+    nft_trading_volume
 from fundamental_usage
 left join defillama_data on fundamental_usage.date = defillama_data.date
 left join stablecoin_data on fundamental_usage.date = stablecoin_data.date
@@ -174,4 +176,5 @@ left join github_data on fundamental_usage.date = github_data.date
 left join contract_data on fundamental_usage.date = contract_data.date
 left join staking_data on fundamental_usage.date = staking_data.date
 left join issuance_data on fundamental_usage.date = issuance_data.date
+left join nft_metrics on fundamental_usage.date = nft_metrics.date
 where fundamental_usage.date < to_date(sysdate())

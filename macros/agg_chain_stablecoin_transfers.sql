@@ -7,6 +7,7 @@
     -- TRON Special case - comes from Allium
     {% if chain in ("tron") %}
         select
+            block_timestamp,
             trunc(block_timestamp, 'day') as date,
             from_address,
             to_address,
@@ -36,6 +37,7 @@
     -- b/c of perf issues when joining
     {% elif chain in ("solana") %}
         select
+            block_timestamp,
             trunc(block_timestamp, 'day') as date,
             tx_from as from_address,
             tx_to as to_address,
@@ -73,6 +75,7 @@
             in (select distinct contract_address from fact_solana_stablecoin_contracts)
     {% else %}
         select
+            block_timestamp,
             trunc(block_timestamp, 'day') as date,
             -- Notably, we do NOT use the Mint / Burn events here because the
             -- basic IERC20 interface does not require them to be implemented

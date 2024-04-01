@@ -1,0 +1,7 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_sonne_optimism_borrows_deposits
+      - name: raw_sonne_base_borrows_deposits

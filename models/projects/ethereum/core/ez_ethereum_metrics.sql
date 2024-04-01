@@ -27,7 +27,8 @@ with
     validator_queue_data as (
         select date, queue_entry_amount, queue_exit_amount, queue_active_amount
         from {{ ref("fact_ethereum_beacon_chain_queue_entry_active_exit_silver") }}
-    )
+    ),
+    nft_metrics as ({{ get_nft_metrics("ethereum") }})
 
 select
     fundamental_data.date,
@@ -74,7 +75,8 @@ select
     total_staked_usd,
     queue_entry_amount,
     queue_exit_amount,
-    queue_active_amount
+    queue_active_amount,
+    nft_trading_volume
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -85,4 +87,5 @@ left join revenue_data on fundamental_data.date = revenue_data.date
 left join validator_queue_data on fundamental_data.date = validator_queue_data.date
 left join github_data on fundamental_data.date = github_data.date
 left join contract_data on fundamental_data.date = contract_data.date
+left join nft_metrics on fundamental_data.date = nft_metrics.date
 where fundamental_data.date < to_date(sysdate())
