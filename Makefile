@@ -1,6 +1,8 @@
 install:
 	pip3 install -r requirements.txt && dbt deps
 
+# As of 4/2/2024, compile and test will be run via Github cloud agent. 
+# Running locally without creds is not possible in Snowflake, but we are actively working on a solution.
 dbt-compile:
 	dbt compile
 
