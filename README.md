@@ -3,6 +3,7 @@
 
 ![githubWorkflowBadge]
 ![discordBadge]
+![twitterBadge]
 
 Welcome to the Artemis DBT repository!
 
@@ -31,3 +32,5 @@ test
 
 [discordBadge]: https://img.shields.io/discord/1042835101056258098?label=discord&logo=discord&logoColor=white
 [githubWorkflowBadge]: https://github.com/Artemis-xyz/dbt/actions/workflows/dbt.yml/badge.svg
+[twitterBadge]: https://img.shields.io/twitter/follow/artemis__xyz
+
