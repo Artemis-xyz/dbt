@@ -19,24 +19,24 @@
             {% if is_incremental() %}
                 where block_number >= (select max(block_number - 10) from {{ this }})
             {% endif %}
-        )
+        ),
 
         {% set block_columns = namespace(items=[]) %}
         {% for json_name, type_conversion, column_name in block_column_map %}
             {% do block_columns.items.append(column_name) %}
         {% endfor %}
-    raw_blocks as (
-        select
-            block_number,
-            network,
-            {% for column_name in block_columns.items %} {{ column_name }}, {% endfor %}
-            receipts,
-        from block_data
-        {% if is_incremental() %}
-            where block_number >= (select max(block_number - 10) from {{ this }})
-        {% endif %}
-        order by {{ block_number_column_name }}
-    )
+        raw_blocks as (
+            select
+                block_number,
+                network,
+                {% for column_name in block_columns.items %} {{ column_name }}, {% endfor %}
+                receipts,
+            from block_data
+            {% if is_incremental() %}
+                where block_number >= (select max(block_number - 10) from {{ this }})
+            {% endif %}
+            order by {{ block_number_column_name }}
+        )
     select *
     from raw_blocks
     qualify row_number() over (partition by block_hash order by block_timestamp desc) = 1
