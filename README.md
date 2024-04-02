@@ -6,10 +6,14 @@
 
 Welcome to the Artemis DBT repository!
 
-## What is this?
+## Table of Contents
+- [What is this?](#what-is-this)
+- [Who is this for?](#who-is-this-for)
+
+## What is this
 This is the home of all of the data-munging business logic that ultimately powers a variety of the data in the Artemis application suite, including the [Terminal](https://app.artemis.xyz/), [Sheets](https://www.artemis.xyz/sheets), and [Snowflake](https://www.artemis.xyz/datashare) integration. 
 
-## Who is this for? 
+## Who is this for
 If you're in this repository, you're likely one of the following:
 - a **researcher** who is trying to better understand methodology
 - a **protocol** that would like to self-list on Artemis
