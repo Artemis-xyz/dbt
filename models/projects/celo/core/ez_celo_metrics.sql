@@ -12,7 +12,7 @@ with
     fundamental_data as (
         select
             date, chain, gas_usd as fees, revenue, txns, dau, avg_txn_fee
-        from {{ ref("fact_celo_dau_gas_usd_revenue_txns_avg_txns_fee") }}
+        from {{ ref("fact_celo_dau_txns_gas_usd_revenue_avg_txn_fee") }}
     ),
     price_data as ({{ get_coingecko_metrics("celo") }}),
     defillama_data as ({{ get_defillama_metrics("celo") }}),
