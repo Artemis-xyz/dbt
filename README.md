@@ -32,5 +32,5 @@ test
 
 [discordBadge]: https://img.shields.io/discord/1042835101056258098?label=discord&logo=discord&logoColor=white
 [githubWorkflowBadge]: https://github.com/Artemis-xyz/dbt/actions/workflows/dbt.yml/badge.svg
-[twitterBadge]: https://img.shields.io/twitter/follow/artemis__xyz
+[twitterBadge]: https://img.shields.io/twitter/follow/artemis__xyz?link=https%3A%2F%2Ftwitter.com%2Fartemis__xyz
 
