@@ -13,6 +13,10 @@ Welcome to the Artemis DBT repository!
   - [Who is this for?](#who-is-this-for)
   - [wtf is DBT?](#wtf-is-dbt)
   - [How do I get help?](#how-do-i-get-help)
+- [Envionment Setup](#environment-setup)
+- [System Design](#system-design)
+- [Adding a new asset](#adding-a-new-asset)
+- [Adding a new metric](#adding-a-new-metric)
 
 ## Introduction
 ### What is this?
@@ -29,6 +33,16 @@ test
 
 ### How do I get help?
 test
+
+
+## Environment Setup
+
+## System Design
+
+## Adding a new asset
+
+## Adding a new metric
+
 
 [discordBadge]: https://img.shields.io/discord/1042835101056258098?label=discord&logo=discord&logoColor=white
 [githubWorkflowBadge]: https://github.com/Artemis-xyz/dbt/actions/workflows/dbt.yml/badge.svg
