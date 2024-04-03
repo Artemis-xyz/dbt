@@ -50,7 +50,10 @@ There are two ways to get help:
 3) Open a PR and view results of your changes directly in the Github Actions - more on this in [adding a new metric](#adding-a-new-metric).
 
 ## System Design
-![High Level System Design (1)](https://github.com/Artemis-xyz/dbt/assets/12548832/fde1de04-8697-4703-b64b-1a500d3e37b7)
+<img width="1160" alt="Untitled (1) (1)" src="https://github.com/Artemis-xyz/dbt/assets/12548832/8178373b-ca67-4243-bfbb-73bbe475ff14">
+
+
+
 
 
 ## Adding a new asset
