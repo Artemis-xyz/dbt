@@ -59,7 +59,7 @@ select
     gas_usd.gas_usd,
     coalesce(burned.revenue_native, 0) as revenue_native,
     coalesce(revenue_native * price, 0) as revenue,
-    coalesce(gas_usd.gas_usd / txns, 0) as avg_txn_fee
+    coalesce(gas_usd.gas_usd / txns, 0) as avg_txn_fee,
     'celo' as chain
 from dau_txns
 join gas_usd on dau_txns.date = gas_usd.date
