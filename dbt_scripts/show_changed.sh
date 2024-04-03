@@ -7,5 +7,3 @@ echo "$changed_models" | while IFS= read -r model; do
     echo "SHOWING $model"
     dbt show --select "$model" --limit 10 || true
 done
-
-exit 0

@@ -1,4 +1,4 @@
-name: dbt
+name: Show Changed Models
 on:
   push:
     branches: main
@@ -29,15 +29,11 @@ jobs:
           pip install pip-tools==6.13.0
           pip install -r requirements.txt
 
-      - name: Compile
-        run: |
-          dbt deps
-          dbt compile
-
       - name: Download manifest.json
         run: |
           wget https://artemis-xyz.github.io/dbt/manifest.json
 
       - name: Show results of changed models
         run: |
+          dbt deps
           source dbt_scripts/show_changed.sh
