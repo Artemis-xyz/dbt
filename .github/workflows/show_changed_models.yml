@@ -35,4 +35,5 @@ jobs:
 
       - name: Show results of changed models
         run: |
+          dbt deps
           source dbt_scripts/show_changed.sh
