@@ -45,8 +45,13 @@ There are two ways to get help:
 2) Raise an issue on this Github.
 
 ## Environment Setup
+1) Fork this repository (button towards the top right) 
+2) Write SQL model changes
+3) Open a PR and view results of your changes directly in the Github Actions - more on this in [adding a new metric](#adding-a-new-metric).
 
 ## System Design
+![High Level System Design (1)](https://github.com/Artemis-xyz/dbt/assets/12548832/fde1de04-8697-4703-b64b-1a500d3e37b7)
+
 
 ## Adding a new asset
 
