@@ -55,8 +55,10 @@ There are two ways to get help:
 ### Using Flipside's Warehouse
 
 ### Using QuickNode's RPCs
+Out of scope for right now. Will be added on future iterations.
 
 ### Using Goldsky-ingested Raw Data 
+Out of scope for right now. Will be added on future iterations.
 
 
 [discordBadge]: https://img.shields.io/discord/1042835101056258098?label=discord&logo=discord&logoColor=white
