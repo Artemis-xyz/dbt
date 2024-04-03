@@ -29,11 +29,20 @@ If you're in this repository, you're likely one of the following:
 - a **data analyst** that would like to add new protocol or metric (and possibly be compensated for their contributions via a bounty)
 
 ### wtf is DBT?
-test
+DBT stands for data-build-tool and is an approach to building SQL models in a collaborative and iterative environment. It allows you to "modularize and centralize your analytics code" while mostly being vanilla SQL with some minor syntatic magic on top. This repository uses the **Snowflake SQL** syntax on top of DBT.
+
+We use DBT to transform raw blockchain data (transactions, traces, and decoded event logs) into high-fidelity metrics for our users. 
+![image](https://github.com/Artemis-xyz/dbt/assets/12548832/a10bde59-46db-4e92-a230-825020e3ebe3)
+
+
+For most SQL wizards, reading DBT models comes intutitvely, but below are some revelant resources to learn more:
+- [What is DBT?](https://docs.getdbt.com/docs/introduction)
+- [A Beginner's Guide to DBT](https://pttljessy.medium.com/a-beginners-guide-to-dbt-data-build-tool-part-1-introduction-9a147ada1eb9)
 
 ### How do I get help?
-test
-
+There are two ways to get help:
+1) Pop into our [Discord](https://discord.com/invite/wMEA9k6n6T) and ask us anything in the Methodology channel (fastest)
+2) Raise an issue on this Github.
 
 ## Environment Setup
 
@@ -42,6 +51,14 @@ test
 ## Adding a new asset
 
 ## Adding a new metric
+
+### Using Flipside's Warehouse
+
+### Using QuickNode's RPCs
+Out of scope for right now. Will be added on future iterations.
+
+### Using Goldsky-ingested Raw Data 
+Out of scope for right now. Will be added on future iterations.
 
 
 [discordBadge]: https://img.shields.io/discord/1042835101056258098?label=discord&logo=discord&logoColor=white
