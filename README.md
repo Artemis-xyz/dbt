@@ -57,8 +57,19 @@ In terms of system design, Artemis manages a data pipeline that pipes raw data f
 Fact tables are then combined into `ez_asset_metrics` tables that are piped into the downstream applications. We use the [STAR schema model](https://en.wikipedia.org/wiki/Star_schema) to label our tables. 
 
 ## Adding a new asset
+**BEFORE** adding metrics for a protocol, you must create the asset first. 
+
+For example, let's say a user wants to add GEODNET fees to our [DePin dashboard.](https://app.artemis.xyz/sectors?tab=dePin). They must first add the [GEODNET](https://geodnet.com/) asset first by completing the following steps:
+- [ ] Fork this repository
+- [ ] Add GEODNET to the `assets.csv` file
+- [ ] Request and merge a PR with this change
+
+The Artemis team will then create the necessary permissions and warehouses in order for GEODNET to show up in the Terminal. 
+
+Example PR: LINK HERE
 
 ## Adding a new metric
+Once the asset exists, there are several ways to pull metrics for the protocol in question. Taking the GEODNET fees example, we will breakdown how to add this protocol's metrics by provider below. 
 
 ### Using Flipside's Warehouse
 
