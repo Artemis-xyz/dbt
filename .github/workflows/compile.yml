@@ -2,7 +2,7 @@ name: Compile
 on:
   push:
     branches: main
-  pull_request:
+  pull_request_target:
     branches: main
 env:
   SYSTEM_SNOWFLAKE_USER: ${{ secrets.SYSTEM_SNOWFLAKE_USER }}
