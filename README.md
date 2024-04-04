@@ -50,11 +50,11 @@ There are two ways to get help:
 3) Open a PR and view results of your changes directly in the Github Actions - more on this in [adding a new metric](#adding-a-new-metric).
 
 ## System Design
+In terms of system design, Artemis manages a data pipeline that pipes raw data from a series of vendors, including [Flipside](https://flipsidecrypto.xyz/), [Goldsky](https://goldsky.com/), and [QuickNode](https://www.quicknode.com/chains) into our Snowflake data warehouse. This repository contains the business logic for turning raw data into `fact` tables that describe an individual protocol or collection of protocols. 
+
 <img width="1160" alt="Untitled (1) (1)" src="https://github.com/Artemis-xyz/dbt/assets/12548832/8178373b-ca67-4243-bfbb-73bbe475ff14">
 
-
-
-
+Fact tables are then combined into `ez_asset_metrics` tables that are piped into the downstream applications. We use the [STAR schema model](https://en.wikipedia.org/wiki/Star_schema) to label our tables. 
 
 ## Adding a new asset
 
