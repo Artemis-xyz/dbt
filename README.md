@@ -78,11 +78,12 @@ To calculate fees, we can write a query directly in Flipside's studio to count t
 
 Productionizing this into the Artemis DBT schemas, fact tables are expected to have the following columns:
 - `date` [DATETIME]
-- `fees` [NUMBER]
+- `fees` [NUMBER] - this field name will change based on the metric you are pulling 
 - `chain` [STRING]
 - `protocol` [STRING]
 
 In this example, the chain that GEODNET publishes fees on is `polygon` and the protocol is `geodnet` - both of these fields should match the asset names in the `assets.csv` file. 
+
 Given our Flipside query is already in this format, we can mostly copy and paste this directly into a fact table in the correct directory for GEODNET: `models/projects/geodnet/core/fact_geodnet_fees_revenue_usd.sql`
 
 ### Using QuickNode's RPCs
