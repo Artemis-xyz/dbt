@@ -1,8 +1,10 @@
-## :pushpin: References
+## :pushpin: INSERT TITLE HERE
 
-- **Linear Task URL:**
-- **Related pull-requests:**
+## 🎄  Asset Checklist
+- [ ] Added to `assets.csv` or already exists
 
-## :blue_book: Description
-
-## :movie_camera: Screenshot or Video
+## 🧮  Metric Checklist
+- [ ] Added new `fact` tables if necessary
+- [ ] Pulled fact table into `ez_asset_metrics.sql` table
+- [ ] `Compiles` in Github
+- [ ] `Show Changed Models` in Github matches expectations for what metric value should be
