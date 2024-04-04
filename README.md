@@ -84,7 +84,20 @@ Productionizing this into the Artemis DBT schemas, fact tables are expected to h
 
 In this example, the chain that GEODNET publishes fees on is `polygon` and the protocol is `geodnet` - both of these fields should match the asset names in the `assets.csv` file. 
 
-Given our Flipside query is already in this format, we can mostly copy and paste this directly into a fact table in the correct directory for GEODNET: `models/projects/geodnet/core/fact_geodnet_fees_revenue.sql`
+Given our Flipside query is already in this format, we can mostly copy and paste this directly into a fact table in the correct directory for GEODNET: [`models/projects/geodnet/core/fact_geodnet_fees_revenue.sql`](https://github.com/Artemis-xyz/dbt/pull/8/files#diff-dc48c2558404951a14c60bc8d5a66093d6c8749c87fa2701ba4a59dd7a3f190eR1)
+
+Note two important distinctions in this file:
+1) Rather than using the the `polygon.core.ez_token_transfers` database and table, we use `polygon_flipside.core.ez_token_transfers`. This will tell the Artemis pipeline to pull from the Flipside Database.
+2) The model has the following in the header, which tells DBT to materalize the results as a table: `{{ config(materialized="table") }}`
+
+Now, we just need to create our `ez_geodnet_metrics` table in the right directory and query the results of the above fact table, shown here: [`models/projects/geodnet/core/ez_geodnet_metrics.sql`](https://github.com/Artemis-xyz/dbt/pull/8/files#diff-f91add043544db867d0d97e874675ef6b550717f8ba8a47473975b5a0622e711R11)
+
+We are done! Open up a PR targeting this repository and check to make sure the code compiles in the Github actions. 
+
+You can see a demo output of your new query by clicking on the "Details" of the `Show Changed Models` CI step.
+<img width="840" alt="image" src="https://github.com/Artemis-xyz/dbt/assets/12548832/c7ac9f68-21c5-441f-8da7-c5fd3d378bd2">
+
+<img width="1055" alt="Screenshot 2024-04-04 at 12 01 52 PM" src="https://github.com/Artemis-xyz/dbt/assets/12548832/135d3258-4122-430d-af22-ce06de9db3f3">
 
 ### Using QuickNode's RPCs
 Out of scope for right now. Will be added on future iterations.
