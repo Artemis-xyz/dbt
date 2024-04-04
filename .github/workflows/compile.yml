@@ -22,6 +22,8 @@ jobs:
 
       - name: Check out current branch
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Set up dependencies
         run: |
