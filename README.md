@@ -71,7 +71,19 @@ Example PR: LINK HERE
 ## Adding a new metric
 Once the asset exists, there are several ways to pull metrics for the protocol in question. Taking the GEODNET fees example, we will breakdown how to add this protocol's metrics by provider below. 
 
+GEODNET is a DePin protocol where [80% of fees are sent to the burn address](https://insidegnss.com/developing-a-truly-global-rtk-network/) and counted towards network revenue. 
+
 ### Using Flipside's Warehouse
+To calculate fees, we can write a query directly in Flipside's studio to count the token transfers towards the burn address, [found here](https://flipsidecrypto.xyz/0xnirmal/q/HAffpGdx4d63/geodnet-fees-revenue).
+
+Productionizing this into the Artemis DBT schemas, fact tables are expected to have the following columns:
+- `date` [DATETIME]
+- `fees` [NUMBER]
+- `chain` [STRING]
+- `protocol` [STRING]
+
+In this example, the chain that GEODNET publishes fees on is `polygon` and the protocol is `geodnet` - both of these fields should match the asset names in the `assets.csv` file. 
+Given our Flipside query is already in this format, we can mostly copy and paste this directly into a fact table in the correct directory for GEODNET: `models/projects/geodnet/core/fact_geodnet_fees_revenue_usd.sql`
 
 ### Using QuickNode's RPCs
 Out of scope for right now. Will be added on future iterations.
