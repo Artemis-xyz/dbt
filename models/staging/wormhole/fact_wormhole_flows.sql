@@ -68,20 +68,24 @@ with
             ) as t(id, chain)
     ),
 
+    dim_contracts as (
+        select distinct address, chain, category
+        from {{ ref("dim_contracts_gold") }} 
+        where category is not null and chain is not null
+    ),
+
     volume_by_chain_and_symbol as (
         select
             date_trunc('day', timestamp) as date,
             c1.chain as source_chain,
             c2.chain as destination_chain,
-            symbol,
-            category,
+            coalesce(t2.category, t3.category, 'Not Categorized') as category,
             amount_usd
         from transfers t
         left join chain_ids c1 on t.from_chain = c1.id
         left join chain_ids c2 on t.to_chain = c2.id
-        left join
-            {{ ref("dim_contracts_gold") }} t2
-            on lower(t.token_address) = lower(t2.address)
+        left join dim_contracts t2 on lower(t.token_address) = lower(t2.address) and c1.chain = t2.chain
+        left join dim_contracts t3 on lower(t.token_address) = lower(t3.address) and c2.chain = t3.chain
     )
 
 -- note source and destination chain may be null if not provided above
