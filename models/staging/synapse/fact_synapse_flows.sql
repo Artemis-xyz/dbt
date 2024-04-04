@@ -276,77 +276,38 @@ with
     ),
 
     final_combined as (
-        select *, coalesce(usd_value, gecko_usd_value) as final_usd_value
+        select *, coalesce(usd_value, gecko_usd_value, 0) as final_usd_value
         from combined
         left join gecko_prices using (synapse_tx_hash)
     ),
 
-    chain_ids as (
-        select 1 as id, 'ethereum' as chain
-        union
-        select 1313161554 as id, 'aurora' as chain
-        union
-        select 10 as id, 'optimism' as chain
-        union
-        select 137 as id, 'polygon' as chain
-        union
-        select 42161 as id, 'arbitrum' as chain
-        union
-        select 250 as id, 'fantom' as chain
-        union
-        select 1088 as id, 'metis' as chain
-        union
-        select 1284 as id, 'moonbeam' as chain
-        union
-        select 8217 as id, 'klaytn' as chain
-        union
-        select 43114 as id, 'avalanche' as chain
-        union
-        select 1285 as id, 'moonriver' as chain
-        union
-        select 7700 as id, 'canto' as chain
-        union
-        select 2000 as id, 'dogechain' as chain
-        union
-        select 53935 as id, 'dfk' as chain
-        union
-        select 1666600000 as id, 'harmony' as chain
-        union
-        select 56 as id, 'bsc' as chain
-        union
-        select 25 as id, 'cronos' as chain
-        union
-        select 8453 as id, 'base' as chain
-        union
-        select 288 as id, 'boba' as chain
-        union
-        select 81457 as id, 'blast' as chain
+    dim_contracts as (
+        select distinct address, chain, category
+        from {{ ref("dim_contracts_gold") }} 
+        where category is not null and chain is not null
     ),
 
     flows_by_chain_id as (
         select
             date_trunc('day', origin_block_timestamp) as date,
-            origin_chain_id,
-            destination_chain_id,
-            category,
-            sum(coalesce(final_usd_value, 0)) as amount_usd,
-            null as fee_usd
-        from final_combined
-        left join
-            {{ ref("dim_contracts_gold") }} t2
-            on lower(destination_token_address) = lower(t2.address)
-        group by 1, 2, 3, 4
+            t2.chain as source_chain,
+            t3.chain as destination_chain,
+            coalesce(t4.category, 'Not Categorized') as category,
+            final_usd_value as amount_usd
+        from final_combined t1
+        left join {{ ref("dim_chain_ids")}} t2 on t1.origin_chain_id = t2.id
+        left join {{ ref("dim_chain_ids")}} t3 on t1.destination_chain_id = t3.id
+        left join dim_contracts t4 on lower(destination_token_address) = lower(t4.address) and t3.chain = t4.chain
     )
 
 select
     date,
-    t2.chain as source_chain,
     'synapse' as app,
-    t3.chain as destination_chain,
+    source_chain,
+    destination_chain,
     category,
-    amount_usd,
-    fee_usd
-from flows_by_chain_id t1
-left join chain_ids t2 on t1.origin_chain_id = t2.id
-left join chain_ids t3 on t1.destination_chain_id = t3.id
+    sum(amount_usd) as amount_usd,
+    null as fee_usd
+from flows_by_chain_id
+group by 1, 2, 3, 4, 5
 order by date desc, source_chain asc
