@@ -66,7 +66,7 @@ For example, let's say a user wants to add GEODNET fees to our [DePin dashboard.
 
 The Artemis team will then create the necessary permissions and warehouses in order for GEODNET to show up in the Terminal. 
 
-[Example PR](https://github.com/Artemis-xyz/dbt/pull/5)
+[Example PR](https://github.com/Artemis-xyz/dbt/pull/6)
 
 ## Adding a new metric
 Once the asset exists, there are several ways to pull metrics for the protocol in question. Taking the GEODNET fees example, we will breakdown how to add this protocol's metrics by provider below. 
