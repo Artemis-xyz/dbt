@@ -1,4 +1,4 @@
-{{config(materialized="incremental", unique_key=["package_id", "version"])}}
+{{config(materialized="incremental", unique_key=["address"])}}
 with 
 sui_contracts_sigma_over as (
     select 
