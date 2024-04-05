@@ -1,6 +1,12 @@
 sources:
+  - name: SIGMA
+    schema: PROD
+    database: SIGMA
+    tables:
+      - name: sui_overwrite_namespace
   - name: PROD_LANDING
     schema: PROD_LANDING
     database: LANDING_DATABASE
     tables:
       - name: raw_sui_data
+      - name: raw_sui_contracts

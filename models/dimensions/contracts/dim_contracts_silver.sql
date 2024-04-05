@@ -24,6 +24,9 @@ with
         union
         select lower(address) address, chain
         from {{ ref("dim_scanner_contracts") }}
+        union 
+        select lower(address) address, chain
+        from {{ ref("dim_sui_contracts") }}
     ),
     distinct_contract as (select address, chain from contracts group by address, chain),
     contract_waterfall as (
@@ -34,6 +37,7 @@ with
                 user_sub.namespace,
                 scanner.namespace,
                 dune.namespace,
+                sui.namespace,
                 flipside_near.namespace,
                 flipside_sol.namespace,
                 null
@@ -42,6 +46,7 @@ with
                 user_sub.name,
                 scanner.name,
                 dune.name,
+                sui.name,
                 flipside_near.name,
                 flipside_sol.name,
                 null
@@ -73,6 +78,9 @@ with
             {{ ref("dim_scanner_contracts") }} as scanner
             on lower(dc.address) = lower(scanner.address)
             and dc.chain = scanner.chain
+        left join {{ ref("dim_sui_contracts") }} sui
+            on lower(dc.address) = lower(sui.address)
+            and dc.chain = sui.chain
     ),
     contracts_to_parent_app as (
         select

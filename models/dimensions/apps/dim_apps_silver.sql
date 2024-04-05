@@ -56,15 +56,16 @@ with
 
 select
     coalesce(
-        sigma_app_tagged.namespace, dune_namespace.namespace, flipside.namespace
+        sigma_app_tagged.namespace, sui.namespace, dune_namespace.namespace, flipside.namespace
     ) as namespace,
     coalesce(
         sigma_app_tagged.friendly_name,
+        sui.friendly_name,
         initcap(replace(dune_namespace.namespace, '_', ' ')),
         flipside.friendly_name
     ) as friendly_name,
-    coalesce(sigma_app_tagged.sub_category, flipside.sub_category) as sub_category,
-    coalesce(sigma_app_tagged.category, flipside.category) as category,
+    coalesce(sigma_app_tagged.sub_category, sui.sub_category, flipside.sub_category) as sub_category,
+    coalesce(sigma_app_tagged.category, sui.category, flipside.category) as category,
     artemis_id,
     coingecko_id,
     ecosystem_id,
@@ -72,7 +73,7 @@ select
     parent_app,
     coalesce(visibility, 1) as visibility,
     symbol,
-    icon
+    coalesce(sigma_app_tagged.icon, sui.icon) as icon
 from sigma_app_tagged
 full join
     {{ ref("dim_dune_namespaces") }} as dune_namespace
@@ -80,7 +81,11 @@ full join
 full join
     {{ ref("dim_flipside_namespaces") }} as flipside
     on sigma_app_tagged.namespace = flipside.namespace
+full join 
+    {{ ref("dim_sui_namespaces") }} as sui
+    on sigma_app_tagged.namespace = sui.namespace
 where
     sigma_app_tagged.namespace is not null
     or dune_namespace.namespace is not null
     or flipside.namespace is not null
+    or sui.namespace is not null
