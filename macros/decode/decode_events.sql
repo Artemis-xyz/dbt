@@ -7,11 +7,12 @@
         contract_address,
         origin_from_address,
         origin_to_address,
-        status,
+        status as tx_status,
+        t1.topic_zero,
         t2.event_name,
         {{ target.schema }}.decode_evm_event_log(
             event_data, t2.event_info
-        ) as decoded_event
+        ) as decoded_log
     from {{ ref("fact_" ~ chain ~ "_events") }} t1
     inner join {{ ref("dim_events_silver") }} t2 on t1.topic_zero = t2.topic_zero
     {% if is_incremental() %}
