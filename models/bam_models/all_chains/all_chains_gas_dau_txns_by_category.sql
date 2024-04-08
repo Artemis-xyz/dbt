@@ -30,4 +30,4 @@ where
     )
     and category is not null
     and app is null
-    and gas is not null
+    and txns is not null
