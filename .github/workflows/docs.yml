@@ -1,0 +1,53 @@
+name: docs
+on:
+  push:
+    branches: main
+env:
+  SYSTEM_SNOWFLAKE_USER: ${{ secrets.SYSTEM_SNOWFLAKE_USER }}
+  SYSTEM_SNOWFLAKE_PASSWORD: ${{ secrets.SYSTEM_SNOWFLAKE_PASSWORD }}
+  SYSTEM_SNOWFLAKE_ROLE: ${{ secrets.SYSTEM_SNOWFLAKE_ROLE }}
+jobs:
+  write-dbt-to-pages-repo:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'
+
+      - name: Check out current branch
+        uses: actions/checkout@v3
+
+      - name: Generate a Github App token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.ARTEMIS_CI_APP_ID }}
+          private-key: ${{ secrets.ARTEMIS_CI_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Set up dependencies
+        run: |
+          pip install pip==23.1.2
+          pip install -r requirements.txt
+          dbt deps
+
+      - name: Generate docs
+        run: |
+          dbt docs generate --threads 16
+          git diff
+          mkdir generated_dbt_docs
+          mv "target/index.html" "target/manifest.json" "target/catalog.json" generated_dbt_docs
+
+      - name: Push to Github Pages repo
+        uses: cpina/github-action-push-to-another-repository@v1.7.2
+        env:
+          API_TOKEN_GITHUB: ${{ steps.generate_token.outputs.token }}
+        with:
+          source-directory: 'generated_dbt_docs'
+          target-directory: 'dbt'
+          destination-github-username: 'artemis-xyz'
+          destination-repository-name: 'artemis-xyz.github.io'
+          user-name: 'Artemis CI'
+          commit-message: 'update DBT docs'
