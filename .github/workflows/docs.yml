@@ -1,7 +1,7 @@
 name: docs
 on:
   push:
-    branches: main
+    branches: add-docs-action
 env:
   SYSTEM_SNOWFLAKE_USER: ${{ secrets.SYSTEM_SNOWFLAKE_USER }}
   SYSTEM_SNOWFLAKE_PASSWORD: ${{ secrets.SYSTEM_SNOWFLAKE_PASSWORD }}
