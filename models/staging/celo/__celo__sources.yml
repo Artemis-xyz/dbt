@@ -4,3 +4,8 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_celo_blocks_receipts
+  - name: BALANCES
+    schema: PROD
+    database: PC_DBT_DB
+    tables:
+      - name: dim_celo_current_balances

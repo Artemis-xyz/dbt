@@ -80,11 +80,9 @@
             -- Notably, we do NOT use the Mint / Burn events here because the
             -- basic IERC20 interface does not require them to be implemented
             coalesce(
-                decoded_log:
-                from
-                    ,
-                    -- DAI on ETH Mainnet does not follow the IERC20 interface
-                    decoded_log:src
+                decoded_log:from,
+                -- DAI on ETH Mainnet does not follow the IERC20 interface
+                decoded_log:src
             ) as from_address,
             coalesce(decoded_log:to, decoded_log:dst) as to_address,
             from_address = '0x0000000000000000000000000000000000000000'
@@ -104,20 +102,28 @@
             case
                 when not is_mint and not is_burn then amount else 0
             end as transfer_volume,
-            ez_decoded_event_logs.contract_address,
+            t1.contract_address,
             fact_{{ chain }}_stablecoin_contracts.symbol
-        from {{ chain }}_flipside.core.ez_decoded_event_logs
+        {% if chain in ("celo")%} 
+            from {{ref("fact_" ~ chain ~ "_decoded_events")}} t1 
+        {% else %} 
+            from {{ chain }}_flipside.core.ez_decoded_event_logs t1
+        {% endif %}
         join
             fact_{{ chain }}_stablecoin_contracts
-            on lower(ez_decoded_event_logs.contract_address)
+            on lower(t1.contract_address)
             = lower(fact_{{ chain }}_stablecoin_contracts.contract_address)
         where
-            lower(ez_decoded_event_logs.contract_address) in (
+            lower(t1.contract_address) in (
                 select lower(contract_address)
                 from fact_{{ chain }}_stablecoin_contracts
             )
             -- DO NOT include mint / burn events here - they will be duped
             and event_name in ('Transfer', 'Issue', 'Redeem')
+            {% if chain in ("celo") %}
+            and tx_status = 1
+            {% else %}
             and tx_status = 'SUCCESS'
+            {% endif %}
     {% endif %}
 {% endmacro %}

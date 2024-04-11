@@ -12,7 +12,8 @@
         t2.event_name,
         {{ target.schema }}.decode_evm_event_log(
             event_data, t2.event_info
-        ) as decoded_log
+        ) as decoded_log,
+        data
     from {{ ref("fact_" ~ chain ~ "_events") }} t1
     inner join {{ ref("dim_events_silver") }} t2 on t1.topic_zero = t2.topic_zero
     {% if is_incremental() %}
