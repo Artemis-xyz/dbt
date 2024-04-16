@@ -11,7 +11,9 @@ with program as
 )
 SELECT
   date(block_timestamp) as date,
-  SUM(GET_PATH(inner_instruction, 'instructions[0]:parsed:info:amount'))::INT/1e5 AS network_fees
+  SUM(GET_PATH(inner_instruction, 'instructions[0]:parsed:info:amount'))::INT/1e5 AS network_fees,
+  'solana' AS chain,
+  'helium' AS protocol
 FROM program p,
    LATERAL flatten(input => p.signers) a
 WHERE a.value in ('mobMc6Q18xT78cRiExgVbhadEKHiTUm6ZDnSZn2cU8h', 'iotdbYfWqPiDa5MruziFHxBsjHamKuEnMhkPFoW4mKE')

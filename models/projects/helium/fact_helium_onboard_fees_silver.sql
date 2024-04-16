@@ -30,7 +30,9 @@ all_burns AS(
 )
 SELECT
   DATE(block_timestamp) as date,
-  SUM(dc_burned)*1e-5 as onboard_fees
+  SUM(dc_burned)*1e-5 as onboard_fees,
+  'solana' AS chain,
+  'helium' AS protocol
 FROM all_burns
 where date < to_date(sysdate())
 GROUP BY 1

@@ -1,4 +1,8 @@
-SELECT o.date, o.onboard_fees + n.network_fees as fees
+SELECT
+  o.date,
+  o.onboard_fees + n.network_fees as fees,
+  o.chain,
+  o.protocol
 FROM
 {{ ref("fact_helium_onboard_fees_silver") }} o
 LEFT JOIN

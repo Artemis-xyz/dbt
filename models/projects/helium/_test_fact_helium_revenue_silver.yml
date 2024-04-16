@@ -20,3 +20,11 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_to_exist
+      - name: CHAIN
+        tests:
+            - not_null
+            - dbt_expectations.expect_column_to_exist
+      - name: PROTOCOL
+        tests:
+            - not_null
+            - dbt_expectations.expect_column_to_exist

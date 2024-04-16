@@ -39,7 +39,9 @@ consolidated AS (
 SELECT
     date(block_timestamp) AS date,
     SUM(hnt_burned) AS hnt_burned,
-    SUM(dc_minted) AS revenue
+    SUM(dc_minted) AS revenue,
+    'solana' AS chain,
+    'helium' AS protocol
 FROM
     consolidated
 GROUP BY
