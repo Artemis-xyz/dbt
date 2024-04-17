@@ -4,5 +4,5 @@
     )
 }}
 
-select date, app, chain, daa, txns, gas, gas_usd
+select date, app, 'Maverick Protocol' as friendly_name, chain, daa, txns, gas, gas_usd
 from {{ ref("fact_maverick_daa_txns_gas_gas_usd_ethereum") }}
