@@ -7,9 +7,8 @@ with
 select
     date(value:date) as date,
     value:txns::int as txns,
-    value as source,
     'cosmoshub' as chain
 from
     {{ source("PROD_LANDING", "raw_cosmoshub_txns") }},
     lateral flatten(input => parse_json(source_json))
-where extraction_date = (select max_date from max_extraction)
+where extraction_date = (select max_date from max_extraction) and date(value:date) is not null

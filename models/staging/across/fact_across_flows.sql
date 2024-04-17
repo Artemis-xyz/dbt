@@ -5,345 +5,204 @@
     )
 }}
 with
+
+    dim_contracts as (
+        select distinct address, chain, category
+        from {{ ref("dim_contracts_gold") }} 
+        where category is not null and chain is not null
+    ),
+
+    across_transfers_chain_mapping as (
+        select 
+            version,
+            contract_address,
+            block_timestamp,
+            tx_hash,
+            event_index,
+            amount,
+            depositor,
+            recipient,
+            destination_chain_id,
+            destination_token,
+            origin_chain_id,
+            destination_token_symbol,
+            t2.chain as destination_chain, 
+            t3.chain as source_chain, 
+            t4.category as destination_category
+        from {{ ref("fact_across_transfers") }} t1
+        left join {{ ref("dim_chain_ids")}} t2 on t1.destination_chain_id = t2.id
+        left join {{ ref("dim_chain_ids")}} t3 on t1.origin_chain_id = t3.id
+        left join dim_contracts t4 on lower(destination_token) = lower(address) and destination_chain = t2.chain
+    ),
+
     distinct_tokens as (
-        select distinct destination_token as token_address
-        from {{ ref("fact_across_transfers") }}
-        union all
-        select distinct input_token as token_address
-        from {{ ref("fact_across_transfers") }}
+        select distinct destination_token as token_address, destination_chain as chain
+        from across_transfers_chain_mapping
+        where destination_token is not null
     ),
 
     prices as (
         select *
         from ethereum_flipside.price.ez_hourly_token_prices
-        where token_address in (select * from distinct_tokens)
+        where token_address in (select token_address from distinct_tokens where chain = 'ethereum')
         union
         select *
         from optimism_flipside.price.ez_hourly_token_prices
-        where token_address in (select * from distinct_tokens)
+        where token_address in (select token_address from distinct_tokens where chain = 'optimism')
         union
         select *
         from arbitrum_flipside.price.ez_hourly_token_prices
-        where token_address in (select * from distinct_tokens)
+        where token_address in (select token_address from distinct_tokens where chain = 'arbitrum')
         union
         select *
         from polygon_flipside.price.ez_hourly_token_prices
-        where token_address in (select * from distinct_tokens)
+        where token_address in (select token_address from distinct_tokens where chain = 'polygon')
         union
         select *
         from base_flipside.price.ez_hourly_token_prices
-        where token_address in (select * from distinct_tokens)
+        where token_address in (select token_address from distinct_tokens where chain = 'base')
+    ),
+    dim_zkSync_tokens as (
+        select symbol, address, chain, category
+        from
+            (
+                values
+                    (
+                        'DAI',
+                        lower('0x6B175474E89094C44Da98b954EedeAC495271d0F'),
+                        'ethereum',
+                        'Stablecoin'
+                    ),
+                    (
+                        'USDC',
+                        lower('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'),
+                        'ethereum',
+                        'Stablecoin'
+                    ),
+                    (
+                        'USDC.e',
+                        lower('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'),
+                        'ethereum',
+                        'Stablecoin'
+                    ),
+                    (
+                        'USDT',
+                        lower('0xdAC17F958D2ee523a2206206994597C13D831ec7'),
+                        'ethereum',
+                        'Stablecoin'
+                    ),
+                    (
+                        'WBTC',
+                        lower('0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599'),
+                        'ethereum',
+                        'Token'
+                    ),
+                    (
+                        'WETH',
+                        lower('0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'),
+                        'ethereum',
+                        'Token'
+                    )
+            ) as t(symbol, address, chain, category)
+
     ),
 
-    zksync_transfers_v2 as (
-        select *
-        from {{ ref("fact_across_transfers") }}
-        where destination_token_symbol is not null and version = 'v2'
-    ),
-
-    zksync_transfers_v3 as (
-        select *
-        from {{ ref("fact_across_transfers") }}
-        where destination_token_symbol is not null and version = 'v3'
-    ),
-
-    zksync_tokens as (
-        select distinct destination_token as token, destination_token_symbol as symbol
-        from zksync_transfers_v2
-        union
-        select distinct destination_token as token, destination_token_symbol as symbol
-        from zksync_transfers_v3
+    
+    zksync_transfers as (
+        select 
+            version,
+            contract_address,
+            block_timestamp,
+            tx_hash,
+            event_index,
+            amount,
+            depositor,
+            recipient,
+            destination_chain_id,
+            dim_zkSync_tokens.address as destination_token,
+            origin_chain_id,
+            destination_token_symbol,
+            destination_chain, 
+            source_chain, 
+            dim_zkSync_tokens.category as destination_category
+        from across_transfers_chain_mapping
+        left join dim_zkSync_tokens on lower(destination_token_symbol) = lower(symbol)
+        where destination_token_symbol is not null
     ),
 
     zksync_prices as (
-        select hour, symbol, decimals, avg(price) as price
+        select hour, token_address, decimals, avg(price) as price
         from ethereum_flipside.price.ez_hourly_token_prices
-        where
-            symbol in (
-                select distinct destination_token_symbol
-                from zksync_transfers_v2
-                union
-                select distinct destination_token_symbol
-                from zksync_transfers_v3
-                where symbol is not null
-            )
+        inner join dim_zkSync_tokens on lower(token_address) = lower(address)
         group by 1, 2, 3
     ),
 
-    chain_ids as (
-        select 'ethereum' as chain, 1 as id
-        union
-        select 'optimism' as chain, 10 as id
-        union
-        select 'polygon' as chain, 137 as id
-        union
-        select 'boba' as chain, 288 as id
-        union
-        select 'arbitrum' as chain, 42161 as id
-        union
-        select 'base' as chain, 8453 as id
-        union
-        select 'zksync' as chain, 324 as id
-        union
-        select 'linea' as chain, 59144 as id
+
+    zksync_volume_by_chain_and_symbol as (
+        select
+            date_trunc('hour', block_timestamp) as hour,
+            source_chain,
+            destination_chain,
+            destination_category,
+            sum(
+                coalesce((amount / power(10, p.decimals)) * price, 0)
+            ) as amount_usd
+        from zksync_transfers t
+        left join
+            zksync_prices p
+            on date_trunc('hour', t.block_timestamp) = p.hour
+            and t.destination_token = p.token_address
+        group by 1, 2, 3, 4
 
     ),
 
-    zksync_volume_and_fees_by_chain_and_symbol_v2 as (
-        with
-            temp as (
-                select
-                    date_trunc('hour', block_timestamp) as hour,
-                    origin_chain_id,
-                    destination_chain_id,
-                    destination_token,
-                    sum(
-                        (coalesce(amount, 0) / power(10, p.decimals)) * price
-                    ) as amount_usd,
-                    sum(
-                        ((coalesce(amount, 0) / power(10, p.decimals)) * price)
-                        * (relayer_fee_pct + realized_lp_fee_pct)
-                    ) as fee_usd
-                from zksync_transfers_v2 t
-                left join
-                    zksync_prices p
-                    on date_trunc('hour', t.block_timestamp) = p.hour
-                    and t.destination_token_symbol = p.symbol
-                group by 1, 2, 3, 4
-            )
+    non_zksync_volume_by_chain_and_symbol as (
+       select
+            date_trunc('hour', block_timestamp) as hour,
+            source_chain,
+            destination_chain,
+            destination_category,
+            sum(
+                coalesce((amount / power(10, p.decimals)) * price, 0)
+            ) as amount_usd
+        from across_transfers_chain_mapping t
+        left join
+            prices p
+            on date_trunc('hour', t.block_timestamp) = p.hour
+            and t.destination_token = p.token_address
+        where
+            t.destination_token_symbol is null
+        group by 1, 2, 3, 4
 
-        select
-            hour,
-            c1.chain as source_chain,
-            c2.chain as destination_chain,
-            destination_token as token,
-            coalesce(amount_usd, 0) as amount_usd,
-            fee_usd
-        from temp t
-        left join chain_ids c1 on t.origin_chain_id = c1.id
-        left join chain_ids c2 on t.destination_chain_id = c2.id
-    ),
-    zksync_volume_and_fees_by_chain_and_symbol_v3 as (
-        with
-            temp as (
-                select
-                    date_trunc('hour', block_timestamp) as hour,
-                    origin_chain_id,
-                    destination_chain_id,
-                    destination_token,
-                    sum(
-                        (coalesce(amount, 0) / power(10, p1.decimals)) * p1.price
-                    ) as amount_usd,
-
-                    sum(
-                        (coalesce(input_amount, 0) / power(10, p2.decimals)) * p2.price
-                    ) as input_amount_usd,
-
-                    input_amount_usd - amount_usd as fee_usd
-                from zksync_transfers_v3 t
-                left join
-                    zksync_prices p1
-                    on date_trunc('hour', t.block_timestamp) = p1.hour
-                    and t.destination_token_symbol = p1.symbol
-
-                left join
-                    prices p2
-                    on date_trunc('hour', t.block_timestamp) = p2.hour
-                    and lower(t.input_token) = lower(p2.token_address)
-
-                group by 1, 2, 3, 4
-            )
-
-        select
-            hour,
-            c1.chain as source_chain,
-            c2.chain as destination_chain,
-            destination_token as token,
-            coalesce(amount_usd, 0) as amount_usd,
-            fee_usd
-        from temp t
-        left join chain_ids c1 on t.origin_chain_id = c1.id
-        left join chain_ids c2 on t.destination_chain_id = c2.id
-    ),
-
-    non_zksync_volume_and_fees_by_chain_and_symbol_v1_v2_uba as (
-        with
-            temp as (
-                select
-                    date_trunc('hour', block_timestamp) as hour,
-                    origin_chain_id,
-                    destination_chain_id,
-                    destination_token,
-                    sum(
-                        (coalesce(amount, 0) / power(10, p.decimals)) * price
-                    ) as amount_usd,
-                    sum(
-                        ((coalesce(amount, 0) / power(10, p.decimals)) * price)
-                        * (relayer_fee_pct + realized_lp_fee_pct)
-                    ) as fee_usd
-                from {{ ref("fact_across_transfers") }} t
-                left join
-                    prices p
-                    on date_trunc('hour', t.block_timestamp) = p.hour
-                    and t.destination_token = p.token_address
-                where
-                    t.destination_token_symbol is null
-                    and version in ('v1', 'uba', 'v2')
-                group by 1, 2, 3, 4
-            )
-
-        select
-            hour,
-            c1.chain as source_chain,
-            c2.chain as destination_chain,
-            destination_token as token,
-            coalesce(amount_usd, 0) as amount_usd,
-            fee_usd
-        from temp t
-        left join chain_ids c1 on t.origin_chain_id = c1.id
-        left join chain_ids c2 on t.destination_chain_id = c2.id
-    ),
-
-    zksync_source_chain_volume_and_fees_v3 as (
-        with
-            temp as (
-                select
-                    date_trunc('hour', block_timestamp) as hour,
-                    origin_chain_id,
-                    destination_chain_id,
-                    destination_token,
-                    sum(
-                        (coalesce(amount, 0) / power(10, p1.decimals)) * p1.price
-                    ) as amount_usd,
-
-                    sum(
-                        (coalesce(input_amount, 0) / power(10, p2.decimals)) * p2.price
-                    ) as amount_in_usd,
-
-                    amount_in_usd - amount_usd as fee_usd
-                from {{ ref("fact_across_transfers") }} t
-                left join
-                    prices p1
-                    on date_trunc('hour', t.block_timestamp) = p1.hour
-                    and t.destination_token = p1.token_address
-
-                left join zksync_tokens zt on lower(t.input_token) = lower(zt.token)
-
-                left join
-                    zksync_prices p2
-                    on date_trunc('hour', t.block_timestamp) = p2.hour
-                    and zt.symbol = p2.symbol
-
-                where
-                    t.destination_token_symbol is null
-                    and version = 'v3'
-                    and origin_chain_id = 324
-                group by 1, 2, 3, 4
-            )
-
-        select
-            hour,
-            c1.chain as source_chain,
-            c2.chain as destination_chain,
-            destination_token as token,
-            coalesce(amount_usd, 0) as amount_usd,  -- I am here 
-            fee_usd
-        from temp t
-        left join chain_ids c1 on t.origin_chain_id = c1.id
-        left join chain_ids c2 on t.destination_chain_id = c2.id
-    ),
-
-    non_zksync_volume_and_fees_by_chain_and_symbol_v3 as (
-        with
-            temp as (
-                select
-                    date_trunc('hour', block_timestamp) as hour,
-                    origin_chain_id,
-                    destination_chain_id,
-                    destination_token,
-                    sum(
-                        (coalesce(amount, 0) / power(10, p1.decimals)) * p1.price
-                    ) as amount_usd,
-
-                    sum(
-                        (coalesce(input_amount, 0) / power(10, p2.decimals)) * p2.price
-                    ) as amount_in_usd,
-
-                    amount_in_usd - amount_usd as fee_usd
-                from {{ ref("fact_across_transfers") }} t
-                left join
-                    prices p1
-                    on date_trunc('hour', t.block_timestamp) = p1.hour
-                    and t.destination_token = p1.token_address
-
-                left join
-                    prices p2
-                    on date_trunc('hour', t.block_timestamp) = p2.hour
-                    and t.input_token = p2.token_address
-
-                where
-                    t.destination_token_symbol is null
-                    and version = 'v3'
-                    and origin_chain_id != 324
-                group by 1, 2, 3, 4
-            )
-
-        select
-            hour,
-            c1.chain as source_chain,
-            c2.chain as destination_chain,
-            destination_token as token,
-            coalesce(amount_usd, 0) as amount_usd,
-            fee_usd
-        from temp t
-        left join chain_ids c1 on t.origin_chain_id = c1.id
-        left join chain_ids c2 on t.destination_chain_id = c2.id
     ),
     flows_by_token as (
         select
             date_trunc('day', hour) as date,
-            'across' as app,
             source_chain,
             destination_chain,
-            token,
-            sum(amount_usd) as amount_usd,
-            sum(fee_usd) as fee_usd
+            coalesce(destination_category, 'Not Categorized') as category,
+            sum(amount_usd) as amount_usd
         from
             (
                 select *
-                from non_zksync_volume_and_fees_by_chain_and_symbol_v1_v2_uba
+                from zksync_volume_by_chain_and_symbol
 
                 union
 
                 select *
-                from zksync_volume_and_fees_by_chain_and_symbol_v2
+                from non_zksync_volume_by_chain_and_symbol
 
-                union
-
-                select *
-                from zksync_volume_and_fees_by_chain_and_symbol_v3
-
-                union
-
-                select *
-                from non_zksync_volume_and_fees_by_chain_and_symbol_v3
-
-                union
-
-                select *
-                from zksync_source_chain_volume_and_fees_v3
             ) t
-        group by 1, 2, 3, 4, 5
+        group by 1, 2, 3, 4
     )
 select
-    t1.date,
-    t1.app,
-    t1.source_chain,
-    t1.destination_chain,
-    t2.category,
-    sum(t1.amount_usd) as amount_usd,
-    sum(t1.fee_usd) as fee_usd
-from flows_by_token t1
-left join {{ ref("dim_contracts_gold") }} t2 on lower(token) = lower(address)
-group by date, t1.app, source_chain, destination_chain, category
+    date,
+    'across' as app,
+    source_chain,
+    destination_chain,
+    category,
+    amount_usd,
+    null as fee_usd
+from flows_by_token
 order by date desc, source_chain asc
+

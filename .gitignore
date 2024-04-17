@@ -223,3 +223,5 @@ Temporary Items
 *.icloud
 
 dbt_scripts/grant_permissions.sql
+
+.vscode

@@ -34,7 +34,7 @@ with
                 'tron'
             )
             and app is not null
-            and gas is not null
+            and txns is not null
     ),
     namespace_coingecko as (
         select

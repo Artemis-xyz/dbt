@@ -6,6 +6,7 @@
                 select dateadd({{ granularity }}, -1, max(block_timestamp))
                 {% if chain in ("tron") %} from tron_allium.assets.trc20_token_transfers
                 {% elif chain in ("solana") %} from solana_flipside.core.fact_transfers
+                {% elif chain in ("celo") %} from {{ref("fact_" ~ chain ~ "_decoded_events")}}
                 {% else %} from {{ chain }}_flipside.core.ez_decoded_event_logs
                 {% endif %}
             )
