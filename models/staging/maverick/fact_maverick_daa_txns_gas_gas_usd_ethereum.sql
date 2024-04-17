@@ -14,6 +14,6 @@ with
 
     {{
         fact_protocol_daa_txns_gas_gas_usd(
-            "ethereum", "maverick_protocol", "DeFi", "dim_protocol_addresses"
+            "ethereum", "maverick_protocol", "Maverick Protocol", "DeFi", "dim_protocol_addresses"
         )
     }}

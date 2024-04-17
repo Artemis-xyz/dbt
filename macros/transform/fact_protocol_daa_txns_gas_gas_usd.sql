@@ -1,10 +1,11 @@
 {% macro fact_protocol_daa_txns_gas_gas_usd(
-    chain, app, category, dim_protocol_addresses
+    chain, app, friendly_name, category, dim_protocol_addresses
 ) %}
     select
         date,
         '{{ chain }}' as chain,
         '{{ app }}' as app,
+        '{{friendly_name}}' as friendly_name,
         '{{ category }}' as category,
         count(distinct tx_hash) as txns,
         count(distinct from_address) as daa,

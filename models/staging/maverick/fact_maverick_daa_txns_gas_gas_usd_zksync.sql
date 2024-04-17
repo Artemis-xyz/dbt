@@ -60,6 +60,7 @@ select
     date,
     'zksync' as chain,
     'maverick_protocol' as app,
+    'Maverick Protocol' as friendly_name,
     'DeFi' as category,
     count(distinct tx_hash) as txns,
     count(distinct from_address) as daa,
