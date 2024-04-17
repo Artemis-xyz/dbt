@@ -6,10 +6,9 @@ with
     )
 select
     date(value:date) as date,
-    value:"DAU"::int as daa,
-    value as source,
+    value:"daa"::int as daa,
     'cosmoshub' as chain
 from
     {{ source("PROD_LANDING", "raw_cosmoshub_daa") }},
     lateral flatten(input => parse_json(source_json))
-where extraction_date = (select max_date from max_extraction)
+where extraction_date = (select max_date from max_extraction) and date(value:date) is not null
