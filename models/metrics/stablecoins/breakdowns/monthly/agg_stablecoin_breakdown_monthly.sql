@@ -7,6 +7,7 @@ with
                     ref("agg_arbitrum_stablecoin_breakdown_monthly"),
                     ref("agg_avalanche_stablecoin_breakdown_monthly"),
                     ref("agg_base_stablecoin_breakdown_monthly"),
+                    ref("agg_blast_stablecoin_breakdown_monthly"),
                     ref("agg_bsc_stablecoin_breakdown_monthly"),
                     ref("agg_ethereum_stablecoin_breakdown_monthly"),
                     ref("agg_optimism_stablecoin_breakdown_monthly"),
