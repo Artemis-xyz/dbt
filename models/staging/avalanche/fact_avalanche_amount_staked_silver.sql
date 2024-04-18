@@ -39,4 +39,4 @@ select
     total_staked_native * coalesce(price, 0) as total_staked_usd
 from map
 left join prices on map.date = prices.date
-where map.date < to_date(sysdate())
+where map.date < to_date(sysdate()) and map.date >= '2015-01-01' --sometimes the dashboard is borked

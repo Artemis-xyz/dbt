@@ -19,7 +19,8 @@ with
     expenses_data as (
         select date, chain, l1_data_cost_native, l1_data_cost, revenue_native, revenue
         from {{ ref("agg_daily_optimism_revenue") }}
-    )  -- supply side revenue and fees
+    ),  -- supply side revenue and fees
+    p2p_metrics as ({{ get_p2p_metrics("optimism") }})
 
 select
     coalesce(
@@ -59,7 +60,11 @@ select
     stablecoin_total_supply,
     stablecoin_txns,
     stablecoin_dau,
-    stablecoin_transfer_volume
+    stablecoin_transfer_volume,
+    p2p_native_transfer_volume,
+    p2p_token_transfer_volume,
+    p2p_stablecoin_transfer_volume,
+    p2p_transfer_volume
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -67,4 +72,5 @@ left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join expenses_data on fundamental_data.date = expenses_data.date
 left join github_data on fundamental_data.date = github_data.date
 left join contract_data on fundamental_data.date = contract_data.date
+left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 where fundamental_data.date < to_date(sysdate())
