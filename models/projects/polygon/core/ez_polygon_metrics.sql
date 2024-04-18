@@ -20,7 +20,8 @@ with
         select date, native_token_burn as revenue_native, revenue
         from {{ ref("agg_daily_polygon_revenue") }}
     ),
-    nft_metrics as ({{ get_nft_metrics("polygon") }})
+    nft_metrics as ({{ get_nft_metrics("polygon") }}),
+    p2p_metrics as ({{ get_p2p_metrics("polygon") }})
 
 select
     fundamental_data.date,
@@ -52,7 +53,11 @@ select
     stablecoin_txns,
     stablecoin_dau,
     stablecoin_transfer_volume,
-    nft_trading_volume
+    nft_trading_volume,
+    p2p_native_transfer_volume,
+    p2p_token_transfer_volume,
+    p2p_stablecoin_transfer_volume,
+    p2p_transfer_volume
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -61,4 +66,5 @@ left join github_data on fundamental_data.date = github_data.date
 left join contract_data on fundamental_data.date = contract_data.date
 left join revenue_data on fundamental_data.date = revenue_data.date
 left join nft_metrics on fundamental_data.date = nft_metrics.date
+left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 where fundamental_data.date < to_date(sysdate())
