@@ -5,7 +5,7 @@
         snowflake_warehouse="blast",
         database="blast",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics"
     )
 }}
 
@@ -27,7 +27,7 @@ select
         defillama_data.date,
         stablecoin_data.date,
         contract_data.date,
-        expenses_data.date,
+        expenses_data.date
     ) as date,
     'blast' as chain,
     txns,
