@@ -18,9 +18,7 @@ select
     coalesce(
         fundamental_data.date,
         defillama_data.date,
-        expenses_data.date,
         stablecoin_data.date,
-        github_data.date,
         contract_data.date
     ) as date,
     'blast' as chain,
