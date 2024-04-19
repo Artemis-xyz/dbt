@@ -17,7 +17,6 @@ with
 select
     coalesce(
         fundamental_data.date,
-        price_data.date,
         defillama_data.date,
         expenses_data.date,
         stablecoin_data.date,
