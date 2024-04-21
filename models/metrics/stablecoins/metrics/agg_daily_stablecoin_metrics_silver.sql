@@ -7,7 +7,6 @@ with
                     ref("agg_arbitrum_stablecoin_metrics"),
                     ref("agg_avalanche_stablecoin_metrics"),
                     ref("agg_base_stablecoin_metrics"),
-                    ref("agg_blast_stablecoin_metrics"),
                     ref("agg_bsc_stablecoin_metrics"),
                     ref("agg_ethereum_stablecoin_metrics"),
                     ref("agg_optimism_stablecoin_metrics"),
