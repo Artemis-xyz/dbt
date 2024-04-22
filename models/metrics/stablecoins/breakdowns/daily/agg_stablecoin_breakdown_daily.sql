@@ -9,6 +9,7 @@ with
                     ref("agg_base_stablecoin_breakdown_daily"),
                     ref("agg_blast_stablecoin_breakdown_daily"),
                     ref("agg_bsc_stablecoin_breakdown_daily"),
+                    ref("agg_celo_stablecoin_breakdown_daily"),
                     ref("agg_ethereum_stablecoin_breakdown_daily"),
                     ref("agg_optimism_stablecoin_breakdown_daily"),
                     ref("agg_polygon_stablecoin_breakdown_daily"),
