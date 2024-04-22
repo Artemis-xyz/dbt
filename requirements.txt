@@ -1,5 +1,5 @@
 dbt-bigquery==1.7.4
-dbt-core==1.7.8
+dbt-core==1.7.13
 dbt-extractor==0.5.1
 dbt-semantic-interfaces==0.4.3
 dbt-snowflake==1.7.1
