@@ -27,6 +27,10 @@
                 where
                     lower(t.from_address)
                     <> lower('0xdeaddeaddeaddeaddeaddeaddeaddeaddead0001')
+            {% elif class == "blast" %}
+                where
+                    lower(t.from_address)
+                    <> lower('0xdeaddeaddeaddeaddeaddeaddeaddeaddead0001')
             {% elif class == "optimism" %}
                 where
                     lower(t.from_address)
