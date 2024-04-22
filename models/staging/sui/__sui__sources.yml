@@ -10,3 +10,9 @@ sources:
     tables:
       - name: raw_sui_data
       - name: raw_sui_contracts
+  - name: ZETTABLOCKS_SUI
+    schema: SUI_MAINNET
+    database: ZETTABLOCK_DATA_SHARING
+    tables:
+      - name: transactions
+      - name: transaction_blocks
