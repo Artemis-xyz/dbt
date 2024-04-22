@@ -18,6 +18,7 @@ with
         select date, chain, l1_data_cost_native, l1_data_cost, revenue_native, revenue
         from {{ ref("agg_daily_base_revenue") }}
     ),  -- supply side revenue and fees
+    nft_metrics as ({{ get_nft_metrics("base") }}),
     p2p_metrics as ({{ get_p2p_metrics("base") }})
 
 select
@@ -43,6 +44,7 @@ select
     stablecoin_txns,
     stablecoin_dau,
     stablecoin_transfer_volume,
+    nft_trading_volume,
     p2p_native_transfer_volume,
     p2p_token_transfer_volume,
     p2p_stablecoin_transfer_volume,
@@ -52,5 +54,6 @@ left join defillama_data on fundamental_data.date = defillama_data.date
 left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join expenses_data on fundamental_data.date = expenses_data.date
 left join contract_data on fundamental_data.date = contract_data.date
+left join nft_metrics on fundamental_data.date = nft_metrics.date
 left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 where fundamental_data.date < to_date(sysdate())
