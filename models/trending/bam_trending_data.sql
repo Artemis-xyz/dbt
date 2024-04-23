@@ -54,6 +54,12 @@ union all
 select *, 'solana' as chain
 from {{ ref("solana_trending_weekly_monthly") }}
 union all
+select *, 'sui' as chain
+from {{ ref("sui_trending_daily") }}
+union all
+select *, 'sui' as chain
+from {{ ref("sui_trending_weekly_monthly") }}
+union all
 select *, 'tron' as chain
 from {{ ref("tron_trending_daily") }}
 union all
