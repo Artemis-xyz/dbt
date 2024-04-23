@@ -1,1 +1,1 @@
-{{ config(materialized="table") }} {{ nft_trading_volume("arbitrum") }}
+{{ config(materialized="table") }} {{ nft_trading_volume("base") }}

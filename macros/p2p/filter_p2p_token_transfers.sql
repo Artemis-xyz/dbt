@@ -13,7 +13,7 @@
             amount_usd
         from {{ ref("fact_"~ chain ~"_p2p_token_transfers_silver")}} 
         where amount_usd is not null 
-            {% if blacklist is string %} and lower(token_address) != '{{ blacklist }}'
+            {% if blacklist is string %} and token_address != '{{ blacklist }}'
             {% elif blacklist | length > 1 %} and token_address not in {{ blacklist }}
             {% endif %}
     {% else %}
