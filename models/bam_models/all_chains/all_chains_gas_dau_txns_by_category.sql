@@ -26,6 +26,7 @@ where
         'optimism',
         'polygon',
         'solana',
+        'sui',
         'tron'
     )
     and category is not null
