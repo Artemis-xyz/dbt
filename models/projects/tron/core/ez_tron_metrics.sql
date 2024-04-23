@@ -13,7 +13,8 @@ with
     price_data as ({{ get_coingecko_metrics("tron") }}),
     defillama_data as ({{ get_defillama_metrics("tron") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("tron") }}),
-    github_data as ({{ get_github_metrics("tron") }})
+    github_data as ({{ get_github_metrics("tron") }}),
+    p2p_metrics as ({{ get_p2p_metrics("tron") }})
 select
     coalesce(
         fundamental_data.date,
@@ -44,10 +45,15 @@ select
     stablecoin_total_supply,
     stablecoin_txns,
     stablecoin_dau,
-    stablecoin_transfer_volume
+    stablecoin_transfer_volume,
+    p2p_native_transfer_volume,
+    p2p_token_transfer_volume,
+    p2p_stablecoin_transfer_volume,
+    p2p_transfer_volume
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join github_data on fundamental_data.date = github_data.date
+left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 where fundamental_data.date < to_date(sysdate())
