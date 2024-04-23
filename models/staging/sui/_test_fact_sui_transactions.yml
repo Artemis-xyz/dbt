@@ -1,0 +1,15 @@
+- name: fact_sui_transactions
+  columns:
+    - name: GAS_USD
+      tests:
+        - dbt_expectations.expect_column_to_exist
+        - dbt_expectations.expect_column_values_to_not_be_null:
+            row_condition: "raw_date >= DATEADD('day', -2, to_date(sysdate())) and raw_date < to_date(sysdate())" # (Optional)
+    - name: RAW_DATE
+      tests:
+        - not_null
+        - dbt_expectations.expect_column_to_exist
+        - dbt_expectations.expect_row_values_to_have_recent_data:
+            datepart: day
+            interval: 3
+            severity: warn

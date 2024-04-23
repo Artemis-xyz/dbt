@@ -9,18 +9,30 @@
 }}
 
 with
+    min_date as (
+        select min(block_timestamp) as start_timestamp, sender
+        from {{ ref("ez_sui_transactions") }}
+        group by sender
+    ),
+    new_users as (
+        select
+            count(distinct sender) as new_users,
+            date_trunc('day', start_timestamp) as start_date
+        from min_date
+        group by start_date
+    ),
     fundamental_data as (
         select
-            date,
+            raw_date as date,
             chain,
-            txns,
-            daa as dau,
-            gas as fees_native,
-            gas_usd as fees,
-            fees / txns as avg_txn_fee,
-            revenue,
-            revenue_native
-        from {{ ref("fact_sui_daa_txns_gas_gas_usd_revenue") }}
+            count(*) as txns,
+            count(distinct sender) as dau,
+            sum(tx_fee) as fees_native,
+            sum(gas_usd) as fees,
+            sum(revenue) as revenue,
+            sum(native_revenue) as revenue_native
+        from {{ ref("ez_sui_transactions") }}
+        group by raw_date, chain
     ),
     price_data as ({{ get_coingecko_metrics("sui") }}),
     defillama_data as ({{ get_defillama_metrics("sui") }}),
@@ -28,11 +40,13 @@ with
 select
     fundamental_data.date,
     fundamental_data.chain,
+    fees / txns as avg_txn_fee,
     txns,
     dau,
+    new_users,
+    dau - new_users as returning_users,
     fees_native,
     fees,
-    avg_txn_fee,
     revenue_native,
     revenue,
     price,
@@ -48,4 +62,5 @@ from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join github_data on fundamental_data.date = github_data.date
+left join new_users on fundamental_data.date = new_users.start_date
 where fundamental_data.date < to_date(sysdate())
