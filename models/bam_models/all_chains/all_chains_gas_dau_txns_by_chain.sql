@@ -24,6 +24,7 @@ where
         'near',
         'optimism',
         'polygon',
+        'sui',
         'tron'
     )
     and category is null

@@ -31,6 +31,7 @@ with
                 'optimism',
                 'polygon',
                 'solana',
+                'sui',
                 'tron'
             )
             and app is not null
