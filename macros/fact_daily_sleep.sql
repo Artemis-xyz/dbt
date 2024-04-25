@@ -1,13 +1,13 @@
-{% macro fact_daily_sleep(chain) %}
+{% macro fact_daily_sleep(chain, address_column='from_address') %}
     with
         hours_between_transactions as (
             select
-                from_address,
+                {{ address_column }} AS from_address,
                 date_trunc('day', block_timestamp) as raw_date,
                 datediff(
                     'hour',
                     lag(block_timestamp, 1) over (
-                        partition by from_address, raw_date order by block_timestamp
+                        partition by {{ address_column }}, raw_date order by block_timestamp
                     ),
                     block_timestamp
                 ) as hours_last_seen
@@ -23,7 +23,7 @@
         ),
         hours_till_since_midnight as (
             select
-                from_address,
+                {{ address_column }} AS from_address,
                 date_trunc('day', block_timestamp) as raw_date,
                 dateadd('day', 1, raw_date) as tmw_date,
                 min(block_timestamp) as first_day_transactions,
