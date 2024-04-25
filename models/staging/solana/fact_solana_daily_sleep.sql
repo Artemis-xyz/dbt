@@ -6,4 +6,4 @@
     )
 }}
 
-{{ fact_daily_sleep("solana", "signers[0]") }}
+{{ fact_daily_sleep("solana") }}
