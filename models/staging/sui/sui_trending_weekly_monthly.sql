@@ -14,7 +14,7 @@ with
             min_by(package, index) as package,
             array_agg(type) as type_array
         from {{ source('ZETTABLOCKS_SUI', 'transactions') }}
-        where block_time >= dateadd(day, -2, current_date)
+        where block_time >= dateadd(day, -60, current_date)
         group by transaction_block_digest
     ),
     last_2_month as (
