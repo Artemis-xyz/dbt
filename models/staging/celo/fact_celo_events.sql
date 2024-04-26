@@ -1,7 +1,7 @@
 -- depends_on: {{ ref('fact_celo_transactions') }}
 {{
     config(
-        materialized="incremental",
+        materialized="table",
         unique_key=["transaction_hash", "event_index"],
         snowflake_warehouse="CELO",
     )
@@ -19,3 +19,24 @@
         ],
     )
 }}
+union all
+select 
+    block_timestamp,
+    block_number,
+    status,
+    origin_from_address,
+    origin_to_address,
+    transaction_hash,
+    event_index,
+    contract_address,
+    topics,
+    data,
+    removed,
+    topic_zero,
+    event_data
+from {{ref("fact_celo_epoch_reward_events")}}
+{% if is_incremental() %}
+    where
+        block_timestamp
+        >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+{% endif %}
