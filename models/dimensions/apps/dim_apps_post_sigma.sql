@@ -10,6 +10,7 @@ select
     parent_app as parent_namespace,
     visibility,
     symbol,
+    update_visibility as updated_visibility,
     update_artemis_id as updated_artemis_id,
     update_category as updated_category,
     update_sub_category as updated_sub_category,
