@@ -33,6 +33,7 @@ select
     l1_data_cost,
     revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     revenue,
+    avg_txn_fee,
     returning_users,
     new_users,
     low_sleep_users,
