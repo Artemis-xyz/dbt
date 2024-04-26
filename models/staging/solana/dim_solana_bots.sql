@@ -12,10 +12,10 @@ with
         -- Use EZ_SIGNERS from flipside instead of solana_flipside.core.fact_transactions directly
         SELECT
             signer AS from_address,
-            first_tx_date::TIMESTAMP AS first_transaction_timestamp,
             last_tx_date::TIMESTAMP AS latest_transaction_timestamp,
+            first_tx_date::TIMESTAMP AS first_transaction_timestamp,
             num_txs AS cur_total_txns,
-            programs_used AS cur_distinct_to_address_count
+            ARRAY_SIZE(programs_used) AS cur_distinct_to_address_count
         from solana_flipside.core.ez_signers
     )
 select
