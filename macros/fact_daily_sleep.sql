@@ -2,7 +2,11 @@
     with
         hours_between_transactions as (
             select
+                {% if chain == 'solana' %}
+                signers[0] AS from_address,
+                {% else %}
                 from_address,
+                {% endif %}
                 date_trunc('day', block_timestamp) as raw_date,
                 datediff(
                     'hour',
@@ -23,7 +27,11 @@
         ),
         hours_till_since_midnight as (
             select
+                {% if chain == 'solana' %}
+                signers[0] AS from_address,
+                {% else %}
                 from_address,
+                {% endif %}
                 date_trunc('day', block_timestamp) as raw_date,
                 dateadd('day', 1, raw_date) as tmw_date,
                 min(block_timestamp) as first_day_transactions,
