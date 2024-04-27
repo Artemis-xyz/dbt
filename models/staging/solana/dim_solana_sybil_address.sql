@@ -72,13 +72,13 @@ with
             1 / (
                 1 + exp(
                     - (
-                        3.45482805 -- Intercept
-                        + -9.402303550154276e-05  * scaled_transactions
-                        + -93.2861540200611  * scaled_senders
-                        + -173.30289863536308 * scaled_time_span_days
-                        + -47.87294558138059  * unique_senders_ratio
-                        + -0.10035810231467694 * stablecoin_balance
-                        + -0.003443609107217476 * native_token_balance
+                        3.4136459 -- Intercept
+                        + 0.00013386 * scaled_transactions
+                        + -0.9438403 * scaled_senders
+                        + -1.7059050 * scaled_time_span_days
+                        + -0.4342306 * unique_senders_ratio
+                        + -0.0010567 * stablecoin_balance
+                        + -0.0001280 * native_token_balance
                     )
                 )
             ) as probability
