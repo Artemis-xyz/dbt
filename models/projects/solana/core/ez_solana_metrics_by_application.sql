@@ -26,7 +26,7 @@ with
             app,
             count(distinct signers[0]) as low_sleep_users,
             count(*) as tx_n
-        from solana.prod_raw.ez_transactions
+        from {{ ref("ez_solana_transactions") }}
         where user_type = 'LOW_SLEEP' and app is not null
         group by user_type, raw_date, app
     ),
@@ -36,7 +36,7 @@ with
             app,
             count(distinct signers[0]) as sybil_users,
             count(*) as tx_n
-        from solana.prod_raw.ez_transactions
+        from {{ ref("ez_solana_transactions") }}
         where engagement_type = 'sybil'
         group by engagement_type, raw_date, app
     ),
