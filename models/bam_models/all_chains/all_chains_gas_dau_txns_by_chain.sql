@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="BAM_TRANSACTION_2XLG") }}
 
 select
     date,
@@ -24,6 +24,7 @@ where
         'near',
         'optimism',
         'polygon',
+        'solana',
         'sui',
         'tron'
     )
