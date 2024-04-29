@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="BAM_TRANSACTION_2XLG") }}
+{{ config(materialized="table") }}
 
 select
     date,
