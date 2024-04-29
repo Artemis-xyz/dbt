@@ -2,6 +2,17 @@
 
 with
     flipside_namespace as (
+        -- Sei Flipside Filtered Namespaces
+        select
+            namespace,
+            initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
+            max(category) as category,
+            max(sub_category) as sub_category
+        from {{ ref("dim_flipside_contracts") }}
+        where chain = 'sei' and namespace is not null
+        group by namespace
+
+        union all
         -- NEAR Flipside Filtered Namespaces
         select
             namespace,
