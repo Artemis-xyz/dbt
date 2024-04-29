@@ -23,13 +23,15 @@ with
         from {{ ref("fact_avalanche_validator_rewards_silver") }}
     ),
     nft_metrics as ({{ get_nft_metrics("avalanche") }}),
-    p2p_metrics as ({{ get_p2p_metrics("avalanche") }})
+    p2p_metrics as ({{ get_p2p_metrics("avalanche") }}),
+    mau_metrics as ({{ get_mau_metrics("avalanche") }})
 
 select
     coalesce(fundamental_data.date, staking_data.date) as date,
     coalesce(fundamental_data.chain, 'avalanche') as chain,
     txns,
     dau,
+    mau,
     fees_native,
     case when fees is null then fees_native * price else fees end as fees,
     avg_txn_fee,
@@ -73,4 +75,5 @@ left join contract_data on staking_data.date = contract_data.date
 left join issuance_data on staking_data.date = issuance_data.date
 left join nft_metrics on staking_data.date = nft_metrics.date
 left join p2p_metrics on staking_data.date = p2p_metrics.date
+left join mau_metrics on staking_data.date = mau_metrics.date
 where coalesce(fundamental_data.date, staking_data.date) < to_date(sysdate())
