@@ -28,7 +28,10 @@ select
     category,
     balance_usd,
     native_token_balance,
-    stablecoin_balance
+    stablecoin_balance,
+    probability,
+    engagement_type,
+    user_type
 from {{ ref("fact_solana_transactions") }}
 where
     raw_date < to_date(sysdate())
