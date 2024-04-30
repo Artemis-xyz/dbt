@@ -1,1 +1,1 @@
-{{ distinct_evm_eoa_addresses("arbitrum") }}
+{{ distinct_eoa_addresses("arbitrum") }}

@@ -1,1 +1,1 @@
-{{ distinct_evm_eoa_addresses("ethereum") }}
+{{ distinct_eoa_addresses("ethereum") }}

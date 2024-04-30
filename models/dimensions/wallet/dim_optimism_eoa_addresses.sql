@@ -1,1 +1,1 @@
-{{ distinct_evm_eoa_addresses("optimism") }}
+{{ distinct_eoa_addresses("optimism") }}
