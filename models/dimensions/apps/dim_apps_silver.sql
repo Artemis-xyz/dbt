@@ -12,7 +12,7 @@ with
             sigma.ecosystem_id,
             sigma.defillama_protocol_id,
             coalesce(updated_parent_namespace, sigma.parent_namespace) as parent_app,
-            sigma.visibility,
+            coalesce(updated_visibility , sigma.visibility) as visibility,
             coalesce(sigma.update_symbol, sigma.symbol) as symbol
         from {{ ref("dim_apps_post_sigma") }} as sigma
         where sigma.namespace is not null

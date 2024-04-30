@@ -15,6 +15,7 @@ with
             sum(prev_gas) prev_gas,
             sum(prev_gas_usd) prev_gas_usd
         from {{ ref("bam_trending_data") }}
+        where category is not null
         group by category, chain, granularity
     )
 select
