@@ -5,7 +5,7 @@ with
         select
             count_if(user_type = 'LESS THAN 7 HOURS') as no_sleep_count,
             from_address
-        from prod.fact_solana_daily_sleep
+        from {{ ref('fact_solana_daily_sleep') }}
         group by from_address
     ),
     from_address_agg_metrics as (
