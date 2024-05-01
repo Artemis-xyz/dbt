@@ -38,7 +38,7 @@ with
         from {{ source('ZETTABLOCKS_SUI', 'transaction_blocks') }} as tb 
         left join sui_transactions as t on lower(digest) = lower(transaction_block_digest)
         left join sui_contracts on lower(package) = lower(address)
-        left join prices on date = prices.date
+        left join prices on date_trunc('day', tb.block_time) = prices.date
         where tb.block_time >= dateadd(day, -2, current_date)
     ),
     last_day as (
