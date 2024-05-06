@@ -63,8 +63,13 @@
                 dex_swap_liquidity as (
                     select 
                         sum(amount_in_usd) as daily_volume,
-                        token_in, 
-                        token_out
+                        {% if chain == "near" %}
+                            token_in_contract as token_in, 
+                            token_out_contract as token_out
+                        {% else %}
+                            token_in, 
+                            token_out
+                        {% endif %}
                     from {{ chain }}_flipside.defi.ez_dex_swaps 
                     where amount_in_usd is not null and amount_out_usd is not null and
                         abs(

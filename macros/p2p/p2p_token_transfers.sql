@@ -50,6 +50,31 @@
                     and t1.tx_from != t1.tx_to
                     and lower(t1.tx_from) != lower('1nc1nerator11111111111111111111111111111111') -- Burn address of solana
                     and lower(t1.tx_to) != lower('1nc1nerator11111111111111111111111111111111')
+            {% elif chain == "near" %}
+                select 
+                    block_timestamp,
+                    block_id as block_number,
+                    tx_hash,
+                    fact_token_transfers_id as index,
+                    from_address,
+                    to_address,
+                    amount_raw_precise as raw_amount_precise,
+                    coalesce(amount_raw_precise/pow(10, decimals), 0) as amount_precise,
+                    t1.contract_address as token_address,
+                    coalesce((amount_raw_precise/pow(10, decimals)) * price, 0) as amount_usd
+                from near_flipside.core.ez_token_transfers t1
+                inner join near_flipside.core.dim_ft_contract_metadata t2 on t1.contract_address = t2.contract_address
+                inner join (
+                    select 
+                        timestamp::date as date,
+                        token_contract,
+                        avg(price_usd) as price
+                    from near_flipside.price.fact_prices 
+                    group by 1, 2
+                ) t3 on t3.token_contract = t1.contract_address and block_timestamp::date = t3.date
+                where from_address != to_address and transfer_type = 'nep141'
+                    and from_address is not null and to_address is not null
+                    and from_address <> 'system' and to_address <> 'system'
             {% else %}
                 select 
                     block_timestamp,

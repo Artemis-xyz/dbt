@@ -8,6 +8,8 @@
             prices as ({{ get_coingecko_price_with_latest("tron") }}),
         {% elif chain == "solana" %}
             prices as ({{ get_coingecko_price_with_latest("solana") }}),
+        {% elif chain == "near" %}
+            prices as ({{ get_coingecko_price_with_latest("near") }}),
         {% else %}
             prices as ({{ get_coingecko_price_with_latest("ethereum") }}),
         {% endif %}
@@ -46,6 +48,19 @@
                     and t1.tx_from != t1.tx_to
                     and lower(t1.tx_from) != lower('1nc1nerator11111111111111111111111111111111') -- Burn address of solana
                     and lower(t1.tx_to) != lower('1nc1nerator11111111111111111111111111111111')
+            {% elif chain == "near" %}
+                select 
+                    block_timestamp,
+                    block_id as block_number,
+                    tx_hash,
+                    fact_token_transfers_id as index,
+                    from_address,
+                    to_address,
+                    amount_raw_precise as raw_amount_precise,
+                    amount_raw_precise / 1E24 as amount_precise
+                from near_flipside.core.ez_token_transfers
+                where from_address != to_address and transfer_type = 'native'
+                    and from_address is not null and to_address is not null
             {% else %}
                 select 
                     block_timestamp,
