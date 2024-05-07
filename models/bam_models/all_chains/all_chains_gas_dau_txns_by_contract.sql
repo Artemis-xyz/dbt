@@ -60,5 +60,5 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
-    'tron' as chain
+    'sui' as chain
 from {{ ref("ez_sui_metrics_by_contract") }}

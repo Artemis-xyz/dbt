@@ -25,6 +25,7 @@ with
                 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr',
                 'Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo'
             )
+            // Chunking required here for backfills
             {% if is_incremental() %}
                 and block_timestamp
                 >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
@@ -113,10 +114,12 @@ with
                 then app_contracts.category
                 else null
             end as category,
-            null as user_type,
-            null as address_life_span,
-            null as cur_total_txns,
-            null as cur_distinct_to_address_count,
+            sybil.user_type,
+            sybil.address_life_span,
+            sybil.cur_total_txns,
+            sybil.cur_distinct_to_address_count,
+            sybil.probability,
+            sybil.engagement_type,
             bal.balance_usd,
             bal.native_token_balance,
             bal.stablecoin_balance
@@ -126,6 +129,9 @@ with
         left join
             balances as bal on signers[0]::string = bal.address and raw_date = bal.date
         left join collapsed_prices on raw_date = collapsed_prices.date
+        left join
+            {{ ref("dim_solana_sybil_address") }} as sybil
+            on t.signers[0] = sybil.from_address
     )
 select
     tx_hash,
@@ -150,6 +156,8 @@ select
     max(cur_distinct_to_address_count) as cur_distinct_to_address_count,
     max(balance_usd) as balance_usd,
     max(native_token_balance) as native_token_balance,
-    max(stablecoin_balance) as stablecoin_balance
+    max(stablecoin_balance) as stablecoin_balance,
+    max(probability) AS probability,
+    max(engagement_type) AS engagement_type
 from tagged_transactions
 group by tx_hash

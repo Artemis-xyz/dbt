@@ -29,13 +29,15 @@ with
         from {{ ref("fact_ethereum_beacon_chain_queue_entry_active_exit_silver") }}
     ),
     nft_metrics as ({{ get_nft_metrics("ethereum") }}),
-    p2p_metrics as ({{ get_p2p_metrics("ethereum") }})
+    p2p_metrics as ({{ get_p2p_metrics("ethereum") }}),
+    mau_metrics as ({{ get_mau_metrics("ethereum") }})
 
 select
     fundamental_data.date,
     fundamental_data.chain,
     txns,
     dau,
+    mau,
     fees_native,
     case when fees is null then fees_native * price else fees end as fees,
     avg_txn_fee,
@@ -65,6 +67,7 @@ select
     stablecoin_txns,
     stablecoin_dau,
     stablecoin_transfer_volume,
+    deduped_stablecoin_transfer_volume,
     censored_blocks,
     semi_censored_blocks,
     non_censored_blocks,
@@ -94,4 +97,5 @@ left join github_data on fundamental_data.date = github_data.date
 left join contract_data on fundamental_data.date = contract_data.date
 left join nft_metrics on fundamental_data.date = nft_metrics.date
 left join p2p_metrics on fundamental_data.date = p2p_metrics.date
+left join mau_metrics on fundamental_data.date = mau_metrics.date
 where fundamental_data.date < to_date(sysdate())

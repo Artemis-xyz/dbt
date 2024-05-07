@@ -5,10 +5,10 @@ with
         select lower(address) address, chain
         from {{ ref("dim_dune_contracts_post_sigma") }}
         union
-        -- add near contracts
+        -- add near + sei contracts
         select lower(address) address, chain
         from {{ ref("dim_flipside_contracts") }}
-        where chain = 'near'
+        where chain in ('near', 'sei')
         union
         -- add solana contracts that aren't token contracts
         select lower(address) address, chain
@@ -40,6 +40,7 @@ with
                 sui.namespace,
                 flipside_near.namespace,
                 flipside_sol.namespace,
+                flipside_sei.namespace,
                 null
             ) namespace,
             coalesce(
@@ -49,6 +50,7 @@ with
                 sui.name,
                 flipside_near.name,
                 flipside_sol.name,
+                flipside_sei.name,
                 null
             ) as name
         from distinct_contract dc
@@ -65,6 +67,11 @@ with
             on lower(dc.address) = lower(flipside_near.address)
             and dc.chain = flipside_near.chain
             and flipside_near.chain = 'near'
+        left join
+            {{ ref("dim_flipside_contracts") }} as flipside_sei
+            on lower(dc.address) = lower(flipside_sei.address)
+            and dc.chain = flipside_sei.chain
+            and flipside_sei.chain = 'sei'
         left join
             {{ ref("dim_flipside_contracts") }} as flipside_sol
             on lower(dc.address) = lower(flipside_sol.address)
@@ -119,11 +126,12 @@ with
         from contracts_to_parent_labels
         group by address, chain
     ),
+    -- get token contracts. Prevents tokens from getting counted as usage of apps
     flipside_token_type as (
         select address, name, chain, category
         from {{ ref("dim_flipside_contracts") }}
         where
-            chain not in ('near', 'solana') and category in ('NFT', 'Token', 'ERC_1155')
+            chain not in ('near', 'solana', 'sei') and category in ('NFT', 'Token', 'ERC_1155')
         union
         select address, name, chain, category
         from {{ ref("dim_flipside_contracts") }}

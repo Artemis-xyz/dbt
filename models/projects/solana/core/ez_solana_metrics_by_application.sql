@@ -20,6 +20,26 @@ with
         from min_date
         group by start_date, app
     ),
+    bot as (
+        select
+            raw_date,
+            app,
+            count(distinct signers[0]) as low_sleep_users,
+            count(*) as tx_n
+        from {{ ref("ez_solana_transactions") }}
+        where user_type = 'LOW_SLEEP' and app is not null
+        group by user_type, raw_date, app
+    ),
+    sybil as (
+        select
+            raw_date,
+            app,
+            count(distinct signers[0]) as sybil_users,
+            count(*) as tx_n
+        from {{ ref("ez_solana_transactions") }}
+        where engagement_type = 'sybil'
+        group by engagement_type, raw_date, app
+    ),
     agg_data as (
         select
             raw_date,
@@ -46,9 +66,19 @@ select
     txns,
     dau,
     (dau - new_users) as returning_users,
-    new_users
+    new_users,
+    low_sleep_users,
+    (dau - low_sleep_users) as high_sleep_users,
+    sybil_users,
+    (dau - sybil_users) as non_sybil_users
 from agg_data
 left join
     new_users
     on equal_null(agg_data.app, new_users.app)
     and agg_data.raw_date = new_users.start_date
+left join
+    bot on equal_null(agg_data.app, bot.app) and agg_data.raw_date = bot.raw_date
+left join
+    sybil
+    on equal_null(agg_data.app, sybil.app)
+    and agg_data.raw_date = sybil.raw_date

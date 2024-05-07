@@ -14,7 +14,7 @@ with
             min_by(package, index) as package,
             array_agg(type) as type_array
         from {{ source('ZETTABLOCKS_SUI', 'transactions') }}
-        where block_time >= dateadd(day, -2, current_date)
+        where block_time >= dateadd(day, -60, current_date)
         group by transaction_block_digest
     ),
     last_2_month as (
@@ -38,7 +38,7 @@ with
         from {{ source('ZETTABLOCKS_SUI', 'transaction_blocks') }} as tb 
         left join sui_transactions as t on lower(digest) = lower(transaction_block_digest)
         left join sui_contracts on lower(package) = lower(address)
-        left join prices on date = prices.date
+        left join prices on date_trunc('day', tb.block_time) = prices.date
         where tb.block_time >= dateadd(day, -60, current_date)
     ),
     last_week as (

@@ -1,1 +1,1 @@
-{{ distinct_evm_eoa_addresses("tron") }}
+{{ distinct_eoa_addresses("tron") }}

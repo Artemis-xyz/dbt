@@ -1,1 +1,1 @@
-{{ distinct_evm_eoa_addresses("polygon") }}
+{{ distinct_eoa_addresses("polygon") }}

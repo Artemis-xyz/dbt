@@ -1,1 +1,1 @@
-{{ distinct_evm_eoa_addresses("base") }}
+{{ distinct_eoa_addresses("base") }}

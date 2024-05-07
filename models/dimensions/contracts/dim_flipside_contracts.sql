@@ -52,6 +52,9 @@ with
         union
         select address, name, namespace, sub_category, category, 'solana' as chain
         from {{ ref("dim_flipside_solana_contracts") }}
+        union 
+        select address, name, namespace, sub_category, category, 'sei' as chain
+        from {{ ref("dim_flipside_sei_contracts") }}
     )
 select
     address,

@@ -16,12 +16,14 @@ with
     stablecoin_data as ({{ get_stablecoin_metrics("bsc") }}),
     github_data as ({{ get_github_metrics("Binance Smart Chain") }}),
     contract_data as ({{ get_contract_metrics("bsc") }}),
-    nft_metrics as ({{ get_nft_metrics("bsc") }})
+    nft_metrics as ({{ get_nft_metrics("bsc") }}),
+    mau_metrics as ({{ get_mau_metrics("bsc") }})
 select
     fundamental_data.date,
     fundamental_data.chain,
     txns,
     dau,
+    mau,
     fees_native,
     fees,
     avg_txn_fee,
@@ -47,6 +49,7 @@ select
     stablecoin_txns,
     stablecoin_dau,
     stablecoin_transfer_volume,
+    deduped_stablecoin_transfer_volume,
     nft_trading_volume
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
@@ -55,4 +58,5 @@ left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join github_data on fundamental_data.date = github_data.date
 left join contract_data on fundamental_data.date = contract_data.date
 left join nft_metrics on fundamental_data.date = nft_metrics.date
+left join mau_metrics on fundamental_data.date = mau_metrics.date
 where fundamental_data.date < to_date(sysdate())

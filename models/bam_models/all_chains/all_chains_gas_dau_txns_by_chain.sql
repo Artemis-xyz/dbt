@@ -24,6 +24,7 @@ where
         'near',
         'optimism',
         'polygon',
+        'solana',
         'sui',
         'tron'
     )
