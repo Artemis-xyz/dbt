@@ -20,7 +20,8 @@ with
     expenses_data as (
         select date, chain, l1_data_cost_native, l1_data_cost, revenue_native, revenue
         from {{ ref("agg_daily_blast_revenue") }}
-    )
+    ),
+    mau_metrics as ({{ get_mau_metrics("blast") }})
 select
     coalesce(
         fundamental_data.date,
@@ -32,6 +33,7 @@ select
     'blast' as chain,
     txns,
     dau,
+    mau,
     fees_native, 
     fees,
     l1_data_cost_native,  
@@ -50,10 +52,12 @@ select
     stablecoin_total_supply,
     stablecoin_txns,
     stablecoin_dau,
-    stablecoin_transfer_volume
+    stablecoin_transfer_volume,
+    deduped_stablecoin_transfer_volume
 from fundamental_data
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join contract_data on fundamental_data.date = contract_data.date
 left join expenses_data on fundamental_data.date = expenses_data.date
+left join mau_metrics on fundamental_data.date = mau_metrics.date
 where fundamental_data.date < to_date(sysdate())
