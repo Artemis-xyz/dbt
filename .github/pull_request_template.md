@@ -1,9 +1,11 @@
-## :pushpin: INSERT TITLE HERE
+## :pushpin: References
 
-## 🎄  Asset Checklist
+## 🎄 Asset Checklist
+
 - [ ] Added to `assets.csv` or already exists
 
-## 🧮  Metric Checklist
+## 🧮 Metric Checklist
+
 - [ ] Added new `fact` tables if necessary
 - [ ] Pulled fact table into `ez_asset_metrics.sql` table
 - [ ] `Compiles` in Github
