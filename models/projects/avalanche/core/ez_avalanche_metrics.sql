@@ -24,7 +24,7 @@ with
     ),
     nft_metrics as ({{ get_nft_metrics("avalanche") }}),
     p2p_metrics as ({{ get_p2p_metrics("avalanche") }}),
-    mau_metrics as ({{ get_mau_metrics("avalanche") }}),
+    mau_metrics as ({{ get_mau_metrics("avalanche") }})
 
 select
     coalesce(fundamental_data.date, staking_data.date) as date,
