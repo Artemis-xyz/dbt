@@ -5,5 +5,5 @@ sources:
     tables:
       - name: raw_cardano_daa_partitioned
       - name: raw_cardano_fees
-      - name: raw_cardano_txns
+      - name: raw_cardano_txns_partitioned
       - name: raw_cardano_nft_trading_volume
