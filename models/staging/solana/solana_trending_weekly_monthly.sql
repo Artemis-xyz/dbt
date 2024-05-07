@@ -70,7 +70,7 @@ with
             solana_contracts on lower(t.program_id) = lower(solana_contracts.address)
         left join
             solana_contracts as token on lower(token_address) = lower(token.address)
-        left join prices on date = prices.price_date
+        left join prices on date_trunc('day', block_timestamp) = prices.price_date
     ),
     last_week as (
         select
