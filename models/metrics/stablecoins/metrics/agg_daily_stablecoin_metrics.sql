@@ -5,6 +5,7 @@ select
     txns,
     dau,
     transfer_volume,
+    deduped_transfer_volume,
     chain,
     symbol,
     contract_address,

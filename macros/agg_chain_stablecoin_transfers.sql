@@ -9,6 +9,7 @@
         select
             block_timestamp,
             trunc(block_timestamp, 'day') as date,
+            transaction_hash as tx_hash,
             from_address,
             to_address,
             -- NULL address on TRON is different
@@ -39,6 +40,7 @@
         select
             block_timestamp,
             trunc(block_timestamp, 'day') as date,
+            tx_id as tx_hash,
             tx_from as from_address,
             tx_to as to_address,
             tx_from in (
@@ -77,6 +79,11 @@
         select
             block_timestamp,
             trunc(block_timestamp, 'day') as date,
+            {% if chain in ("celo") %}
+                transaction_hash as tx_hash,
+            {% else %}
+                tx_hash,
+            {% endif %}
             -- Notably, we do NOT use the Mint / Burn events here because the
             -- basic IERC20 interface does not require them to be implemented
             coalesce(
@@ -120,10 +127,10 @@
             )
             -- DO NOT include mint / burn events here - they will be duped
             and event_name in ('Transfer', 'Issue', 'Redeem')
-            {% if chain in ("celo") %}
+        {% if chain in ("celo") %}
             and tx_status = 1
-            {% else %}
+        {% else %}
             and tx_status = 'SUCCESS'
-            {% endif %}
+        {% endif %}
     {% endif %}
 {% endmacro %}

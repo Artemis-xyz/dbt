@@ -164,6 +164,7 @@ select
     stablecoin_txns,
     stablecoin_dau,
     stablecoin_transfer_volume,
+    deduped_stablecoin_transfer_volume,
     total_staked_native,
     total_staked_usd,
     issuance,

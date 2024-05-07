@@ -6,6 +6,22 @@
 {% macro agg_chain_stablecoin_metrics(chain) %}
     with
         transfer_transactions as ({{ agg_chain_stablecoin_transfers(chain) }}),
+        deduped_flows as (
+            select 
+                date,
+                sum(deduped_transfer_volume) as deduped_transfer_volume,
+                contract_address
+            from (
+                select
+                    date,
+                    tx_hash,
+                    max(transfer_volume) as deduped_transfer_volume,
+                    lower(contract_address) as contract_address
+                from transfer_transactions
+                group by date, tx_hash, contract_address
+            )
+            group by date, contract_address
+        ),
         daily_flows as (
             select
                 date,
@@ -31,15 +47,19 @@
         ),
         daily_cum_flows as (
             select
-                date as date,
+                daily_flows.date as date,
                 sum(inflow) over (
-                    partition by contract_address order by date asc
+                    partition by daily_flows.contract_address order by daily_flows.date asc
                 ) as total_supply,
                 txns,
                 dau,
                 transfer_volume,
-                contract_address
+                deduped_transfer_volume,
+                daily_flows.contract_address
             from daily_flows
+            left join deduped_flows on 
+                lower(daily_flows.contract_address) = lower(deduped_flows.contract_address)
+                and daily_flows.date = deduped_flows.date
         ),
         daily_cum_flows_dollar_denom as (
             select
@@ -53,6 +73,7 @@
                 txns,
                 dau,
                 transfer_volume * price as transfer_volume,
+                deduped_transfer_volume * price as deduped_transfer_volume,
                 daily_cum_flows.contract_address
             from daily_cum_flows
             join
@@ -72,6 +93,7 @@
         coalesce(daily_cum_flows_dollar_denom.txns, 0) as txns,
         coalesce(daily_cum_flows_dollar_denom.dau, 0) as dau,
         coalesce(daily_cum_flows_dollar_denom.transfer_volume, 0) as transfer_volume,
+        coalesce(daily_cum_flows_dollar_denom.deduped_transfer_volume, 0) as deduped_transfer_volume,
         '{{chain}}' as chain,
         fact_{{ chain }}_stablecoin_contracts.symbol,
         fact_{{ chain }}_stablecoin_contracts.contract_address
