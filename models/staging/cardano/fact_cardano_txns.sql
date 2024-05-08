@@ -1,13 +1,16 @@
 {{ config(materialized="view") }}
-with
-    max_extraction as (
-        select max(extraction_date) as max_date
-        from {{ source("PROD_LANDING", "raw_cardano_txns_partitioned") }}
-    ),
-    cardano_data as (
-        select parse_json(source_json) as data
-        from {{ source("PROD_LANDING", "raw_cardano_txns_partitioned") }}
-        where extraction_date = (select max_date from max_extraction)
-    )
-select date(value[0]) as date, value[1] as txns, value as source, 'cardano' as chain
-from cardano_data, lateral flatten(input => data:data: values)
+WITH cardano_data AS (
+    SELECT 
+        parse_json(source_json) AS data
+    FROM 
+        {{ source("PROD_LANDING", "raw_cardano_txns_partitioned") }}
+)
+SELECT 
+    date(value[0]) as date,
+    F.value[1]::INT AS txns,
+    F.value AS source, 
+    'cardano' AS chain
+FROM 
+    cardano_data,
+    LATERAL FLATTEN(input => data:data:values) AS F
+ORDER BY DATE DESC
