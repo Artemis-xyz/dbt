@@ -5,4 +5,4 @@
     )
 }}
 
-{{ filter_p2p_token_transfers("near", 1000)}}
+{{ filter_p2p_token_transfers("near")}}

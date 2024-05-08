@@ -5,4 +5,4 @@
     )
 }}
 
-{{ filter_p2p_token_transfers("arbitrum", 500) }}
+{{ filter_p2p_token_transfers("arbitrum") }}

@@ -5,4 +5,4 @@
     )
 }}
 
-{{ filter_p2p_token_transfers("optimism", 1000) }}
+{{ filter_p2p_token_transfers("optimism") }}
