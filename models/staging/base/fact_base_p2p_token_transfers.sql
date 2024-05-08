@@ -5,4 +5,4 @@
     )
 }}
 
-{{ filter_p2p_token_transfers("base", 1000) }}
+{{ filter_p2p_token_transfers("base") }}
