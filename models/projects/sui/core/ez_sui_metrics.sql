@@ -36,13 +36,21 @@ with
     ),
     price_data as ({{ get_coingecko_metrics("sui") }}),
     defillama_data as ({{ get_defillama_metrics("sui") }}),
-    github_data as ({{ get_github_metrics("sui") }})
+    github_data as ({{ get_github_metrics("sui") }}),
+    mau_metrics as (
+        select
+        date_trunc('month', raw_date) as month,
+        count(distinct sender) as mau
+        from {{ ref("ez_sui_transactions") }}
+        group by month
+    )
 select
     fundamental_data.date,
     fundamental_data.chain,
     fees / txns as avg_txn_fee,
     txns,
     dau,
+    mau,
     new_users,
     dau - new_users as returning_users,
     fees_native,
@@ -63,4 +71,5 @@ left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join github_data on fundamental_data.date = github_data.date
 left join new_users on fundamental_data.date = new_users.start_date
+left join mau_metrics on fundamental_data.date = mau_metrics.month
 where fundamental_data.date < to_date(sysdate())
