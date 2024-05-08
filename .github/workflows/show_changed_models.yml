@@ -10,7 +10,7 @@ env:
   SYSTEM_SNOWFLAKE_ROLE: ${{ secrets.SYSTEM_SNOWFLAKE_ROLE }}
 permissions: {}
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 jobs:
   build:
