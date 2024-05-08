@@ -23,8 +23,7 @@
                     unique_id as index,
                     from_address,
                     to_address,
-                    raw_amount as raw_amount_precise,
-                    amount as amount_precise,
+                    amount,
                     token_address,
                     usd_amount as amount_usd
                 from tron_allium.assets.trc20_token_transfers
@@ -39,8 +38,7 @@
                     t1.index,
                     t1.tx_from as from_address,
                     t1.tx_to as to_address,
-                    null as raw_amount_precise,
-                    t1.amount as amount_precise,
+                    t1.amount,
                     mint as token_address,
                     coalesce(amount * price, 0) as amount_usd
                 from solana_flipside.core.fact_transfers t1
@@ -58,8 +56,7 @@
                     fact_token_transfers_id as index,
                     from_address,
                     to_address,
-                    amount_raw_precise as raw_amount_precise,
-                    coalesce(amount_raw_precise/pow(10, decimals), 0) as amount_precise,
+                    coalesce(amount_raw_precise/pow(10, decimals), 0) as amount,
                     t1.contract_address as token_address,
                     coalesce((amount_raw_precise/pow(10, decimals)) * price, 0) as amount_usd
                 from near_flipside.core.ez_token_transfers t1
@@ -83,8 +80,7 @@
                     event_index as index,
                     from_address,
                     to_address,
-                    raw_amount_precise,
-                    amount_precise,
+                    amount_precise as amount,
                     contract_address as token_address,
                     amount_usd
                 from {{ chain }}_flipside.core.ez_token_transfers
@@ -108,16 +104,17 @@
         t1.token_address,
         t1.from_address,
         t1.to_address,
-        t1.raw_amount_precise,
-        t1.amount_precise,
+        t1.amount,
         t1.amount_usd
     from transfers t1
     inner join distinct_peer_address t2 on lower(t1.to_address) = lower(t2.address)
     inner join distinct_peer_address t3 on lower(t1.from_address) = lower(t3.address)
+    where lower(token_address) not in (select lower(contract_address) from {{ ref("fact_" ~ chain ~ "_stablecoin_contracts")}})
     {% if is_incremental() %} 
-        where block_timestamp >= (
+        and block_timestamp >= (
             select dateadd('day', -3, max(block_timestamp))
             from {{ this }}
         )
     {% endif %}
+    
 {% endmacro %}
