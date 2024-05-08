@@ -1,0 +1,19 @@
+models:
+  - name: fact_internet_computer_block_count_silver
+    tests:
+      - "dbt_expectations.expect_table_row_count_to_be_between:":
+          min_value: 1
+          max_value: 1000000
+    columns:
+      - name: CHAIN
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist
+      - name: DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist
+      - name: block_count
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist
