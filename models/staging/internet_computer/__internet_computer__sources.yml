@@ -1,0 +1,7 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_icp_daily_stats
+      - name: raw_icp_daily_block_count
