@@ -9,6 +9,8 @@
         select
             block_timestamp,
             trunc(block_timestamp, 'day') as date,
+            block_number,
+            unique_id as index,
             transaction_hash as tx_hash,
             from_address,
             to_address,
@@ -41,6 +43,8 @@
             block_timestamp,
             trunc(block_timestamp, 'day') as date,
             tx_id as tx_hash,
+            block_id as block_number,
+            index,
             tx_from as from_address,
             tx_to as to_address,
             tx_from in (
@@ -75,10 +79,45 @@
         where
             mint
             in (select distinct contract_address from fact_solana_stablecoin_contracts)
+    {% elif chain in ("near") %}
+        select
+            block_timestamp,
+            trunc(block_timestamp, 'day') as date,
+            block_id as block_number,
+            tx_hash,
+            fact_token_transfers_id as index,
+            from_address,
+            to_address,
+            from_address = 'system' or from_address is null as is_mint,
+            to_address = 'system' or to_address is null as is_burn,
+            amount_raw_precise / 1E24 as amount,
+            case
+                when is_mint then 1 * amount
+                when is_burn then -1 * amount
+                else 0
+            end as inflow,
+            case
+                when not is_burn and not is_burn then amount else 0
+            end as transfer_volume,
+            t1.contract_address,
+            fact_{{ chain }}_stablecoin_contracts.symbol
+        from near_flipside.core.ez_token_transfers t1
+        join
+            fact_{{ chain }}_stablecoin_contracts
+            on lower(t1.contract_address)
+            = lower(fact_{{ chain }}_stablecoin_contracts.contract_address)
+        where
+            lower(t1.contract_address) in (
+                select lower(contract_address)
+                from fact_{{ chain }}_stablecoin_contracts
+            )
+            and transfer_type = 'nep141'
     {% else %}
         select
             block_timestamp,
             trunc(block_timestamp, 'day') as date,
+            block_number,
+            event_index as index,
             {% if chain in ("celo") %}
                 transaction_hash as tx_hash,
             {% else %}
@@ -132,5 +171,11 @@
         {% else %}
             and tx_status = 'SUCCESS'
         {% endif %}
+    {% endif %}
+    {% if is_incremental() %} 
+        and block_timestamp >= (
+            select dateadd('day', -3, max(block_timestamp))
+            from {{ this }}
+        )
     {% endif %}
 {% endmacro %}

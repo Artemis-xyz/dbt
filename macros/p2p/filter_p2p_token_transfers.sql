@@ -8,8 +8,7 @@
             token_address,
             from_address,
             to_address,
-            raw_amount_precise,
-            amount_precise,
+            amount,
             amount_usd
         from {{ ref("fact_"~ chain ~"_p2p_token_transfers_silver")}} 
         where amount_usd is not null 
@@ -57,7 +56,6 @@
                         {% endif %}
                     group by token_in, token_out
                     order by daily_volume desc
-                    limit {{ limit_number }}-- choose top pairs depending on the chain   
                 ),
             {% else %}
                 dex_swap_liquidity as (
@@ -79,15 +77,17 @@
                         < 1
                     group by token_in, token_out
                     order by daily_volume desc
-                    limit {{ limit_number }}-- choose top pairs depending on the chain   
                 ),
             {% endif %}
         tokens as (
             select distinct token_in as token
             from dex_swap_liquidity
+            where lower(token_in) not in (select lower(contract_address) from fact_{{ chain }}_stablecoin_contracts)
             union
             select distinct token_out as token
             from dex_swap_liquidity
+            where lower(token_in) not in (select lower(contract_address) from fact_{{ chain }}_stablecoin_contracts)
+            limit {{ limit_number }}-- choose top pairs depending on the chain   
         )
         select 
             block_timestamp,
@@ -97,8 +97,7 @@
             token_address,
             from_address,
             to_address,
-            raw_amount_precise,
-            amount_precise,
+            amount,
             amount_usd
         from {{ ref("fact_"~ chain ~"_p2p_token_transfers_silver")}} 
         where amount_usd is not null 

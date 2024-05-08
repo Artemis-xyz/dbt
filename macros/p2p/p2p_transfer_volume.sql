@@ -12,15 +12,13 @@ with
             block_timestamp::date as date,
             sum(amount_usd) as amount
         from {{ ref("fact_"~ chain ~"_p2p_token_transfers")}}
-        where lower(token_address) not in (select lower(contract_address) from {{ ref("fact_" ~chain~"_stablecoin_contracts")}})
         group by date
     ),
     stablecoin_transfers as (
         select
             block_timestamp::date as date,
             sum(amount_usd) as amount
-        from {{ ref("fact_"~ chain ~"_p2p_token_transfers")}}
-        where lower(token_address) in (select lower(contract_address) from {{ ref("fact_" ~chain~ "_stablecoin_contracts")}})
+        from {{ ref("fact_"~ chain ~ "_p2p_stablecoin_transfers")}}
         group by date
     )
 

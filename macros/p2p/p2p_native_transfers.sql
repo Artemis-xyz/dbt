@@ -26,8 +26,7 @@
                     unique_id as index,
                     from_address,
                     to_address,
-                    raw_amount as raw_amount_precise,
-                    amount as amount_precise
+                    amount
                 from tron_allium.assets.trx_token_transfers
                 where to_address != from_address 
                     and lower(to_address) != lower('TMerfyf1KwvKeszfVoLH3PEJH52fC2DENq') -- Burn address of tron
@@ -40,8 +39,7 @@
                     t1.index,
                     t1.tx_from as from_address,
                     t1.tx_to as to_address,
-                    null as raw_amount_precise,
-                    t1.amount as amount_precise
+                    t1.amount
                 from solana_flipside.core.fact_transfers t1
                 inner join solana_flipside.core.fact_blocks t2 using(block_id)
                 where mint = 'So11111111111111111111111111111111111111112'
@@ -56,8 +54,7 @@
                     fact_token_transfers_id as index,
                     from_address,
                     to_address,
-                    amount_raw_precise as raw_amount_precise,
-                    amount_raw_precise / 1E24 as amount_precise
+                    amount_raw_precise / 1E24 as amount
                 from near_flipside.core.ez_token_transfers
                 where from_address != to_address and transfer_type = 'native'
                     and from_address is not null and to_address is not null
@@ -69,8 +66,7 @@
                     trace_index as index,
                     from_address,
                     to_address,
-                    amount_precise_raw as raw_amount_precise,
-                    amount_precise
+                    amount_precise as amount
                 from {{ chain }}_flipside.core.ez_native_transfers
                 where to_address != from_address
                     and lower(from_address) != lower('0x0000000000000000000000000000000000000000')
@@ -91,9 +87,8 @@
         t1.index,
         t1.from_address,
         t1.to_address,
-        t1.raw_amount_precise,
-        t1.amount_precise,
-        coalesce(t1.amount_precise * price, 0) as amount_usd
+        t1.amount,
+        coalesce(t1.amount * price, 0) as amount_usd
     from transfers t1
     inner join distinct_peer_address t2 on lower(t1.to_address) = lower(t2.address)
     inner join distinct_peer_address t3 on lower(t1.from_address) = lower(t3.address)

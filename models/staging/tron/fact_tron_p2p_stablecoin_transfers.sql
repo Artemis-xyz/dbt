@@ -1,9 +1,9 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         unique_key=["tx_hash", "index"],
         snowflake_warehouse="TRON",
     )
 }}
 
-{{ p2p_native_transfers("tron") }}
+{{ p2p_stablecoin_transfers("tron") }}
