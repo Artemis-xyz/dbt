@@ -3,7 +3,7 @@ WITH cardano_data AS (
     SELECT
         parse_json(source_json) AS data
     FROM
-        {{ source("PROD_LANDING", "raw_cardano_daa_partitioned") }}
+        {{ source("PROD_LANDING", "raw_cardano_daa") }}
 )
 SELECT
     date(value[0]) as date,
