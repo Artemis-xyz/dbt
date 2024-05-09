@@ -5,8 +5,6 @@ sources:
     tables:
       - name: raw_tron_erc20_transfer_logs
       - name: raw_tron_erc20_transfer_decoded_logs
-      - name: raw_tron_dau_txns
-      - name: raw_tron_fees_revenue
   - name: BALANCES
     schema: PROD
     database: PC_DBT_DB

@@ -1,0 +1,9 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_ton_daa
+      - name: raw_ton_gas
+      - name: raw_ton_revenue
+      - name: raw_ton_txns
