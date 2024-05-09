@@ -30,6 +30,12 @@
                         token_address,
                         avg(close) as price
                     from solana_flipside.price.ez_token_prices_hourly
+                    {% if is_incremental() %} 
+                        where block_timestamp >= (
+                            select dateadd('day', -3, max(block_timestamp))
+                            from {{ this }}
+                        )
+                    {% endif %}
                     group by date, token_address
                 ),
                 dex_swap_liquidity_pairs as (
@@ -47,6 +53,7 @@
                             - ln(coalesce(nullif(swap_to_amount * t3.price, 0), 1)) / ln(10)
                         )
                         < 1
+                        and block_timestamp > '2022-12-31'
                         group by token_in, token_out
                         order by amount_in_usd desc
                         limit {{ limit_number }}
@@ -136,6 +143,9 @@
             and token_address in (select token from tokens) 
             {% if blacklist is string %} and lower(token_address) != lower('{{ blacklist }}')
             {% elif blacklist | length > 1 %} and token_address not in {{ blacklist }} --make sure you pass in lower
+            {% endif %}
+            {% if chain == "solana" %}
+                and block_timestamp > '2022-12-31' -- Prior to 2023, volumes data not high fidelity enough to report. Continuing to do analysis on this data. 
             {% endif %}
             {% if is_incremental() %} 
                 and block_timestamp >= (

@@ -76,7 +76,16 @@ select
     decoded_transfers.token_address,
     token_chain,
     coalesce(
-        amount_usd, (amount * coalesce(price, 0)) / pow(10, decimals), 0
+        amount_usd, 
+        (amount * coalesce(price, 0)) / pow(10, 
+        case 
+            when lower(decoded_transfers.token_address) in (
+                lower('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'),
+                lower('0xb8e2e2101ed11e9138803cd3e06e16dd19910647'),
+                lower('0xaaaebe6fe48e54f431b0c390cfaf0b017d09d42d'),
+                lower('0x476c5e26a75bd202a9683ffd34359c0cc15be0ff'),
+                lower('0xdac17f958d2ee523a2206206994597c13d831ec7')
+            ) then 8 else decimals end), 0
     ) as amount_usd,
     symbol
 from decoded_transfers
