@@ -28,6 +28,20 @@ with
             on lower(fact_{{ chain }}_stablecoin_contracts.coingecko_id)
             = lower(fact_coingecko_token_date_adjusted_gold.coingecko_id)
             and t1.date = fact_coingecko_token_date_adjusted_gold.date
+        {% if chain == "solana" %}
+            where block_timestamp > '2022-12-31' -- Prior to 2023, volumes data not high fidelity enough to report. Continuing to do analysis on this data. 
+        {% endif %}
+        {% if is_incremental() %} 
+            {% if chain == "solana" %}
+                and 
+            {% else %}
+                where 
+            {% endif %}
+            block_timestamp >= (
+                select dateadd('day', -3, max(block_timestamp))
+                from {{ this }}
+            )
+        {% endif %}
     )
     select
         t1.block_timestamp,
@@ -46,7 +60,10 @@ with
         and from_address is not null and to_address is not null
         and lower(to_address) not in ('TMerfyf1KwvKeszfVoLH3PEJH52fC2DENq', '1nc1nerator11111111111111111111111111111111', 'system', '0x0000000000000000000000000000000000000000')
         and lower(from_address) not in ('TMerfyf1KwvKeszfVoLH3PEJH52fC2DENq', '1nc1nerator11111111111111111111111111111111', 'system', '0x0000000000000000000000000000000000000000')
-     {% if is_incremental() %} 
+    {% if chain == "solana" %}
+        and block_timestamp > '2022-12-31' -- Prior to 2023, volumes data not high fidelity enough to report. Continuing to do analysis on this data. 
+    {% endif %}
+    {% if is_incremental() %} 
         and block_timestamp >= (
             select dateadd('day', -3, max(block_timestamp))
             from {{ this }}
