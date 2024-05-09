@@ -44,4 +44,4 @@ from price_data
 full join icp_metrics on price_data.date = icp_metrics.date
 full join icp_blocks on price_data.date = icp_blocks.date
 full join defillama_data on price_data.date = defillama_data.date
-where date < to_date(sysdate())
+where coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_blocks.date) < to_date(sysdate())
