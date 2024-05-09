@@ -8,6 +8,7 @@
         left join
             ({{ get_coingecko_price_with_latest("solana") }}) prices
             on block_timestamp::date = prices.date
+        where program_id != 'TSWAPaqyCSx2KABk68Shruf4rp7CxcNi8hAsbdwmHbN' -- bug in data where sales_amount is not the actual sales amount
         group by block_timestamp::date
         order by date desc
     {% elif chain == "flow" %}

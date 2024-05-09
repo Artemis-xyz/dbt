@@ -30,6 +30,12 @@
                         token_address,
                         avg(close) as price
                     from solana_flipside.price.ez_token_prices_hourly
+                    {% if is_incremental() %} 
+                        where block_timestamp >= (
+                            select dateadd('day', -3, max(block_timestamp))
+                            from {{ this }}
+                        )
+                    {% endif %}
                     group by date, token_address
                 ),
                 dex_swap_liquidity_pairs as (
