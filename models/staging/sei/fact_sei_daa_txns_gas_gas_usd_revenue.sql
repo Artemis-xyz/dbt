@@ -18,9 +18,10 @@ with
     daily as (
         select
             date,
-            count(tx_id) as txns,
+            count(DISTINCT tx_id) as txns,
             count(distinct tx_from) as daa,
-            sum(tx_fee) as gas
+            sum(tx_fee) as gas,
+            count(DISTINCT tx_id) / 86400 as avg_tps
         from sei_raw_data
         group by date
     ),
@@ -28,4 +29,5 @@ with
 select daily.date, 'sei' as chain, txns, daa, gas, gas * price as gas_usd, 0 as revenue
 from daily
 left join prices on daily.date = prices.date
+daily.date < date(sysdate())
 order by date
