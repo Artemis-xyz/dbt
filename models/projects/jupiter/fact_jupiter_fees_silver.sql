@@ -6,6 +6,6 @@ from
 left join
      pc_dbt_db.prod.fact_jupiter_dca_fees_silver dca on dca.date = lo.date
 left join
-    pc_dbt_db.prod.fact_jupiter_perps_fees_silver perps on perps.date = dca.date
+    pc_dbt_db.prod.fact_jupiter_perps_silver perps on perps.date = dca.date
 where lo.date < to_date(sysdate())
 order by 1 asc
