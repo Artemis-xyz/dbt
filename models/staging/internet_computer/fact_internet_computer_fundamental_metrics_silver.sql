@@ -18,6 +18,7 @@ max_extraction as (
         ,value:average_transactions_per_second::float as avg_tps
         ,value:blocks_per_second_average::float as avg_blocks_per_second
         ,value:icp_burned_total::int / 10e7 as icp_burned_total
+        ,LAG(value:icp_burned_total, 1, null) OVER (ORDER BY value:day::date) / 10e7 as prev_icp_burned_total
         ,value:icp_burned_fees::int / 10e7 as icp_burned_fees
         ,value:governance_neurons_total::int as neurons_total
         ,value:governance_neuron_fund_total_staked_e8s::int / 10e7 as nns_total_staked
@@ -39,7 +40,11 @@ select
     , neurons_total
     , avg_tps
     , avg_blocks_per_second
-    , icp_burned_total - LAG(icp_burned_total, 1, null) OVER (ORDER BY date) as icp_burned
+    , case 
+        when icp_burned_total - prev_icp_burned_total < 0  or icp_burned_total - prev_icp_burned_total > 100000
+        then 0
+        else icp_burned_total - prev_icp_burned_total
+      end as icp_burned
     , icp_burned_fees as total_icp_transaction_fees -- total transaction fees
     , nns_tvl -- same as total icp staked in NNS
     , total_proposals_count - LAG(total_proposals_count, 1, null) OVER (ORDER BY date) as nns_proposal_count
