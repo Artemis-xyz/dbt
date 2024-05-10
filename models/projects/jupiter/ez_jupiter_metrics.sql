@@ -19,10 +19,10 @@ with
     ),
     price_data as ({{ get_coingecko_metrics("jupiter-exchange-solana") }})
 select
-    fees_data.date,
+    fees_data.date as date,
     'solana' as chain,
     'jupiter' as protocol,
-    fees_data.fees,
+    fees_data.fees as fees,
     volume as trading_volume,
     traders as unique_traders,
     price,
