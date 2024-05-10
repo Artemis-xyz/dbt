@@ -75,7 +75,7 @@ with
                     ref("fact_gnosis_daa_txns_gas_gas_usd_gold"),
                     ref("fact_flow_fees_revs_gold"),
                     ref("fact_mantle_daa_txns_gas_gas_usd_revenue_gold"),
-                    ref("fact_sei_daa_txns_gas_gas_usd_revenue_gold"),
+                    ref("ez_sei_metrics"),
                     ref("fact_stride_daa_gas_usd_txns_gold"),
                     ref("fact_zcash_gas_gas_usd_txns_gold"),
                     ref("fact_parallel_finance_daa_gas_gas_usd_txns_gold"),
