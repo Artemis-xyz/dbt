@@ -22,7 +22,7 @@ select
     fees_data.date,
     'solana' as chain,
     'jupiter' as protocol,
-    fees,
+    fees_data.fees,
     volume as trading_volume,
     traders as unique_traders,
     price,
