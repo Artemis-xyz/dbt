@@ -173,7 +173,6 @@ select
     p2p_token_transfer_volume,
     p2p_stablecoin_transfer_volume,
     p2p_transfer_volume,
-    coalesce(deduped_stablecoin_transfer_volume, 0) - coalesce(p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume,
     coalesce(dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
 from fundamental_usage
 left join defillama_data on fundamental_usage.date = defillama_data.date

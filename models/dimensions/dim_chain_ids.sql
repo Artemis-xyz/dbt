@@ -24,5 +24,6 @@ from
             (1666600000, 'harmony'),
             (56, 'bsc'),
             (25, 'cronos'),
-            (81457, 'blast')
+            (81457, 'blast'),
+            (534352, 'scroll')
     ) as t(id, chain)
