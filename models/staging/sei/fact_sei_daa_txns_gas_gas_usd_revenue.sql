@@ -1,4 +1,4 @@
-{{ config(materialized="incremental", unique_key="date") }}
+{{ config(materialized="incremental", unique_key="date", snowflake_warehouse="sei") }}
 
 with
     sei_raw_data as (
@@ -26,8 +26,9 @@ with
         group by date
     ),
     prices as ({{ get_coingecko_price_with_latest("sei-network") }})
-select daily.date, 'sei' as chain, txns, daa, gas, gas * price as gas_usd, 0 as revenue
+select daily.date, 'sei' as chain, avg_tps, txns, daa, gas, gas * price as gas_usd, 0 as revenue
 from daily
 left join prices on daily.date = prices.date
+where
 daily.date < date(sysdate())
 order by date
