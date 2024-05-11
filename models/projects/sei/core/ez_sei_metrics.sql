@@ -10,7 +10,7 @@
 with
     sei_fundamental_metrics as (select * from {{ ref("fact_sei_daa_txns_gas_gas_usd_revenue") }})
     , sei_avg_bps as (select * from {{ ref("fact_sei_avg_bps_silver") }})
-    , price_data as ({{ get_coingecko_metrics("sei") }})
+    , price_data as ({{ get_coingecko_metrics("sei-network") }})
     , defillama_data as ({{ get_defillama_metrics("sei") }})
 select
     coalesce(f.date, sei_avg_bps.date, price.date, defillama.date) as date
