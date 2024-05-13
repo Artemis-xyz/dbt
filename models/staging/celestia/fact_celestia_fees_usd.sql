@@ -1,4 +1,4 @@
-with fees as (SELECT date, fees_tia FROM pc_dbt_db.prod.fact_celestia_txn_count_and_fees_silver),
+with fees as (SELECT date, fees_tia FROM  {{ ref("fact_celestia_txn_count_and_fees_silver") }} ),
 prices as ( {{ get_coingecko_price_with_latest('celestia')}} )
 SELECT
     p.date,
