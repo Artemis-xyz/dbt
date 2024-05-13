@@ -14,6 +14,7 @@ with
             date,
             sum(mints) as mints,
             sum(fees_tia) as fees_native,
+            sum(fees) as fees,
             sum(transaction_count) as txns,
             sum(unique_namespaces_count) as unique_namespaces,
             sum(total_blob_size_mb) as blob_size_mb,
@@ -28,6 +29,7 @@ with
                             ref("fact_celestia_fees_for_blobs_silver"),
                             ref("fact_celestia_namespaces_blob_sizes_silver"),
                             ref("fact_celestia_txn_count_and_fees_silver"),
+                            ref("fact_celestia_fees_usd")
                         ]
                     )
                 }}
@@ -41,6 +43,7 @@ select
     fundamental_data.chain,
     coalesce(txns, 0) as txns,
     coalesce(fees_native, 0) as fees_native,
+    coalesce(fees, 0) as fees,
     coalesce(mints, 0) as mints,
     coalesce(unique_namespaces, 0) as unique_namespaces,
     coalesce(blob_size_mb, 0) as blob_size_mb,
