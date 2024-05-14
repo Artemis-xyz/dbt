@@ -21,6 +21,7 @@ with
     ),
     nft_metrics as ({{ get_nft_metrics("solana") }}),
     p2p_metrics as ({{ get_p2p_metrics("solana") }}),
+    rolling_metrics as ({{ get_rolling_active_address_metrics("solana") }}),
     {% if not is_incremental() %}
         unrefreshed_data as (
             select
@@ -152,6 +153,8 @@ select
     -- fact_votes_agg_block
     txns,
     dau,
+    wau,
+    mau,
     returning_users,
     new_users,
     weekly_commits_core_ecosystem,
@@ -185,4 +188,5 @@ left join staking_data on fundamental_usage.date = staking_data.date
 left join issuance_data on fundamental_usage.date = issuance_data.date
 left join nft_metrics on fundamental_usage.date = nft_metrics.date
 left join p2p_metrics on fundamental_usage.date = p2p_metrics.date
+left join rolling_metrics on fundamental_usage.date = rolling_metrics.date
 where fundamental_usage.date < to_date(sysdate())

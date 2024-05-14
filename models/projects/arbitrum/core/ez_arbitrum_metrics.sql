@@ -22,12 +22,13 @@ with
     contract_data as ({{ get_contract_metrics("arbitrum") }}),
     nft_metrics as ({{ get_nft_metrics("arbitrum") }}),
     p2p_metrics as ({{ get_p2p_metrics("arbitrum") }}),
-    mau_metrics as ({{ get_mau_metrics("arbitrum") }})
+    rolling_metrics as ({{ get_rolling_active_address_metrics("arbitrum") }})
 select
     fundamental_data.date,
     fundamental_data.chain,
     txns,
     dau,
+    wau,
     mau,
     fees_native,  -- total gas fees paid on l2 by users(L2 Fees)
     fees,
@@ -73,5 +74,5 @@ left join github_data on fundamental_data.date = github_data.date
 left join contract_data on fundamental_data.date = contract_data.date
 left join nft_metrics on fundamental_data.date = nft_metrics.date
 left join p2p_metrics on fundamental_data.date = p2p_metrics.date
-left join mau_metrics on fundamental_data.date = mau_metrics.date
+left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 where fundamental_data.date < to_date(sysdate())
