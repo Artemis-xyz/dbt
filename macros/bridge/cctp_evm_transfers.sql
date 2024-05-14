@@ -1,5 +1,5 @@
 {% macro cctp_transfers(chain, contract_address, source_domain_id) %}
-    {% if chain == 'solana'}
+    {% if chain == 'solana' %}
         select
             block_timestamp,
             block_id as block_number,
@@ -18,8 +18,6 @@
         lateral flatten(input => get_path(inner_instruction, 'instructions')) AS f
         where program_id = 'CCTPiPYPc6AsJuwueEnWgSgucamXDZwBd53dQ11YiKX3'
         and SUBSTRING(hex_data,17,16) = '90fc9192064aa7eb'
-    {% elif chain == 'noble' %}
-        
     {% else %}
         select 
             block_timestamp,
