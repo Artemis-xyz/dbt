@@ -17,12 +17,13 @@ with
     github_data as ({{ get_github_metrics("Binance Smart Chain") }}),
     contract_data as ({{ get_contract_metrics("bsc") }}),
     nft_metrics as ({{ get_nft_metrics("bsc") }}),
-    mau_metrics as ({{ get_mau_metrics("bsc") }})
+    rolling_metrics as ({{ get_rolling_active_address_metrics("bsc") }})
 select
     fundamental_data.date,
     fundamental_data.chain,
     txns,
     dau,
+    wau,
     mau,
     fees_native,
     fees,
@@ -58,5 +59,5 @@ left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join github_data on fundamental_data.date = github_data.date
 left join contract_data on fundamental_data.date = contract_data.date
 left join nft_metrics on fundamental_data.date = nft_metrics.date
-left join mau_metrics on fundamental_data.date = mau_metrics.date
+left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 where fundamental_data.date < to_date(sysdate())
