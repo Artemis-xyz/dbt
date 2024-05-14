@@ -41,10 +41,10 @@ select
     tokens_supported.token_name,
     token_image_small,
     token_market_cap_rank,
-    category,
-    subcategory,
-    tag_1,
-    tag_2
+    lower(category) as category,
+    lower(subcategory) as subcategory,
+    lower(tag_1) as tag_1,
+    lower(tag_2) as tag_2
 from tokens_supported
 left join
     {{ source("SIGMA", "coingecko_classification") }} as sigma
