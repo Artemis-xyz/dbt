@@ -6,7 +6,7 @@ union all
 union all
 {{ cctp_transfers("arbitrum", "0x19330d10D9Cc8751218eaf51E8885D058642E08A", 3) }}
 union all
-{{ cct_transfers("base", "0x1682Ae6375C4E4A97e4B583BC394c861A46D8962", 6) }}
+{{ cctp_transfers("base", "0x1682Ae6375C4E4A97e4B583BC394c861A46D8962", 6) }}
 union all
 {{ cctp_transfers("polygon", "0x9daF8c91AEFAE50b9c0E69629D3F6Ca40cA3B3FE", 7) }}
 union all
