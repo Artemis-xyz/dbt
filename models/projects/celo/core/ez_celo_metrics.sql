@@ -23,7 +23,6 @@ select
     fundamental_data.chain,
     txns,
     dau,
-    mau,
     fees,
     revenue,
     avg_txn_fee,
