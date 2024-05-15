@@ -39,6 +39,7 @@ select
     market_cap,
     fdmc,
     tvl,
+    dex_volumes,
     weekly_commits_core_ecosystem,
     weekly_commits_sub_ecosystem,
     weekly_developers_core_ecosystem,
