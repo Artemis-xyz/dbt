@@ -14,6 +14,12 @@ with
         from {{ ref("ez_sui_transactions") }}
         group by sender
     ),
+    distinct_dates as (
+    select distinct 
+        block_timestamp AS date,
+        sender
+        from {{ ref("ez_sui_transactions") }}
+    ),
     new_users as (
         select
             count(distinct sender) as new_users,
@@ -37,12 +43,13 @@ with
     price_data as ({{ get_coingecko_metrics("sui") }}),
     defillama_data as ({{ get_defillama_metrics("sui") }}),
     github_data as ({{ get_github_metrics("sui") }}),
-    mau_metrics as (
-        select
-        date_trunc('month', raw_date) as month,
-        count(distinct sender) as mau
-        from {{ ref("ez_sui_transactions") }}
-        group by month
+    rolling_mau as (
+        select 
+        t1.date,
+        count(distinct t2.sender) as mau
+        from distinct_dates t1
+        join distinct_dates t2 on t2.date between dateadd(DAY, -29, t1.date) and t1.date
+        group by t1.date
     )
 select
     fundamental_data.date,
@@ -71,5 +78,5 @@ left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join github_data on fundamental_data.date = github_data.date
 left join new_users on fundamental_data.date = new_users.start_date
-left join mau_metrics on fundamental_data.date = mau_metrics.month
+left join rolling_mau on fundamental_data.date = rolling_mau.date
 where fundamental_data.date < to_date(sysdate())
