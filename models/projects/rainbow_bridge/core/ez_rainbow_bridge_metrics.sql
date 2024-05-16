@@ -1,8 +1,8 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="CCTP",
-        database="cctp",
+        snowflake_warehouse="RAINBOW_BRIDGE",
+        database="rainbow_bridge",
         schema="core",
         alias="ez_metrics",
     )
@@ -11,16 +11,16 @@
 with
     bridge_volume as (
         select date, bridge_volume
-        from {{ ref("fact_cctp_bridge_volume") }}
+        from {{ ref("fact_rainbow_bridge_bridge_volume") }}
         where chain is null
     ),
     bridge_dau as (
         select date, bridge_dau
-        from {{ ref("fact_cctp_bridge_dau") }}
+        from {{ ref("fact_rainbow_bridge_bridge_dau") }}
     )
 select
     bridge_volume.date as date,
-    'cctp' as protocol,
+    'rainbow_bridge' as protocol,
     'Bridge' as category,
     bridge_volume.bridge_volume,
     bridge_dau.bridge_dau
