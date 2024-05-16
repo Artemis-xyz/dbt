@@ -15,6 +15,7 @@ with
                     ref("fact_polygon_pos_bridge_flows"),
                     ref("fact_starknet_bridge_flows"),
                     ref("fact_zksync_era_bridge_flows"),
+                    ref("fact_rainbow_bridge_flows"),
                 ]
             )
         }}
