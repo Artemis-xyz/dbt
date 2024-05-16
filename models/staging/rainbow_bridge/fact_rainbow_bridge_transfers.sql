@@ -41,13 +41,25 @@ with
             {% if is_incremental() %}
                 and block_timestamp > (select max(block_timestamp) from {{ this }})
             {% endif %}
+    ),
+    ethereum_to_near_recipient as (
+        select
+            tx_hash,
+            decoded_log:"accountId"::string as depositor
+        from ethereum_flipside.core.ez_decoded_event_logs
+        where origin_to_address='0x23ddd3e3692d1861ed57ede224608875809e127f'
+            and origin_function_signature='0x0889bfe7'
+            and event_name='Locked'
+            {% if is_incremental() %}
+                and block_timestamp > (select max(block_timestamp) from {{ this }})
+            {% endif %}
     )
 
 select 
     block_timestamp,
-    tx_hash,
+    t.tx_hash,
     event_index,
-    depositor,
+    coalesce(r.depositor, t.depositor) as depositor,
     recipient,
     t.token_address,
     amount,
@@ -56,6 +68,7 @@ select
     destination_chain,
     decoded_log
 from rainbow_bridge_transfers t
+left join ethereum_to_near_recipient r  on t.tx_hash = r.tx_hash
 left join ethereum_flipside.price.ez_hourly_token_prices p
     on date_trunc('hour', t.block_timestamp) = p.hour
     and lower(t.token_address) = lower(p.token_address)
