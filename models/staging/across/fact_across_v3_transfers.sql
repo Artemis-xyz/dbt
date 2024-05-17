@@ -195,7 +195,68 @@ with
             zksync_extraction t2
             on t1.date = t2.date
             and t1.extraction_date = t2.extraction_date
+    ),
+
+    linea_extraction as (
+        select
+            date_trunc('day', flat_json.value:"block_timestamp"::timestamp) as date,
+            max(extraction_date) as extraction_date
+        from
+            {{ source("PROD_LANDING", "raw_across_v3_linea_events") }},
+            lateral flatten(input => parse_json(source_json)) as flat_json
+        group by date
+        order by date
+    ),
+
+    linea_flattened_json as (
+        select
+            extraction_date,
+            date_trunc('day', flat_json.value:"block_timestamp"::timestamp) as date,
+            to_timestamp(flat_json.value:"block_timestamp"::varchar) as block_timestamp,
+            flat_json.value:"contract_address"::string as contract_address,
+            flat_json.value:"tx_hash"::string as tx_hash,
+            flat_json.value:"event_index"::integer as event_index,
+            flat_json.value:"amount"::double as amount,
+            flat_json.value:"depositor"::string as depositor,
+            flat_json.value:"recipient"::string as recipient,
+            flat_json.value:"destination_chain_id"::integer as destination_chain_id,
+            flat_json.value:"destination_token"::string as destination_token,
+            flat_json.value:"origin_chain_id"::integer as origin_chain_id,
+            flat_json.value:"input_amount"::float as input_amount,
+            flat_json.value:"input_token"::string as input_token,
+            flat_json.value:"destination_token_symbol"::string
+            as destination_token_symbol
+        from
+            {{ source("PROD_LANDING", "raw_across_v3_linea_events") }},
+            lateral flatten(input => parse_json(source_json)) as flat_json
+    ),
+
+    linea_transfers as (
+        select
+            t1.contract_address,
+            t1.block_timestamp,
+            t1.tx_hash,
+            t1.event_index,
+            t1.amount,
+            t1.depositor,
+            t1.recipient,
+            t1.destination_chain_id,
+            t1.destination_token,
+            t1.origin_chain_id,
+            t1.input_amount,
+            t1.input_token,
+            t1.destination_token_symbol,
+        from linea_flattened_json t1
+        left join
+            linea_extraction t2
+            on t1.date = t2.date
+            and t1.extraction_date = t2.extraction_date
     )
+
+
+
+
+
 
 select
     contract_address,
@@ -230,3 +291,24 @@ select
     input_token,
     destination_token_symbol
 from zksync_transfers
+
+union 
+
+select
+    contract_address,
+    block_timestamp,
+    tx_hash,
+    event_index,
+    amount,
+    depositor,
+    recipient,
+    destination_chain_id,
+    destination_token,
+    origin_chain_id,
+    input_amount,
+    input_token,
+    destination_token_symbol
+from linea_transfers
+
+
+

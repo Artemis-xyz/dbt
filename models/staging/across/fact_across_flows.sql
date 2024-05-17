@@ -62,7 +62,7 @@ with
         from base_flipside.price.ez_hourly_token_prices
         where token_address in (select token_address from distinct_tokens where chain = 'base')
     ),
-    dim_zkSync_tokens as (
+    dim_tokens as (
         select symbol, address, chain, category
         from
             (
@@ -108,7 +108,7 @@ with
     ),
 
     
-    zksync_transfers as (
+    zksync_linea_transfers as (
         select 
             version,
             contract_address,
@@ -119,26 +119,26 @@ with
             depositor,
             recipient,
             destination_chain_id,
-            dim_zkSync_tokens.address as destination_token,
+            dim_tokens.address as destination_token,
             origin_chain_id,
             destination_token_symbol,
             destination_chain, 
             source_chain, 
-            dim_zkSync_tokens.category as destination_category
+            dim_tokens.category as destination_category
         from across_transfers_chain_mapping
-        left join dim_zkSync_tokens on lower(destination_token_symbol) = lower(symbol)
-        where destination_token_symbol is not null
+        left join dim_tokens on lower(destination_token_symbol) = lower(symbol)
+        where lower(contract_address) in (lower('0xE0B015E54d54fc84a6cB9B666099c46adE9335FF'), lower('0x7E63A5f1a8F0B4d0934B2f2327DAED3F6bb2ee75'))
     ),
 
-    zksync_prices as (
+    zksync_linea_prices as (
         select hour, token_address, decimals, avg(price) as price
         from ethereum_flipside.price.ez_hourly_token_prices
-        inner join dim_zkSync_tokens on lower(token_address) = lower(address)
+        inner join dim_tokens on lower(token_address) = lower(address)
         group by 1, 2, 3
     ),
 
 
-    zksync_volume_by_chain_and_symbol as (
+    zksync_linea_volume_by_chain_and_symbol as (
         select
             date_trunc('hour', block_timestamp) as hour,
             source_chain,
@@ -147,16 +147,16 @@ with
             sum(
                 coalesce((amount / power(10, p.decimals)) * price, 0)
             ) as amount_usd
-        from zksync_transfers t
+        from zksync_linea_transfers t
         left join
-            zksync_prices p
+            zksync_linea_prices p
             on date_trunc('hour', t.block_timestamp) = p.hour
             and t.destination_token = p.token_address
         group by 1, 2, 3, 4
 
     ),
 
-    non_zksync_volume_by_chain_and_symbol as (
+    non_zksync_linea_volume_by_chain_and_symbol as (
        select
             date_trunc('hour', block_timestamp) as hour,
             source_chain,
@@ -171,7 +171,7 @@ with
             on date_trunc('hour', t.block_timestamp) = p.hour
             and t.destination_token = p.token_address
         where
-            t.destination_token_symbol is null
+            lower(t.contract_address) not in (lower('0xE0B015E54d54fc84a6cB9B666099c46adE9335FF'), lower('0x7E63A5f1a8F0B4d0934B2f2327DAED3F6bb2ee75'))
         group by 1, 2, 3, 4
 
     ),
@@ -185,12 +185,12 @@ with
         from
             (
                 select *
-                from zksync_volume_by_chain_and_symbol
+                from zksync_linea_volume_by_chain_and_symbol
 
                 union
 
                 select *
-                from non_zksync_volume_by_chain_and_symbol
+                from non_zksync_linea_volume_by_chain_and_symbol
 
             ) t
         group by 1, 2, 3, 4
