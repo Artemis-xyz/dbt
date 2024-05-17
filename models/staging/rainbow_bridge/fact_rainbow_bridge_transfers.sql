@@ -1,5 +1,5 @@
 {{ config(
-    materialized="table",
+    materialized="incremental",
     snowflake_warehouse="RAINBOW_BRIDGE",
 ) }}
 WITH functioncall AS (
