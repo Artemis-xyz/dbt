@@ -5,3 +5,4 @@ sources:
     tables:
       - name: raw_across_v2_zksync_events
       - name: raw_across_v3_zksync_events
+      - name: raw_across_v3_linea_events
