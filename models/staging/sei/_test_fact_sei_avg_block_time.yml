@@ -1,5 +1,5 @@
 models:
-  - name: fact_sei_avg_bps_silver
+  - name: fact_sei_avg_block_time_silver
     test:
       - "dbt_expectations.expect_table_row_count_to_be_between:":
           min_value: 1
@@ -12,7 +12,7 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 3
-      - name: avg_bps
+      - name: avg_block_time
         tests:
           - not_null
           - dbt_expectations.expect_column_to_exist
