@@ -17,6 +17,21 @@
                 from {{ chain }}.prod_raw.ez_transactions, lateral flatten(input => signers)
                 where succeeded = 'TRUE'
             ),
+    {% elif chain == 'sui' %}
+        distinct_dates as (
+            select distinct
+                raw_date
+            from {{ chain }}.prod_raw.ez_transactions
+            {% if is_incremental() %}
+                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+        ),
+        distinct_dates_for_rolling_active_address as (
+            select distinct
+                raw_date,
+                sender as from_address
+            from {{ chain }}.prod_raw.ez_transactions
+        ),
     {% else %}
         distinct_dates as (
             select distinct 
