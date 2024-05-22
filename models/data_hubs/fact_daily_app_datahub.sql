@@ -43,6 +43,7 @@ with
                     ref("fact_meth_staked_eth_count_with_USD_and_change_gold"),
                     ref("fact_binance_staked_eth_count_with_usd_and_change"),
                     ref("fact_sweth_staked_eth_count_with_usd_and_change"),
+                    ref("fact_coinbase_staked_eth_count_with_usd_and_change"),
                     ref("fact_rocketpool_staked_eth_count_with_USD_and_change_gold"),
                     ref("fact_frax_staked_eth_count_with_USD_and_change_gold"),
                     ref("fact_stakewise_staked_eth_count_with_USD_and_change_gold"),
