@@ -17,3 +17,5 @@
 {% macro to_string(v) %} {{ v }}::string {% endmacro %}
 
 {% macro to_timestamp(v) %} {{ v }}::timestamp {% endmacro %}
+
+{% macro to_date(v) %} {{ v }}::date {% endmacro %}

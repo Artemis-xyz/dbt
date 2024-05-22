@@ -23,7 +23,13 @@ with
         group by 1
     ),
     -- USING BITDAO instead of MANTLE because it has larger history
-    mantle_prices as ({{ get_coingecko_price_with_latest("bitdao") }}),
+    bitdao_prices as ({{ get_coingecko_price_with_latest("bitdao") }}),
+    mnt_prices as ({{ get_coingecko_price_with_latest("mantle") }}),
+    mantle_prices as (
+        select coalesce(bitdao_prices.date, mnt_prices.date) as date, coalesce(bitdao_prices.price, mnt_prices.price) as price
+        from bitdao_prices
+        full outer join mnt_prices on bitdao_prices.date = mnt_prices.date
+    ),
     eth_prices as ({{ get_coingecko_price_with_latest("ethereum") }}),
     gas_usd_table as (
         select grouped_data.date, gas * price as gas_usd
