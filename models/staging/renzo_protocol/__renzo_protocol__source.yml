@@ -1,0 +1,12 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_renzo_protocol_ethereum_restaked_eth
+      - name: raw_renzo_protocol_arbitrum_restaked_eth
+      - name: raw_renzo_protocol_base_restaked_eth
+      - name: raw_renzo_protocol_bsc_restaked_eth
+      - name: raw_renzo_protocol_blast_restaked_eth
+      - name: raw_renzo_protocol_mode_restaked_eth
+      - name: raw_renzo_protocol_linea_restaked_eth

@@ -3,7 +3,8 @@
     source_column,
     parent_columns=[],
     column_map=[],
-    incremental_column="block_timestamp"
+    incremental_column="block_timestamp",
+    is_landing_table = false
 ) %}
     /*
     By default get all the columns from the json and decode as strings
@@ -56,9 +57,18 @@
                 {% if not loop.last %},{% endif %}
             {% endfor %}
         {% endif %}
-    from
-        {{ ref(source_table) }},
+    
+    {% if is_landing_table %}
+        from {{ source("PROD_LANDING", source_table ) }},
         lateral flatten(input => parse_json({{ source_column }})) as raw_txn_json
+        where extraction_date = (
+                select max(extraction_date) as max_date
+                from {{ source("PROD_LANDING", source_table ) }}
+            )
+    {% else %}
+        from {{ ref(source_table) }},
+        lateral flatten(input => parse_json({{ source_column }})) as raw_txn_json
+    {% endif %}
     {% if is_incremental() %}
         where
             {{ incremental_column }}

@@ -2,11 +2,12 @@
     with
         max_extraction as (
             select max(extraction_date) as max_date
-            from landing_database.prod_landing.{{ raw_table_name }}
+            from {{ source("PROD_LANDING", raw_table_name ) }}
+            
         ),
         latest_data as (
             select parse_json(source_json) as data
-            from landing_database.prod_landing.{{ raw_table_name }}
+            from {{ source("PROD_LANDING", raw_table_name ) }}
             where extraction_date = (select max_date from max_extraction)
         ),
         flattened_snapshots as (
