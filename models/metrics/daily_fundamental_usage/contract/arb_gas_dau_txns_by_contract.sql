@@ -13,7 +13,7 @@ with
             count(*) transactions,
             count(distinct from_address) dau,
             max(category) category
-        from {{ ref("fact_arbitrum_transactions_gold") }}
+        from {{ ref("ez_arbitrum_transactions") }}
         where not equal_null(category, 'EOA')
         group by date, contract_address
     ),
