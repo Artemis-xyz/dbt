@@ -16,10 +16,10 @@ with
     )
 select
     arb_data.date,
-    coalesce(gas, 0) - fees_native as revenue_native,
-    gas_usd - fees as revenue,
-    fees_native as l1_data_cost_native,
-    fees as l1_data_cost,
+    coalesce(arb.fees_native, 0) - arb_data.fees_native as revenue_native,
+    arb.fees - arb_data.fees as revenue,
+    arb_data.fees_native as l1_data_cost_native,
+    arb_data.fees as l1_data_cost,
     'arbitrum' as chain
 from arb_data
 left join
