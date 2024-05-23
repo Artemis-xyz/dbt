@@ -21,5 +21,6 @@ from
                 0
             ),
             ('PYUSD', '0x6c3ea9036406852006290770BEdFcAbA0e23A0e8', 6, 'paypal-usd', 0),
-            ('EURC', '0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c', 6, 'euro-coin', 0)
+            ('EURC', '0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c', 6, 'euro-coin', 0),
+            ('USDP', '0x8e870d67f660d95d5be530380d0ec0bd388289e1', 18, 'paxos-standard', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
