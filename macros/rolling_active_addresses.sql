@@ -32,6 +32,21 @@
                 sender as from_address
             from {{ chain }}.prod_raw.ez_transactions
         ),
+    {% elif chain == 'acala' %}
+        distinct_dates as (
+            select distinct
+                date as raw_date
+            from {{ ref("fact_acala_uniq_daily_signers") }}
+            {% if is_incremental() %}
+                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+        ),
+        distinct_dates_for_rolling_active_address as (
+            select distinct
+                date as raw_date,
+                signer as from_address
+            from {{ ref("fact_acala_uniq_daily_signers") }}
+        ),
     {% else %}
         distinct_dates as (
             select distinct 
