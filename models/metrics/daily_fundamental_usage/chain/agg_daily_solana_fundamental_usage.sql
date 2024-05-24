@@ -28,7 +28,7 @@ with
                 lateral flatten(input => signers)
             where
                 date_trunc('day', block_timestamp)
-                < (select min(raw_date) from {{ ref("fact_solana_transactions_gold") }})
+                < (select min(raw_date) from {{ ref("ez_solana_transactions") }})
             group by date
         ),
         unrefreshed_data_with_price as (
@@ -51,7 +51,7 @@ with
     min_date as (
         select min(raw_date) as start_date, value as signer
         from
-            {{ ref("fact_solana_transactions_gold") }},
+            {{ ref("ez_solana_transactions") }},
             lateral flatten(input => signers)
         where succeeded = 'TRUE'
         group by signer
@@ -87,7 +87,7 @@ with
             count_if(index = 0 and succeeded = 'TRUE') as txns,
             count(distinct(case when succeeded = 'TRUE' then value else null end)) daa
         from
-            {{ ref("fact_solana_transactions_gold") }},
+            {{ ref("ez_solana_transactions") }},
             lateral flatten(input => signers)
         {% if is_incremental() %}
             where raw_date > (select dateadd('day', -5, max(date)) from {{ this }})

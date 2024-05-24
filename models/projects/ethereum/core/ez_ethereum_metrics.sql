@@ -1,4 +1,4 @@
--- depends_on {{ ref("fact_ethereum_transactions_gold") }}
+-- depends_on {{ ref("ez_ethereum_transactions") }}
 -- depends_on {{ ref('fact_ethereum_block_producers_silver') }}
 -- depends_on {{ ref('fact_ethereum_amount_staked_silver') }}
 {{
