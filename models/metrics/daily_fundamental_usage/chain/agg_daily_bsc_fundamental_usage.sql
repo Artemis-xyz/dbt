@@ -1,3 +1,3 @@
--- depends_on {{ ref("fact_bsc_transactions_gold") }}
+-- depends_on {{ ref("ez_bsc_transactions") }}
 {{ config(materialized="table", snowflake_warehouse="DAILY_BAM_LG") }}
-{{ fundamental_data_by_chain("bsc") }}
+{{ get_fundamental_data_for_chain("bsc") }}

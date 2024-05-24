@@ -1,3 +1,3 @@
--- depends_on {{ ref("fact_ethereum_transactions_gold") }}
+-- depends_on {{ ref("ez_ethereum_transactions") }}
 {{ config(materialized="table", snowflake_warehouse="DAILY_BAM_MD") }}
-{{ fundamental_data_by_chain("ethereum") }}
+{{ get_fundamental_data_for_chain("ethereum") }}
