@@ -18,7 +18,7 @@ select
     , total_transactions
     , dau
     , txns
-    , neurons_total
+    , neurons_total -- accounts that are staking ICP
     , avg_tps
     , avg_blocks_per_second
     , icp_burned
