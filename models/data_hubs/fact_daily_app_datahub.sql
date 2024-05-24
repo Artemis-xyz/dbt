@@ -47,6 +47,7 @@ with
                     ref("fact_rocketpool_staked_eth_count_with_USD_and_change_gold"),
                     ref("fact_frax_staked_eth_count_with_USD_and_change_gold"),
                     ref("fact_stakewise_staked_eth_count_with_USD_and_change_gold"),
+                    ref("fact_ethx_staked_eth_count_with_usd_and_change"),
                     ref("fact_sushiswap_arbitrum_gold"),
                     ref("fact_sushiswap_avalanche_gold"),
                     ref("fact_sushiswap_bsc_gold"),
