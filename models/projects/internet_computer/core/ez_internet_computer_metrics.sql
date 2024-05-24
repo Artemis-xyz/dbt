@@ -24,7 +24,7 @@ select
     , icp_burned
     , icp_burned * price as fees
     , icp_burned * price as revenue
-    , total_icp_transaction_fees -- total transaction fees
+    , total_native_fees -- total transaction fees
     , nns_tvl -- same as total icp staked in NNS
     , nns_proposal_count
     , total_registered_canister_count -- total cannister count 
