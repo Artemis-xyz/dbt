@@ -11,9 +11,9 @@ with
     )
 select
     top_line.date,
-    fees_native as expenses_native,
-    fees as expenses,
-    coalesce(gas_usd, 0) - fees as revenue,
+    expenses.fees_native as expenses_native,
+    expenses.fees as expenses,
+    coalesce(top_line.gas_usd, 0) - expenses.fees as revenue,
     'polygon_zk' as chain
 from {{ ref("fact_polygon_zk_daa_txns_gas_usd_gold") }} as top_line
 left join expenses on expenses.date = top_line.date

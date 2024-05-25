@@ -13,10 +13,10 @@ with
     )
 select
     base_data.date,
-    coalesce(fees_native, 0) as l1_data_cost_native,
-    coalesce(fees, 0) as l1_data_cost,
-    coalesce(gas, 0) - fees_native as revenue_native,
-    coalesce(gas_usd, 0) - fees as revenue,
+    coalesce(base_data.fees_native, 0) as l1_data_cost_native,
+    coalesce(base_data.fees, 0) as l1_data_cost,
+    coalesce(base.fees_native, 0) - base_data.fees_native as revenue_native,
+    coalesce(base.fees, 0) - base_data.fees as revenue,
     'base' as chain
 from base_data
 left join
