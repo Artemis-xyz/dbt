@@ -71,9 +71,11 @@ with
         where tx_type = 'user_transaction'
         group by block_timestamp::date
     ),
+
     raw as (
-        select dau_data.date, daa, txns, gas, 'aptos' as chain
-        from dau_data
+        select dau_data.date, coalesce(t1.daa, dau_data.daa) as daa, txns, gas, 'aptos' as chain
+        from dau_data 
+        left join {{ ref('fact_aptos_daa') }} t1 on dau_data.date = t1.date
         left join txn_and_gas on txn_and_gas.date = dau_data.date
     )
 select raw.*, gas * price as gas_usd, gas * price as revenue
