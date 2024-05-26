@@ -3,5 +3,4 @@ sources:
     schema: PROD_LANDING
     database: LANDING_DATABASE
     tables:
-      - name: raw_sweth_staked_count_ethereum
-      - name: raw_swell_restaked_eth_count
+      - name: raw_kelp_dao_restaked_eth_count
