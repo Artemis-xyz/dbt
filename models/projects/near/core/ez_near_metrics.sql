@@ -1,4 +1,4 @@
--- depends_on {{ ref("fact_near_transactions_gold") }}
+-- depends_on {{ ref("ez_near_transactions") }}
 {{
     config(
         materialized="table",

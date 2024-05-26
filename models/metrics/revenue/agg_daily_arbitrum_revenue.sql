@@ -2,7 +2,7 @@
 with
     arb_data as (
         select raw_date as date, sum(tx_fee) as fees_native, sum(gas_usd) as fees
-        from {{ ref("fact_ethereum_transactions_gold") }}
+        from {{ ref("ez_ethereum_transactions") }}
         where
             lower(contract_address) in (
                 lower('0x1c479675ad559dc151f6ec7ed3fbf8cee79582b6'),

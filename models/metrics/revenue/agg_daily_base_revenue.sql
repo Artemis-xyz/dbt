@@ -2,7 +2,7 @@
 with
     base_data as (
         select raw_date as date, sum(tx_fee) as fees_native, sum(gas_usd) as fees
-        from {{ ref("fact_ethereum_transactions_gold") }}
+        from {{ ref("ez_ethereum_transactions") }}
         where
             lower(contract_address) in (
                 lower('0xFf00000000000000000000000000000000008453'),
@@ -13,10 +13,10 @@ with
     )
 select
     base_data.date,
-    coalesce(fees_native, 0) as l1_data_cost_native,
-    coalesce(fees, 0) as l1_data_cost,
-    coalesce(gas, 0) - fees_native as revenue_native,
-    coalesce(gas_usd, 0) - fees as revenue,
+    coalesce(base_data.fees_native, 0) as l1_data_cost_native,
+    coalesce(base_data.fees, 0) as l1_data_cost,
+    coalesce(base.fees_native, 0) - base_data.fees_native as revenue_native,
+    coalesce(base.fees, 0) - base_data.fees as revenue,
     'base' as chain
 from base_data
 left join

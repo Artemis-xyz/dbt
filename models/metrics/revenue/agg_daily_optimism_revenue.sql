@@ -2,7 +2,7 @@
 with
     opt_data as (
         select raw_date as date, sum(tx_fee) as fees_native, sum(gas_usd) as fees
-        from {{ ref("fact_ethereum_transactions_gold") }}
+        from {{ ref("ez_ethereum_transactions") }}
         where
             lower(contract_address) in (
                 lower('0x4BF681894abEc828B212C906082B444Ceb2f6cf6'),
@@ -17,10 +17,10 @@ with
     )
 select
     opt_data.date,
-    fees_native as l1_data_cost_native,
-    fees as l1_data_cost,
-    coalesce(gas, 0) - fees_native as revenue_native,
-    coalesce(gas_usd, 0) - fees as revenue,
+    opt_data.fees_native as l1_data_cost_native,
+    opt_data.fees as l1_data_cost,
+    coalesce(opt.fees_native, 0) - opt_data.fees_native as revenue_native,
+    coalesce(opt.fees, 0) - opt_data.fees as revenue,
     'optimism' as chain
 from opt_data
 left join
