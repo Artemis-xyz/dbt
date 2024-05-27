@@ -3,13 +3,13 @@ with
         select
             max(extraction_date) as max_extraction,
             value:date::date as date
-        from landing_database.prod_landing.raw_ton_dex_volumes,
+        from {{ source("PROD_LANDING", "raw_ton_dex_volumes" ) }},
             lateral flatten(input => source_json)
         group by date
     ),
     flattened_data as (
         select value:"date"::date as date, value:"dex_volumes"::float as dex_volumes, extraction_date
-        from landing_database.prod_landing.raw_ton_dex_volumes, 
+        from {{ source("PROD_LANDING", "raw_ton_dex_volumes" ) }},
             lateral flatten(input => source_json)
     ),
     prices as ({{ get_coingecko_price_with_latest("the-open-network") }})
