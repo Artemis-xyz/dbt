@@ -2,11 +2,11 @@
 with
     max_extraction as (
         select max(extraction_date) as max_date
-        from LANDING_DATABASE.PROD_LANDING.raw_acala_uniq_daily_signers
+        from {{ source("PROD_LANDING", "raw_acala_uniq_daily_signers" ) }}
     ),
     acala_data as (
         select parse_json(source_json) as data
-        from LANDING_DATABASE.PROD_LANDING.raw_acala_uniq_daily_signers
+        from {{ source("PROD_LANDING", "raw_acala_uniq_daily_signers" ) }}
         where extraction_date = (select max_date from max_extraction)
     ),
     acala_uniq_daily_signers as (
