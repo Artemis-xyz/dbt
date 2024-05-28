@@ -46,7 +46,7 @@ select
         else icp_burned_total - prev_icp_burned_total
       end as icp_burned
     , icp_burned_fees as total_native_fees -- total transaction fees
-    , nns_tvl -- same as total icp staked in NNS
+    , nns_tvl as nns_tvl_native -- same as total icp staked in NNS
     , total_proposals_count - LAG(total_proposals_count, 1, null) OVER (ORDER BY date) as nns_proposal_count
     , total_registered_canister_count -- total cannister count 
     , canister_memory_usage_bytes / 10e9 as canister_memory_usage_gb -- cannister state

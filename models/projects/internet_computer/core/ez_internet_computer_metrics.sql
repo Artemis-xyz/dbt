@@ -25,7 +25,8 @@ select
     , icp_burned * price as fees
     , icp_burned * price as revenue
     , total_native_fees -- total transaction fees
-    , nns_tvl -- same as total icp staked in NNS
+    , nns_tvl_native * price as nns_tvl -- same as total icp staked in NNS
+    , nns_tvl_native 
     , nns_proposal_count
     , total_registered_canister_count -- total cannister count 
     , canister_memory_usage_gb -- cannister state
@@ -40,6 +41,7 @@ select
     , fdmc
     , tvl
     , dex_volumes
+    , 5 as storage_cost
 from price_data
 full join icp_metrics on price_data.date = icp_metrics.date
 full join icp_blocks on price_data.date = icp_blocks.date
