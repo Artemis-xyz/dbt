@@ -75,7 +75,7 @@ with
     )
 select
     restaked_eth_metrics_by_chain.date,
-    'renzo_protocol' as protocol,
+    'renzo_protocol' as app,
     'DeFi' as category,
     restaked_eth_metrics_by_chain.chain,
     restaked_eth_metrics_by_chain.num_restaked_eth,
