@@ -7,6 +7,9 @@
         raw_date,
         from_address,
         tx_fee,
+        {% if chain in ("startknet") %}
+            currency,
+        {% endif %}
         gas_usd,
         chain,
         name,
@@ -14,10 +17,10 @@
         friendly_name,
         sub_category,
         category,
-        {% if (chain not in ("tron")) %} user_type
+        {% if (chain not in ("tron", "starknet")) %} user_type
         {% else %} null as user_type
         {% endif %}
-        {% if (chain not in ("near")) %}
+        {% if (chain not in ("near", "starknet")) %}
             , balance_usd, native_token_balance, stablecoin_balance
         {% else %}
             ,
