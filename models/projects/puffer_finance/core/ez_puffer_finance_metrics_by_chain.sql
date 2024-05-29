@@ -21,7 +21,7 @@ with
     )
 select
     restaked_eth_metrics.date,
-    'puffer_finance' as protocol,
+    'puffer_finance' as app,
     'DeFi' as category,
     restaked_eth_metrics.chain,
     restaked_eth_metrics.num_restaked_eth,

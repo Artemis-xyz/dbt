@@ -21,7 +21,7 @@ with
     )
 select
     restaked_eth_metrics.date,
-    'eigenpie' as protocol,
+    'eigenpie' as app,
     'DeFi' as category,
     restaked_eth_metrics.chain,
     restaked_eth_metrics.num_restaked_eth,
