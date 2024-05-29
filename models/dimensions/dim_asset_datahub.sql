@@ -2,8 +2,9 @@
 
 with
     token_apps as (
-        select distinct app, category from pc_dbt_db.prod.dim_contracts_gold
+        select app, min(category) as category from pc_dbt_db.prod.dim_contracts_gold
         where category in ('Token', 'Tokens', 'NFT', 'ERC_1155')
+        group by app
     ),
     unlabeled_apps as (
         select distinct app, 'unlabeled' as category from pc_dbt_db.prod.dim_contracts_gold
