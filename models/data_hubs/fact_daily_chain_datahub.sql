@@ -39,7 +39,6 @@ with
                     ref("fact_near_contracts_gold"),
                     ref("fact_osmosis_daa_txns_gold"),
                     ref("fact_osmosis_gas_gas_usd_fees_revenue_gold"),
-                    ref("fact_starknet_dau_txns_gas_gas_usd_revenue_gold"),
                     ref("fact_zksync_daa_txns_gas_gas_usd_gold"),
                     ref("fact_zksync_revenue_gold"),
                     ref("fact_zora_daa_gold"),

@@ -16,7 +16,7 @@ with
     )
 select
     date,
-    'cctp' as protocol,
+    'cctp' as app,
     'Bridge' as category,
     chain,
     inflow,

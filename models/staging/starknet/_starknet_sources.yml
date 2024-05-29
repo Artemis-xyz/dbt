@@ -1,8 +1,0 @@
-sources:
-  - name: PROD_LANDING
-    schema: PROD_LANDING
-    database: LANDING_DATABASE
-    tables:
-      - name: raw_starknet_dau
-      - name: raw_starknet_txns
-      - name: raw_starknet_gas

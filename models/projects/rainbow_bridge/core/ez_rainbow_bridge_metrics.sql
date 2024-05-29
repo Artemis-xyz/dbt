@@ -20,7 +20,7 @@ with
     )
 select
     bridge_volume.date as date,
-    'rainbow_bridge' as protocol,
+    'rainbow_bridge' as app,
     'Bridge' as category,
     bridge_volume.bridge_volume,
     bridge_dau.bridge_dau
