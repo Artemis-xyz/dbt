@@ -66,5 +66,11 @@ from
             (
                 'HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr',
                 '6UpQvp85vJK3ZmR8VWnHJYTRaBz1maatVdec4sTJQVqP'
+            ),
+            -- PYUSD 
+            (
+                '2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo',
+                '5gUuDFHswKi2QMA1qJHf6FEVhNCrHnyAdfWniMaUUPE4'
+
             )
     ) as results(contract_address, premint_address)
