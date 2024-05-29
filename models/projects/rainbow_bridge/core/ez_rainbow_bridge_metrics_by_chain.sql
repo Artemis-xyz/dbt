@@ -16,7 +16,7 @@ with
     )
 select
     date,
-    'rainbow_bridge' as protocol,
+    'rainbow_bridge' as app,
     'Bridge' as category,
     chain,
     inflow,

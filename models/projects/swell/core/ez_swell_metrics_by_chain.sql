@@ -31,7 +31,7 @@ with
     )
 select
     restaked_eth_metrics.date,
-    'swell' as protocol,
+    'swell' as app,
     'DeFi' as category,
     restaked_eth_metrics.chain,
     restaked_eth_metrics.num_restaked_eth,
