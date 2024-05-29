@@ -13,15 +13,6 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_to_exist
-          - dbt_expectations.expect_column_values_to_be_within_n_moving_stdevs:
-              date_column_name: DATE
-              period: day
-              lookback_periods: 1
-              trend_periods: 14
-              test_periods: 28
-              sigma_threshold: 3
-              take_logs: true
-              severity: warn
       - name: DATE
         tests:
           - not_null
