@@ -7,7 +7,7 @@
         raw_date,
         from_address,
         tx_fee,
-        {% if chain in ("startknet") %}
+        {% if chain in ("starknet") %}
             currency,
         {% endif %}
         gas_usd,
