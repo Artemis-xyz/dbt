@@ -16,7 +16,7 @@ with
             t1.to_address,
             t1.amount,
             coalesce(
-                fact_coingecko_token_date_adjusted_gold.shifted_token_price_usd * amount, 1 * amount
+                fact_coingecko_token_date_adjusted_gold.shifted_token_price_usd * transfer_volume, 1 * transfer_volume
             ) as amount_usd
         from stablecoin_transfers t1
         join
