@@ -4,12 +4,11 @@ with
         select
             f.date,
             f.total_supply,
-            f.total_supply * p.shifted_token_price_usd as total_supply_usd,
-            p.shifted_token_price_usd
-        from {{ ref(table_name) }} f
-        join pc_dbt_db.prod.fact_coingecko_token_date_adjusted_gold as p
+            f.total_supply * p.price as total_supply_usd,
+            p.price
+        from {{ ref(table_name) }}  f
+        join ({{ get_coingecko_metrics("ethereum") }}) as p
             on f.date = p.date
-        where p.coingecko_id = 'ethereum'
         order by date desc
     )
 select
@@ -27,8 +26,8 @@ select
         else
             (t.total_supply - lag(t.total_supply, 1) over (order by t.date)) * (
                 (
-                    t.shifted_token_price_usd
-                    + lag(t.shifted_token_price_usd, 1) over (order by t.date)
+                    t.price
+                    + lag(t.price, 1) over (order by t.date)
                 )
                 / 2
             )
