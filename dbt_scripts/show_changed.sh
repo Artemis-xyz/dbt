@@ -1,4 +1,4 @@
-changed_models=$(dbt ls --select state:modified+ --state . --quiet)
+changed_models=$(dbt ls --select state:modified+1 --resource-type model --state . --quiet)
 
 echo "\nCHANGED MODELS:"
 echo $changed_models
