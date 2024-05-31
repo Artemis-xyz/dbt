@@ -19,10 +19,10 @@ select
     , avg_block_time
     , avg_tps
     , 'sei' as chain
-    , txns + evm_txns as txns
-    , daa + evm_daa as dau
-    , gas + evm_gas as fees_native
-    , gas_usd + evm_gas_usd as fees
+    , txns + coalesce(evm_txns, 0) as txns
+    , daa + coalesce(evm_daa, 0) as dau
+    , gas + coalesce(evm_gas, 0) as fees_native
+    , gas_usd + coalesce(evm_gas_usd, 0) as fees
     , 0 as revenue
     , txns as wasm_txns
     , daa as wasm_dau
