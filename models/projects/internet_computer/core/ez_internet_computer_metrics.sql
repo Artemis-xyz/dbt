@@ -11,10 +11,12 @@ with
     -- Latest data from ICP api is 2023-12-21
     icp_metrics as (select * from {{ ref("fact_internet_computer_fundamental_metrics_silver") }} where date > '2023-12-21')
     , icp_blocks as (select * from {{ ref("fact_internet_computer_block_count_silver") }})
+    , icp_total_canister_state as (select * from {{ ref("fact_internet_computer_canister_total_state_silver") }})
+    , icp_neuron_funds as (select * from {{ ref("fact_internet_computer_neuron_funds_silver") }})
     , price_data as ({{ get_coingecko_metrics("internet-computer") }})
     , defillama_data as ({{ get_defillama_metrics("icp") }})
 select
-    coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_blocks.date) as date
+    coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_total_canister_state.date, icp_neuron_funds.date, icp_blocks.date) as date
     , total_transactions
     , dau
     , txns
@@ -28,6 +30,9 @@ select
     , nns_tvl_native * price as nns_tvl -- same as total icp staked in NNS
     , nns_tvl_native 
     , nns_proposal_count
+    , neuron_funds_staked_native * price as neuron_funds_staked
+    , total_canister_state_tib
+    , total_icp_burned as total_burned_native
     , total_registered_canister_count -- total cannister count 
     , canister_memory_usage_gb -- cannister state
     , one_year_staking_apy
@@ -45,5 +50,7 @@ select
 from price_data
 full join icp_metrics on price_data.date = icp_metrics.date
 full join icp_blocks on price_data.date = icp_blocks.date
+full join icp_total_canister_state on price_data.date = icp_total_canister_state.date
+full join icp_neuron_funds on price_data.date = icp_neuron_funds.date
 full join defillama_data on price_data.date = defillama_data.date
-where coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_blocks.date) < to_date(sysdate())
+where coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_blocks.date, icp_total_canister_state.date, icp_neuron_funds.date) < to_date(sysdate())

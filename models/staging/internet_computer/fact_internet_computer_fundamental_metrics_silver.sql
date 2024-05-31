@@ -28,7 +28,7 @@ max_extraction as (
         ,value:total_transactions::int as total_transactions
         ,value:estimated_rewards_percentage:"1_year"::float as one_year_staking_apy
         ,value:ckbtc_total_supply::int / 10e7 as ckbtc_total_supply
-        ,value:cycle_burn_rate_average::int / 10e7 as cycle_burn_rate_average
+        ,value:cycle_burn_rate_average::int as cycle_burn_rate_average
         ,value:canister_memory_usage_bytes::int as canister_memory_usage_bytes
     from latest_data, lateral flatten(input => data) as f
 )
@@ -45,6 +45,7 @@ select
         then 0
         else icp_burned_total - prev_icp_burned_total
       end as icp_burned
+    , icp_burned_total as total_icp_burned
     , icp_burned_fees as total_native_fees -- total transaction fees
     , nns_tvl as nns_tvl_native -- same as total icp staked in NNS
     , total_proposals_count - LAG(total_proposals_count, 1, null) OVER (ORDER BY date) as nns_proposal_count
