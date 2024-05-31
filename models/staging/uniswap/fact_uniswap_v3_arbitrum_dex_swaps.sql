@@ -6,7 +6,7 @@
     )
 }}
 {{
-    fact_daily_uniswap_v3_fork_trading_vol_and_fees_by_pool(
-        "0x33128a8fC17869897dcE68Ed026d694621f6FDfD", "base", (), "uniswap_v3"
+    fact_uniswap_v3_fork_dex_swaps(
+        "0x1F98431c8aD98523631AE4a59f267346ea31F984", "arbitrum", (), "uniswap", "v3"
     )
 }}

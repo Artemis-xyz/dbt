@@ -1,31 +1,26 @@
-{% macro fact_daily_uniswap_v3_fork_tvl_by_pool(token_address, chain, app, version='v3') %}
+{% macro fact_daily_uniswap_v2_fork_tvl_by_pool(token_address, chain, app, version='v2') %}
     with recursive
         pools as (
             select
-                decoded_log:"pool"::string as pool,
+                decoded_log:"pair"::string as pool,
                 decoded_log:"token0"::string as token0,
-                decoded_log:"token1"::string as token1,
-                decoded_log:"fee"::float as fee
+                decoded_log:"token1"::string as token1
             from {{ chain }}_flipside.core.ez_decoded_event_logs
             where
-                contract_address = lower('{{ token_address }}')
-                and event_name = 'PoolCreated'
+                lower(contract_address) = lower('{{ token_address }}')
+                and event_name = 'PairCreated'
         ),
         all_pool_events as (
             select
+                t1.event_name,
                 t2.*,
                 t1.tx_hash,
                 t1.block_number,
                 t1.decoded_log,
-                t1.block_timestamp,
-                t1.event_name
+                t1.block_timestamp
             from {{ chain }}_flipside.core.ez_decoded_event_logs t1
             inner join pools t2 on lower(t1.contract_address) = lower(t2.pool)
-            where
-                t1.event_name in ('Mint', 'Burn', 'Swap')
-                {% if is_incremental() %}
-                    and block_timestamp >= (select max(date) from {{ this }})
-                {% endif %}
+            where t1.event_name in ('Mint', 'Burn', 'Swap')
         ),
         mint_and_burn_and_swap_liquidity as (
             select
@@ -37,12 +32,18 @@
                 case
                     when event_name = 'Burn'
                     then - decoded_log:"amount0"::float
+                    when event_name = 'Swap'
+                    then
+                        decoded_log:"amount0In"::float - decoded_log:"amount0Out"::float
                     else decoded_log:"amount0"::float
                 end as token0_amount,
                 token1,
                 case
                     when event_name = 'Burn'
                     then - decoded_log:"amount1"::float
+                    when event_name = 'Swap'
+                    then
+                        decoded_log:"amount1In"::float - decoded_log:"amount1Out"::float
                     else decoded_log:"amount1"::float
                 end as token1_amount
             from all_pool_events
@@ -146,13 +147,13 @@
                 token0,
                 t2.symbol as token0_symbol,
                 coalesce(t2.price, 0) as token0_price,
-                coalesce(token0_cumulative, 0) as token0_cumulative,
-                coalesce(token0_cumulative * token0_price, 0) as token0_amount_usd,
+                token0_cumulative,
+                token0_cumulative * token0_price as token0_amount_usd,
                 token1,
                 t3.symbol as token1_symbol,
                 coalesce(t3.price, 0) as token1_price,
-                coalesce(token1_cumulative, 0) as token1_cumulative,
-                coalesce(token1_cumulative * token1_price, 0) as token1_amount_usd
+                token1_cumulative,
+                token1_cumulative * token1_price as token1_amount_usd
             from token_cumulative_per_day t1
             left join
                 average_token_price_per_day t2
@@ -164,16 +165,29 @@
                 and lower(t1.token1) = lower(t3.token_address)
         ),
         viable_pools as (
-            select date, pool, token0, token0_symbol, token1, token1_symbol, token0_amount_usd + token1_amount_usd as pool_tvl
+            select date, pool, token0, token0_symbol, token1, token1_symbol, token0_amount_usd + token1_amount_usd as tvl
             from with_price
             where
                 abs(
                     ln(abs(coalesce(nullif(token0_amount_usd, 0), 1))) / ln(10)
                     - ln(abs(coalesce(nullif(token1_amount_usd, 0), 1))) / ln(10)
                 )
-                < 1
+                < 2
+        ),
+        tvl_daily_sum as (
+            select 
+                date, 
+                pool,
+                token0,
+                token0_symbol,
+                token1,
+                token1_symbol,
+                sum(tvl) as tvl
+            from viable_pools
+            where date is not null
+            group by date, pool, token0, token0_symbol, token1, token1_symbol
         )
-    select 
+    select
         date, 
         '{{ chain }}' as chain, 
         '{{ app }}' as app, 
@@ -184,8 +198,8 @@
         token0_symbol as token_0_symbol,
         token1 as token_1,
         token1_symbol as token_1_symbol,
-        sum(pool_tvl) as tvl
-    from viable_pools
+        tvl as tvl
+    from tvl_daily_sum
     where date is not null
-    group by date, pool, token_0, token_0_symbol, token_1, token_1_symbol
+
 {% endmacro %}

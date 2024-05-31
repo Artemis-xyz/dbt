@@ -1,5 +1,5 @@
-{% macro fact_daily_uniswap_v3_fork_trading_vol_and_fees_by_pool(
-    token_address, chain, blacklist, app
+{% macro fact_uniswap_v3_fork_dex_swaps(
+    token_address, chain, blacklist, app, version='v3'
 ) %}
     with
         pools as (
@@ -21,7 +21,7 @@
             {% endif %}
         ),
         all_pool_events as (
-            select t2.*, t1.tx_hash, t1.block_number, t1.decoded_log, t1.block_timestamp
+            select t2.*, t1.tx_hash, t1.block_number, t1.decoded_log, t1.block_timestamp, event_index
             from {{ chain }}_flipside.core.ez_decoded_event_logs t1
             inner join
                 pairs_not_blacklisted t2 on lower(t1.contract_address) = lower(t2.pool)
@@ -29,27 +29,33 @@
                 t1.event_name in ('Swap')
                 {% if is_incremental() %}
                     and block_timestamp
-                    >= (select max(date) + interval '1 DAY' from {{ this }})
+                    >= (select max(block_timestamp) from {{ this }})
                 {% endif %}
-                and trunc(t1.block_timestamp, 'day')
-                < trunc(convert_timezone('UTC', sysdate()), 'day')
         ),
         swaps as (
             select
+                block_timestamp,
                 trunc(block_timestamp, 'hour') as hour,
                 tx_hash,
+                event_index,
                 pool,
                 token0,
                 decoded_log:"amount0"::float as token0_amount,
                 token1,
                 decoded_log:"amount1"::float as token1_amount,
+                decoded_log:"sender"::string as sender,
+                decoded_log:"recipient"::string as recipient,
                 fee
             from all_pool_events
         ),
         swaps_asdjusted as (
             select
+                t1.block_timestamp,
                 t1.hour,
                 tx_hash,
+                event_index,
+                sender,
+                recipient,
                 pool,
                 token0,
                 t2.symbol as token0_symbol,
@@ -81,7 +87,11 @@
         ),
         filtered_pairs as (
             select
-                trunc(hour, 'day') as date,
+                block_timestamp,
+                tx_hash,
+                event_index,
+                sender,
+                recipient,
                 pool,
                 token0,
                 token0_symbol,
@@ -94,20 +104,67 @@
                     else 0
                 end as token_fee_amount
             from swaps_asdjusted
+        ),
+        events as (
+            select
+                block_timestamp,
+                tx_hash,
+                event_index,
+                sender,
+                recipient,
+                pool,
+                token0 as token_0,
+                token0_symbol as token_0_symbol,
+                token1 as token_1,
+                token1_symbol as token_1_symbol,
+                volume_per_trade as trading_volume,
+                token_fee_amount as trading_fees,
+                ROW_NUMBER() OVER (PARTITION by tx_hash, pool ORDER BY event_index) AS row_number
+            from filtered_pairs
+        ),
+        traces as (
+            select 
+                t1.*, 
+                {% if chain in ("arbitrum") %}
+                    t3.gas_price_paid as gas_price,
+                {% else %}
+                    t3.gas_price,
+                {% endif %}
+                ROW_NUMBER() OVER (PARTITION by t1.tx_hash, t1.to_address ORDER BY t1.trace_index) AS row_number
+            from  {{ chain }}_flipside.core.fact_traces t1
+            inner join filtered_pairs t2 on 
+                t1.tx_hash = t2.tx_hash 
+                and lower(t1.to_address) = lower(t2.pool)
+                and substr(t1.input, 0, 10) = '0x128acb08' --Swap function
+            left join {{ chain }}_flipside.core.fact_transactions t3 on t1.tx_hash = t3.tx_hash
+            {% if is_incremental() %}
+                where t1.block_timestamp
+                >= (select max(block_timestamp) from {{ this }})
+            {% endif %}
         )
     select
-        date,
+        events.block_timestamp,
         '{{ chain }}' as chain,
         '{{ app }}' as app,
+        '{{ version }}' as version,
         'DeFi' as category,
+        events.tx_hash,
+        event_index,
+        sender,
+        recipient,
         pool,
-        token0 as token_0,
-        token0_symbol as token_0_symbol,
-        token1 as token_1,
-        token1_symbol as token_1_symbol,
-        sum(volume_per_trade) as trading_volume,
-        sum(token_fee_amount) as fees
-    from filtered_pairs
-    where date is not null
-    group by date, pool, token_0, token_0_symbol, token_1, token_1_symbol
+        token_0,
+        token_0_symbol,
+        token_1,
+        token_1_symbol,
+        trading_volume,
+        trading_fees,
+        gas_price * gas_used as raw_gas_cost_native,
+        raw_gas_cost_native / 1e9 as gas_cost_native
+    from events
+    left join traces on 
+        events.tx_hash = traces.tx_hash
+        and events.pool = traces.to_address
+        and events.row_number = traces.row_number
+    where events.block_timestamp is not null
 {% endmacro %}
