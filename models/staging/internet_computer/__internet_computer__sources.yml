@@ -5,3 +5,5 @@ sources:
     tables:
       - name: raw_icp_daily_stats
       - name: raw_icp_daily_block_count
+      - name: raw_icp_canister_total_state
+      - name: raw_icp_neuron_fund_size

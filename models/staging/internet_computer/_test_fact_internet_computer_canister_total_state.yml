@@ -1,0 +1,15 @@
+models:
+  - name: fact_internet_computer_canister_total_state_silver
+    tests:
+      - "dbt_expectations.expect_table_row_count_to_be_between:":
+          min_value: 1
+          max_value: 1000000
+    columns:
+      - name: DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist
+      - name: total_canister_state_tib
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist
