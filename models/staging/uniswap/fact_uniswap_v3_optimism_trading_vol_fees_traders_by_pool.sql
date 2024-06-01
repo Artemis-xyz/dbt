@@ -1,7 +1,6 @@
 {{
     config(
         materialized="table",
-        unique_key="date",
         snowflake_warehouse="UNISWAP_SM",
     )
 }}
