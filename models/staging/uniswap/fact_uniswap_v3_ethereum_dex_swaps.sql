@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        unique_key="date",
+        unique_key=["tx_hash", "event_index"],
         snowflake_warehouse="UNISWAP_SM",
     )
 }}
