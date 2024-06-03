@@ -13,33 +13,12 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 jobs:
-  check-user:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out PR
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-      - uses: actions/github-script@v7
-        retries: 3
-        id: check_user
-        with:
-          script: |
-            const { data: artemisMembers } = await github.rest.teams.listMembersInOrg({
-              "Artemis-xyz",
-              "All",
-            });
-
-            const skipWorkflow = members.some(member => member.login === context.actor);
-            console.log(`User apart of Artemis Org: ${skipWorkflow}. Skip Action if TRUE`);
-            core.setOutput("skip_workflow", skipWorkflow);
   build:
     runs-on: ubuntu-latest
-    if: needs.check-user.outputs.skip_workflow == 'true'
     steps:
       - uses: actions/setup-python@v2
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Check out PR
         uses: actions/checkout@v3
