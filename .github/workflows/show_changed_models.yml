@@ -13,12 +13,38 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 jobs:
+  check-user:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PR
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/github-script@v7
+        retries: 3
+        id: check_user
+        with:
+          script: |
+            const { data: collaborators } = await github.rest.repos.listCollaborators({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              affiliation: 'all'
+            });
+
+            const usersWithPushAccess = collaborators
+              .filter(collaborator => collaborator.permissions.push)
+              .map(user => user.login);
+
+            const hasPushAccess = usersWithPushAccess.includes(context.actor);
+
+            core.setOutput("has_push_access", hasPushAccess);
   build:
     runs-on: ubuntu-latest
+    if: needs.check-user.outputs.should_run == 'true'
     steps:
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Check out PR
         uses: actions/checkout@v3
