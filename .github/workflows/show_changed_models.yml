@@ -25,8 +25,8 @@ jobs:
         with:
           script: |
             const { data: artemisMembers } = await github.rest.teams.listMembersInOrg({
-              "Artemis-xyz",
-              "All",
+              org: "Artemis-xyz",
+              team_slug: "All",
             });
 
             const skipWorkflow = members.some(member => member.login === context.actor);
