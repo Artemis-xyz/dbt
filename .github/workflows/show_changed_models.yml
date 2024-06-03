@@ -28,10 +28,9 @@ jobs:
           private-key: ${{ secrets.ARTEMIS_CI_APP_PRIVATE_KEY }}
       - uses: actions/github-script@v7
         id: check_user
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         with:
-          env:
-            GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-          persist-credentials: false
           script: |
             const { data: artemisMembers } = await github.rest.teams.listMembersInOrg({
               org: "Artemis-xyz",
