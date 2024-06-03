@@ -25,22 +25,17 @@ jobs:
         id: check_user
         with:
           script: |
-            const { data: collaborators } = await github.rest.repos.listCollaborators({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              affiliation: 'all'
+            const { data: artemisMembers } = await github.rest.teams.listMembersInOrg({
+              "Artemis-xyz",
+              "All",
             });
 
-            const usersWithPushAccess = collaborators
-              .filter(collaborator => collaborator.permissions.push)
-              .map(user => user.login);
-
-            const hasPushAccess = usersWithPushAccess.includes(context.actor);
-
-            core.setOutput("has_push_access", hasPushAccess);
+            const skipWorkflow = members.some(member => member.login === context.actor);
+            console.log(`User apart of Artemis Org: ${skipWorkflow}. Skip Action if TRUE`);
+            core.setOutput("skip_workflow", skipWorkflow);
   build:
     runs-on: ubuntu-latest
-    if: needs.check-user.outputs.should_run == 'true'
+    if: needs.check-user.outputs.skip_workflow == 'true'
     steps:
       - uses: actions/setup-python@v2
         with:
