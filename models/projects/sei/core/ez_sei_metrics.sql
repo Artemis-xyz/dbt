@@ -16,20 +16,20 @@ with
     , sei_evm_avg_block_time as (select * from {{ ref("fact_sei_evm_avg_block_time_silver") }})
 select
     coalesce(wasm.date, evm.date, sei_avg_block_time.date, price.date, defillama.date) as date
-    , avg_block_time
-    , avg_tps
+    , (wasm_avg_block_time + evm_avg_block_time) / 2 as avg_block_time
+    , (wasm_txns + evm_txns) / 86400 as avg_tps
     , 'sei' as chain
-    , txns + coalesce(evm_txns, 0) as txns
-    , daa + coalesce(evm_daa, 0) as dau
-    , gas + coalesce(evm_gas, 0) as fees_native
-    , gas_usd + coalesce(evm_gas_usd, 0) as fees
+    , wasm_txns + coalesce(evm_txns, 0) as txns
+    , wasm_daa + coalesce(evm_daa, 0) as dau
+    , wasm_gas + coalesce(evm_gas, 0) as fees_native
+    , wasm_gas_usd + coalesce(evm_gas_usd, 0) as fees
     , 0 as revenue
-    , txns as wasm_txns
-    , daa as wasm_dau
-    , gas as wasm_fees_native
-    , gas_usd as wasm_fees
-    , avg_block_time as wasm_avg_block_time
-    , avg_tps as wasm_avg_tps
+    , wasm_txns
+    , wasm_daa as wasm_dau
+    , wasm_gas as wasm_fees_native
+    , wasm_gas_usd as wasm_fees
+    , wasm_avg_block_time as wasm_avg_block_time
+    , wasm_avg_tps as wasm_avg_tps
     , 0 as wasm_revenue
     , tvl
     , dex_volumes

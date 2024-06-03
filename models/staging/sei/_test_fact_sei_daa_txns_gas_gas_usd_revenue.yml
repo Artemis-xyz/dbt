@@ -16,23 +16,23 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_to_exist
-      - name: daa
+      - name: wasm_daa
         tests:
           - not_null
           - dbt_expectations.expect_column_to_exist
-      - name: txns
+      - name: wasm_txns
         tests:
           - not_null
           - dbt_expectations.expect_column_to_exist
-      - name: gas
+      - name: wasm_gas
         tests:
           - not_null
           - dbt_expectations.expect_column_to_exist
-      - name: revenue
+      - name: wasm_revenue
         tests:
           - not_null
           - dbt_expectations.expect_column_to_exist
-      - name: avg_tps
+      - name: wasm_avg_tps
         tests:
           - not_null
           - dbt_expectations.expect_column_to_exist
