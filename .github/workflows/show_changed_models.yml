@@ -34,6 +34,7 @@ jobs:
             console.log(`User apart of Artemis Org: ${skipWorkflow}. Skip Action if TRUE`);
             core.setOutput("skip_workflow", skipWorkflow);
   build:
+    needs: check-user
     runs-on: ubuntu-latest
     if: needs.check-user.outputs.skip_workflow == 'true'
     steps:
