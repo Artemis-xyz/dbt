@@ -1,7 +1,6 @@
 select
     t1.date,
     t1.chain,
-    gas,
     gas_usd,
     trading_fees,
     gas_usd + coalesce(trading_fees, 0) as fees,
