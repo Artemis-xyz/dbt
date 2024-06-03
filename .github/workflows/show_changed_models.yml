@@ -27,21 +27,20 @@ jobs:
             const { data: collaborators } = await github.rest.repos.listCollaborators({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              affiliation: 'all'
+              permission: 'maintain'
             });
 
-            const maintainers = collaborators
-              .filter(collaborator => collaborator.permissions.maintain)
-              .map(maintain => maintain.login);
-
+            const maintainers = collaborators.map(maintain => maintain.login);
+            console.log(`Maintainers: ${maintainers}`)
+            console.log(`Actor: ${context.actor}`)
             const skipWorkflow = maintainers.includes(context.actor);
 
-            console.log(`User apart of Artemis Org: ${skipWorkflow}. Skip Action if TRUE`);
+            console.log(`User is maintainer of Artemis dbt Repo: ${skipWorkflow}. Skip Action if TRUE`);
             core.setOutput("skip_workflow", skipWorkflow);
   build:
     runs-on: ubuntu-latest
     needs: check-user
-    if: needs.check-user.outputs.skip_workflow == 'true'
+    if: needs.check-user.outputs.skip_workflow == 'false'
     steps:
       - uses: actions/setup-python@v2
         with:
