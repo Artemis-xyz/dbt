@@ -8,7 +8,8 @@ env:
   SYSTEM_SNOWFLAKE_USER: ${{ secrets.SYSTEM_SNOWFLAKE_USER }}
   SYSTEM_SNOWFLAKE_PASSWORD: ${{ secrets.SYSTEM_SNOWFLAKE_PASSWORD }}
   SYSTEM_SNOWFLAKE_ROLE: ${{ secrets.SYSTEM_SNOWFLAKE_ROLE }}
-permissions: {}
+permissions:
+  members: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
@@ -33,6 +34,7 @@ jobs:
             console.log(`User apart of Artemis Org: ${skipWorkflow}. Skip Action if TRUE`);
             core.setOutput("skip_workflow", skipWorkflow);
   build:
+    needs: check-user
     runs-on: ubuntu-latest
     if: needs.check-user.outputs.skip_workflow == 'true'
     steps:
