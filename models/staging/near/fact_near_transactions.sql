@@ -61,6 +61,7 @@ left join collapsed_prices on raw_date = collapsed_prices.price_date
 left join {{ ref("dim_near_bots") }} as bots on t.tx_signer = bots.from_address
 where
     raw_date < to_date(sysdate())
+    and inserted_timestamp <= sysdate() - interval '1 hour'
     {% if is_incremental() %}
         -- this filter will only be applied on an incremental run 
         and block_timestamp
