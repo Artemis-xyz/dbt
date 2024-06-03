@@ -9,7 +9,7 @@ sources:
       - name: raw_injective_fees_native_all
       - name: raw_injective_revenue
       - name: raw_injective_mints
-  - name: PC_DBT_DB.PROD
+  - name: PROD
     schema: PROD
     database: PC_DBT_DB
     tables:
