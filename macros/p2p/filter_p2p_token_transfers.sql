@@ -105,7 +105,7 @@
                         sum(amount_in_usd) as amount_in_usd
                     from {{ chain }}_flipside.defi.ez_dex_swaps 
                     where (amount_in_usd is not null and amount_out_usd is not null) and
-                        (amount_in_usd <> 0 and amount_out_usd <> 0) and
+                        (amount_in_usd > 0 and amount_out_usd > 0) and
                         abs(
                             ln(coalesce(nullif(amount_in_usd, 0), 1)) / ln(10)
                             - ln(coalesce(nullif(amount_out_usd, 0), 1)) / ln(10)
