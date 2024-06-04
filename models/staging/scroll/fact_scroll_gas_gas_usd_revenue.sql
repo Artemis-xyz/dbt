@@ -33,3 +33,4 @@ select
 from gas
 left join prices on gas.date = prices.price_date
 left join expenses on gas.date = expenses.date
+where gas.date < date(sysdate())
