@@ -7,3 +7,4 @@ sources:
       - name: raw_fantom_daa
       - name: raw_fantom_txns
       - name: raw_fantom_gas
+      - name: raw_fantom_uniq_daily_addresses
