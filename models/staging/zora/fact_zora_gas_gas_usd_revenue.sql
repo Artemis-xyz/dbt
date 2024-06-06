@@ -9,14 +9,7 @@ with
         group by 1
         order by 1 asc
     ),
-    prices as (
-        select date_trunc('day', hour) as price_date, avg(price) as price
-        from ethereum_flipside.price.fact_hourly_token_prices
-        where
-            token_address = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-            and hour >= dateadd(day, -5, (select min(date) from gas))
-        group by 1
-    ),
+    prices as ({{ get_coingecko_price_with_latest("ethereum") }}),
     expenses as (
         select block_timestamp::date as date, sum(gas_used * gas_price) / 1e9 as gas
         from ethereum_flipside.core.fact_transactions
@@ -33,6 +26,6 @@ select
     gas.gas * price as gas_usd,
     (gas.gas - coalesce(expenses.gas, 0)) * price as revenue
 from gas
-left join prices on gas.date = prices.price_date
+left join prices on gas.date = prices.date
 left join expenses on gas.date = expenses.date
 where gas.date < date(sysdate())

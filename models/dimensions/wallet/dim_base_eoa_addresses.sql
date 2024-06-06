@@ -1,1 +1,0 @@
-{{ distinct_eoa_addresses("base") }}
