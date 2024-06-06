@@ -1,6 +1,6 @@
 {% macro p2p_stablecoin_transfers(chain) %}
 with 
-    stablecoin_transfers as ({{agg_chain_stablecoin_transfers(chain)}}),
+    stablecoin_transfers as (select * from fact_{{ chain }}_stablecoin_transfers),
 
     {% if chain in ("tron", "solana", "near") %}
          distinct_peer_address as (
