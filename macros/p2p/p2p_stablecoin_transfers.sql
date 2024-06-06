@@ -1,6 +1,8 @@
 {% macro p2p_stablecoin_transfers(chain) %}
 with 
-    stablecoin_transfers as ({{agg_chain_stablecoin_transfers(chain)}}),
+    stablecoin_transfers as (
+         select * from fact_{{ chain }}_stablecoin_transfers
+    ),
     distinct_peer_address as (
         select address
         from {{ ref("dim_" ~ chain ~ "_eoa_addresses") }}

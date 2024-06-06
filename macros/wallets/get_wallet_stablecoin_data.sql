@@ -1,6 +1,8 @@
 {% macro get_wallet_stablecoin_metrics(chain) %}
     with
-        stablecoin_transfers as ({{ agg_chain_stablecoin_transfers(chain) }}),
+        stablecoin_transfers as (
+             select * from fact_{{ chain }}_stablecoin_transfers
+        ),
         -- stablecoin data
         generic_stablecoin_data as (
             select

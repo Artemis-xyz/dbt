@@ -1,8 +1,8 @@
 {% macro agg_chain_stablecoin_breakdown(chain, granularity) %}
     with
         transfer_transactions as (
-            {{ agg_chain_stablecoin_transfers(chain) }}
-            and block_timestamp >= (
+            select * from fact_{{ chain }}_stablecoin_transfers
+            where block_timestamp >= (
                 select dateadd({{ granularity }}, -1, max(block_timestamp))
                 {% if chain in ("tron") %} from tron_allium.assets.trc20_token_transfers
                 {% elif chain in ("solana") %} from solana_flipside.core.fact_transfers
