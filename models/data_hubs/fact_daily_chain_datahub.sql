@@ -29,8 +29,6 @@ with
                     ref("fact_scroll_contracts_gold"),
                     ref("fact_polygon_contracts_gold"),
                     ref("fact_optimism_contracts_gold"),
-                    ref("fact_multiversx_daa_gold"),
-                    ref("fact_multiversx_txns_gold"),
                     ref("fact_bitcoin_daa_gold"),
                     ref("fact_bitcoin_txns_gold"),
                     ref("fact_bitcoin_fees_revenue_gold"),
