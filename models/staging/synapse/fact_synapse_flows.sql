@@ -6,25 +6,25 @@ with
         from
             (
                 select *
-                from ethereum_flipside.price.ez_hourly_token_prices
+                from ethereum_flipside.price.ez_prices_hourly
                 union
                 select *
-                from arbitrum_flipside.price.ez_hourly_token_prices
+                from arbitrum_flipside.price.ez_prices_hourly
                 union
                 select *
-                from optimism_flipside.price.ez_hourly_token_prices
+                from optimism_flipside.price.ez_prices_hourly
                 union
                 select *
-                from avalanche_flipside.price.ez_hourly_token_prices
+                from avalanche_flipside.price.ez_prices_hourly
                 union
                 select *
-                from base_flipside.price.ez_hourly_token_prices
+                from base_flipside.price.ez_prices_hourly
                 union
                 select *
-                from polygon_flipside.price.ez_hourly_token_prices
+                from polygon_flipside.price.ez_prices_hourly
                 union
                 select *
-                from bsc_flipside.price.ez_hourly_token_prices
+                from bsc_flipside.price.ez_prices_hourly
             )
         group by 1, 2, 3
     ),

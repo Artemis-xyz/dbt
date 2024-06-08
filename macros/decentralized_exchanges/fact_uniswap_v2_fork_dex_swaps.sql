@@ -108,10 +108,10 @@
                 token0_out_amount_usd + token1_out_amount_usd as total_out
             from swaps t1
             left join
-                {{ chain }}_flipside.price.ez_hourly_token_prices t2
+                {{ chain }}_flipside.price.ez_prices_hourly t2
                 on (lower(t1.token0) = lower(t2.token_address) and t2.hour = t1.hour)
             left join
-                {{ chain }}_flipside.price.ez_hourly_token_prices t3
+                {{ chain }}_flipside.price.ez_prices_hourly t3
                 on (lower(t1.token1) = lower(t3.token_address) and t3.hour = t1.hour)
             where token1_decimals > 0 and token0_decimals > 0
         ),

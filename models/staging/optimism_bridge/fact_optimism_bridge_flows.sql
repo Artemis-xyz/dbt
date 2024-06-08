@@ -14,7 +14,7 @@ with
             coalesce((amount / power(10, p.decimals)) * price, 0) as amount_usd
         from {{ ref("fact_optimism_bridge_transfers") }} t
         left join
-            ethereum_flipside.price.ez_hourly_token_prices p
+            ethereum_flipside.price.ez_prices_hourly p
             on date_trunc('hour', t.block_timestamp) = p.hour
             and t.token_address = p.token_address
         left join dim_contracts c on lower(t.token_address) = lower(c.address) and c.chain = 'ethereum' --only using l1token

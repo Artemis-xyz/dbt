@@ -6,7 +6,7 @@ with
 
     prices as (
         select *
-        from avalanche_flipside.price.ez_hourly_token_prices
+        from avalanche_flipside.price.ez_prices_hourly
         where token_address in (select * from distinct_tokens)
     ),
 

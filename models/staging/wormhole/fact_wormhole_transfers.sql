@@ -33,7 +33,7 @@ with
 
     prices as (
         select hour, token_address, decimals, price
-        from ethereum_flipside.price.ez_hourly_token_prices
+        from ethereum_flipside.price.ez_prices_hourly
     ),
     decoded_transfers as (
         select

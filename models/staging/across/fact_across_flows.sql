@@ -43,23 +43,23 @@ with
 
     prices as (
         select *
-        from ethereum_flipside.price.ez_hourly_token_prices
+        from ethereum_flipside.price.ez_prices_hourly
         where token_address in (select token_address from distinct_tokens where chain = 'ethereum')
         union
         select *
-        from optimism_flipside.price.ez_hourly_token_prices
+        from optimism_flipside.price.ez_prices_hourly
         where token_address in (select token_address from distinct_tokens where chain = 'optimism')
         union
         select *
-        from arbitrum_flipside.price.ez_hourly_token_prices
+        from arbitrum_flipside.price.ez_prices_hourly
         where token_address in (select token_address from distinct_tokens where chain = 'arbitrum')
         union
         select *
-        from polygon_flipside.price.ez_hourly_token_prices
+        from polygon_flipside.price.ez_prices_hourly
         where token_address in (select token_address from distinct_tokens where chain = 'polygon')
         union
         select *
-        from base_flipside.price.ez_hourly_token_prices
+        from base_flipside.price.ez_prices_hourly
         where token_address in (select token_address from distinct_tokens where chain = 'base')
     ),
     dim_tokens as (
@@ -132,7 +132,7 @@ with
 
     zksync_linea_prices as (
         select hour, token_address, decimals, avg(price) as price
-        from ethereum_flipside.price.ez_hourly_token_prices
+        from ethereum_flipside.price.ez_prices_hourly
         inner join dim_tokens on lower(token_address) = lower(address)
         group by 1, 2, 3
     ),
