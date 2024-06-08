@@ -115,7 +115,7 @@
                     then 1.0
                     else avg(price)
                 end as price
-            from {{ _chain }}_flipside.price.ez_hourly_token_prices
+            from {{ _chain }}_flipside.price.ez_prices_hourly
             group by date, token_address, decimals
             {% if _chain == "ethereum" %}
                 union all

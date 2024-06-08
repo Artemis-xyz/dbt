@@ -137,7 +137,7 @@
         ),
         average_token_price_per_day as (
             select trunc(hour, 'day') as date, token_address, symbol, avg(price) as price
-            from {{ chain }}_flipside.price.ez_hourly_token_prices
+            from {{ chain }}_flipside.price.ez_prices_hourly
             group by date, token_address, symbol
         ),
         with_price as (

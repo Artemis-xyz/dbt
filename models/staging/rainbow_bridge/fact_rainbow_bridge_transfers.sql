@@ -229,7 +229,7 @@ near_ethereum_token_transfers as (
         coalesce((amount / power(10, p.decimals)) * price, 0) as amount_usd
     from ethereum_near_raw_transfers t
     left join ethereum_to_near_recipient r  on t.tx_hash = r.tx_hash
-    left join ethereum_flipside.price.ez_hourly_token_prices p
+    left join ethereum_flipside.price.ez_prices_hourly p
         on date_trunc('hour', t.block_timestamp) = p.hour
         and lower(t.token_address) = lower(p.token_address)
 )
