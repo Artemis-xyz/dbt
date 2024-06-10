@@ -8,7 +8,6 @@ with
                     ref("agg_daily_avalanche_fundamental_usage"),
                     ref("agg_daily_base_fundamental_usage"),
                     ref("agg_daily_bsc_fundamental_usage"),
-                    ref("agg_daily_ethereum_fundamental_usage"),
                     ref("agg_daily_near_fundamental_usage"),
                     ref("agg_daily_optimism_fundamental_usage"),
                     ref("agg_daily_polygon_fundamental_usage"),
