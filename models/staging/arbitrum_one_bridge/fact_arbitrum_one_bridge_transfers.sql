@@ -18,7 +18,7 @@ with
             '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' as token_address,
             'ethereum' as source_chain,
             'arbitrum' as destination_chain
-        from ethereum_flipside.core.ez_eth_transfers
+        from ethereum_flipside.core.ez_native_transfers
         where
             eth_to_address = lower('0x8315177aB297bA92A06054cE80a67Ed4DBd7ed3a')
             {% if is_incremental() %}

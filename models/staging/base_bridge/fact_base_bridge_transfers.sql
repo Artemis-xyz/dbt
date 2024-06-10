@@ -49,7 +49,7 @@ with
                     '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' as token_address,
                     'ethereum' as source_chain,
                     'base' as destination_chain
-                from ethereum_flipside.core.ez_eth_transfers
+                from ethereum_flipside.core.ez_native_transfers
                 where
                     eth_to_address = lower('0x49048044d57e1c92a77f79988d21fa8faf74e97e')
                     and origin_to_address
@@ -112,7 +112,7 @@ with
                     '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' as token_address,
                     'ethereum' as source_chain,
                     'base' as destination_chain
-                from ethereum_flipside.core.ez_eth_transfers
+                from ethereum_flipside.core.ez_native_transfers
                 where
                     origin_from_address
                     = lower('0x49048044d57e1c92a77f79988d21fa8faf74e97e')

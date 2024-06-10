@@ -97,7 +97,7 @@
         coalesce(
             sum(case when project_name like 'bilaxy' then amount_usd end), 0
         ) as bilaxy_transfer_amt
-    from {{ chain }}_flipside.core.ez_eth_transfers et
+    from {{ chain }}_flipside.core.ez_native_transfers et
     inner join
         {{ chain }}_flipside.core.dim_labels dl on dl.address = et.origin_from_address
     where label_type like 'cex'
