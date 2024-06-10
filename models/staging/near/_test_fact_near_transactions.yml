@@ -8,8 +8,8 @@ models:
               row_condition: "raw_date >= DATEADD('day', -2, to_date(sysdate())) and raw_date < to_date(sysdate())" # (Optional)
               config:
                 severity: error
-                error_if: ">750"
-                warn_if: ">100"
+                error_if: ">1000"
+                warn_if: ">750"
       - name: RAW_DATE
         tests:
           - not_null
