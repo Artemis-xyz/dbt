@@ -32,6 +32,21 @@
                 sender as from_address
             from {{ chain }}.prod_raw.ez_transactions
         ),
+    {% elif chain == 'zksync' %}
+        distinct_dates as (
+            select distinct
+                block_date as raw_date
+            from zksync_dune.zksync.transactions
+            {% if is_incremental() %}
+                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+        ),
+        distinct_dates_for_rolling_active_address as (
+            select distinct
+                block_date as raw_date,
+                "FROM" as from_address
+            from zksync_dune.zksync.transactions
+        ),
     {% elif chain == 'acala' %}
         distinct_dates as (
             select distinct
