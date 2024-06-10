@@ -6,3 +6,4 @@ sources:
       - name: raw_stride_daa
       - name: raw_stride_gas
       - name: raw_stride_txns
+      - name: raw_stride_uniq_daily_senders
