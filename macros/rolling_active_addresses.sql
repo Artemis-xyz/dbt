@@ -47,6 +47,51 @@
                 signer as from_address
             from {{ ref("fact_acala_uniq_daily_signers") }}
         ),
+    {% elif chain == 'fantom' %}
+        distinct_dates as (
+            select distinct
+                date as raw_date
+            from {{ ref("fact_fantom_uniq_daily_addresses") }}
+            {% if is_incremental() %}
+                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+        ),
+        distinct_dates_for_rolling_active_address as (
+            select distinct
+                date as raw_date,
+                from_address as from_address
+            from {{ ref("fact_fantom_uniq_daily_addresses") }}
+        ),
+    {% elif chain == 'polkadot' %}
+        distinct_dates as (
+            select distinct
+                date as raw_date
+            from {{ ref("fact_polkadot_uniq_daily_signers") }}
+            {% if is_incremental() %}
+                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+        ),
+        distinct_dates_for_rolling_active_address as (
+            select distinct
+                date as raw_date,
+                signer_pub_key as from_address
+            from {{ ref("fact_polkadot_uniq_daily_signers") }}
+        ),
+    {% elif chain == 'stride' %}
+        distinct_dates as (
+            select distinct
+                date as raw_date
+            from {{ ref("fact_stride_uniq_daily_senders") }}
+            {% if is_incremental() %}
+                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+        ),
+        distinct_dates_for_rolling_active_address as (
+            select distinct
+                date as raw_date,
+                sender as from_address
+            from {{ ref("fact_stride_uniq_daily_senders") }}
+        ),
     {% else %}
         distinct_dates as (
             select distinct 
