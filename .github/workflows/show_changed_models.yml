@@ -31,8 +31,6 @@ jobs:
             });
 
             const maintainers = collaborators.map(maintain => maintain.login);
-            console.log(`Maintainers: ${maintainers}`)
-            console.log(`Actor: ${context.actor}`)
             const skipWorkflow = maintainers.includes(context.actor);
 
             console.log(`User is maintainer of Artemis dbt Repo: ${skipWorkflow}. Skip Action if TRUE`);
