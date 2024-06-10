@@ -19,7 +19,7 @@ with
             '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' as token_address,
             'ethereum' as source_chain,
             'zksync' as destination_chain
-        from ethereum_flipside.core.ez_eth_transfers
+        from ethereum_flipside.core.ez_native_transfers
         where
             eth_to_address = lower('0x32400084C286CF3E17e7B677ea9583e60a000324')
             {% if is_incremental() %}
