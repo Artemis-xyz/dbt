@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(snowflake_warehouse="ROCKETPOOL", materialized="table") }}
 with
     temp as (
         select

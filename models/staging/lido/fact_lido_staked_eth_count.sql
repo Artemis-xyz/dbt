@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(snowflake_warehouse="LIDO", materialized="table") }}
 with
     max_extraction as (
         select max(extraction_date) as max_date

@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(snowflake_warehouse="MANTLE", materialized="table") }}
 with
     temp as (
         select
