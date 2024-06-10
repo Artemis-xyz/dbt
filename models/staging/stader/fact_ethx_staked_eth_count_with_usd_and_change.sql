@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(snowflake_warehouse="STADER", materialized="table") }}
 
 select *, 'ethereum' as chain, 'ethx' as app, 'DeFi' as category 
 from (

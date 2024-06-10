@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(snowflake_warehouse="LIDO", materialized="table") }}
 with
     temp as (
         select
