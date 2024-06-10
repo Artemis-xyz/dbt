@@ -2,7 +2,7 @@
 
 ## 🎄 Asset Checklist
 
-- [ ] Added to `assets.csv` or already exists
+- [ ] Added to `databases.csv` or already exists
 
 ## 🧮 Metric Checklist
 
