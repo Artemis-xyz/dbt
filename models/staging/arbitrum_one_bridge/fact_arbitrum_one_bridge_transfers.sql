@@ -20,7 +20,7 @@ with
             'arbitrum' as destination_chain
         from ethereum_flipside.core.ez_native_transfers
         where
-            eth_to_address = lower('0x8315177aB297bA92A06054cE80a67Ed4DBd7ed3a')
+            to_address = lower('0x8315177aB297bA92A06054cE80a67Ed4DBd7ed3a')
             {% if is_incremental() %}
 
                 and block_timestamp
