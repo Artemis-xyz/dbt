@@ -2,7 +2,7 @@
 with
     prices as (
         select date_trunc('day', hour) as price_date, avg(price) as price
-        from ethereum_flipside.price.fact_hourly_token_prices
+        from ethereum_flipside.price.ez_prices_hourly
         where token_address = '0x6b175474e89094c44da98b954eedeac495271d0f'
         group by 1
     ),
