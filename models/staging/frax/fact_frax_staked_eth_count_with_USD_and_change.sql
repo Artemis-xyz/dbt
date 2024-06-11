@@ -1,14 +1,14 @@
 {{ config(snowflake_warehouse="FRAX", materialized="table") }}
 with
+    prices as ({{ get_coingecko_price_for_trending("ethereum") }}),
     temp as (
         select
             f.date,
             f.value as num_staked_eth,
-            f.value * p.shifted_token_price_usd as amount_staked_usd,
-            p.shifted_token_price_usd
+            f.value * price as amount_staked_usd,
+            price
         from {{ ref("fact_frax_staked_eth_count") }} f
-        join pc_dbt_db.prod.fact_coingecko_token_date_adjusted_gold p on f.date = p.date
-        where p.coingecko_id = 'ethereum'
+        left join prices on f.date = prices.date
         order by date desc
     )
 select
@@ -28,8 +28,8 @@ select
         else
             (t.num_staked_eth - lag(t.num_staked_eth, 1) over (order by t.date)) * (
                 (
-                    t.shifted_token_price_usd
-                    + lag(t.shifted_token_price_usd, 1) over (order by t.date)
+                    t.price
+                    + lag(t.price, 1) over (order by t.date)
                 )
                 / 2
             )
