@@ -8,6 +8,5 @@
         sum(transfer_volume) as stablecoin_transfer_volume,
         sum(deduped_transfer_volume) as deduped_stablecoin_transfer_volume
     from {{ ref("agg_" ~ chain ~ "_stablecoin_metrics") }}
-    where chain = '{{ chain }}'
     group by chain, date
 {% endmacro %}
