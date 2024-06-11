@@ -4,7 +4,7 @@
             distinct_dates as (
                 select distinct 
                     raw_date
-                from {{ chain }}.prod_raw.ez_transactions
+                from {{ ref("ez_" ~ chain ~ "_transactions") }}
                 where succeeded = 'TRUE'
                 {% if is_incremental() %}
                     and raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
@@ -14,14 +14,14 @@
                 select distinct 
                     raw_date,
                     value as from_address 
-                from {{ chain }}.prod_raw.ez_transactions, lateral flatten(input => signers)
+                from {{ ref("ez_" ~ chain ~ "_transactions") }}, lateral flatten(input => signers)
                 where succeeded = 'TRUE'
             ),
     {% elif chain == 'sui' %}
         distinct_dates as (
             select distinct
                 raw_date
-            from {{ chain }}.prod_raw.ez_transactions
+            from {{ ref("ez_" ~ chain ~ "_transactions") }}
             {% if is_incremental() %}
                 where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
@@ -30,7 +30,7 @@
             select distinct
                 raw_date,
                 sender as from_address
-            from {{ chain }}.prod_raw.ez_transactions
+            from {{ ref("ez_" ~ chain ~ "_transactions") }}
         ),
     {% elif chain == 'zksync' %}
         distinct_dates as (
@@ -111,7 +111,7 @@
         distinct_dates as (
             select distinct 
                 raw_date
-            from {{ chain }}.prod_raw.ez_transactions
+            from {{ ref("ez_" ~ chain ~ "_transactions") }}
             {% if is_incremental() %}
                 where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
@@ -120,7 +120,7 @@
             select distinct 
                 raw_date,
                 from_address
-            from {{ chain }}.prod_raw.ez_transactions
+            from {{ ref("ez_" ~ chain ~ "_transactions") }}
         ),
     {% endif %}
 
