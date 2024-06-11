@@ -1,16 +1,16 @@
 {{ config(snowflake_warehouse="STAKEWISE", materialized="table") }}
 with
+    prices as ({{get_coingecko_price_with_latest("ethereum")}}),
     temp as (
         select
             f.date,
             f.seth2_value as seth2_num_staked_eth,
             f.reth2_value as reth2_num_staked_eth,
-            f.seth2_value * p.shifted_token_price_usd as seth2_amount_staked_usd,
-            f.reth2_value * p.shifted_token_price_usd as reth2_amount_staked_usd,
-            p.shifted_token_price_usd
+            f.seth2_value * price as seth2_amount_staked_usd,
+            f.reth2_value * price as reth2_amount_staked_usd,
+            price
         from {{ ref("fact_stakewise_staked_eth_count") }} f
-        join pc_dbt_db.prod.fact_coingecko_token_date_adjusted_gold p on f.date = p.date
-        where p.coingecko_id = 'ethereum'
+        left join prices on f.date = prices.date
         order by date desc
     ),
     combined as (
@@ -22,7 +22,7 @@ with
             t.reth2_amount_staked_usd,
             t.seth2_num_staked_eth + t.reth2_num_staked_eth as num_staked_eth,
             t.seth2_amount_staked_usd + t.reth2_amount_staked_usd as amount_staked_usd,
-            t.shifted_token_price_usd
+            t.price
         from temp t
         order by date desc
     )
@@ -44,8 +44,8 @@ select
         else
             (c.num_staked_eth - lag(c.num_staked_eth, 1) over (order by c.date)) * (
                 (
-                    c.shifted_token_price_usd
-                    + lag(c.shifted_token_price_usd, 1) over (order by c.date)
+                    c.price
+                    + lag(c.price, 1) over (order by c.date)
                 )
                 / 2
             )
