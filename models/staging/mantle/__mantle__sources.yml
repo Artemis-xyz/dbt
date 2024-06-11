@@ -7,3 +7,4 @@ sources:
       - name: raw_mantle_txns
       - name: raw_mantle_gas
       - name: raw_mantle_expenses
+      - name: raw_meth_staked_eth_count

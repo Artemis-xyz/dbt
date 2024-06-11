@@ -58,6 +58,8 @@ select
     new_users,
     low_sleep_users,
     high_sleep_users,
+    sybil_users,
+    non_sybil_users,
     dau_over_100,
     price,
     market_cap,

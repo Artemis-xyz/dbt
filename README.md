@@ -74,7 +74,7 @@ Fact tables are then combined into `ez_asset_metrics` tables that are piped into
 For example, let's say a user wants to add GEODNET fees to our [DePin dashboard.](https://app.artemis.xyz/sectors?tab=dePin). They must first add the [GEODNET](https://geodnet.com/) asset first by completing the following steps:
 
 - [ ] Fork this repository
-- [ ] Add GEODNET to the `assets.csv` file
+- [ ] Add GEODNET to the `databases.csv` file
 - [ ] Request and merge a PR with this change
 
 The Artemis team will then create the necessary permissions and warehouses in order for GEODNET to show up in the Terminal.

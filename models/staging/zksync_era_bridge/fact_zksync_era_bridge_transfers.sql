@@ -12,8 +12,8 @@ with
             block_timestamp,
             tx_hash,
             trace_index * 10000 as event_index,
-            eth_from_address as depositor,
-            eth_from_address as recipient,
+            from_address as depositor,
+            from_address as recipient,
             amount_precise_raw as amount,
             null as fee,
             '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' as token_address,
@@ -21,7 +21,7 @@ with
             'zksync' as destination_chain
         from ethereum_flipside.core.ez_native_transfers
         where
-            eth_to_address = lower('0x32400084C286CF3E17e7B677ea9583e60a000324')
+            to_address = lower('0x32400084C286CF3E17e7B677ea9583e60a000324')
             {% if is_incremental() %}
 
                 and block_timestamp

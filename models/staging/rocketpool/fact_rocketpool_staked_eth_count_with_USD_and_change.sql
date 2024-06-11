@@ -1,14 +1,14 @@
-{{ config(materialized="table") }}
+{{ config(snowflake_warehouse="ROCKETPOOL", materialized="table") }}
 with
+    prices as ({{get_coingecko_price_with_latest("ethereum")}}),
     temp as (
         select
             f.date,
             f.value * 32 as num_staked_eth,
-            f.value * 32 * p.shifted_token_price_usd as amount_staked_usd,
-            p.shifted_token_price_usd
+            f.value * 32 * price as amount_staked_usd,
+            price
         from {{ ref("fact_rocketpool_staked_eth_count") }} f
-        join pc_dbt_db.prod.fact_coingecko_token_date_adjusted_gold p on f.date = p.date
-        where p.coingecko_id = 'ethereum'
+        left join prices on f.date = prices.date
         order by date desc
     )
 select
@@ -28,8 +28,8 @@ select
         else
             (t.num_staked_eth - lag(t.num_staked_eth, 1) over (order by t.date)) * (
                 (
-                    t.shifted_token_price_usd
-                    + lag(t.shifted_token_price_usd, 1) over (order by t.date)
+                    t.price
+                    + lag(t.price, 1) over (order by t.date)
                 )
                 / 2
             )
