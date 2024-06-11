@@ -1,6 +1,6 @@
 {{ config(snowflake_warehouse="FRAX", materialized="table") }}
 with
-    prices as ({{ get_coingecko_price_for_trending("ethereum") }}),
+    prices as ({{get_coingecko_price_with_latest("ethereum")}})
     temp as (
         select
             f.date,
