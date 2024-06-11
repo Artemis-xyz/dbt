@@ -1,6 +1,6 @@
 {{ config(snowflake_warehouse="MANTLE", materialized="table") }}
 with
-    prices as ({{get_coingecko_price_with_latest("ethereum")}})
+    prices as ({{get_coingecko_price_with_latest("ethereum")}}),
     temp as (
         select
             f.date,
