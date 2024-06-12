@@ -39,6 +39,71 @@
     -- TODO: Refactor to support native currencies. Currently assumes everything is $1
     -- b/c of perf issues when joining
     {% elif chain in ("solana") %}
+    -- CASE 1: Mints into non-premint addresses
+        select
+            block_timestamp,
+            trunc(block_timestamp, 'day') as date,
+            tx_id as tx_hash,
+            block_id as block_number,
+            -1 as index,
+            '1nc1nerator11111111111111111111111111111111' as from_address,
+            token_account as to_address,
+            TRUE as is_mint,
+            FALSE as is_burn,
+            coalesce((mint_amount/ POW(10, decimal)), 0) as amount,
+            case
+                when is_mint then amount when is_burn then -1 * amount else 0
+            end as inflow,
+            0 as transfer_volume,
+            mint as contract_address,
+            fact_solana_stablecoin_contracts.symbol
+        from solana_flipside.defi.fact_token_mint_actions
+        join
+            fact_solana_stablecoin_contracts
+            on lower(solana_flipside.defi.fact_token_mint_actions.mint)
+            = lower(fact_solana_stablecoin_contracts.contract_address)
+        where
+            mint
+            in (select distinct contract_address from fact_solana_stablecoin_contracts)
+            and lower(token_account) not in (
+                select distinct (lower(premint_address))
+                    from fact_solana_stablecoin_premint_addresses
+            )
+            and succeeded = 'TRUE'
+        UNION 
+    -- CASE 2: Burns into non-premint addresses
+        select
+            block_timestamp,
+            trunc(block_timestamp, 'day') as date,
+            tx_id as tx_hash,
+            block_id as block_number,
+            -2 as index,
+            token_account as from_address,
+            '1nc1nerator11111111111111111111111111111111' as to_address,
+            FALSE as is_mint,
+            TRUE as is_burn,
+            coalesce((burn_amount/ POW(10, decimal)), 0) as amount,
+            case
+                when is_mint then amount when is_burn then -1 * amount else 0
+            end as inflow,
+            0 as transfer_volume,
+            mint as contract_address,
+            fact_solana_stablecoin_contracts.symbol
+        from solana_flipside.defi.fact_token_burn_actions
+        join
+            fact_solana_stablecoin_contracts
+            on lower(solana_flipside.defi.fact_token_burn_actions.mint)
+            = lower(fact_solana_stablecoin_contracts.contract_address)
+        where
+            mint
+            in (select distinct contract_address from fact_solana_stablecoin_contracts)
+            and lower(token_account) not in (
+                select distinct (lower(premint_address))
+                    from fact_solana_stablecoin_premint_addresses
+            )
+            and succeeded = 'TRUE'
+        UNION
+    -- CASE 3: Transfers between pre-mint and non-premint addresses (quasi-mint/burns)
         select
             block_timestamp,
             trunc(block_timestamp, 'day') as date,
@@ -47,14 +112,27 @@
             index,
             tx_from as from_address,
             tx_to as to_address,
+            -- OUTSIDE OF EMPIRICAL MINT / BURNS 
+            -- Mint: From: Premint, To: Contract
             tx_from in (
                 select distinct (premint_address)
-                from fact_solana_stablecoin_premint_addresses
-            ) as is_mint,
-            tx_to in (
+                    from fact_solana_stablecoin_premint_addresses
+                ) 
+                and tx_to not in (
                 select distinct (premint_address)
-                from fact_solana_stablecoin_premint_addresses
-            ) as is_burn,
+                    from fact_solana_stablecoin_premint_addresses
+                )
+            as is_mint,
+            -- BURN: From: Contract, To: Premint
+            tx_from not in (
+                select distinct (premint_address)
+                    from fact_solana_stablecoin_premint_addresses
+                ) 
+                and tx_to in (
+                select distinct (premint_address)
+                    from fact_solana_stablecoin_premint_addresses
+                )
+            as is_burn,
             coalesce(amount, 0) as amount,
             case
                 when is_mint then amount when is_burn then -1 * amount else 0
