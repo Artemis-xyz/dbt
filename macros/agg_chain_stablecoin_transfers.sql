@@ -69,7 +69,6 @@
                 select distinct (lower(premint_address))
                     from fact_solana_stablecoin_premint_addresses
             )
-            and mint = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
             and succeeded = 'TRUE'
         UNION 
     -- CASE 2: Burns into non-premint addresses
@@ -102,7 +101,6 @@
                 select distinct (lower(premint_address))
                     from fact_solana_stablecoin_premint_addresses
             )
-            and mint = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
             and succeeded = 'TRUE'
         UNION
     -- CASE 3: Transfers between pre-mint and non-premint addresses (quasi-mint/burns)
