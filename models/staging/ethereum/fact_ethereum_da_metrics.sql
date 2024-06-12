@@ -10,9 +10,9 @@ with
         select
             block_timestamp::date as date,
             from_address as submitter,
-            (blob_gas_used * blob_gas_price) as blob_fee_gas,
-            blob_fee_gas / 1e18 as blob_fee_native,
-            blob_fee_native * price as blob_fee_usd
+            (blob_gas_used * blob_gas_price) as blob_fees_gas,
+            blob_fees_gas / 1e18 as blob_fees_native,
+            blob_fees_native * price as blob_fees
         from ethereum_flipside.core.fact_transactions 
         left join prices on block_timestamp::date = prices.date
         where tx_type = '3'
@@ -20,9 +20,9 @@ with
     blob_gas_fees as (
         select 
             date,
-            sum(blob_fee_gas) as blob_fee_gas,
-            sum(blob_fee_native) as blob_fee_native,
-            sum(blob_fee_usd) as blob_fee_usd,
+            sum(blob_fees_gas) as blob_fees_gas,
+            sum(blob_fees_native) as blob_fees_native,
+            sum(blob_fees) as blob_fees,
             count(distinct submitter) as submitters
         from blob_transactions
         group by date
@@ -38,12 +38,12 @@ with
 select
     date,
     'ethereum' as chain,
-    blob_fee_native,
-    blob_fee_usd,
+    blob_fees_native,
+    blob_fees,
     (bytes/pow(1024, 2)) as blob_size_mib,
     (bytes / pow(1024, 2)) / 86400 as avg_mib_per_second,
-    (blob_fee_gas /0.001048576) / (bytes) as avg_gwei_per_mib,
-    ((blob_fee_gas /1.048576E12) * price) / (bytes) as avg_usd_per_mib,
+    (blob_fees_gas /0.001048576) / (bytes) as avg_cost_per_mib_gwei,
+    ((blob_fees_gas /1.048576E12) * price) / (bytes) as avg_cost_per_mib,
     submitters
 from blob_gas_fees
 left join beacon_chain_blob_data using(date)

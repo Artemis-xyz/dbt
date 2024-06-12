@@ -34,8 +34,8 @@ with
     p2p_metrics as ({{ get_p2p_metrics("ethereum") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("ethereum") }}),
     da_metrics as (
-        select date, blob_fee_native, blob_fee_usd, blob_size_mib, avg_mib_per_second, avg_gwei_per_mib, avg_usd_per_mib, submitters
-        from {{ ref("fact_ethereum_da_gas_per_bytes_bytes_per_second_total_fees_submitters") }}
+        select date, blob_fees_native, blob_fees, blob_size_mib, avg_mib_per_second, avg_cost_per_mib, avg_cost_per_mib_gwei, submitters
+        from {{ ref("fact_ethereum_da_metrics") }}
     )
 
 select
@@ -96,12 +96,12 @@ select
     p2p_transfer_volume,
     coalesce(deduped_stablecoin_transfer_volume, 0) - coalesce(p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume,
     coalesce(dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
-    blob_fee_native,
-    blob_fee_usd,
+    blob_fees_native,
+    blob_fees,
     blob_size_mib,
     avg_mib_per_second,
-    avg_gwei_per_mib,
-    avg_usd_per_mib,
+    avg_cost_per_mib_gwei,
+    avg_cost_per_mib,
     submitters
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date

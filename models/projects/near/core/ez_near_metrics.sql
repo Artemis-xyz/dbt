@@ -19,10 +19,10 @@ with
     github_data as ({{ get_github_metrics("near") }}),
     contract_data as ({{ get_contract_metrics("near") }}),
     p2p_metrics as ({{ get_p2p_metrics("near") }}),
-    rolling_metrics as ({{ get_rolling_active_address_metrics("near") }})
+    rolling_metrics as ({{ get_rolling_active_address_metrics("near") }}),
     da_metrics as (
-        select date, blob_fee_native, blob_fee_usd, blob_size_mib, avg_mib_per_second, avg_near_per_mib, avg_usd_per_mib, submitters
-        from {{ ref("fact_near_da_gas_per_bytes_bytes_per_second_total_fees_submitters") }}
+        select date, blob_fees_native, blob_fees, blob_size_mib, avg_mib_per_second, avg_cost_per_mib_native, avg_cost_per_mib, submitters
+        from {{ ref("fact_near_da_metrics") }}
     )
 
 
@@ -57,12 +57,12 @@ select
     p2p_token_transfer_volume,
     p2p_stablecoin_transfer_volume,
     p2p_transfer_volume,
-    blob_fee_native,
-    blob_fee_usd,
+    blob_fees_native,
+    blob_fees,
     blob_size_mib,
     avg_mib_per_second,
-    avg_near_per_mib,
-    avg_usd_per_mib,
+    avg_cost_per_mib_native,
+    avg_cost_per_mib,
     submitters
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date

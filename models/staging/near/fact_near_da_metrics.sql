@@ -21,7 +21,7 @@ with
     blob_gas_fees as (
         select 
             blob_transactions.date,
-            sum(transaction_fee / 1e24) as blob_fee_native,
+            sum(transaction_fee / 1e24) as blob_fees_native,
             sum(bytes) / pow(1024, 2) as blob_size_mib,
             count(distinct submitter) as submitters
         from near_flipside.core.fact_transactions
@@ -30,12 +30,12 @@ with
     )
 select 
     blob_gas_fees.date,
-    blob_fee_native,
-    blob_fee_native * price as blob_fee_usd,
+    blob_fees_native,
+    blob_fees_native * price as blob_fees,
     blob_size_mib,
     blob_size_mib / 86400 as avg_mib_per_second,
-    blob_fee_native / (blob_size_mib) as avg_near_per_mib,
-    blob_fee_usd / (blob_size_mib) as avg_usd_per_mib,
+    blob_fees_native / (blob_size_mib) as avg_cost_per_mib_native,
+    blob_fees / (blob_size_mib) as avg_cost_per_mib,
     submitters
 from blob_gas_fees
 left join prices using(date)
