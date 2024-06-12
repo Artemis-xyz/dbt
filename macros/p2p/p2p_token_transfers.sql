@@ -88,15 +88,15 @@ with
             from near_flipside.core.ez_token_transfers t1
             inner join distinct_peer_address t2 on lower(to_address) = lower(t2.address)
             inner join distinct_peer_address t3 on lower(from_address) = lower(t3.address)
-            inner join near_flipside.core.dim_ft_contract_metadata t4 on t1.contract_address = t4.contract_address
             inner join (
                 select 
-                    timestamp::date as date,
-                    token_contract,
-                    avg(price_usd) as price
-                from near_flipside.price.fact_prices 
+                    hour::date as date,
+                    token_address,
+                    max(decimals) as decimals,
+                    avg(price) as price
+                from near_flipside.price.ez_prices_hourly 
                 group by 1, 2
-            ) t5 on t5.token_contract = t1.contract_address and block_timestamp::date = t5.date
+            ) t5 on t5.token_address = t1.contract_address and block_timestamp::date = t5.date
             where from_address != to_address and transfer_type = 'nep141'
                 and from_address is not null and to_address is not null
                 and from_address <> 'system' and to_address <> 'system'

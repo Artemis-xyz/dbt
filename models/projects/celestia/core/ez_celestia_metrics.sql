@@ -45,12 +45,6 @@ select
     coalesce(fees_native, 0) as fees_native,
     coalesce(fees, 0) as fees,
     coalesce(mints, 0) as mints,
-    coalesce(unique_namespaces, 0) as unique_namespaces,
-    coalesce(blob_size_mib, 0) as blob_size_mb,
-    coalesce(fees_for_blobs_native, 0) as fees_for_blobs_native,
-    coalesce(fees_for_blobs_native, 0) * price as fees_for_blobs,
-
-
     coalesce(unique_namespaces, 0) as submitters,
     blob_size_mib,
     coalesce(fees_for_blobs_native, 0) * price as blob_fees,
@@ -58,8 +52,6 @@ select
     blob_size_mib / 86400 as avg_mib_per_second,
     coalesce(blob_fees_native / blob_size_mib, 0) as avg_cost_per_mib_native,
     coalesce(blob_fees / blob_size_mib, 0) as avg_cost_per_mib,
-
-
     price,
     market_cap,
     fdmc
