@@ -19,4 +19,5 @@ with
 
 select date, value
 from flattened_data
+where date < to_date(sysdate())
 order by date desc

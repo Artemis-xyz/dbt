@@ -36,4 +36,5 @@ with
 select s.date, s.value as seth2_value, r.value as reth2_value
 from seth2_flattened_data s
 join reth2_flattened_data r on s.date = r.date
+where s.date < to_date(sysdate())
 order by date desc
