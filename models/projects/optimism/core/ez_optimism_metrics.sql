@@ -17,8 +17,8 @@ with
     github_data as ({{ get_github_metrics("optimism") }}),
     contract_data as ({{ get_contract_metrics("optimism") }}),
     expenses_data as (
-        select date, chain, l1_data_cost_native, l1_data_cost, revenue_native, revenue
-        from {{ ref("agg_daily_optimism_revenue") }}
+        select date, chain, l1_data_cost_native, l1_data_cost
+        from {{ ref("fact_optimism_l1_data_cost") }}
     ),  -- supply side revenue and fees
     nft_metrics as ({{ get_nft_metrics("optimism") }}),
     p2p_metrics as ({{ get_p2p_metrics("optimism") }}),
@@ -43,9 +43,11 @@ select
     fees,
     l1_data_cost_native,  -- fees paid to l1 by sequencer (L1 Fees)
     l1_data_cost,
-    revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    revenue,
+    fees_native - l1_data_cost_native as revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    fees - l1_data_cost as revenue,
     avg_txn_fee,
+    sybil_users,
+    non_sybil_users,
     returning_users,
     new_users,
     low_sleep_users,
