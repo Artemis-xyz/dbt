@@ -1,4 +1,4 @@
-{{ config(materialized="table", unique_key="date") }}
+{{ config(materialized="incremental", unique_key="date") }}
 with
     opt_data as (
         select raw_date as date, sum(tx_fee) as fees_native, sum(gas_usd) as fees
@@ -19,10 +19,12 @@ select
     opt_data.date,
     opt_data.fees_native as l1_data_cost_native,
     opt_data.fees as l1_data_cost,
-    coalesce(opt.fees_native, 0) - opt_data.fees_native as revenue_native,
-    coalesce(opt.fees, 0) - opt_data.fees as revenue,
     'optimism' as chain
 from opt_data
-left join
-    {{ ref("agg_daily_optimism_fundamental_usage") }} as opt on opt_data.date = opt.date
-where opt_data.date < to_date(sysdate()) and revenue is not null
+where opt_data.date < to_date(sysdate()) and l1_data_cost_native is not null
+{% if is_incremental() %} 
+    and opt_data.date >= (
+        select dateadd('day', -5, max(date))
+        from {{ this }}
+    )
+{% endif %}
