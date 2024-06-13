@@ -22,9 +22,9 @@ with
                 {{
                     dbt_utils.union_relations(
                         relations=[
-                            ref("fact_cosmoshub_daa_gold"),
-                            ref("fact_cosmoshub_txns_gold"),
-                            ref("fact_cosmoshub_fees_and_revenue_gold"),
+                            ref("fact_cosmoshub_daa"),
+                            ref("fact_cosmoshub_txns"),
+                            ref("fact_cosmoshub_fees_and_revenue"),
                         ]
                     )
                 }}

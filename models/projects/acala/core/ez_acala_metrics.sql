@@ -1,3 +1,4 @@
+--depends_on: {{ ref("fact_acala_rolling_active_addresses") }}
 {{
     config(
         materialized="table",
@@ -12,16 +13,16 @@ with
     fundamental_data as (
         select
             date, chain, daa, txns, gas, gas_usd, revenue
-        from {{ ref("fact_acala_daa_txns_gas_gas_usd_revenue_gold") }}
+        from {{ ref("fact_acala_daa_txns_gas_gas_usd_revenue") }}
     ),
     rolling_metrics as ({{ get_rolling_active_address_metrics("acala") }})
 select
     fundamental_data.date,
     fundamental_data.chain,
-    daa,
+    daa as dau,
     txns,
-    gas,
-    gas_usd,
+    gas as fees_native,
+    gas_usd as fees,
     revenue,
     wau,
     mau,

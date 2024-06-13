@@ -1,3 +1,4 @@
+--depends_on: {{ ref("fact_flow_nft_trading_volume") }}
 {{
     config(
         materialized="table",

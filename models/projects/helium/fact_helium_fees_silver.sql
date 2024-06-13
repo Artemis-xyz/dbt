@@ -1,3 +1,5 @@
+{{ config(snowflake_warehouse="HELIUM") }}
+
 SELECT
   o.date,
   o.onboard_fees + n.network_fees as fees,
