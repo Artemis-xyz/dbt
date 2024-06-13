@@ -1,4 +1,5 @@
 -- depends_on {{ ref("fact_bitcoin_nft_trading_volume") }}
+-- depends_on {{ ref("fact_bitcoin_issuance_circulating_supply_silver") }}
 {{
     config(
         materialized="table",
@@ -25,9 +26,9 @@ with
                 {{
                     dbt_utils.union_relations(
                         relations=[
-                            ref("fact_bitcoin_daa_gold"),
-                            ref("fact_bitcoin_txns_gold"),
-                            ref("fact_bitcoin_fees_revenue_gold"),
+                            ref("fact_bitcoin_daa"),
+                            ref("fact_bitcoin_txns"),
+                            ref("fact_bitcoin_fees_revenue"),
                         ]
                     )
                 }}

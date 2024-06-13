@@ -1,3 +1,5 @@
+{{ config(materialized="view", snowflake_warehouse="OSMOSIS") }}
+
 select
     t1.date,
     t1.chain,

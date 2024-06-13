@@ -1,3 +1,11 @@
+{{
+    config(
+        materialized="view",
+        snowflake_warehouse="STRIDE",
+    )
+}}
+
+
 select 
     t1.date, 
     daa, 

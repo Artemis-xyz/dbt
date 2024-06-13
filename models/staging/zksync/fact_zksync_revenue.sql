@@ -1,8 +1,8 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="ZKSYNC") }}
 with
     gas as (
         select date, gas, gas_usd, 'zksync' as chain
-        from {{ ref("fact_zksync_daa_txns_gas_gas_usd_gold") }}
+        from {{ ref("fact_zksync_daa_txns_gas_gas_usd") }}
         where gas <> 0
     ),
     prices as (
@@ -24,7 +24,7 @@ with
             and block_timestamp >= dateadd(day, -5, (select min(date) from gas))
         group by 1
     )
-select gas.*, (gas.gas - coalesce(expenses.gas, 0)) * price as revenue
+select gas.*, gas.gas - coalesce(expenses.gas, 0) as revenue_native, (gas.gas - coalesce(expenses.gas, 0)) * price as revenue, expenses.gas * price as l1_data_cost, expenses.gas as l1_data_cost_native
 from gas
 left join prices on gas.date = prices.price_date
 left join expenses on gas.date = expenses.date

@@ -1,3 +1,5 @@
+{{ config(materialized="view", snowflake_warehouse="OSMOSIS") }}
+
 with
     data as (
         select

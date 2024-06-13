@@ -24,8 +24,8 @@ with
                 {{
                     dbt_utils.union_relations(
                         relations=[
-                            ref("fact_osmosis_daa_txns_gold"),
-                            ref("fact_osmosis_gas_gas_usd_fees_revenue_gold"),
+                            ref("fact_osmosis_daa_txns"),
+                            ref("fact_osmosis_gas_gas_usd_fees_revenue"),
                         ]
                     )
                 }}

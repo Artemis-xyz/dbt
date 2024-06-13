@@ -1,4 +1,4 @@
-{{ config(materialized="view") }}
+{{ config(materialized="view", snowflake_warehouse="CARDANO") }}
 WITH cardano_data AS (
     SELECT 
         parse_json(source_json) AS data

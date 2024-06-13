@@ -1,3 +1,5 @@
+--depends_on: {{ ref("fact_stride_rolling_active_addresses") }}
+
 {{
     config(
         materialized="table",
@@ -12,14 +14,14 @@ with
     fundamental_metrics as (
         select
             date, chain, daa, gas_usd, txns
-        from {{ ref("fact_stride_daa_gas_usd_txns_gold") }}
+        from {{ ref("fact_stride_daa_gas_usd_txns") }}
     ),
     rolling_metrics as ({{ get_rolling_active_address_metrics("stride") }})
 select
     fundamental_metrics.date,
     fundamental_metrics.chain,
-    daa,
-    gas_usd,
+    daa as dau,
+    gas_usd as fees,
     txns,
     wau,
     mau,

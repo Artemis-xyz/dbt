@@ -1,3 +1,5 @@
+{{ config(snowflake_warehouse="AKASH") }}
+
 with
     max_extraction as (
         select max(extraction_date) as max_date

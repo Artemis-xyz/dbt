@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="GEODNET") }}
 with burns as (
   select
     trunc(block_timestamp, 'day') date,

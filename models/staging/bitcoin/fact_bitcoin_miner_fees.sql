@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="BITCOIN") }}
 select
     trunc(block_timestamp, 'day') as date,
     sum(total_reward) total_reward,

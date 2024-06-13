@@ -1,3 +1,4 @@
+--depends_on: {{ ref("fact_cardano_nft_trading_volume") }}
 {{
     config(
         materialized="table",
