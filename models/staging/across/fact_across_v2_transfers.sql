@@ -2,7 +2,7 @@
     config(
         materialized="table",
         unique_key=["tx_hash", "event_index"],
-        snowflake_warehouse="BRIDGE_MD",
+        snowflake_warehouse="ACROSS",
     )
 }}
 with
