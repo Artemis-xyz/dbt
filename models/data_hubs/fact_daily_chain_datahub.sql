@@ -65,6 +65,7 @@ with
                     ref("fact_mantle_daa_txns_gas_gas_usd_revenue_gold"),
                     ref("ez_arbitrum_metrics"),
                     ref("ez_base_metrics"),
+                    ref("ez_blast_metrics"),
                     ref("ez_sei_metrics"),
                     ref("ez_ethereum_metrics"),
                     ref("ez_optimism_metrics"),
