@@ -18,9 +18,9 @@ with
     -- its both data and execution cost, but I'm following convention for now and we don't publish 
     -- this field anywhere, we only use it to derive revenue
     expenses_data as (
-        select date, chain, l1_data_cost_native, l1_data_cost, revenue_native, revenue
-        from {{ ref("agg_daily_blast_revenue") }}
-    ),
+        select date, chain, l1_data_cost_native, l1_data_cost
+        from {{ ref("fact_blast_l1_data_cost") }}
+    ),  -- supply side revenue and fees
     rolling_metrics as ({{ get_rolling_active_address_metrics("blast") }})
 select
     coalesce(
@@ -39,8 +39,8 @@ select
     fees,
     l1_data_cost_native,  
     l1_data_cost,
-    revenue_native,  
-    revenue,
+    fees_native - l1_data_cost_native as revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    fees - l1_data_cost as revenue,
     returning_users,
     new_users,
     low_sleep_users,
