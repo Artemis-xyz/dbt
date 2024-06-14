@@ -17,7 +17,7 @@ select
     coalesce(base_data.fees, 0) as l1_data_cost,
     'base' as chain
 from base_data
-where base_data.date < to_date(sysdate()) and revenue is not null
+where base_data.date < to_date(sysdate())
 {% if is_incremental() %} 
     and base_data.date >= (
         select dateadd('day', -5, max(date))

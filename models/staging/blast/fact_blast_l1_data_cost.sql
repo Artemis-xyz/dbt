@@ -16,7 +16,7 @@ select
     coalesce(blast_data.fees, 0) as l1_data_cost,
     'blast' as chain
 from blast_data
-where blast_data.date < to_date(sysdate()) and revenue is not null
+where blast_data.date < to_date(sysdate())
 {% if is_incremental() %} 
     and blast_data.date >= (
         select dateadd('day', -5, max(date))
