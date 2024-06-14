@@ -13,8 +13,8 @@ with
         {{
             dbt_utils.union_relations(
                 relations=[
-                    "fact_spark_ethereum_borrows_deposits_gold",
-                    "fact_spark_gnosis_borrows_deposits_gold",
+                    ref("fact_spark_ethereum_borrows_deposits_gold"),
+                    ref("fact_spark_gnosis_borrows_deposits_gold"),
                 ],
             )
         }}
