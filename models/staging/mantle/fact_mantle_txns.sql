@@ -1,4 +1,6 @@
 -- depends_on: {{ source("PROD_LANDING", "raw_mantle_txns") }}
+{{ config(materialized="view", snowflake_warehouse="MANTLE") }}
+
 select date, txns::integer as txns, 'mantle' as chain
 from
     (

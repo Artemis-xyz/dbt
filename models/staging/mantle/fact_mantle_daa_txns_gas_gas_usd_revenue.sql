@@ -37,16 +37,16 @@ with
         left join mantle_prices on grouped_data.date = mantle_prices.date
     ),
     expenses_usd_table as (
-        select grouped_data.date, expenses * price as expenses_usd
+        select grouped_data.date, expenses * price as expenses_usd, expenses
         from grouped_data
         left join eth_prices on grouped_data.date = eth_prices.date
     ),
     revenue as (
-        select gas_usd_table.date, gas_usd - expenses_usd as revenue
+        select gas_usd_table.date, gas_usd - expenses_usd as revenue, expenses_usd, expenses
         from gas_usd_table
         left join expenses_usd_table on gas_usd_table.date = expenses_usd_table.date
     )
-select grouped_data.date, daa, txns, gas, gas_usd, revenue, 'mantle' as chain
+select grouped_data.date, daa, txns, gas, gas_usd, revenue, 'mantle' as chain, revenue.expenses as l1_data_cost_native, revenue.expenses_usd as l1_data_cost
 from grouped_data
 left join gas_usd_table on grouped_data.date = gas_usd_table.date
 left join revenue on grouped_data.date = revenue.date

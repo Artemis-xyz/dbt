@@ -1,4 +1,4 @@
-{{ config(materialized="view") }}
+{{ config(materialized="view", snowflake_warehouse="PARALLEL_FINANCE") }}
 select t1.date, t1.chain, daa, txns, gas, gas_usd
 from {{ ref("fact_parallel_finance_txns") }} t1
 left join {{ ref("fact_parallel_finance_daa") }} t2 on t1.date = t2.date
