@@ -11,7 +11,7 @@
 with
     fundamental_data as (
         select date, chain, daa as dau, txns, gas_usd as fees
-        from {{ ref("fact_polygon_zk_daa_txns_gas_usd_gold") }}
+        from {{ ref("fact_polygon_zk_daa_txns_gas_usd") }}
     ),
     price_data as ({{ get_coingecko_metrics("matic-network") }}),
     defillama_data as ({{ get_defillama_metrics("polygon zkevm") }}),
@@ -21,7 +21,7 @@ with
             expenses_native as l1_data_cost_native,
             expenses as l1_data_cost,
             revenue
-        from {{ ref("agg_daily_polygon_zk_revenue_gold") }}
+        from {{ ref("agg_daily_polygon_zk_revenue") }}
     ),
     github_data as ({{ get_github_metrics("Polygon Hermez") }})
 select

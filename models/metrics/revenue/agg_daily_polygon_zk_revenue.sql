@@ -15,6 +15,6 @@ select
     expenses.fees as expenses,
     coalesce(top_line.gas_usd, 0) - expenses.fees as revenue,
     'polygon_zk' as chain
-from {{ ref("fact_polygon_zk_daa_txns_gas_usd_gold") }} as top_line
+from {{ ref("fact_polygon_zk_daa_txns_gas_usd") }} as top_line
 left join expenses on expenses.date = top_line.date
 where expenses.date < to_date(sysdate()) and revenue is not null
