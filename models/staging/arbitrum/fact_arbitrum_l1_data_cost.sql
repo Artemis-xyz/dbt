@@ -1,4 +1,4 @@
-{{ config(materialized="table", unique_key="date") }}
+{{ config(materialized="incremental", unique_key="date") }}
 with
     arb_data as (
         select raw_date as date, sum(tx_fee) as fees_native, sum(gas_usd) as fees
@@ -22,7 +22,7 @@ select
 from arb_data
 where arb_data.date < to_date(sysdate())
 {% if is_incremental() %} 
-    and opt_data.date >= (
+    and arb_data.date >= (
         select dateadd('day', -5, max(date))
         from {{ this }}
     )
