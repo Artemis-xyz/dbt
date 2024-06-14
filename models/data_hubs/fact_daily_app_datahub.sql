@@ -88,7 +88,6 @@ with
             app,
             max(friendly_name) as friendly_name,
             chain,
-            market_pair,
             category,
             max(daa) as daa,
             max(returning_users) as returning_users,
@@ -107,14 +106,12 @@ with
             max(daily_borrows_usd) as daily_borrows_usd,
             max(daily_supply_usd) as daily_supply_usd,
             max(tvl) as tvl,
-            max(trading_fees) as trading_fees,
-            max(txn_fees) as txn_fees,
             max(inflow) as inflow,
             max(outflow) as outflow,
             max(bridge_daa) as bridge_daa
 
         from app_datahub
-        group by date, app, chain, market_pair, category
+        group by date, app, chain, category
     ),
     app_data_tagged as (
         select app_data_collapsed.*, coingecko_id, defillama_protocol_id
@@ -129,7 +126,6 @@ select
     app_data_tagged.friendly_name as friendly_name,
     app_data_tagged.chain as chain,
     app_data_tagged.category as category,
-    app_data_tagged.market_pair as market_pair,
     app_data_tagged.daa as daa,
     app_data_tagged.new_users as new_users,
     app_data_tagged.returning_users as returning_users,
@@ -150,8 +146,6 @@ select
     app_data_tagged.daily_borrows_usd as daily_borrows_usd,
     app_data_tagged.daily_supply_usd as daily_supply_usd,
     app_data_tagged.tvl as tvl,
-    app_data_tagged.trading_fees as trading_fees,
-    app_data_tagged.txn_fees as txn_fees,
     coingecko.coingecko_id as coingecko_id,
     coalesce(
         app_data_tagged.defillama_protocol_id, defillama_protocol.defillama_protocol_id
