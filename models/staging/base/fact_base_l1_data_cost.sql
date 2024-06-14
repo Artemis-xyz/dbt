@@ -1,4 +1,4 @@
-{{ config(materialized="table", unique_key="date") }}
+{{ config(materialized="incremental", unique_key="date") }}
 with
     base_data as (
         select raw_date as date, sum(tx_fee) as fees_native, sum(gas_usd) as fees
@@ -15,10 +15,12 @@ select
     base_data.date,
     coalesce(base_data.fees_native, 0) as l1_data_cost_native,
     coalesce(base_data.fees, 0) as l1_data_cost,
-    coalesce(base.fees_native, 0) - base_data.fees_native as revenue_native,
-    coalesce(base.fees, 0) - base_data.fees as revenue,
     'base' as chain
 from base_data
-left join
-    {{ ref("agg_daily_base_fundamental_usage") }} as base on base_data.date = base.date
-where base_data.date < to_date(sysdate()) and revenue is not null
+where base_data.date < to_date(sysdate())
+{% if is_incremental() %} 
+    and base_data.date >= (
+        select dateadd('day', -5, max(date))
+        from {{ this }}
+    )
+{% endif %}
