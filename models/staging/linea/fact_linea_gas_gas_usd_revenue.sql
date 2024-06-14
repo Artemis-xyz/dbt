@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="LINEA") }}
 with
     prices as ({{ get_coingecko_price_with_latest("ethereum") }}),
     linea_submission_and_finalization_transactions as (
