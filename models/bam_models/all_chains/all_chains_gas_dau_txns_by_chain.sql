@@ -31,18 +31,3 @@ where
     and category is null
     and app is null
     and (gas is not null or fees_native is not null)
-union all
-select
-    date,
-    chain,
-    txns,
-    daa as dau,
-    gas,
-    gas_usd,
-    returning_users,
-    new_users,
-    low_sleep_users,
-    high_sleep_users,
-    null as sybil_users,
-    null as non_sybil_users
-from pc_dbt_db.prod.agg_daily_solana_fundamental_usage
