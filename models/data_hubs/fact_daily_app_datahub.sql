@@ -31,7 +31,6 @@ with
                     ref("fact_sonne_optimism_borrows_deposits_gold"),
                     ref("fact_sonne_base_borrows_deposits_gold"),
                     ref("fact_moonwell_base_borrows_deposits_gold"),
-                    ref("fact_benqi_avalanche_borrows_deposits_gold"),
                     ref("fact_spark_gnosis_borrows_deposits_gold"),
                     ref("fact_quickswap_polygon_gold"),
                     ref("fact_fraxswap_ethereum_gold"),
