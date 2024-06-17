@@ -13,7 +13,7 @@ with
         {{
             dbt_utils.union_relations(
                 relations=[
-                    ref(""),
+                    ref("fact_uwu_lend_ethereum_borrows_deposits_gold"),
                 ],
             )
         }}
