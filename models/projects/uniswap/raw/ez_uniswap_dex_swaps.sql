@@ -24,8 +24,7 @@ with
                 ],
             )
         }}
-    ),
-    prices as ({{ get_coingecko_price_with_latest("ethereum") }})
+    )
 select
     dex_swaps.block_timestamp,
     'uniswap' as app,
@@ -45,5 +44,4 @@ select
     dex_swaps.gas_cost_native,
     dex_swaps.gas_cost_native * price as gas_cost_usd
 from dex_swaps
-left join prices on dex_swaps.block_timestamp::date = prices.date
 where dex_swaps.block_timestamp::date < to_date(sysdate())
