@@ -2,7 +2,7 @@
     config(
         materialized="table",
         snowflake_warehouse="BENQI_FINANCE",
-        database="benqi",
+        database="benqi_finance",
         schema="core",
         alias="ez_metrics_by_chain",
     )
