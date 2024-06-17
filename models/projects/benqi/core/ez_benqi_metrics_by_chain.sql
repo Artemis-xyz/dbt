@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="benqi",
+        snowflake_warehouse="BENQI_FINANCE",
         database="benqi",
         schema="core",
         alias="ez_metrics_by_chain",
