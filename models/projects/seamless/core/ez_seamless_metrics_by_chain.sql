@@ -1,8 +1,8 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="SEAMLESS",
-        database="seamless",
+        snowflake_warehouse="SEAMLESSPROTOCOL",
+        database="seamlessprotocol",
         schema="core",
         alias="ez_metrics_by_chain",
     )
