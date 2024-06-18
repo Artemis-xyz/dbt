@@ -14,8 +14,8 @@ with
     price_data as ({{ get_coingecko_metrics("starknet") }}),
     defillama_data as ({{ get_defillama_metrics("starknet") }}),
     expenses_data as (
-        select date, chain, l1_data_cost_native, l1_data_cost, revenue_native, revenue
-        from {{ ref("agg_daily_starknet_revenue") }}
+        select date, chain, l1_data_cost_native, l1_data_cost
+        from {{ ref("fact_starknet_l1_data_cost") }}
     ),
     github_data as ({{ get_github_metrics("starknet") }})
 
@@ -27,8 +27,8 @@ select
     fees,
     l1_data_cost_native,  -- fees paid to l1 by sequencer (L1 Fees)
     l1_data_cost,
-    revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    revenue,
+    coalesce(fees_native, 0) -  l1_data_cost_native as revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    coalesce(fees, 0) -  l1_data_cost as revenue,
     avg_txn_fee,
     returning_users,
     new_users,
