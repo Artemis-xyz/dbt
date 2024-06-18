@@ -28,7 +28,6 @@ with
                     ref("fact_uwu_lend_ethereum_borrows_deposits_gold"),
                     ref("fact_aevo_trading_volume_gold"),
                     ref("fact_moonwell_base_borrows_deposits_gold"),
-                    ref("fact_benqi_avalanche_borrows_deposits_gold"),
                     ref("fact_spark_gnosis_borrows_deposits_gold"),
                     ref("fact_quickswap_polygon_gold"),
                     ref("fact_fraxswap_ethereum_gold"),
