@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="incremental",
+        materialized="table",
         unique_key=["tx_hash", "event_index"],
         snowflake_warehouse="PANCAKESWAP_SM",
     )
@@ -17,7 +17,18 @@
             "0xd9e26d20b81f03f1241f31127d610bd120a42bf4",
             "0x0eda99edc38abe8321d504a194827a6d2fc487d2",
             "0x7a3dc277b07947754b23dc4e579c59830baa8490",
-            "0x53009cb4004cc3041b49888b56a9c7a73db8b4ab"
+            "0x53009cb4004cc3041b49888b56a9c7a73db8b4ab",
+            "0xd64fbda8fb4ed189708ca3e16848e51e2e8fb807",
+            "0x8cada67a6c937116242a7ae49ae0acbcc4a425cb",
+            "0x37ef87c08b134168dcf6eda8fb63fcd09eaf7812",
+            "0xe1793c95f0a8778c900a0851d2b775e89a11431e",
+            "0xe71edfb90a9dbeb112ab2bb1a31f6da92af3b77f",
+            "0xec1e3ef55761161773fafdee56aa6a486e205f56",
+            "0x0431f9b75a6d5513395332a8838ec22337c09c07",
+            "0x10a1c40faea08f92bf1890f2c4033bb0806f4009",
+            "0xc6326e77a18fffa4270c57e98f089c74eda130d6",
+            "0xd29b841852ded4bd3248f61a2f76b01306c865e2",
+            "0x85c58fe2f4b2f1dac6be5129a1dcb02c7f08f8e2"
         ),
         "pancakeswap",
         2500,

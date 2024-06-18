@@ -114,6 +114,11 @@
                 {{ chain }}_flipside.price.ez_prices_hourly t3
                 on (lower(t1.token1) = lower(t3.token_address) and t3.hour = t1.hour)
             where token1_decimals > 0 and token0_decimals > 0
+                and abs(
+                    ln(abs(coalesce(nullif(total_in, 0), 1))) / ln(10)
+                    - ln(abs(coalesce(nullif(total_out, 0), 1))) / ln(10)
+                )
+                < 2
         ),
         filtered_pairs as (
             select
