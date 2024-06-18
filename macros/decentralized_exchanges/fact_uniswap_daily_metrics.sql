@@ -25,10 +25,10 @@
         token_1_symbol,
         sum(trading_volume) as trading_volume,
         sum(trading_fees) as trading_fees,
-        sum(
+        count(distinct
             case 
-                when sender not in (select pool from {{ ref(source_table) }}) then 1 
-                else 0
+                when sender not in (select pool from {{ ref(source_table) }}) then sender
+                else null
             end
         ) as unique_traders,
         sum(coalesce(gas_cost_native, 0)) as gas_cost_native,

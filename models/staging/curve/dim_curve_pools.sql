@@ -7,8 +7,7 @@ with
             flat_json.value:"registration_address"::string as registration_address,
             flat_json.value:"pool_address"::string as pool_address,
             flat_json.value:"token"::string as token,
-            flat_json.value:"amplification_coefficient"::int
-            as amplification_coefficient,
+            flat_json.value:"amplification_coefficient"::int as amplification_coefficient,
             flat_json.value:"name"::string as name,
             flat_json.value:"symbol"::string as symbol,
             flat_json.value:"swap_fee"::int as swap_fee,
