@@ -16,6 +16,8 @@
             "0x5b3345be7c6febc2ec4a6d459bb1531411486ba7",
             "0xd9e26d20b81f03f1241f31127d610bd120a42bf4",
             "0x0eda99edc38abe8321d504a194827a6d2fc487d2",
+            "0x7a3dc277b07947754b23dc4e579c59830baa8490",
+            "0x53009cb4004cc3041b49888b56a9c7a73db8b4ab"
         ),
         "pancakeswap",
         2500,

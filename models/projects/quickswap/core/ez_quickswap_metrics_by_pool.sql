@@ -11,11 +11,11 @@
 with
     trading_volume_pool as (
         select *
-        from ref("fact_quickswap_polygon_trading_vol_fees_traders_by_pool")
+        from {{ ref("fact_quickswap_polygon_trading_vol_fees_traders_by_pool") }}
     ),
     tvl_by_pool as (
        select *
-       from ref("fact_quickswap_polygon_tvl_by_pool")
+       from {{ ref("fact_quickswap_polygon_tvl_by_pool") }}
     )
 select
     tvl_by_pool.date,
