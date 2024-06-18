@@ -1,30 +1,22 @@
-{% macro fact_daily_uniswap_fork_trading_vol_fees_traders_by_pool(
-        chain, app, version, source_table
-) %}
-
-    {% set _version = version.lower() %}
-    with 
-        {% if chain == 'avalanche' %} 
-            prices as ({{get_coingecko_price_with_latest("avalanche-2")}})
-        {% elif chain == 'polygon' %}
-            prices as ({{get_coingecko_price_with_latest("matic-network")}})
-        {% else %}
-            prices as ({{get_coingecko_price_with_latest("ethereum")}})
-        {% endif %}
+{% macro fact_daily_curve_trading_vol_fees_traders_by_pool(chain, source_table, app="curve") %}
+with 
+    {% if chain == 'avalanche' %} 
+        prices as ({{get_coingecko_price_with_latest("avalanche-2")}}),
+    {% elif chain == 'polygon' %}
+        prices as ({{get_coingecko_price_with_latest("matic-network")}}),
+    {% else %}
+        prices as ({{get_coingecko_price_with_latest("ethereum")}}),
+    {% endif %}
 
     select
         block_timestamp::date as date,
         '{{ chain }}' as chain,
         '{{ app }}' as app,
-        '{{ _version }}' as version,
         'DeFi' as category,
         pool,
-        token_0,
-        token_0_symbol,
-        token_1,
-        token_1_symbol,
         sum(trading_volume) as trading_volume,
         sum(trading_fees) as trading_fees,
+        sum(trading_revenue) as trading_revenue,
         count(distinct
             case 
                 when sender not in (select pool from {{ ref(source_table) }}) then sender
