@@ -4,7 +4,6 @@ with
         {{
             dbt_utils.union_relations(
                 relations=[
-                    ref("agg_daily_polygon_zk_revenue_gold"),
                     ref("agg_daily_gnosis_revenue_gold"),
                     ref("fact_linea_contracts_gold"),
                     ref("fact_zora_contracts_gold"),
@@ -39,7 +38,6 @@ with
                     ref("fact_fantom_txns_gold"),
                     ref("fact_fuse_daa_txns_gas_gas_usd_gold"),
                     ref("fact_flow_daa_txns_gold"),
-                    ref("fact_polygon_zk_daa_txns_gas_usd_gold"),
                     ref("ez_tron_metrics"),
                     ref("fact_scroll_daa_gold"),
                     ref("fact_scroll_gas_gas_usd_revenue_gold"),
