@@ -104,7 +104,7 @@
                     else avg(price)
                 end as price
             from {{ _chain }}_flipside.price.ez_prices_hourly
-            group by date, token_address, decimals
+            group by date, token_address, decimals, symbol
         ),
         with_prices as (
             select
@@ -156,7 +156,7 @@
                 token_out_symbol,
                 token_in,
                 token_in_symbol,
-                min(amount_in_usd, amount_out_usd) as trading_volume,
+                least(amount_in_usd, amount_out_usd) as trading_volume,
                 trading_fee as trading_fees,
                 revenue as trading_revenue,
                 ROW_NUMBER() OVER (PARTITION by tx_hash, pool ORDER BY event_index) AS row_number
@@ -172,7 +172,7 @@
                 {% endif %}
                 ROW_NUMBER() OVER (PARTITION by t1.tx_hash, t1.to_address ORDER BY t1.trace_index) AS row_number
             from  {{ _chain }}_flipside.core.fact_traces t1
-            inner join filtered_pairs t2 on 
+            inner join with_prices t2 on 
                 t1.tx_hash = t2.tx_hash 
                 and lower(t1.to_address) = lower(t2.pool)
                 and substr(t1.input, 0, 10) in ('0x3df02124', '0xa6417ed6')
@@ -184,23 +184,23 @@
         )
 
     select
-        block_timestamp,
+        events.block_timestamp,
         '{{ _chain }}' as chain,
         'DeFi' as category,
         'curve' as app,
-        tx_hash,
-        event_index,
-        sender,
-        recipient,
-        pool,
+        events.tx_hash,
+        events.event_index,
+        events.sender,
+        events.recipient,
+        events.pool,
         --different naming from uniswap because pool structure is different
-        token_out,
-        token_out_symbol,
-        token_in,
-        token_in_symbol,
-        trading_volume,
-        trading_fees,
-        trading_revenue,
+        events.token_out,
+        events.token_out_symbol,
+        events.token_in,
+        events.token_in_symbol,
+        events.trading_volume,
+        events.trading_fees,
+        events.trading_revenue,
         gas_price * gas_used as raw_gas_cost_native,
         raw_gas_cost_native / 1e9 as gas_cost_native
     from events
