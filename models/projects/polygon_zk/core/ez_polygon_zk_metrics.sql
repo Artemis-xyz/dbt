@@ -18,8 +18,8 @@ with
     l1_data_cost as (
         select
             date,
-            expenses_native as l1_data_cost_native,
-            expenses as l1_data_cost
+            l1_data_cost_native,
+            l1_data_cost
         from {{ ref("fact_polygon_zk_l1_data_cost") }}
     ),
     github_data as ({{ get_github_metrics("Polygon Hermez") }})
