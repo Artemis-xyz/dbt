@@ -11,23 +11,23 @@
 with
     trading_volume_by_chain as (
         select
-            trading_volume_by_pool.date,
-            trading_volume_by_pool.chain,
-            sum(trading_volume_by_pool.trading_volume) as trading_volume,
-            sum(trading_volume_by_pool.trading_fees) as trading_fees,
-            sum(trading_volume_by_pool.unique_traders) as unique_traders,
-            sum(trading_volume_by_pool.gas_cost_native) as gas_cost_native,
-            sum(trading_volume_by_pool.gas_cost_usd) as gas_cost_usd
-        from ref("fact_quickswap_polygon_trading_vol_fees_traders_by_pool")
-        group by trading_volume_by_pool.date, trading_volume_by_pool.chain
+            date,
+            chain,
+            sum(trading_volume) as trading_volume,
+            sum(trading_fees) as trading_fees,
+            sum(unique_traders) as unique_traders,
+            sum(gas_cost_native) as gas_cost_native,
+            sum(gas_cost_usd) as gas_cost_usd
+        from {{ ref("fact_quickswap_polygon_trading_vol_fees_traders_by_pool") }}
+        group by date, chain
     ),
     tvl_by_chain as (
         select
-            tvl_by_pool.date,
-            tvl_by_pool.chain,
-            sum(tvl_by_pool.tvl) as tvl
-        from ref("fact_quickswap_polygon_tvl_by_pool")
-        group by tvl_by_pool.date, tvl_by_pool.chain
+            date,
+            chain,
+            sum(tvl) as tvl
+        from {{ ref("fact_quickswap_polygon_tvl_by_pool") }}
+        group by date, chain
     )
 select
     tvl_by_chain.date,
