@@ -22,7 +22,6 @@ with
                     ref("fact_pancakeswap_bsc_gold"),
                     ref("fact_pancakeswap_ethereum_gold"),
                     ref("fact_apex_trading_volume_gold"),
-                    ref("fact_uwu_lend_ethereum_borrows_deposits_gold"),
                     ref("fact_aevo_trading_volume_gold"),
                     ref("fact_moonwell_base_borrows_deposits_gold"),
                     ref("fact_quickswap_polygon_gold"),
