@@ -1,8 +1,8 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="SONNE",
-        database="sonne",
+        snowflake_warehouse="SONNE_FINANCE",
+        database="sonne_finance",
         schema="core",
         alias="ez_metrics_by_chain",
     )
