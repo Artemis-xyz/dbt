@@ -35,6 +35,6 @@ select
     dex_swaps.token_1_symbol,
     dex_swaps.trading_volume,
     dex_swaps.trading_fees,
-    dex_swaps.gas_cost_native,
+    dex_swaps.gas_cost_native
 from dex_swaps
 where dex_swaps.block_timestamp::date < to_date(sysdate())
