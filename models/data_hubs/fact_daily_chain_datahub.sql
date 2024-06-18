@@ -4,8 +4,6 @@ with
         {{
             dbt_utils.union_relations(
                 relations=[
-                    ref("agg_daily_solana_fundamental_usage"),
-                    ref("agg_daily_polygon_zk_revenue_gold"),
                     ref("agg_daily_gnosis_revenue_gold"),
                     ref("fact_linea_contracts_gold"),
                     ref("fact_zora_contracts_gold"),
@@ -40,12 +38,10 @@ with
                     ref("fact_fantom_txns_gold"),
                     ref("fact_fuse_daa_txns_gas_gas_usd_gold"),
                     ref("fact_flow_daa_txns_gold"),
-                    ref("fact_polygon_zk_daa_txns_gas_usd_gold"),
                     ref("ez_tron_metrics"),
                     ref("fact_scroll_daa_gold"),
                     ref("fact_scroll_gas_gas_usd_revenue_gold"),
                     ref("fact_scroll_txns_gold"),
-                    ref("fact_solana_contracts_gold"),
                     ref("fact_stacks_daa_txns_gold"),
                     ref("fact_stacks_native_fees_gold"),
                     ref("fact_gnosis_daa_txns_gas_gas_usd_gold"),
@@ -61,6 +57,7 @@ with
                     ref("ez_polygon_metrics"),
                     ref("ez_optimism_metrics"),
                     ref("ez_sei_metrics"),
+                    ref("ez_solana_metrics"),
                     ref("ez_sui_metrics"),
                     ref("fact_stride_daa_gas_usd_txns_gold"),
                     ref("fact_zcash_gas_gas_usd_txns_gold"),
