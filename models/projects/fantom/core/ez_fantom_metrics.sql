@@ -25,6 +25,7 @@ with
             date, chain, gas, gas_usd, fees, revenue
         from {{ ref("fact_fantom_gas_gas_usd_fees_revenue") }}
     ),
+    contract_data as ({{ get_contract_metrics("fantom") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("fantom") }})
 select
     daa_gold.date,
@@ -36,7 +37,10 @@ select
     revenue,
     wau,
     mau,
+    weekly_contracts_deployed,
+    weekly_contract_deployers
 from daa_gold
+left join contract_data on daa_gold.date = contract_data.date
 left join txns_gold on daa_gold.date = txns_gold.date
 left join gas_gold on daa_gold.date = gas_gold.date
 left join rolling_metrics on daa_gold.date = rolling_metrics.date
