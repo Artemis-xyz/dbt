@@ -39,8 +39,8 @@ select
     fees,
     l1_data_cost_native,  
     l1_data_cost,
-    fees_native - l1_data_cost_native as revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    fees - l1_data_cost as revenue,
+    coalesce(fees_native, 0) - l1_data_cost_native as revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    coalesce(fees, 0) - l1_data_cost as revenue,
     returning_users,
     new_users,
     low_sleep_users,
