@@ -4,7 +4,6 @@ with
         {{
             dbt_utils.union_relations(
                 relations=[
-                    ref("agg_daily_app_fundamental_usage"),
                     ref("fact_stargate_bridge_volume_gold"),
                     ref("fact_sushiswap_arbitrum_gold"),
                     ref("fact_sushiswap_avalanche_gold"),
