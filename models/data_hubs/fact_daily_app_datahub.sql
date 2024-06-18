@@ -25,7 +25,6 @@ with
                     ref("fact_pancakeswap_ethereum_gold"),
                     ref("fact_apex_trading_volume_gold"),
                     ref("fact_spark_ethereum_borrows_deposits_gold"),
-                    ref("fact_seamless_protocol_base_borrows_deposits_gold"),
                     ref("fact_uwu_lend_ethereum_borrows_deposits_gold"),
                     ref("fact_aevo_trading_volume_gold"),
                     ref("fact_moonwell_base_borrows_deposits_gold"),
