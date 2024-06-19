@@ -83,8 +83,6 @@ with
             max(unique_traders) as unique_traders,
             max(fees) as fees,
             max(bridge_volume) as bridge_volume,
-            max(daily_borrows_usd) as daily_borrows_usd,
-            max(daily_supply_usd) as daily_supply_usd,
             max(tvl) as tvl,
             max(inflow) as inflow,
             max(outflow) as outflow,
@@ -113,8 +111,6 @@ select
     app_data_tagged.inflow as inflow,
     app_data_tagged.outflow as outflow,
     app_data_tagged.bridge_daa as bridge_daa,
-    app_data_tagged.daily_borrows_usd as daily_borrows_usd,
-    app_data_tagged.daily_supply_usd as daily_supply_usd,
     app_data_tagged.tvl as tvl,
     coingecko.coingecko_id as coingecko_id,
     coalesce(
