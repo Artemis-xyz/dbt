@@ -84,8 +84,7 @@
             where
                 event_name in ('TokenExchange', 'TokenExchangeUnderlying')
                 {% if is_incremental() %}
-                    where t1.block_timestamp
-                    >= (select max(block_timestamp) from {{ this }})
+                    and t1.block_timestamp >= (select max(block_timestamp) from {{ this }})
                 {% endif %}
         ),
         average_token_price_per_day as (
