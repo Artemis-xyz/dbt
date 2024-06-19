@@ -84,7 +84,7 @@
             where
                 event_name in ('TokenExchange', 'TokenExchangeUnderlying')
                 {% if is_incremental() %}
-                    and t1.block_timestamp >= (select max(block_timestamp) from {{ this }})
+                    and t1.block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
                 {% endif %}
         ),
         average_token_price_per_day as (
@@ -117,20 +117,16 @@
 
                 t1.token_out,
                 t2.symbol as token_out_symbol,
-                coalesce(t1.amount_out, 0) as amount_out,
+                t1.amount_out, 0 as amount_out,
                 t2.decimals as token_out_decimals,
-                coalesce(t2.price, t3.price) as token_out_price,
-                coalesce(
-                    (amount_out / pow(10, token_out_decimals)) * token_out_price, 0
-                ) as amount_out_usd,
+                t2.price as token_out_price,
+                amount_out / pow(10, token_out_decimals) * token_out_price as amount_out_usd,
                 t1.token_in,
                 t3.symbol as token_in_symbol,
-                coalesce(t1.amount_in, 0) as amount_in,
+                t1.amount_in as amount_in,
                 t3.decimals as token_in_decimals,
-                coalesce(t3.price, 0) as token_in_price,
-                coalesce(
-                    (amount_in / pow(10, token_in_decimals)) * token_in_price, 0
-                ) as amount_in_usd,
+                t3.price as token_in_price,
+                amount_in / pow(10, token_in_decimals) * token_in_price as amount_in_usd,
                 amount_out_usd * t1.swap_fee as trading_fee,
                 trading_fee * admin_fee as revenue
             from pool_events t1
@@ -144,7 +140,7 @@
                 and lower(t1.token_in) = lower(t3.token_address)
         ),
         events as (
-            select
+            select 
                 block_timestamp,
                 tx_hash,
                 event_index,
@@ -155,7 +151,7 @@
                 token_out_symbol,
                 token_in,
                 token_in_symbol,
-                least(amount_in_usd, amount_out_usd) as trading_volume,
+                coalesce(least(amount_in_usd, amount_out_usd), 0) as trading_volume,
                 trading_fee as trading_fees,
                 revenue as trading_revenue,
                 ROW_NUMBER() OVER (PARTITION by tx_hash, pool ORDER BY event_index) AS row_number
@@ -177,8 +173,7 @@
                 and substr(t1.input, 0, 10) in ('0x3df02124', '0xa6417ed6')
             left join {{ _chain }}_flipside.core.fact_transactions t3 on t1.tx_hash = t3.tx_hash
             {% if is_incremental() %}
-                where t1.block_timestamp
-                >= (select max(block_timestamp) from {{ this }})
+                where t1.block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
             {% endif %}
         )
 
@@ -208,4 +203,7 @@
         and events.pool = traces.to_address
         and events.row_number = traces.row_number
     where events.block_timestamp is not null
+    {% if is_incremental() %}
+        and events.block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+    {% endif %}
 {% endmacro %}
