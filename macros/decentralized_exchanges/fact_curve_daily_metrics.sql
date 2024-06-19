@@ -1,11 +1,11 @@
 {% macro fact_daily_curve_trading_vol_fees_traders_by_pool(chain, source_table, app="curve") %}
 with 
     {% if chain == 'avalanche' %} 
-        prices as ({{get_coingecko_price_with_latest("avalanche-2")}}),
+        prices as ({{get_coingecko_price_with_latest("avalanche-2")}})
     {% elif chain == 'polygon' %}
-        prices as ({{get_coingecko_price_with_latest("matic-network")}}),
+        prices as ({{get_coingecko_price_with_latest("matic-network")}})
     {% else %}
-        prices as ({{get_coingecko_price_with_latest("ethereum")}}),
+        prices as ({{get_coingecko_price_with_latest("ethereum")}})
     {% endif %}
 
     select
@@ -28,5 +28,5 @@ with
     from {{ ref(source_table) }} 
     left join prices on block_timestamp::date = prices.date
     where block_timestamp::date is not null
-    group by block_timestamp::date, pool, token_0, token_0_symbol, token_1, token_1_symbol
+    group by block_timestamp::date, pool
 {% endmacro %}
