@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         unique_key=["tx_hash", "event_index"],
         snowflake_warehouse="PANCAKESWAP_SM",
     )
