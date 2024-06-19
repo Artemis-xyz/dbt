@@ -150,7 +150,7 @@
         '{{ _chain }}' as chain,
         'curve' as app,
         'DeFi' as category,
-        t1.pool_address as pool,
+        pool_address as pool,
         sum(balance_usd) as tvl
     from with_price
     where date < to_date(sysdate())
