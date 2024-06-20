@@ -17,4 +17,6 @@ runs:
     - name: Download DBT Manifest
       shell: bash
       run: |
-        wget https://artemis-xyz.github.io/dbt/manifest.json
+        wget https://artemis-xyz.github.io/dbt/partial_parse.msgpack
+        mkdir -p target/
+        mv partial_parse.msgpack target/
