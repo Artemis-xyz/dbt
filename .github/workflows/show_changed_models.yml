@@ -49,15 +49,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Set up dependencies
-        run: |
-          pip install pip==23.1.2
-          pip install pip-tools==6.13.0
-          pip install -r requirements.txt
-
-      - name: Download manifest.json
-        run: |
-          wget https://artemis-xyz.github.io/dbt/manifest.json
+      - name: Init dbt
+        uses: ./.github/actions/init-dbt
 
       - name: Show results of changed models
         run: |

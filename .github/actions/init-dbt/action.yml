@@ -1,0 +1,13 @@
+name: init dbt
+runs:
+  using: "composite"
+  steps:
+    - name: Set up dependencies
+      run: |
+        pip install pip==23.1.2
+        pip install pip-tools==6.13.0
+        pip install -r requirements.txt
+
+    - name: Download DBT Manifest
+      run: |
+        wget https://artemis-xyz.github.io/dbt/manifest.json
