@@ -2,12 +2,19 @@ name: init dbt
 runs:
   using: "composite"
   steps:
+    - uses: actions/setup-python@v5
+      with:
+        cache: 'pip'
+        cache-dependency-path: 'requirements.txt'
+
     - name: Set up dependencies
+      shell: bash
       run: |
         pip install pip==23.1.2
         pip install pip-tools==6.13.0
         pip install -r requirements.txt
 
     - name: Download DBT Manifest
+      shell: bash
       run: |
         wget https://artemis-xyz.github.io/dbt/manifest.json
