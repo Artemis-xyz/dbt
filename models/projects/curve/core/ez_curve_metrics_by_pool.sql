@@ -40,7 +40,6 @@ select
     'curve' as app,
     'DeFi' as category,
     tvl_by_pool.chain,
-    tvl_by_pool.version,
     tvl_by_pool.pool,
     tvl_by_pool.tvl,
     trading_volume_pool.trading_volume,
@@ -49,5 +48,5 @@ select
     trading_volume_pool.gas_cost_native,
     trading_volume_pool.gas_cost_usd
 from tvl_by_pool
-left join trading_volume_pool using(date, chain, version, pool)
+left join trading_volume_pool using(date, chain, pool)
 where tvl_by_pool.date < to_date(sysdate())
