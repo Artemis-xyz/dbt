@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="CURVE_SM",
+        snowflake_warehouse="CURVE",
         database="curve",
         schema="core",
         alias="ez_metrics_by_pool",

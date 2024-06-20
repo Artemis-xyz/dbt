@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="CURVE_SM",
+        snowflake_warehouse="CURVE",
         database="curve",
         schema="raw",
         alias="ez_dex_swaps",
