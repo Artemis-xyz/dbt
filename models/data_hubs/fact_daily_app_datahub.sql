@@ -72,7 +72,6 @@ with
         select
             date,
             app,
-            max(friendly_name) as friendly_name,
             chain,
             category,
             max(trading_volume) as trading_volume,
@@ -97,7 +96,6 @@ with
 select
     coalesce(app_data_tagged.date, coingecko.date, defillama_protocol.date) as date,
     app_data_tagged.app as app,
-    app_data_tagged.friendly_name as friendly_name,
     app_data_tagged.chain as chain,
     app_data_tagged.category as category,
     app_data_tagged.trading_volume as trading_volume,
