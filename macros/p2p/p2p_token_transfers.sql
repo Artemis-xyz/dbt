@@ -32,10 +32,10 @@ with
     {% elif chain == "solana" %}
         token_prices as (
             select
-                recorded_hour::date as date,
+                hour::date as date,
                 token_address,
-                avg(close) as price
-            from solana_flipside.price.ez_token_prices_hourly
+                avg(price) as price
+            from solana_flipside.price.ez_prices_hourly
             group by date, token_address
         ),
         distinct_peer_address as (
