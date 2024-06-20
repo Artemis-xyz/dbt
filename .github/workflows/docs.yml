@@ -40,7 +40,7 @@ jobs:
           dbt docs generate --threads 16
           git diff
           mkdir generated_dbt_docs
-          mv "target/index.html" "target/manifest.json" "target/catalog.json" generated_dbt_docs
+          mv "target/index.html" "target/manifest.json" "target/catalog.json" "target/partial_parse.msgpack" generated_dbt_docs
 
       - name: Push to Github Pages repo
         uses: cpina/github-action-push-to-another-repository@v1.7.2
