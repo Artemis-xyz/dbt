@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="CURVE_SM",
+        snowflake_warehouse="CURVE",
         database="curve",
         schema="core",
         alias="ez_metrics_by_chain",
@@ -28,7 +28,7 @@ with
             trading_volume_by_pool.chain,
             sum(trading_volume_by_pool.trading_volume) as trading_volume,
             sum(trading_volume_by_pool.trading_fees) as trading_fees,
-            sum(trading_volume_by_pool.trading_revenue) as unique_traders,
+            sum(trading_volume_by_pool.trading_revenue) as trading_revenue,
             sum(trading_volume_by_pool.unique_traders) as unique_traders,
             sum(trading_volume_by_pool.gas_cost_native) as gas_cost_native,
             sum(trading_volume_by_pool.gas_cost_usd) as gas_cost_usd

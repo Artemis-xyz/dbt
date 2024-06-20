@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="CURVE_SM") }}
+{{ config(materialized="table", snowflake_warehouse="CURVE") }}
 
 select
     chain,
