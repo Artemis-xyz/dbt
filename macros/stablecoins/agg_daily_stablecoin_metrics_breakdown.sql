@@ -2,7 +2,12 @@
 with 
     transfer_transactions as (
         select 
-        *
+            block_timestamp,
+            from_address,
+            contract_address,
+            symbol,
+            transfer_volume,
+            to_address
         -- @anthony
         -- Can move into stablecoin transfers table if needed
         -- Logic is slightly different for solana tron and near
