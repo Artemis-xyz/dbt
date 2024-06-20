@@ -26,10 +26,10 @@
             {% if chain == "solana" %}
                 token_prices as (
                     select
-                        recorded_hour::date as date,
+                        hour::date as date,
                         token_address,
-                        avg(close) as price
-                    from solana_flipside.price.ez_token_prices_hourly
+                        avg(price) as price
+                    from solana_flipside.price.ez_prices_hourly
                     {% if is_incremental() %} 
                         where block_timestamp >= (
                             select dateadd('day', -3, max(block_timestamp))

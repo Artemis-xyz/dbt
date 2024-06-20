@@ -4,44 +4,6 @@ with
         {{
             dbt_utils.union_relations(
                 relations=[
-                    ref("fact_stargate_bridge_volume_gold"),
-                    ref("fact_sushiswap_arbitrum_gold"),
-                    ref("fact_sushiswap_avalanche_gold"),
-                    ref("fact_sushiswap_bsc_gold"),
-                    ref("fact_sushiswap_ethereum_gold"),
-                    ref("fact_sushiswap_gnosis_gold"),
-                    ref("fact_uniswap_arbitrum_gold"),
-                    ref("fact_uniswap_avalanche_gold"),
-                    ref("fact_uniswap_base_gold"),
-                    ref("fact_uniswap_bsc_gold"),
-                    ref("fact_uniswap_ethereum_gold"),
-                    ref("fact_uniswap_optimism_gold"),
-                    ref("fact_uniswap_polygon_gold"),
-                    ref("fact_pancakeswap_arbitrum_gold"),
-                    ref("fact_pancakeswap_base_gold"),
-                    ref("fact_pancakeswap_bsc_gold"),
-                    ref("fact_pancakeswap_ethereum_gold"),
-                    ref("fact_apex_trading_volume_gold"),
-                    ref("fact_aevo_trading_volume_gold"),
-                    ref("fact_quickswap_polygon_gold"),
-                    ref("fact_fraxswap_ethereum_gold"),
-                    ref("fact_trader_joe_arbitrum_gold"),
-                    ref("fact_trader_joe_avalanche_gold"),
-                    ref(
-                        "fact_curve_tvl_trading_vol_trading_fees_trading_revenue_unique_traders_arbitrum_gold"
-                    ),
-                    ref(
-                        "fact_curve_tvl_trading_vol_trading_fees_trading_revenue_unique_traders_avalanche_gold"
-                    ),
-                    ref(
-                        "fact_curve_tvl_trading_vol_trading_fees_trading_revenue_unique_traders_ethereum_gold"
-                    ),
-                    ref(
-                        "fact_curve_tvl_trading_vol_trading_fees_trading_revenue_unique_traders_optimism_gold"
-                    ),
-                    ref(
-                        "fact_curve_tvl_trading_vol_trading_fees_trading_revenue_unique_traders_polygon_gold"
-                    ),
                     ref("fact_wormhole_bridge_volume_gold"),
                     ref("fact_wormhole_bridge_daa_gold"),
                     ref("fact_synapse_bridge_volume_gold"),
@@ -60,7 +22,6 @@ with
                     ref("fact_avalanche_bridge_bridge_daa_gold"),
                     ref("fact_arbitrum_one_bridge_bridge_volume_gold"),
                     ref("fact_arbitrum_one_bridge_bridge_daa_gold"),
-                    ref("fact_bluefin_trading_volume_gold"),
                 ],
             )
         }}
@@ -74,11 +35,7 @@ with
             app,
             chain,
             category,
-            max(trading_volume) as trading_volume,
-            max(unique_traders) as unique_traders,
-            max(fees) as fees,
             max(bridge_volume) as bridge_volume,
-            max(tvl) as tvl,
             max(inflow) as inflow,
             max(outflow) as outflow,
             max(bridge_daa) as bridge_daa
@@ -98,14 +55,10 @@ select
     app_data_tagged.app as app,
     app_data_tagged.chain as chain,
     app_data_tagged.category as category,
-    app_data_tagged.trading_volume as trading_volume,
-    app_data_tagged.unique_traders as unique_traders,
-    app_data_tagged.fees as fees,
     app_data_tagged.bridge_volume as bridge_volume,
     app_data_tagged.inflow as inflow,
     app_data_tagged.outflow as outflow,
     app_data_tagged.bridge_daa as bridge_daa,
-    app_data_tagged.tvl as tvl,
     coingecko.coingecko_id as coingecko_id,
     coalesce(
         app_data_tagged.defillama_protocol_id, defillama_protocol.defillama_protocol_id
