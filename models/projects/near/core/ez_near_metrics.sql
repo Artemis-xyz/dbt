@@ -14,7 +14,7 @@ with
     price_data as ({{ get_coingecko_metrics("near") }}),
     defillama_data as ({{ get_defillama_metrics("near") }}),
     revenue_data as (
-        select date, revenue_native, revenue from {{ ref("fact_near_revenue_gold") }}
+        select date, revenue_native, revenue from {{ ref("fact_near_revenue") }}
     ),
     github_data as ({{ get_github_metrics("near") }}),
     contract_data as ({{ get_contract_metrics("near") }}),

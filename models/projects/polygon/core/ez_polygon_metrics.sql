@@ -18,7 +18,7 @@ with
     contract_data as ({{ get_contract_metrics("polygon") }}),
     revenue_data as (
         select date, native_token_burn as revenue_native, revenue
-        from {{ ref("agg_daily_polygon_revenue_gold") }}
+        from {{ ref("agg_daily_polygon_revenue") }}
     ),
     nft_metrics as ({{ get_nft_metrics("polygon") }}),
     p2p_metrics as ({{ get_p2p_metrics("polygon") }}),

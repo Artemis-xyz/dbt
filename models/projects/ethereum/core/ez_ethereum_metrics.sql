@@ -22,7 +22,7 @@ with
     censored_block_metrics as ({{ get_censored_block_metrics("ethereum") }}),
     revenue_data as (
         select date, revenue, native_token_burn as revenue_native
-        from {{ ref("agg_daily_ethereum_revenue_gold") }}
+        from {{ ref("agg_daily_ethereum_revenue") }}
     ),
     github_data as ({{ get_github_metrics("ethereum") }}),
     contract_data as ({{ get_contract_metrics("ethereum") }}),
