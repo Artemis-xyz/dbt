@@ -31,4 +31,4 @@ jobs:
       - name: Compile
         run: |
           dbt deps
-          dbt compile
+          dbt compile --threads 16
