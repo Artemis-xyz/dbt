@@ -12,11 +12,9 @@ runs:
     - name: Set up dependencies
       shell: bash
       run: |
-        source syncenv
         pip install uv==0.2.15
-        uv pip install pip==23.1.2
-        uv pip install pip-tools==6.13.0
-        uv pip install -r requirements.txt
+        uv pip install pip==23.1.2 pip-tools==6.13.0 --system
+        uv pip install -r requirements.txt --system
 
     - name: Download DBT Manifest
       shell: bash
