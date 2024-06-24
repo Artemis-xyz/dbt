@@ -2,17 +2,20 @@ name: init dbt
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-python@v5
-      with:
-        cache: 'pip'
-        cache-dependency-path: 'requirements.txt'
-
+    # Open PR to actions/setup-python for supporting uv caching https://github.com/actions/setup-python/pull/818
+    # Related GH issue https://github.com/actions/setup-python/issues/822
+    #
+    # - uses: actions/setup-python@v5
+    #   with:
+    #     cache: 'pip'
+    #     cache-dependency-path: 'requirements.txt'
     - name: Set up dependencies
       shell: bash
       run: |
-        pip install pip==23.1.2
-        pip install pip-tools==6.13.0
-        pip install -r requirements.txt
+        pip install uv==0.2.15
+        uv pip install pip==23.1.2
+        uv pip install pip-tools==6.13.0
+        uv pip install -r requirements.txt
 
     - name: Download DBT Manifest
       shell: bash
