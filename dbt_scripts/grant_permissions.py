@@ -16,7 +16,7 @@ def grant_usage_to_db(db_name, role_name):
 
 
 if __name__ == "__main__":
-    asset_list = pd.read_csv("assets.csv")
+    asset_list = pd.read_csv("databases.csv")
     script = "use role accountadmin;\n"
     print("Generating script to grant permissions")
 
