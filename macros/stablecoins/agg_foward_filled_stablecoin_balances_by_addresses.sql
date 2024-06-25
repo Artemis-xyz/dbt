@@ -1,4 +1,15 @@
 {% macro agg_foward_filled_stablecoin_balances_by_addresses(chain) %}
+
+-- Use this for a backfill, 
+-- It is important to backfill 6 months at a time otherwise the query will
+-- take > 4 hours on an XL to run
+-- Make sure to set to '' after backfill is complete
+
+    {% set backfill_date = '2024-01-01' %}
+
+-- TODO: Set backfill_date dynamically using jinja templating
+-- if system.date > max(date) then max date + 6 months
+-- else system.date
 with
     stablecoin_senders as (select from_address from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers")}})
     , stablecoin_balances as (
@@ -12,8 +23,12 @@ with
         inner join {{ ref("fact_" ~ chain ~ "_stablecoin_contracts")}} t2
             on lower(t1.contract_address) = lower(t2.contract_address)
         where lower(address) in (select lower(from_address) from stablecoin_senders) and block_timestamp < to_date(sysdate())
-            --Remove after incremenatl run
-            and block_timestamp < '2023-06-01'
+            -- Use this for a backfill, 
+            -- It is important to backfill 6 months at a time otherwise the query will
+            -- take > 4 hours on an XL to run
+            {% if backfill_date != '' %}
+                and block_timestamp < '{{ backfill_date }}'
+            {% endif %}
             and block_timestamp < to_date(sysdate())
         {% if is_incremental() %}
                 and block_timestamp >= (select dateadd('day', -1, max(date)) from {{ this }})
@@ -72,9 +87,10 @@ with
             , symbol
             , address
         from date_range
-        where --date < dateadd(day, -1, to_date(sysdate()))
-        --Remove after incremenatl run
-         date < dateadd(day, -1, '2023-06-01')
+        where date < dateadd(day, -1, to_date(sysdate()))
+        {% if backfill_date != '' %}
+            and date < dateadd(day, -1, '{{ backfill_date }}')
+        {% endif %}
     )
     , balances as (
         select 
@@ -123,8 +139,10 @@ with
             , lower(contract_address) as contract_address
             , symbol
         from {{ref("fact_" ~ chain ~ "_stablecoin_transfers")}} 
-        --Remove after incremenatl run
-        where date < '2023-06-01'
+        {% if backfill_date != '' %}
+            where date < '{{ backfill_date }}'
+        {% endif %}
+        
         group by date, contract_address, symbol
         union all
         select
@@ -135,8 +153,9 @@ with
             , lower(contract_address) as contract_address
             , symbol
         from {{ref("fact_" ~ chain ~ "_stablecoin_contracts")}}
-        --Remove after incremenatl run
-        where date < '2023-06-01'
+        {% if backfill_date != '' %}
+            where date < '{{ backfill_date }}'
+        {% endif %}
         group by contract_address, symbol
     )
     , historical_supply_by_inflow_outflow as (
