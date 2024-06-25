@@ -13,7 +13,6 @@ runs:
       shell: bash
       run: |
         pip install uv==0.2.15
-        uv pip install pip==23.1.2 pip-tools==6.13.0 --system
         uv pip install -r requirements.txt --system
 
     - name: Download DBT Manifest
