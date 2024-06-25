@@ -74,12 +74,12 @@ with
     ),
     results as (
         select
-            transfer_transactions_agg.date
+            coalesce(balances.date, transfer_transactions_agg.date) as date
             --stablecoin idenifiers
-            , transfer_transactions_agg.contract_address
-            , transfer_transactions_agg.symbol as symbol
+            , coalesce(balances.contract_address, transfer_transactions_agg.contract_address) as contract_address
+            , coalesce(balances.symbol, transfer_transactions_agg.symbol) as symbol
             --sender idenifiers
-            , transfer_transactions_agg.from_address
+            , coalesce(balances.address, transfer_transactions_agg.from_address) as from_address
             , filtered_contracts.name as contract_name
             , coalesce(filtered_contracts.name, transfer_transactions_agg.from_address) as contract
             , filtered_contracts.friendly_name as application
@@ -90,12 +90,19 @@ with
             , coalesce(stablecoin_transfer_volume, 0) as stablecoin_transfer_volume
             , coalesce(stablecoin_daily_txns, 0) as stablecoin_daily_txns
             , coalesce(stablecoin_dau, 0) stablecoin_dau
+            , coalesce(stablecoin_supply, 0) as stablecoin_supply
             --p2p metrics
             , coalesce(p2p_stablecoin_transfer_volume, 0) as p2p_stablecoin_transfer_volume
             , coalesce(p2p_stablecoin_daily_txns, 0) as p2p_stablecoin_daily_txns
             , coalesce(p2p_stablecoin_dau, 0) as p2p_stablecoin_dau
             , '{{ chain }}' as chain
-        from transfer_transactions_agg
+        from {{ ref("agg_" ~ chain ~ "_stablecoin_balances")}} balances
+        -- _stablecoin_balances needs to go first because of the defined dumby address
+        -- 0x00000000000000000000000000000DEADARTEMIS
+        left join transfer_transactions_agg
+            on lower(transfer_transactions_agg.from_address) = lower(balances.address)
+                and transfer_transactions_agg.date = balances.date
+                and lower(transfer_transactions_agg.contract_address) = lower(balances.contract_address)
         left join filtered_contracts
             on lower(transfer_transactions_agg.from_address) = lower(filtered_contracts.address)
         left join pc_dbt_db.prod.dim_apps_gold dim_apps_gold 
@@ -124,12 +131,16 @@ with
             ) as p2p_stablecoin_transfer_volume
             , p2p_stablecoin_daily_txns
             , p2p_stablecoin_dau
+            , stablecoin_supply * coalesce(
+                d.token_current_price, 1
+            ) as stablecoin_supply
             , chain
         from results
         left join {{ ref( "fact_" ~ chain ~ "_stablecoin_contracts") }} c
             on lower(results.contract_address) = lower(c.contract_address)
         left join {{ ref( "fact_coingecko_token_realtime_data") }} d
             on lower(c.coingecko_id) = lower(d.token_id)
+        
     )
 select *
 from results_dollar_denom

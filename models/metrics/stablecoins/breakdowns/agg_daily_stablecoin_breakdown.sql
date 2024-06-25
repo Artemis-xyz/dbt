@@ -16,5 +16,6 @@ select
     , p2p_stablecoin_transfer_volume
     , p2p_stablecoin_daily_txns
     , p2p_stablecoin_dau
+    , stablecoin_supply
     , chain
 from {{ ref("agg_daily_stablecoin_breakdown_silver") }}
