@@ -5,7 +5,7 @@
 -- take > 4 hours on an XL to run
 -- Make sure to set to '' after backfill is complete
 
-    {% set backfill_date = '2024-01-01' %}
+    {% set backfill_date = '' %}
 
 -- TODO: Set backfill_date dynamically using jinja templating
 -- if system.date > max(date) then max date + 6 months
