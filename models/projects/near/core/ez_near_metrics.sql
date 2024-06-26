@@ -31,6 +31,7 @@ select
     fundamental_data.chain,
     txns,
     dau,
+    fundamental_data.adjusted_dau,
     wau,
     mau,
     fees_native,
