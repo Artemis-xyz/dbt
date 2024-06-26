@@ -1,3 +1,5 @@
+-- Defillama currently doesn't support the correct DEX volumes
+-- Missing DeDust Dex Voluems
 with 
     max_extraction as (
         select
@@ -16,7 +18,15 @@ with
 select
     t1.date,
     'ton' as chain,
-    dex_volumes * price as dex_volumes
+    case 
+        -- Historical pull is from tonStats which has shows dex volumes in TON
+        when t1.date <= '2024-05-25' then dex_volumes * price 
+        --https://api.redoubt.online/dapps/v1/export/defi/ston.fi
+        --https://api.redoubt.online/dapps/v1/export/defi/dedust
+        --We do a daily pull going forward to get the dex volume in USD
+        --Ednpoints supplied by the TON team
+        else dex_volumes 
+    end as dex_volumes
 from flattened_data t1
 inner join max_extraction t2 on t1.date = t2.date and t1.extraction_date = t2.max_extraction
 left join prices on t1.date = prices.date
