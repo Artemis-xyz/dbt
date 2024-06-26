@@ -213,6 +213,11 @@ with
             ) as stablecoin_transfer_volume
             , stablecoin_daily_txns
             , stablecoin_dau
+            , artemis_stablecoin_transfer_volume * coalesce(
+                d.token_current_price, 1
+            ) as artemis_stablecoin_transfer_volume
+            , artemis_stablecoin_daily_txns
+            , artemis_stablecoin_dau
             , p2p_stablecoin_transfer_volume * coalesce(
                 d.token_current_price, 1
             ) as p2p_stablecoin_transfer_volume
