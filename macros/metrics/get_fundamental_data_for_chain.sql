@@ -12,6 +12,45 @@
             from min_date
             group by start_date
         ),
+        {% if chain in ("near") %}
+            truncated_near_fact_txns as (
+                select *
+                from near_flipside.core.fact_transactions
+                where block_timestamp > current_date() - interval '60 days'
+            ),
+            fact_transactions_delegate_extracted as (
+            select
+                tx_hash,
+                tx_signer,
+                tx_receiver,
+                tx,
+                tx_succeeded,
+                block_timestamp::date as date,
+                case
+                when action.value:Delegate is not null then true
+                else false
+                end as is_delegate
+            from
+                truncated_near_fact_txns,
+                lateral flatten(input => tx:actions) as action
+            where
+                tx_succeeded = TRUE
+            ),
+            fact_transactions_adjusted as (
+                select
+                tx_hash,
+                tx_signer,
+                tx_receiver,
+                tx,
+                tx_succeeded,
+                date,
+                is_delegate,
+                case when is_delegate = TRUE then tx_receiver else tx_signer end as adjusted_signer,
+                case when is_delegate = TRUE then tx_signer else tx_receiver end as adjusted_receiver,
+                from
+                fact_transactions_delegate_extracted
+            ),
+        {% endif %}
         {% if chain not in ("starknet") %}
             bot as (
                 select
@@ -45,9 +84,17 @@
                 sum(gas_usd) fees,
                 count(*) txns,
                 sum(gas_usd) / count(*) as avg_txn_fee,
-                count(distinct from_address) dau
-            from {{ chain }}.prod_raw.ez_transactions
-            group by date
+                {% if chain in ("near") %}
+                    count(distinct from_address) dau,
+                    count(distinct adjusted_signer) as adjusted_dau
+                {% else %}
+                    count(distinct from_address) dau
+                {% endif %}
+            from {{ chain }}.prod_raw.ez_transactions as t
+            {% if chain in ("near") %}
+                left join fact_transactions_adjusted as n on t.tx_hash = n.tx_hash
+            {% endif %}
+            group by t.raw_date
         )
         {% if (chain not in ("near", "starknet")) %}
             ,
@@ -65,6 +112,9 @@
         chain,
         txns,
         dau,
+        {% if chain in ("near") %}
+            adjusted_dau,
+        {% endif %}
         fees_native,
         fees,
         avg_txn_fee,
