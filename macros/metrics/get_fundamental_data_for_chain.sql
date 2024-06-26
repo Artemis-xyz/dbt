@@ -51,14 +51,6 @@
                 fact_transactions_delegate_extracted
                 order by date DESC
             ),
-            near_dau as (
-                select
-                date,
-                count(distinct adjusted_signer) as adjusted_dau
-                from fact_transactions_adjusted
-                group by date
-                order by date DESC
-            ),
         {% endif %}
         {% if chain not in ("starknet") %}
             bot as (
