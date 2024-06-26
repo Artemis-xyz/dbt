@@ -49,7 +49,6 @@
                 case when is_delegate = TRUE then tx_signer else tx_receiver end as adjusted_receiver,
                 from
                 fact_transactions_delegate_extracted
-                order by date DESC
             ),
         {% endif %}
         {% if chain not in ("starknet") %}
