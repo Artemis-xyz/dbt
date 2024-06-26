@@ -23,8 +23,8 @@ select
         when t1.date <= '2024-05-25' then dex_volumes * price 
         --https://api.redoubt.online/dapps/v1/export/defi/ston.fi
         --https://api.redoubt.online/dapps/v1/export/defi/dedust
-        --We do a daily pull going forward to get the dex volume in USD
-        --Ednpoints supplied by the TON team
+        --Daily pull to get the dex volume in USD
+        --Endpoints supplied by the TON team
         else dex_volumes 
     end as dex_volumes
 from flattened_data t1
