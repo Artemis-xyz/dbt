@@ -5,6 +5,7 @@ with
             dbt_utils.union_relations(
                 relations=[
                     ref("agg_ethereum_daily_stablecoin_metrics_breakdown"),
+                    ref("agg_base_daily_stablecoin_metrics_breakdown"),
                 ]
             )
         }}
