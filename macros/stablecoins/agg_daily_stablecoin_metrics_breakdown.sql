@@ -154,7 +154,7 @@ with
             , coalesce(balances.contract_address, transfer_transactions_agg.contract_address) as contract_address
             , coalesce(balances.symbol, transfer_transactions_agg.symbol) as symbol
             --sender idenifiers
-            , coalesce(balances.address, transfer_transactions_agg.from_address) as from_address
+            , balances.address as from_address
             , filtered_contracts.name as contract_name
             , coalesce(filtered_contracts.name, balances.address, transfer_transactions_agg.from_address) as contract
             , filtered_contracts.friendly_name as application
@@ -190,11 +190,10 @@ with
             on lower(balances.address) = lower(filtered_contracts.address)
         left join pc_dbt_db.prod.dim_apps_gold dim_apps_gold 
             on filtered_contracts.app = dim_apps_gold.namespace
-        where balances.stablecoin_supply > 0 and transfer_transactions_agg.from_address is not null
+        where balances.stablecoin_supply != 0 or transfer_transactions_agg.from_address is not null
         {% if is_incremental() %} 
             and balances.date >= (select dateadd('day', -3, max(date)) from {{ this }})
         {% endif %}
-        
     ),
     results_dollar_denom as (
         select
