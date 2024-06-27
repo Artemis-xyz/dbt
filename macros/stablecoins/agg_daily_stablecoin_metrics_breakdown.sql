@@ -1,33 +1,35 @@
-{% macro agg_daily_stablecoin_metrics_breakdown(chain) %}
+{% macro agg_daily_stablecoin_metrics_breakdown(chain, label_source='ARTEMIS') %}
 with 
     transfer_transactions as (
         select 
-            block_timestamp,
-            from_address,
-            contract_address,
-            symbol,
-            transfer_volume,
-            to_address
+            block_timestamp
+            , tx_hash
+            , from_address
+            , contract_address
+            , symbol
+            , transfer_volume
+            , to_address
+            , index
         -- @anthony
         -- Can move into stablecoin transfers table if needed
         -- Logic is slightly different for solana tron and near
         -- Right now I am leaving it here so that we dont have to change the logic in the stablecoin transfers table
 
         --Average transfer volume is currently done in the API stablecoins.py with `_fetch_avg_transaction_size`
-        , case 
-            {% if chain not in ('solana', 'tron', 'near') %}
-                when 
-                    to_address not in (select contract_address from {{ ref("dim_" ~ chain ~ "_contract_addresses") }})
-                    and from_address not in (select contract_address from {{ ref("dim_" ~ chain ~ "_contract_addresses")}}) 
-                    then 1
-                else 0 
-            {% else %}
-                when 
-                    to_address in (select address from {{ ref("dim_" ~ chain ~ "_eoa_addresses") }})
-                    and from_address in (select address from {{ ref("dim_" ~ chain ~ "_eoa_addresses") }})
-                    then 1
-                else 0 
-            {% endif %}
+            , case 
+                {% if chain not in ('solana', 'tron', 'near') %}
+                    when 
+                        to_address not in (select contract_address from {{ ref("dim_" ~ chain ~ "_contract_addresses") }})
+                        and from_address not in (select contract_address from {{ ref("dim_" ~ chain ~ "_contract_addresses")}}) 
+                        then 1
+                    else 0 
+                {% else %}
+                    when 
+                        to_address in (select address from {{ ref("dim_" ~ chain ~ "_eoa_addresses") }})
+                        and from_address in (select address from {{ ref("dim_" ~ chain ~ "_eoa_addresses") }})
+                        then 1
+                    else 0 
+                {% endif %}
         end as is_p2p 
         from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers")}}
         {% if is_incremental() %} 
@@ -39,6 +41,79 @@ with
     ),
     filtered_contracts as (
         select * from pc_dbt_db.prod.dim_contracts_gold where chain = '{{ chain }}'
+    ),
+    artemis_contract_filters as (
+        {% if label_source == 'ARTEMIS' %}
+            select
+                address
+                , name
+                , app
+                , category
+            from {{ ref("dim_contracts_gold")}}
+            where chain = '{{ chain }}'
+        {% elif label_source == 'FLIPSIDE' %}
+            select 
+                address 
+                , address_name as name
+                , label as app
+                , label_type as category
+            from ethereum_flipside.core.dim_labels
+        {% endif %}
+    ),
+    artemis_mev_filtered as (
+        select
+            st.*
+            , coalesce(dl.app,'other') as from_app
+            , coalesce(dlt.app,'other') as to_app
+            , coalesce(dl.category,'other') as from_category
+            , coalesce(dlt.category,'other') as to_category
+        from transfer_transactions st
+        left join artemis_contract_filters dl on st.from_address = dl.address
+        left join artemis_contract_filters dlt on st.to_address = dlt.address
+        where lower(from_app) != 'mev' or lower(to_app) != 'mev'
+    ),
+    artemis_cex_filters as (
+        select distinct tx_hash
+        from artemis_mev_filtered
+        where from_app = to_app
+            and lower(from_category) = 'cex' 
+    ),
+    artemis_ranked_transfer_filter as (
+        select 
+            artemis_mev_filtered.*,
+            row_number() over (partition by tx_hash order by transfer_volume desc) AS rn
+        from artemis_mev_filtered
+        where tx_hash not in (select tx_hash from artemis_cex_filters)
+    ),
+    artemis_max_transfer_filter as (
+        select 
+            block_timestamp
+            , tx_hash
+            , contract_address
+            , symbol
+            , from_address
+            , to_address
+            , transfer_volume as artemis_stablecoin_transfer_volume
+        from artemis_ranked_transfer_filter
+        where rn = 1
+    ),
+    artemis_filter_metrics as (
+        select
+            block_timestamp::date as date
+            , from_address
+            , contract_address
+            , symbol
+            , count(distinct(to_address)) as artemis_stablecoin_dau
+            , sum(
+                case
+                    when from_address is not null
+                    then 1
+                    else 0
+                end
+            ) as artemis_stablecoin_daily_txns
+            , sum(artemis_stablecoin_transfer_volume) as artemis_stablecoin_transfer_volume
+        from artemis_max_transfer_filter
+        group by 1, 2, 3, 4
     ),
     transfer_transactions_agg as (
         select
@@ -91,6 +166,10 @@ with
             , coalesce(stablecoin_daily_txns, 0) as stablecoin_daily_txns
             , coalesce(stablecoin_dau, 0) stablecoin_dau
             , coalesce(stablecoin_supply, 0) as stablecoin_supply
+            --artemis metrics
+            , coalesce(artemis_filter_metrics.artemis_stablecoin_transfer_volume, 0) as artemis_stablecoin_transfer_volume
+            , coalesce(artemis_filter_metrics.artemis_stablecoin_daily_txns, 0) as artemis_stablecoin_daily_txns
+            , coalesce(artemis_filter_metrics.artemis_stablecoin_dau, 0) as artemis_stablecoin_dau
             --p2p metrics
             , coalesce(p2p_stablecoin_transfer_volume, 0) as p2p_stablecoin_transfer_volume
             , coalesce(p2p_stablecoin_daily_txns, 0) as p2p_stablecoin_daily_txns
@@ -103,10 +182,18 @@ with
             on lower(transfer_transactions_agg.from_address) = lower(balances.address)
                 and transfer_transactions_agg.date = balances.date
                 and lower(transfer_transactions_agg.contract_address) = lower(balances.contract_address)
+        left join artemis_filter_metrics
+            on lower(artemis_filter_metrics.from_address) = lower(balances.address)
+                and artemis_filter_metrics.date = balances.date
+                and lower(artemis_filter_metrics.contract_address) = lower(balances.contract_address)
         left join filtered_contracts
             on lower(transfer_transactions_agg.from_address) = lower(filtered_contracts.address)
         left join pc_dbt_db.prod.dim_apps_gold dim_apps_gold 
             on filtered_contracts.app = dim_apps_gold.namespace
+        {% if is_incremental() %} 
+            where balances.date >= (select dateadd('day', -3, max(date)) from {{ this }})
+        {% endif %}
+        
     ),
     results_dollar_denom as (
         select
@@ -126,6 +213,11 @@ with
             ) as stablecoin_transfer_volume
             , stablecoin_daily_txns
             , stablecoin_dau
+            , artemis_stablecoin_transfer_volume * coalesce(
+                d.token_current_price, 1
+            ) as artemis_stablecoin_transfer_volume
+            , artemis_stablecoin_daily_txns
+            , artemis_stablecoin_dau
             , p2p_stablecoin_transfer_volume * coalesce(
                 d.token_current_price, 1
             ) as p2p_stablecoin_transfer_volume
