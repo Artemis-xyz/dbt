@@ -156,7 +156,7 @@ with
             --sender idenifiers
             , coalesce(balances.address, transfer_transactions_agg.from_address) as from_address
             , filtered_contracts.name as contract_name
-            , coalesce(filtered_contracts.name, transfer_transactions_agg.from_address) as contract
+            , coalesce(filtered_contracts.name, balances.address, transfer_transactions_agg.from_address) as contract
             , filtered_contracts.friendly_name as application
             , dim_apps_gold.icon as icon
             , filtered_contracts.app as app
@@ -186,12 +186,13 @@ with
             on lower(artemis_filter_metrics.from_address) = lower(balances.address)
                 and artemis_filter_metrics.date = balances.date
                 and lower(artemis_filter_metrics.contract_address) = lower(balances.contract_address)
-        left join filtered_contracts
-            on lower(transfer_transactions_agg.from_address) = lower(filtered_contracts.address)
+        left join filtered_contracts 
+            on lower(balances.address) = lower(filtered_contracts.address)
         left join pc_dbt_db.prod.dim_apps_gold dim_apps_gold 
             on filtered_contracts.app = dim_apps_gold.namespace
+        where balances.stablecoin_supply > 0 and transfer_transactions_agg.from_address is not null
         {% if is_incremental() %} 
-            where balances.date >= (select dateadd('day', -3, max(date)) from {{ this }})
+            and balances.date >= (select dateadd('day', -3, max(date)) from {{ this }})
         {% endif %}
         
     ),
