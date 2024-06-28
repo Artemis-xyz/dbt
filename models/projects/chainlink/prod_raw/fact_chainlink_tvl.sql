@@ -77,7 +77,8 @@ filled_balances as(
 )
 SELECT
     date,
-    SUM(balance_usd) as balance_usd
+    SUM(balance_usd) as balance_usd,
+    SUM(balance_token) as balance_link
 FROM filled_balances
 GROUP BY date
 ORDER BY date desc
