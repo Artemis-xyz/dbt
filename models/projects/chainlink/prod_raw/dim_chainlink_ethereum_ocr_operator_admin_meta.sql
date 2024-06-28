@@ -4,7 +4,7 @@
         snowflake_warehouse="CHAINLINK",
         database="chainlink",
         schema="raw",
-        alias="fact_ethereum_ocr_operator_admin_meta",
+        alias="dim_ethereum_ocr_operator_admin_meta"
     )
 }}
 
