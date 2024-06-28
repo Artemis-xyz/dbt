@@ -18,7 +18,11 @@ with
             , lower(t1.contract_address) as contract_address
             , symbol
             , lower(address) as address
-            , balance_token / pow(10, num_decimals) as stablecoin_supply
+            {% if chain in ('solana') %}
+                , amount_unadj / pow(10, num_decimals) as stablecoin_supply
+            {% else %}
+                , balance_token / pow(10, num_decimals) as stablecoin_supply
+            {% endif %}
         from {{ ref("fact_" ~ chain ~ "_address_balances_by_token")}} t1
         inner join {{ ref("fact_" ~ chain ~ "_stablecoin_contracts")}} t2
             on lower(t1.contract_address) = lower(t2.contract_address)
@@ -128,8 +132,9 @@ with
         from date_range
         left join balances using (date, contract_address, symbol, address)
         -- append only new rows to the table
+        where address not in (select distinct (premint_address) from {{ ref("fact_solana_stablecoin_premint_addresses")}}) 
         {% if is_incremental() %}
-            where date > (select max(date) from {{ this }})
+            and date > (select max(date) from {{ this }})
         {% endif %}
     )
     , daily_flows as (

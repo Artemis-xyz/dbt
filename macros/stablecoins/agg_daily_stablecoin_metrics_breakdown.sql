@@ -174,9 +174,22 @@ with
             , coalesce(p2p_stablecoin_transfer_volume, 0) as p2p_stablecoin_transfer_volume
             , coalesce(p2p_stablecoin_daily_txns, 0) as p2p_stablecoin_daily_txns
             , coalesce(p2p_stablecoin_dau, 0) as p2p_stablecoin_dau
+            , case 
+                {% if chain not in ('solana', 'tron', 'near') %}
+                    when 
+                        balances.address not in (select contract_address from {{ ref("dim_" ~ chain ~ "_contract_addresses")}}) 
+                        then 1
+                    else 0 
+                {% else %}
+                    when 
+                        balances.address in (select address from {{ ref("dim_" ~ chain ~ "_eoa_addresses") }})
+                        then 1
+                    else 0 
+                {% endif %}
+            end as is_wallet
             , '{{ chain }}' as chain
         from {{ ref("agg_" ~ chain ~ "_stablecoin_balances")}} balances
-        -- _stablecoin_balances needs to go first because of the defined dumby address
+        -- stablecoin_balances needs to go first because of the defined dumby address
         -- 0x00000000000000000000000000000DEADARTEMIS
         left join transfer_transactions_agg
             on lower(transfer_transactions_agg.from_address) = lower(balances.address)
@@ -226,6 +239,7 @@ with
             , stablecoin_supply * coalesce(
                 d.token_current_price, 1
             ) as stablecoin_supply
+            , is_wallet
             , chain
         from results
         left join {{ ref( "fact_" ~ chain ~ "_stablecoin_contracts") }} c
