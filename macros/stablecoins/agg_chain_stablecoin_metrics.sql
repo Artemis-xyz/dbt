@@ -5,7 +5,7 @@
 -- 3. The table `{{ chain }}_flipside.core.fact_transactions` exists
 {% macro agg_chain_stablecoin_metrics(chain) %}
     with
-        transfer_transactions as (select * from fact_{{ chain }}_stablecoin_transfers),
+        transfer_transactions as (select * from {% if chain in ("ton") %} {{ chain }}.prod_raw.ez_stablecoin_transfers  {% else %} fact_{{ chain }}_stablecoin_transfers {% endif %}),
         deduped_flows as (
             select 
                 date,
