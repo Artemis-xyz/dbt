@@ -103,7 +103,6 @@ with
             , from_address
             , contract_address
             , symbol
-            , count(distinct(to_address)) as artemis_stablecoin_dau
             , sum(
                 case
                     when from_address is not null
@@ -129,7 +128,6 @@ with
                     else 0
                 end
             ) as stablecoin_daily_txns
-            , count(distinct(to_address)) as stablecoin_dau
             , sum(transfer_volume * is_p2p) as p2p_stablecoin_transfer_volume
             , sum(
                 case
@@ -138,12 +136,6 @@ with
                     else 0
                 end
             ) as p2p_stablecoin_daily_txns
-            , count(
-                distinct case 
-                    when is_p2p = 1 then to_address 
-                    else null 
-                end
-            ) as p2p_stablecoin_dau
         from transfer_transactions
         group by 1, 2, 3, 4
     ),
@@ -164,16 +156,13 @@ with
             --metrics
             , coalesce(stablecoin_transfer_volume, 0) as stablecoin_transfer_volume
             , coalesce(stablecoin_daily_txns, 0) as stablecoin_daily_txns
-            , coalesce(stablecoin_dau, 0) stablecoin_dau
             , coalesce(stablecoin_supply, 0) as stablecoin_supply
             --artemis metrics
             , coalesce(artemis_filter_metrics.artemis_stablecoin_transfer_volume, 0) as artemis_stablecoin_transfer_volume
             , coalesce(artemis_filter_metrics.artemis_stablecoin_daily_txns, 0) as artemis_stablecoin_daily_txns
-            , coalesce(artemis_filter_metrics.artemis_stablecoin_dau, 0) as artemis_stablecoin_dau
             --p2p metrics
             , coalesce(p2p_stablecoin_transfer_volume, 0) as p2p_stablecoin_transfer_volume
             , coalesce(p2p_stablecoin_daily_txns, 0) as p2p_stablecoin_daily_txns
-            , coalesce(p2p_stablecoin_dau, 0) as p2p_stablecoin_dau
             , case 
                 {% if chain not in ('solana', 'tron', 'near') %}
                     when 
@@ -225,17 +214,14 @@ with
                 d.token_current_price, 1
             ) as stablecoin_transfer_volume
             , stablecoin_daily_txns
-            , stablecoin_dau
             , artemis_stablecoin_transfer_volume * coalesce(
                 d.token_current_price, 1
             ) as artemis_stablecoin_transfer_volume
             , artemis_stablecoin_daily_txns
-            , artemis_stablecoin_dau
             , p2p_stablecoin_transfer_volume * coalesce(
                 d.token_current_price, 1
             ) as p2p_stablecoin_transfer_volume
             , p2p_stablecoin_daily_txns
-            , p2p_stablecoin_dau
             , stablecoin_supply * coalesce(
                 d.token_current_price, 1
             ) as stablecoin_supply
