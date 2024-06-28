@@ -6,4 +6,4 @@
     )
 }}
 
-{{ agg_daily_stablecoin_metrics_breakdown("base") }}
+{{ agg_daily_stablecoin_metrics_breakdown("arbitrum") }}

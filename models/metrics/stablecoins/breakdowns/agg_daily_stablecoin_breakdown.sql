@@ -12,10 +12,11 @@ select
     , category
     , stablecoin_transfer_volume
     , stablecoin_daily_txns
-    , stablecoin_dau
+    , artemis_stablecoin_transfer_volume
+    , artemis_stablecoin_daily_txns
     , p2p_stablecoin_transfer_volume
     , p2p_stablecoin_daily_txns
-    , p2p_stablecoin_dau
     , stablecoin_supply
+    , is_wallet
     , chain
 from {{ ref("agg_daily_stablecoin_breakdown_silver") }}

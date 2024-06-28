@@ -16,7 +16,7 @@
             truncated_near_fact_txns as (
                 select *
                 from near_flipside.core.fact_transactions
-                where block_timestamp > current_date() - interval '60 days'
+                where block_timestamp > current_date() - interval '300 days'
             ),
             fact_transactions_delegate_extracted as (
             select

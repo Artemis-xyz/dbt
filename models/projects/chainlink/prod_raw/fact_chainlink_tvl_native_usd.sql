@@ -5,6 +5,7 @@
         database="chainlink",
         schema="raw",
         alias="fact_tvl_native_usd",
+
     )
 }}
 

@@ -8,3 +8,4 @@ sources:
       - name: raw_ton_revenue
       - name: raw_ton_txns
       - name: raw_ton_dex_volumes
+      - name: raw_ton_stablecoin_transfers

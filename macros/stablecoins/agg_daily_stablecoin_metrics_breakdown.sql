@@ -10,12 +10,8 @@ with
             , transfer_volume
             , to_address
             , index
-        -- @anthony
-        -- Can move into stablecoin transfers table if needed
+        -- TODO: Move into stablecoin transfers table if needed
         -- Logic is slightly different for solana tron and near
-        -- Right now I am leaving it here so that we dont have to change the logic in the stablecoin transfers table
-
-        --Average transfer volume is currently done in the API stablecoins.py with `_fetch_avg_transaction_size`
             , case 
                 {% if chain not in ('solana', 'tron', 'near') %}
                     when 
@@ -103,7 +99,6 @@ with
             , from_address
             , contract_address
             , symbol
-            , count(distinct(to_address)) as artemis_stablecoin_dau
             , sum(
                 case
                     when from_address is not null
@@ -129,7 +124,6 @@ with
                     else 0
                 end
             ) as stablecoin_daily_txns
-            , count(distinct(to_address)) as stablecoin_dau
             , sum(transfer_volume * is_p2p) as p2p_stablecoin_transfer_volume
             , sum(
                 case
@@ -138,22 +132,16 @@ with
                     else 0
                 end
             ) as p2p_stablecoin_daily_txns
-            , count(
-                distinct case 
-                    when is_p2p = 1 then to_address 
-                    else null 
-                end
-            ) as p2p_stablecoin_dau
         from transfer_transactions
         group by 1, 2, 3, 4
     ),
     results as (
         select
             coalesce(balances.date, transfer_transactions_agg.date) as date
-            --stablecoin idenifiers
+
             , coalesce(balances.contract_address, transfer_transactions_agg.contract_address) as contract_address
             , coalesce(balances.symbol, transfer_transactions_agg.symbol) as symbol
-            --sender idenifiers
+
             , balances.address as from_address
             , filtered_contracts.name as contract_name
             , coalesce(filtered_contracts.name, balances.address, transfer_transactions_agg.from_address) as contract
@@ -161,22 +149,30 @@ with
             , dim_apps_gold.icon as icon
             , filtered_contracts.app as app
             , filtered_contracts.category as category
-            --metrics
+            
             , coalesce(stablecoin_transfer_volume, 0) as stablecoin_transfer_volume
             , coalesce(stablecoin_daily_txns, 0) as stablecoin_daily_txns
-            , coalesce(stablecoin_dau, 0) stablecoin_dau
             , coalesce(stablecoin_supply, 0) as stablecoin_supply
-            --artemis metrics
             , coalesce(artemis_filter_metrics.artemis_stablecoin_transfer_volume, 0) as artemis_stablecoin_transfer_volume
             , coalesce(artemis_filter_metrics.artemis_stablecoin_daily_txns, 0) as artemis_stablecoin_daily_txns
-            , coalesce(artemis_filter_metrics.artemis_stablecoin_dau, 0) as artemis_stablecoin_dau
-            --p2p metrics
             , coalesce(p2p_stablecoin_transfer_volume, 0) as p2p_stablecoin_transfer_volume
             , coalesce(p2p_stablecoin_daily_txns, 0) as p2p_stablecoin_daily_txns
-            , coalesce(p2p_stablecoin_dau, 0) as p2p_stablecoin_dau
+            , case 
+                {% if chain not in ('solana', 'tron', 'near') %}
+                    when 
+                        balances.address not in (select contract_address from {{ ref("dim_" ~ chain ~ "_contract_addresses")}}) 
+                        then 1
+                    else 0 
+                {% else %}
+                    when 
+                        balances.address in (select address from {{ ref("dim_" ~ chain ~ "_eoa_addresses") }})
+                        then 1
+                    else 0 
+                {% endif %}
+            end as is_wallet
             , '{{ chain }}' as chain
         from {{ ref("agg_" ~ chain ~ "_stablecoin_balances")}} balances
-        -- _stablecoin_balances needs to go first because of the defined dumby address
+        -- stablecoin_balances needs to go first because of the defined dumby address
         -- 0x00000000000000000000000000000DEADARTEMIS
         left join transfer_transactions_agg
             on lower(transfer_transactions_agg.from_address) = lower(balances.address)
@@ -212,20 +208,18 @@ with
                 d.token_current_price, 1
             ) as stablecoin_transfer_volume
             , stablecoin_daily_txns
-            , stablecoin_dau
             , artemis_stablecoin_transfer_volume * coalesce(
                 d.token_current_price, 1
             ) as artemis_stablecoin_transfer_volume
             , artemis_stablecoin_daily_txns
-            , artemis_stablecoin_dau
             , p2p_stablecoin_transfer_volume * coalesce(
                 d.token_current_price, 1
             ) as p2p_stablecoin_transfer_volume
             , p2p_stablecoin_daily_txns
-            , p2p_stablecoin_dau
             , stablecoin_supply * coalesce(
                 d.token_current_price, 1
             ) as stablecoin_supply
+            , is_wallet
             , chain
         from results
         left join {{ ref( "fact_" ~ chain ~ "_stablecoin_contracts") }} c
