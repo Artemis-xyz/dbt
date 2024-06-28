@@ -49,7 +49,8 @@ prices as(
 )
 SELECT
     dr.date AS date,
-    SUM(COALESCE(f.amount_in, 0) - COALESCE(f.amount_out, 0)) OVER (ORDER BY dr.date) * p.price as treasury_usd,
+    SUM(COALESCE(f.amount_in, 0) - COALESCE(f.amount_out, 0)) OVER (ORDER BY dr.date) as treasury_link,
+    treasury_link * p.price as treasury_usd,
 FROM date_range dr
 LEFT JOIN flows f
     ON f.date = dr.date
