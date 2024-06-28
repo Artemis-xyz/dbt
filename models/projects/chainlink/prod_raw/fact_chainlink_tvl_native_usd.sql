@@ -4,7 +4,8 @@
         snowflake_warehouse="CHAINLINK",
         database="chainlink",
         schema="raw",
-        alias="fact_tvl",
+        alias="fact_tvl_native_usd",
+
     )
 }}
 
