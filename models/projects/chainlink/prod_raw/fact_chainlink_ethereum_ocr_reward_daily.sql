@@ -60,7 +60,7 @@ with
         left join {{ref('fact_chainlink_ethereum_ocr_reward_evt_transfer_daily')}} ocr_reward_evt_transfer_daily 
             on payment_meta.next_payment_date = ocr_reward_evt_transfer_daily.date_start
             and lower(payment_meta.admin_address) = lower(ocr_reward_evt_transfer_daily.admin_address)
-        left join {{ ref('fact_chainlink_ethereum_ocr_operator_admin_meta') }} ocr_operator_admin_meta ON lower(ocr_operator_admin_meta.admin_address) = lower(ocr_reward_evt_transfer_daily.admin_address)
+        left join {{ ref('dim_chainlink_ethereum_ocr_operator_admin_meta') }} ocr_operator_admin_meta ON lower(ocr_operator_admin_meta.admin_address) = lower(ocr_reward_evt_transfer_daily.admin_address)
         order by date_start
     )
 select
