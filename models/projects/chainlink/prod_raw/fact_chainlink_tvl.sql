@@ -22,7 +22,7 @@ WITH filtered_balances AS (
 unique_dates AS (
     SELECT DISTINCT DATE(block_timestamp) AS date
     FROM pc_dbt_db.prod.fact_ethereum_address_balances_by_token
-    where block_timestamp > '2017-09-16' -- set token contract creation date
+    where block_timestamp > '2022-12-06' -- set token contract creation date
 ),
 addresses AS (
     SELECT DISTINCT address
