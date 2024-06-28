@@ -6,10 +6,6 @@
 -- Make sure to set to '' after backfill is complete
 
     {% set backfill_date = '' %}
-
--- TODO: Set backfill_date dynamically using jinja templating
--- if system.date > max(date) then max date + 6 months
--- else system.date
 with
     stablecoin_senders as (select from_address from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers")}})
     , stablecoin_balances as (
@@ -27,9 +23,6 @@ with
         inner join {{ ref("fact_" ~ chain ~ "_stablecoin_contracts")}} t2
             on lower(t1.contract_address) = lower(t2.contract_address)
         where lower(address) in (select lower(from_address) from stablecoin_senders) and block_timestamp < to_date(sysdate())
-            -- Use this for a backfill, 
-            -- It is important to backfill 6 months at a time otherwise the query will
-            -- take > 4 hours on an XL to run
             {% if backfill_date != '' %}
                 and block_timestamp < '{{ backfill_date }}'
             {% endif %}
@@ -131,7 +124,6 @@ with
             )  as stablecoin_supply
         from date_range
         left join balances using (date, contract_address, symbol, address)
-        -- append only new rows to the table
         where address not in (select distinct (premint_address) from {{ ref("fact_solana_stablecoin_premint_addresses")}}) 
         {% if is_incremental() %}
             and date > (select max(date) from {{ this }})

@@ -10,12 +10,8 @@ with
             , transfer_volume
             , to_address
             , index
-        -- @anthony
-        -- Can move into stablecoin transfers table if needed
+        -- TODO: Move into stablecoin transfers table if needed
         -- Logic is slightly different for solana tron and near
-        -- Right now I am leaving it here so that we dont have to change the logic in the stablecoin transfers table
-
-        --Average transfer volume is currently done in the API stablecoins.py with `_fetch_avg_transaction_size`
             , case 
                 {% if chain not in ('solana', 'tron', 'near') %}
                     when 
@@ -142,10 +138,10 @@ with
     results as (
         select
             coalesce(balances.date, transfer_transactions_agg.date) as date
-            --stablecoin idenifiers
+
             , coalesce(balances.contract_address, transfer_transactions_agg.contract_address) as contract_address
             , coalesce(balances.symbol, transfer_transactions_agg.symbol) as symbol
-            --sender idenifiers
+
             , balances.address as from_address
             , filtered_contracts.name as contract_name
             , coalesce(filtered_contracts.name, balances.address, transfer_transactions_agg.from_address) as contract
@@ -153,14 +149,12 @@ with
             , dim_apps_gold.icon as icon
             , filtered_contracts.app as app
             , filtered_contracts.category as category
-            --metrics
+            
             , coalesce(stablecoin_transfer_volume, 0) as stablecoin_transfer_volume
             , coalesce(stablecoin_daily_txns, 0) as stablecoin_daily_txns
             , coalesce(stablecoin_supply, 0) as stablecoin_supply
-            --artemis metrics
             , coalesce(artemis_filter_metrics.artemis_stablecoin_transfer_volume, 0) as artemis_stablecoin_transfer_volume
             , coalesce(artemis_filter_metrics.artemis_stablecoin_daily_txns, 0) as artemis_stablecoin_daily_txns
-            --p2p metrics
             , coalesce(p2p_stablecoin_transfer_volume, 0) as p2p_stablecoin_transfer_volume
             , coalesce(p2p_stablecoin_daily_txns, 0) as p2p_stablecoin_daily_txns
             , case 
