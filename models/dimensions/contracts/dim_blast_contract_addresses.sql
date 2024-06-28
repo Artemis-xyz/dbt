@@ -1,8 +1,8 @@
 {{ 
     config(
         materialized="incremental",
-        snowflake_warehouse="BSC"
+        snowflake_warehouse="BLAST"
     )
 }}
 
-{{distinct_contract_addresses("bsc")}}
+{{distinct_contract_addresses("blast")}}
