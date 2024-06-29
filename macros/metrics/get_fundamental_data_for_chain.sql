@@ -13,10 +13,9 @@
             group by start_date
         ),
         {% if chain in ("near") %}
-            truncated_near_fact_txns as (
+            near_fact_txns as (
                 select *
                 from near_flipside.core.fact_transactions
-                where block_timestamp > current_date() - interval '300 days'
             ),
             fact_transactions_delegate_extracted as (
             select
@@ -31,7 +30,7 @@
                 else false
                 end as is_delegate
             from
-                truncated_near_fact_txns,
+                near_fact_txns,
                 lateral flatten(input => tx:actions) as action
             where
                 tx_succeeded = TRUE
