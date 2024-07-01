@@ -38,6 +38,59 @@ models:
         +snowflake_warehouse: "DAILY_DEFILLAMA"
     bam_models:
       +snowflake_warehouse: "DAILY_BAM"
+    staging:
+      aave:
+        +snowflake_warehouse: "AAVE"
+      acala:
+        +snowflake_warehouse: "ACALA"
+      aptos:
+        +snowflake_warehouse: "APTOS"
+      avalanche:
+        +snowflake_warehouse: "AVALANCHE"
+      axelar:
+        +snowflake_warehouse: "AXELAR"
+      benqi:
+        +snowflake_warehouse: "BENQI_FINANCE"
+      bitcoin:
+        +snowflake_warehouse: "BITCOIN"
+      cardano:
+        +snowflake_warehouse: "CARDANO"
+      celo:
+        +snowflake_warehouse: "CELO"
+      compound:
+        +snowflake_warehouse: "COMPOUND"
+      cosmoshub:
+        +snowflake_warehouse: "COSMOSHUB"
+      curve:
+        +snowflake_warehouse: "CURVE"
+      gnosis:
+        +snowflake_warehouse: "GNOSIS"
+      linea:
+        +snowflake_warehouse: "LINEA"
+      multiversx:
+        +snowflake_warehouse: "MULTIVERSX"
+      radiant:
+        +snowflake_warehouse: "RADIANT"
+      sonne:
+        +snowflake_warehouse: "SONNE_FINANCE"
+      spark:
+        +snowflake_warehouse: "SPARK"
+      sushiswap:
+        +snowflake_warehouse: "SUSHISWAP_SM"
+      trader_joe:
+        +snowflake_warehouse: "TRADER_JOE"
+      uniswap:
+        +snowflake_warehouse: "UNISWAP_TVL_SM"
+      uwulend:
+        +snowflake_warehouse: "UWULEND"
+      venus:
+        +snowflake_warehouse: "VENUS"
+      zcash:
+        +snowflake_warehouse: "ZCASH"
+      zksync:
+        +snowflake_warehouse: "ZKSYNC"
+      zora:
+        +snowflake_warehouse: "ZORA"
 
 vars:
   dbt_date:time_zone: "Etc/UTC"

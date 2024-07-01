@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="COMPOUND") }}
+{{ config(materialized="table") }}
 with
     compound_ethereum_data as (
         select

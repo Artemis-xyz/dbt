@@ -1,4 +1,4 @@
-{{ config(materialized="view", snowflake_warehouse="ZKSYNC") }}
+{{ config(materialized="view") }}
 
 with
     max_extraction as (

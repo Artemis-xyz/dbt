@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="incremental", unique_key=["tx_hash", "event_index"], snowflake_warehouse="CURVE"
+        materialized="incremental", unique_key=["tx_hash", "event_index"]
     )
 }}
 {{ fact_curve_dex_swaps("ethereum") }}

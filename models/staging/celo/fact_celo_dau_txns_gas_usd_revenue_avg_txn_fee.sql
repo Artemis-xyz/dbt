@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="CELO") }}
+{{ config(materialized="table") }}
 with
     dau_txns as (
         select

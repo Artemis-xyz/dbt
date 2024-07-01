@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="AAVE") }}
+{{ config(materialized="table") }}
 with
     unioned as (
         select *
