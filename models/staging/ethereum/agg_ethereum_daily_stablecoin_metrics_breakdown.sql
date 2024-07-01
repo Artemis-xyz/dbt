@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         unique_key=["date", "contract_address", "from_address"],
         snowflake_warehouse="BALANCES_LG",
     )
