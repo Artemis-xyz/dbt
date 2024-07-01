@@ -36,7 +36,7 @@ with
         {% endif %}
     ),
     filtered_contracts as (
-        select * from pc_dbt_db.prod.dim_contracts_gold where chain = '{{ chain }}'
+        select * from {{ ref("dim_contracts_gold")}} where chain = '{{ chain }}'
     ),
     artemis_contract_filters as (
         {% if label_source == 'ARTEMIS' %}
