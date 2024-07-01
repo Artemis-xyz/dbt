@@ -14,7 +14,9 @@ with raw_data as (
         , source_json:"decoded_hash"::string as tx_hash
         , PARSE_JSON(source_json:"decoded_value"::string) as payload
         , source_json:"from_address"::string as from_address
+        , source_json:"from_type"::string as from_type
         , source_json:"to_address"::string as to_address
+        , source_json:"to_type"::string as to_type
         , source_json:"decimals"::int as decimal
         , source_json:"symbol"::string as symbol
     from
@@ -29,7 +31,9 @@ select
     , max_by(timestamp, extraction_date) as block_timestamp
     , max_by(payload, extraction_date) as payload
     , max_by(from_address, extraction_date) as from_address
+    , max_by(from_type, extraction_date) as from_type
     , max_by(to_address, extraction_date) as to_address
+    , max_by(to_type, extraction_date) as to_type
     , max_by(decimal, extraction_date) as decimal
     , max_by(symbol, extraction_date) as symbol
 from raw_data
