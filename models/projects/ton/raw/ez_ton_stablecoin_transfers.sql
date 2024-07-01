@@ -14,7 +14,9 @@ select
     trunc(block_timestamp, 'day') as date,
     tx_hash,
     from_address,
+    from_type,
     to_address,
+    to_type,
     -- Mint: From: Premint, To: Contract
     from_address in (
         select distinct (premint_address)
