@@ -33,5 +33,10 @@ select
     , max_by(decimal, extraction_date) as decimal
     , max_by(symbol, extraction_date) as symbol
 from raw_data
-where from_address is not null and to_address is not null and timestamp is not null
+where 
+    from_address is not null and 
+    to_address is not null and 
+    timestamp is not null and
+    -- Black list transaction: https://tonviewer.com/transaction/513bacb858a3148367643ec9da96ba9e8af8bdf02c1950b106e9a88fe3e94935
+    tx_hash not in ('513bacb858a3148367643ec9da96ba9e8af8bdf02c1950b106e9a88fe3e94935')
 group by tx_hash
