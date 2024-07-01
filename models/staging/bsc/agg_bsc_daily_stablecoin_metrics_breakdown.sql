@@ -6,4 +6,4 @@
     )
 }}
 
-{{ agg_daily_stablecoin_metrics_breakdown("ethereum", "FLIPSIDE") }}
+{{ agg_daily_stablecoin_metrics_breakdown("bsc") }}
