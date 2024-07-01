@@ -3,8 +3,7 @@
 -- depends_on: {{ source("BALANCES", "ez_ton_current_balances") }}
 {{
     config(
-        materialized="incremental",
-        unique_key=["address", "contract_address", "block_timestamp"],
+        materialized="table",
         database="ton",
         schema="core",
         name="ez_address_balances_by_token",

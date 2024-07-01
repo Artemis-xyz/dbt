@@ -1,7 +1,7 @@
 {{
     config(
-        materialized="incremental",
-        unique_key=["date", "address"],
+        materialized="table",
+        unique_key=["block_timestamp", "address"],
         snowflake_warehouse="TON_MD",
     )
 }}
