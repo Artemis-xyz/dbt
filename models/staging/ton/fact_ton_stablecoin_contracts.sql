@@ -4,7 +4,7 @@ from
     (
         values
             (
-                'USD₮',
+                'USDT',
                 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs',
                 6,
                 'tether',

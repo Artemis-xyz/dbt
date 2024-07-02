@@ -48,7 +48,7 @@ select
         then amount / POWER(10, decimal)
         else 0
     end as transfer_volume,
-    fact_ton_stablecoin_contracts.symbol,
+    case when fact_ton_stablecoin_contracts.symbol = 'USD₮' then 'USDT' else fact_ton_stablecoin_contracts.symbol end as symbol,
     fact_ton_stablecoin_contracts.contract_address
 from 
     {{ ref('fact_ton_stablecoin_transfers') }} as transfers
