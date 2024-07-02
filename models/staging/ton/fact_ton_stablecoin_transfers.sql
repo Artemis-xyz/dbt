@@ -31,7 +31,7 @@ select
     , max_by(from_address, extraction_date) as from_address
     , max_by(to_address, extraction_date) as to_address
     , max_by(decimal, extraction_date) as decimal
-    , max_by(symbol, extraction_date) as symbol
+    , case when max_by(symbol, extraction_date) = 'USD₮' then 'USDT' else max_by(symbol, extraction_date) end as symbol
 from raw_data
 where 
     from_address is not null and 
