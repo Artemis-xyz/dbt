@@ -14,6 +14,7 @@ with
                     ref("agg_optimism_stablecoin_breakdown_daily"),
                     ref("agg_polygon_stablecoin_breakdown_daily"),
                     ref("agg_solana_stablecoin_breakdown_daily"),
+                    ref("agg_ton_stablecoin_breakdown_daily"),
                     ref("agg_tron_stablecoin_breakdown_daily"),
                 ]
             )

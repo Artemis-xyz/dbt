@@ -13,8 +13,9 @@ with
                     ref("agg_ethereum_stablecoin_metrics"),
                     ref("agg_optimism_stablecoin_metrics"),
                     ref("agg_polygon_stablecoin_metrics"),
-                    ref("agg_tron_stablecoin_metrics"),
                     ref("agg_solana_stablecoin_metrics"),
+                    ref("agg_ton_stablecoin_metrics"),
+                    ref("agg_tron_stablecoin_metrics"),
                 ]
             )
         }}
