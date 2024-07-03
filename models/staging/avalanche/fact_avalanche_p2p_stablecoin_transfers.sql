@@ -1,3 +1,4 @@
+--depends_on: {{ ref("fact_avalanche_stablecoin_transfers") }}
 {{
     config(
         materialized="incremental",

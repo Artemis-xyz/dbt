@@ -1,0 +1,10 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_dfk_dau
+      - name: raw_dfk_txns
+      - name: raw_dfk_gas
+      - name: raw_dfk_contracts
+      - name: raw_dfk_deployers

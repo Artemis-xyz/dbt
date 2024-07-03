@@ -22,8 +22,9 @@ with
         select
             date_start as date
             , chain
-            , usd_amount as ocr_fees
+            , sum(usd_amount) as ocr_fees
         from ocr_models
+        group by 1, 2
     )
     , fm_models as(
         {{
@@ -38,8 +39,9 @@ with
         select
             date_start as date
             , chain
-            , usd_amount as fm_fees
+            , sum(usd_amount) as fm_fees
         from fm_models
+        group by 1, 2
     )
     , automation_models as(
         {{
@@ -54,8 +56,9 @@ with
         select
             date_start as date
             , chain
-            , usd_amount as automation_fees
+            , sum(usd_amount) as automation_fees
         from automation_models
+        group by 1, 2
     )
     , ccip_models as(
         {{
@@ -71,8 +74,9 @@ with
             date_start as date
             , chain
             -- different tokens are paid out in ccip fees
-            , usd_amount as ccip_fees
+            , sum(usd_amount) as ccip_fees
         from ccip_models
+        group by 1, 2
     )
     , vrf_models as (
         {{
@@ -87,8 +91,9 @@ with
         select
             date
             , blockchain as chain
-            , usd_amount as vrf_fees
+            , sum(usd_amount) as vrf_fees
         from vrf_models
+        group by 1, 2
     )
     , staking_incentive_models as (
         {{
@@ -103,8 +108,9 @@ with
         select
             date
             , chain
-            , staking_rewards as token_incentives
+            , sum(staking_rewards) as token_incentives
         from staking_incentive_models
+        group by 1, 2
     )
 
 select

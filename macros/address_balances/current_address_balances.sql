@@ -4,7 +4,7 @@
         max(block_timestamp) as block_timestamp,
         address,
         contract_address
-    from prod.fact_{{ chain }}_address_balances_by_token
+    from {% if chain in ('ton') %} ton.prod_core.ez_ton_address_balances_by_token {% else %} prod.fact_{{ chain }}_address_balances_by_token {% endif %}
     {% if is_incremental() %}
         where block_timestamp >= dateadd('day', -7, to_date(sysdate()))
     {% endif %}

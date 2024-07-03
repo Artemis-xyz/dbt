@@ -1,0 +1,10 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_beam_dau
+      - name: raw_beam_txns
+      - name: raw_beam_gas
+      - name: raw_beam_contracts
+      - name: raw_beam_deployers
