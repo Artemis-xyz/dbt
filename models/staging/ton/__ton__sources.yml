@@ -9,3 +9,5 @@ sources:
       - name: raw_ton_txns
       - name: raw_ton_dex_volumes
       - name: raw_ton_stablecoin_transfers
+      - name: raw_ton_apps_openleague
+      - name: raw_ton_tokens_openleague
