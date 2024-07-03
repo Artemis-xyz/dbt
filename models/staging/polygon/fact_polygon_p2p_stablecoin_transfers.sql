@@ -1,3 +1,4 @@
+--depends_on: {{ ref("fact_polygon_stablecoin_transfers") }}
 {{
     config(
         materialized="incremental",
