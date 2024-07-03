@@ -2,6 +2,81 @@
 
 with
     flipside_namespace as (
+        -- Arbitrum Flipside Filtered Namespaces
+        select
+            namespace,
+            initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
+            max(category) as category,
+            max(sub_category) as sub_category
+        from {{ ref("dim_flipside_contracts") }}
+        where chain = 'arbitrum' and namespace is not null
+
+        union all
+        -- Avalanche Flipside Filtered Namespaces
+        select
+            namespace,
+            initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
+            max(category) as category,
+            max(sub_category) as sub_category
+        from {{ ref("dim_flipside_contracts") }}
+        where chain = 'avalanche' and namespace is not null
+        group by namespace
+
+        union all
+        -- Base Flipside Filtered Namespaces
+        select
+            namespace,
+            initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
+            max(category) as category,
+            max(sub_category) as sub_category
+        from {{ ref("dim_flipside_contracts") }}
+        where chain = 'base' and namespace is not null
+        group by namespace
+
+        union all
+        -- BSC Flipside Filtered Namespaces
+        select
+            namespace,
+            initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
+            max(category) as category,
+            max(sub_category) as sub_category
+        from {{ ref("dim_flipside_contracts") }}
+        where chain = 'bsc' and namespace is not null
+        group by namespace
+
+        union all
+        -- Ethereum Flipside Filtered Namespaces
+        select
+            namespace,
+            initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
+            max(category) as category,
+            max(sub_category) as sub_category
+        from {{ ref("dim_flipside_contracts") }}
+        where chain = 'ethereum' and namespace is not null
+        group by namespace
+
+        union all
+        -- Polygon Flipside Filtered Namespaces
+        select
+            namespace,
+            initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
+            max(category) as category,
+            max(sub_category) as sub_category
+        from {{ ref("dim_flipside_contracts") }}
+        where chain = 'polygon' and namespace is not null
+        group by namespace
+
+        union all
+        -- Optimism Flipside Filtered Namespaces
+        select
+            namespace,
+            initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
+            max(category) as category,
+            max(sub_category) as sub_category
+        from {{ ref("dim_flipside_contracts") }}
+        where chain = 'optimism' and namespace is not null
+        group by namespace
+
         -- Sei Flipside Filtered Namespaces
         select
             namespace,

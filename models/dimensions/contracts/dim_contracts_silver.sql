@@ -5,10 +5,10 @@ with
         select lower(address) address, chain
         from {{ ref("dim_dune_contracts_post_sigma") }}
         union
-        -- add near + sei contracts
+        -- add near + sei + arbitrum + avalanche + base + bsc + ethereum + polygon + optimism contracts
         select lower(address) address, chain
         from {{ ref("dim_flipside_contracts") }}
-        where chain in ('near', 'sei')
+        where chain in ('near', 'sei', 'arbitrum', 'avalanche', 'base', 'bsc', 'ethereum', 'polygon', 'optimism')
         union
         -- add solana contracts that aren't token contracts
         select lower(address) address, chain
@@ -41,6 +41,13 @@ with
                 flipside_near.namespace,
                 flipside_sol.namespace,
                 flipside_sei.namespace,
+                flipside_arbitrum.namespace,
+                flipside_avalanche.namespace,
+                flipside_base.namespace,
+                flipside_bsc.namespace,
+                flipside_ethereum.namespace,
+                flipside_polygon.namespace,
+                flipside_optimism.namespace,
                 null
             ) namespace,
             coalesce(
@@ -51,6 +58,13 @@ with
                 flipside_near.name,
                 flipside_sol.name,
                 flipside_sei.name,
+                flipside_arbitrum.name,
+                flipside_avalanche.name,
+                flipside_base.name,
+                flipside_bsc.name,
+                flipside_ethereum.name,
+                flipside_polygon.name,
+                flipside_optimism.name,
                 null
             ) as name
         from distinct_contract dc
@@ -72,6 +86,41 @@ with
             on lower(dc.address) = lower(flipside_sei.address)
             and dc.chain = flipside_sei.chain
             and flipside_sei.chain = 'sei'
+        left join
+            {{ ref("dim_flipside_contracts") }} as flipside_arbitrum
+            on lower(dc.address) = lower(flipside_arbitrum.address)
+            and dc.chain = flipside_arbitrum.chain
+            and flipside_arbitrum.chain = 'arbitrum'
+        left join
+            {{ ref("dim_flipside_contracts") }} as flipside_avalanche
+            on lower(dc.address) = lower(flipside_avalanche.address)
+            and dc.chain = flipside_avalanche.chain
+            and flipside_avalanche.chain = 'avalanche'
+        left join
+            {{ ref("dim_flipside_contracts") }} as flipside_base
+            on lower(dc.address) = lower(flipside_base.address)
+            and dc.chain = flipside_base.chain
+            and flipside_base.chain = 'base'
+        left join
+            {{ ref("dim_flipside_contracts") }} as flipside_bsc
+            on lower(dc.address) = lower(flipside_bsc.address)
+            and dc.chain = flipside_bsc.chain
+            and flipside_bsc.chain = 'bsc'
+        left join
+            {{ ref("dim_flipside_contracts") }} as flipside_ethereum
+            on lower(dc.address) = lower(flipside_ethereum.address)
+            and dc.chain = flipside_ethereum.chain
+            and flipside_ethereum.chain = 'ethereum'
+        left join
+            {{ ref("dim_flipside_contracts") }} as flipside_polygon
+            on lower(dc.address) = lower(flipside_polygon.address)
+            and dc.chain = flipside_polygon.chain
+            and flipside_polygon.chain = 'polygon'
+        left join
+            {{ ref("dim_flipside_contracts") }} as flipside_optimism
+            on lower(dc.address) = lower(flipside_optimism.address)
+            and dc.chain = flipside_optimism.chain
+            and flipside_optimism.chain = 'optimism'
         left join
             {{ ref("dim_flipside_contracts") }} as flipside_sol
             on lower(dc.address) = lower(flipside_sol.address)
@@ -131,7 +180,18 @@ with
         select address, name, chain, category
         from {{ ref("dim_flipside_contracts") }}
         where
-            chain not in ('near', 'solana', 'sei') and category in ('NFT', 'Token', 'ERC_1155')
+            chain not in (
+                'near', 
+                'solana', 
+                'sei', 
+                'arbitrum',
+                'avalanche',
+                'base',
+                'bsc',
+                'ethereum',
+                'polygon',
+                'optimism'
+            ) and category in ('NFT', 'Token', 'ERC_1155')
         union
         select address, name, chain, category
         from {{ ref("dim_flipside_contracts") }}
