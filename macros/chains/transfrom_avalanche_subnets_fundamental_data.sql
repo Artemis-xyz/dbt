@@ -7,7 +7,7 @@ with
     ),
     dau_data as (
         select
-            TO_TIMESTAMP(value:"timestamp")::date as date,
+            DATEADD('day', 1, TO_TIMESTAMP(value:"timestamp")::date) as date,
             value:"value"::float as dau
         from
             {{ source("PROD_LANDING", "raw_" ~  chain ~ "_dau") }},
@@ -20,7 +20,7 @@ with
     ),
     gas_data as (
         select
-            TO_TIMESTAMP(value:"timestamp")::date as date,
+            DATEADD('day', 1, TO_TIMESTAMP(value:"timestamp")::date) as date,
             value:"value"::float/POW(10, 9) as fees_native
         from
             {{ source("PROD_LANDING", "raw_" ~ chain ~ "_gas") }},
@@ -33,7 +33,7 @@ with
     ),
     txns_data as (
         select
-            TO_TIMESTAMP(value:"timestamp")::date as date,
+            DATEADD('day', 1, TO_TIMESTAMP(value:"timestamp")::date) as date,
             value:"value"::float as txns
         from
             {{ source("PROD_LANDING", "raw_" ~ chain ~ "_txns") }},
