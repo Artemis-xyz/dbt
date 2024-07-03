@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="UNISWAP_TVL_SM") }}
 
 
 {{

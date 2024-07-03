@@ -1,4 +1,3 @@
-{{ config(snowflake_warehouse="AKASH") }}
 
 with
     fees as (select * from {{ ref("fact_akash_validator_fees_native_silver")}}),

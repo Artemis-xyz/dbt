@@ -1,4 +1,3 @@
-{{ config(snowflake_warehouse="AKASH") }}
 
 with
     max_extraction as (

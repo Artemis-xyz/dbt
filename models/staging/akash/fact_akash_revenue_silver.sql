@@ -1,4 +1,3 @@
-{{ config(snowflake_warehouse="AKASH") }}
 
 select
     akt.date,

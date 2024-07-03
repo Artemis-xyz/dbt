@@ -1,4 +1,4 @@
-{{ config(materialized="view", snowflake_warehouse="FLOW") }}
+{{ config(materialized="view") }}
 select
     date_trunc('day', block_timestamp) as date,
     count(distinct authorizers) as daa,

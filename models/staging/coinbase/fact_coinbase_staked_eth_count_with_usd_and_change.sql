@@ -1,4 +1,4 @@
-{{ config(snowflake_warehouse="COINBASE", materialized="table") }}
+{{ config(materialized="table") }}
 
 select *, 'ethereum' as chain, 'cbeth' as app, 'DeFi' as category 
 from (

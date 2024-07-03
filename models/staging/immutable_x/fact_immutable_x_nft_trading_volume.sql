@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="IMMUTABLE_X") }}
+{{ config(materialized="table") }}
 
 with
     max_extraction as (

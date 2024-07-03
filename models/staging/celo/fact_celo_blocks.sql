@@ -2,7 +2,6 @@
     config(
         materialized="incremental",
         unique_key="block_hash",
-        snowflake_warehouse="CELO",
     )
 }}
 {{

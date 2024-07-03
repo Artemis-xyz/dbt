@@ -43,44 +43,121 @@ models:
         +snowflake_warehouse: "AAVE"
       acala:
         +snowflake_warehouse: "ACALA"
+      across:
+        +snowflake_warehouse: "ACROSS"
+      akash:
+        +snowflake_warehouse: "AKASH"
       aptos:
         +snowflake_warehouse: "APTOS"
+      arbitrum:
+        +snowflake_warehouse: "ARBITRUM"
       avalanche:
         +snowflake_warehouse: "AVALANCHE"
       axelar:
         +snowflake_warehouse: "AXELAR"
+      base:
+        +snowflake_warehouse: "BASE"
       benqi:
         +snowflake_warehouse: "BENQI_FINANCE"
       bitcoin:
         +snowflake_warehouse: "BITCOIN"
+      blast:
+        +snowflake_warehouse: "BLAST"
       cardano:
         +snowflake_warehouse: "CARDANO"
+      cctp:
+        +snowflake_warehouse: "CCTP"
+      celestia:
+        +snowflake_warehouse: "CELESTIA"
       celo:
         +snowflake_warehouse: "CELO"
+      coinbase:
+        +snowflake_warehouse: "COINBASE"
       compound:
         +snowflake_warehouse: "COMPOUND"
       cosmoshub:
         +snowflake_warehouse: "COSMOSHUB"
       curve:
         +snowflake_warehouse: "CURVE"
+      ethereum:
+        +snowflake_warehouse: "ETHEREUM"
+      fantom:
+        +snowflake_warehouse: "FANTOM"
+      flow:
+        +snowflake_warehouse: "FLOW"
+      frax:
+        +snowflake_warehouse: "FRAX"
+      fuse:
+        +snowflake_warehouse: "FUSE"
       gnosis:
         +snowflake_warehouse: "GNOSIS"
+      immutable_x:
+        +snowflake_warehouse: "IMMUTABLE_X"
+      injective:
+        +snowflake_warehouse: "INJECTIVE"
+      lido:
+        +snowflake_warehouse: "LIDO"
       linea:
         +snowflake_warehouse: "LINEA"
+      mantle:
+        +snowflake_warehouse: "mantle"
+      moonwell:
+        +snowflake_warehouse: "MOONWELL"
       multiversx:
         +snowflake_warehouse: "MULTIVERSX"
+      optimism:
+        +snowflake_warehouse: "OPTIMISM"
+      osmosis:
+        +snowflake_warehouse: "OSMOSIS"
+      pancakeswap:
+        +snowflake_warehouse: "PANCAKESWAP_SM"
+      parallel_finance:
+        +snowflake_warehouse: "PARALLEL_FINANCE"
+      polkadot:
+        +snowflake_warehouse: "POLKADOT"
+      polygon:
+        +snowflake_warehouse: "POLYGON"
+      near:
+        +snowflake_warehouse: "NEAR"
+      quickswap:
+        +snowflake_warehouse: "QUICKSWAP"
       radiant:
         +snowflake_warehouse: "RADIANT"
+      rainbow_bridge:
+        +snowflake_warehouse: "RAINBOW_BRIDGE"
+      rocketpool:
+        +snowflake_warehouse: "ROCKETPOOL"
+      scroll:
+        +snowflake_warehouse: "SCROLL"
+      seamless:
+        +snowflake_warehouse: "SEAMLESS_PROTOCOL"
+      sei:
+        +snowflake_warehouse: "SEI"
+      solana:
+        +snowflake_warehouse: "SOLANA"
       sonne:
         +snowflake_warehouse: "SONNE_FINANCE"
       spark:
         +snowflake_warehouse: "SPARK"
+      stacks:
+        +snowflake_warehouse: "STACKS"
+      stader:
+        +snowflake_warehouse: "STADER"
+      stakewise:
+        +snowflake_warehouse: "STAKEWISE"
+      stride:
+        +snowflake_warehouse: "STRIDE"
       sushiswap:
         +snowflake_warehouse: "SUSHISWAP_SM"
+      ton:
+        +snowflake_warehouse: "TON"
       trader_joe:
         +snowflake_warehouse: "TRADER_JOE"
+      tron:
+        +snowflake_warehouse: "TRON"
+      # TODO: also should be UNISWAP
       uniswap:
-        +snowflake_warehouse: "UNISWAP_TVL_SM"
+        +snowflake_warehouse: "UNISWAP_SM"
       uwulend:
         +snowflake_warehouse: "UWULEND"
       venus:

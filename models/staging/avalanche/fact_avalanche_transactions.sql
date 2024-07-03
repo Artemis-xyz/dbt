@@ -2,7 +2,6 @@
     config(
         materialized="incremental",
         unique_key="tx_hash",
-        snowflake_warehouse="AVALANCHE",
     )
 }}
 

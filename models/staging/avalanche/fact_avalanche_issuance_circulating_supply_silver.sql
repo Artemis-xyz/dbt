@@ -2,7 +2,6 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="AVALANCHE",
     )
 }}
 -- TODO: Track already minted tokens for rewards to validators to calcualte
