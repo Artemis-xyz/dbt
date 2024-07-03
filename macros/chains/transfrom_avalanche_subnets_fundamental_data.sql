@@ -50,4 +50,5 @@ with
     FROM txns_data txns
         FULL JOIN dau_data dau ON txns.date = dau.date
         FULL JOIN gas_data gas ON txns.date = gas.date
+    where coalesce(txns.date, dau.date, gas.date) < to_date(sysdate())
 {% endmacro %}
