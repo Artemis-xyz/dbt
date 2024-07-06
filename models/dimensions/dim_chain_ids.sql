@@ -26,5 +26,6 @@ from
             (25, 'cronos'),
             (81457, 'blast'),
             (534352, 'scroll'),
-            (34443, 'mode')
+            (34443, 'mode'),
+            (1135, 'lisk')
     ) as t(id, chain)
