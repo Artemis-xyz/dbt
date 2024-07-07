@@ -36,7 +36,7 @@ with
                 else null
             end as category,
             label_subtype as sub_category
-        from ethereum_flipside.core.dim_labels
+        from {{ chain }}_flipside.core.dim_labels
     ),
     manual_filter as (
         select
