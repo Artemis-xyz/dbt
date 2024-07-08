@@ -16,6 +16,7 @@ SELECT
     , icon
     , is_meme
     , name
+    , friendly_name
     , new_users_min_amount
     , price_change_normed
     , price_change_simple

@@ -37,6 +37,7 @@ SELECT
     , open_league_data.season
     , icon
     , replace(lower(name), ' ', '_') as name
+    , name as friendly_name
     , offchain_avg_dau
     , offchain_non_premium_users
     , offchain_premium_users

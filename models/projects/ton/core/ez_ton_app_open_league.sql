@@ -13,6 +13,7 @@ SELECT
     , season
     , icon
     , name
+    , friendly_name
     , offchain_avg_dau
     , offchain_non_premium_users
     , offchain_premium_users

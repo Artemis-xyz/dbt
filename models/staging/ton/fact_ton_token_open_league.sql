@@ -44,6 +44,7 @@ SELECT
     , icon
     , is_meme
     , replace(lower(name), ' ', '_') as name
+    , name as friendly_name
     , new_users_min_amount
     , price_change_normed
     , price_change_simple
