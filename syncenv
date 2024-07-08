@@ -2,6 +2,8 @@ python3 -m venv venv
 . ./venv/bin/activate
 pip install -r requirements.txt
 
+chmod +x run_sqlfluff_on_changed_files.sh
+
 source .env.local
 
 
