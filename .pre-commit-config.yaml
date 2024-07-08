@@ -2,25 +2,8 @@
 repos:
   - repo: local
     hooks:
-      - id: sqlfluff-lint
-        name: sqlfluff-lint
-        # Set `--processes 0` to use maximum parallelism
-        entry: sqlfluff lint --processes 0
-        language: python
-        description: 'Lints sql files with `SQLFluff`'
-        types: [sql]
-        require_serial: true
-        additional_dependencies: []
-
-      - id: sqlfluff-fix
-        name: sqlfluff-fix
-        # Set a couple of default flags:
-        #  - `--show-lint-violations` shows issues to not require running `sqlfluff lint`
-        #  - `--processes 0` to use maximum parallelism
-        # By default, this hook applies all rules.
-        entry: sqlfluff fix --show-lint-violations --processes 0
-        language: python
-        description: 'Fixes sql lint errors with `SQLFluff`'
-        types: [sql]
-        require_serial: true
-        additional_dependencies: []
+      - id: sqlfluff-changed-files
+        name: sqlfluff-changed-files
+        entry: ./run_sqlfluff_on_changed_files.sh
+        language: script
+        files: \.sql$
