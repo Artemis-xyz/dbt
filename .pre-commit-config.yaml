@@ -4,6 +4,6 @@ repos:
     hooks:
       - id: sqlfluff-changed-files
         name: sqlfluff-changed-files
-        entry: ./run_sqlfluff_on_changed_files.sh
+        entry: ./dbt_scripts/run_sqlfluff_on_changed_files.sh
         language: script
         files: \.sql$
