@@ -1,0 +1,15 @@
+models:
+  - name: fact_ton_app_open_league
+    columns:
+      - name: date
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist
+      - name: name
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist
+      - name: onchain_uaw
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist

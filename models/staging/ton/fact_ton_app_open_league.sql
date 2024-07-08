@@ -31,7 +31,7 @@ SELECT
     , value as source_json
     , open_league_data.season
     , icon
-    , name
+    , replace(lower(name), ' ', '_') as name
     , offchain_avg_dau
     , offchain_non_premium_users
     , offchain_premium_users

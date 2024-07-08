@@ -38,7 +38,7 @@ SELECT
     , boost_link
     , icon
     , is_meme
-    , name
+    , replace(lower(name), ' ', '_') as name
     , new_users_min_amount
     , price_change_normed
     , price_change_simple

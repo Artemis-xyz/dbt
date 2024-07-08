@@ -9,6 +9,11 @@
 }}
 SELECT 
     date
+    , concat(
+        coalesce(cast(date as string), '_this_is_null_'),
+        '|',
+        coalesce(cast(name as string), '_this_is_null_')
+    ) as unique_id
     , season
     , icon
     , name
