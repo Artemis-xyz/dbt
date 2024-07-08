@@ -1,7 +1,7 @@
 # .sqlfluff configuration file
 [sqlfluff]
 dialect = snowflake
-templater = dbt
+templater = jinja
 
 # General linting rules
 [sqlfluff:rules]
@@ -21,8 +21,8 @@ extended_capitalisation_policy = consistent
 [sqlfluff:rules:L018]  # Avoid using aliases in join clauses
 single_table_references = consistent
 
-[sqlfluff:rules:L020]  # Enforce consistent leading comma
-leading_comma = true
+[sqlfluff:rules:L020]  # Enforce consistent trailing comma
+leading_comma = false
 
 [sqlfluff:rules:L022]  # Enforce consistent use of CTEs
 force_cte_newlines = true
