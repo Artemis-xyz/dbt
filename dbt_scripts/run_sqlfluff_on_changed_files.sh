@@ -9,7 +9,7 @@ fi
 
 # Run SQLFluff on each changed SQL file
 for file in $CHANGED_FILES; do
-  sqlfluff lint "$file"
+  sqlfluff fix "$file"
   if [ $? -ne 0 ]; then
     echo "SQLFluff found issues in $file"
     exit 1

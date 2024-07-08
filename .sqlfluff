@@ -1,0 +1,6 @@
+[sqlfluff]
+templater = jinja
+dialect = snowflake
+
+[sqlfluff:layout:type:comma]
+line_position = leading
