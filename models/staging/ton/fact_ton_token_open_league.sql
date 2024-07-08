@@ -32,6 +32,11 @@ open_league_data as (
 )
 SELECT 
     date
+    , concat(
+        coalesce(cast(date as string), '_this_is_null_'),
+        '|',
+        coalesce(replace(lower(name), ' ', '_'), '_this_is_null_')
+    ) as unique_id
     , value as source_json
     , open_league_data.season
     , has_boost

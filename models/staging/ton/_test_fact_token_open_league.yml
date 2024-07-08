@@ -13,3 +13,7 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_to_exist
+      - name: unique_id
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_unique
