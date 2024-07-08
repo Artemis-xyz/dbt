@@ -1,0 +1,23 @@
+name: init dbt
+runs:
+  using: "composite"
+  steps:
+    # Open PR to actions/setup-python for supporting uv caching https://github.com/actions/setup-python/pull/818
+    # Related GH issue https://github.com/actions/setup-python/issues/822
+    #
+    # - uses: actions/setup-python@v5
+    #   with:
+    #     cache: 'pip'
+    #     cache-dependency-path: 'requirements.txt'
+    - name: Set up dependencies
+      shell: bash
+      run: |
+        pip install uv==0.2.15
+        uv pip install -r requirements.txt --system
+
+    - name: Download DBT Manifest
+      shell: bash
+      run: |
+        wget https://artemis-xyz.github.io/dbt/partial_parse.msgpack
+        mkdir -p target/
+        mv partial_parse.msgpack target/

@@ -1,4 +1,4 @@
-{{ config(materialized="view") }}
+{{ config(materialized="view", snowflake_warehouse="ACALA") }}
 with
     max_extraction as (
         select max(extraction_date) as max_date

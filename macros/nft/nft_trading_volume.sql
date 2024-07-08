@@ -19,8 +19,8 @@
         from flow_flipside.nft.ez_nft_sales t1
         left join
             (
-                select timestamp::date as date, token_contract, avg(price_usd) as price
-                from flow_flipside.price.fact_prices
+                select hour::date as date, token_address as token_contract, avg(price) as price
+                from flow_flipside.price.ez_prices_hourly
                 group by date, token_contract
             ) t2
             on block_timestamp::date = t2.date

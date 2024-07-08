@@ -1,12 +1,14 @@
+{{ config(materialized="view", snowflake_warehouse="FANTOM") }}
+
 with
     max_extraction as (
         select max(extraction_date) as max_date
-        from landing_database.prod_landing.raw_fantom_gas
+        from {{ source("PROD_LANDING", "raw_fantom_gas") }}
     ),
     data as (
         select to_date(value:"date"::string) as date, value:"gas"::float as gas
         from
-            landing_database.prod_landing.raw_fantom_gas,
+            {{ source("PROD_LANDING", "raw_fantom_gas") }},
             lateral flatten(input => parse_json(source_json))
         where extraction_date = (select max_date from max_extraction)
     ),

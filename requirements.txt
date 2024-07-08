@@ -5,3 +5,4 @@ dbt-semantic-interfaces==0.4.3
 dbt-snowflake==1.7.1
 pandas==2.0.2
 shandy-sqlfmt==0.21.3
+numpy==1.26.4

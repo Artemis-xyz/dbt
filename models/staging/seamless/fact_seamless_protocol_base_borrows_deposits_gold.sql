@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="SEAMLESSPROTOCOL") }}
 select
     date,
     chain,

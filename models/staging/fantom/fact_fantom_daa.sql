@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="FANTOM") }}
 with
     max_extraction as (
         select max(extraction_date) as max_date

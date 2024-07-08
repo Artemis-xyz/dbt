@@ -1,0 +1,6 @@
+sources:
+  - name: BALANCES
+    schema: PROD_CORE
+    database: TON
+    tables:
+      - name: ez_ton_current_balances

@@ -1,0 +1,10 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_dexalot_dau
+      - name: raw_dexalot_txns
+      - name: raw_dexalot_gas
+      - name: raw_dexalot_contracts
+      - name: raw_dexalot_deployers

@@ -1,3 +1,4 @@
+-- depends_on: {{ ref("fact_polkadot_rolling_active_addresses") }}
 {{
     config(
         materialized="table",

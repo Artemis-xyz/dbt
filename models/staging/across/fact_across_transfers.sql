@@ -82,3 +82,6 @@ select
     input_token
 from {{ ref("fact_across_v3_transfers") }}
 where destination_chain_id != 0  -- a bug
+-- Artemis currently does not support lisk chain and OP l2
+    and destination_chain_id != 1125 
+    and origin_chain_id != 1125

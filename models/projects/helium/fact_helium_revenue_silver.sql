@@ -1,3 +1,4 @@
+{{ config(snowflake_warehouse="HELIUM") }}
 WITH program AS (
     SELECT
         *,

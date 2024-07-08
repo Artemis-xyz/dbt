@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="ZORA") }}
 with
     raw_receipt_transactions as (
         select

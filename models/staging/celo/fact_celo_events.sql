@@ -1,7 +1,7 @@
 -- depends_on: {{ ref('fact_celo_transactions') }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         unique_key=["transaction_hash", "event_index"],
         snowflake_warehouse="CELO",
     )

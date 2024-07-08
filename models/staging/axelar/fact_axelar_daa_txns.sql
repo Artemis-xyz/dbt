@@ -1,4 +1,4 @@
-{{ config(materialized="view") }}
+{{ config(materialized="view", snowflake_warehouse="AXELAR") }}
 select
     block_timestamp::date as date,
     count(distinct tx_from) as daa,

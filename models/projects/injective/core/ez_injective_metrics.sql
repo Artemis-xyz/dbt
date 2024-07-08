@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="injective",
+        snowflake_warehouse="INJECTIVE",
         database="injective",
         schema="core",
         alias="ez_metrics",

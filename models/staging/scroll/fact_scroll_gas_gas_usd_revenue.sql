@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="SCROLL") }}
 with
     gas as (
         select
@@ -22,7 +22,10 @@ with
 select
     gas.*,
     gas.gas * price as gas_usd,
-    (gas.gas - coalesce(expenses.gas, 0)) * price as revenue
+    (gas.gas - coalesce(expenses.gas, 0)) as revenue_native,
+    (gas.gas - coalesce(expenses.gas, 0)) * price as revenue,
+    expenses.gas as l1_data_cost_native,
+    expenses.gas * price as l1_data_cost
 from gas
 left join prices on gas.date = prices.date
 left join expenses on gas.date = expenses.date

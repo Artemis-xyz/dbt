@@ -1,4 +1,4 @@
-{{ config(materialized="view") }}
+{{ config(materialized="view", snowflake_warehouse="PARALLEL_FINANCE") }}
 
 with
     max_extraction as (

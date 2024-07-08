@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="APTOS") }}
 with
     apt_prices as ({{ get_coingecko_price_with_latest("aptos") }}),
     single_signed_transactions as (

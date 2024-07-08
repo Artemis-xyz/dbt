@@ -15,9 +15,9 @@ with
     defillama_data as ({{ get_defillama_metrics("arbitrum") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("arbitrum") }}),
     expenses_data as (
-        select date, chain, l1_data_cost_native, l1_data_cost, revenue_native, revenue
-        from {{ ref("agg_daily_arbitrum_revenue") }}
-    ),
+        select date, chain, l1_data_cost_native, l1_data_cost
+        from {{ ref("fact_arbitrum_l1_data_cost") }}
+    ),  -- supply side revenue and fees
     github_data as ({{ get_github_metrics("arbitrum") }}),
     contract_data as ({{ get_contract_metrics("arbitrum") }}),
     nft_metrics as ({{ get_nft_metrics("arbitrum") }}),
@@ -34,9 +34,11 @@ select
     fees,
     l1_data_cost_native,  -- fees paid to l1 by sequencer (L1 Fees)
     l1_data_cost,
-    revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    revenue,
+    coalesce(fees_native, 0) - l1_data_cost_native as revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    coalesce(fees, 0) - l1_data_cost as revenue,
     avg_txn_fee,
+    sybil_users,
+    non_sybil_users,
     returning_users,
     new_users,
     low_sleep_users,

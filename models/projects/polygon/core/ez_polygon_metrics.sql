@@ -36,6 +36,8 @@ select
     avg_txn_fee,
     revenue_native,
     revenue,
+    sybil_users,
+    non_sybil_users,
     returning_users,
     new_users,
     low_sleep_users,

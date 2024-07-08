@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="akash",
+        snowflake_warehouse="AKASH",
         database="akash",
         schema="core",
         alias="ez_metrics",

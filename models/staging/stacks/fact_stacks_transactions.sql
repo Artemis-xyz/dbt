@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="STACKS") }}
 
 -- 1e6 (fees should be divided by 1e6)
 with

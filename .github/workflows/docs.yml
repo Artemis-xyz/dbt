@@ -28,11 +28,8 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: "artemis-xyz.github.io"
 
-      - name: Set up dependencies
-        run: |
-          pip install pip==23.1.2
-          pip install pip-tools==6.13.0
-          pip install -r requirements.txt
+      - name: Init dbt
+        uses: ./.github/actions/init-dbt
 
       - name: Generate docs
         run: |
@@ -40,7 +37,7 @@ jobs:
           dbt docs generate --threads 16
           git diff
           mkdir generated_dbt_docs
-          mv "target/index.html" "target/manifest.json" "target/catalog.json" generated_dbt_docs
+          mv "target/index.html" "target/manifest.json" "target/catalog.json" "target/partial_parse.msgpack" generated_dbt_docs
 
       - name: Push to Github Pages repo
         uses: cpina/github-action-push-to-another-repository@v1.7.2

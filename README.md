@@ -24,7 +24,7 @@ Welcome to the Artemis DBT repository!
 
 ### What is this?
 
-This is the home of all of the data-munging business logic that ultimately powers a variety of the data in the Artemis application suite, including the [Terminal](https://app.artemis.xyz/), [Sheets](https://www.artemis.xyz/sheets), and [Snowflake](https://www.artemis.xyz/datashare) integration.
+This is the home of all of the data-munging business logic that ultimately powers a variety of the data in the Artemis application suite, including the [Terminal](https://app.artemisanalytics.com/), [Sheets](https://www.artemis.xyz/sheets), and [Snowflake](https://www.artemis.xyz/datashare) integration.
 
 ### Who is this for?
 
@@ -71,7 +71,7 @@ Fact tables are then combined into `ez_asset_metrics` tables that are piped into
 
 **BEFORE** adding metrics for a protocol, you must create the asset first.
 
-For example, let's say a user wants to add GEODNET fees to our [DePin dashboard.](https://app.artemis.xyz/sectors?tab=dePin). They must first add the [GEODNET](https://geodnet.com/) asset first by completing the following steps:
+For example, let's say a user wants to add GEODNET fees to our [DePin dashboard.](https://app.artemisanalytics.com/sectors?tab=dePin). They must first add the [GEODNET](https://geodnet.com/) asset first by completing the following steps:
 
 - [ ] Fork this repository
 - [ ] Add GEODNET to the `databases.csv` file
