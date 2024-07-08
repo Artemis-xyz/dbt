@@ -1,16 +1,36 @@
-{{
-    config(
-        materialized="table",
-        snowflake_warehouse="CHAINLINK",
-        database="chainlink",
-        schema="raw",
-        alias="fact_ethereum_ocr_reward_daily",
-    )
-}}
+{% macro chainlink_ocr_rewards_daily(chain) %}
 with
-    admin_address_meta as (
+    ocr_reward_evt_transfer as (
+        select
+            reward_evt_transfer.to_address as admin_address
+            , max(operator_name) as operator_name
+            , max(reward_evt_transfer.block_timestamp) as evt_block_time
+            , max(reward_evt_transfer.amount) as token_value
+        from {{chain}}_flipside.core.ez_token_transfers reward_evt_transfer
+        right join {{ ref('fact_chainlink_'~chain~'_ocr_reward_transmission_logs') }} ocr_reward_transmission_logs 
+            on lower(ocr_reward_transmission_logs.contract_address) = lower(reward_evt_transfer.from_address)
+        left join {{ ref('dim_chainlink_'~chain~'_ocr_operator_admin_meta') }} ocr_operator_admin_meta 
+            on lower(ocr_operator_admin_meta.admin_address) = lower(reward_evt_transfer.to_address)
+        where lower(reward_evt_transfer.from_address) in (select lower(contract_address) from {{ ref('fact_chainlink_'~chain~'_ocr_reward_transmission_logs') }})
+        group by
+            reward_evt_transfer.tx_hash
+            , reward_evt_transfer.event_index
+            , reward_evt_transfer.to_address
+    )
+    , ocr_reward_evt_transfer_daily as (
+        select
+            evt_block_time::date as date_start
+            , max(cast(date_trunc('month', evt_block_time) as date)) as date_month
+            , ocr_reward_evt_transfer.admin_address as admin_address
+            , max(ocr_reward_evt_transfer.operator_name) as operator_name
+            , sum(token_value) as token_amount
+        from ocr_reward_evt_transfer
+        left join {{ ref('dim_chainlink_'~chain~'_ocr_operator_admin_meta') }} ocr_operator_admin_meta using(admin_address)
+        group by date_start, admin_address
+    )
+    , admin_address_meta as (
         select distinct admin_address
-        from {{ref('fact_chainlink_ethereum_ocr_reward_evt_transfer_daily')}} ocr_reward_evt_transfer_daily
+        from ocr_reward_evt_transfer_daily
     )
     , link_usd_daily as ({{get_coingecko_price_with_latest("chainlink")}})
     , link_usd_daily_expanded_by_admin_address as (
@@ -32,21 +52,18 @@ with
             , (
                 select 
                     MAX(ocr_reward_evt_transfer_daily.date_start)
-                from
-                    {{ref('fact_chainlink_ethereum_ocr_reward_evt_transfer_daily')}} ocr_reward_evt_transfer_daily
+                from ocr_reward_evt_transfer_daily
                 where ocr_reward_evt_transfer_daily.date_start <= link_usd_daily_expanded_by_admin_address.date_start
                     and lower(ocr_reward_evt_transfer_daily.admin_address) = lower(link_usd_daily_expanded_by_admin_address.admin_address)
             ) as prev_payment_date
             , (
                 select
                     min(ocr_reward_evt_transfer_daily.date_start)
-                from {{ref('fact_chainlink_ethereum_ocr_reward_evt_transfer_daily')}} ocr_reward_evt_transfer_daily
+                from ocr_reward_evt_transfer_daily
                 where ocr_reward_evt_transfer_daily.date_start > link_usd_daily_expanded_by_admin_address.date_start
                     and lower(ocr_reward_evt_transfer_daily.admin_address) = lower(link_usd_daily_expanded_by_admin_address.admin_address)
             ) as next_payment_date
         from link_usd_daily_expanded_by_admin_address
-        order by
-        1, 2
     )
     , ocr_reward_daily as (
         select
@@ -57,14 +74,14 @@ with
             , COALESCE(ocr_reward_evt_transfer_daily.token_amount / DATEDIFF(day, prev_payment_date, next_payment_date), 0) as token_amount
             , (COALESCE(ocr_reward_evt_transfer_daily.token_amount / DATEDIFF(day, prev_payment_date, next_payment_date), 0) * payment_meta.usd_amount) as usd_amount
         from payment_meta
-        left join {{ref('fact_chainlink_ethereum_ocr_reward_evt_transfer_daily')}} ocr_reward_evt_transfer_daily 
+        left join ocr_reward_evt_transfer_daily 
             on payment_meta.next_payment_date = ocr_reward_evt_transfer_daily.date_start
             and lower(payment_meta.admin_address) = lower(ocr_reward_evt_transfer_daily.admin_address)
-        left join {{ ref('dim_chainlink_ethereum_ocr_operator_admin_meta') }} ocr_operator_admin_meta ON lower(ocr_operator_admin_meta.admin_address) = lower(ocr_reward_evt_transfer_daily.admin_address)
-        order by date_start
+        left join {{ ref('dim_chainlink_'~chain~'_ocr_operator_admin_meta') }} ocr_operator_admin_meta 
+            on lower(ocr_operator_admin_meta.admin_address) = lower(payment_meta.admin_address)
     )
 select
-    'ethereum' as chain
+    '{{chain}}' as chain
     , date_start
     , date_month
     , admin_address
@@ -73,3 +90,4 @@ select
     , usd_amount
 from ocr_reward_daily
 order by 2, 4
+{% endmacro %}
