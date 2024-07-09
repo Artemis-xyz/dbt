@@ -9,7 +9,14 @@ with
             lower(
                 trim(
                     replace(
-                        replace(regexp_replace(label, '[^\x00-\x7F]', ''), ' ', '_'),
+                        replace(regexp_replace(
+                            {% if chain == 'ethereum' %}
+                                label, 
+                            {% else %}
+                                project_name,
+                            {% endif %}
+                            '[^\x00-\x7F]', ''), ' ', '_'
+                        ),
                         '-',
                         '_'
                     ),

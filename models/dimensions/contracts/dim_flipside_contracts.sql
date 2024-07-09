@@ -26,7 +26,7 @@ with
 
         union
         select address, name, namespace, sub_category, category, 'optimism' as chain
-        from {{ ref("dim_flipside_optimsim_contracts") }}
+        from {{ ref("dim_flipside_optimism_contracts") }}
 
         union
         select address, name, namespace, sub_category, category, 'near' as chain
