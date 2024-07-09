@@ -13,3 +13,6 @@ SELECT
   GROUP BY
   DATE(block_timestamp)
   ORDER BY DATE(block_timestamp) DESC
+
+
+  
