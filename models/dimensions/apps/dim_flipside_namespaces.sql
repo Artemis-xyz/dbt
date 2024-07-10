@@ -10,7 +10,9 @@ with
             max(sub_category) as sub_category
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'arbitrum' and namespace is not null
-
+            and category not in ('NFT', 'Token', 'ERC_1155')
+        group by namespace
+        
         union all
         -- Avalanche Flipside Filtered Namespaces
         select
@@ -20,6 +22,7 @@ with
             max(sub_category) as sub_category
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'avalanche' and namespace is not null
+            and category not in ('NFT', 'Token', 'ERC_1155')
         group by namespace
 
         union all
@@ -31,6 +34,7 @@ with
             max(sub_category) as sub_category
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'base' and namespace is not null
+            and category not in ('NFT', 'Token', 'ERC_1155')
         group by namespace
 
         union all
@@ -42,6 +46,7 @@ with
             max(sub_category) as sub_category
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'bsc' and namespace is not null
+            and category not in ('NFT', 'Token', 'ERC_1155')
         group by namespace
 
         union all
@@ -53,6 +58,7 @@ with
             max(sub_category) as sub_category
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'ethereum' and namespace is not null
+            and category not in ('NFT', 'Token', 'ERC_1155')
         group by namespace
 
         union all
@@ -64,6 +70,7 @@ with
             max(sub_category) as sub_category
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'polygon' and namespace is not null
+            and category not in ('NFT', 'Token', 'ERC_1155')
         group by namespace
 
         union all
@@ -75,8 +82,10 @@ with
             max(sub_category) as sub_category
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'optimism' and namespace is not null
+            and category not in ('NFT', 'Token', 'ERC_1155')
         group by namespace
 
+        union all
         -- Sei Flipside Filtered Namespaces
         select
             namespace,

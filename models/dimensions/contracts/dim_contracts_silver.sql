@@ -193,6 +193,20 @@ with
                 'optimism'
             ) and category in ('NFT', 'Token', 'ERC_1155')
         union
+        -- Explicitly select the chains that have token contracts
+        select address, name, chain, category
+        from {{ ref("dim_flipside_contracts") }}
+        where
+            chain in (
+                'arbitrum',
+                'avalanche',
+                'base',
+                'bsc',
+                'ethereum',
+                'polygon',
+                'optimism'
+            ) and category in ('NFT', 'Token', 'ERC_1155')
+        union
         select address, name, chain, category
         from {{ ref("dim_flipside_contracts") }}
         where

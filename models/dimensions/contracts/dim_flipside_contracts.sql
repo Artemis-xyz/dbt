@@ -17,7 +17,7 @@ with
         from {{ ref("dim_flipside_bsc_contracts") }}
 
         union
-        select adwdress, name, namespace, sub_category, category, 'ethereum' as chain
+        select address, name, namespace, sub_category, category, 'ethereum' as chain
         from {{ ref("dim_flipside_ethereum_contracts") }}
 
         union
@@ -35,7 +35,7 @@ with
         union
         select address, name, namespace, sub_category, category, 'solana' as chain
         from {{ ref("dim_flipside_solana_contracts") }}
-        
+
         union 
         select address, name, namespace, sub_category, category, 'sei' as chain
         from {{ ref("dim_flipside_sei_contracts") }}
