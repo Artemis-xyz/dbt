@@ -6,8 +6,7 @@ with
             tx_hash,
             decoded_log:"requestId" as request_id
         from {{ chain }}_flipside.core.ez_decoded_event_logs
-        where event_name = 'RandomnessRequestFulfilled'
-            and contract_address = '0xf0d54349addcf704f77ae15b96510dea15cb7952'
+        where topics[0]::string = '0xa2e7a402243ebda4a69ceeb3dfb682943b7a9b3ac66d6eefa8db65894009611c'
     )
     , v1_random_request_logs as (
         select
@@ -17,8 +16,7 @@ with
             decoded_log:"fee"::double as fee,
             decoded_log:"requestID" as request_id
         from {{ chain }}_flipside.core.ez_decoded_event_logs
-        where event_name = 'RandomnessRequest'
-            and contract_address = '0xf0d54349addcf704f77ae15b96510dea15cb7952'
+        where topics[0]::string = '0x56bd374744a66d531874338def36c906e3a6cf31176eb1e9afd9f1de69725d51'
     )
     , v2_random_fulfilled_logs as (
         select
@@ -27,8 +25,7 @@ with
             event_index,
             decoded_log:"payment" as payment
         from {{ chain }}_flipside.core.ez_decoded_event_logs
-        where event_name = 'RandomWordsFulfilled'
-            and contract_address = '0x271682deb8c4e0901d1a1550ad2e64d568e69909'
+        where topics[0]::string = '0x7dffc5ae5ee4e2e4df1651cf6ad329a73cebdb728f37ea0187b9b17e036756e4'
     )
     , logs as (
         SELECT
