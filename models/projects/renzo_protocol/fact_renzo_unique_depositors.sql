@@ -6,7 +6,7 @@ with renzodeposits as (
     TRY_TO_NUMBER(DECODED_LOG:ezETHMinted :: string) AS ezETHMinted,
     DECODED_LOG:token :: string AS token
   from
-    ethereum.core.ez_decoded_event_logs
+    ethereum_flipside.core.ez_decoded_event_logs
   where
     topics [0] :: string in (
       '0x4e2ca0515ed1aef1395f66b5303bb5d6f1bf9d61a353fa53f73f8ac9973fa9f6',
