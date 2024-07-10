@@ -12,35 +12,14 @@ tab_space_size = 4  # Define tab space size
 [sqlfluff:rules:L003]  # Indentation should be a multiple of 4 spaces
 tab_space_size = 4
 
-[sqlfluff:rules:L010]  # Keywords should be upper case
+[sqlfluff:rules:capitalisation.keywords]
 capitalisation_policy = upper
 
-[sqlfluff:rules:L014]  # Inconsistent capitalisation of unquoted identifiers
+[sqlfluff:rules:capitalisation.identifiers]  # Inconsistent capitalisation of unquoted identifiers
 extended_capitalisation_policy = consistent
 
-[sqlfluff:rules:L018]  # Avoid using aliases in join clauses
+[sqlfluff:rules:references.consistent]  # Avoid using aliases in join clauses
 single_table_references = consistent
 
 [sqlfluff:layout:type:comma]
 line_position = leading
-
-[sqlfluff:rules:L022]  # Enforce consistent use of CTEs
-force_cte_newlines = true
-
-[sqlfluff:rules:L030]  # Ensure consistent alias naming conventions
-aliasing = consistent
-
-# Snowflake-specific rules
-[sqlfluff:rules:L050]  # Enforce use of `COPY INTO` for bulk loading
-enforce_copy_into = true
-
-[sqlfluff:rules:L060]  # Enforce use of `CREATE OR REPLACE` for table creation
-create_or_replace_policy = true
-
-# DBT-specific rules
-[sqlfluff:rules:DBT001]  # Enforce use of DBT source configurations
-enforce_source_configurations = true
-
-[sqlfluff:rules:DBT002]  # Enforce use of DBT ref functions
-enforce_ref_functions = true
-
