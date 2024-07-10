@@ -5,10 +5,16 @@ with
         select lower(address) address, chain
         from {{ ref("dim_dune_contracts_post_sigma") }}
         union
-        -- add near + sei + arbitrum + avalanche + base + bsc + ethereum + polygon + optimism contracts
+        -- add near + sei 
         select lower(address) address, chain
         from {{ ref("dim_flipside_contracts") }}
-        where chain in ('near', 'sei', 'arbitrum', 'avalanche', 'base', 'bsc', 'ethereum', 'polygon', 'optimism')
+        where chain in ('near', 'sei')
+        union
+        -- add arbitrum, avalanche, base, bsc, ethereum, polygon, optimism contracts that aren't token contracts
+        select lower(address) address, chain
+        from {{ ref("dim_flipside_contracts") }}
+        where chain in ('arbitrum', 'avalanche', 'base', 'bsc', 'ethereum', 'polygon', 'optimism')
+            and category not in ('NFT', 'Token', 'ERC_1155')
         union
         -- add solana contracts that aren't token contracts
         select lower(address) address, chain
@@ -91,36 +97,43 @@ with
             on lower(dc.address) = lower(flipside_arbitrum.address)
             and dc.chain = flipside_arbitrum.chain
             and flipside_arbitrum.chain = 'arbitrum'
+            and flipside_arbitrum.category not in ('NFT', 'Token', 'ERC_1155')
         left join
             {{ ref("dim_flipside_contracts") }} as flipside_avalanche
             on lower(dc.address) = lower(flipside_avalanche.address)
             and dc.chain = flipside_avalanche.chain
             and flipside_avalanche.chain = 'avalanche'
+            and flipside_avalanche.category not in ('NFT', 'Token', 'ERC_1155')
         left join
             {{ ref("dim_flipside_contracts") }} as flipside_base
             on lower(dc.address) = lower(flipside_base.address)
             and dc.chain = flipside_base.chain
             and flipside_base.chain = 'base'
+            and flipside_base.category not in ('NFT', 'Token', 'ERC_1155')
         left join
             {{ ref("dim_flipside_contracts") }} as flipside_bsc
             on lower(dc.address) = lower(flipside_bsc.address)
             and dc.chain = flipside_bsc.chain
             and flipside_bsc.chain = 'bsc'
+            and flipside_bsc.category not in ('NFT', 'Token', 'ERC_1155')
         left join
             {{ ref("dim_flipside_contracts") }} as flipside_ethereum
             on lower(dc.address) = lower(flipside_ethereum.address)
             and dc.chain = flipside_ethereum.chain
             and flipside_ethereum.chain = 'ethereum'
+            and flipside_ethereum.category not in ('NFT', 'Token', 'ERC_1155')
         left join
             {{ ref("dim_flipside_contracts") }} as flipside_polygon
             on lower(dc.address) = lower(flipside_polygon.address)
             and dc.chain = flipside_polygon.chain
             and flipside_polygon.chain = 'polygon'
+            and flipside_polygon.category not in ('NFT', 'Token', 'ERC_1155')
         left join
             {{ ref("dim_flipside_contracts") }} as flipside_optimism
             on lower(dc.address) = lower(flipside_optimism.address)
             and dc.chain = flipside_optimism.chain
             and flipside_optimism.chain = 'optimism'
+            and flipside_optimism.category not in ('NFT', 'Token', 'ERC_1155')
         left join
             {{ ref("dim_flipside_contracts") }} as flipside_sol
             on lower(dc.address) = lower(flipside_sol.address)
