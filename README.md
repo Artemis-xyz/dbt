@@ -56,8 +56,9 @@ There are two ways to get help:
 ## Environment Setup
 
 1. Fork this repository (button towards the top right)
-2. Write SQL model changes
-3. Open a PR and view results of your changes directly in the Github Actions - more on this in [adding a new metric](#adding-a-new-metric).
+2. Run `source syncenv` to download dependencies
+3. Write SQL model changes
+4. Open a PR and view results of your changes directly in the Github Actions - more on this in [adding a new metric](#adding-a-new-metric).
 
 ## System Design
 

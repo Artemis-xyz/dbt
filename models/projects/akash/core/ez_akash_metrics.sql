@@ -26,7 +26,9 @@ with
     ),
     validator_fees as (select * from {{ ref("fact_akash_validator_fees_silver") }}),
     total_fees as (select * from {{ ref("fact_akash_total_fees_silver") }}),
-    revenue as (select * from {{ ref("fact_akash_revenue_silver") }})
+    revenue as (select * from {{ ref("fact_akash_revenue_silver") }}),
+    burns as (select * from {{ ref("fact_akash_burns_native_silver") }}),
+    mints as (select * from {{ ref("fact_akash_mints_silver") }})
 
 select
     active_leases.date,
@@ -41,7 +43,9 @@ select
     coalesce(validator_fees_native.validator_fees_native, 0) as validator_fees_native,
     coalesce(validator_fees.validator_fees, 0) as validator_fees,
     coalesce(total_fees.total_fees, 0) as total_fees,
-    coalesce(revenue.revenue, 0) as revenue
+    coalesce(revenue.revenue, 0) as revenue,
+    coalesce(burns.total_burned_native, 0) as total_burned_native,
+    coalesce(mints.mints, 0) as mints
 from active_leases
 full join active_providers on active_leases.date = active_providers.date
 full join new_leases on active_leases.date = new_leases.date
@@ -52,5 +56,7 @@ full join validator_fees_native on active_leases.date = validator_fees_native.da
 full join validator_fees on active_leases.date = validator_fees.date
 full join total_fees on active_leases.date = total_fees.date
 full join revenue on active_leases.date = revenue.date
+full join burns on active_leases.date = burns.date
+full join mints on active_leases.date = mints.date
 where active_leases.date < to_date(sysdate())
 order by date desc

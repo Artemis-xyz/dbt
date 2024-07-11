@@ -1,0 +1,9 @@
+---
+repos:
+  - repo: local
+    hooks:
+      - id: sqlfluff-changed-files
+        name: sqlfluff-changed-files
+        entry: ./dbt_scripts/run_sqlfluff_on_changed_files.sh
+        language: script
+        files: \.sql$
