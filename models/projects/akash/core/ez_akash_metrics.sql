@@ -26,7 +26,10 @@ with
     ),
     validator_fees as (select * from {{ ref("fact_akash_validator_fees_silver") }}),
     total_fees as (select * from {{ ref("fact_akash_total_fees_silver") }}),
-    revenue as (select * from {{ ref("fact_akash_revenue_silver") }})
+    revenue as (select * from {{ ref("fact_akash_revenue_silver") }}),
+    mints as (select * from {{ref("fact_akash_mints_silver")}}),
+    burns as (select * from {{ref("fact_akash_burns_native_silver")}})
+
 
 select
     mints.date,
