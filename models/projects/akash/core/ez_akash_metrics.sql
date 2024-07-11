@@ -60,4 +60,4 @@ left join revenue on  revenue.date = mints.date
 left join burns on  burns.date = mints.date
 left join active_leases on active_leases.date =  mints.date
 where mints.date < to_date(sysdate())
-order by date desc
+order by date desc 
