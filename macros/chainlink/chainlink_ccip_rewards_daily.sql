@@ -58,6 +58,8 @@ with
     , native_price as ({{ get_coingecko_price_with_latest('avalanche-2') }})
     {% elif chain == 'bsc' %}
     , native_price as ({{ get_coingecko_price_with_latest('binancecoin') }})
+    {% elif chain == 'polygon' %}
+    , native_price as ({{ get_coingecko_price_with_latest('matic-network') }})
     {% else %}
     , native_price as ({{ get_coingecko_price_with_latest('ethereum') }})
     {% endif %}
@@ -69,6 +71,8 @@ with
             , 'AVAX' as symbol
             {% elif chain == 'bsc' %}
             , 'WBNB' as symbol
+            {% elif chain == 'polygon' %}
+            , 'WMATIC' as symbol
             {% else %}
             , 'WETH' as symbol
             {% endif %}

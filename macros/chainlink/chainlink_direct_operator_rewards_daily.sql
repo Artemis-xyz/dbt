@@ -3,8 +3,9 @@ with
 prices as ({{get_coingecko_price_with_latest("chainlink")}})
 select
     date(block_timestamp) as date
-    , sum(decoded_log:'payment'::number / 1e18) as payment_daily
-    , sum(decoded_log:'payment'::number / 1e18 * p.price) as payment_daily_usd
+    , '{{chain}}' as chain
+    , sum(decoded_log:"payment"::number / 1e18) as token_amount
+    , sum(decoded_log:"payment"::number / 1e18 * p.price) as usd_amount
 from {{ chain }}_flipside.core.ez_decoded_event_logs e
 left join prices p on p.date = date(block_timestamp)
 where topics[0]::string = '0xd8d7ecc4800d25fa53ce0372f13a416d98907a7ef3d8d3bdd79cf4fe75529c65'
