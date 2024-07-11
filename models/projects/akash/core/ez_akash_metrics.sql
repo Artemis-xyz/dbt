@@ -29,7 +29,7 @@ with
     revenue as (select * from {{ ref("fact_akash_revenue_silver") }})
 
 select
-    active_leases.date,
+    mints.date,
     'akash' as chain,
     coalesce(active_leases.active_leases, 0) as active_leases,
     coalesce(active_providers.active_providers, 0) as active_providers,
@@ -41,16 +41,20 @@ select
     coalesce(validator_fees_native.validator_fees_native, 0) as validator_fees_native,
     coalesce(validator_fees.validator_fees, 0) as validator_fees,
     coalesce(total_fees.total_fees, 0) as total_fees,
-    coalesce(revenue.revenue, 0) as revenue
-from active_leases
-full join active_providers on active_leases.date = active_providers.date
-full join new_leases on active_leases.date = new_leases.date
-full join compute_fees_native on active_leases.date = compute_fees_native.date
-full join compute_fees_usdc on active_leases.date = compute_fees_usdc.date
-full join compute_fees_total_usd on active_leases.date = compute_fees_total_usd.date
-full join validator_fees_native on active_leases.date = validator_fees_native.date
-full join validator_fees on active_leases.date = validator_fees.date
-full join total_fees on active_leases.date = total_fees.date
-full join revenue on active_leases.date = revenue.date
-where active_leases.date < to_date(sysdate())
+    coalesce(revenue.revenue, 0) as revenue,
+    coalesce(burns.total_burned_native, 0) as total_burned_native,
+    coalesce(mints.mints, 0) as mints
+from mints
+left join active_providers on active_providers.date = mints.date
+left join new_leases on  new_leases.date = mints.date
+left join compute_fees_native on  compute_fees_native.date = mints.date
+left join compute_fees_usdc on  compute_fees_usdc.date = mints.date
+left join compute_fees_total_usd on  compute_fees_total_usd.date = mints.date
+left join validator_fees_native on  validator_fees_native.date = mints.date
+left join validator_fees on  validator_fees.date = mints.date
+left join total_fees on  total_fees.date = mints.date
+left join revenue on  revenue.date = mints.date
+left join burns on  burns.date = mints.date
+left join active_leases on active_leases.date =  mints.date
+where mints.date < to_date(sysdate())
 order by date desc
