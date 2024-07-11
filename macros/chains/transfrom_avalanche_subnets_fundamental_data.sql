@@ -31,14 +31,14 @@ with
         select max(extraction_date) as max_date
         from {{ source("PROD_LANDING", "raw_" ~ chain ~ "_avg_gas_price") }}
     ),
-        avg_gas_price_data as (
+    avg_gas_price_data as (
         select
             DATEADD('day', 1, TO_TIMESTAMP(value:"timestamp")::date) as date,
             value:"value"::float as avg_gas_price
         from
             {{ source("PROD_LANDING", "raw_" ~ chain ~ "_avg_gas_price") }},
             lateral flatten(input => parse_json(source_json:"results"))
-        where extraction_date = (select max_date from gas_extraction)
+        where extraction_date = (select max_date from avg_gas_extraction)
     ),
     txns_extraction as (
         select max(extraction_date) as max_date
@@ -64,5 +64,5 @@ with
         FULL JOIN dau_data dau ON txns.date = dau.date
         FULL JOIN gas_data gas ON txns.date = gas.date
         FULL JOIN avg_gas_price_data avg ON txns.date = avg.date
-    where coalesce(txns.date, dau.date, gas.date) < to_date(sysdate())
+    where coalesce(txns.date, dau.date, gas.date, avg.date) < to_date(sysdate())
 {% endmacro %}
