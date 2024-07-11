@@ -8,3 +8,4 @@ sources:
       - name: raw_beam_gas
       - name: raw_beam_contracts
       - name: raw_beam_deployers
+      - name: raw_beam_avg_gas_price

@@ -21,9 +21,22 @@ with
     gas_data as (
         select
             DATEADD('day', 1, TO_TIMESTAMP(value:"timestamp")::date) as date,
-            value:"value"::float/POW(10, 9) as fees_native
+            value:"value"::float/POW(10, 9) as gas_used
         from
             {{ source("PROD_LANDING", "raw_" ~ chain ~ "_gas") }},
+            lateral flatten(input => parse_json(source_json:"results"))
+        where extraction_date = (select max_date from gas_extraction)
+    ),
+    avg_gas_extraction as(
+        select max(extraction_date) as max_date
+        from {{ source("PROD_LANDING", "raw_" ~ chain ~ "_avg_gas_price") }}
+    ),
+        avg_gas_price_data as (
+        select
+            DATEADD('day', 1, TO_TIMESTAMP(value:"timestamp")::date) as date,
+            value:"value"::float as avg_gas_price
+        from
+            {{ source("PROD_LANDING", "raw_" ~ chain ~ "_avg_gas_price") }},
             lateral flatten(input => parse_json(source_json:"results"))
         where extraction_date = (select max_date from gas_extraction)
     ),
@@ -41,11 +54,11 @@ with
         where extraction_date = (select max_date from txns_extraction)
     )
 
-    SELECT 
+    SELECT
         coalesce(txns.date, dau.date, gas.date) as date
         , txns
         , dau
-        , fees_native
+        , gas_used * avg_gas_price as fees_native
         , '{{ chain }}' as chain
     FROM txns_data txns
         FULL JOIN dau_data dau ON txns.date = dau.date
