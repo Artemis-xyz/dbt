@@ -63,5 +63,6 @@ with
     FROM txns_data txns
         FULL JOIN dau_data dau ON txns.date = dau.date
         FULL JOIN gas_data gas ON txns.date = gas.date
+        FULL JOIN avg_gas_price_data avg ON txns.date = avg.date
     where coalesce(txns.date, dau.date, gas.date) < to_date(sysdate())
 {% endmacro %}
