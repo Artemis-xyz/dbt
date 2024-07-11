@@ -10,3 +10,5 @@ sources:
       - name: raw_akash_compute_fees_usdc
       - name: raw_akash_compute_fees_total_usd
       - name: raw_akash_validator_fees
+      - name: raw_akash_burns_native
+      - name: raw_akash_mints_native
