@@ -71,14 +71,24 @@ with
             , cast(date_trunc('month', payment_meta.date_start) as date) as date_month
             , payment_meta.admin_address
             , ocr_operator_admin_meta.operator_name
-            , COALESCE(ocr_reward_evt_transfer_daily.token_amount / DATEDIFF(day, prev_payment_date, next_payment_date), 0) as token_amount
-            , (COALESCE(ocr_reward_evt_transfer_daily.token_amount / DATEDIFF(day, prev_payment_date, next_payment_date), 0) * payment_meta.usd_amount) as usd_amount
+            {% if chain == 'polygon' %}
+                , COALESCE((ocr_reward_evt_transfer_daily.token_amount + COALESCE(reconcile_daily.token_amount, 0)) / DATEDIFF(day, prev_payment_date, next_payment_date), 0) as token_amount
+                , (COALESCE((ocr_reward_evt_transfer_daily.token_amount + COALESCE(reconcile_daily.token_amount, 0)) / DATEDIFF(day, prev_payment_date, next_payment_date), 0) * payment_meta.usd_amount) as usd_amount
+            {% else %}
+                , COALESCE(ocr_reward_evt_transfer_daily.token_amount / DATEDIFF(day, prev_payment_date, next_payment_date), 0) as token_amount
+                , (COALESCE(ocr_reward_evt_transfer_daily.token_amount / DATEDIFF(day, prev_payment_date, next_payment_date), 0) * payment_meta.usd_amount) as usd_amount
+            {% endif %}
         from payment_meta
         left join ocr_reward_evt_transfer_daily 
             on payment_meta.next_payment_date = ocr_reward_evt_transfer_daily.date_start
             and lower(payment_meta.admin_address) = lower(ocr_reward_evt_transfer_daily.admin_address)
         left join {{ ref('dim_chainlink_'~chain~'_ocr_operator_admin_meta') }} ocr_operator_admin_meta 
             on lower(ocr_operator_admin_meta.admin_address) = lower(payment_meta.admin_address)
+        {% if chain == 'polygon' %}
+            LEFT JOIN {{ ref('fact_chainlink_polygon_ocr_reconcile_daily') }} reconcile_daily
+                ON reconcile_daily.date_start = payment_meta.date_start
+                AND reconcile_daily.admin_address = payment_meta.admin_address
+        {% endif %}
     )
 select
     '{{chain}}' as chain
@@ -89,5 +99,5 @@ select
     , token_amount
     , usd_amount
 from ocr_reward_daily
-order by 2, 4
+order by 2, 4 
 {% endmacro %}

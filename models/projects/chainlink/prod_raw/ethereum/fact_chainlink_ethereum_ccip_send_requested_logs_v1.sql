@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="CHAINLINK",
         database="chainlink",
         schema="raw",
