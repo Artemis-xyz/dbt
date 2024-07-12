@@ -6,5 +6,9 @@ from
             (
                 4,
                 '2024-06-26'
+            ),
+            (
+                5,
+                '2024-08-07'
             )
     ) as results(season, end_date)
