@@ -54,14 +54,30 @@ with
         from ccip_send_requested
         group by date_start, token, destination_chain
     )
-    , eth_price as ({{ get_coingecko_price_with_latest('ethereum') }})
+    {% if chain == 'avalanche' %}
+    , native_price as ({{ get_coingecko_price_with_latest('avalanche-2') }})
+    {% elif chain == 'bsc' %}
+    , native_price as ({{ get_coingecko_price_with_latest('binancecoin') }})
+    {% elif chain == 'polygon' %}
+    , native_price as ({{ get_coingecko_price_with_latest('matic-network') }})
+    {% else %}
+    , native_price as ({{ get_coingecko_price_with_latest('ethereum') }})
+    {% endif %}
     , link_price as ({{ get_coingecko_price_with_latest('chainlink') }})
     , token_usd_daily AS (
         select 
             date as date_start
+            {% if chain == 'avalanche' %}
+            , 'AVAX' as symbol
+            {% elif chain == 'bsc' %}
+            , 'WBNB' as symbol
+            {% elif chain == 'polygon' %}
+            , 'WMATIC' as symbol
+            {% else %}
             , 'WETH' as symbol
+            {% endif %}
             , price as usd_amount
-        from eth_price
+        from native_price
 
         union all
 
