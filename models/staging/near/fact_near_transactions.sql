@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key="tx_hash",
-        snowflake_warehouse="BAM_TRANSACTION_MD",
+        snowflake_warehouse="BAM_TRANSACTION_LG",
     )
 }}
 
@@ -30,23 +30,45 @@ with
     ),
     collapsed_prices as (
         select price_date, max(price) as price from prices group by price_date
+    ),
+    near_transactions as (
+        select 
+            tx_hash
+            , case when tx:"actions"[0]:"Delegate" is not null then tx_signer else tx_receiver end as contract_address
+            , block_timestamp
+            , date_trunc('day', block_timestamp) raw_date
+            , tx_signer as from_address
+            , case when tx:"actions"[0]:"Delegate" is not null then tx_receiver else tx_signer end as from_address_adjusted
+            , (transaction_fee / pow(10, 24)) as tx_fee
+            , ((transaction_fee / pow(10, 24)) * price) gas_usd
+            , 'near' as chain
+            , case when (tx:"actions"[0]:"Transfer":"deposit" / pow(10, 24) > .02) then 'EOA' end as category
+        from near_flipside.core.fact_transactions as t
+        left join collapsed_prices on raw_date = collapsed_prices.price_date
+        where raw_date < to_date(sysdate()) and inserted_timestamp < to_date(sysdate())
+        {% if is_incremental() %}
+            -- this filter will only be applied on an incremental run 
+            and block_timestamp
+            >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+        {% endif %}
     )
 select
     tx_hash,
     new_contracts.address as contract_address,
     block_timestamp,
-    date_trunc('day', block_timestamp) raw_date,
-    t.tx_signer as from_address,
-    (transaction_fee / pow(10, 24)) as tx_fee,
-    ((transaction_fee / pow(10, 24)) * price) gas_usd,
-    'near' as chain,
+    raw_date,
+    t.from_address,
+    from_address_adjusted,
+    tx_fee,
+    gas_usd,
+    t.chain,
     new_contracts.name,
     new_contracts.app,
     new_contracts.friendly_name,
     new_contracts.sub_category,
     case
-        when (tx:"actions"[0]:"Transfer":"deposit" / pow(10, 24) > .02)
-        then 'EOA'
+        when t.category is not null
+        then t.category
         when new_contracts.category is not null
         then new_contracts.category
         else null
@@ -55,15 +77,6 @@ select
     bots.address_life_span,
     bots.cur_total_txns,
     bots.cur_distinct_to_address_count
-from near_flipside.core.fact_transactions as t
-left join new_contracts on lower(t.tx_receiver) = lower(new_contracts.address)
-left join collapsed_prices on raw_date = collapsed_prices.price_date
-left join {{ ref("dim_near_bots") }} as bots on t.tx_signer = bots.from_address
-where
-    raw_date < to_date(sysdate())
-    and inserted_timestamp < to_date(sysdate())
-    {% if is_incremental() %}
-        -- this filter will only be applied on an incremental run 
-        and block_timestamp
-        >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
-    {% endif %}
+from near_transactions as t
+left join new_contracts on lower(t.contract_address) = lower(new_contracts.address)
+left join {{ ref("dim_near_bots") }} as bots on t.from_address = bots.from_address
