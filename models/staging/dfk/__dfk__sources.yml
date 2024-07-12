@@ -8,3 +8,4 @@ sources:
       - name: raw_dfk_gas
       - name: raw_dfk_contracts
       - name: raw_dfk_deployers
+      - name: raw_dfk_avg_gas_price
