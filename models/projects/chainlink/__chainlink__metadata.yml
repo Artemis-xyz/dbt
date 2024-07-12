@@ -1,0 +1,559 @@
+models:
+  - name: fact_chainlink_ethereum_staking_rewards
+    config:
+      meta:
+        dagster:
+          group: chainlink
+
+  - name: fact_chainlink_tvl_native_usd
+models:
+  - name: ez_chainlink_metrics_by_chain
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: ez_chainlink_metrics_by_token
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: ez_chainlink_metrics
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_ethereum_staking_rewards
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_optimism_direct_rewards_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_optimism_vrf_rewards_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_optimism_ccip_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_optimism_ccip_onramp_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_optimism_ocr_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_optimism_ocr_operator_admin_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_optimism_ccip_send_requested_logs_v1
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_optimism_ocr_reward_transmission_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_optimism_ccip_token_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_optimism_fm_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_optimism_ccip_send_requested_logs_v1_2
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_optimism_vrf_request_fulfilled_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_optimism_price_feeds_oracle_addresses
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_fdv_and_turnover
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_arbitrum_ccip_onramp_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_arbitrum_ocr_reward_transmission_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_arbitrum_ocr_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_arbitrum_ccip_send_requested_logs_v1
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_arbitrum_vrf_rewards_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_arbitrum_ccip_send_requested_logs_v1_2
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_arbitrum_ccip_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_arbitrum_ocr_operator_admin_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_arbitrum_price_feeds_oracle_addresses
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_arbitrum_fm_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_arbitrum_ccip_token_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_arbitrum_direct_rewards_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_arbitrum_vrf_request_fulfilled_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_polygon_ocr_operator_admin_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_polygon_automation_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_polygon_direct_rewards_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_polygon_ocr_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_polygon_ocr_reconcile_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_polygon_ccip_send_requested_logs_v1_2
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_polygon_fm_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_polygon_vrf_rewards_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_polygon_ccip_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_polygon_automation_upkeep_performed_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_polygon_ocr_reward_transmission_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_polygon_price_feeds_oracle_addresses
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_polygon_automation_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_polygon_vrf_request_fulfilled_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_polygon_ccip_onramp_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_polygon_ccip_token_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_polygon_ccip_send_requested_logs_v1
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_tokenholder_count
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_bsc_vrf_rewards_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_bsc_ccip_onramp_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_bsc_ccip_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_bsc_ccip_send_requested_logs_v1
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_bsc_automation_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_bsc_fm_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_bsc_direct_rewards_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_bsc_ccip_send_requested_logs_v1_2
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_bsc_ocr_operator_admin_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_bsc_automation_upkeep_performed_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_bsc_automation_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_bsc_ocr_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_bsc_vrf_request_fulfilled_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_bsc_ccip_token_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_bsc_ocr_reward_transmission_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_bsc_price_feeds_oracle_addresses
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_treasury_native_usd
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_avalanche_ocr_reward_transmission_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_avalanche_direct_rewards_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_avalanche_automation_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_avalanche_price_feeds_oracle_addresses
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_avalanche_ccip_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_avalanche_ccip_token_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_avalanche_ccip_send_requested_logs_v1_2
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_avalanche_vrf_rewards_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_avalanche_ccip_onramp_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_avalanche_automation_upkeep_performed_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_avalanche_vrf_request_fulfilled_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_avalanche_automation_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_avalanche_fm_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_avalanche_ccip_send_requested_logs_v1
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_avalanche_ocr_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_avalanche_ocr_operator_admin_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_tvl_native_usd
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_base_ccip_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_base_ccip_send_requested_logs_v1
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_base_ccip_send_requested_logs_v1_2
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_base_ccip_onramp_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_base_ccip_token_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_ethereum_ccip_onramp_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_ethereum_automation_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_ethereum_automation_upkeep_performed_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_ethereum_price_feeds_oracle_addresses
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_ethereum_ocr_operator_admin_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_ethereum_vrf_request_fulfilled_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_ethereum_ccip_send_requested_logs_v1
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_ethereum_fm_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_ethereum_ccip_token_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_ethereum_ocr_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_ethereum_ccip_send_requested_logs_v1_2
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_ethereum_ocr_reward_transmission_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_ethereum_direct_rewards_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_ethereum_vrf_rewards_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_ethereum_automation_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_ethereum_ccip_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_gnosis_fm_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_gnosis_ocr_operator_admin_meta
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_gnosis_ocr_reward_transmission_logs
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_gnosis_ocr_reward_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: fact_chainlink_gnosis_direct_rewards_daily
+    config:
+      meta:
+        dagster:
+          group: chainlink
+  - name: dim_chainlink_gnosis_price_feeds_oracle_addresses
+    config:
+      meta:
+        dagster:
+          group: chainlink
