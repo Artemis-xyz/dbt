@@ -99,5 +99,5 @@ select
     , token_amount
     , usd_amount
 from ocr_reward_daily
-order by 2, 4
+order by 2, 4 
 {% endmacro %}
