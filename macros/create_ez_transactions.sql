@@ -20,6 +20,8 @@
         {% if (chain not in ("tron", "starknet")) %} user_type
         {% else %} null as user_type
         {% endif %}
+        {% if (chain in ('near')) %} , from_address_adjusted
+        {% endif %}
         {% if (chain not in ("near", "starknet")) %}
             , balance_usd, native_token_balance, stablecoin_balance
         {% else %}
