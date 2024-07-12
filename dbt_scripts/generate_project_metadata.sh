@@ -16,5 +16,5 @@ find "$directory" -type f -name "*.sql" -exec basename {} \; | while read -r fil
     echo "    config:" >> "$output_file"
     echo "      meta:" >> "$output_file"
     echo "        dagster:" >> "$output_file"
-    echo "          group: chainlink" >> "$output_file"
+    echo "          group: $project" >> "$output_file"
 done
