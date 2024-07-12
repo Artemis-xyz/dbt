@@ -6,4 +6,4 @@
     )
 }}
 
-{{ fact_daily_sleep("arbitrum") }} 
+{{ fact_daily_sleep("arbitrum") }}
