@@ -1,6 +1,7 @@
 -- depends_on: {{ ref('fact_ethereum_stablecoin_contracts') }}
+-- depends_on: {{ ref('fact_ethereum_stablecoin_premint_addresses') }}
 {{ config(
-    materialized="incremental", 
+        materialized="incremental", 
         snowflake_warehouse="STABLECOIN_LG_2", 
         unique_key=["tx_hash", "index"],
     ) 
