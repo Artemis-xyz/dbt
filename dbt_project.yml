@@ -79,6 +79,10 @@ models:
         +snowflake_warehouse: "COSMOSHUB"
       curve:
         +snowflake_warehouse: "CURVE"
+      dexalot:
+        +snowflake_warehouse: "DEXALOT"
+      dfk:
+        +snowflake_warehouse: "DFK"
       ethereum:
         +snowflake_warehouse: "ETHEREUM"
       fantom:
