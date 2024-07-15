@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="LINEA") }}
+{{ config(materialized="table") }}
 with
     raw_transactions_with_columns as (
         select

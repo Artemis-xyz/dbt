@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="FLOW") }}
+{{ config(materialized="table") }}
 
 with
     flow_fees as (

@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="AAVE") }}
+{{ config(materialized="table") }}
 with
     aave_chain_data as (
         select date, chain, 'aave' as app, category, daily_borrows_usd, daily_supply_usd

@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="QUICKSWAP") }}
+{{ config(materialized="table") }}
 
 {{
     fact_daily_uniswap_v2_fork_tvl_by_pool(

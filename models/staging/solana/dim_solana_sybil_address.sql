@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="SOLANA") }}
+{{ config(materialized="table") }}
 with
     globalaverage as (
         select

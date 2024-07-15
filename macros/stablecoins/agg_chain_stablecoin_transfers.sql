@@ -15,8 +15,16 @@
             from_address,
             to_address,
             -- NULL address on TRON is different
-            from_address = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' as is_mint,
-            to_address = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' as is_burn,
+            from_address = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' 
+                or lower(from_address) in (
+                    select distinct (lower(premint_address))
+                    from {{ ref("fact_tron_stablecoin_premint_addresses") }}
+            ) as is_mint,
+            to_address = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' 
+                or lower(to_address) in (
+                    select distinct (lower(premint_address))
+                    from {{ ref("fact_tron_stablecoin_premint_addresses") }}
+            ) as is_burn,
             coalesce(amount, 0) as amount,
             case
                 when is_mint then amount when is_burn then -1 * amount else 0
@@ -210,9 +218,23 @@
             ) as from_address,
             coalesce(decoded_log:to, decoded_log:dst) as to_address,
             from_address = '0x0000000000000000000000000000000000000000'
-            or event_name = 'Issue' as is_mint,
+                or event_name = 'Issue' 
+                {% if chain in ("ethereum") %}
+                or lower(from_address) in (
+                    select distinct (lower(premint_address))
+                    from {{ ref("fact_ethereum_stablecoin_premint_addresses") }}
+                )
+                {% endif %}
+            as is_mint,
             to_address = '0x0000000000000000000000000000000000000000'
-            or event_name = 'Redeem' as is_burn,
+                or event_name = 'Redeem' 
+                {% if chain in ("ethereum") %}
+                or lower(to_address) in (
+                    select distinct (lower(premint_address))
+                    from {{ ref("fact_ethereum_stablecoin_premint_addresses") }}
+                )
+                {% endif %}
+            as is_burn,
             coalesce(
                 decoded_log:value::float / pow(10, num_decimals),
                 decoded_log:wad::float / pow(10, num_decimals),
