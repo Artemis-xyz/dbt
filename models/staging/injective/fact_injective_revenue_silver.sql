@@ -1,5 +1,3 @@
-{{config(snowflake_warehouse="INJECTIVE")}}
-
 select r.date, r.revenue_native * p.price as revenue, 'injective' as chain
 from {{ ref("fact_injective_revenue_native_silver")}} r
 left join

@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="ZKSYNC") }}
+{{ config(materialized="table") }}
 with
     gas as (
         select date, gas, gas_usd, 'zksync' as chain

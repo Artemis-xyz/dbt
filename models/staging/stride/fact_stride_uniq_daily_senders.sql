@@ -1,7 +1,6 @@
 {{
     config(
         materialized="view",
-        snowflake_warehouse="STRIDE",
     )
 }}
 

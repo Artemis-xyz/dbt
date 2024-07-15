@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="LINEA") }}
+{{ config(materialized="table") }}
 select
     to_timestamp(block_timestamp)::date as date,
     coalesce(count(*), 0) as txns,
