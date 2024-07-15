@@ -9,6 +9,11 @@ sources:
       - name: raw_injective_fees_native_all
       - name: raw_injective_revenue
       - name: raw_injective_mints
+      - name: ez_injective_metrics
+      - name: ez_injective_metrics_by_application
+      - name: ez_injective_metrics_by_category
+      - name: ez_injective_metrics_by_contract
+      - name: injective_bridge_flows
   - name: PROD
     schema: PROD
     database: PC_DBT_DB
