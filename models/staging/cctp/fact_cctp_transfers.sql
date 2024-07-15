@@ -1,6 +1,5 @@
 {{ config(
     materialized="incremental",
-    snowflake_warehouse="CCTP",
 )}}
 with
 tranfers as (

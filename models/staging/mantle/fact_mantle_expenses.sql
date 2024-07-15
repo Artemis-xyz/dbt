@@ -1,5 +1,5 @@
 -- depends_on: {{ source("PROD_LANDING", "raw_mantle_expenses") }}
-{{ config(materialized="view", snowflake_warehouse="MANTLE") }}
+{{ config(materialized="view") }}
 select
     date,
     case

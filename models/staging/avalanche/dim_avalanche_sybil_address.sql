@@ -1,3 +1,3 @@
-{{ config(materialized="table", snowflake_warehouse="AVALANCHE") }}
+{{ config(materialized="table") }}
 
 {{ detect_sybil("avalanche") }}

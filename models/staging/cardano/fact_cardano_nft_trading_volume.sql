@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="CARDANO") }}
+{{ config(materialized="table") }}
 
 with
     max_extraction as (

@@ -1,4 +1,4 @@
-{{ config(materialized="incremental", unique_key="date", snowflake_warehouse="sei") }}
+{{ config(materialized="incremental", unique_key="date") }}
 
 select 
     date(a.block_timestamp) as date, 

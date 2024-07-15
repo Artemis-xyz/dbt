@@ -1,4 +1,3 @@
-{{ config(snowflake_warehouse="CELESTIA") }}
 with fees as (
     SELECT
         date,

@@ -1,4 +1,4 @@
-{{ config(snowflake_warehouse="COINBASE", materialized="table") }}
+{{ config(materialized="table") }}
 with cb_eth_market_cap as (
     select date, shifted_token_market_cap from PC_DBT_DB.PROD.fact_coingecko_token_date_adjusted
     where coingecko_id = 'coinbase-wrapped-staked-eth' and shifted_token_market_cap <> 0
