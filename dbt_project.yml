@@ -162,7 +162,7 @@ models:
       # TODO: also should be UNISWAP
       uniswap:
         +snowflake_warehouse: "UNISWAP_SM"
-      uwulend:
+      uwu_lend:
         +snowflake_warehouse: "UWULEND"
       venus:
         +snowflake_warehouse: "VENUS"
