@@ -1,7 +1,6 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="AVALANCHE",
     )
 }}
 with
