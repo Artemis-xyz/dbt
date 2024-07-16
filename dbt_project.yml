@@ -57,6 +57,8 @@ models:
         +snowflake_warehouse: "AXELAR"
       base:
         +snowflake_warehouse: "BASE"
+      beam:
+        +snowflake_warehouse: "BEAM"
       benqi:
         +snowflake_warehouse: "BENQI_FINANCE"
       bitcoin:
@@ -134,7 +136,7 @@ models:
       scroll:
         +snowflake_warehouse: "SCROLL"
       seamless:
-        +snowflake_warehouse: "SEAMLESS_PROTOCOL"
+        +snowflake_warehouse: "SEAMLESSPROTOCOL"
       sei:
         +snowflake_warehouse: "SEI"
       solana:
@@ -159,7 +161,6 @@ models:
         +snowflake_warehouse: "TRADER_JOE"
       tron:
         +snowflake_warehouse: "TRON"
-      # TODO: also should be UNISWAP
       uniswap:
         +snowflake_warehouse: "UNISWAP_SM"
       uwu_lend:
