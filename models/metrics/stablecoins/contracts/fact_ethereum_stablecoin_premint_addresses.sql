@@ -40,5 +40,10 @@ from
             (
                 '0xdAC17F958D2ee523a2206206994597C13D831ec7',
                 '0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503'
+            ),
+            -- Un-released Supply 
+            (
+                '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+                '0x5754284f345afc66a98fbb0a0afe71e0f007b949'
             )
     ) as results(contract_address, premint_address)
