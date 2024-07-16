@@ -9,25 +9,27 @@
 }}
 
 with
-    dau as (select * from {{ ref("fact_injective_dau_silver") }}),
+    -- Alternative fundamental source from BigQuery, preferred when possible over Snowflake data
+    fundamental_data as (select * EXCLUDE date, TO_DATE(TO_TIMESTAMP_NTZ(date)) AS date from {{ source('PROD_LANDING', 'ez_injective_metrics') }}),
     daily_txns as (select * from {{ ref("fact_injective_daily_txns_silver") }}),
-    fees_native as (select * from {{ ref("fact_injective_fees_native_silver") }}),
-    fees_usd as (select * from {{ ref("fact_injective_fees_usd_silver") }}),
     revenue as (select * from {{ ref("fact_injective_revenue_silver") }}),
     mints as (select * from {{ ref("fact_injective_mints_silver") }})
-
 select
-    dau.date,
+    fundamental_data.date,
     'injective' as chain,
-    dau.dau,
-    daily_txns.txns,
-    fees_usd.fees,
-    fees_native.fees_native,
+    fundamental_data.dau,
+    fundamental_data.txns,
+    fundamental_data.fees,
+    fundamental_data.fees_native,
+    fundamental_data.avg_txn_fee,
+    fundamental_data.returning_users,
+    fundamental_data.new_users,
     coalesce(revenue.revenue, 0) as revenue,
-    mints.mints
-from dau
-left join daily_txns on dau.date = daily_txns.date
-left join fees_usd on dau.date = fees_usd.date
-left join fees_native on dau.date = fees_native.date
-left join revenue on dau.date = revenue.date
-left join mints on dau.date = mints.date
+    mints.mints,
+    null as low_sleep_users,
+    null as high_sleep_users,
+    null as sybil_users,
+    null as non_sybil_users
+from fundamental_data
+left join revenue on fundamental_data.date = revenue.date
+left join mints on fundamental_data.date = mints.date
