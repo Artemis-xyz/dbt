@@ -7,9 +7,8 @@
 
     {% set backfill_date = '' %}
 with
-    stablecoin_senders as (select from_address from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers")}})
-    , stablecoin_balances as (
-         select 
+    stablecoin_balances as (
+        select 
             block_timestamp
             , lower(t1.contract_address) as contract_address
             , symbol
@@ -22,11 +21,14 @@ with
         from {{ ref("fact_" ~ chain ~ "_address_balances_by_token")}} t1
         inner join {{ ref("fact_" ~ chain ~ "_stablecoin_contracts")}} t2
             on lower(t1.contract_address) = lower(t2.contract_address)
-        where lower(address) in (select lower(from_address) from stablecoin_senders) and block_timestamp < to_date(sysdate())
+        where block_timestamp < to_date(sysdate())
+            {% if chain == 'tron' %}
+                and lower(address) != lower('t9yd14nj9j7xab4dbgeix9h8unkkhxuwwb') --Tron Burn Address
+                and stablecoin_supply > 0
+            {% endif %}
             {% if backfill_date != '' %}
                 and block_timestamp < '{{ backfill_date }}'
             {% endif %}
-            and block_timestamp < to_date(sysdate())
         {% if is_incremental() %}
                 and block_timestamp >= (select dateadd('day', -1, max(date)) from {{ this }})
         {% endif %}
@@ -124,9 +126,16 @@ with
             )  as stablecoin_supply
         from date_range
         left join balances using (date, contract_address, symbol, address)
-        where address not in (select distinct (premint_address) from {{ ref("fact_solana_stablecoin_premint_addresses")}}) 
+        {% if chain in ('solana', 'ethereum', 'tron') %}
+            where address not in (select distinct (premint_address) from {{ ref("fact_"~chain~"_stablecoin_premint_addresses")}})
+        {% endif %}
         {% if is_incremental() %}
-            and date > (select max(date) from {{ this }})
+            {% if chain in ('solana', 'ethereum', 'tron') %}
+                and
+            {% else %}
+                where
+            {% endif %}
+                date > (select max(date) from {{ this }})
         {% endif %}
     )
     , daily_flows as (
@@ -187,7 +196,12 @@ with
         , address
         , contract_address
         , symbol
-        , stablecoin_supply
+        {% if chain == 'tron' %}
+            , round(stablecoin_supply, 4) as stablecoin_supply
+        {% else %}
+            , stablecoin_supply
+        {% endif %}
+        
     from historical_supply_by_address_balances
     union
     -- this is a hacky way to fix the issue with the balances table and get the total supply for that day
@@ -196,7 +210,12 @@ with
         , '0x00000000000000000000000000000DEADARTEMIS' as address
         , contract_address
         , symbol
-        , historical_supply_by_inflow_outflow.stablecoin_supply - total_historical_supply_by_address_balances.stablecoin_supply as stablecoin_supply
+        {% if chain == 'tron' %}
+            , round(round(historical_supply_by_inflow_outflow.stablecoin_supply, 4) - round(total_historical_supply_by_address_balances.stablecoin_supply, 4), 0) as stablecoin_supply
+        {% else %}
+            , historical_supply_by_inflow_outflow.stablecoin_supply - total_historical_supply_by_address_balances.stablecoin_supply as stablecoin_supply
+        {% endif %}
+        
     from total_historical_supply_by_address_balances
     left join historical_supply_by_inflow_outflow using (date, contract_address, symbol)
     
