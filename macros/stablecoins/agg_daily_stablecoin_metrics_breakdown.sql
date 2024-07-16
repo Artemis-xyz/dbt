@@ -1,4 +1,4 @@
-{% macro agg_daily_stablecoin_metrics_breakdown(chain, label_source='ARTEMIS') %}
+{% macro agg_daily_stablecoin_metrics_breakdown(chain) %}
 with 
     transfer_transactions as (
         select 
@@ -38,41 +38,23 @@ with
     filtered_contracts as (
         select * from {{ ref("dim_contracts_gold")}} where chain = '{{ chain }}'
     ),
-    artemis_contract_filters as (
-        {% if label_source == 'ARTEMIS' %}
-            select
-                address
-                , name
-                , app
-                , category
-            from {{ ref("dim_contracts_gold")}}
-            where chain = '{{ chain }}'
-        {% elif label_source == 'FLIPSIDE' %}
-            select 
-                address 
-                , address_name as name
-                , label as app
-                , label_type as category
-            from ethereum_flipside.core.dim_labels
-        {% endif %}
-    ),
     artemis_mev_filtered as (
         select
             st.*
             , coalesce(dl.app,'other') as from_app
             , coalesce(dlt.app,'other') as to_app
-            , coalesce(dl.category,'other') as from_category
-            , coalesce(dlt.category,'other') as to_category
+            , coalesce(dl.sub_category,'other') as from_category
+            , coalesce(dlt.sub_category,'other') as to_category
         from transfer_transactions st
-        left join artemis_contract_filters dl on st.from_address = dl.address
-        left join artemis_contract_filters dlt on st.to_address = dlt.address
+        left join filtered_contracts dl on lower(st.from_address) = lower(dl.address)
+        left join filtered_contracts dlt on lower(st.to_address) = lower(dlt.address)
         where lower(from_app) != 'mev' or lower(to_app) != 'mev'
     ),
     artemis_cex_filters as (
         select distinct tx_hash
         from artemis_mev_filtered
         where from_app = to_app
-            and lower(from_category) = 'cex' 
+            and lower(from_category) in ('exchange', 'market maker') 
     ),
     artemis_ranked_transfer_filter as (
         select 
@@ -148,7 +130,11 @@ with
             , filtered_contracts.friendly_name as application
             , dim_apps_gold.icon as icon
             , filtered_contracts.app as app
-            , filtered_contracts.category as category
+            , case 
+                when filtered_contracts.sub_category = 'Market Maker' then filtered_contracts.sub_category
+                when filtered_contracts.sub_category = 'Exchange' then filtered_contracts.sub_category
+                else filtered_contracts.category 
+            end as category
             
             , coalesce(stablecoin_transfer_volume, 0) as stablecoin_transfer_volume
             , coalesce(stablecoin_daily_txns, 0) as stablecoin_daily_txns
@@ -186,6 +172,7 @@ with
             on lower(balances.address) = lower(filtered_contracts.address)
         left join pc_dbt_db.prod.dim_apps_gold dim_apps_gold 
             on filtered_contracts.app = dim_apps_gold.namespace
+        -- Remove rows that do not add to any metrics
         where balances.stablecoin_supply != 0 or transfer_transactions_agg.from_address is not null
         {% if is_incremental() %} 
             and balances.date >= (select dateadd('day', -3, max(date)) from {{ this }})
