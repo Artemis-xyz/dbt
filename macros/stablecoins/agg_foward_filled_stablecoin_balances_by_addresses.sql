@@ -126,7 +126,8 @@ with
             )  as stablecoin_supply
         from date_range
         left join balances using (date, contract_address, symbol, address)
-        {% if chain in ('solana', 'ethereum', 'tron') %}
+        --TODO CHANGE THIS
+        {% if chain in ('solana') %}
             where address not in (select distinct (premint_address) from {{ ref("fact_"~chain~"_stablecoin_premint_addresses")}})
         {% endif %}
         {% if is_incremental() %}
