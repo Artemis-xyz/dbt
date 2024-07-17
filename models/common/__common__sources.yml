@@ -5,3 +5,4 @@ sources:
     tables:
       - name: fact_coingecko_token_date_adjusted_gold
       - name: agg_daily_stablecoin_metrics
+      - name: fact_coingecko_token_realtime_data
