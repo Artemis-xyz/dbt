@@ -7,11 +7,11 @@
 
 
 SELECT
-    DATE(BLOCK_TIMESTAMP) AS date,
-    SUM(AMOUNT_USD) AS fees,
-    0.5 * SUM(AMOUNT_USD) AS revenue,
-    'renzo_protocol' as app,
-    'DeFi' as category,
+    DATE(BLOCK_TIMESTAMP) AS DATE
+    ,SUM(AMOUNT_USD) AS FEES
+    ,0.5 * SUM(AMOUNT_USD) AS REVENUE
+    ,'renzo_protocol' AS APP
+    ,'DeFi' AS CATEGORY
   FROM ethereum_flipside.core.ez_native_transfers
   WHERE
   lower(FROM_ADDRESS) = lower('0xf2F305D14DCD8aaef887E0428B3c9534795D0d60') and 
