@@ -13,6 +13,12 @@ with
             dbt_utils.union_relations(
                 relations=[
                     ref("fact_chainlink_ethereum_ocr_reward_daily")
+                    , ref("fact_chainlink_arbitrum_ocr_reward_daily")
+                    , ref("fact_chainlink_avalanche_ocr_reward_daily")
+                    , ref("fact_chainlink_bsc_ocr_reward_daily")
+                    , ref("fact_chainlink_gnosis_ocr_reward_daily")
+                    , ref("fact_chainlink_optimism_ocr_reward_daily")
+                    , ref("fact_chainlink_polygon_ocr_reward_daily")
                 ]
             )
         }}
@@ -30,6 +36,12 @@ with
             dbt_utils.union_relations(
                 relations=[
                     ref("fact_chainlink_ethereum_fm_reward_daily")
+                    , ref("fact_chainlink_arbitrum_fm_reward_daily")
+                    , ref("fact_chainlink_avalanche_fm_reward_daily")
+                    , ref("fact_chainlink_bsc_fm_reward_daily")
+                    , ref("fact_chainlink_gnosis_fm_reward_daily")
+                    , ref("fact_chainlink_optimism_fm_reward_daily")
+                    , ref("fact_chainlink_polygon_fm_reward_daily")
                 ]
             )
         }}
@@ -46,6 +58,9 @@ with
             dbt_utils.union_relations(
                 relations=[
                     ref("fact_chainlink_ethereum_automation_reward_daily")
+                    , ref("fact_chainlink_avalanche_automation_reward_daily")
+                    , ref("fact_chainlink_bsc_automation_reward_daily")
+                    , ref("fact_chainlink_polygon_automation_reward_daily")
                 ]
             )
         }}
@@ -63,6 +78,12 @@ with
             dbt_utils.union_relations(
                 relations=[
                     ref("fact_chainlink_ethereum_ccip_reward_daily")
+                    , ref("fact_chainlink_arbitrum_ccip_reward_daily")
+                    , ref("fact_chainlink_avalanche_ccip_reward_daily")
+                    , ref("fact_chainlink_base_ccip_reward_daily")
+                    , ref("fact_chainlink_bsc_ccip_reward_daily")
+                    , ref("fact_chainlink_optimism_ccip_reward_daily")
+                    , ref("fact_chainlink_polygon_ccip_reward_daily")
                 ]
             )
         }}
@@ -80,6 +101,12 @@ with
             dbt_utils.union_relations(
                 relations=[
                     ref("fact_chainlink_ethereum_vrf_rewards_daily")
+                    , ref("fact_chainlink_arbitrum_vrf_rewards_daily")
+                    , ref("fact_chainlink_avalanche_vrf_rewards_daily")
+                    , ref("fact_chainlink_bsc_vrf_rewards_daily")
+                    , ref("fact_chainlink_optimism_vrf_rewards_daily")
+                    , ref("fact_chainlink_polygon_vrf_rewards_daily")
+
                 ]
             )
         }}
@@ -89,6 +116,28 @@ with
             date
             , sum(usd_amount) as vrf_fees
         from vrf_models
+        group by 1
+    )
+    , direct_models as (
+        {{
+            dbt_utils.union_relations(
+                relations=[
+                    ref("fact_chainlink_ethereum_direct_rewards_daily")
+                    , ref("fact_chainlink_arbitrum_direct_rewards_daily")
+                    , ref("fact_chainlink_avalanche_direct_rewards_daily")
+                    , ref("fact_chainlink_bsc_direct_rewards_daily")
+                    , ref("fact_chainlink_gnosis_direct_rewards_daily")
+                    , ref("fact_chainlink_optimism_direct_rewards_daily")
+                    , ref("fact_chainlink_polygon_direct_rewards_daily")
+                ]
+            )
+        }}
+    )
+    , direct_fees_data as (
+        select
+            date
+            , sum(usd_amount) as direct_fees
+        from direct_models
         group by 1
     )
     , staking_incentive_models as (
@@ -140,12 +189,13 @@ with
 
 select
     date
-    , automation_fees
-    , ccip_fees
-    , vrf_fees
-    , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) as fees
-    , ocr_fees
-    , fm_fees
+    , coalesce(automation_fees, 0) as automation_fees
+    , coalesce(ccip_fees, 0) as ccip_fees
+    , coalesce(vrf_fees, 0) as vrf_fees
+    , coalesce(direct_fees, 0) as direct_fees
+    , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
+    , coalesce(ocr_fees, 0) as ocr_fees
+    , coalesce(fm_fees, 0) as fm_fees
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue
     , fees as secondary_supply_side_revenue
     , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
@@ -166,14 +216,15 @@ select
     , token_volume
     , tokenholder_count
 from fm_fees_data
-left join orc_fees_data using(date)
-left join automation_fees_data using(date)
-left join ccip_fees_data using(date)
-left join vrf_fees_data using(date)
-left join staking_incentives_data using(date)
-left join treasury_data using(date)
-left join tvl_metrics using(date)
-left join token_turnover_metrics using(date)
-left join price_data using(date)
-left join token_holder_data using(date)
+left join orc_fees_data using (date)
+left join automation_fees_data using (date)
+left join ccip_fees_data using (date)
+left join vrf_fees_data using (date)
+left join direct_fees_data using (date)
+left join staking_incentives_data using (date)
+left join treasury_data using (date)
+left join tvl_metrics using (date)
+left join token_turnover_metrics using (date)
+left join price_data using (date)
+left join token_holder_data using (date)
 where date < to_date(sysdate())

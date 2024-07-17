@@ -1,3 +1,3 @@
-{{ config(materialized="view", snowflake_warehouse="FLOW") }}
+{{ config(materialized="view") }}
 
 {{ nft_trading_volume("flow") }}

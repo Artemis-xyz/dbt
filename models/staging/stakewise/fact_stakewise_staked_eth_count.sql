@@ -1,4 +1,4 @@
-{{ config(snowflake_warehouse="STAKEWISE", materialized="table") }}
+{{ config(materialized="table") }}
 with
     seth2_max_extraction as (
         select max(extraction_date) as max_date

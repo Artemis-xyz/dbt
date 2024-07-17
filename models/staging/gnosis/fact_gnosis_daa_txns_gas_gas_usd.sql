@@ -1,4 +1,4 @@
-{{ config(materialized="view", snowflake_warehouse="GNOSIS") }}
+{{ config(materialized="view") }}
 with
     min_date as (
         select dateadd(day, -5, min(to_timestamp(block_timestamp))::date) date

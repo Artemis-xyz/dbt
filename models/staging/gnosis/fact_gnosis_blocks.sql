@@ -1,4 +1,4 @@
-{{ config(materialized="incremental", unique_key="block_number", snowflake_warehouse="GNOSIS") }}
+{{ config(materialized="incremental", unique_key="block_number") }}
 select
     block_number,
     block_timestamp,

@@ -17,9 +17,17 @@
             -- NULL address on TRON is different
             from_address = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' as is_mint,
             to_address = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' as is_burn,
+            lower(to_address) in (
+                select distinct (lower(premint_address))
+                from {{ ref("fact_tron_stablecoin_bridge_addresses") }}
+            ) as is_bridge_burn,
+            lower(from_address) in (
+                select distinct (lower(premint_address))
+                from {{ ref("fact_tron_stablecoin_bridge_addresses") }}
+            ) as is_bridge_mint,
             coalesce(amount, 0) as amount,
             case
-                when is_mint then amount when is_burn then -1 * amount else 0
+                when is_mint or is_bridge_mint then amount when is_burn or is_bridge_burn then -1 * amount else 0
             end as inflow,
             case
                 when not is_mint and not is_burn then amount else 0
@@ -210,9 +218,33 @@
             ) as from_address,
             coalesce(decoded_log:to, decoded_log:dst) as to_address,
             from_address = '0x0000000000000000000000000000000000000000'
-            or event_name = 'Issue' as is_mint,
+                or event_name = 'Issue' 
+                {% if chain in ("ethereum") %}
+                or lower(from_address) in (
+                    select distinct (lower(premint_address))
+                    from {{ ref("fact_ethereum_stablecoin_premint_addresses") }}
+                )
+                {% endif %}
+            as is_mint,
             to_address = '0x0000000000000000000000000000000000000000'
-            or event_name = 'Redeem' as is_burn,
+                or event_name = 'Redeem' 
+                {% if chain in ("ethereum") %}
+                or lower(to_address) in (
+                    select distinct (lower(premint_address))
+                    from {{ ref("fact_ethereum_stablecoin_premint_addresses") }}
+                )
+                {% endif %}
+            as is_burn,
+            {% if chain in ("ethereum") %}
+                lower(from_address) in (
+                    select distinct (lower(premint_address))
+                    from {{ ref("fact_ethereum_stablecoin_bridge_addresses") }}
+                ) as is_bridge_mint,
+                lower(to_address) in (
+                    select distinct (lower(premint_address))
+                    from {{ ref("fact_ethereum_stablecoin_bridge_addresses") }}
+                ) as is_bridge_burn,
+            {% endif %}
             coalesce(
                 decoded_log:value::float / pow(10, num_decimals),
                 decoded_log:wad::float / pow(10, num_decimals),
@@ -221,7 +253,11 @@
                 0
             ) as amount,
             case
-                when is_mint then amount when is_burn then -1 * amount else 0
+                {% if chain in ("ethereum") %}
+                    when is_mint or is_bridge_mint then amount when is_burn or is_bridge_burn then -1 * amount else 0
+                {% else %}
+                    when is_mint then amount when is_burn then -1 * amount else 0
+                {% endif %}
             end as inflow,
             case
                 when not is_mint and not is_burn then amount else 0

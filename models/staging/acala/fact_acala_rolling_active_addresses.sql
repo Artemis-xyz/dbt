@@ -3,7 +3,6 @@
     config(
         materialized="incremental",
         unique_key=["date"],
-        snowflake_warehouse="ACALA",
     )
 }}
 

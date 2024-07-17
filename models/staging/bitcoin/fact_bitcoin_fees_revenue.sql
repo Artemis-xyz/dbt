@@ -1,5 +1,3 @@
-{{ config(snowflake_warehouse="BITCOIN") }}
-
 with
     prices as ({{ get_coingecko_price_with_latest("bitcoin") }}),
     data as (

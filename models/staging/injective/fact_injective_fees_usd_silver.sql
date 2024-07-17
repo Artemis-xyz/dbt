@@ -1,5 +1,3 @@
-{{config(snowflake_warehouse="INJECTIVE")}}
-
 with
     unique_tokens as (
         select distinct (coingecko_id)

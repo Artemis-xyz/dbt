@@ -1,4 +1,4 @@
-{{ config(materialized="view", snowflake_warehouse="OSMOSIS") }}
+{{ config(materialized="view") }}
 
 with
     data as (

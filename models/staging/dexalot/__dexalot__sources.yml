@@ -8,3 +8,4 @@ sources:
       - name: raw_dexalot_gas
       - name: raw_dexalot_contracts
       - name: raw_dexalot_deployers
+      - name: raw_dexalot_avg_gas_price

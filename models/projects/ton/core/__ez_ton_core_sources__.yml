@@ -4,3 +4,8 @@ sources:
     database: TON
     tables:
       - name: ez_ton_current_balances
+  - name: SIGMA
+    schema: PROD
+    database: SIGMA
+    tables:
+      - name: ton_token_coingecko_id

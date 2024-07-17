@@ -2,7 +2,7 @@
 
 {{
     config(
-        materialized="table", snowflake_warehouse="CURVE"
+        materialized="table"
     )
 }}
 {{ fact_daily_curve_trading_vol_fees_traders_by_pool("ethereum", "fact_curve_ethereum_dex_swaps") }}
