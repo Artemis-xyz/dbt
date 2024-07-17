@@ -18,7 +18,7 @@ SELECT
    lower(TO_ADDRESS) = lower('0xD22FB2d2c09C108c44b622c37F6d2f4Bc9f85668')
   GROUP BY
   DATE(block_timestamp)
-  ORDER BY DATE(block_timestamp) DESC
+  ORDER BY DATE(block_timestamp) DESC 
 
 
   
