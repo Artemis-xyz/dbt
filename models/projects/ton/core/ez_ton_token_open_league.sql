@@ -7,7 +7,10 @@
         alias="ez_token_open_league",
     )
 }}
-WITH ton_coingecko_price_data as (
+WITH 
+ton_prices as (
+    {{ get_coingecko_price_with_latest('the-open-network') }}
+), jetton_coingecko_price_data as (
     SELECT 
         date,
         coingecko_id,
@@ -22,7 +25,7 @@ WITH ton_coingecko_price_data as (
     from pc_dbt_db.prod.fact_coingecko_token_realtime_data
     where token_id in (select distinct coingecko_id from {{ source("SIGMA", "ton_token_coingecko_id")}})
 ), collapsed_prices as (
-    select date, coingecko_id, max(price) as price from ton_coingecko_price_data group by date, coingecko_id
+    select date, coingecko_id, max(price) as price from jetton_coingecko_price_data group by date, coingecko_id
 ), daily_price_changes as (
     select 
         date
@@ -75,7 +78,8 @@ SELECT
     , score
     , token_address
     , token_last_tvl
-    , coalesce(price, token_price_after) as token_price_after
+    , token_last_tvl * ton_prices.price as token_last_tvl_usd
+    , coalesce(daily_price_changes.price, token_price_after) as token_price_after
     , token_price_before
     , token_start_tvl
     , token_tvl_change
@@ -83,3 +87,4 @@ SELECT
     , ton_token_data.coingecko_id
 from ton_token_data
 left join daily_price_changes on ton_token_data.date = daily_price_changes.date and ton_token_data.coingecko_id = daily_price_changes.coingecko_id
+left join ton_prices on ton_token_data.date = ton_prices.date
