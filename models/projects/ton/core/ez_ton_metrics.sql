@@ -32,6 +32,7 @@ with
             date,
             txns as ton_apps_txns,
             fees_native as ton_apps_fees_native
+            avg_txn_fee_native as ton_apps_avg_txn_fee_native
         from {{ ref("fact_ton_app_fees_txns") }}
     ),
     price_data as ({{ get_coingecko_metrics("the-open-network") }}),
@@ -67,7 +68,8 @@ select
     ton_apps_fees_native,
     ton_apps_fees_native * price as ton_apps_fees,
     ton_apps_fees_native / 2 as ton_apps_revenue_native,
-    (ton_apps_fees_native / 2) * price as ton_apps_revenue
+    (ton_apps_fees_native / 2) * price as ton_apps_revenue,
+    ton_apps_avg_txn_fee_native * price as ton_apps_avg_txn_fee
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
