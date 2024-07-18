@@ -5,6 +5,7 @@ with
             dbt_utils.union_relations(
                 relations=[
                     ref("ez_base_stablecoin_metrics_by_address"),
+                    ref("ez_arbitrum_stablecoin_metrics_by_address"),
                 ]
             )
         }}
