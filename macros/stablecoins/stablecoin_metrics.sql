@@ -6,7 +6,14 @@
                 , contract_address
                 , symbol
                 , address
-                , stablecoin_supply
+                {% if chain in ('ethereum') %}
+                    , case 
+                        when lower(address) in (select lower(premint_address) from {{ref("fact_"~chain~"_stablecoin_bridge_addresses")}}) then 0
+                        else stablecoin_supply
+                    end as stablecoin_supply
+                {% else %}
+                    , stablecoin_supply
+                {% endif %}
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_balances")}}
         )
