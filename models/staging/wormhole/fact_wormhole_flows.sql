@@ -73,7 +73,7 @@ with
                     (4005, 'stargaze'),
                     (4006, 'seda'),
                     (4007, 'dymension'),
-                    (4008, 'provenance'),
+                    (4008, 'provenance')
             ) as t(id, chain)
     ),
 
