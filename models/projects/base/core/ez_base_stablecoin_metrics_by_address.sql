@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         unique_key="unique_id",
         database="base",
         schema="core",
