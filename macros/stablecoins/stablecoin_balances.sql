@@ -6,7 +6,7 @@
     -- take > 4 hours on an XL to run
     -- Make sure to set to '' after backfill is complete
 
-    {% set backfill_date = '2021-01-01' %}
+    {% set backfill_date = '' %}
 with
     stablecoin_balances as (
         select 
@@ -25,16 +25,16 @@ with
         where block_timestamp < to_date(sysdate())
             {% if chain == 'tron' %}
                 and lower(address) != lower('t9yd14nj9j7xab4dbgeix9h8unkkhxuwwb') --Tron Burn Address
-                and stablecoin_supply > 0
             {% endif %}
             {% if backfill_date != '' %}
                 and block_timestamp < '{{ backfill_date }}'
             {% endif %}
         {% if is_incremental() %}
-                and block_timestamp >= (select dateadd('day', -1, max(date)) from {{ this }})
+                and block_timestamp > (select dateadd('day', -3, max(date)) from {{ this }}) 
         {% endif %}
     )
     {% if is_incremental() %}
+        --Get the most recent data in the existing table
         , stale_stablecoin_balances as (
             select 
                 date as block_timestamp
@@ -42,16 +42,14 @@ with
                 , t.symbol
                 , t.address
                 , t.stablecoin_supply
-            from {{this}} t
-            left join (
-                select distinct address, contract_address
-                from stablecoin_balances
-            ) sb on t.address = sb.address and t.contract_address = sb.contract_address
-            where date >= (select dateadd('day', -1, max(date)) from {{ this }})
-            and sb.address is null and sb.contract_address is null
+            from {{ this }} t
+            where date = (select dateadd('day', -3, max(date)) from {{ this }})
         )
     {% endif %}
     , heal_balance_table as (
+        -- stablecoin_balances and stale_stablecoin_balances do not over lap
+        -- stablecoin balances select every row greater than the most recent date in the table
+        -- stale_stablecoin_balances selects the most recent date in the table
         select
             block_timestamp
             , contract_address
@@ -70,6 +68,26 @@ with
             from stale_stablecoin_balances
         {% endif %}
     ) 
+    -- get the latest balance for each address for each date
+    , balances as (
+        select 
+            block_timestamp::date as date
+            , contract_address
+            , symbol
+            , address
+            , stablecoin_supply
+        from (
+            select 
+                block_timestamp
+                , contract_address
+                , symbol
+                , address
+                , stablecoin_supply
+                , row_number() over (partition by block_timestamp::date, contract_address, address, symbol order by block_timestamp desc) AS rn
+            from heal_balance_table
+        )
+        where rn = 1
+    )
     , date_range as (
         select 
             min(block_timestamp)::date as date
@@ -92,25 +110,6 @@ with
             and date < dateadd(day, -1, '{{ backfill_date }}')
         {% endif %}
     )
-    , balances as (
-        select 
-            block_timestamp::date as date
-            , contract_address
-            , symbol
-            , address
-            , stablecoin_supply
-        from (
-            select 
-                block_timestamp
-                , contract_address
-                , symbol
-                , address
-                , stablecoin_supply
-                , row_number() over (partition by block_timestamp::date, contract_address, address, symbol order by block_timestamp desc) AS rn
-            from heal_balance_table
-        )
-        where rn = 1
-    )
     , historical_supply_by_address_balances as (
         select
             date
@@ -127,9 +126,6 @@ with
             )  as stablecoin_supply
         from date_range
         left join balances using (date, contract_address, symbol, address)
-        {% if is_incremental() %}
-                where date >= (select dateadd('day', -1, max(date)) from {{ this }})
-        {% endif %}
     )
     , stablecoin_balances_with_price as (
         select
@@ -147,9 +143,6 @@ with
         left join {{ ref( "fact_coingecko_token_realtime_data") }} d
             on lower(c.coingecko_id) = lower(d.token_id)
             and st.date = d.date::date
-        {% if is_incremental() %}
-                where st.date >= (select dateadd('day', -1, max(date)) from {{ this }})
-        {% endif %}
     )
 select
     date
@@ -161,5 +154,6 @@ select
     , '{{ chain }}' as chain
     , date || '-' || address || '-' || contract_address as unique_id
 from stablecoin_balances_with_price
+where date < to_date(sysdate())
 
 {% endmacro %}
