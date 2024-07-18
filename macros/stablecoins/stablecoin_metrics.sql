@@ -17,7 +17,7 @@
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_balances")}}
             {% if is_incremental() %}
-                where date > (select dateadd('day', -3, max(date)) from {{ this }})
+                where date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
         )
         , all_metrics as (
@@ -31,7 +31,7 @@
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_metrics_all")}}
             {% if is_incremental() %}
-                where date > (select dateadd('day', -3, max(date)) from {{ this }})
+                where date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
         )
         , artemis_metrics as (
@@ -45,7 +45,7 @@
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_metrics_artemis")}}
             {% if is_incremental() %}
-                where date > (select dateadd('day', -3, max(date)) from {{ this }})
+                where date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
         )
         , p2p_metrics as (
@@ -59,7 +59,7 @@
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_metrics_p2p")}}
             {% if is_incremental() %}
-                where date > (select dateadd('day', -3, max(date)) from {{ this }})
+                where date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
         )
         , chain_stablecoin_metrics as (
