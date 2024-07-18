@@ -14,7 +14,7 @@ with raw_data as (
     from
         {{ source("PROD_LANDING", "raw_ton_app_txns_fees") }}
     {% if is_incremental() %}
-        where source_json:"date_timestamp"::timestamp > (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+        where source_json:"raw_date"::date > (select dateadd('day', -3, max(date)) from {{ this }})
     {% endif %}
 )
 select 
