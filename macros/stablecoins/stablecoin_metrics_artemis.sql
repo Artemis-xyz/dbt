@@ -36,7 +36,7 @@ with
         select distinct tx_hash
         from artemis_mev_filtered
         where from_app = to_app
-            and lower(from_category) in ('exchange', 'market maker') 
+            and lower(from_category) in ('cex', 'market maker') 
     ),
     artemis_ranked_transfer_filter as (
         select 
