@@ -80,6 +80,17 @@ with
             {% endif %}
         )
     {% endif %}
+     , cex_contracts as (
+        select address, app, sub_category from {{ ref("dim_contracts_gold")}} where chain = '{{ chain }}' and lower(sub_category) in ('cex', 'market maker')
+    )
+    , cex_filter as (
+        select distinct tx_hash 
+        from stablecoin_transfers_with_prices
+        left join cex_contracts t1 on lower(from_address) = lower(t1.address)
+        left join cex_contracts t2 on lower(to_address) = lower(t2.address)
+        where t1.app = t2.app
+            and lower(t1.sub_category) in ('cex', 'market maker') 
+    )
     select
         t1.block_timestamp,
         t1.block_number,
@@ -95,6 +106,7 @@ with
         and from_address is not null and to_address is not null
         and lower(to_address) not in ('TMerfyf1KwvKeszfVoLH3PEJH52fC2DENq', '1nc1nerator11111111111111111111111111111111', 'system', '0x0000000000000000000000000000000000000000')
         and lower(from_address) not in ('TMerfyf1KwvKeszfVoLH3PEJH52fC2DENq', '1nc1nerator11111111111111111111111111111111', 'system', '0x0000000000000000000000000000000000000000')
+        and lower(tx_hash) not in (select lower(tx_hash) from cex_filter)
     {% if chain == "solana" %}
         and block_timestamp::date > '2022-12-31' -- Prior to 2023, volumes data not high fidelity enough to report. Continuing to do analysis on this data. 
     {% endif %}
