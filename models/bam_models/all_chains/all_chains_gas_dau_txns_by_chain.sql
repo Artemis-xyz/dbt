@@ -10,6 +10,7 @@ with
                     ref("ez_base_metrics"),
                     ref("ez_bsc_metrics"),
                     ref("ez_ethereum_metrics"),
+                    ref("ez_injective_metrics"),
                     ref("ez_near_metrics"),
                     ref("ez_optimism_metrics"),
                     ref("ez_polygon_metrics"),
