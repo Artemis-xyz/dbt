@@ -31,7 +31,7 @@ with
         select 
             date,
             txns as ton_apps_txns,
-            fees_native as ton_apps_fees_native
+            fees_native as ton_apps_fees_native,
             avg_txn_fee_native as ton_apps_avg_txn_fee_native
         from {{ ref("fact_ton_app_fees_txns") }}
     ),

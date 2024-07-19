@@ -11,7 +11,7 @@ with raw_data as (
         , source_json:"raw_date"::date as date
         , source_json:"fees_native"::double as fees_native
         , source_json:"txns"::bigint as txns
-        , sourec_json:"avg_txn_fee_native"::double as avg_txn_fee_native
+        , source_json:"avg_txn_fee_native"::double as avg_txn_fee_native
     from
         {{ source("PROD_LANDING", "raw_ton_app_txns_fees") }}
     {% if is_incremental() %}
