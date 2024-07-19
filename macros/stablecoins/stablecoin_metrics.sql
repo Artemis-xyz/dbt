@@ -1,4 +1,5 @@
 {% macro stablecoin_metrics(chain) %}
+    {% set backfill_date = '' %}
     with
         stablecoin_supply as (
             select
@@ -17,7 +18,14 @@
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_balances")}}
             {% if is_incremental() %}
-                where date > (select dateadd('day', -3, max(date)) from {{ this }})
+                where date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+            {% if backfill_date != '' %}
+                {% if is_incremental() %}
+                    and date < '{{ backfill_date }}'
+                {% else %}
+                    where date < '{{ backfill_date }}'
+                {% endif %}
             {% endif %}
         )
         , all_metrics as (
@@ -31,7 +39,14 @@
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_metrics_all")}}
             {% if is_incremental() %}
-                where date > (select dateadd('day', -3, max(date)) from {{ this }})
+                where date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+            {% if backfill_date != '' %}
+                {% if is_incremental() %}
+                    and date < '{{ backfill_date }}'
+                {% else %}
+                    where date < '{{ backfill_date }}'
+                {% endif %}
             {% endif %}
         )
         , artemis_metrics as (
@@ -45,7 +60,14 @@
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_metrics_artemis")}}
             {% if is_incremental() %}
-                where date > (select dateadd('day', -3, max(date)) from {{ this }})
+                where date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+            {% if backfill_date != '' %}
+                {% if is_incremental() %}
+                    and date < '{{ backfill_date }}'
+                {% else %}
+                    where date < '{{ backfill_date }}'
+                {% endif %}
             {% endif %}
         )
         , p2p_metrics as (
@@ -59,7 +81,14 @@
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_metrics_p2p")}}
             {% if is_incremental() %}
-                where date > (select dateadd('day', -3, max(date)) from {{ this }})
+                where date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+            {% if backfill_date != '' %}
+                {% if is_incremental() %}
+                    and date < '{{ backfill_date }}'
+                {% else %}
+                    where date < '{{ backfill_date }}'
+                {% endif %}
             {% endif %}
         )
         , chain_stablecoin_metrics as (
@@ -96,7 +125,7 @@
                 , filtered_contracts.app as app
                 , case 
                     when filtered_contracts.sub_category = 'Market Maker' then filtered_contracts.sub_category
-                    when filtered_contracts.sub_category = 'Exchange' then filtered_contracts.sub_category
+                    when filtered_contracts.sub_category = 'CEX' then filtered_contracts.sub_category
                     else filtered_contracts.category 
                 end as category
                 , case 

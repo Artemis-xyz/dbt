@@ -12,6 +12,17 @@
             {% if is_incremental() %}
                 where block_timestamp > (select max(block_timestamp) from {{ this }})
             {% endif %}
+            {% if chain in ('optimism') %}
+            -- Some chains had a re-genesis event, if this is the case we need to include the genesis balances
+
+                union all
+                select address, contract_address, block_timestamp, balance as flow
+                from {{ref("fact_"~chain~"_genesis_stablecoin_balances")}}
+                {% if is_incremental() %}
+                    where block_timestamp > (select max(block_timestamp) from {{ this }})
+                {% endif %}
+            {% endif %}
+            
         ),
         credit_debits_and_latest_balances as (
             select address, contract_address, block_timestamp, flow
