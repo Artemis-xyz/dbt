@@ -5,52 +5,57 @@ WITH contracts AS (
     FROM {{ ref('dim_contracts_gold') }}
     WHERE
         chain = 'injective'
-), dates AS (
-    SELECT 
-        DATEADD(day, -1, MAX(date))  AS last_date,
-        DATEADD(day, -2, MAX(date))  AS first_date
-    FROM {{ source('PROD_LANDING', 'ez_injective_metrics_by_application') }}
 ), last_day AS (
     SELECT
-        app,
-        txns,
-        dau,
-        gas,
-        gas_usd,
-        friendly_name,
-        category
-    FROM {{ source('PROD_LANDING', 'ez_injective_metrics_by_application') }}, dates
+        contracts.address,
+        contracts.name,
+        metrics.app,
+        metrics.txns,
+        metrics.dau,
+        metrics.gas,
+        metrics.gas_usd,
+        metrics.friendly_name,
+        metrics.category
+    FROM {{ ref('ez_injective_metrics_by_application') }} metrics
+    LEFT join contracts 
+        ON metrics.app = contracts.app
     where 
-        app is not null 
-        and date >= dates.last_date
+        contracts.address is not null 
+        AND metrics.date >= dateadd(day, -1, current_date)
 ), first_day AS (
     select
-        app,
-        txns,
-        dau,
-        gas,
-        gas_usd
-    FROM {{ source('PROD_LANDING', 'ez_injective_metrics_by_application') }}, dates
-    where
-        app is not null
-        and date < dates.last_date
-        and date >= dates.first_date
+        contracts.address,
+        contracts.name,
+        metrics.app,
+        metrics.txns,
+        metrics.dau,
+        metrics.gas,
+        metrics.gas_usd
+    FROM {{ ref('ez_injective_metrics_by_application') }} metrics
+    LEFT join contracts 
+        ON metrics.app = contracts.app
+    WHERE
+        contracts.address IS NOT NULL
+        AND metrics.date < dateadd(day, -1, current_date)
+        AND metrics.date >= dateadd(day, -2, current_date)
 )
 select
-    contracts.address AS to_address,
-    last_day.app,
-    last_day.txns txns,
-    last_day.gas gas,
-    last_day.gas_usd gas_usd,
-    last_day.dau dau,
-    first_day.txns prev_txns,
-    first_day.gas prev_gas,
-    first_day.gas_usd prev_gas_usd,
-    first_day.dau prev_dau,
-    last_day.friendly_name,
-    last_day.category,
+    -- Dedup to pick one record per app
+    MAX(last_day.address) to_address,
+    MAX(last_day.txns) txns,
+    MAX(last_day.gas) gas,
+    MAX(last_day.gas_usd) gas_usd,
+    MAX(last_day.dau) dau,
+    MAX(first_day.txns) prev_txns,
+    MAX(first_day.gas) prev_gas,
+    MAX(first_day.gas_usd) prev_gas_usd,
+    MAX(first_day.dau) prev_dau,
+    MAX(last_day.name) name,
+    last_day.app as namespace,
+    MAX(last_day.friendly_name) friendly_name,
+    MAX(last_day.category) category,
     'daily' as granularity
 from last_day
-left join first_day on lower(last_day.app) = lower(first_day.app)
-inner join contracts 
-    ON last_day.app = contracts.app
+left join first_day on lower(last_day.address) = lower(first_day.address)
+group by
+    namespace
