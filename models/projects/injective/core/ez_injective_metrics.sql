@@ -10,7 +10,7 @@
 
 with
     -- Alternative fundamental source from BigQuery, preferred when possible over Snowflake data
-    fundamental_data as (select * EXCLUDE date, TO_DATE(TO_TIMESTAMP_NTZ(date)) AS date from {{ source('PROD_LANDING', 'ez_injective_metrics') }}),
+    fundamental_data as (select * EXCLUDE date, DATEADD('day', 1, DATE_TRUNC('day', TO_TIMESTAMP_NTZ(date))) AS date from {{ source('PROD_LANDING', 'ez_injective_metrics') }}),
     daily_txns as (select * from {{ ref("fact_injective_daily_txns_silver") }}),
     revenue as (select * from {{ ref("fact_injective_revenue_silver") }}),
     mints as (select * from {{ ref("fact_injective_mints_silver") }})
