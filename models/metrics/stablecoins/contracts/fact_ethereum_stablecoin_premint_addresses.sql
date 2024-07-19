@@ -4,41 +4,9 @@ select contract_address, premint_address
 from
     (
         values
-            -- USDT
-            --  Polygon
-            --      Matic Bridge
+            -- Un-released Supply 
             (
                 '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-                '0x40ec5B33f54e0E8A33A975908C5BA1c14e5BbbDf'
-            ),
-            --      Wormhole
-            (
-                '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-                '0x3ee18B2214AFF97000D974cf647E7C347E8fa585'
-            ),
-            --      Axelar
-            (
-                '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-                '0x4F4495243837681061C4743b74B3eEdf548D56A5'
-            ),
-            -- Arbitrum
-            (
-                '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-                '0xcEe284F754E854890e311e3280b767F80797180d'
-            ),
-            -- Optimism
-            (
-                '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-                '0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1'
-            ),
-            -- Base
-            (
-                '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-                '0x3154Cf16ccdb4C6d922629664174b904d80F2C35'
-            ),
-            -- BSC
-            (
-                '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-                '0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503'
+                '0x5754284f345afc66a98fbb0a0afe71e0f007b949'
             )
     ) as results(contract_address, premint_address)
