@@ -10,6 +10,7 @@ with
                     ref("ez_base_metrics_by_application"),
                     ref("ez_bsc_metrics_by_application"),
                     ref("ez_ethereum_metrics_by_application"),
+                    ref("ez_injective_metrics_by_application"),
                     ref("ez_near_metrics_by_application"),
                     ref("ez_optimism_metrics_by_application"),
                     ref("ez_polygon_metrics_by_application"),
