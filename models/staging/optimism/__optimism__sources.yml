@@ -4,3 +4,10 @@ sources:
     database: PC_DBT_DB
     tables:
       - name: dim_optimism_current_balances
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_optimism_genesis_dai_stablecoin_balances
+      - name: raw_optimism_genesis_usdce_stablecoin_balances
+      - name: raw_optimism_genesis_usdt_stablecoin_balances
