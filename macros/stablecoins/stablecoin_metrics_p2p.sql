@@ -49,7 +49,7 @@ with
     from stablecoin_metrics
     where date < to_date(sysdate())
     {% if is_incremental() %} 
-        and block_timestamp >= (
+        and date >= (
             select dateadd('day', -3, max(date))
             from {{ this }}
         )
