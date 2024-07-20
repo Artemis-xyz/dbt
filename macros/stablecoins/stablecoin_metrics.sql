@@ -6,7 +6,7 @@
                 date
                 , contract_address
                 , symbol
-                , address
+                , address as from_address
                 {% if chain in ('ethereum') %}
                     , case 
                         when lower(address) in (select lower(premint_address) from {{ref("fact_"~chain~"_stablecoin_bridge_addresses")}}) then 0
@@ -93,22 +93,24 @@
         )
         , chain_stablecoin_metrics as (
             select
-                date
-                , contract_address
-                , symbol
-                , from_address
-                , stablecoin_transfer_volume
-                , stablecoin_daily_txns
-                , artemis_stablecoin_transfer_volume
-                , artemis_stablecoin_daily_txns
-                , p2p_stablecoin_transfer_volume
-                , p2p_stablecoin_daily_txns
+                stablecoin_supply.date
+                , stablecoin_supply.contract_address
+                , stablecoin_supply.symbol
+                , stablecoin_supply.from_address
+                , coalesce(stablecoin_transfer_volume, 0) as stablecoin_transfer_volume
+                , coalesce(stablecoin_daily_txns, 0) as stablecoin_daily_txns
+                , coalesce(artemis_stablecoin_transfer_volume, 0) as artemis_stablecoin_transfer_volume
+                , coalesce(artemis_stablecoin_daily_txns, 0) as artemis_stablecoin_daily_txns
+                , coalesce(p2p_stablecoin_transfer_volume, 0) as p2p_stablecoin_transfer_volume
+                , coalesce(p2p_stablecoin_daily_txns, 0) as p2p_stablecoin_daily_txns
                 , stablecoin_supply
-                , unique_id
+                , stablecoin_supply.unique_id
             from stablecoin_supply
-            left join all_metrics using (unique_id)
-            left join artemis_metrics using (unique_id)
-            left join p2p_metrics using (unique_id)
+            left join all_metrics on stablecoin_supply.unique_id = all_metrics.unique_id
+            left join artemis_metrics on stablecoin_supply.unique_id = artemis_metrics.unique_id
+            left join p2p_metrics on stablecoin_supply.unique_id = p2p_metrics.unique_id
+            --Filter out rows that don't contribute to metrics
+            where stablecoin_supply.stablecoin_supply != 0 or all_metrics.from_address is not null
         )
         , filtered_contracts as (
             select * from {{ ref("dim_contracts_gold")}} where chain = '{{ chain }}'

@@ -103,7 +103,7 @@ with
     from results_dollar_denom
     where date < to_date(sysdate())
     {% if is_incremental() %} 
-        and block_timestamp >= (
+        and date >= (
             select dateadd('day', -3, max(date))
             from {{ this }}
         )
