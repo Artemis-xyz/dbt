@@ -1,6 +1,5 @@
 {{ config(
     materialized="table",
-    snowflake_warehouse="RAINBOW_BRIDGE",
 ) }}
 with
     dim_contracts as (

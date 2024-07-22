@@ -3,7 +3,6 @@
     config(
         materialized="incremental",
         unique_key="transaction_hash",
-        snowflake_warehouse="CELO",
     )
 }}
 {{

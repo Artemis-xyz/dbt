@@ -1,4 +1,4 @@
-{{ config(snowflake_warehouse="STADER", materialized="table") }}
+{{ config(materialized="table") }}
 -- depends_on: {{ source("PROD_LANDING", "raw_ethx_staked_count_ethereum") }}
 with raw_eth_supply as (
     {{ raw_partitioned_array_to_fact_table_many_columns('landing_database.prod_landing.raw_ethx_staked_count_ethereum', 'date', ['totalAssets', 'getExchangeRate']) }}

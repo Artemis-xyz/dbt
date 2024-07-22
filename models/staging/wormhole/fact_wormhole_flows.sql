@@ -60,11 +60,20 @@ with
                     (33, 'rootstock'),
                     (34, 'scroll'),
                     (35, 'mantle'),
+                    (36, 'blast'),
+                    (37, 'xlayer'),
+                    (38, 'linea'),
+                    (39, 'berachain'),
+                    (40, 'seievm'),
                     (4000, 'cosmoshub'),
                     (4001, 'evmos'),
                     (4002, 'kujira'),
                     (4003, 'neutron'),
-                    (4004, 'celestia')
+                    (4004, 'celestia'),
+                    (4005, 'stargaze'),
+                    (4006, 'seda'),
+                    (4007, 'dymension'),
+                    (4008, 'provenance')
             ) as t(id, chain)
     ),
 

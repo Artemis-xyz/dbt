@@ -1,4 +1,4 @@
-{{ config(snowflake_warehouse="FRAX", materialized="table") }}
+{{ config(materialized="table") }}
 with
     prices as ({{get_coingecko_price_with_latest("ethereum")}}),
     temp as (

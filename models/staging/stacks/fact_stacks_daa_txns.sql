@@ -1,5 +1,3 @@
-{{config(snowflake_warehouse="STACKS")}}
-
 with
     max_extraction as (
         select max(extraction_date) as max_date

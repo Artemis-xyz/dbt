@@ -1,15 +1,38 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="STABLECOIN_V2_LG") }}
 with
     daily_data as (
         {{
             dbt_utils.union_relations(
                 relations=[
-                    ref("agg_ethereum_daily_stablecoin_metrics_breakdown"),
-                    ref("agg_base_daily_stablecoin_metrics_breakdown"),
+                    ref("ez_base_stablecoin_metrics_by_address"),
+                    ref("ez_arbitrum_stablecoin_metrics_by_address"),
+                    ref("ez_optimism_stablecoin_metrics_by_address"),
                 ]
             )
         }}
     )
-select *, date::string || '-' || chain || '-' || symbol || from_address || contract_address as unique_id
+select 
+    date
+    , from_address
+    , contract_name
+    , contract
+    , application
+    , icon
+    , app
+    , category
+    , is_wallet
+
+    , contract_address
+    , symbol
+
+    , stablecoin_transfer_volume
+    , stablecoin_daily_txns
+    , artemis_stablecoin_transfer_volume
+    , artemis_stablecoin_daily_txns
+    , p2p_stablecoin_transfer_volume
+    , p2p_stablecoin_daily_txns
+    , stablecoin_supply
+    , chain
+    , unique_id
 from daily_data
 where date < to_date(sysdate())

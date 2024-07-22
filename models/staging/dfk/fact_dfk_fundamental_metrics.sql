@@ -1,2 +1,2 @@
-{{ config(materialized="table", snowflake_warehouse="DFK") }}
+{{ config(materialized="table") }}
 {{ transform_avalanche_subnets_fundamental_data('dfk') }}
