@@ -6,6 +6,7 @@ with
                 relations=[
                     ref("ez_base_stablecoin_metrics_by_address"),
                     ref("ez_arbitrum_stablecoin_metrics_by_address"),
+                    ref("ez_optimism_stablecoin_metrics_by_address"),
                 ]
             )
         }}
