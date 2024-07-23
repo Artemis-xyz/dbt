@@ -7,7 +7,7 @@
         cast(raw_amount as float) as credit,
         amount_usd as credit_usd,
         tx_hash,
-        null as trace_index,
+        '' as trace_index,
         event_index
     from {{ chain }}_flipside.core.ez_token_transfers
     where
@@ -28,7 +28,7 @@
         amount_usd as credit_usd,
         tx_hash,
         trace_index,
-        null as event_index
+        '' as event_index
     from {{ chain }}_flipside.core.ez_native_transfers
     where
         to_date(block_timestamp) < to_date(sysdate())
@@ -47,7 +47,7 @@
             cast(decoded_log:"wad" as float) as credit,
             null as credit_usd,
             tx_hash,
-            null as trace_index,
+            '' as trace_index,
             event_index
         from {{ chain }}_flipside.core.ez_decoded_event_logs
         where
@@ -73,8 +73,8 @@
             amount as credit,
             null as credit_usd,
             tx_hash,
-            null as trace_index,
-            null as event_index
+            '' as trace_index,
+            '' as event_index
         from ethereum_flipside.core.ez_native_transfers
         where to_address = lower('0x011B6E24FfB0B5f5fCc564cf4183C5BBBc96D515')
     {% endif %}
@@ -93,8 +93,8 @@
             cast(decoded_log:"amount" as float) / pow(10, 18) as credit,
             null as credit_usd,
             tx_hash,
-            null as trace_index,
-            null as event_index
+            '' as trace_index,
+            '' as event_index
         from {{ chain }}_flipside.core.ez_decoded_event_logs
         where
             event_name = 'Deposit'
