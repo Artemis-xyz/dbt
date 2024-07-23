@@ -12,6 +12,3 @@ from {{ ref("fact_ton_txns")}} t1
 left join {{ ref("fact_ton_daa")}} t2 using(date)
 left join {{ ref("fact_ton_gas_gas_usd")}} t3 using(date)
 left join {{ ref("fact_ton_revenue_revenue_native")}} t4 using(date)
-
-
-    

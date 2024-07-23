@@ -12,27 +12,20 @@ with
     fundamental_data as (
         select 
             date,
-            chain,
-            txns,
-            dau,
-            fees,
-            fees_native,
-            revenue,
-            revenue_native,
-            avg_txn_fee
+            txns as transaction_nodes
         from {{ ref("fact_ton_daa_txns_gas_gas_usd_revenue_revenue_native") }}
     ), ton_app_daa as (
         select 
             date,
-            daa as ton_apps_daa
+            daa as dau
         from {{ ref("fact_ton_app_daa") }}
     ),
     ton_app_txns_fees as (
         select 
             date,
-            txns as ton_apps_txns,
-            fees_native as ton_apps_fees_native,
-            avg_txn_fee_native as ton_apps_avg_txn_fee_native
+            txns,
+            fees_native,
+            avg_txn_fee_native,
         from {{ ref("fact_ton_app_fees_txns") }}
     ),
     price_data as ({{ get_coingecko_metrics("the-open-network") }}),
@@ -45,15 +38,9 @@ with
     ),
     github_data as ({{ get_github_metrics("ton") }})
 select
-    fundamental_data.date,
-    fundamental_data.chain,
-    txns,
-    dau,
-    fees_native,
-    fees,
-    revenue_native,
-    revenue,
-    avg_txn_fee,
+    ton_app_daa.date,
+    'ton' as chain,
+    transaction_nodes,
     price,
     market_cap,
     fdmc,
@@ -63,18 +50,18 @@ select
     weekly_commits_sub_ecosystem,
     weekly_developers_core_ecosystem,
     weekly_developers_sub_ecosystem,
-    ton_apps_daa,
-    ton_apps_txns,
-    ton_apps_fees_native,
-    ton_apps_fees_native * price as ton_apps_fees,
-    ton_apps_fees_native / 2 as ton_apps_revenue_native,
-    (ton_apps_fees_native / 2) * price as ton_apps_revenue,
-    ton_apps_avg_txn_fee_native * price as ton_apps_avg_txn_fee
-from fundamental_data
-left join price_data on fundamental_data.date = price_data.date
-left join defillama_data on fundamental_data.date = defillama_data.date
-left join github_data on fundamental_data.date = github_data.date
-left join dex_data on fundamental_data.date = dex_data.date
-left join ton_app_daa on fundamental_data.date = ton_app_daa.date
-left join ton_app_txns_fees on fundamental_data.date = ton_app_txns_fees.date
-where fundamental_data.date < to_date(sysdate())
+    dau,
+    txns,
+    fees_native,
+    fees_native * price as fees,
+    fees_native / 2 as revenue_native,
+    (fees_native / 2) * price as revenue,
+    avg_txn_fee_native * price as avg_txn_fee
+from ton_app_daa
+left join price_data on ton_app_daa.date = price_data.date
+left join defillama_data on ton_app_daa.date = defillama_data.date
+left join github_data on ton_app_daa.date = github_data.date
+left join dex_data on ton_app_daa.date = dex_data.date
+left join fundamental_data on ton_app_daa.date = fundamental_data.date
+left join ton_app_txns_fees on ton_app_daa.date = ton_app_txns_fees.date
+where ton_app_daa.date < to_date(sysdate())
