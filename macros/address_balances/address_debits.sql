@@ -7,8 +7,8 @@
         tx_fee * -1 as debit,
         null as debit_usd,
         tx_hash,
-        null as trace_index,
-        null as event_index
+        -1 as trace_index,
+        -1 as event_index
     from {{ chain }}_flipside.core.fact_transactions as t
     where
         to_date(block_timestamp) < to_date(sysdate())
@@ -27,7 +27,7 @@
         cast(raw_amount * -1 as float) as debit,
         amount_usd * -1 as debit_usd,
         tx_hash,
-        null as trace_index,
+        -1 as trace_index,
         event_index
     from {{ chain }}_flipside.core.ez_token_transfers
     where
@@ -48,7 +48,7 @@
         amount_usd * -1 as debit_usd,
         tx_hash,
         trace_index,
-        null as event_index
+        -1 as event_index
     from {{ chain }}_flipside.core.ez_native_transfers
     where
         to_date(block_timestamp) < to_date(sysdate())
@@ -68,7 +68,7 @@
             cast(decoded_log:"wad" as float) * -1 as debit,
             null as debit_usd,
             tx_hash,
-            null as trace_index,
+            -1 as trace_index,
             event_index
         from {{ chain }}_flipside.core.ez_decoded_event_logs
         where
