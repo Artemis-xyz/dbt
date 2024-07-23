@@ -1,7 +1,7 @@
 --depends_on: {{ ref("fact_tron_stablecoin_transfers") }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         unique_key=["tx_hash", "index"],
     )
 }}
