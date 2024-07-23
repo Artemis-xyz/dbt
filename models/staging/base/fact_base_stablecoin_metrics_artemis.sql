@@ -7,4 +7,4 @@
 }}
 
 
-{{stablecoin_metrics_p2p("base")}}
+{{stablecoin_metrics_artemis("base")}}

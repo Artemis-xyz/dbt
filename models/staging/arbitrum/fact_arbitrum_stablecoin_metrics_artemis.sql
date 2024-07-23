@@ -7,4 +7,4 @@
 }}
 
 
-{{stablecoin_metrics_p2p("arbitrum")}}
+{{stablecoin_metrics_artemis("arbitrum")}}

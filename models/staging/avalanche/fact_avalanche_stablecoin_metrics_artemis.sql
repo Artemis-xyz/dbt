@@ -7,4 +7,4 @@
 }}
 
 
-{{stablecoin_metrics_p2p("avalanche")}}
+{{stablecoin_metrics_artemis("avalanche")}}
