@@ -9,6 +9,8 @@ with
                     ref("ez_optimism_stablecoin_metrics_by_address"),
                     ref("ez_avalanche_stablecoin_metrics_by_address"),
                     ref("ez_ethereum_stablecoin_metrics_by_address"),
+                    ref("ez_polygon_stablecoin_metrics_by_address"),
+                    ref("ez_tron_stablecoin_metrics_by_address"),
                 ]
             )
         }}
