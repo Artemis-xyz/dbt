@@ -1,5 +1,4 @@
 {% macro address_credits(chain, wrapped_native_token_address, native_token_address) %}
-
     select
         to_address as address,
         contract_address,
@@ -7,7 +6,7 @@
         cast(raw_amount as float) as credit,
         amount_usd as credit_usd,
         tx_hash,
-        '' as trace_index,
+        -1 as trace_index,
         event_index
     from {{ chain }}_flipside.core.ez_token_transfers
     where
@@ -17,6 +16,7 @@
             and block_timestamp
             >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
+        
 
     union all
 
@@ -28,7 +28,7 @@
         amount_usd as credit_usd,
         tx_hash,
         trace_index,
-        '' as event_index
+        -1 as event_index
     from {{ chain }}_flipside.core.ez_native_transfers
     where
         to_date(block_timestamp) < to_date(sysdate())
@@ -37,7 +37,7 @@
             and block_timestamp
             >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
-
+        
     {% if wrapped_native_token_address is defined %}
         union all
         select
@@ -47,7 +47,7 @@
             cast(decoded_log:"wad" as float) as credit,
             null as credit_usd,
             tx_hash,
-            '' as trace_index,
+            -1 as trace_index,
             event_index
         from {{ chain }}_flipside.core.ez_decoded_event_logs
         where
@@ -73,8 +73,8 @@
             amount as credit,
             null as credit_usd,
             tx_hash,
-            '' as trace_index,
-            '' as event_index
+            -1 as trace_index,
+            -1 as event_index
         from ethereum_flipside.core.ez_native_transfers
         where to_address = lower('0x011B6E24FfB0B5f5fCc564cf4183C5BBBc96D515')
     {% endif %}
@@ -93,8 +93,8 @@
             cast(decoded_log:"amount" as float) / pow(10, 18) as credit,
             null as credit_usd,
             tx_hash,
-            '' as trace_index,
-            '' as event_index
+            -1 as trace_index,
+            -1 as event_index
         from {{ chain }}_flipside.core.ez_decoded_event_logs
         where
             event_name = 'Deposit'
