@@ -7,4 +7,4 @@
 }}
 
 
-{{stablecoin_metrics_p2p("ethereum")}}
+{{stablecoin_metrics_artemis("ethereum")}}

@@ -7,4 +7,4 @@
 }}
 
 
-{{stablecoin_metrics_p2p("tron")}}
+{{stablecoin_metrics_artemis("tron")}}

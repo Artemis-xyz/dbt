@@ -7,4 +7,4 @@
 }}
 
 
-{{stablecoin_metrics_p2p("optimism")}}
+{{stablecoin_metrics_artemis("optimism")}}
