@@ -7,4 +7,4 @@
 }}
 
 
-{{stablecoin_metrics_p2p("polygon")}}
+{{stablecoin_metrics_artemis("polygon")}}
