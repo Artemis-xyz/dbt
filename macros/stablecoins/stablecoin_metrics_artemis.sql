@@ -16,7 +16,7 @@ with
                 from {{ this }}
             )
         {% endif %} 
-    )
+    ),
     filtered_contracts as (
         select * from {{ ref("dim_contracts_gold")}} where chain = '{{ chain }}'
     ),
@@ -53,7 +53,7 @@ with
             , symbol
             , from_address
             , to_address
-            , transfer_volume as artemis_stablecoin_transfer_volume
+            , transfer_volume as stablecoin_transfer_volume
         from artemis_ranked_transfer_filter
         where rn = 1
     ),
@@ -69,12 +69,12 @@ with
                     then 1
                     else 0
                 end
-            ) as artemis_stablecoin_daily_txns
-            , sum(artemis_stablecoin_transfer_volume) as artemis_stablecoin_transfer_volume
+            ) as stablecoin_daily_txns
+            , sum(stablecoin_transfer_volume) as stablecoin_transfer_volume
         from artemis_max_transfer_filter
         group by 1, 2, 3, 4
     ),
-    , results_dollar_denom as (
+    results_dollar_denom as (
         select
             stablecoin_metrics.date
             , stablecoin_metrics.contract_address
