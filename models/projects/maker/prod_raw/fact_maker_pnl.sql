@@ -50,7 +50,7 @@ with -- Maker - Accounting Aggregated v2
     )
     
 select
-    date_trunc('month', date) as date,
+    date_trunc('day', date) as date,
     SUM(iff(liquidation_income < 1e-4, 0, liquidation_income)) as "Liquidation Income",
     SUM(iff(trading_income < 1e-4, 0, trading_income)) as "Trading Fees",
     SUM(iff(lending_income < 1e-4, 0, lending_income)) as "Interest Income",
