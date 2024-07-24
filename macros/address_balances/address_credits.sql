@@ -1,4 +1,5 @@
 {% macro address_credits(chain, wrapped_native_token_address, native_token_address) %}
+    
     select
         to_address as address,
         contract_address,
@@ -17,7 +18,6 @@
             >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
         
-
     union all
 
     select
@@ -38,7 +38,7 @@
             >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
         
-    {% if wrapped_native_token_address is defined %}
+    {% if wrapped_native_token_address is defined and chain not in ('polygon')%}
         union all
         select
             decoded_log:"dst"::string as address,
@@ -77,6 +77,7 @@
             -1 as event_index
         from ethereum_flipside.core.ez_native_transfers
         where to_address = lower('0x011B6E24FfB0B5f5fCc564cf4183C5BBBc96D515')
+
     {% endif %}
 
     -- Some EVM Chains has a specific contract address for their native token (polygon) 
@@ -94,7 +95,7 @@
             null as credit_usd,
             tx_hash,
             -1 as trace_index,
-            -1 as event_index
+            event_index
         from {{ chain }}_flipside.core.ez_decoded_event_logs
         where
             event_name = 'Deposit'
@@ -105,6 +106,7 @@
                 and block_timestamp
                 >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
             {% endif %}
+
     {% endif %}
 -- Not included is staking fees (need to do more research and would be chains specific)
 {% endmacro %}
