@@ -4,7 +4,7 @@
         snowflake_warehouse="MAKER",
         database="maker",
         schema="raw",
-        alias="dim_dao_addresses"
+        alias="dim_dao_wallet"
     )
 }}
 

@@ -4,7 +4,7 @@
         snowflake_warehouse="MAKER",
         database="maker",
         schema="raw",
-        alias="dim_contracts"
+        alias="dim_maker_contracts"
     )
 }}
 
