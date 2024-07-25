@@ -20,6 +20,7 @@
             and block_timestamp
             >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
+
     union all
     select
         to_address as address,
@@ -37,9 +38,10 @@
         {% endif %}
         {% if is_incremental() %}
             and block_timestamp
-            >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+            >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
         and to_date(block_timestamp) < to_date(sysdate())
         and to_address <> from_address
+
 
 {% endmacro %}
