@@ -46,6 +46,61 @@
 
 
 {% macro address_balances_with_flipside_ez(chain) %}
+-- Maker does not use ERC20 DAI tokens in the protocol, instead the amount associated with an addresses is stored in the VAT contract
+-- This amount can be transfered to the POT contract(0x197e90f9fad81970ba7976f33cbd77088e5d7cf7) to earn yield on your DAI. 
+    {% if chain in ('ethereum') %}
+        with 
+            ethereum_maker_vat_dai_debit as (
+                select
+                    lower('0x197e90f9fad81970ba7976f33cbd77088e5d7cf7') AS address
+                    , lower('0x6B175474E89094C44Da98b954EedeAC495271d0F') AS contract_address
+                    , block_timestamp
+                    , rad::double * 1e18 AS delta
+                from ethereum_flipside.maker.fact_VAT_move
+                where dst_address = '0x197e90f9fad81970ba7976f33cbd77088e5d7cf7'
+                {% if is_incremental() %}
+                    and block_timestamp > (select max(block_timestamp) from {{ this }})
+                {% endif %}
+                union all
+                select
+                    lower('0x197e90f9fad81970ba7976f33cbd77088e5d7cf7') AS address
+                    , lower('0x6B175474E89094C44Da98b954EedeAC495271d0F') AS contract_address
+                    , block_timestamp
+                    , - rad::double * 1e18 AS delta
+                from ethereum_flipside.maker.fact_VAT_move
+                where lower(src_address) = lower('0x197e90f9fad81970ba7976f33cbd77088e5d7cf7')
+                {% if is_incremental() %}
+                    and block_timestamp > (select max(block_timestamp) from {{ this }})
+                {% endif %}
+                union all
+                select
+                    lower('0x197e90f9fad81970ba7976f33cbd77088e5d7cf7') as address
+                    , lower('0x6B175474E89094C44Da98b954EedeAC495271d0F') AS contract_address
+                    , block_timestamp
+                    , rad::double * 1e18 AS delta
+                from ethereum_flipside.maker.fact_VAT_suck
+                where lower(v_address) = lower('0x197e90f9fad81970ba7976f33cbd77088e5d7cf7')
+                {% if is_incremental() %}
+                    and block_timestamp > (select max(block_timestamp) from {{ this }})
+                {% endif %}
+            )
+            , ethereum_maker_vat_dai_balances as (
+                select address, contract_address, block_timestamp, delta
+                from ethereum_maker_vat_dai_debit
+                {% if is_incremental() %}
+                    union all
+                    select
+                        address
+                        , contract_address
+                        , max(block_timestamp) as block_timestamp
+                        , max_by(balance_token, block_timestamp) as delta
+                    from {{this}}
+                    where lower(address) = lower('0x197e90f9fad81970ba7976f33cbd77088e5d7cf7')
+                        and lower(contract_address) = lower('0x6B175474E89094C44Da98b954EedeAC495271d0F')
+                    group by address, contract_address
+                {% endif %}
+            )
+    {% endif %} 
     select
         user_address as address,
         case
@@ -59,7 +114,15 @@
     where
         to_date(block_timestamp) < to_date(sysdate())
         {% if is_incremental() %}
-            and block_timestamp
-            >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+            and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
+    {% if chain in ('ethereum') %}
+    union all
+        select
+            address
+            , contract_address
+            , block_timestamp
+            , sum(delta) over (partition by contract_address, address order by block_timestamp) as balance_token
+        from ethereum_maker_vat_dai_balances
+    {% endif %}
 {% endmacro %}
