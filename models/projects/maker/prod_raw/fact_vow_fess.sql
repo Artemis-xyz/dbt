@@ -14,3 +14,4 @@ SELECT
     tx_hash
 FROM ethereum_flipside.core.fact_event_logs
 where topics[0] = '0x697efb7800000000000000000000000000000000000000000000000000000000'
+and contract_address = lower('0xA950524441892A31ebddF91d3cEEFa04Bf454466')

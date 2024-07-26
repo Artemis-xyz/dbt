@@ -12,7 +12,7 @@ WITH team_dai_burns_preunioned AS (
     SELECT vat.block_timestamp AS ts,
            vat.tx_hash AS hash,
            tx.is_keeper,
-           SUM(vat.rad / POW(10, 45)) AS value
+           SUM(vat.rad) AS value
     FROM ethereum_flipside.maker.fact_vat_move vat
     JOIN {{ ref('fact_team_dai_burns_tx') }} tx
         ON vat.tx_hash = tx.tx_hash

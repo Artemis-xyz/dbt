@@ -37,6 +37,7 @@ daily_balances AS (
 date_series AS (
     SELECT date_day as date 
     FROM ethereum_flipside.core.dim_dates
+    WHERE date_day < to_date(sysdate())
 ),
 all_combinations AS (
     SELECT DISTINCT
