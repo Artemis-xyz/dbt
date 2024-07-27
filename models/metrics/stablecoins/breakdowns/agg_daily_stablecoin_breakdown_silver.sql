@@ -9,6 +9,7 @@ with
                     ref("ez_optimism_stablecoin_metrics_by_address"),
                     ref("ez_avalanche_stablecoin_metrics_by_address"),
                     ref("ez_polygon_stablecoin_metrics_by_address"),
+                    ref("ez_ethereum_stablecoin_metrics_by_address"),
                 ]
             )
         }}
@@ -19,7 +20,7 @@ select
     , contract_name
     , contract
     , application
-    , icon
+    , icona
     , app
     , category
     , is_wallet
