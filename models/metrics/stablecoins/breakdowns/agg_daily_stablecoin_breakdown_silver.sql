@@ -20,7 +20,7 @@ select
     , contract_name
     , contract
     , application
-    , icona
+    , icon
     , app
     , category
     , is_wallet
