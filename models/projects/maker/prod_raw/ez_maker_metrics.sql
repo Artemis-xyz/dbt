@@ -69,20 +69,20 @@ select
     , COALESCE(direct_expenses, 0) AS direct_expenses
     , COALESCE(total_expenses, 0) AS total_expenses
     , COALESCE(protocol_revenue - total_expenses, 0) AS earnings
-    , treasury_usd
-    , treasury_native
-    , net_treasury_usd
-    , net_deposit
-    , outstanding_supply
-    , tvl
-    , price
-    , fdmc
-    , market_cap
-    , token_volume
-    , token_turnover_fdv
-    , token_turnover_circulating
-    , tokenholder_count
-FROM fees_revenue_expenses
+    , COALESCE(treasury_usd, 0) AS treasury_usd
+    , COALESCE(treasury_native, 0) AS treasury_native
+    , COALESCE(net_treasury_usd, 0) AS net_treasury_usd
+    , COALESCE(net_deposit, 0) AS net_deposit
+    , COALESCE(outstanding_supply, 0) AS outstanding_supply
+    , COALESCE(tvl, 0) AS tvl
+    , COALESCE(price, 0) AS price
+    , COALESCE(fdmc, 0) AS fdmc
+    , COALESCE(market_cap, 0) AS market_cap
+    , COALESCE(token_volume, 0) AS token_volume
+    , COALESCE(token_turnover_fdv, 0) AS token_turnover_fdv
+    , COALESCE(token_turnover_circulating, 0) AS token_turnover_circulating
+    , COALESCE(tokenholder_count, 0) AS tokenholder_count
+FROM token_holder_data
 left join treasury_usd using (date)
 left join treasury_native using (date)
 left join net_treasury using (date)
@@ -90,5 +90,5 @@ left join tvl_metrics using (date)
 left join outstanding_supply using (date)
 left join token_turnover_metrics using (date)
 left join price_data using (date)
-left join token_holder_data using (date)
+left join fees_revenue_expenses using (date)
 where date < to_date(sysdate())
