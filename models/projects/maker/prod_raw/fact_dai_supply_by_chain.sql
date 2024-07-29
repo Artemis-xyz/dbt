@@ -12,7 +12,6 @@
 {{
 dbt_utils.union_relations(
     relations=[
-        ref("fact_dai_arb_supply"),
         ref("fact_dai_eth_supply"),
         ref("fact_dai_dsr_supply"),
     ]
