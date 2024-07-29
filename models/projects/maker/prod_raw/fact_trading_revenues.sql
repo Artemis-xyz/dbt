@@ -18,7 +18,6 @@ WITH trading_revenues_preunion AS (
     INNER JOIN {{ ref('dim_psms') }} psms
         ON vat.src_address = psms.psm_address
     WHERE vat.dst_address = '0xa950524441892a31ebddf91d3ceefa04bf454466' -- Vow
-    -- Note: In the future, add a condition for call_success when available
     GROUP BY vat.block_timestamp, vat.tx_hash, psms.ilk
 )
 

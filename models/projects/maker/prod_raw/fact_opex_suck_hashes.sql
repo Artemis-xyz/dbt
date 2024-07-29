@@ -17,5 +17,4 @@ WHERE suck.u_address = '0xa950524441892a31ebddf91d3ceefa04bf454466'
     '0xa4c22f0e25c6630b2017979acf1f865e94695c4b'
   )
   AND suck.rad != 0
--- Note: In the future, add a condition for call_success when available
 GROUP BY 1

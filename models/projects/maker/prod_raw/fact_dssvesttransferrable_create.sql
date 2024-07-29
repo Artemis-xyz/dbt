@@ -9,10 +9,24 @@
 }}
 
 
-select
-    *
-from
-    ethereum_flipside.core.fact_event_logs
-where
-    lower(contract_address) = lower('0x6D635c8d08a1eA2F1687a5E46b666949c977B7dd')
-    and lower(topics [0]) = '0x2e3cc5298d3204a0f0fc2be0f6fdefcef002025f4c75caf950b23e6cfbfb78d0'
+with raw as (
+SELECT
+    trace_index,
+    identifier,
+    block_timestamp,
+    tx_hash,
+    SUBSTR(input, 11) as raw_input_data
+FROM ethereum_flipside.core.fact_traces
+where to_address = lower('0x6D635c8d08a1eA2F1687a5E46b666949c977B7dd')
+and left(input, 10) = '0xdb64ff8f'
+)
+SELECT
+    block_timestamp,
+    tx_hash,
+    '0x' || SUBSTR(raw_input_data, 25, 40) as _usr,
+    PC_DBT_DB.PROD.HEX_TO_INT(SUBSTR(raw_input_data, 65, 64)) as _tot,
+    PC_DBT_DB.PROD.HEX_TO_INT(SUBSTR(raw_input_data, 129, 64)) as _bgn,
+    PC_DBT_DB.PROD.HEX_TO_INT(SUBSTR(raw_input_data, 193, 64)) as _tau,
+    PC_DBT_DB.PROD.HEX_TO_INT(SUBSTR(raw_input_data, 257, 64)) as _eta,
+    ROW_NUMBER() OVER (ORDER BY block_timestamp, trace_index) AS output_id
+FROM raw

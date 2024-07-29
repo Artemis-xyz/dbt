@@ -20,5 +20,5 @@ with bs_equity as (
 select
     date,
     sum(surplus) over (order by date) as surplus,
-    'DAI' as symbol
+    'DAI' as token
 from bs_equity

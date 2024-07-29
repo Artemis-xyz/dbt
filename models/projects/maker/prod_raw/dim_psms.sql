@@ -13,4 +13,3 @@ SELECT DISTINCT
     ilk
 FROM ethereum_flipside.maker.fact_vat_frob
 WHERE ilk LIKE 'PSM-%'
--- Note: In the future, add a condition for call_success when available

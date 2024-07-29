@@ -24,5 +24,4 @@ WHERE
     AND tx_hash NOT IN (SELECT tx_hash FROM {{ ref('fact_team_dai_burns_tx') }})
     AND tx_hash NOT IN (SELECT tx_hash FROM {{ ref('fact_psm_yield_tx') }})
     AND tx_hash NOT IN (SELECT tx_hash FROM {{ ref('fact_rwa_yield_tx') }})
--- Note: In the future, add a condition for call_success when available
 GROUP BY block_timestamp, tx_hash

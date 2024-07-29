@@ -18,7 +18,6 @@ WITH psm_yield_preunioned AS (
     INNER JOIN {{ ref('fact_psm_yield_tx') }} tx
         ON vat.tx_hash = tx.tx_hash
     WHERE vat.dst_address = '0xa950524441892a31ebddf91d3ceefa04bf454466' -- vow
-    -- Note: In the future, add a condition for call_success when available
     GROUP BY vat.block_timestamp, vat.tx_hash, tx.ilk
 )
 

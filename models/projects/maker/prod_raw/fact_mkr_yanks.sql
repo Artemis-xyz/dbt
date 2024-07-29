@@ -8,33 +8,38 @@
     )
 }}
 
-WITH yanks_with_context AS (
+WITH yanks_raw AS (
     SELECT 
-        y.block_timestamp AS ts,
-        y.tx_hash AS hash,
-        y._end,
-        y._id,
+        block_timestamp AS ts,
+        tx_hash AS hash,
+        _end,
+        _id
+    FROM maker.prod_raw.fact_dssvesttransferrable_yank
+),
+
+yanks_with_context AS (
+    SELECT 
+        y.*,
         c._bgn,
         c._tau,
         c.total_mkr,
         CASE 
-            WHEN FROM_UNIXTIME(CAST(y._end AS DOUBLE)) > y.block_timestamp 
-            THEN FROM_UNIXTIME(CAST(y._end AS DOUBLE)) 
-            ELSE y.block_timestamp 
+            WHEN DATEADD(second, y._end, '1970-01-01'::timestamp) > y.ts 
+            THEN DATEADD(second, y._end, '1970-01-01'::timestamp)
+            ELSE y.ts 
         END AS end_time
-    FROM {{ ref('fact_dssvesttransferrable_yank') }} y
-    LEFT JOIN {{ ref('fact_mkr_vest_creates') }} c
+    FROM yanks_raw y
+    LEFT JOIN maker.prod_raw.fact_mkr_vest_creates c
         ON y._id = c.output_id
-    -- Note: In the future, add a condition for call_success when available
 )
 
 SELECT
     ts,
     hash,
     _id,
-    FROM_UNIXTIME(CAST(_bgn AS DOUBLE)) AS begin_time,
+    TO_TIMESTAMP(CAST(_bgn AS VARCHAR)) AS begin_time,
     end_time,
     _tau,
     total_mkr AS original_total_mkr,
-    (1 - (UNIX_TIMESTAMP(end_time) - _bgn * 1e0) / _tau) * total_mkr AS yanked_mkr
+    (1 - (DATEDIFF(second, '1970-01-01'::timestamp, end_time) - _bgn) / _tau) * total_mkr AS yanked_mkr
 FROM yanks_with_context

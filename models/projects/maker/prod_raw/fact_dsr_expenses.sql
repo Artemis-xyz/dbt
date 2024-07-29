@@ -17,7 +17,6 @@ WITH dsr_expenses_raw AS (
     FROM ethereum_flipside.maker.fact_vat_suck
     WHERE u_address = '0xa950524441892a31ebddf91d3ceefa04bf454466' -- Vow
       AND v_address = '0x197e90f9fad81970ba7976f33cbd77088e5d7cf7' -- Pot
-    -- Note: In the future, add a condition for call_success when available
 )
 
 SELECT

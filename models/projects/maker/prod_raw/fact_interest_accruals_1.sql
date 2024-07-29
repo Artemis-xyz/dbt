@@ -16,7 +16,6 @@ SELECT
     CAST(NULL AS NUMBER) AS rate
 FROM ethereum_flipside.maker.fact_vat_frob
 WHERE dart != 0
--- Note: In the future, add a condition for call_success when available
 
 UNION ALL
 
@@ -28,7 +27,6 @@ SELECT
     0 AS rate
 FROM {{ ref('fact_vat_grab')}}
 WHERE dart != 0
--- Note: In the future, add a condition for call_success when available
 
 UNION ALL
 
@@ -40,4 +38,3 @@ SELECT
     rate
 FROM ethereum_flipside.maker.fact_vat_fold
 WHERE rate != 0
--- Note: In the future, add a condition for call_success when available

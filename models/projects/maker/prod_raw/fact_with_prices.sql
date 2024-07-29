@@ -41,6 +41,10 @@ WITH unioned_data AS (
     UNION ALL
     SELECT ts, hash, code, value, 'DAI' AS token, 'RWA Yield' AS descriptor, ilk FROM {{ ref('fact_rwa_yield') }}
     UNION ALL
+    SELECT ts, hash, code, value, 'MKR' AS token, 'MKR Vest Creates/Yanks' AS descriptor, NULL AS ilk FROM {{ ref('fact_mkr_vest_creates_yanks') }}
+    UNION ALL
+    SELECT ts, hash, code, value, 'MKR' AS token, 'MKR Pause Proxy Trxns' AS descriptor, NULL AS ilk FROM {{ ref('fact_pause_proxy_mkr_trxns') }}
+    UNION ALL
     SELECT ts, NULL AS hash, 19999 AS code, 0 AS value, token, 'Currency Translation to Presentation Token' AS descriptor, CAST(NULL AS VARCHAR) AS ilk FROM {{ ref('fact_m2m_levels') }}
     UNION ALL
     SELECT ts, NULL AS hash, 29999 AS code, 0 AS value, token, 'Currency Translation to Presentation Token' AS descriptor, CAST(NULL AS VARCHAR) AS ilk FROM {{ ref('fact_m2m_levels') }}

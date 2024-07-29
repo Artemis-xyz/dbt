@@ -12,4 +12,3 @@ SELECT
     tx_hash AS hash,
     1 AS vested
 FROM {{ ref('fact_dssvesttransferrable_vest') }}
--- Note: In the future, add a condition for call_success when available

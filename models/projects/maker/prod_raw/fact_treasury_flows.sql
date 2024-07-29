@@ -38,7 +38,7 @@ WITH treasury_flows_preunioned AS (
 SELECT
     ts,
     hash,
-    32810 AS code,
+    33110 AS code,
     value, --increased equity
     token
 FROM treasury_flows_preunioned

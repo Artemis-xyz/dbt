@@ -4,40 +4,11 @@
         snowflake_warehouse="MAKER",
         database="maker",
         schema="raw",
-        alias="fact_mkr_vest_tx"
+        alias="fact_mkr_vest_trxns"
     )
 }}
 
-SELECT
-    ts,
-    hash,
-    31810 AS code, -- MKR expense realized
-    -total_mkr AS value
-FROM {{ ref('fact_mkr_vest_creates') }}
-
-UNION ALL
-
-SELECT
-    ts,
-    hash,
-    33110 AS code, -- MKR in vest contracts increases
-    total_mkr AS value
-FROM {{ ref('fact_mkr_vest_creates') }}
-
-UNION ALL
-
-SELECT
-    ts,
-    hash,
-    31810 AS code, -- MKR expense reversed (yanked)
-    yanked_mkr AS value
-FROM {{ ref('fact_mkr_yanks') }}
-
-UNION ALL
-
-SELECT
-    ts,
-    hash,
-    33110 AS code, -- MKR in vest contracts yanked (decreases)
-    -yanked_mkr AS value
-FROM {{ ref('fact_mkr_yanks') }}
+SELECT 
+    tx_hash AS hash,
+    1 AS vested
+FROM {{ ref('fact_dssvesttransferrable_vest') }}

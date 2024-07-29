@@ -26,9 +26,8 @@ WITH opex_preunion AS (
         ON mints.usr = dao_wallet.wallet_address
     LEFT JOIN ethereum_flipside.maker.fact_vat_frob AS frobs
         ON mints.tx_hash = frobs.tx_hash
-        AND mints.wad = frobs.dart
+        AND mints.wad::number/1e18 = frobs.dart
     WHERE frobs.tx_hash IS NULL --filtering out draws from psm that happened in the same tx as expenses
-    -- Note: In the future, add a condition for call_success when available
 )
 
 SELECT

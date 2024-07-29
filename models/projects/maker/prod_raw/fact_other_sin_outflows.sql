@@ -21,7 +21,6 @@ WITH other_sin_outflows_raw AS (
         '0x2cc583c0aacdac9e23cb601fda8f1a0c56cdcb71', -- Old Pause Proxy
         '0xa4c22f0e25c6630b2017979acf1f865e94695c4b'  -- Old Pause Proxy
       )
-    -- Note: In the future, add a condition for call_success when available
 )
 
 SELECT

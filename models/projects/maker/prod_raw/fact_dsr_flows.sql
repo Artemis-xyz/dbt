@@ -15,7 +15,6 @@ WITH dsr_flows_preunioned AS (
         -CAST(rad AS DOUBLE) AS dsr_flow
     FROM ethereum_flipside.maker.fact_vat_move
     WHERE src_address = '0x197e90f9fad81970ba7976f33cbd77088e5d7cf7' -- Pot (DSR) contract
-    -- Note: In the future, add a condition for call_success when available
 
     UNION ALL
 
@@ -25,7 +24,6 @@ WITH dsr_flows_preunioned AS (
         CAST(rad AS DOUBLE) AS dsr_flow
     FROM ethereum_flipside.maker.fact_vat_move
     WHERE dst_address = '0x197e90f9fad81970ba7976f33cbd77088e5d7cf7' -- Pot (DSR) contract
-    -- Note: In the future, add a condition for call_success when available
 )
 
 SELECT

@@ -9,7 +9,7 @@
 }}
 
 with prices as (
-    SELECT 
+    SELECT
         date(hour) as date,
         AVG(price) as price
     FROM ethereum_flipside.price.ez_prices_hourly
@@ -17,11 +17,11 @@ with prices as (
     GROUP BY 1
 ),
 mkr_balance_cte as (
-    SELECT 
+    SELECT
         date(block_timestamp) as date,
         MAX_BY(balance,date(block_timestamp))/1e18 as mkr_balance,
         user_address
-    FROM ethereum_flipside.core.fact_token_balances 
+    FROM ethereum_flipside.core.fact_token_balances
     where user_address in (lower('0xBE8E3e3618f7474F8cB1d074A26afFef007E98FB'), lower('0x8EE7D9235e01e6B42345120b5d270bdB763624C7'))
     and contract_address = '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2'
     GROUP BY 1, 3
@@ -53,7 +53,7 @@ joined_balances AS (
 )
 ,filled_balances AS (
     SELECT
-        date, 
+        date,
         user_address,
         price,
         COALESCE(
@@ -73,12 +73,12 @@ joined_balances AS (
             )
         ) AS filled_user_address
     FROM joined_balances
-),
+)
 
 SELECT
     date,
     SUM(balance_token) amount_mkr,
     SUM(balance_token *price) as amount_usd,
-    'MKR' as symbol
+    'MKR' as token
 FROM filled_balances
 GROUP BY date

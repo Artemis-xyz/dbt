@@ -15,7 +15,6 @@ WITH sin_inflows_raw AS (
         CAST(rad AS DOUBLE) AS value
     FROM ethereum_flipside.maker.fact_vat_suck
     WHERE v_address = '0xa950524441892a31ebddf91d3ceefa04bf454466' -- Vow
-    -- Note: In the future, add a condition for call_success when available
 )
 
 SELECT

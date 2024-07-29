@@ -9,13 +9,12 @@
 }}
 
 WITH mkr_burns_preunioned AS (
-    SELECT 
+    SELECT
         block_timestamp AS ts,
         tx_hash AS hash,
         SUM(CAST(rad AS DOUBLE)) AS value
     FROM ethereum_flipside.maker.fact_vat_move
     WHERE src_address = '0xa950524441892a31ebddf91d3ceefa04bf454466' -- vow
-    -- Note: In the future, add a condition for call_success when available
     GROUP BY block_timestamp, tx_hash
 )
 

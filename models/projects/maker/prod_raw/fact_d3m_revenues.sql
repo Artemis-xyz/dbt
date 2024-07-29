@@ -23,7 +23,6 @@ WITH d3m_revenues_preunion AS (
         '0x621fe4fde2617ea8ffade08d0ff5a862ad287ec2'   -- compound v2 d3m
     )
     AND dst_address = '0xa950524441892a31ebddf91d3ceefa04bf454466'  -- vow
-    -- Note: In the future, add a condition for call_success when available
     GROUP BY 1, 2, 3
 
     UNION ALL
@@ -35,7 +34,6 @@ WITH d3m_revenues_preunion AS (
         SUM(dart) / 1e18 AS value
     FROM {{ ref('fact_vat_grab')}}
     WHERE dart > 0
-    -- Note: In the future, add a condition for call_success when available
     GROUP BY 1, 2, 3
 )
 
