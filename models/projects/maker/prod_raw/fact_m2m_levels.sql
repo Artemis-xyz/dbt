@@ -10,7 +10,7 @@
 
 WITH treasury_tokens AS (
     SELECT token, price_address
-    FROM maker.prod_raw.dim_treasury_erc20s
+    FROM {{ ref('dim_treasury_erc20s') }}
     
     UNION ALL
     

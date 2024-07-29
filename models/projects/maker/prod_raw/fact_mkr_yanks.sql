@@ -14,7 +14,7 @@ WITH yanks_raw AS (
         tx_hash AS hash,
         _end,
         _id
-    FROM maker.prod_raw.fact_dssvesttransferrable_yank
+    FROM {{ ref('fact_dssvesttransferrable_yank') }}
 ),
 
 yanks_with_context AS (
@@ -29,7 +29,7 @@ yanks_with_context AS (
             ELSE y.ts 
         END AS end_time
     FROM yanks_raw y
-    LEFT JOIN maker.prod_raw.fact_mkr_vest_creates c
+    LEFT JOIN {{ ref('fact_mkr_vest_creates') }} c
         ON y._id = c.output_id
 )
 
