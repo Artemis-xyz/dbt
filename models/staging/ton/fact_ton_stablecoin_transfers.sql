@@ -16,6 +16,7 @@ with raw_data as (
         , source_json:"from_type"::string as from_type
         , source_json:"to_address"::string as to_address
         , source_json:"to_type"::string as to_type
+        , source_json:"url"::string as url
         , source_json:"decimals"::int as decimal
         , source_json:"symbol"::string as symbol
     from
@@ -34,7 +35,7 @@ select
     , max_by(to_address, extraction_date) as to_address
     , max_by(to_type, extraction_date) as to_type
     , max_by(decimal, extraction_date) as decimal
-    , case when max_by(symbol, extraction_date) = 'USD₮' then 'USDT' else max_by(symbol, extraction_date) end as symbol
+    , case when (max_by(symbol, extraction_date) = 'USD₮' or max_by(url, extraction_date) = 'https://tether.to/usdt-ton.json')  then 'USDT' else max_by(symbol, extraction_date) end as symbol
 from raw_data
 where 
     from_address is not null and 
