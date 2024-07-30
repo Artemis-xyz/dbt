@@ -206,8 +206,8 @@ select
     , protocol_revenue - total_expenses as earnings
     , treasury_usd
     , treasury_link
-    , tvl
-    , tvl_link
+    , coalesce(tvl,0) as tvl
+    , coalesce(tvl_link, 0) as tvl_link
     , price
     , market_cap
     , fdmc
