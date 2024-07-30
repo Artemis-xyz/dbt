@@ -51,11 +51,11 @@ with -- Maker - Accounting Aggregated v2
 
 select
     date_trunc('day', date) as date,
-    SUM(iff(liquidation_income < 1e-4, 0, liquidation_income)) as "Liquidation Income",
-    SUM(iff(trading_income < 1e-4, 0, trading_income)) as "Trading Fees",
-    SUM(iff(lending_income < 1e-4, 0, lending_income)) as "Interest Income",
-    SUM(direct_expenses) as "Direct Expenses",
-    SUM(operating_expenses) as "Operating Expenses"
+    SUM(iff(liquidation_income < 1e-4, 0, liquidation_income)) as liquidation_income,
+    SUM(iff(trading_income < 1e-4, 0, trading_income)) as trading_fees,
+    SUM(iff(lending_income < 1e-4, 0, lending_income)) as interest_income,
+    SUM(direct_expenses) as direct_expenses,
+    SUM(operating_expenses) as operating_expenses
 from pnl
 group by 1
 order by 1 desc
