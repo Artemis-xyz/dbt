@@ -21,15 +21,24 @@ with
         from min_date
         group by start_date
     ),
-    fundamental_data as (
+    dau_txns as (
         select
             raw_date as date,
             chain,
             count(*) as txns,
-            count(distinct sender) as dau,
+            count(distinct sender) as dau
+        from {{ ref("ez_sui_transactions") }}
+        where status = 'success'
+        group by raw_date, chain
+    ),
+    fundamental_data as (
+        select
+            raw_date as date,
+            chain,
             sum(tx_fee) as fees_native,
             sum(gas_usd) as fees,
             sum(revenue) as revenue,
+            sum(tx_fee) / count(*) as avg_txn_fee,
             sum(native_revenue) as revenue_native
         from {{ ref("ez_sui_transactions") }}
         group by raw_date, chain
@@ -41,7 +50,7 @@ with
 select
     fundamental_data.date,
     fundamental_data.chain,
-    fees / txns as avg_txn_fee,
+    avg_txn_fee,
     txns,
     dau,
     wau,
@@ -62,6 +71,7 @@ select
     weekly_developers_core_ecosystem,
     weekly_developers_sub_ecosystem
 from fundamental_data
+left join dau_txns on fundamental_data.date = dau_txns.date
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join github_data on fundamental_data.date = github_data.date
