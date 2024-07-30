@@ -9,6 +9,16 @@
     )
 }}
 with
+    dau_txns as (
+        select
+            package as contract_address,
+            raw_date as date,
+            count(*) txns,
+            count(distinct sender) dau
+        from {{ ref("ez_sui_transactions") }}
+        where status = 'success'
+        group by raw_date, contract_address
+    ),
     contract_data as (
         select
             package as contract_address,
@@ -19,8 +29,6 @@ with
             max(friendly_name) as friendly_name,
             sum(tx_fee) gas,
             sum(gas_usd) gas_usd,
-            count(*) txns,
-            count(distinct sender) dau,
             max(category) category
         from {{ ref("ez_sui_transactions") }}
         where
@@ -34,12 +42,15 @@ select
     contract_data.date,
     contract_data.contract_address,
     chain,
-    name,
-    app,
-    friendly_name,
-    category,
+    contract_data.name,
+    contract_data.app,
+    contract_data.friendly_name,
+    contract_data.category,
     gas,
     gas_usd,
     txns,
     dau
 from contract_data
+join dau_txns
+    on contract_data.date = dau_txns.date
+    and contract_data.contract_address = dau_txns.contract_address
