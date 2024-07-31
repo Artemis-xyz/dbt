@@ -10,9 +10,9 @@ with
     ),
     flattened_data as (
         select
-            date(to_timestamp(value:date::number / 1000)) as date,
+            value:date::date as date,
             value:"unique_namespaces_count"::integer as unique_namespaces_count,
-            value:"total_blob_size_mb"::float as total_blob_size_mb
+            value:"blobsize"::float as total_blob_size_mb
         from latest_data, lateral flatten(input => data)
     )
 select date, unique_namespaces_count, total_blob_size_mb
