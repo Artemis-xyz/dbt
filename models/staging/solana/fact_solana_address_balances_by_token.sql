@@ -5,7 +5,27 @@
         snowflake_warehouse="STABLECOIN_LG",
     )
 }}
+-- Solana Token Balances
+select
+    tx_id,
+    account_address as address,
+    mint as contract_address,
+    balance as amount,
+    null as decimals,
+    null as amount_unadj,
+    fact_token_balances_id as index,
+    block_timestamp
+from solana_flipside.core.fact_token_balances
+where
+    succeeded = 'TRUE'
+    and block_timestamp::date < to_date(sysdate())
+    {% if is_incremental() %}
+        and block_timestamp
+        >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+    {% endif %}
+
 -- Solana Native Balances
+union all
 select
     tx_id,
     value:"pubkey"::string as address,
@@ -13,7 +33,7 @@ select
     post_balances[index]::float / pow(10, 9) as amount,
     9 as decimals,
     post_balances[index]::float as amount_unadj,
-    index,
+    index::string as index,
     block_timestamp
 from solana_flipside.core.fact_transactions, lateral flatten(input => account_keys)
 where
@@ -26,28 +46,6 @@ where
     {% endif %}
 
 union all
--- Solana Token Balances
-select
-    tx_id,
-    value:"owner"::string as address,
-    value:"mint"::string as contract_address,
-    value:"uiTokenAmount":"uiAmount"::float as amount,
-    value:"uiTokenAmount":"decimals" as decimals,
-    value:"uiTokenAmount":"amount"::float as amount_unadj,
-    index,
-    block_timestamp
-from
-    solana_flipside.core.fact_transactions,
-    lateral flatten(input => post_token_balances)
-where
-    succeeded = 'TRUE'
-    and to_date(block_timestamp) < to_date(sysdate())
-    and pre_token_balances[index]:"uiTokenAmount":"amount"::float <> amount_unadj
-    {% if is_incremental() %}
-        and block_timestamp
-        >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
-    {% endif %}
-union all
 -- Solana Token Balances (Staking)
 select
     sha2(
@@ -58,7 +56,7 @@ select
     post_balance_sol as amount,
     9 as decimals,
     post_balance_sol * pow(10, 9) as amount_unadj,
-    0 as index,
+    '0' as index,
     block_timestamp
 from solana_flipside.gov.fact_rewards_staking
 where
