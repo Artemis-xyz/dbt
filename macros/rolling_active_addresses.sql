@@ -107,6 +107,23 @@
                 sender as from_address
             from {{ ref("fact_stride_uniq_daily_senders") }}
         ),
+    {% elif chain == 'bitcoin' %}
+        distinct_dates as (
+            select 
+                block_timestamp::date as raw_date
+            from bitcoin_flipside.core.fact_transactions
+            {% if is_incremental() %}
+                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+        ),
+        distinct_dates_for_rolling_active_address as (
+            select 
+                block_timestamp::date as raw_date
+                , value:scriptPubKey:address::string as from_address
+            from bitcoin_flipside.core.fact_transactions,
+            lateral flatten(input => outputs)
+            where from_address is not null
+        ),
     {% else %}
         distinct_dates as (
             select distinct 
