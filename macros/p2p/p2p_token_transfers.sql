@@ -82,9 +82,9 @@ with
                 fact_token_transfers_id as index,
                 from_address,
                 to_address,
-                coalesce(amount_raw_precise/pow(10, decimals), 0) as amount,
+                coalesce(amount_raw_precise/pow(10, t5.decimals), 0) as amount,
                 t1.contract_address as token_address,
-                coalesce((amount_raw_precise/pow(10, decimals)) * price, 0) as amount_usd
+                coalesce((amount_raw_precise/pow(10, t5.decimals)) * price, 0) as amount_usd
             from near_flipside.core.ez_token_transfers t1
             inner join distinct_peer_address t2 on lower(to_address) = lower(t2.address)
             inner join distinct_peer_address t3 on lower(from_address) = lower(t3.address)
