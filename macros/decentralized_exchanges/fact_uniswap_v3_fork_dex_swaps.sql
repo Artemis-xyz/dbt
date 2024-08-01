@@ -63,12 +63,14 @@
                 token0_amount / pow(10, token0_decimals) as token0_amount_adj,
                 t2.price as token0_price,
                 ifnull(token0_price * abs(token0_amount_adj), 0) as token0_amount_usd,
+                token0_amount_usd * fee as token0_fee_amount_native,
                 token1,
                 t3.symbol as token1_symbol,
                 t3.decimals as token1_decimals,
                 token1_amount / pow(10, token1_decimals) as token1_amount_adj,
                 t3.price as token1_price,
                 ifnull(token1_price * abs(token1_amount_adj), 0) as token1_amount_usd,
+                token1_amount_usd * fee as token1_fee_amount_native,
                 case
                     when token0_amount_adj > 0
                     then token0_amount_usd * fee
@@ -95,8 +97,12 @@
                 pool,
                 token0,
                 token0_symbol,
+                token0_amount_adj as token0_volume_native,
+                token0_fee_amount_native,
                 token1,
                 token1_symbol,
+                token1_amount_adj as token1_volume_native,
+                token1_fee_amount_native,
                 least(token0_amount_usd, token1_amount_usd) as volume_per_trade,
                 case
                     when volume_per_trade > token_fee_amount
@@ -115,16 +121,20 @@
                 pool,
                 token0 as token_0,
                 token0_symbol as token_0_symbol,
+                token0_volume_native,
+                token0_fee_amount_native,
                 token1 as token_1,
                 token1_symbol as token_1_symbol,
+                token1_volume_native,
+                token1_fee_amount_native,
                 volume_per_trade as trading_volume,
                 token_fee_amount as trading_fees,
                 ROW_NUMBER() OVER (PARTITION by tx_hash, pool ORDER BY event_index) AS row_number
             from filtered_pairs
         ),
         traces as (
-            select 
-                t1.*, 
+            select
+                t1.*,
                 {% if chain in ("arbitrum") %}
                     t3.gas_price_paid as gas_price,
                 {% else %}
@@ -132,8 +142,8 @@
                 {% endif %}
                 ROW_NUMBER() OVER (PARTITION by t1.tx_hash, t1.to_address ORDER BY t1.trace_index) AS row_number
             from  {{ chain }}_flipside.core.fact_traces t1
-            inner join filtered_pairs t2 on 
-                t1.tx_hash = t2.tx_hash 
+            inner join filtered_pairs t2 on
+                t1.tx_hash = t2.tx_hash
                 and lower(t1.to_address) = lower(t2.pool)
                 and substr(t1.input, 0, 10) = '0x128acb08' --Swap function
             left join {{ chain }}_flipside.core.fact_transactions t3 on t1.tx_hash = t3.tx_hash
@@ -155,8 +165,12 @@
         pool,
         token_0,
         token_0_symbol,
+        token0_volume_native,
+        token0_fee_amount_native
         token_1,
         token_1_symbol,
+        token1_volume_native,
+        token1_fee_amount_native,
         trading_volume,
         trading_fees,
         gas_price * gas_used as raw_gas_cost_native,

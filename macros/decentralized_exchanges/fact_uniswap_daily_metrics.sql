@@ -21,8 +21,12 @@
         pool,
         token_0,
         token_0_symbol,
+        token0_volume_native,
+        token0_fee_amount_native
         token_1,
         token_1_symbol,
+        token1_volume_native,
+        token1_fee_amount_native,
         sum(trading_volume) as trading_volume,
         sum(trading_fees) as trading_fees,
         count(distinct

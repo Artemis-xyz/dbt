@@ -67,35 +67,23 @@
                 t2.symbol as token0_symbol,
                 t2.decimals as token0_decimals,
                 coalesce(t2.price, 0) as token0_price,
-                token0_in_fee
-                / pow(10, token0_decimals)
-                * token0_price as token0_in_fee_usd,
-                token0_out_fee
-                / pow(10, token0_decimals)
-                * token0_price as token0_out_fee_usd,
-                token0_in_amount
-                / pow(10, token0_decimals)
-                * token0_price as token0_in_amount_usd,
-                token0_out_amount
-                / pow(10, token0_decimals)
-                * token0_price as token0_out_amount_usd,
+                token0_in_fee * token0_price / pow(10, token0_decimals) as token0_in_fee_usd,
+                token0_out_fee * token0_price / pow(10, token0_decimals) as token0_out_fee_usd,
+                token0_in_amount * token0_price / pow(10, token0_decimals)  as token0_in_amount_usd,
+                token0_out_amount * token0_price / pow(10, token0_decimals) as token0_out_amount_usd,
+                (token0_in_amount + token0_out_amount) / pow(10, token0_decimals) as token0_amount_native,
+                (token0_in_fee + token0_out_fee) / pow(10, token0_decimals) as token0_fee_amount_native,
 
                 token1,
                 t3.symbol as token1_symbol,
                 t3.decimals as token1_decimals,
                 coalesce(t3.price, 0) as token1_price,
-                token1_in_fee
-                / pow(10, token1_decimals)
-                * token1_price as token1_in_fee_usd,
-                token1_out_fee
-                / pow(10, token1_decimals)
-                * token1_price as token1_out_fee_usd,
-                token1_in_amount
-                / pow(10, token1_decimals)
-                * token1_price as token1_in_amount_usd,
-                token1_out_amount
-                / pow(10, token1_decimals)
-                * token1_price as token1_out_amount_usd,
+                token1_in_fee * token1_price / pow(10, token1_decimals) as token1_in_fee_usd,
+                token1_out_fee * token1_price / pow(10, token1_decimals) as token1_out_fee_usd,
+                token1_in_amount * token1_price / pow(10, token1_decimals) as token1_in_amount_usd,
+                token1_out_amount * token1_price / pow(10, token1_decimals) as token1_out_amount_usd,
+                (token1_in_amount + token1_out_amount) / pow(10, token1_decimals) as token1_amount_native,
+                (token1_in_fee + token1_out_fee) / pow(10, token1_decimals) as token1_fee_amount_native,
 
                 case
                     when
@@ -130,8 +118,12 @@
                 pair as pool,
                 token0 as token_0,
                 token0_symbol as token_0_symbol,
+                token0_amount_native as token0_volume_native,
+                token0_fee_amount_native,
                 token1 as token_1,
                 token1_symbol as token_1_symbol,
+                token1_amount_native as token1_volume_native,
+                token1_fee_amount_native,
                 least(total_out, total_in) as trading_volume,
                 total_fees as trading_fees
             from swaps_adjusted
@@ -146,8 +138,12 @@
                 pool,
                 token_0,
                 token_0_symbol,
+                token0_volume_native,
+                token0_fee_amount_native,
                 token_1,
                 token_1_symbol,
+                token1_volume_native,
+                token1_fee_amount_native,
                 trading_volume,
                 trading_fees,
                 ROW_NUMBER() OVER (PARTITION by tx_hash, pool ORDER BY event_index) AS row_number
@@ -186,8 +182,12 @@
         pool,
         token_0,
         token_0_symbol,
+        token0_volume_native,
+        token0_fee_amount_native,
         token_1,
         token_1_symbol,
+        token1_volume_native,
+        token1_fee_amount_native,
         trading_volume,
         trading_fees,
         gas_price * gas_used as raw_gas_cost_native,
