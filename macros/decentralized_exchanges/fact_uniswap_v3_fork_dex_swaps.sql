@@ -48,7 +48,7 @@
                 fee
             from all_pool_events
         ),
-        swaps_asdjusted as (
+        swaps_adjusted as (
             select
                 t1.block_timestamp,
                 t1.hour,
@@ -103,7 +103,7 @@
                     then token_fee_amount
                     else 0
                 end as token_fee_amount
-            from swaps_asdjusted
+            from swaps_adjusted
         ),
         events as (
             select

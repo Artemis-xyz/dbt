@@ -53,7 +53,7 @@
                 token1_out_amount * fee as token1_out_fee
             from all_pool_events
         ),
-        swaps_asdjusted as (
+        swaps_adjusted as (
             select
                 t1.block_timestamp,
                 t1.hour,
@@ -134,7 +134,7 @@
                 token1_symbol as token_1_symbol,
                 least(total_out, total_in) as trading_volume,
                 total_fees as trading_fees
-            from swaps_asdjusted
+            from swaps_adjusted
         ),
         events as (
             select
