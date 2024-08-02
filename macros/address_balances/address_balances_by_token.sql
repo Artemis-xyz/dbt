@@ -26,6 +26,7 @@
             -- TRON USDT supply for the address below is negative to begin with, this means its first transfer is out 
             -- not in, the data at the beginning of tron is pretty iffy and the block explorer seems to fail the closer you
             -- get to the genesis block. it is only max negative by $10 over its history so I am giving it an inital supply of 10000000/1e6 USDT
+            -- THPvaUhoh2Qn2y9THCZML3H815hhFhn5YC is the contract creator
             -- https://tronscan.org/#/tools/advanced-filter?type=transfer&secondType=20&times=1530417600000%2C1556769599999&fromAddress=THPvaUhoh2Qn2y9THCZML3H815hhFhn5YC&toAddress=THPvaUhoh2Qn2y9THCZML3H815hhFhn5YC&token=TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t&imgUrl=https%3A%2F%2Fstatic.tronscan.org%2Fproduction%2Flogo%2Fusdtlogo.png&tokenName=Tether%20USD&tokenAbbr=USDT&relation=or
                 union all
                 select  address, contract_address, block_timestamp, flow

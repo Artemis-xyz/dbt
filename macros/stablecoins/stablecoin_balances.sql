@@ -11,11 +11,11 @@ with
     stablecoin_balances as (
         select 
             block_timestamp
-            , lower(t1.contract_address) as contract_address
+            , t1.contract_address
             , symbol
-            , lower(address) as address
+            , address
             {% if chain in ('solana') %}
-                , amount_unadj / pow(10, num_decimals) as stablecoin_supply
+                , amount as stablecoin_supply
             {% else %}
                 , balance_token / pow(10, num_decimals) as stablecoin_supply
             {% endif %}

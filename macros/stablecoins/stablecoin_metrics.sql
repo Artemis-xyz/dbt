@@ -12,6 +12,12 @@
                         when lower(address) in (select lower(premint_address) from {{ref("fact_"~chain~"_stablecoin_bridge_addresses")}}) then 0
                         else stablecoin_supply
                     end as stablecoin_supply
+                {% elif chain in ('solana') %}
+                    , case
+                        when 
+                            lower(address) in (select lower(premint_address) from {{ref("fact_"~chain~"_stablecoin_premint_addresses")}}) then 0
+                        else stablecoin_supply
+                    end as stablecoin_supply
                 {% else %}
                     , stablecoin_supply
                 {% endif %}
@@ -93,22 +99,22 @@
         )
         , chain_stablecoin_metrics as (
             select
-                stablecoin_supply.date
-                , stablecoin_supply.contract_address
-                , stablecoin_supply.symbol
-                , stablecoin_supply.from_address
+                coalesce(stablecoin_supply.date, all_metrics.date) as date
+                , coalesce(stablecoin_supply.contract_address, all_metrics.contract_address) as contract_address
+                , coalesce(stablecoin_supply.symbol, all_metrics.symbol) as symbol
+                , coalesce(stablecoin_supply.from_address, all_metrics.from_address) as from_address
                 , coalesce(stablecoin_transfer_volume, 0) as stablecoin_transfer_volume
                 , coalesce(stablecoin_daily_txns, 0) as stablecoin_daily_txns
                 , coalesce(artemis_stablecoin_transfer_volume, 0) as artemis_stablecoin_transfer_volume
                 , coalesce(artemis_stablecoin_daily_txns, 0) as artemis_stablecoin_daily_txns
                 , coalesce(p2p_stablecoin_transfer_volume, 0) as p2p_stablecoin_transfer_volume
                 , coalesce(p2p_stablecoin_daily_txns, 0) as p2p_stablecoin_daily_txns
-                , stablecoin_supply
-                , stablecoin_supply.unique_id
+                , coalesce(stablecoin_supply, 0) as stablecoin_supply
+                , coalesce(stablecoin_supply.unique_id, all_metrics.unique_id) as unique_id
             from stablecoin_supply
-            left join all_metrics on stablecoin_supply.unique_id = all_metrics.unique_id
-            left join artemis_metrics on stablecoin_supply.unique_id = artemis_metrics.unique_id
-            left join p2p_metrics on stablecoin_supply.unique_id = p2p_metrics.unique_id
+            full outer join all_metrics on stablecoin_supply.unique_id = all_metrics.unique_id
+            left join artemis_metrics on coalesce(stablecoin_supply.unique_id, all_metrics.unique_id) = artemis_metrics.unique_id
+            left join p2p_metrics on coalesce(stablecoin_supply.unique_id, all_metrics.unique_id) = p2p_metrics.unique_id
             --Filter out rows that don't contribute to metrics
             where stablecoin_supply.stablecoin_supply != 0 or all_metrics.from_address is not null
         )
@@ -182,7 +188,7 @@
         , p2p_stablecoin_transfer_volume
         , p2p_stablecoin_daily_txns
         --issue with float precision
-        , round(stablecoin_supply, 3) as stablecoin_supply
+        , round(stablecoin_supply, 2) as stablecoin_supply
         , '{{ chain }}' as chain
         , unique_id || '-' || chain as unique_id
     from tagged_chain_stablecoin_metrics
