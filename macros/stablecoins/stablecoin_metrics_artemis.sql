@@ -81,13 +81,13 @@ with
             , stablecoin_metrics.symbol
             , from_address
             , stablecoin_transfer_volume * coalesce(
-                d.token_current_price, 1
+                d.shifted_token_price_usd, 1
             ) as stablecoin_transfer_volume
             , stablecoin_daily_txns
         from stablecoin_metrics
         left join {{ ref( "fact_" ~ chain ~ "_stablecoin_contracts") }} c
             on lower(stablecoin_metrics.contract_address) = lower(c.contract_address)
-        left join {{ ref( "fact_coingecko_token_realtime_data") }} d
+        left join {{ ref( "fact_coingecko_token_date_adjusted_gold") }} d
             on lower(c.coingecko_id) = lower(d.token_id)
             and stablecoin_metrics.date = d.date::date
     )
