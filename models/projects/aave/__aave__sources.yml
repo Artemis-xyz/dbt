@@ -15,3 +15,5 @@ sources:
       - name: raw_aave_v3_harmony_borrows_deposits_revenue
       - name: raw_aave_v3_metis_borrows_deposits_revenue
       - name: raw_aave_v3_base_borrows_deposits_revenue
+      - name: raw_aave_v3_gnosis_borrows_deposits_revenue
+      - name: raw_aave_v3_bsc_borrows_deposits_revenue
