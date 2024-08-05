@@ -1,3 +1,4 @@
+
 {{
     config(
         snowflake_warehouse="COMMON",
@@ -16,4 +17,4 @@ SELECT
     , chain
     , symbol
     , contract_address
-FROM {{ source("PC_DBT_DB_UPSTREAM", "agg_daily_stablecoin_metrics") }}
+FROM {{ref("agg_daily_stablecoin_metrics")}}
