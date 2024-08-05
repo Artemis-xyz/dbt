@@ -1,3 +1,4 @@
+
 {{
     config(
         snowflake_warehouse="COMMON",
@@ -25,7 +26,7 @@ SELECT
     , t2.token_atl_date AS atl_date
     , t2.fdv_supply * shifted_token_price_usd AS fdmc
 FROM
-    {{ source("PC_DBT_DB_UPSTREAM", "fact_coingecko_token_date_adjusted_gold") }}
+    {{ref("fact_coingecko_token_date_adjusted_gold")}}
         AS t1
 INNER JOIN (
     SELECT
@@ -40,6 +41,5 @@ INNER JOIN (
         , token_atl_change_percentage
         , token_atl_date
         , coalesce(token_max_supply, token_total_supply) AS fdv_supply
-    FROM
-        {{ source("PC_DBT_DB_UPSTREAM", "fact_coingecko_token_realtime_data") }}
+    FROM {{ref("fact_coingecko_token_realtime_data")}}
 ) AS t2 ON t1.coingecko_id = t2.token_id
