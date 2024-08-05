@@ -1,3 +1,5 @@
+-- depends_on: {{ ref('fact_coingecko_token_date_adjusted_gold')}}
+-- depends_on: {{ ref('fact_coingecko_token_realtime_data')}}
 {{
     config(
         snowflake_warehouse="COMMON",
