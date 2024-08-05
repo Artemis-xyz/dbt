@@ -88,7 +88,7 @@ with
         left join {{ ref( "fact_" ~ chain ~ "_stablecoin_contracts") }} c
             on lower(stablecoin_metrics.contract_address) = lower(c.contract_address)
         left join {{ ref( "fact_coingecko_token_date_adjusted_gold") }} d
-            on lower(c.coingecko_id) = lower(d.token_id)
+            on lower(c.coingecko_id) = lower(d.coingecko_id)
             and stablecoin_metrics.date = d.date::date
     )
     select
