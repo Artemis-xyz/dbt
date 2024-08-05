@@ -25,7 +25,7 @@ with
             , amount_nominal
             , amount_nominal * price as amount_usd
         from logs
-        left join price on block_timestamp::date = date
+        left join prices on block_timestamp::date = date
     )
 select
     date
