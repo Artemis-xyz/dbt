@@ -1,3 +1,5 @@
+-- depends_on: {{ ref('agg_daily_stablecoin_metrics')}}
+
 {{
     config(
         snowflake_warehouse="COMMON",
