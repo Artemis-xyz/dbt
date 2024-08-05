@@ -9,7 +9,14 @@
 }}
 
 
-with treasury_balance as (
+with
+dates as (
+    SELECT
+        DISTINCT date(hour) as date
+    FROM ethereum_flipside.price.ez_prices_hourly
+    WHERE symbol = 'MKR'
+)
+, treasury_balance as (
     select
         date(block_timestamp) as date,
         MAX(balance)::number / 1e18 as treasury_lp_balance
@@ -20,8 +27,8 @@ with treasury_balance as (
         and user_address = lower('0xBE8E3e3618f7474F8cB1d074A26afFef007E98FB')
     GROUP BY
         1
-),
-value_per_token as (
+)
+, value_per_token as (
     SELECT
         s.date,
         v.amount_usd / s.circulating_supply as value_per_token,
@@ -32,12 +39,29 @@ value_per_token as (
     where
         value_per_token is not null
 )
+, filled_data as (
+    SELECT
+        d.date,
+        LAST_VALUE(t.treasury_lp_balance IGNORE NULLS) OVER (
+            ORDER BY d.date
+            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) as amount_native,
+        LAST_VALUE(v.value_per_token IGNORE NULLS) OVER (
+            ORDER BY d.date
+            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) as value_per_token
+    FROM
+        dates d
+        LEFT JOIN treasury_balance t ON d.date = t.date
+        LEFT JOIN value_per_token v ON d.date = v.date
+)
 SELECT
-    t.date,
-    t.treasury_lp_balance as amount_native,
-    v.value_per_token,
-    t.treasury_lp_balance * v.value_per_token as amount_usd,
+    date,
+    amount_native,
+    value_per_token,
+    amount_native * value_per_token as amount_usd,
     'UNI V2: DAI-MKR' as token
 FROM
-    treasury_balance t
-    LEFT JOIN value_per_token v on v.date = t.date
+    filled_data
+ORDER BY
+    date
