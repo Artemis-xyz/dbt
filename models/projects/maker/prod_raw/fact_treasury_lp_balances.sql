@@ -53,7 +53,7 @@ value_per_token_cte as (
     FROM
         dates d
         LEFT JOIN treasury_balance t ON d.date = t.date
-        LEFT JOIN value_per_token v ON d.date = v.date
+        LEFT JOIN value_per_token_cte v ON d.date = v.date
 )
 SELECT
     date,
@@ -63,4 +63,3 @@ SELECT
     'UNI V2: DAI-MKR' as token
 FROM
     treasury_balance t
-    LEFT JOIN value_per_token_cte v on v.date = t.date
