@@ -19,6 +19,7 @@ with raw_data as (
         , source_json:"url"::string as url
         , source_json:"decimals"::int as decimal
         , source_json:"symbol"::string as symbol
+        , source_json:"trace_id"::string as trace_id
     from
         {{ source("PROD_LANDING", "raw_ton_stablecoin_transfers") }}
     {% if is_incremental() %}
@@ -34,6 +35,7 @@ select
     , max_by(from_type, extraction_date) as from_type
     , max_by(to_address, extraction_date) as to_address
     , max_by(to_type, extraction_date) as to_type
+    , max_by(trace_id, extraction_date) as trace_id
     , max_by(decimal, extraction_date) as decimal
     , case when (max_by(symbol, extraction_date) = 'USD₮' or max_by(url, extraction_date) = 'https://tether.to/usdt-ton.json')  then 'USDT' else max_by(symbol, extraction_date) end as symbol
 from raw_data
