@@ -1,13 +1,13 @@
 {{ config(materialized="table", snowflake_warehouse="PROD_REALTIME_DATAHUB") }}
 with
-    max_extraction as (
-        select max(extraction_date) as max_date
-        from {{ source("PROD_LANDING", "raw_coingecko_token_realtime_data") }}
-    ),
     realtime_token_data as (
         select extraction_date::date as date, parse_json(source_json) as data
         from {{ source("PROD_LANDING", "raw_coingecko_token_realtime_data") }}
-        where extraction_date = (select max_date from max_extraction)
+        WHERE
+            extraction_date > DATEADD('day', -1, SYSDATE()) AND
+            extraction_date = (
+                SELECT MAX(extraction_date) AS max_date FROM {{ source("PROD_LANDING", "raw_coingecko_token_realtime_data") }}
+            )
     ),
     flattened_data as (
         select
