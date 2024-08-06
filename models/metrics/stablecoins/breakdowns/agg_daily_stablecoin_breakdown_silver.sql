@@ -12,6 +12,7 @@ with
                     ref("ez_ethereum_stablecoin_metrics_by_address"),
                     ref("ez_solana_stablecoin_metrics_by_address"),
                     ref("ez_tron_stablecoin_metrics_by_address"),
+                    ref("ez_bsc_stablecoin_metrics_by_address"),
                 ]
             )
         }}
