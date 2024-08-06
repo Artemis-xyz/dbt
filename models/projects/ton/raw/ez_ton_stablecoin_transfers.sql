@@ -12,6 +12,7 @@
 select
     block_timestamp,
     trunc(block_timestamp, 'day') as date,
+    trace_id,
     tx_hash,
     from_address,
     from_type,
