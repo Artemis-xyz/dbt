@@ -45,12 +45,7 @@
                 sum(gas_usd) fees,
                 count(*) txns,
                 sum(gas_usd) / count(*) as avg_txn_fee,
-                {% if chain in ("near") %}
-                    count(distinct from_address) dau,
-                    count(distinct from_address_adjusted) as adjusted_dau
-                {% else %}
-                    count(distinct from_address) dau
-                {% endif %}
+                count(distinct from_address) dau
             from {{ chain }}.prod_raw.ez_transactions as t
             group by t.raw_date
         )
@@ -70,9 +65,6 @@
         chain,
         txns,
         dau,
-        {% if chain in ("near") %}
-            adjusted_dau,
-        {% endif %}
         fees_native,
         fees,
         avg_txn_fee,

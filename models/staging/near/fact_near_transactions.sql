@@ -36,9 +36,9 @@ with
             tx_hash
             , case when tx:"actions"[0]:"Delegate" is not null then tx_signer else tx_receiver end as contract_address
             , block_timestamp
+            , tx_succeeded
             , date_trunc('day', block_timestamp) raw_date
-            , tx_signer as from_address
-            , case when tx:"actions"[0]:"Delegate" is not null then tx_receiver else tx_signer end as from_address_adjusted
+            , case when tx:"actions"[0]:"Delegate" is not null then tx_receiver else tx_signer end as from_address
             , (transaction_fee / pow(10, 24)) as tx_fee
             , ((transaction_fee / pow(10, 24)) * price) gas_usd
             , 'near' as chain
@@ -58,7 +58,6 @@ select
     block_timestamp,
     raw_date,
     t.from_address,
-    from_address_adjusted,
     tx_fee,
     gas_usd,
     t.chain,
@@ -76,7 +75,8 @@ select
     bots.user_type,
     bots.address_life_span,
     bots.cur_total_txns,
-    bots.cur_distinct_to_address_count
+    bots.cur_distinct_to_address_count,
+    tx_succeeded
 from near_transactions as t
 left join new_contracts on lower(t.contract_address) = lower(new_contracts.address)
 left join {{ ref("dim_near_bots") }} as bots on t.from_address = bots.from_address
