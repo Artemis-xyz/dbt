@@ -9,5 +9,5 @@
 }}
 
 SELECT date, sum(usd_balance) as treasury_usd
-FROM {{ ref('fact_uniwap_treasury_by_token') }}
+FROM {{ ref('fact_uniswap_treasury_by_token') }}
 GROUP BY 1
