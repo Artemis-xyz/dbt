@@ -1,4 +1,4 @@
-{ % macro get_daily_tokenholder_count_flipside(chain, token_address) %}
+{% macro get_daily_tokenholder_count_flipside(chain, token_address) %}
 
 WITH filtered_balances AS (
     SELECT
@@ -7,7 +7,7 @@ WITH filtered_balances AS (
         MAX_BY(b.balance/ m.decimals, b.block_timestamp) AS balance_token
     FROM {{chain}}_flipside.core.fact_token_balances b
     LEFT JOIN {{chain}}_flipside.price.ez_asset_metadata m ON m.token_address = b.contract_address
-    WHERE b.contract_address = lower({{ token_address }}) -- set token contract address
+    WHERE b.contract_address = lower('{{ token_address }}') -- set token contract address
     GROUP BY 1, 2
 )
 , unique_dates AS (
@@ -20,7 +20,7 @@ WITH filtered_balances AS (
         user_address as address,
         MIN(DATE(block_timestamp)) AS first_date
     FROM {{chain}}_flipside.core.fact_token_balances
-    WHERE contract_address = lower({{ token_address }})
+    WHERE contract_address = lower('{{ token_address }}')
     GROUP BY user_address
 )
 , all_combinations AS (
@@ -60,4 +60,4 @@ where balance_token > 0
 group by date
 order by date desc
 
-{ % endmacro %}
+{% endmacro %}
