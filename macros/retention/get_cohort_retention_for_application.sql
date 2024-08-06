@@ -77,5 +77,4 @@ from
 order by
     r.cohort_month, 
     r.month_number
-
 {% endmacro %}
