@@ -62,4 +62,7 @@ SELECT
     amount_native * value_per_token as amount_usd,
     'UNI V2: DAI-MKR' as token
 FROM
-    treasury_balance t
+    filled_data
+WHERE amount_native is not null
+ORDER BY
+    date
