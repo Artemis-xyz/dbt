@@ -44,9 +44,9 @@
         distinct_dates_for_rolling_active_address as (
             select distinct
                 raw_date,
-                from_address_adjusted as from_address
+                from_address
             from {{ ref("ez_" ~ chain ~ "_transactions") }}
-            WHERE app = '{{ app }}'
+            WHERE app = '{{ app }}' and tx_succeeded = TRUE
         ),
     {% else %}
         distinct_dates as (

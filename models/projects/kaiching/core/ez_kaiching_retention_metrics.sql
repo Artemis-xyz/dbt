@@ -5,7 +5,7 @@
         database="KAICHING",
         schema="core",
         alias="ez_retention_metrics",
-        unique_key="date"
+        unique_key=["cohort_month", "month_number"]
     ) 
 }}
 
