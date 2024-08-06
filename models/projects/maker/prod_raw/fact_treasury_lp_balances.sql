@@ -27,8 +27,8 @@ dates as (
         and user_address = lower('0xBE8E3e3618f7474F8cB1d074A26afFef007E98FB')
     GROUP BY
         1
-)
-, value_per_token as (
+),
+value_per_token_cte as (
     SELECT
         s.date,
         v.amount_usd / s.circulating_supply as value_per_token,
@@ -62,6 +62,5 @@ SELECT
     amount_native * value_per_token as amount_usd,
     'UNI V2: DAI-MKR' as token
 FROM
-    filled_data
-ORDER BY
-    date
+    treasury_balance t
+    LEFT JOIN value_per_token_cte v on v.date = t.date
