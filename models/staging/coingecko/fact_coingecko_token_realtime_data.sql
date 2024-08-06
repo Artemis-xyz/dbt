@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="PROD_REALTIME_DATAHUB") }}
+{{ config(materialized="table", snowflake_warehouse="X_SMALL") }}
 with
     realtime_token_data as (
         select extraction_date::date as date, parse_json(source_json) as data
