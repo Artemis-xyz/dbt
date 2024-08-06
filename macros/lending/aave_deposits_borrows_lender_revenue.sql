@@ -70,6 +70,7 @@ with
             , underlying_token
             , supply
             , supply_usd
+            , coalesce(supply * daily_rate, 0) as revenue_nominal
             , coalesce(supply_usd * daily_rate, 0) as revenue
             , borrows
             , borrows_usd
@@ -90,6 +91,7 @@ select
     , sum(supply) as supply
     , sum(supply_usd) as supply_usd
     , sum(revenue) as revenue
+    , sum(revenue_nominal) as revenue_nominal
 from data
 group by 1, 2
 {% endmacro %}
