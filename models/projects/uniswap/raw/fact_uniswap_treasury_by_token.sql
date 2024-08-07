@@ -141,8 +141,8 @@ full_table as (
 )
 SELECT
     date,
-    symbol,
-    SUM(balance_daily) as balance_daily,
+    symbol as token,
+    SUM(balance_daily) as treasury_native,
     SUM(usd_balance) as usd_balance
 FROM
     full_table
