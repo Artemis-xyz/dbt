@@ -1,3 +1,4 @@
+--depends_on: {{ ref("ez_ton_stablecoin_transfers") }}
 {{
     config(
         materialized="incremental",
