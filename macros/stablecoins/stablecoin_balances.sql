@@ -16,15 +16,23 @@ with
             , address
             {% if chain in ('solana') %}
                 , amount as stablecoin_supply
+            {% elif chain == 'ton' %}
+                , balance_token as stablecoin_supply
             {% else %}
                 , balance_token / pow(10, num_decimals) as stablecoin_supply
             {% endif %}
-        from {{ ref("fact_" ~ chain ~ "_address_balances_by_token")}} t1
+        {% if chain == "ton" %}
+            from {{ ref("ez_" ~ chain ~ "_address_balances_by_token")}} t1
+        {% else %}
+            from {{ ref("fact_" ~ chain ~ "_address_balances_by_token")}} t1
+        {% endif %}
         inner join {{ ref("fact_" ~ chain ~ "_stablecoin_contracts")}} t2
             on lower(t1.contract_address) = lower(t2.contract_address)
         where block_timestamp < to_date(sysdate())
             {% if chain == 'tron' %}
                 and lower(address) != lower('t9yd14nj9j7xab4dbgeix9h8unkkhxuwwb') --Tron Burn Address
+            {% elif chain == 'ton' %}
+                and lower(address) != lower('EQAj-peZGPH-cC25EAv4Q-h8cBXszTmkch6ba6wXC8BM4xdo') --TON Burn Address
             {% endif %}
             {% if backfill_date != '' %}
                 and block_timestamp < '{{ backfill_date }}'
