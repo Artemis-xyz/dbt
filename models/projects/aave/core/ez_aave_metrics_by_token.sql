@@ -288,11 +288,11 @@ select
     , coalesce(ecosystem_incentives_nominal, 0) + coalesce(safety_incentives_nominal, 0) as token_incentives_nominal
     , coalesce(ecosystem_incentives, 0) + coalesce(safety_incentives, 0) as token_incentives
 
-    , token_incentives_nominal as operating_expenses_nominal
-    , token_incentives as operating_expenses 
+    , token_incentives_nominal as total_expenses_nominal
+    , token_incentives as total_expenses 
 
-    , coalesce(protocol_revenue_nominal, 0) - coalesce(operating_expenses_nominal, 0) as protocol_earnings_nominal
-    , coalesce(protocol_revenue, 0) - coalesce(operating_expenses, 0) as protocol_earnings
+    , coalesce(protocol_revenue_nominal, 0) - coalesce(total_expenses_nominal, 0) as protocol_earnings_nominal
+    , coalesce(protocol_revenue, 0) - coalesce(total_expenses, 0) as protocol_earnings
 
     , outstanding_supply_nominal
     , outstanding_supply

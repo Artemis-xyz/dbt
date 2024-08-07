@@ -227,8 +227,8 @@ select
     , ecosystem_incentives
     , safety_incentives
     , coalesce(ecosystem_incentives, 0) + coalesce(safety_incentives, 0) as token_incentives
-    , token_incentives as operating_expenses 
-    , coalesce(protocol_revenue, 0) - coalesce(operating_expenses, 0) as protocol_earnings
+    , token_incentives as total_expenses 
+    , coalesce(protocol_revenue, 0) - coalesce(total_expenses, 0) as protocol_earnings
     , outstanding_supply
     , net_deposits
     , tvl
