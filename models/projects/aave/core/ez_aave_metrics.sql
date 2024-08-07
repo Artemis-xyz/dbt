@@ -164,6 +164,7 @@ with
         select
             date
             , sum(case when token_address <> lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') then amount_usd else 0 end) as net_treasury_value
+            , sum(case when token_address = lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') then amount_usd else 0 end) as treasury_value_native
             , sum(amount_usd) as treasury_value
         from aave_treasury
         group by date
@@ -251,6 +252,7 @@ select
     , tvl
     , treasury_value
     , net_treasury_value
+    , treasury_value_native
     , token_holder_count
     , price
     , h24_volume
