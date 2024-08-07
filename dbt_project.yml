@@ -39,8 +39,6 @@ models:
     bam_models:
       +snowflake_warehouse: "DAILY_BAM"
     staging:
-      aave:
-        +snowflake_warehouse: "AAVE"
       acala:
         +snowflake_warehouse: "ACALA"
       across:
