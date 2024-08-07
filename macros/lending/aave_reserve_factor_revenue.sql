@@ -8,8 +8,6 @@ revenue_events as (
     from {{chain}}_flipside.core.ez_decoded_event_logs
     where contract_address = lower('{{contract_address}}')
         and event_name = 'MintedToTreasury'
-        and block_timestamp >= '2024-06-08'
-        and block_timestamp < '2024-07-28'
 )
 , revenue_events_usd as (
     select

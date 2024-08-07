@@ -196,6 +196,8 @@ with
             , sum(case when token_address <> lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') then amount_nominal else 0 end) as net_treasury_value_nominal
             , sum(amount_usd) as treasury_value
             , sum(amount_nominal) as treasury_value_nominal
+            , sum(case when token_address = lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') then amount_usd else 0 end) as treasury_value_native
+            , sum(case when token_address = lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') then amount_nominal else 0 end) as treasury_value_native_nominal
         from aave_treasury
         group by date, chain, token_address
     )
@@ -308,6 +310,9 @@ select
 
     , net_treasury_value_nominal
     , net_treasury_value
+
+    , treasury_value_native_nominal
+    , treasury_value_native
 
 from aave_outstanding_supply_net_deposits_deposit_revenue
 left join aave_flashloan_fees using (date, chain, token_address)
