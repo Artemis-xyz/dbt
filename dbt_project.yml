@@ -115,8 +115,6 @@ models:
         +snowflake_warehouse: "OSMOSIS"
       pancakeswap:
         +snowflake_warehouse: "PANCAKESWAP_SM"
-      parallel_finance:
-        +snowflake_warehouse: "PARALLEL_FINANCE"
       polkadot:
         +snowflake_warehouse: "POLKADOT"
       polygon:
