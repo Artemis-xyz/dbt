@@ -25,12 +25,14 @@ revenue_events as (
 
 select 
     date
+    , '{{chain}}' as chain
+    , '{{protocol}}' as protocol
     , token_address
     , sum(coalesce(amount_nominal, 0)) as reserve_factor_revenue_nominal
     , sum(coalesce(amount_usd, 0)) as reserve_factor_revenue_usd
 from revenue_events_usd
 where date < to_date(sysdate())
-group by 1, 2
+group by 1, 4
 {% endmacro %}
 
 
