@@ -85,7 +85,7 @@ with
             , stablecoin_metrics.symbol
             , from_address
             , stablecoin_transfer_volume * coalesce(
-                d.shifted_token_price_usd, 1
+                d.shifted_token_price_usd, case when c.coingecko_id = 'celo-kenyan-shilling' then 0.0077 else 1 end
             ) as stablecoin_transfer_volume
             , stablecoin_daily_txns
         from stablecoin_metrics
