@@ -68,7 +68,7 @@ with
                 t1.to_address,
                 t1.amount,
                 coalesce(
-                    pc_dbt_db.prod.FACT_COINGECKO_TOKEN_DATE_ADJUSTED_GOLD.shifted_token_price_usd * transfer_volume, 1 * transfer_volume
+                    pc_dbt_db.prod.FACT_COINGECKO_TOKEN_DATE_ADJUSTED_GOLD.shifted_token_price_usd * transfer_volume, case when pc_dbt_db.prod.FACT_{{ chain }}_STABLECOIN_CONTRACTS.coingecko_id = 'celo-kenyan-shilling' then 0.0077 else 1 end * transfer_volume
                 ) as amount_usd
             from stablecoin_transfers t1
             join pc_dbt_db.prod.FACT_{{ chain }}_STABLECOIN_CONTRACTS 

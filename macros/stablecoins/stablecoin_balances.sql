@@ -143,7 +143,11 @@ with
             , st.symbol
             , stablecoin_supply as stablecoin_supply_native
             , stablecoin_supply * coalesce(
-                d.shifted_token_price_usd, 1
+                d.shifted_token_price_usd, 
+                case 
+                    when lower(c.coingecko_id) = lower('celo-kenyan-shilling') then 0.0077 
+                    else 1 
+                end
             ) as stablecoin_supply
         from historical_supply_by_address_balances st
         left join {{ ref( "fact_" ~ chain ~ "_stablecoin_contracts") }} c
