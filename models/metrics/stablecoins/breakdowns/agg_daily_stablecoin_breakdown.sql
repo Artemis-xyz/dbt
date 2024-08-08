@@ -1,4 +1,4 @@
-{{ config(materialized="table", cluster_by=['chain']) }}
+{{ config(materialized="table") }}
 select
     date
     , contract_address
