@@ -7,7 +7,6 @@ with
                     ref("agg_arbitrum_stablecoin_breakdown_weekly"),
                     ref("agg_avalanche_stablecoin_breakdown_weekly"),
                     ref("agg_base_stablecoin_breakdown_weekly"),
-                    ref("agg_blast_stablecoin_breakdown_weekly"),
                     ref("agg_bsc_stablecoin_breakdown_weekly"),
                     ref("agg_celo_stablecoin_breakdown_weekly"),
                     ref("agg_ethereum_stablecoin_breakdown_weekly"),
