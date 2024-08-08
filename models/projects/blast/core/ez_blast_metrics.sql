@@ -12,7 +12,6 @@
 with
     fundamental_data as ({{ get_fundamental_data_for_chain("blast") }}),
     defillama_data as ({{ get_defillama_metrics("blast") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("blast") }}),
     contract_data as ({{ get_contract_metrics("blast") }}),
     -- NOTE, this says l1 data cost, but that's inaccurate
     -- its both data and execution cost, but I'm following convention for now and we don't publish 
