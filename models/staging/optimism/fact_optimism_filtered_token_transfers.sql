@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        snowflake_warehouse="MEDIUM",
+        snowflake_warehouse="OPTIMISM",
         unique_key=["tx_hash", "index"],
     )
 }}
