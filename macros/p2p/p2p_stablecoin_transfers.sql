@@ -23,18 +23,18 @@ with
                 t1.to_address,
                 t1.amount,
                 coalesce(
-                    fact_coingecko_token_date_adjusted_gold.shifted_token_price_usd * transfer_volume, 1 * transfer_volume
+                    pc_dbt_db.prod.FACT_COINGECKO_TOKEN_DATE_ADJUSTED_GOLD.shifted_token_price_usd * transfer_volume, 1 * transfer_volume
                 ) as amount_usd
             from stablecoin_transfers t1
             join
-                fact_{{ chain }}_stablecoin_contracts
+                pc_dbt_db.prod.FACT_{{ chain }}_STABLECOIN_CONTRACTS
                 on lower(t1.contract_address)
-                = lower(fact_{{ chain }}_stablecoin_contracts.contract_address)
+                = lower(pc_dbt_db.prod.FACT_{{ chain }}_STABLECOIN_CONTRACTS.contract_address)
             left join
-                fact_coingecko_token_date_adjusted_gold
-                on lower(fact_{{ chain }}_stablecoin_contracts.coingecko_id)
-                = lower(fact_coingecko_token_date_adjusted_gold.coingecko_id)
-                and t1.date = fact_coingecko_token_date_adjusted_gold.date
+                pc_dbt_db.prod.FACT_COINGECKO_TOKEN_DATE_ADJUSTED_GOLD
+                on lower(pc_dbt_db.prod.FACT_{{ chain }}_STABLECOIN_CONTRACTS.coingecko_id)
+                = lower(pc_dbt_db.prod.FACT_COINGECKO_TOKEN_DATE_ADJUSTED_GOLD.coingecko_id)
+                and t1.date = pc_dbt_db.prod.FACT_COINGECKO_TOKEN_DATE_ADJUSTED_GOLD.date
             inner join distinct_peer_address t2 on lower(t1.to_address) = lower(t2.address)
             inner join distinct_peer_address t3 on lower(t1.from_address) = lower(t3.address)
             {% if chain == "solana" %}
@@ -68,14 +68,14 @@ with
                 t1.to_address,
                 t1.amount,
                 coalesce(
-                    fact_coingecko_token_date_adjusted_gold.shifted_token_price_usd * transfer_volume, 1 * transfer_volume
+                    pc_dbt_db.prod.FACT_COINGECKO_TOKEN_DATE_ADJUSTED_GOLD.shifted_token_price_usd * transfer_volume, 1 * transfer_volume
                 ) as amount_usd
             from stablecoin_transfers t1
-            join fact_{{ chain }}_stablecoin_contracts 
-                on lower(t1.contract_address) = lower(fact_{{ chain }}_stablecoin_contracts.contract_address)
-            left join fact_coingecko_token_date_adjusted_gold 
-                on lower(fact_{{ chain }}_stablecoin_contracts.coingecko_id) = lower(fact_coingecko_token_date_adjusted_gold.coingecko_id)
-                and t1.date = fact_coingecko_token_date_adjusted_gold.date
+            join pc_dbt_db.prod.FACT_{{ chain }}_STABLECOIN_CONTRACTS 
+                on lower(t1.contract_address) = lower(pc_dbt_db.prod.FACT_{{ chain }}_STABLECOIN_CONTRACTS.contract_address)
+            left join pc_dbt_db.prod.FACT_COINGECKO_TOKEN_DATE_ADJUSTED_GOLD 
+                on lower(pc_dbt_db.prod.FACT_{{ chain }}_STABLECOIN_CONTRACTS.coingecko_id) = lower(pc_dbt_db.prod.FACT_COINGECKO_TOKEN_DATE_ADJUSTED_GOLD.coingecko_id)
+                and t1.date = pc_dbt_db.prod.FACT_COINGECKO_TOKEN_DATE_ADJUSTED_GOLD.date
             where not t1.to_address in (select contract_address from distinct_contracts)
                 and not t1.from_address in (select contract_address from distinct_contracts)
             {% if is_incremental() %} 
