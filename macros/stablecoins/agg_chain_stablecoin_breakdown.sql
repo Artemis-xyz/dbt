@@ -127,12 +127,20 @@
                 category,
                 results.symbol,
                 stablecoin_transfer_volume * coalesce(
-                    fact_coingecko_token_realtime_data.token_current_price, 1
+                    fact_coingecko_token_realtime_data.token_current_price,
+                    case 
+                        when lower(fact_{{ chain }}_stablecoin_contracts.coingecko_id) = lower('celo-kenyan-shilling') then 0.0077 
+                        else 1 
+                    end
                 ) as stablecoin_transfer_volume,
                 stablecoin_daily_txns,
                 stablecoin_dau,
                 stablecoin_supply * coalesce(
-                    fact_coingecko_token_realtime_data.token_current_price, 1
+                    fact_coingecko_token_realtime_data.token_current_price, 
+                    case 
+                        when lower(fact_{{ chain }}_stablecoin_contracts.coingecko_id) = lower('celo-kenyan-shilling') then 0.0077 
+                        else 1 
+                    end
                 ) as stablecoin_supply,
                 chain
             from results
