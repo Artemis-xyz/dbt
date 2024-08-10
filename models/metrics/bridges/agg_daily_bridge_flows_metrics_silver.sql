@@ -88,3 +88,4 @@ select
     || category as unique_id
 from unioned
 where date < to_date(sysdate())
+    and source_chain != destination_chain
