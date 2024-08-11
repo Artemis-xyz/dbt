@@ -31,7 +31,7 @@
                         swap_from_amount_usd as amount_in_usd
                     from solana_flipside.defi.ez_dex_swaps t1
                     where (swap_from_amount_usd is not null and swap_to_amount_usd is not null) 
-                        and (swap_from_amount_usd <> 0 and swap_to_amount_usd <> 0) and
+                        and (swap_from_amount_usd <> 0 and swap_to_amount_usd <> 0)
                         and abs(
                             ln(coalesce(nullif(swap_from_amount_usd, 0), 1)) / ln(10)
                             - ln(coalesce(nullif(swap_to_amount_usd, 0), 1)) / ln(10)
