@@ -30,8 +30,8 @@
                         t1.swap_to_mint as token_out,
                         swap_from_amount_usd as amount_in_usd
                     from solana_flipside.defi.ez_dex_swaps t1
-                    where swap_to_amount = 0 and swap_from_amount = 0
-                        and swap_from_amount_usd is null and swap_to_amount_usd is null 
+                    where (swap_from_amount_usd is not null and swap_to_amount_usd is not null) 
+                        and (swap_from_amount_usd <> 0 and swap_to_amount_usd <> 0) and
                         and abs(
                             ln(coalesce(nullif(swap_from_amount_usd, 0), 1)) / ln(10)
                             - ln(coalesce(nullif(swap_to_amount_usd, 0), 1)) / ln(10)
