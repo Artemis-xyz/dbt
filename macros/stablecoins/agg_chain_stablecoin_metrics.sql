@@ -67,7 +67,11 @@
                 -- TODO: Refactor to support weird currencies. Currently assumes
                 -- everything is $1 if not found
                 coalesce(
-                    fact_coingecko_token_date_adjusted_gold.shifted_token_price_usd, 1
+                    fact_coingecko_token_date_adjusted_gold.shifted_token_price_usd, 
+                    case 
+                        when lower(fact_{{ chain }}_stablecoin_contracts.coingecko_id) = lower('celo-kenyan-shilling') then 0.0077 
+                        else 1 
+                    end
                 ) as price,
                 total_supply * price as total_supply,
                 txns,

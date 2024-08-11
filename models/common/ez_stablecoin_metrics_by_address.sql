@@ -1,8 +1,16 @@
-{{ config(materialized="table") }}
-select
+-- depends_on: {{ ref('agg_daily_stablecoin_breakdown_silver') }}
+
+{{ 
+    config(
+        snowflake_warehouse="COMMON",
+        database="common",
+        schema="core",
+        materialized='view'
+    )
+}}
+
+select 
     date
-    , contract_address
-    , symbol
     , from_address
     , contract_name
     , contract
@@ -10,6 +18,11 @@ select
     , icon
     , app
     , category
+    , is_wallet
+
+    , contract_address
+    , symbol
+
     , stablecoin_transfer_volume
     , stablecoin_daily_txns
     , artemis_stablecoin_transfer_volume
@@ -17,6 +30,6 @@ select
     , p2p_stablecoin_transfer_volume
     , p2p_stablecoin_daily_txns
     , stablecoin_supply
-    , is_wallet
     , chain
-from {{ ref("agg_daily_stablecoin_breakdown_silver") }}
+    , unique_id
+from {{ ref('agg_daily_stablecoin_breakdown_silver') }}
