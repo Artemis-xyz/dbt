@@ -24,33 +24,17 @@
     {% else %}
         with
             {% if chain == "solana" %}
-                token_prices as (
-                    select
-                        hour::date as date,
-                        token_address,
-                        avg(price) as price
-                    from solana_flipside.price.ez_prices_hourly
-                    {% if is_incremental() %} 
-                        where block_timestamp >= (
-                            select dateadd('day', -3, max(block_timestamp))
-                            from {{ this }}
-                        )
-                    {% endif %}
-                    group by date, token_address
-                ),
                 dex_swap_liquidity_pairs as (
                     select 
                         t1.swap_from_mint as token_in, 
                         t1.swap_to_mint as token_out,
-                        sum(swap_from_amount * t2.price) as amount_in_usd
-                    from solana_flipside.defi.fact_swaps t1
-                    left join token_prices t2 on t2.token_address = t1.swap_from_mint and t1.block_timestamp::date = t2.date
-                    left join token_prices t3 on t3.token_address = t1.swap_to_mint and t1.block_timestamp::date = t3.date
-                    where swap_to_amount = 0 and swap_from_amount = 0
-                        and swap_from_amount * t2.price is null and swap_to_amount * t3.price is null 
+                        swap_from_amount_usd as amount_in_usd
+                    from solana_flipside.defi.ez_dex_swaps t1
+                    where (swap_from_amount_usd is not null and swap_to_amount_usd is not null) 
+                        and (swap_from_amount_usd <> 0 and swap_to_amount_usd <> 0) and
                         and abs(
-                            ln(coalesce(nullif(swap_from_amount * t2.price, 0), 1)) / ln(10)
-                            - ln(coalesce(nullif(swap_to_amount * t3.price, 0), 1)) / ln(10)
+                            ln(coalesce(nullif(swap_from_amount_usd, 0), 1)) / ln(10)
+                            - ln(coalesce(nullif(swap_to_amount_usd, 0), 1)) / ln(10)
                         )
                         < 1
                         group by token_in, token_out
@@ -59,12 +43,12 @@
                 ),
                 tokens as (
                     select distinct swap_from_mint as token
-                    from {{ chain }}_flipside.defi.fact_swaps 
+                    from solana_flipside.defi.ez_dex_swaps
                     where lower(swap_from_mint) not in (select lower(contract_address) from {{ref("fact_" ~ chain ~ "_stablecoin_contracts") }})
                         and lower(swap_from_mint) in (select lower(token_in) from dex_swap_liquidity_pairs)
                     union
                     select distinct swap_to_mint as token
-                    from {{ chain }}_flipside.defi.fact_swaps 
+                    from solana_flipside.defi.ez_dex_swaps
                     where lower(swap_to_mint) not in (select lower(contract_address) from {{ref("fact_" ~ chain ~ "_stablecoin_contracts") }})
                         and lower(swap_to_mint) in (select lower(token_out) from dex_swap_liquidity_pairs)
                 )
