@@ -25,10 +25,10 @@ with prices as (
         ethereum_flipside.core.fact_decoded_event_logs l
     WHERE
         contract_address in (
-            lower('0xca35e32e7926b96a9988f61d510e038108d8068e') -- 10m max
-            , lower('0xa1484c3aa22a66c62b77e0ae78e15258bd0cb711') -- 7.4m max
-            , lower('0x7fba4b8dc5e7616e59622806932dbea72537a56b') -- 6.75 max wrong shape
-            , lower('0x6c3e4cb2e96b01f4b866965a91ed4437839a121a') --
+            lower('0xca35e32e7926b96a9988f61d510e038108d8068e')
+            , lower('0xa1484c3aa22a66c62b77e0ae78e15258bd0cb711')
+            , lower('0x7fba4b8dc5e7616e59622806932dbea72537a56b')
+            , lower('0x6c3e4cb2e96b01f4b866965a91ed4437839a121a')
         )
         and event_name = 'RewardPaid'
     GROUP BY
