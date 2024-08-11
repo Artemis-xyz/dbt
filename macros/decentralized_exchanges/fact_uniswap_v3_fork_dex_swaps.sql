@@ -63,19 +63,25 @@
                 token0_amount / pow(10, token0_decimals) as token0_amount_adj,
                 t2.price as token0_price,
                 ifnull(token0_price * abs(token0_amount_adj), 0) as token0_amount_usd,
-                token0_amount_usd * fee as token0_fee_amount_native,
                 token1,
                 t3.symbol as token1_symbol,
                 t3.decimals as token1_decimals,
                 token1_amount / pow(10, token1_decimals) as token1_amount_adj,
                 t3.price as token1_price,
                 ifnull(token1_price * abs(token1_amount_adj), 0) as token1_amount_usd,
-                token1_amount_usd * fee as token1_fee_amount_native,
                 case
                     when token0_amount_adj > 0
                     then token0_amount_usd * fee
                     else token1_amount_usd * fee
                 end as token_fee_amount,
+                case when token0_amount_adj > 0
+                    then token0_amount_adj * fee
+                    else token1_amount_adj * fee
+                end as token_fee_amount_native,
+                case when token0_amount_adj > 0
+                    then token0_symbol
+                    else token1_symbol
+                end as token_fee_amount_native_symbol,
                 fee
             from swaps t1
 
@@ -97,18 +103,22 @@
                 pool,
                 token0,
                 token0_symbol,
-                token0_amount_adj as token0_volume_native,
-                token0_fee_amount_native,
+                token0_amount_adj as token_0_volume_native,
                 token1,
                 token1_symbol,
-                token1_amount_adj as token1_volume_native,
-                token1_fee_amount_native,
+                token1_amount_adj as token_1_volume_native,
                 least(token0_amount_usd, token1_amount_usd) as volume_per_trade,
                 case
                     when volume_per_trade > token_fee_amount
                     then token_fee_amount
                     else 0
-                end as token_fee_amount
+                end as token_fee_amount,
+                case
+                    when volume_per_trade > token_fee_amount
+                    then token_fee_amount_native
+                    else 0
+                end as token_fee_amount_native,
+                token_fee_amount_native_symbol
             from swaps_adjusted
         ),
         events as (
@@ -121,14 +131,14 @@
                 pool,
                 token0 as token_0,
                 token0_symbol as token_0_symbol,
-                token0_volume_native,
-                token0_fee_amount_native,
+                token_0_volume_native,
                 token1 as token_1,
                 token1_symbol as token_1_symbol,
-                token1_volume_native,
-                token1_fee_amount_native,
+                token_1_volume_native,
                 volume_per_trade as trading_volume,
                 token_fee_amount as trading_fees,
+                token_fee_amount_native,
+                token_fee_amount_native_symbol,
                 ROW_NUMBER() OVER (PARTITION by tx_hash, pool ORDER BY event_index) AS row_number
             from filtered_pairs
         ),
@@ -165,18 +175,20 @@
         pool,
         token_0,
         token_0_symbol,
-        token0_volume_native,
-        token0_fee_amount_native
         token_1,
         token_1_symbol,
-        token1_volume_native,
-        token1_fee_amount_native,
         trading_volume,
         trading_fees,
+        {% if app == 'uniswap' %}
+            token_0_volume_native,
+            token_1_volume_native,
+            token_fee_amount_native,
+            token_fee_amount_native_symbol,
+        {% endif %}
         gas_price * gas_used as raw_gas_cost_native,
         raw_gas_cost_native / 1e9 as gas_cost_native
     from events
-    left join traces on 
+    left join traces on
         events.tx_hash = traces.tx_hash
         and events.pool = traces.to_address
         and events.row_number = traces.row_number

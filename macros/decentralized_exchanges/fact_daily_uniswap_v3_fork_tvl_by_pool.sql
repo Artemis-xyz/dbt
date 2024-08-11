@@ -193,12 +193,14 @@
         pool,
         token0 as token_0,
         token0_symbol as token_0_symbol,
-        sum(token0_amount_native) as token_0_amount_native,
-        sum(token0_amount_usd) as token_0_amount_usd,
         token1 as token_1,
         token1_symbol as token_1_symbol,
-        sum(token1_amount_native) as token_1_amount_native,
-        sum(token1_amount_usd) as token_1_amount_usd,
+        {% if app == 'uniswap' %}
+            sum(token0_amount_native) as token_0_amount_native,
+            sum(token0_amount_usd) as token_0_amount_usd,
+            sum(token1_amount_native) as token_1_amount_native,
+            sum(token1_amount_usd) as token_1_amount_usd,
+        {% endif %}
         sum(pool_tvl) as tvl
     from viable_pools
     where date is not null

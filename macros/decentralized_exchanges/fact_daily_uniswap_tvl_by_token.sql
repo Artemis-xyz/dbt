@@ -7,7 +7,7 @@ with agg as (
         token_0_amount_native as tvl_native,
         token_0_amount_usd as tvl_usd
     FROM
-        pc_dbt_db.prod.fact_uniswap_v3_{{chain}}_tvl_by_pool
+        {{ ref('fact_uniswap_v3_' ~ chain ~ '_tvl_by_pool') }}
     UNION ALL
     SELECT
         date,
@@ -15,7 +15,7 @@ with agg as (
         token_1_amount_native as tvl_native,
         token_1_amount_usd as tvl_usd
     FROM
-        pc_dbt_db.prod.fact_uniswap_v3_{{chain}}_tvl_by_pool
+        {{ ref('fact_uniswap_v3_' ~ chain ~ '_tvl_by_pool') }}
     {% if chain == 'ethereum' %}
         UNION ALL
         SELECT
@@ -24,7 +24,7 @@ with agg as (
             token_0_amount_native as tvl_native,
             token_0_amount_usd as tvl_usd
         FROM
-            pc_dbt_db.prod.fact_uniswap_v2_{{chain}}_tvl_by_pool
+            {{ ref('fact_uniswap_v2_' ~ chain ~ '_tvl_by_pool') }}
         UNION ALL
         SELECT
             date,
@@ -32,12 +32,12 @@ with agg as (
             token_1_amount_native as tvl_native,
             token_1_amount_usd as tvl_usd
         FROM
-            pc_dbt_db.prod.fact_uniswap_v2_{{chain}}_tvl_by_pool
+            {{ ref('fact_uniswap_v2_' ~ chain ~ '_tvl_by_pool') }}
     {% endif %}
 )
-SELECT date, token, sum(tvl_native) as tvl_native, sum(tvl_usd) as tvl_usd
+SELECT date, '{{chain}}' as chain, token, sum(tvl_native) as tvl_native, sum(tvl_usd) as tvl_usd
 FROM agg
 WHERE token is not null
-GROUP BY 1, 2
+GROUP BY 1, 2, 3
 
 {% endmacro %}
