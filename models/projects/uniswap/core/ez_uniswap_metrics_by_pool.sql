@@ -10,38 +10,42 @@
 
 with
     trading_volume_pool as (
-       {{
-            dbt_utils.union_relations(
-                relations=[
-                    ref("fact_uniswap_v2_ethereum_trading_vol_fees_traders_by_pool"),
-                    ref("fact_uniswap_v3_arbitrum_trading_vol_fees_traders_by_pool"),
-                    ref("fact_uniswap_v3_avalanche_trading_vol_fees_traders_by_pool"),
-                    ref("fact_uniswap_v3_base_trading_vol_fees_traders_by_pool"),
-                    ref("fact_uniswap_v3_blast_trading_vol_fees_traders_by_pool"),
-                    ref("fact_uniswap_v3_bsc_trading_vol_fees_traders_by_pool"),
-                    ref("fact_uniswap_v3_ethereum_trading_vol_fees_traders_by_pool"),
-                    ref("fact_uniswap_v3_optimism_trading_vol_fees_traders_by_pool"),
-                    ref("fact_uniswap_v3_polygon_trading_vol_fees_traders_by_pool"),
-                ],
-            )
-        }}
+        SELECT * FROM {{ ref('fact_uniswap_v2_ethereum_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_arbitrum_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_avalanche_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_base_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_blast_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_bsc_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_ethereum_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_optimism_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_polygon_trading_vol_fees_traders_by_pool') }}
     ),
     tvl_by_pool as (
-       {{
-            dbt_utils.union_relations(
-                relations=[
-                    ref("fact_uniswap_v2_ethereum_tvl_by_pool"),
-                    ref("fact_uniswap_v3_arbitrum_tvl_by_pool"),
-                    ref("fact_uniswap_v3_avalanche_tvl_by_pool"),
-                    ref("fact_uniswap_v3_base_tvl_by_pool"),
-                    ref("fact_uniswap_v3_blast_tvl_by_pool"),
-                    ref("fact_uniswap_v3_bsc_tvl_by_pool"),
-                    ref("fact_uniswap_v3_ethereum_tvl_by_pool"),
-                    ref("fact_uniswap_v3_optimism_tvl_by_pool"),
-                    ref("fact_uniswap_v3_polygon_tvl_by_pool"),
-                ],
-            )
-        }}
+        SELECT * FROM {{ ref('fact_uniswap_v2_ethereum_tvl_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_arbitrum_tvl_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_avalanche_tvl_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_base_tvl_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_blast_tvl_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_bsc_tvl_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_ethereum_tvl_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_optimism_tvl_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_polygon_tvl_by_pool') }}
     )
 select
     tvl_by_pool.date,

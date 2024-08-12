@@ -11,19 +11,23 @@
 
 WITH
     fees_cte as (
-        {{ dbt_utils.union_relations(
-            relations=[
-                ref('fact_uniswap_v3_bsc_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v3_base_trading_vol_fees_traders_by_pool')
-                ,  ref('fact_uniswap_v3_blast_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v3_polygon_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v2_ethereum_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v3_arbitrum_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v3_ethereum_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v3_optimism_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v3_avalanche_trading_vol_fees_traders_by_pool')
-            ]
-        ) }}
+        SELECT * FROM {{ ref('fact_uniswap_v2_ethereum_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_arbitrum_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_avalanche_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_base_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_blast_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_bsc_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_ethereum_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_optimism_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_polygon_trading_vol_fees_traders_by_pool') }}
     )
     , fees_agg as(
         SELECT
@@ -47,7 +51,7 @@ WITH
             date
             , 'ethereum' as chain
             , token
-            , treasury_native as treasury
+            , treasury_native as treasury_value
         FROM {{ ref('fact_uniswap_treasury_by_token') }}
     )
     , treasury_native_cte AS(
@@ -55,7 +59,7 @@ WITH
             date
             , 'ethereum' as chain
             , token
-            , treasury_native
+            , treasury_native as treasury_native_value
         FROM {{ ref('fact_uniswap_treasury_by_token') }}
         WHERE token = 'UNI'
     )
@@ -64,23 +68,26 @@ WITH
             date
             , 'ethereum' as chain
             , token
-            , treasury_native as net_treasury
+            , treasury_native as net_treasury_value
         FROM {{ ref('fact_uniswap_treasury_by_token') }}
         WHERE token <> 'UNI'
     )
     , tvl_cte AS (
-        {{ dbt_utils.union_relations(
-            relations=[
-                ref('fact_uniswap_bsc_tvl_by_token')
-                , ref('fact_uniswap_base_tvl_by_token')
-                , ref('fact_uniswap_blast_tvl_by_token')
-                , ref('fact_uniswap_polygon_tvl_by_token')
-                , ref('fact_uniswap_ethereum_tvl_by_token')
-                , ref('fact_uniswap_arbitrum_tvl_by_token')
-                , ref('fact_uniswap_optimism_tvl_by_token')
-                , ref('fact_uniswap_avalanche_tvl_by_token')
-            ]
-        ) }}
+        SELECT * FROM {{ ref('fact_uniswap_bsc_tvl_by_token') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_base_tvl_by_token') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_blast_tvl_by_token') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_polygon_tvl_by_token') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_ethereum_tvl_by_token') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_arbitrum_tvl_by_token') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_optimism_tvl_by_token') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_avalanche_tvl_by_token') }}
     )
     , tvl_agg as(
         SELECT

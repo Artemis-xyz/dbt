@@ -11,19 +11,23 @@
 
 WITH
     fees as (
-        {{ dbt_utils.union_relations(
-            relations=[
-                ref('fact_uniswap_v3_bsc_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v3_base_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v3_blast_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v3_polygon_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v2_ethereum_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v3_arbitrum_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v3_ethereum_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v3_optimism_trading_vol_fees_traders_by_pool')
-                , ref('fact_uniswap_v3_avalanche_trading_vol_fees_traders_by_pool')
-            ]
-        ) }}
+        SELECT * FROM {{ ref('fact_uniswap_v3_bsc_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_base_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_blast_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_polygon_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v2_ethereum_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_arbitrum_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_ethereum_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_optimism_trading_vol_fees_traders_by_pool') }}
+        UNION ALL
+        SELECT * FROM {{ ref('fact_uniswap_v3_avalanche_trading_vol_fees_traders_by_pool') }}
     )
     , fees_agg AS (
         SELECT
@@ -91,16 +95,16 @@ SELECT
     , token_incentives + operating_expenses as total_expenses
     , protocol_revenue - total_expenses as protocol_earnings
     , treasury_usd as treausry_value
-    , treasury_native_value
+    , treasury_native as treasury_native_value
     , net_treasury_usd as net_treasury_value
-    , tvl as net_deposit
+    , tvl as net_deposits
     , tvl
     , fdmc
     , market_cap
     , token_volume
     , token_turnover_fdv
     , token_turnover_circulating
-    , tokenholder_count
+    , token_holder_count
 FROM fees_agg
 LEFT JOIN token_incentives_cte using(date)
 LEFT JOIN treasury_usd_cte using(date)
