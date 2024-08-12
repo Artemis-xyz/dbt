@@ -51,7 +51,7 @@ with
         SELECT
             date
             , 'ethereum' as chain
-            , sum(usd_balance) as treasury
+            , sum(usd_balance) as treasury_value
         FROM {{ ref('fact_uniswap_treasury_by_token') }}
         GROUP BY 1, 2
     )
@@ -59,7 +59,7 @@ with
         SELECT
             date
             , 'ethereum' as chain
-            , treasury_native
+            , treasury_native as treasury_native_value
         FROM {{ ref('fact_uniswap_treasury_by_token') }}
         WHERE token = 'UNI'
     )
@@ -67,7 +67,7 @@ with
         SELECT
             date
             , 'ethereum' as chain
-            , sum(usd_balance) as net_treasury
+            , sum(usd_balance) as net_treasury_value
         FROM {{ ref('fact_uniswap_treasury_by_token') }}
         WHERE token <> 'UNI'
         GROUP BY 1, 2
