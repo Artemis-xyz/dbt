@@ -32,7 +32,7 @@ WITH application_outflows as (
     GROUP BY from_category, to_category, date
 )
 SELECT
-    'optimism' as chain,
+    '{{ chain }}' as chain,
     af.date,
     af.from_app,
     af.from_friendly_name,

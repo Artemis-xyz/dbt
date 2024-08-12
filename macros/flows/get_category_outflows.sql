@@ -32,7 +32,7 @@ WITH category_flows as (
     GROUP BY from_category, to_app, date
 )
 SELECT
-    'optimism' as chain,
+    '{{ chain }}' as chain,
     cf.date,
     cf.from_category as category,
     cf.to_category,
