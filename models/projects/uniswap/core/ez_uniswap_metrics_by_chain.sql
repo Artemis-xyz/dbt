@@ -107,13 +107,13 @@ select
     , 0 as secondary_supply_side_revenue
     , 0 as protocol_revenue
     , 0 as operating_expenses
-    , token_incentives_usd
+    , token_incentives_usd as token_incentives
     , -token_incentives_usd as protocol_earnings
     , tvl_by_chain.tvl
-    , treasury
-    , treasury_native
-    , net_treasury
-    , tvl_by_chain.tvl as net_deposit
+    , treasury_value
+    , treasury_native_value
+    , net_treasury_value
+    , tvl_by_chain.tvl as net_deposits
     , trading_volume_by_chain.trading_volume
     , trading_volume_by_chain.unique_traders
     , trading_volume_by_chain.gas_cost_native

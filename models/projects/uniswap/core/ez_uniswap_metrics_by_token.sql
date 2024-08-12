@@ -98,9 +98,9 @@ SELECT
     chain,
     fees_native as trading_fees,
     token_incentives_native,
-    treasury,
-    treasury_native,
-    net_treasury,
+    treasury_value,
+    treasury_native_value,
+    net_treasury_value,
     tvl
 FROM
     fees_agg

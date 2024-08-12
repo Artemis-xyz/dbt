@@ -90,9 +90,9 @@ SELECT
     , 0 as operating_expenses
     , token_incentives + operating_expenses as total_expenses
     , protocol_revenue - total_expenses as protocol_earnings
-    , treasury_usd
-    , treasury_native
-    , net_treasury_usd
+    , treasury_usd as treausry_value
+    , treasury_native_value
+    , net_treasury_usd as net_treasury_value
     , tvl as net_deposit
     , tvl
     , fdmc
