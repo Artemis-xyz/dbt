@@ -17,5 +17,6 @@ SELECT
     category_amount_usd,
     to_app,
     to_friendly_name,
-    application_amount_usd
+    application_amount_usd,
+    date::string || '-' || chain || '-' || category || '-' || to_category || '-' || to_app as unique_id
 FROM daily_data
