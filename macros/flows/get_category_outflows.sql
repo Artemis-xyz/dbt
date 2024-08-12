@@ -1,10 +1,4 @@
-{{
-    config(
-        materialized="incremental",
-        snowflake_warehouse="OPTIMISM",
-        unique_key=["chain", "date", "from_category"],
-    )
-}}
+{% macro get_category_outflows(chain) %}
 
 WITH category_flows as (
     SELECT 
@@ -12,8 +6,15 @@ WITH category_flows as (
         from_category,
         to_category,
         sum(amount_usd) as amount_usd
-    FROM {{ ref("fact_optimism_labeled_transfers") }}
+    FROM {{ ref("fact_" ~ chain ~ "_labeled_transfers") }}
+    {% if is_incremental() %} 
+        where block_timestamp >= (
+            select dateadd('day', -3, max(date))
+            from {{ this }}
+        )
+    {% endif %}
     GROUP BY from_category, to_category, date
+
 ), application_flows as (
     SELECT 
         DATE_TRUNC('day', block_timestamp) as date,
@@ -21,13 +22,19 @@ WITH category_flows as (
         to_app,
         max(to_friendly_name) as to_friendly_name,
         sum(amount_usd) as amount_usd
-    FROM {{ ref("fact_optimism_labeled_transfers") }}
+    FROM {{ ref("fact_" ~ chain ~ "_labeled_transfers") }}
+    {% if is_incremental() %} 
+        where block_timestamp >= (
+            select dateadd('day', -3, max(date))
+            from {{ this }}
+        )
+    {% endif %}
     GROUP BY from_category, to_app, date
 )
 SELECT
-    'optimism' as chain,
+    '{{ chain }}' as chain,
     cf.date,
-    cf.from_category,
+    cf.from_category as category,
     cf.to_category,
     cf.amount_usd as category_amount_usd,
     af.to_app,
@@ -36,3 +43,5 @@ SELECT
 FROM category_flows cf
 left JOIN application_flows af
 ON cf.date = af.date AND cf.to_category = af.from_category
+
+{% endmacro %}
