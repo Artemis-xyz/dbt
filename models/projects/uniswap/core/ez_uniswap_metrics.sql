@@ -83,7 +83,7 @@ SELECT
     , fees as trading_fees
     , fees
     , fees as primary_supply_side_revenue
-    , 0 as other_supply_side_revenue
+    , 0 as secondary_supply_side_revenue
     , fees as total_supply_side_revenue
     , 0 as protocol_revenue
     , token_incentives_usd as token_incentives

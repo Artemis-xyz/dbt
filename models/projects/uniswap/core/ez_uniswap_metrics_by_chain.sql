@@ -104,7 +104,7 @@ select
     , trading_fees as fees
     , trading_fees as primary_supply_side_revenue
     , trading_fees as total_supply_side_revenue
-    , 0 as other_supply_side_revenue
+    , 0 as secondary_supply_side_revenue
     , 0 as protocol_revenue
     , 0 as operating_expenses
     , token_incentives_usd
