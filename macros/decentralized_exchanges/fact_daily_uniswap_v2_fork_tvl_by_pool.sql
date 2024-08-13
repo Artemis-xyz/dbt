@@ -165,7 +165,18 @@
                 and lower(t1.token1) = lower(t3.token_address)
         ),
         viable_pools as (
-            select date, pool, token0, token0_symbol, token1, token1_symbol, token0_amount_usd + token1_amount_usd as tvl
+            select
+                date,
+                pool,
+                token0,
+                token0_symbol,
+                token0_cumulative as token0_amount_native,
+                token0_amount_usd,
+                token1,
+                token1_symbol,
+                token1_cumulative as token1_amount_native,
+                token1_amount_usd,
+                token0_amount_usd + token1_amount_usd as tvl
             from with_price
             where
                 abs(
@@ -175,29 +186,39 @@
                 < 2
         ),
         tvl_daily_sum as (
-            select 
-                date, 
+            select
+                date,
                 pool,
                 token0,
                 token0_symbol,
                 token1,
                 token1_symbol,
+                sum(token0_amount_native) as token_0_amount_native,
+                sum(token0_amount_usd) as token_0_amount_usd,
+                sum(token1_amount_native) as token_1_amount_native,
+                sum(token1_amount_usd) as token_1_amount_usd,
                 sum(tvl) as tvl
             from viable_pools
             where date is not null
             group by date, pool, token0, token0_symbol, token1, token1_symbol
         )
     select
-        date, 
-        '{{ chain }}' as chain, 
-        '{{ app }}' as app, 
+        date,
+        '{{ chain }}' as chain,
+        '{{ app }}' as app,
         '{{ version }}' as version,
-        'DeFi' as category, 
+        'DeFi' as category,
         pool,
         token0 as token_0,
         token0_symbol as token_0_symbol,
         token1 as token_1,
         token1_symbol as token_1_symbol,
+        {% if app == 'uniswap' %}
+            token_0_amount_native,
+            token_0_amount_usd,
+            token_1_amount_native,
+            token_1_amount_usd,
+        {% endif %}
         tvl as tvl
     from tvl_daily_sum
     where date is not null
