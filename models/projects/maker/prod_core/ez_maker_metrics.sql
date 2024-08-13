@@ -72,7 +72,7 @@ select
     , COALESCE(treasury_usd, 0) AS treasury_usd
     , COALESCE(treasury_native, 0) AS treasury_native
     , COALESCE(net_treasury_usd, 0) AS net_treasury_usd
-    , COALESCE(net_deposit, 0) AS net_deposit
+    , COALESCE(net_deposit, 0) AS net_deposits
     , COALESCE(outstanding_supply, 0) AS outstanding_supply
     , COALESCE(tvl, 0) AS tvl
     , COALESCE(price, 0) AS price

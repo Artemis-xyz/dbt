@@ -94,7 +94,7 @@ select
     , COALESCE(treasury, 0) as treasury
     , COALESCE(treasury_native,0) as treasury_native
     , COALESCE(net_treasury, 0) as net_treasury
-    , COALESCE(tvl, 0) as net_deposit
+    , COALESCE(tvl, 0) as net_deposits
     , COALESCE(outstanding_supply,0) as outstanding_supply
     , COALESCE(tvl, 0) as tvl
 FROM fees_revenue_expenses
