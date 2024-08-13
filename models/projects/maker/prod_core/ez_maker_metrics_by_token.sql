@@ -90,11 +90,11 @@ select
     , COALESCE(operating_expenses, 0) AS operating_expenses
     , COALESCE(direct_expenses, 0) AS direct_expenses
     , COALESCE(total_expenses, 0) AS total_expenses
-    , COALESCE(protocol_revenue - total_expenses, 0) AS earnings
-    , COALESCE(treasury, 0) as treasury
+    , COALESCE(protocol_revenue - total_expenses, 0) AS protocol_earnings
+    , COALESCE(treasury, 0) as treasury_value
     , COALESCE(treasury_native,0) as treasury_native
     , COALESCE(net_treasury, 0) as net_treasury
-    , COALESCE(tvl, 0) as net_deposit
+    , COALESCE(tvl, 0) as net_deposits
     , COALESCE(outstanding_supply,0) as outstanding_supply
     , COALESCE(tvl, 0) as tvl
 FROM fees_revenue_expenses

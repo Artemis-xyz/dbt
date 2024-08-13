@@ -164,7 +164,18 @@
                 and lower(t1.token1) = lower(t3.token_address)
         ),
         viable_pools as (
-            select date, pool, token0, token0_symbol, token1, token1_symbol, token0_amount_usd + token1_amount_usd as pool_tvl
+            select
+                date,
+                pool,
+                token0,
+                token0_symbol,
+                token0_cumulative as token0_amount_native,
+                token0_amount_usd,
+                token1,
+                token1_symbol,
+                token1_cumulative as token1_amount_native,
+                token1_amount_usd,
+                token0_amount_usd + token1_amount_usd as pool_tvl
             from with_price
             where
                 abs(
@@ -173,17 +184,23 @@
                 )
                 < 1
         )
-    select 
-        date, 
-        '{{ chain }}' as chain, 
-        '{{ app }}' as app, 
+    select
+        date,
+        '{{ chain }}' as chain,
+        '{{ app }}' as app,
         '{{ version }}' as version,
-        'DeFi' as category, 
+        'DeFi' as category,
         pool,
         token0 as token_0,
         token0_symbol as token_0_symbol,
         token1 as token_1,
         token1_symbol as token_1_symbol,
+        {% if app == 'uniswap' %}
+            sum(token0_amount_native) as token_0_amount_native,
+            sum(token0_amount_usd) as token_0_amount_usd,
+            sum(token1_amount_native) as token_1_amount_native,
+            sum(token1_amount_usd) as token_1_amount_usd,
+        {% endif %}
         sum(pool_tvl) as tvl
     from viable_pools
     where date is not null

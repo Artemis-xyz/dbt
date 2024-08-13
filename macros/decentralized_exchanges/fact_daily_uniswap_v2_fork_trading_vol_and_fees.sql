@@ -51,7 +51,7 @@
                 token1_out_amount * fee as token1_out_fee
             from all_pool_events
         ),
-        swaps_asdjusted as (
+        swaps_adjusted as (
             select
                 t1.hour,
                 tx_hash,
@@ -112,7 +112,7 @@
                 trunc(hour, 'day') as date,
                 least(total_out, total_in) as volume_per_trade,
                 total_fees
-            from swaps_asdjusted
+            from swaps_adjusted
         )
     select
         date,

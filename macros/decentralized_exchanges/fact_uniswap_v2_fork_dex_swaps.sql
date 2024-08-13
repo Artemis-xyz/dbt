@@ -53,7 +53,7 @@
                 token1_out_amount * fee as token1_out_fee
             from all_pool_events
         ),
-        swaps_asdjusted as (
+        swaps_adjusted as (
             select
                 t1.block_timestamp,
                 t1.hour,
@@ -67,35 +67,23 @@
                 t2.symbol as token0_symbol,
                 t2.decimals as token0_decimals,
                 coalesce(t2.price, 0) as token0_price,
-                token0_in_fee
-                / pow(10, token0_decimals)
-                * token0_price as token0_in_fee_usd,
-                token0_out_fee
-                / pow(10, token0_decimals)
-                * token0_price as token0_out_fee_usd,
-                token0_in_amount
-                / pow(10, token0_decimals)
-                * token0_price as token0_in_amount_usd,
-                token0_out_amount
-                / pow(10, token0_decimals)
-                * token0_price as token0_out_amount_usd,
+                token0_in_fee * token0_price / pow(10, token0_decimals) as token0_in_fee_usd,
+                token0_out_fee * token0_price / pow(10, token0_decimals) as token0_out_fee_usd,
+                token0_in_amount * token0_price / pow(10, token0_decimals)  as token0_in_amount_usd,
+                token0_out_amount * token0_price / pow(10, token0_decimals) as token0_out_amount_usd,
+                (token0_in_amount + token0_out_amount) / pow(10, token0_decimals) as token0_amount_native,
+                (token0_in_fee + token0_out_fee) / pow(10, token0_decimals) as token0_fee_amount_native,
 
                 token1,
                 t3.symbol as token1_symbol,
                 t3.decimals as token1_decimals,
                 coalesce(t3.price, 0) as token1_price,
-                token1_in_fee
-                / pow(10, token1_decimals)
-                * token1_price as token1_in_fee_usd,
-                token1_out_fee
-                / pow(10, token1_decimals)
-                * token1_price as token1_out_fee_usd,
-                token1_in_amount
-                / pow(10, token1_decimals)
-                * token1_price as token1_in_amount_usd,
-                token1_out_amount
-                / pow(10, token1_decimals)
-                * token1_price as token1_out_amount_usd,
+                token1_in_fee * token1_price / pow(10, token1_decimals) as token1_in_fee_usd,
+                token1_out_fee * token1_price / pow(10, token1_decimals) as token1_out_fee_usd,
+                token1_in_amount * token1_price / pow(10, token1_decimals) as token1_in_amount_usd,
+                token1_out_amount * token1_price / pow(10, token1_decimals) as token1_out_amount_usd,
+                (token1_in_amount + token1_out_amount) / pow(10, token1_decimals) as token1_amount_native,
+                (token1_in_fee + token1_out_fee) / pow(10, token1_decimals) as token1_fee_amount_native,
 
                 case
                     when
@@ -104,6 +92,36 @@
                     then token0_out_fee_usd + token1_out_fee_usd
                     else token0_in_fee_usd + token1_in_fee_usd
                 end as total_fees,
+                case
+                    when
+                        token0_in_fee_usd > token1_in_fee_usd then
+                        case
+                            when token0_in_fee_usd * 10 > token1_out_fee_usd
+                                then token1_fee_amount_native
+                                else token0_fee_amount_native
+                        end
+                    else
+                        case
+                            when token1_in_fee_usd * 10 > token0_out_fee_usd
+                                then token0_fee_amount_native
+                                else token1_fee_amount_native
+                        end
+                end as token_fee_amount_native,
+                case
+                    when
+                        token0_in_fee_usd > token1_in_fee_usd then
+                        case
+                            when token0_in_fee_usd * 10 > token1_out_fee_usd
+                                then token1_symbol
+                                else token0_symbol
+                        end
+                    else
+                        case
+                            when token1_in_fee_usd * 10 > token0_out_fee_usd
+                                then token0_symbol
+                                else token1_symbol
+                        end
+                end as token_fee_amount_native_symbol,
                 token0_in_amount_usd + token1_in_amount_usd as total_in,
                 token0_out_amount_usd + token1_out_amount_usd as total_out
             from swaps t1
@@ -130,11 +148,17 @@
                 pair as pool,
                 token0 as token_0,
                 token0_symbol as token_0_symbol,
+                token0_amount_native as token0_volume_native,
+                token0_fee_amount_native,
                 token1 as token_1,
                 token1_symbol as token_1_symbol,
+                token1_amount_native as token1_volume_native,
+                token1_fee_amount_native,
+                token_fee_amount_native,
+                token_fee_amount_native_symbol,
                 least(total_out, total_in) as trading_volume,
                 total_fees as trading_fees
-            from swaps_asdjusted
+            from swaps_adjusted
         ),
         events as (
             select
@@ -146,8 +170,14 @@
                 pool,
                 token_0,
                 token_0_symbol,
+                token0_volume_native as token_0_volume_native,
+                token0_fee_amount_native,
                 token_1,
                 token_1_symbol,
+                token1_volume_native as token_1_volume_native,
+                token1_fee_amount_native,
+                token_fee_amount_native,
+                token_fee_amount_native_symbol,
                 trading_volume,
                 trading_fees,
                 ROW_NUMBER() OVER (PARTITION by tx_hash, pool ORDER BY event_index) AS row_number
@@ -190,6 +220,12 @@
         token_1_symbol,
         trading_volume,
         trading_fees,
+        {% if app == 'uniswap' %}
+            token_0_volume_native,
+            token_1_volume_native,
+            token_fee_amount_native,
+            token_fee_amount_native_symbol,
+        {% endif %}
         gas_price * gas_used as raw_gas_cost_native,
         raw_gas_cost_native / 1e9 as gas_cost_native
     from events
