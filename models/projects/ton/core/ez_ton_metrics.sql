@@ -14,19 +14,15 @@ with
             date,
             txns as transaction_nodes
         from {{ ref("fact_ton_daa_txns_gas_gas_usd_revenue_revenue_native") }}
-    ), ton_app_daa as (
+    ), 
+    ton_apps_fundamental_data as (
         select 
-            date,
-            daa as dau
-        from {{ ref("fact_ton_app_daa") }}
-    ),
-    ton_app_txns_fees as (
-        select 
-            date,
-            txns,
-            fees_native,
-            avg_txn_fee_native,
-        from {{ ref("fact_ton_app_fees_txns") }}
+            date
+            , dau
+            , fees_native
+            , txns
+            , avg_txn_fee_native
+        from {{ ref("fact_ton_fundamental_metrics") }}
     ),
     price_data as ({{ get_coingecko_metrics("the-open-network") }}),
     defillama_data as ({{ get_defillama_metrics("ton") }}),
@@ -38,7 +34,7 @@ with
     ),
     github_data as ({{ get_github_metrics("ton") }})
 select
-    ton_app_daa.date,
+    ton.date,
     'ton' as chain,
     transaction_nodes,
     price,
@@ -57,11 +53,10 @@ select
     fees_native / 2 as revenue_native,
     (fees_native / 2) * price as revenue,
     avg_txn_fee_native * price as avg_txn_fee
-from ton_app_daa
-left join price_data on ton_app_daa.date = price_data.date
-left join defillama_data on ton_app_daa.date = defillama_data.date
-left join github_data on ton_app_daa.date = github_data.date
-left join dex_data on ton_app_daa.date = dex_data.date
-left join fundamental_data on ton_app_daa.date = fundamental_data.date
-left join ton_app_txns_fees on ton_app_daa.date = ton_app_txns_fees.date
-where ton_app_daa.date < to_date(sysdate())
+from ton_apps_fundamental_data as ton
+left join price_data on ton.date = price_data.date
+left join defillama_data on ton.date = defillama_data.date
+left join github_data on ton.date = github_data.date
+left join dex_data on ton.date = dex_data.date
+left join fundamental_data on ton.date = fundamental_data.date
+where ton.date < to_date(sysdate())
