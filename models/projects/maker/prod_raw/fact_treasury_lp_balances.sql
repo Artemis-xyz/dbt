@@ -31,13 +31,13 @@ dates as (
 value_per_token_cte as (
     SELECT
         s.date,
-        v.amount_usd / s.circulating_supply as value_per_token,
+        v.amount_usd / s.circulating_supply as value_per_token_usd,
         s.circulating_supply
     FROM
         {{ ref('fact_uni_lp_supply') }} s
         LEFT JOIN {{ ref('fact_uni_lp_value') }} v ON v.date = s.date
     where
-        value_per_token is not null
+        value_per_token_usd is not null
 )
 , filled_data as (
     SELECT
@@ -46,10 +46,10 @@ value_per_token_cte as (
             ORDER BY d.date
             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
         ) as amount_native,
-        LAST_VALUE(v.value_per_token IGNORE NULLS) OVER (
+        LAST_VALUE(v.value_per_token_usd IGNORE NULLS) OVER (
             ORDER BY d.date
             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-        ) as value_per_token
+        ) as value_per_token_usd
     FROM
         dates d
         LEFT JOIN treasury_balance t ON d.date = t.date
@@ -58,8 +58,8 @@ value_per_token_cte as (
 SELECT
     date,
     amount_native,
-    value_per_token,
-    amount_native * value_per_token as amount_usd,
+    value_per_token_usd,
+    amount_native * value_per_token_usd as amount_usd,
     'UNI V2: DAI-MKR' as token
 FROM
     filled_data

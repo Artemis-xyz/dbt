@@ -48,7 +48,7 @@
                 fee
             from all_pool_events
         ),
-        swaps_asdjusted as (
+        swaps_adjusted as (
             select
                 t1.block_timestamp,
                 t1.hour,
@@ -74,6 +74,14 @@
                     then token0_amount_usd * fee
                     else token1_amount_usd * fee
                 end as token_fee_amount,
+                case when token0_amount_adj > 0
+                    then token0_amount_adj * fee
+                    else token1_amount_adj * fee
+                end as token_fee_amount_native,
+                case when token0_amount_adj > 0
+                    then token0_symbol
+                    else token1_symbol
+                end as token_fee_amount_native_symbol,
                 fee
             from swaps t1
 
@@ -95,15 +103,23 @@
                 pool,
                 token0,
                 token0_symbol,
+                token0_amount_adj as token_0_volume_native,
                 token1,
                 token1_symbol,
+                token1_amount_adj as token_1_volume_native,
                 least(token0_amount_usd, token1_amount_usd) as volume_per_trade,
                 case
                     when volume_per_trade > token_fee_amount
                     then token_fee_amount
                     else 0
-                end as token_fee_amount
-            from swaps_asdjusted
+                end as token_fee_amount,
+                case
+                    when volume_per_trade > token_fee_amount
+                    then token_fee_amount_native
+                    else 0
+                end as token_fee_amount_native,
+                token_fee_amount_native_symbol
+            from swaps_adjusted
         ),
         events as (
             select
@@ -115,16 +131,20 @@
                 pool,
                 token0 as token_0,
                 token0_symbol as token_0_symbol,
+                token_0_volume_native,
                 token1 as token_1,
                 token1_symbol as token_1_symbol,
+                token_1_volume_native,
                 volume_per_trade as trading_volume,
                 token_fee_amount as trading_fees,
+                token_fee_amount_native,
+                token_fee_amount_native_symbol,
                 ROW_NUMBER() OVER (PARTITION by tx_hash, pool ORDER BY event_index) AS row_number
             from filtered_pairs
         ),
         traces as (
-            select 
-                t1.*, 
+            select
+                t1.*,
                 {% if chain in ("arbitrum") %}
                     t3.gas_price_paid as gas_price,
                 {% else %}
@@ -132,8 +152,8 @@
                 {% endif %}
                 ROW_NUMBER() OVER (PARTITION by t1.tx_hash, t1.to_address ORDER BY t1.trace_index) AS row_number
             from  {{ chain }}_flipside.core.fact_traces t1
-            inner join filtered_pairs t2 on 
-                t1.tx_hash = t2.tx_hash 
+            inner join filtered_pairs t2 on
+                t1.tx_hash = t2.tx_hash
                 and lower(t1.to_address) = lower(t2.pool)
                 and substr(t1.input, 0, 10) = '0x128acb08' --Swap function
             left join {{ chain }}_flipside.core.fact_transactions t3 on t1.tx_hash = t3.tx_hash
@@ -159,10 +179,16 @@
         token_1_symbol,
         trading_volume,
         trading_fees,
+        {% if app == 'uniswap' %}
+            token_0_volume_native,
+            token_1_volume_native,
+            token_fee_amount_native,
+            token_fee_amount_native_symbol,
+        {% endif %}
         gas_price * gas_used as raw_gas_cost_native,
         raw_gas_cost_native / 1e9 as gas_cost_native
     from events
-    left join traces on 
+    left join traces on
         events.tx_hash = traces.tx_hash
         and events.pool = traces.to_address
         and events.row_number = traces.row_number

@@ -17,6 +17,7 @@ with
                     ref("fact_uniswap_v3_arbitrum_dex_swaps"),
                     ref("fact_uniswap_v3_avalanche_dex_swaps"),
                     ref("fact_uniswap_v3_base_dex_swaps"),
+                    ref("fact_uniswap_v3_blast_dex_swaps"),
                     ref("fact_uniswap_v3_bsc_dex_swaps"),
                     ref("fact_uniswap_v3_ethereum_dex_swaps"),
                     ref("fact_uniswap_v3_optimism_dex_swaps"),
