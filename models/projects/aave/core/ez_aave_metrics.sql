@@ -38,7 +38,8 @@ with
             , sum(borrows_usd) as outstanding_supply
             , sum(supply_usd) as net_deposits
             , net_deposits - outstanding_supply as tvl
-            , sum(revenue) as supply_side_deposit_revenue
+            , sum(deposit_revenue) as supply_side_deposit_revenue
+            , sum(interest_rate_fees) as interest_rate_fees
         from deposits_borrows_lender_revenue
         group by 1
     )
@@ -227,7 +228,7 @@ with
     )
 select
     aave_outstanding_supply_net_deposits_deposit_revenue.date
-    , coalesce(supply_side_deposit_revenue, 0) + coalesce(reserve_factor_revenue, 0) as interest_rate_fees
+    , interest_rate_fees as interest_rate_fees
     , flashloan_fees
     , gho_revenue as gho_fees
     , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as fees
@@ -239,6 +240,7 @@ select
     , coalesce(flashloan_fees, 0) + coalesce(gho_revenue, 0) + coalesce(liquidation_revenue, 0) + coalesce(ecosystem_incentives, 0) as secondary_supply_side_revenue
     , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
     , reserve_factor_revenue
+    , interest_rate_fees - supply_side_deposit_revenue as protocol_revenue_testing
     , trading_fees as dao_trading_revenue
     , gho_revenue
     , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as protocol_revenue
