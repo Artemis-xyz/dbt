@@ -3,9 +3,9 @@ with
     unioned as (
         --Earlier this year aave data was borked. In order to heal the data without doing a complete backfill
         --we pull from the older avve tables. The extract logic is the exact same as the current table (raw_table)
-        {% if healed_raw_table is defined %}
+        {% if healed_source_table is defined %}
             select *
-            from landing_database.prod_landing.{{healed_raw_table}}
+            from landing_database.prod_landing.{{healed_source_table}}
             union all
         {% endif %}
         select *
@@ -30,6 +30,8 @@ with
             to_timestamp(trunc(flat_json.value:"day"::timestamp, 'day')) as date,
             flat_json.value:"underlying_token"::string as underlying_token,
             flat_json.value:"underlying_token_price"::float as underlying_token_price,
+            flat_json.value:"stable_borrows"::float as stable_borrows,
+            flat_json.value:"variable_borrows"::float as variable_borrows,
             flat_json.value:"borrows"::float as borrows,
             flat_json.value:"borrows_usd"::float as borrows_usd,
             flat_json.value:"supply"::float as supply,

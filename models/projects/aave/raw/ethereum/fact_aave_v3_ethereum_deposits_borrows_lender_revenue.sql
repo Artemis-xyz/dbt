@@ -8,4 +8,4 @@
     )
 }}
 
-{{ aave_deposits_borrows_lender_revenue('ethereum', 'AAVE V3', '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2', 'raw_aave_v3_ethereum_borrows_deposits_revenue', 'raw_aave_v3_lending_ethereum')}}
+{{ aave_deposits_borrows_lender_revenue('ethereum', 'AAVE V3', '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2', 'raw_aave_v3_ethereum_rpc_data')}}

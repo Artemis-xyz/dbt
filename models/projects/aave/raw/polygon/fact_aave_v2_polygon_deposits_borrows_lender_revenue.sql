@@ -8,4 +8,4 @@
     )
 }}
 
-{{ aave_deposits_borrows_lender_revenue('polygon', 'AAVE V2', '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf', 'raw_aave_v2_polygon_borrows_deposits_revenue', 'raw_aave_v2_lending_polygon')}}
+{{ aave_deposits_borrows_lender_revenue('polygon', 'AAVE V2', '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf', 'raw_aave_v2_polygon_rpc_data')}}
