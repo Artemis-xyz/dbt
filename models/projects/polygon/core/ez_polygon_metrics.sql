@@ -22,7 +22,7 @@ with
     ),
     l1_cost_data as (
         select
-            date,
+            raw_date as date,
             sum(tx_fee) as l1_data_cost_native,
             sum(gas_usd) as l1_data_cost
         from {{ref("ez_ethereum_transactions")}}
