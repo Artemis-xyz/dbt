@@ -20,6 +20,15 @@ with
         select date, native_token_burn as revenue_native, revenue
         from {{ ref("agg_daily_polygon_revenue") }}
     ),
+    l1_cost_data as (
+        select
+            date,
+            sum(tx_fee) as l1_data_cost_native,
+            sum(gas_usd) as l1_data_cost
+        from {{ref("ez_ethereum_transactions")}}
+        where lower(contract_address) = lower('0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287')   
+        group by date
+    )
     nft_metrics as ({{ get_nft_metrics("polygon") }}),
     p2p_metrics as ({{ get_p2p_metrics("polygon") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("polygon") }})
@@ -36,6 +45,8 @@ select
     avg_txn_fee,
     revenue_native,
     revenue,
+    l1_data_cost_native,
+    l1_data_cost,
     sybil_users,
     non_sybil_users,
     returning_users,
@@ -76,4 +87,5 @@ left join revenue_data on fundamental_data.date = revenue_data.date
 left join nft_metrics on fundamental_data.date = nft_metrics.date
 left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
+left join l1_cost_data on fundamental_data.date = l1_cost_data.date
 where fundamental_data.date < to_date(sysdate())
