@@ -28,7 +28,7 @@ with
         from {{ref("ez_ethereum_transactions")}}
         where lower(contract_address) = lower('0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287')   
         group by date
-    )
+    ),
     nft_metrics as ({{ get_nft_metrics("polygon") }}),
     p2p_metrics as ({{ get_p2p_metrics("polygon") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("polygon") }})
