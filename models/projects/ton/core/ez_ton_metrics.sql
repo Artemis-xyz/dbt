@@ -14,9 +14,10 @@ with
             date,
             txns as transaction_nodes
         from {{ ref("fact_ton_daa_txns_gas_gas_usd_revenue_revenue_native") }}
-    ), ton_apps_fundamental_data as (
+    ), 
+    ton_apps_fundamental_data as (
         select 
-            date,
+            date
             , dau
             , fees_native
             , txns

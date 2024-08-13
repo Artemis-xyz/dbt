@@ -5,14 +5,17 @@
 
 with flatten_ton_transaction as (
     select
-        true = all(array_agg(success)) as success
+        NOT ARRAY_CONTAINS(0, ARRAY_UNIQUE_AGG(success)) as success
         , trace_id
         , max(block_timestamp::date) as date
-        , min_by(transaction_account_interfaces, lt)[1] as interface
+        , min_by(transaction_account_interfaces, lt) as interfaces
         , min_by(transaction_account, lt) as first_account
         , min_by(transaction_account_workchain, lt) as workchain
         , sum(total_fees) as transaction_fees
     from {{ ref('fact_ton_transactions') }}
+    {% if is_incremental() %}
+        where block_timestamp::date > (select dateadd('day', -3, max(date)) from {{ this }})
+    {% endif %}
     group by trace_id
 ), txns as (
     SELECT
@@ -34,7 +37,8 @@ dau as (
         date
         , count(distinct first_account) as dau
     from flatten_ton_transaction
-    where success and interface like 'wallet_v%'
+    where success and interfaces[1] like 'wallet_v%'
+    group by date
 )
 SELECT
     coalesce(fees.date, txns.date, dau.date) as date

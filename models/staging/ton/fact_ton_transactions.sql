@@ -36,6 +36,7 @@ with raw_data as (
         {{ source("PROD_LANDING", "raw_ton_transactions") }}
     {% if is_incremental() %}
         where TO_TIMESTAMP(parse_json(source_json):"utime") > (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+        and extraction_date > (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}
 )
 select 
