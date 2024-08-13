@@ -4,7 +4,7 @@
         snowflake_warehouse="MAKER",
         database="maker",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics_by_chain"
     )
 }}
 
@@ -58,6 +58,7 @@ WITH
 
 select
     date
+    , 'ethereum' as chain
     , COALESCE(stability_fees,0) as stability_fees
     , COALESCE(trading_fees, 0) AS trading_fees
     , COALESCE(fees, 0) AS fees
