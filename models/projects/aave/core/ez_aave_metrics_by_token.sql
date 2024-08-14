@@ -44,8 +44,10 @@ with
             , sum(supply_usd) as net_deposits
             , coalesce(net_deposits_nominal, 0) - coalesce(outstanding_supply_nominal, 0) as tvl_nominal
             , coalesce(net_deposits, 0) - coalesce(outstanding_supply, 0) as tvl
-            , sum(revenue) as supply_side_deposit_revenue
-            , sum(revenue_nominal) as supply_side_deposit_revenue_nominal
+            , sum(deposit_revenue) as supply_side_deposit_revenue
+            , sum(deposit_revenue_nominal) as supply_side_deposit_revenue_nominal
+            , sum(interest_rate_fees) as interest_rate_fees
+            , sum(interest_rate_fees_nominal) as interest_rate_fees_nominal
         from deposits_borrows_lender_revenue
         group by 1, 2, 3
     )
@@ -236,8 +238,8 @@ select
     , chain
     , token_address
 
-    , coalesce(supply_side_deposit_revenue_nominal, 0) + coalesce(reserve_factor_revenue_nominal, 0) as interest_rate_fees_nominal
-    , coalesce(supply_side_deposit_revenue, 0) + coalesce(reserve_factor_revenue, 0) as interest_rate_fees
+    , coalesce(interest_rate_fees_nominal, 0) as interest_rate_fees_nominal
+    , coalesce(interest_rate_fees, 0) as interest_rate_fees
 
     , coalesce(flashloan_fees_nominal, 0) as flashloan_fees_nominal
     , flashloan_fees
