@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="STABLECOIN_V2_LG", cluster_by="chain") }}
+{{ config(materialized="table", snowflake_warehouse="STABLECOIN_V2_LG") }}
 select
     date
     , contract_address
