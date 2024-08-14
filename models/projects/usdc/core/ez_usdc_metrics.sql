@@ -18,5 +18,5 @@ select
     , sum(total_supply) as total_supply
 from {{ ref("agg_daily_stablecoin_metrics") }}
 where symbol = 'USDC'
-group by symbol, date 
+group by symbol, date
 order by date desc
