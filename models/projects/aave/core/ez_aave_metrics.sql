@@ -239,11 +239,11 @@ select
     , ecosystem_incentives as ecosystem_supply_side_revenue
     , coalesce(flashloan_fees, 0) + coalesce(gho_revenue, 0) + coalesce(liquidation_revenue, 0) + coalesce(ecosystem_incentives, 0) as secondary_supply_side_revenue
     , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
-    , reserve_factor_revenue
-    , interest_rate_fees - supply_side_deposit_revenue as protocol_revenue_testing
     , trading_fees as dao_trading_revenue
     , gho_revenue
-    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as protocol_revenue
+    , reserve_factor_revenue
+    , coalesce(interest_rate_fees, 0) - coalesce(supply_side_deposit_revenue, 0) as protocol_reserve_factor_revenue
+    , coalesce(interest_rate_fees, 0) - coalesce(supply_side_deposit_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as protocol_revenue
     , ecosystem_incentives
     , safety_incentives
     , coalesce(ecosystem_incentives, 0) + coalesce(safety_incentives, 0) as token_incentives
