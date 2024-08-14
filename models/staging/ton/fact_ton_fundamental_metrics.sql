@@ -37,7 +37,7 @@ dau as (
         date
         , count(distinct first_account) as dau
     from flatten_ton_transaction
-    where success and interfaces[1] like 'wallet_v%'
+    where success and GET(interfaces, 0) like 'wallet_v%'
     group by date
 )
 SELECT
