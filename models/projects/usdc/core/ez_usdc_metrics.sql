@@ -9,7 +9,7 @@
 }}
 
 select 
-    symbol
+    'usdc' as symbol
     , date
     , sum(transfer_volume) as stablecoin_transfer_volume
     , sum(deduped_transfer_volume) as deduped_stablecoin_transfer_volume
@@ -18,5 +18,4 @@ select
     , sum(total_supply) as stablecoin_total_supply
 from {{ ref("agg_daily_stablecoin_metrics") }}
 where symbol = 'USDC'
-group by symbol, date
-order by date desc
+group by date
