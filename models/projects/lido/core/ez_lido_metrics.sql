@@ -4,7 +4,7 @@
         snowflake_warehouse="LIDO",
         database="lido",
         schema="core",
-        alias="ez_metrics_by_chain",
+        alias="ez_metrics",
     )
 }}
 
@@ -21,13 +21,6 @@ with
             , secondary_supply_side_revenue
             , total_supply_side_revenue
         FROM {{ ref('fact_lido_fees_revs_expenses') }}
-    )
-    , token_incentives_cte as (
-        SELECT
-            date
-            , amount_usd as token_incentives
-        FROM
-            {{ ref('fact_lido_token_incentives') }}
     )
     , staked_eth_metrics as (
         select
@@ -61,6 +54,14 @@ with
         where token <> 'LDO'
         group by 1
     )
+    , token_incentives_cte as (
+        SELECT
+            date
+            , sum(amount_usd) as token_incentives
+        FROM
+            {{ ref('fact_lido_token_incentives') }}
+        GROUP BY 1
+    )
     , price_data as (
         {{ get_coingecko_metrics('lido-dao') }}
     )
@@ -72,7 +73,6 @@ with
     )
 select
     s.date
-    , 'ethereum' as chain
     , f.mev_priority_fees
     , f.block_rewards
     , f.fees
