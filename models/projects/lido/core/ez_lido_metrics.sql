@@ -89,6 +89,8 @@ select
     , s.amount_staked_usd as net_deposits
     , s.num_staked_eth as outstanding_supply
     , s.amount_staked_usd as tvl
+    , s.amount_staked_usd
+    , s.num_staked_eth
     , ft.fdmc
     , ft.market_cap
     , ft.token_volume
