@@ -1,6 +1,7 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
+        unique_key="date",
         snowflake_warehouse="USDC",
         database="usdc",
         schema="core",
@@ -8,14 +9,4 @@
     )
 }}
 
-select 
-    'usdc' as symbol
-    , date
-    , sum(transfer_volume) as stablecoin_transfer_volume
-    , sum(deduped_transfer_volume) as deduped_stablecoin_transfer_volume
-    , sum(dau) as stablecoin_dau
-    , sum(txns) as stablecoin_txns
-    , sum(total_supply) as stablecoin_total_supply
-from {{ ref("agg_daily_stablecoin_metrics") }}
-where symbol = 'USDC'
-group by date
+{{ get_stablecoin_ez_metrics("USDC") }}
