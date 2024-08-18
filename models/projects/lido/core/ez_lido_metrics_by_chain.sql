@@ -34,6 +34,8 @@ with
             date
             , num_staked_eth
             , amount_staked_usd
+            , num_staked_eth_net_change
+            , amount_staked_usd_net_change
         from {{ ref('fact_lido_staked_eth_count_with_USD_and_change') }}
     )
     , treasury_cte as (
@@ -72,7 +74,13 @@ with
     )
 select
     s.date
-    , 'ethereum' as chain
+    , 'lido' as app
+    , 'DeFi' as category
+    , 'ethereun' as chain
+    , s.num_staked_eth
+    , s.amount_staked_usd
+    , s.num_staked_eth_net_change
+    , s.amount_staked_usd_net_change
     , f.mev_priority_fees
     , f.block_rewards
     , f.fees
