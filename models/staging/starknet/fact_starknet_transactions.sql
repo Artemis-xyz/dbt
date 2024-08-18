@@ -32,15 +32,15 @@ with
     )
 select 
     t1.block_time as block_timestamp,
-    t1.block_date as raw_date,
     t1.transaction_hash_hex as tx_hash,
+    t2.contract_address_hex as contract_address,
+    t1.block_date as raw_date,
     coalesce(t1.sender_address_hex, t1.contract_address_hex) as from_address,
-    t2.contract_address_hex as to_address,
     t1.actual_fee_amount / 1E18 as tx_fee,
     t1.actual_fee_unit as currency,
     (tx_fee * price) gas_usd,
     'starknet' as chain,
-    t1.execution_status as status
+    t1.execution_status as status,
 
     new_contracts.name,
     new_contracts.app,
@@ -53,8 +53,9 @@ left join zksync_dune.starknet.calls t2
     on t1.transaction_hash_hex = t2.transaction_hash_hex
     and t1.sender_address_hex = t2.caller_address_hex
     and callstack_index = [0]
-left join new_contracts on lower(t1.to_address) = lower(new_contracts.address)
-left join prices on raw_date = prices.date and curr = t2.actual_fee_unit
+left join new_contracts on lower(t2.contract_address_hex) = lower(new_contracts.address)
+left join prices on raw_date = prices.date and curr = t1.actual_fee_unit
+where coalesce(t1.sender_address_hex, t1.contract_address_hex) is not null
     {% if is_incremental() %}
         -- this filter will only be applied on an incremental run 
         and t2.block_timestamp
