@@ -65,11 +65,12 @@ with
     , price_data as (
         {{ get_coingecko_metrics('lido-dao') }}
     )
-    , fdv_turnover_cte as (
-        {{ get_fdv_and_token_turnover('lido-dao') }}
-    )
     , tokenholder_cte as (
-        {{ token_holders('ethereum','0x5a98fcbea516cf06857215779fd812ca3bef1b32',  '2021-01-04')}}
+        SELECT
+            date,
+            token_holder_count
+        FROM
+            {{ ref('fact_ldo_tokenholder_count')}}
     )
 select
     s.date
@@ -91,11 +92,11 @@ select
     , s.amount_staked_usd as tvl
     , s.amount_staked_usd
     , s.num_staked_eth
-    , ft.fdmc
-    , ft.market_cap
-    , ft.token_volume
-    , ft.token_turnover_fdv
-    , ft.token_turnover_circulating
+    , p.fdmc
+    , p.market_cap
+    , p.token_volume
+    , p.token_turnover_fdv
+    , p.token_turnover_circulating
     , th.token_holder_count
 from fees_revenue_expenses f
 left join staked_eth_metrics s using(date)
@@ -103,6 +104,6 @@ left join treasury_cte t using(date)
 left join treasury_native_cte tn using(date)
 left join net_treasury_cte nt using(date)
 left join token_incentives_cte ti using(date)
-left join fdv_turnover_cte ft using(date)
+left join price_data p using(date)
 left join tokenholder_cte th using(date)
 where s.date < current_date()
