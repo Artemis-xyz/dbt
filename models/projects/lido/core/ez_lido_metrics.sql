@@ -83,7 +83,8 @@ select
     , COALESCE(f.protocol_revenue, 0) as protocol_revenue
     , COALESCE(f.operating_expenses, 0) as operating_expenses
     , COALESCE(ti.token_incentives, 0) as token_incentives
-    , COALESCE(f.protocol_revenue, 0) - COALESCE(f.operating_expenses, 0) - COALESCE(ti.token_incentives, 0) as protocol_earnings
+    , token_incentives + operating_expenses as total_expenses
+    , protocol_revenue - total_expenses as protocol_earnings
     , COALESCE(t.treasury_value, 0) as treasury_value
     , COALESCE(tn.treasury_native, 0) as treasury_native
     , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
