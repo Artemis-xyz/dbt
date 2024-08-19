@@ -2,12 +2,12 @@
 with
     trump_data as (
         select
-            DATE_TRUNC('DAY', extraction_date) as date,
+            DATE_TRUNC('DAY', extraction_date)::date as date,
             source_json as trump_price
         from {{ source("PROD_LANDING", "raw_drift_fill_price_trump") }}
     ), kamala_data as (
         select
-            DATE_TRUNC('DAY', extraction_date) as date,
+            DATE_TRUNC('DAY', extraction_date)::date as date,
             source_json as kamala_price
         from {{ source("PROD_LANDING", "raw_drift_fill_price_kamala") }}
     )
