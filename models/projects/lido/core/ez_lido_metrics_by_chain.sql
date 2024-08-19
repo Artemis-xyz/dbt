@@ -79,32 +79,32 @@ select
     , 'lido' as app
     , 'DeFi' as category
     , 'ethereum' as chain
-    , s.num_staked_eth
-    , s.amount_staked_usd
-    , s.num_staked_eth_net_change
-    , s.amount_staked_usd_net_change
-    , f.mev_priority_fees
-    , f.block_rewards
-    , f.fees
-    , f.primary_supply_side_revenue
-    , f.secondary_supply_side_revenue
-    , f.total_supply_side_revenue
-    , f.protocol_revenue
-    , f.operating_expenses
-    , ti.token_incentives
-    , f.protocol_revenue - f.operating_expenses - COALESCE(ti.token_incentives, 0) as protocol_earnings
-    , t.treasury_value
-    , tn.treasury_native
-    , nt.net_treasury_value
-    , s.amount_staked_usd as net_deposits
-    , s.num_staked_eth as outstanding_supply
-    , s.amount_staked_usd as tvl
-    , p.fdmc
-    , p.market_cap
-    , p.token_volume
-    , p.token_turnover_fdv
-    , p.token_turnover_circulating
-    , th.token_holder_count
+    , COALESCE(s.num_staked_eth, 0) as num_staked_eth
+    , COALESCE(s.amount_staked_usd, 0) as amount_staked_usd
+    , COALESCE(s.num_staked_eth_net_change, 0) as num_staked_eth_net_change
+    , COALESCE(s.amount_staked_usd_net_change, 0) as amount_staked_usd_net_change
+    , COALESCE(f.mev_priority_fees, 0) as mev_priority_fees
+    , COALESCE(f.block_rewards, 0) as block_rewards
+    , COALESCE(f.fees, 0) as fees
+    , COALESCE(f.primary_supply_side_revenue, 0) as primary_supply_side_revenue
+    , COALESCE(f.secondary_supply_side_revenue, 0) as secondary_supply_side_revenue
+    , COALESCE(f.total_supply_side_revenue, 0) as total_supply_side_revenue
+    , COALESCE(f.protocol_revenue, 0) as protocol_revenue
+    , COALESCE(f.operating_expenses, 0) as operating_expenses
+    , COALESCE(ti.token_incentives, 0) as token_incentives
+    , COALESCE(f.protocol_revenue, 0) - COALESCE(f.operating_expenses, 0) - COALESCE(ti.token_incentives, 0) as protocol_earnings
+    , COALESCE(t.treasury_value, 0) as treasury_value
+    , COALESCE(tn.treasury_native, 0) as treasury_native
+    , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
+    , COALESCE(s.amount_staked_usd, 0) as net_deposits
+    , COALESCE(s.num_staked_eth, 0) as outstanding_supply
+    , COALESCE(s.amount_staked_usd, 0) as tvl
+    , COALESCE(p.fdmc, 0) as fdmc
+    , COALESCE(p.market_cap, 0) as market_cap
+    , COALESCE(p.token_volume, 0) as token_volume
+    , COALESCE(p.token_turnover_fdv, 0) as token_turnover_fdv
+    , COALESCE(p.token_turnover_circulating, 0) as token_turnover_circulating
+    , COALESCE(th.token_holder_count, 0) as token_holder_count
 from staked_eth_metrics s
 left join fees_revenue_expenses f using(date)
 left join treasury_cte t using(date)
