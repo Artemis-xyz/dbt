@@ -41,6 +41,7 @@ with
             , net_deposits - outstanding_supply as tvl
             , sum(deposit_revenue) as supply_side_deposit_revenue
             , sum(interest_rate_fees) as interest_rate_fees
+            , sum(reserve_factor_revenue) as reserve_factor_revenue
         from deposits_borrows_lender_revenue
         group by 1, 2
     )
@@ -102,37 +103,6 @@ with
             , chain
             , sum(liquidation_revenue) as liquidation_revenue
         from liquidation_revenue
-        group by 1, 2
-    )
-    , reserve_factor_revenue as (
-        select * from {{ref("fact_aave_v3_arbitrum_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v2_avalanche_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_avalanche_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_base_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_bsc_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v2_ethereum_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_ethereum_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_gnosis_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_optimism_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v2_polygon_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_polygon_reserve_factor_revenue")}}
-    )
-    , aave_reserve_factor_revenue as (
-        select 
-            date
-            , chain
-            , sum(reserve_factor_revenue_usd) as reserve_factor_revenue
-        from reserve_factor_revenue
         group by 1, 2
     )
     , ecosystem_incentives as (
@@ -222,11 +192,10 @@ select
     , ecosystem_incentives as ecosystem_supply_side_revenue
     , coalesce(flashloan_fees, 0) + coalesce(gho_revenue, 0) + coalesce(liquidation_revenue, 0) + coalesce(ecosystem_incentives, 0) as secondary_supply_side_revenue
     , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
-    , reserve_factor_revenue
     , trading_fees as dao_trading_revenue
     , gho_revenue
-    , coalesce(interest_rate_fees, 0) - coalesce(supply_side_deposit_revenue, 0) as protocol_reserve_factor_revenue
-    , coalesce(interest_rate_fees, 0) - coalesce(supply_side_deposit_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as protocol_revenue
+    , coalesce(reserve_factor_revenue, 0) as reserve_factor_revenue
+    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as protocol_revenue
     , ecosystem_incentives
     , safety_incentives
     , coalesce(ecosystem_incentives, 0) + coalesce(safety_incentives, 0) as token_incentives
@@ -241,7 +210,6 @@ select
 from aave_outstanding_supply_net_deposits_deposit_revenue
 left join aave_flashloan_fees using (date, chain)
 left join aave_liquidation_supply_side_revenue using (date, chain)
-left join aave_reserve_factor_revenue using (date, chain)
 left join aave_ecosystem_incentives using (date, chain)
 left join dao_trading_revenue using (date, chain)
 left join safety_incentives using (date, chain)
