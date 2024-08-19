@@ -236,7 +236,6 @@ select
 from aave_outstanding_supply_net_deposits_deposit_revenue
 left join aave_flashloan_fees using (date)
 left join aave_liquidation_supply_side_revenue using (date)
-left join aave_reserve_factor_revenue using (date)
 left join aave_ecosystem_incentives using (date)
 left join dao_trading_revenue using (date)
 left join safety_incentives using (date)
