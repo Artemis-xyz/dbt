@@ -25,9 +25,10 @@ with
     , token_incentives_cte as (
         SELECT
             date
-            , amount_usd as token_incentives
+            , sum(amount_usd) as token_incentives
         FROM
             {{ ref('fact_lido_token_incentives') }}
+        GROUP BY 1
     )
     , staked_eth_metrics as (
         select
@@ -104,8 +105,8 @@ select
     , p.token_turnover_fdv
     , p.token_turnover_circulating
     , th.token_holder_count
-from fees_revenue_expenses f
-left join staked_eth_metrics s using(date)
+from staked_eth_metrics s
+left join fees_revenue_expenses f using(date)
 left join treasury_cte t using(date)
 left join treasury_native_cte tn using(date)
 left join net_treasury_cte nt using(date)
