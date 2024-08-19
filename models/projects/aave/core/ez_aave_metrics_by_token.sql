@@ -48,6 +48,8 @@ with
             , sum(deposit_revenue_nominal) as supply_side_deposit_revenue_nominal
             , sum(interest_rate_fees) as interest_rate_fees
             , sum(interest_rate_fees_nominal) as interest_rate_fees_nominal
+            , sum(reserve_factor_revenue) as reserve_factor_revenue
+            , sum(reserve_factor_revenue_nominal) as reserve_factor_revenue_nominal
         from deposits_borrows_lender_revenue
         group by 1, 2, 3
     )
@@ -113,39 +115,6 @@ with
             , sum(liquidation_revenue) as liquidation_revenue
             , null as liquidation_revenue_nominal
         from liquidation_revenue
-        group by 1, 2, 3
-    )
-    , reserve_factor_revenue as (
-        select * from {{ref("fact_aave_v3_arbitrum_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v2_avalanche_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_avalanche_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_base_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_bsc_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v2_ethereum_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_ethereum_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_gnosis_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_optimism_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v2_polygon_reserve_factor_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_polygon_reserve_factor_revenue")}}
-    )
-    , aave_reserve_factor_revenue as (
-        select 
-            date
-            , chain
-            , token_address
-            , sum(reserve_factor_revenue_usd) as reserve_factor_revenue
-            , sum(reserve_factor_revenue_nominal) as reserve_factor_revenue_nominal
-        from reserve_factor_revenue
         group by 1, 2, 3
     )
     , ecosystem_incentives as (
