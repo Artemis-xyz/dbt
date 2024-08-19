@@ -98,8 +98,8 @@ select
     , p.token_turnover_fdv
     , p.token_turnover_circulating
     , th.token_holder_count
-from fees_revenue_expenses f
-left join staked_eth_metrics s using(date)
+from staked_eth_metrics s
+left join fees_revenue_expenses f  using(date)
 left join treasury_cte t using(date)
 left join treasury_native_cte tn using(date)
 left join net_treasury_cte nt using(date)
