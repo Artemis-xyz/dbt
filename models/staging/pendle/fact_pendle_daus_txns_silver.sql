@@ -16,8 +16,8 @@ with agg as (
 SELECT
     date
     , chain
-    , sum(daus) as daus
-    , sum(txns) as daily_txns
+    , sum(dau) as daus
+    , sum(daily_txns) as daily_txns
 FROM agg
-GROUP BY 1, 2
 where date < current_date()
+GROUP BY 1, 2

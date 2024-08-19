@@ -29,10 +29,10 @@ with
         GROUP BY 1
     )
     , price_data_cte as(
-        get_coingecko_metrics('pendle')
+        {{ get_coingecko_metrics('pendle') }}
     )
     , tokenholder_count as (
-        token_holders('ethereum', '0x808507121B80c02388fAd14726482e061B8da827', '2021-04-27')
+        select * from {{ref('fact_pendle_token_holders')}}
     )
 
 SELECT
@@ -45,12 +45,11 @@ SELECT
     , d.daily_txns
     , p.fdmc
     , p.market_cap
-    -- , t.token_turnover_fdv
-    -- , t.token_turnover_mcap
-    -- , t.trading_volume
+    , p.token_turnover_fdv
+    , p.token_turnover_mcap
+    , p.trading_volume
     , token_holder_count
 FROM fees f
 LEFT JOIN daus_txns d using(date)
 LEFT JOIN price_data_cte p using(date)
--- LEFT JOIN fdv_and_turnover using(date)
 LEFT JOIN tokenholder_count t using(date)

@@ -1,6 +1,10 @@
 {{
     config(
-        materialized = 'view'
+        materialized="view",
+        snowflake_warehouse="PENDLE",
+        database="pendle",
+        schema="raw",
+        alias="fact_daus_txns",
     )
 }}
 

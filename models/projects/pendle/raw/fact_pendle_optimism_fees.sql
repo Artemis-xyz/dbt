@@ -1,12 +1,16 @@
 {{
     config(
-        materialized = 'view'
-        )
+        materialized="view",
+        snowflake_warehouse="PENDLE",
+        database="pendle",
+        schema="raw",
+        alias="fact_optimism_fees",
+    )
 }}
 
 SELECT
     date
     , chain
-    , fees
+    , fee_usd as fees
 FROM
     {{ ref('fact_pendle_optimism_fees_silver') }}

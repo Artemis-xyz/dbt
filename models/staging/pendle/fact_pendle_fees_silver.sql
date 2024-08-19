@@ -16,9 +16,9 @@ with agg as (
 SELECT
     date
     , chain
-    , sum(fees) as fees
+    , sum(fee_usd) as fees
     , fees * 0.8 as revenue
     , fees * 0.2 as supply_side_fees
 FROM agg
-GROUP BY 1, 2
 where date < current_date()
+GROUP BY 1, 2
