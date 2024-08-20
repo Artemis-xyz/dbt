@@ -198,17 +198,53 @@
                 from fact_{{ chain }}_stablecoin_contracts
             )
             and transfer_type = 'nep141'
+
+    {% elif chain in ("celo") %}
+        select
+            block_timestamp,
+            trunc(block_timestamp, 'day') as date,
+            block_number,
+            event_index as index,
+            transaction_hash as tx_hash,
+            from_address,
+            to_address,
+            from_address = '0x0000000000000000000000000000000000000000'
+                or lower(from_address) in (
+                    select distinct (lower(premint_address))
+                    from {{ ref("fact_"~chain~"_stablecoin_premint_addresses") }}
+                )
+            as is_mint,
+            to_address = '0x0000000000000000000000000000000000000000'
+                or lower(to_address) in (
+                    select distinct (lower(premint_address))
+                    from {{ ref("fact_"~chain~"_stablecoin_premint_addresses") }}
+                )
+            as is_burn,
+            amount,
+            case
+                when is_mint then amount when is_burn then -1 * amount else 0
+            end as inflow,
+            case
+                when not is_mint and not is_burn then amount else 0
+            end as transfer_volume,
+            t1.contract_address,
+            contracts.symbol
+        from {{ref("fact_" ~ chain ~ "_token_transfers")}} t1 
+        join {{ref("fact_" ~chain~ "_stablecoin_contracts")}} contracts
+            on lower(t1.contract_address) = lower(contracts.contract_address)
+        where lower(t1.contract_address) in (
+                select lower(contract_address)
+                from {{ref("fact_" ~chain~ "_stablecoin_contracts")}}
+            )
+            -- DO NOT include mint / burn events here - they will be duped
+            and tx_status = 1
     {% else %}
         select
             block_timestamp,
             trunc(block_timestamp, 'day') as date,
             block_number,
             event_index as index,
-            {% if chain in ("celo") %}
-                transaction_hash as tx_hash,
-            {% else %}
-                tx_hash,
-            {% endif %}
+            tx_hash,
             -- Notably, we do NOT use the Mint / Burn events here because the
             -- basic IERC20 interface does not require them to be implemented
             coalesce(
@@ -222,7 +258,7 @@
                 {% if chain in ("ethereum") %}
                 or lower(from_address) in (
                     select distinct (lower(premint_address))
-                    from {{ ref("fact_ethereum_stablecoin_premint_addresses") }}
+                    from {{ ref("fact_"~chain~"_stablecoin_premint_addresses") }}
                 )
                 {% endif %}
             as is_mint,
@@ -231,7 +267,7 @@
                 {% if chain in ("ethereum") %}
                 or lower(to_address) in (
                     select distinct (lower(premint_address))
-                    from {{ ref("fact_ethereum_stablecoin_premint_addresses") }}
+                    from {{ ref("fact_"~chain~"_stablecoin_premint_addresses") }}
                 )
                 {% endif %}
             as is_burn,
@@ -264,11 +300,7 @@
             end as transfer_volume,
             t1.contract_address,
             fact_{{ chain }}_stablecoin_contracts.symbol
-        {% if chain in ("celo")%} 
-            from {{ref("fact_" ~ chain ~ "_decoded_events")}} t1 
-        {% else %} 
-            from {{ chain }}_flipside.core.ez_decoded_event_logs t1
-        {% endif %}
+        from {{ chain }}_flipside.core.ez_decoded_event_logs t1
         join
             fact_{{ chain }}_stablecoin_contracts
             on lower(t1.contract_address)
@@ -280,11 +312,7 @@
             )
             -- DO NOT include mint / burn events here - they will be duped
             and event_name in ('Transfer', 'Issue', 'Redeem')
-        {% if chain in ("celo") %}
-            and tx_status = 1
-        {% else %}
             and tx_status = 'SUCCESS'
-        {% endif %}
     {% endif %}
     {% if is_incremental() %} 
         and block_timestamp >= (
