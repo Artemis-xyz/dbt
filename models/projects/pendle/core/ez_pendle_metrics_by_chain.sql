@@ -28,8 +28,13 @@ with
         FROM
             {{ ref('fact_pendle_daus_txns') }}
     )
-    , price_data_cte as(
-        get_coingecko_metrics('pendle')
+    , token_incentives_cte as (
+        SELECT
+            date
+            , chain
+            , token_incentives as token_incentives
+        FROM
+            {{ref('fact_pendle_token_incentives_by_chain')}}
     )
     , tokenholder_count as (
         select * from {{ref('fact_pendle_token_holders')}}
@@ -45,6 +50,7 @@ SELECT
     , f.revenue as protocol_revenue
     , d.daus
     , d.daily_txns
+    , token_incentives
     , p.fdmc
     , p.market_cap
     , p.token_turnover_fdv
@@ -53,5 +59,4 @@ SELECT
     , token_holder_count
 FROM fees f
 LEFT JOIN daus_txns d using(date, chain)
-LEFT JOIN price_data_cte p using(date, chain)
-LEFT JOIN tokenholder_count t using(date, chain)
+LEFT JOIN token_incentives_cte using(date, chain)
