@@ -12,7 +12,7 @@
                         when lower(address) in (select lower(premint_address) from {{ref("fact_"~chain~"_stablecoin_bridge_addresses")}}) then 0
                         else stablecoin_supply
                     end as stablecoin_supply
-                {% elif chain in ('solana') %}
+                {% elif chain in ('solana', 'celo') %}
                     , case
                         when 
                             lower(address) in (select lower(premint_address) from {{ref("fact_"~chain~"_stablecoin_premint_addresses")}}) then 0
