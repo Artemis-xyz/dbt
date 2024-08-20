@@ -16,17 +16,48 @@ with
         select 
             block_timestamp::date as date
             , decoded_log:asset::string as reserve
-            , max(decoded_log:newReserveFactor::number) / 1E4 as reserve_factor
-        from ethereum_flipside.core.ez_decoded_event_logs 
+            , max(coalesce(decoded_log:newReserveFactor::number, decoded_log:factor::number)) / 1E4 as reserve_factor
+            , max(decoded_log:oldReserveFactor::number) / 1E4 as old_reserve_factor
+        from {{chain}}_flipside.core.ez_decoded_event_logs 
         where contract_address = lower('{{reserve_factor_address}}')
             and event_name = 'ReserveFactorChanged'
         group by 1, 2
+    )
+    , dates as (
+        select distinct block_timestamp::date as date
+        from {{chain}}_flipside.core.ez_decoded_event_logs
+        where date >= (select min(date) from reserve_factor_data)
+    )
+    , cross_join_reserve_dates as (
+        select 
+            reserve
+            , date
+        from dates
+        cross join (
+            select distinct reserve
+            from reserve_factor_data
+        )
+    )
+    , forward_filled_reserve_factor as (
+        select
+            date
+            , reserve
+            , coalesce(
+                reserve_factor
+                , lag(reserve_factor) ignore nulls OVER (partition by reserve ORDER BY date)
+            ) as reserve_factor
+            , coalesce(
+                old_reserve_factor
+                , lag(old_reserve_factor) ignore nulls OVER (partition by reserve ORDER BY date)
+            ) as old_reserve_factor
+        from cross_join_reserve_dates
+        left join reserve_factor_data using(date, reserve)
     )
     , daily_rate as (
         select
             date
             , reserve
-            , (stable_borrow_rate)/365 as stable_borrow_rate
+            , stable_borrow_rate/365 as stable_borrow_rate
             , (borrow_index /
                 case 
                     when dateadd(day, -1, date) = lag(date) over (partition by reserve order by date)
@@ -43,11 +74,11 @@ with
             ) - 1 as daily_liquidity_rate
             , coalesce(
                 reserve_factor
-                , LAG(reserve_factor) ignore nulls OVER (partition by reserve ORDER BY date)
+                , old_reserve_factor
                 , 0
             ) as reserve_factor
         from average_liquidity_rate
-        left join reserve_factor_data using(date, reserve)
+        left join forward_filled_reserve_factor using(date, reserve)
     )
     , data as (
         select 
