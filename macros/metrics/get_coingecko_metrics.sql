@@ -4,8 +4,14 @@
         , shifted_token_price_usd as price
         , shifted_token_market_cap as market_cap
         , t2.total_supply * price as fdmc
-        , shifted_token_h24_volume_usd / market_cap as token_turnover_circulating
-        , shifted_token_h24_volume_usd / fdmc as token_turnover_fdv
+        , case 
+            when market_cap > 0 then shifted_token_h24_volume_usd / market_cap 
+            else 0
+        end as token_turnover_circulating
+        , case
+            when fdmc > 0 then shifted_token_h24_volume_usd / fdmc 
+            else 0
+        end as token_turnover_fdv
         , shifted_token_h24_volume_usd as token_volume
     from {{ ref("fact_coingecko_token_date_adjusted_gold") }} t1
     inner join
