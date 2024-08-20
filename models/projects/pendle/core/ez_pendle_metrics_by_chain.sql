@@ -51,12 +51,6 @@ SELECT
     , d.daus
     , d.daily_txns
     , token_incentives
-    , p.fdmc
-    , p.market_cap
-    , p.token_turnover_fdv
-    , p.token_turnover_mcap
-    , p.trading_volume
-    , token_holder_count
 FROM fees f
 LEFT JOIN daus_txns d using(date, chain)
 LEFT JOIN token_incentives_cte using(date, chain)

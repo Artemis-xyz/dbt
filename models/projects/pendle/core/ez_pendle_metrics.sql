@@ -12,7 +12,7 @@ with
     fees as (
         SELECT
             date
-            , fees
+            , SUM(fees) as fees
             , SUM(supply_side_fees) as supply_side_fees
             , SUM(revenue) as revenue
         FROM
@@ -55,8 +55,8 @@ SELECT
     , p.fdmc
     , p.market_cap
     , p.token_turnover_fdv
-    , p.token_turnover_mcap
-    , p.trading_volume
+    , p.token_turnover_circulating
+    , p.token_volume
     , token_holder_count
 FROM fees f
 LEFT JOIN daus_txns d using(date)
