@@ -4,5 +4,5 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_drift_trading_volume
-      - name: raw_drift_fill_price_kamala
-      - name: raw_drift_fill_price_trump
+      - name: raw_drift_fill_price_by_market
+ 
