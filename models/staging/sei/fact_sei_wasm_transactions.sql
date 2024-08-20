@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key="tx_hash",
-        snowflake_warehouse="SOLANA",
+        snowflake_warehouse="SEI_LG",
     )
 }}
 with
@@ -20,71 +20,68 @@ with
     prices as (
         select date as price_date, shifted_token_price_usd as price
         from pc_dbt_db.prod.fact_coingecko_token_date_adjusted_gold
-        where coingecko_id = 'sei'
+        where coingecko_id = 'sei-network'
         union
         select dateadd('day', -1, date) as price_date, token_current_price as price
         from pc_dbt_db.prod.fact_coingecko_token_realtime_data
-        where token_id = 'sei'
+        where token_id = 'sei-network'
     ),
     collapsed_prices as (
         select price_date, max(price) as price from prices group by price_date
     ),
     msg_atts_base AS (
         SELECT
-            block_id,
-            block_timestamp,
-            tx_succeeded,
+            max(block_timestamp) as block_timestamp,
+            max(date(block_timestamp)) as raw_date,
+            max(tx_succeeded) as tx_succeeded,
             tx_id,
-            msg_group,
-            msg_index,
-            msg_type,
-            inserted_timestamp,
-            attribute_key,
-            attribute_value,
-            case 
-                when attribute_key = 'contract_address' then attribute_value
-                when msg_type = 'transfer' then 'sei_token_transfer'
-                when msg_type = 'ibc_transfer' then 'sei_ibc_transfer'
-                when msg_type = 'message' AND attribute_key = 'action' AND attribute_value = '/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote'
-                    then 'sei_oracle_votes'
-                when msg_type = 'instantiate' AND attribute_key = 'contract_address' then 'sei_create_contract'
-                when msg_type = 'message' AND attribute_key = 'action' AND attribute_value = '/cosmos.gov.v1beta1.MsgVote' then 'sei_governance_votes'
-                when msg_type = 'message' and attribute_key = 'module' and attribute_key = 'staking' then 'sei_staking'
-                when msg_type = 'withdraw_rewards' then 'sei_staking_withdraw'
-                when msg_type = 'coin_spent' then 'sei_staking_coin_spent'
-                when msg_type in ('delegate','redelegate','unbond','create_validator') then 'sei_staking'
-                else null
-            end as contract_address
+            max (case when attribute_key in ('_contract_address', 'contract_address') then attribute_value else null end) as contract_address_1,
+            max (
+                case 
+                    when msg_type = 'transfer' then 'sei_token_transfer'
+                    when msg_type = 'ibc_transfer' then 'sei_ibc_transfer'
+                    when msg_type = 'message' AND attribute_key = 'action' AND attribute_value = '/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote'
+                        then 'sei_oracle_votes'
+                    when msg_type = 'instantiate' AND attribute_key = 'contract_address' then 'sei_create_contract'
+                    when msg_type = 'message' AND attribute_key = 'action' AND attribute_value = '/cosmos.gov.v1beta1.MsgVote' then 'sei_governance_votes'
+                    when msg_type = 'message' and attribute_key = 'module' and attribute_key = 'staking' then 'sei_staking'
+                    when msg_type = 'message' and attribute_key = 'module' and attribute_value = 'oracle' then 'sei_oracle'
+                    when msg_type = 'withdraw_rewards' then 'sei_staking_withdraw'
+                    when msg_type = 'aggregate_vote' then 'sei_voting'
+                    when msg_type = 'coin_spent' then 'sei_staking_coin_spent'
+                    when msg_type in ('delegate','redelegate','unbond','create_validator') then 'sei_staking'
+                    else null
+                end
+            ) as contract_address_2,
+            max(inserted_timestamp) as inserted_timestamp
         FROM
             sei_flipside.core.fact_msg_attributes
-        WHERE
-            tx_succeeded
             {% if is_incremental() %}
-            AND inserted_timestamp >= (
-                SELECT
-                    MAX(inserted_timestamp)
-                FROM
-                    {{ this }}
-            )
+            WHERE
+                inserted_timestamp >= (
+                    SELECT
+                        MAX(inserted_timestamp)
+                    FROM
+                        {{ this }}
+                )
             {% endif %}
+        GROUP BY tx_id
     ),
     transaction_contract_data as (
         SELECT
             tx_id as tx_hash
-            , min_by(block_timestamp, msg_index) as block_timestamp
-            , min_by(tx_succeeded, msg_index) as tx_succeeded
-            , min_by(contract_address, msg_index) as contract_address
-            , min_by(msg_type, msg_index) as msg_type
-            , min_by(attribute_value, msg_index) as attribute_value
-            , min_by(inserted_timestamp, msg_index) as inserted_timestamp
+            , block_timestamp
+            , raw_date
+            , tx_succeeded
+            , coalesce(contract_address_1, contract_address_2) as contract_address
+            , inserted_timestamp
         FROM
             msg_atts_base
-        GROUP BY tx_id
     )
     SELECT 
         t1.tx_hash
         , t1.block_timestamp
-        , date_trunc('day', t1.block_timestamp) as raw_date
+        , t1.raw_date
         , t1.tx_succeeded
         , t1.contract_address
         , t3.name
@@ -92,8 +89,6 @@ with
         , t3.friendly_name
         , t3.sub_category
         , t3.category
-        , t1.msg_type
-        , t1.attribute_value
         , t2.tx_from as signer
         , (split(t2.fee, 'usei')[0] / pow(10, 6)) as tx_fee
         , (split(t2.fee, 'usei')[0] / pow(10, 6)) * t4.price as gas_usd
@@ -117,7 +112,7 @@ with
         ON t1.contract_address = t3.address
     LEFT JOIN 
         prices as t4
-        ON date_trunc('day', t1.block_timestamp) = t4.price_date
+        ON t1.raw_date = t4.price_date
     WHERE
         t1.block_timestamp < date(sysdate())
         {% if is_incremental() %}
