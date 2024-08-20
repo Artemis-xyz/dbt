@@ -32,7 +32,7 @@ with
         SELECT
             date
             , chain
-            , token_incentives as token_incentives
+            , token_incentives
         FROM
             {{ref('fact_pendle_token_incentives_by_chain')}}
     )
@@ -48,9 +48,12 @@ SELECT
     , f.supply_side_fees as primary_supply_side_revenue
     , 0 as secondary_supply_side_revenue
     , f.revenue as protocol_revenue
-    , d.daus
+    , coalesce(token_incentives, 0) as token_incentives
+    , 0 as operating_expenses
+    , token_incentives + operating_expenses as total_expenses
+    , protocol_revenue - total_expenses as protocol_earnings
+    , d.daus as dau
     , d.daily_txns
-    , token_incentives
 FROM fees f
 LEFT JOIN daus_txns d using(date, chain)
 LEFT JOIN token_incentives_cte using(date, chain)

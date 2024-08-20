@@ -20,5 +20,5 @@ SELECT
     , fees * 0.8 as revenue
     , fees * 0.2 as supply_side_fees
 FROM agg
-where date < current_date()
+where date < to_date(sysdate())
 GROUP BY 1, 2

@@ -49,9 +49,12 @@ SELECT
     , f.supply_side_fees as primary_supply_side_revenue
     , 0 as secondary_supply_side_revenue
     , f.revenue as protocol_revenue
-    , d.daus
+    , d.daus as dau
     , d.daily_txns
-    , token_incentives
+    , coalesce(token_incentives, 0) as token_incentives
+    , 0 as operating_expenses
+    , token_incentives + operating_expenses as total_expenses
+    , protocol_revenue - total_expenses as protocol_earnings
     , p.fdmc
     , p.market_cap
     , p.token_turnover_fdv
