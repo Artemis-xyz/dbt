@@ -2,11 +2,11 @@
     config(
         materialized="incremental",
         unique_key="date",
-        snowflake_warehouse="USDC",
-        database="usdc",
+        snowflake_warehouse="USDT",
+        database="usdt",
         schema="core",
         alias="ez_metrics",
     )
 }}
 
-{{ get_stablecoin_ez_metrics("USDC") }}
+{{ get_stablecoin_ez_metrics("USDT") }}

@@ -4,7 +4,7 @@
         snowflake_warehouse="LIDO",
         database="lido",
         schema="core",
-        alias="ez_metrics_by_chain",
+        alias="ez_metrics",
     )
 }}
 
@@ -22,21 +22,11 @@ with
             , total_supply_side_revenue
         FROM {{ ref('fact_lido_fees_revs_expenses') }}
     )
-    , token_incentives_cte as (
-        SELECT
-            date
-            , sum(amount_usd) as token_incentives
-        FROM
-            {{ ref('fact_lido_token_incentives') }}
-        GROUP BY 1
-    )
     , staked_eth_metrics as (
         select
             date
             , num_staked_eth
             , amount_staked_usd
-            , num_staked_eth_net_change
-            , amount_staked_usd_net_change
         from {{ ref('fact_lido_staked_eth_count_with_USD_and_change') }}
     )
     , treasury_cte as (
@@ -64,6 +54,14 @@ with
         where token <> 'LDO'
         group by 1
     )
+    , token_incentives_cte as (
+        SELECT
+            date
+            , sum(amount_usd) as token_incentives
+        FROM
+            {{ ref('fact_lido_token_incentives') }}
+        GROUP BY 1
+    )
     , price_data as (
         {{ get_coingecko_metrics('lido-dao') }}
     )
@@ -76,13 +74,6 @@ with
     )
 select
     s.date
-    , 'lido' as app
-    , 'DeFi' as category
-    , 'ethereum' as chain
-    , COALESCE(s.num_staked_eth, 0) as num_staked_eth
-    , COALESCE(s.amount_staked_usd, 0) as amount_staked_usd
-    , COALESCE(s.num_staked_eth_net_change, 0) as num_staked_eth_net_change
-    , COALESCE(s.amount_staked_usd_net_change, 0) as amount_staked_usd_net_change
     , COALESCE(f.mev_priority_fees, 0) as mev_priority_fees
     , COALESCE(f.block_rewards, 0) as block_rewards
     , COALESCE(f.fees, 0) as fees
@@ -99,6 +90,8 @@ select
     , COALESCE(s.amount_staked_usd, 0) as net_deposits
     , COALESCE(s.num_staked_eth, 0) as outstanding_supply
     , COALESCE(s.amount_staked_usd, 0) as tvl
+    , COALESCE(s.amount_staked_usd, 0) as amount_staked_usd
+    , COALESCE(s.num_staked_eth, 0) as num_staked_eth
     , COALESCE(p.fdmc, 0) as fdmc
     , COALESCE(p.market_cap, 0) as market_cap
     , COALESCE(p.token_volume, 0) as token_volume
@@ -106,7 +99,7 @@ select
     , COALESCE(p.token_turnover_circulating, 0) as token_turnover_circulating
     , COALESCE(th.token_holder_count, 0) as token_holder_count
 from staked_eth_metrics s
-left join fees_revenue_expenses f using(date)
+left join fees_revenue_expenses f  using(date)
 left join treasury_cte t using(date)
 left join treasury_native_cte tn using(date)
 left join net_treasury_cte nt using(date)
