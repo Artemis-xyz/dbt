@@ -1,6 +1,10 @@
-{% macro stablecoin_breakdown(breakdowns=[]) %}
+{% macro stablecoin_breakdown(breakdowns=[], granularity='daily') %}
 select
-    date
+    {% if granularity == 'daily' %}
+        date
+    {% elif granularity == 'monthly' %}
+        date_trunc('month', date) as date
+    {% endif %}
     {% for breakdown in breakdowns %}
         , {{ breakdown }}
     {% endfor %}
