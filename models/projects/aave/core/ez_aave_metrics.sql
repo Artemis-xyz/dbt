@@ -131,15 +131,28 @@ with
         select * from {{ref("fact_aave_v2_collector")}}
         union all
         select * from {{ref("fact_aave_safety_module")}}
+        union all
+        select * from {{ref("fact_aave_ecosystem_reserve")}}
     )
     , treasury as (
         select
             date
-            , sum(case when token_address <> lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') then amount_usd else 0 end) as net_treasury_value
             , sum(case when token_address = lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') then amount_usd else 0 end) as treasury_value_native
             , sum(amount_usd) as treasury_value
         from aave_treasury
         group by date
+    )
+    , aave_net_treasury as (
+        select * from {{ref("fact_aave_v2_collector")}}
+        union all
+        select * from {{ref("fact_aave_aavura_treasury")}}
+    )
+    , net_treasury_data as (
+        select
+            date
+            , sum(amount_usd) as net_treasury_value
+        from aave_net_treasury
+        group by 1
     )
     , aave_ecosystem_incentives as (
         select 
@@ -214,7 +227,6 @@ select
     , gho_revenue
     , coalesce(reserve_factor_revenue, 0) as reserve_factor_revenue
     , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as protocol_revenue
-    -- Checkouted 
     , ecosystem_incentives
     , safety_incentives
     , coalesce(ecosystem_incentives, 0) + coalesce(safety_incentives, 0) as token_incentives
@@ -224,8 +236,8 @@ select
     , net_deposits
     , tvl
     , treasury_value
-    , net_treasury_value
     , treasury_value_native
+    , net_treasury_value
     , token_holder_count
     , price
     , h24_volume
@@ -241,6 +253,7 @@ left join dao_trading_revenue using (date)
 left join safety_incentives using (date)
 left join gho_treasury_revenue using (date)
 left join treasury using (date)
+left join net_treasury_data using (date)
 left join aave_token_holders using (date)
 left join coingecko_metrics using (date)
 where aave_outstanding_supply_net_deposits_deposit_revenue.date < to_date(sysdate())
