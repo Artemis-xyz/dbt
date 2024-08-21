@@ -134,16 +134,30 @@ with
         select * from {{ref("fact_aave_v2_collector")}}
         union all
         select * from {{ref("fact_aave_safety_module")}}
+        union all
+        select * from {{ref("fact_aave_ecosystem_reserve")}}
     )
     , treasury as (
         select
             date
             , chain
-            , sum(case when token_address <> lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') then amount_usd else 0 end) as net_treasury_value
             , sum(case when token_address = lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') then amount_usd else 0 end) as treasury_value_native
             , sum(amount_usd) as treasury_value
         from aave_treasury
         group by date, 2
+    )
+    , aave_net_treasury as (
+        select * from {{ref("fact_aave_v2_collector")}}
+        union all
+        select * from {{ref("fact_aave_aavura_treasury")}}
+    )
+    , net_treasury_data as (
+        select
+            date
+            , chain
+            , sum(amount_usd) as net_treasury_value
+        from aave_net_treasury
+        group by 1, 2
     )
     , aave_ecosystem_incentives as (
         select 
@@ -215,4 +229,5 @@ left join dao_trading_revenue using (date, chain)
 left join safety_incentives using (date, chain)
 left join gho_treasury_revenue using (date, chain)
 left join treasury using (date, chain)
+left join net_treasury_data using (date, chain)
 where aave_outstanding_supply_net_deposits_deposit_revenue.date < to_date(sysdate())
