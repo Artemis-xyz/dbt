@@ -45,6 +45,32 @@ with filtered_address as (
             else null
         end as sub_category
     from sei_flipside.core.dim_labels as labels
+    union all 
+    select
+        address,
+        name,
+        lower(
+            trim(
+                replace(
+                    replace(regexp_replace(
+                        name,
+                        '[^\x00-\x7F]', ''), ' ', '_'
+                    ),
+                    '-',
+                    '_'
+                ),
+                '_'
+            )
+        ) as namespace,
+        case 
+            when name = 'Dragonswap'
+            then 'DeFi'
+            when symbol is not null and decimals is not null
+            then 'Token'
+            else null
+        end as category,
+        null as sub_category
+    from sei_flipside.core_evm.dim_contracts
 )
 select 
     address,
