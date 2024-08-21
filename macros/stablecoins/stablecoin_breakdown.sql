@@ -26,8 +26,13 @@ select
         else 0
     end as p2p_stablecoin_avg_txn_value
 
-    , sum(stablecoin_supply) as stablecoin_supply
-    , sum(case when is_wallet::number = 1 then stablecoin_supply else 0 end) as p2p_stablecoin_supply
+    {% if granularity == 'day' %}
+        , sum(stablecoin_supply) as stablecoin_supply
+        , sum(case when is_wallet::number = 1 then stablecoin_supply else 0 end) as p2p_stablecoin_supply
+    {% else %}
+        , sum(case when date = date_trunc('{{granularity}}', date) then stablecoin_supply else 0 end) as stablecoin_supply
+        , sum(case when is_wallet::number = 1 and date = date_trunc('{{granularity}}', date) then stablecoin_supply else 0 end) as p2p_stablecoin_supply
+    {% endif %}
 from {{ ref("agg_daily_stablecoin_breakdown_silver") }}
 group by date {% for breakdown in breakdowns %}, {{ breakdown }} {% endfor %}
 order by date
