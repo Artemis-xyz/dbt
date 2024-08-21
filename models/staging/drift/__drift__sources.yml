@@ -5,4 +5,5 @@ sources:
     tables:
       - name: raw_drift_trading_volume
       - name: raw_drift_fill_price_by_market
+      - name: raw_drift_sell_fill_price_by_market
  
