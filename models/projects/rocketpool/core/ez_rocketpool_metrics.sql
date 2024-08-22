@@ -4,7 +4,7 @@
         snowflake_warehouse="ROCKETPOOL",
         database="rocketpool",
         schema="core",
-        alias="ez_metrics_by_chain",
+        alias="ez_metrics",
     )
 }}
 
@@ -82,13 +82,6 @@ with
     )
 select
     staked_eth_metrics.date
-    , 'rocketpool' as app
-    , 'DeFi' as category
-    , 'ethereum' as chain
-    , staked_eth_metrics.num_staked_eth,
-    , staked_eth_metrics.amount_staked_usd,
-    , staked_eth_metrics.num_staked_eth_net_change,
-    , staked_eth_metrics.amount_staked_usd_net_change
     , COALESCE(f.cl_rewards_usd, 0) as cl_rewards_usd
     , COALESCE(f.el_rewards_usd, 0) as el_rewards_usd
     , COALESCE(f.deposit_fees, 0) as deposit_fees
@@ -101,6 +94,9 @@ select
     , 0 as operating_expenses
     , COALESCE(token_incentives_usd, 0) as total_expenses
     , protocol_revenue - token_incentives as protocol_earnings
+    , staked_eth_metrics.amount_staked_usd as net_deposit
+    , os.reth_supply as outstanding_supply
+    , staked_eth_metrics.amount_staked_usd as tvl
     , COALESCE(t.treasury_value, 0) as treasury_value
     , COALESCE(tn.treasury_native, 0) as treasury_native
     , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
@@ -116,6 +112,7 @@ left join token_incentives_cte ti using(date)
 left join treasury_cte t using(date)
 left join treasury_native_cte tn using(date)
 left join net_treasury_cte nt using(date)
+left join outstanding_supply_cte os using(date)
 left join prices_cte p using(date)
 left join token_holders_cte th using(date)
 where staked_eth_metrics.date < to_date(sysdate())
