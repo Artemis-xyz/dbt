@@ -11,7 +11,7 @@ with
     msg_atts_base AS (
         SELECT
             max(block_timestamp) as block_timestamp,
-            max(date(block_timestamp)) as date,
+            max(date_trunc('day', block_timestamp)) as date,
             max(tx_succeeded) as tx_succeeded,
             tx_id,
             max (case when attribute_key in ('_contract_address', 'contract_address') then attribute_value else null end) as contract_address_1,
@@ -41,52 +41,50 @@ with
         SELECT
             tx_id as tx_hash
             , block_timestamp
-            , raw_date
+            , date
             , tx_succeeded
             , coalesce(contract_address_1, contract_address_2) as contract_address
         FROM
             msg_atts_base
-    )
+    ),
     last_2_day as (
         SELECT 
             t1.tx_hash
             , t1.block_timestamp
-            , t1.raw_date
+            , t1.date
             , t2.tx_from as from_address
             , (split(t2.fee, 'usei')[0] / pow(10, 6)) as tx_fee
-            , (split(t2.fee, 'usei')[0] / pow(10, 6)) * prices.price as gas_usd
+            , (split(t2.fee, 'usei')[0] / pow(10, 6)) * t4.price as gas_usd
             , t1.contract_address as to_address
             , t3.name
-            , t3.app
+            , t3.namespace
             , t3.friendly_name
-            , t3.sub_category
             , t3.category
         from transaction_contract_data as t1
-        LEFT JOIN sei_flipside.core.fact_transactions as t2
-        left join sei_contracts as t3 on lower(t.to_address) = lower(t3.address)
-        left join prices as t4 on t1.raw_date= t4.date
+        LEFT JOIN sei_flipside.core.fact_transactions as t2 on t1.tx_hash = t2.tx_id
+        left join sei_contracts as t3 on lower(t1.contract_address) = lower(t3.address)
+        left join prices as t4 on t1.date= t4.date
         where
-            and t2.block_timestamp >= dateadd(day, -2, current_date)
+            t2.block_timestamp >= dateadd(day, -2, current_date)
         union all
         select
             tx_hash,
             block_timestamp,
-            date_trunc('day', block_timestamp) raw_date,
+            date_trunc('day', block_timestamp) date,
             t.from_address,
             tx_fee,
             (tx_fee * price) gas_usd,
-            'sei' as chain,
-            new_contracts.address as to_address,
-            new_contracts.name,
-            new_contracts.app,
-            new_contracts.friendly_name,
-            new_contracts.sub_category,
+            sei_contracts.address as to_address,
+            sei_contracts.name,
+            sei_contracts.namespace,
+            sei_contracts.friendly_name,
+            sei_contracts.category,
         from sei_flipside.core_evm.fact_transactions as t
-        left join new_contracts on lower(t.to_address) = lower(new_contracts.address)
-        left join prices on raw_date = prices.date
+        left join sei_contracts on lower(t.to_address) = lower(sei_contracts.address)
+        left join prices on date_trunc('day', block_timestamp) = prices.date
         where
-            and block_timestamp >= dateadd(day, -2, current_date)
-    )
+            block_timestamp >= dateadd(day, -2, current_date)
+    ),
     last_day as (
         select
             t.to_address to_address,
