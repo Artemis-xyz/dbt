@@ -57,13 +57,7 @@ with
         FROM
             sei_flipside.core.fact_msg_attributes
             {% if is_incremental() %}
-            WHERE
-                inserted_timestamp >= (
-                    SELECT
-                        MAX(inserted_timestamp)
-                    FROM
-                        {{ this }}
-                )
+            WHERE inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
             {% endif %}
         GROUP BY tx_id
     ),
@@ -82,7 +76,7 @@ with
         t1.tx_hash
         , t1.block_timestamp
         , t1.raw_date
-        , t1.tx_succeeded
+        , t1.tx_succeeded as success
         , t1.contract_address
         , t3.name
         , t3.app
@@ -116,10 +110,6 @@ with
     WHERE
         t1.block_timestamp < date(sysdate())
         {% if is_incremental() %}
-        AND t2.inserted_timestamp >= (
-            SELECT
-                max(inserted_timestamp)
-            FROM
-                {{ this }}
-        )
+        AND 
+        t2.inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
         {% endif %}
