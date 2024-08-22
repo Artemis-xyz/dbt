@@ -111,5 +111,5 @@ with
         t1.block_timestamp < date(sysdate())
         {% if is_incremental() %}
         AND 
-        inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
+        t2.inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
         {% endif %}

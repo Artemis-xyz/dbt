@@ -14,6 +14,7 @@ with
                     ref("ez_near_metrics"),
                     ref("ez_optimism_metrics"),
                     ref("ez_polygon_metrics"),
+                    ref("ez_sei_metrics"),
                     ref("ez_solana_metrics"),
                     ref("ez_sui_metrics"),
                     ref("ez_tron_metrics"),
