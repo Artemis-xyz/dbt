@@ -145,8 +145,11 @@ with
             , stablecoin_supply * coalesce(
                 d.shifted_token_price_usd, 
                 case 
-                    when lower(c.coingecko_id) = lower('celo-kenyan-shilling') then 0.0077 
-                    else 1 
+                    when c.coingecko_id = 'euro-coin' then ({{ avg_l7d_coingecko_price('euro-coin') }})
+                    when c.coingecko_id = 'celo-euro' then ({{ avg_l7d_coingecko_price('celo-euro') }})
+                    when c.coingecko_id = 'celo-real-creal' then ({{ avg_l7d_coingecko_price('celo-real-creal') }})
+                    when c.coingecko_id = 'celo-kenyan-shilling' then ({{ avg_l7d_coingecko_price('celo-kenyan-shilling') }})
+                    else 1
                 end
             ) as stablecoin_supply
         from historical_supply_by_address_balances st
@@ -167,5 +170,4 @@ select
     , date || '-' || address || '-' || contract_address as unique_id
 from stablecoin_balances_with_price
 where date < to_date(sysdate())
-
 {% endmacro %}
