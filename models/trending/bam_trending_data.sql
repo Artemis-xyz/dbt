@@ -48,6 +48,12 @@ union all
 select *, 'polygon' as chain
 from {{ ref("polygon_trending_weekly_monthly") }}
 union all
+select *, 'sei' as chain
+from {{ ref("sei_trending_daily") }}
+union all
+select *, 'sei' as chain
+from {{ ref("sei_trending_weekly_monthly") }}
+union all
 select *, 'solana' as chain
 from {{ ref("solana_trending_daily") }}
 union all
