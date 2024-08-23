@@ -77,14 +77,8 @@ with
             , sum(stablecoin_transfer_volume) as stablecoin_transfer_volume
         from artemis_max_transfer_filter
         group by 1, 2, 3, 4
-    ),
-    eurc_7d_avg as (
-        select
-            avg(shifted_token_price_usd) as euro_7d_avg
-        from {{ ref("fact_coingecko_token_date_adjusted_gold") }}
-        where coingecko_id = 'eurc'
     )
-    results_dollar_denom as (
+    , results_dollar_denom as (
         select
             stablecoin_metrics.date
             , stablecoin_metrics.contract_address
