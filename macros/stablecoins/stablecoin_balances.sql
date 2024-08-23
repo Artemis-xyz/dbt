@@ -15,11 +15,11 @@ with
             , symbol
             , address
             {% if chain in ('solana') %}
-                , amount as stablecoin_supply
+                , amount as stablecoin_supply_native
             {% elif chain == 'ton' %}
-                , balance_token as stablecoin_supply
+                , balance_token as stablecoin_supply_native
             {% else %}
-                , balance_token / pow(10, num_decimals) as stablecoin_supply
+                , balance_token / pow(10, num_decimals) as stablecoin_supply_native
             {% endif %}
         {% if chain == "ton" %}
             from {{ ref("ez_" ~ chain ~ "_address_balances_by_token")}} t1
@@ -49,7 +49,7 @@ with
                 , t.contract_address
                 , t.symbol
                 , t.address
-                , t.stablecoin_supply
+                , t.stablecoin_supply_native
             from {{ this }} t
             where date = (select dateadd('day', -3, max(date)) from {{ this }})
         )
@@ -63,7 +63,7 @@ with
             , contract_address
             , symbol
             , address
-            , stablecoin_supply
+            , stablecoin_supply_native
         from stablecoin_balances
         {% if is_incremental() %}
             union
@@ -72,7 +72,7 @@ with
                 , contract_address
                 , symbol
                 , address
-                , stablecoin_supply
+                , stablecoin_supply_native
             from stale_stablecoin_balances
         {% endif %}
     ) 
@@ -83,14 +83,14 @@ with
             , contract_address
             , symbol
             , address
-            , stablecoin_supply
+            , stablecoin_supply_native
         from (
             select 
                 block_timestamp
                 , contract_address
                 , symbol
                 , address
-                , stablecoin_supply
+                , stablecoin_supply_native
                 , row_number() over (partition by block_timestamp::date, contract_address, address, symbol order by block_timestamp desc) AS rn
             from heal_balance_table
         )
@@ -125,13 +125,13 @@ with
             , contract_address
             , symbol
             , coalesce(
-                stablecoin_supply, 
-                LAST_VALUE(balances.stablecoin_supply ignore nulls) over (
+                stablecoin_supply_native, 
+                LAST_VALUE(balances.stablecoin_supply_native ignore nulls) over (
                     partition by contract_address, address, symbol
                     order by date
                     rows between unbounded preceding and current row
                 ) 
-            )  as stablecoin_supply
+            )  as stablecoin_supply_native
         from date_range
         left join balances using (date, contract_address, symbol, address)
     )
@@ -141,8 +141,8 @@ with
             , address
             , st.contract_address
             , st.symbol
-            , stablecoin_supply as stablecoin_supply_native
-            , stablecoin_supply * coalesce(
+            , stablecoin_supply_native
+            , stablecoin_supply_native * coalesce(
                 d.shifted_token_price_usd, 
                 case 
                     when c.coingecko_id = 'euro-coin' then ({{ avg_l7d_coingecko_price('euro-coin') }})
