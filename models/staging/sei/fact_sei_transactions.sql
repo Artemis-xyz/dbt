@@ -96,4 +96,5 @@ SELECT
     max(native_token_balance) as native_token_balance,
     max(stablecoin_balance) as stablecoin_balance
 FROM transaction_data
+WHERE block_timestamp <= date_trunc('day', sysdate())
 GROUP BY tx_hash
