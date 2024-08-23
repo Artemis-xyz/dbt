@@ -1,7 +1,8 @@
 {{
     config(
-        materialized = 'incremental'
+        materialized="incremental",
+        snowflake_warehouse="PENDLE"
     )
 }}
 
-{{ get_pendle_fees_for_chain('optimism') }}
+{{ get_pendle_swap_fees_for_chain_by_token('optimism') }}

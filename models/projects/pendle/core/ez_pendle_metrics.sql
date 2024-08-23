@@ -9,14 +9,22 @@
 }}
 
 with
-    fees as (
+    swap_fees as (
         SELECT
             date
-            , SUM(fees) as fees
+            , SUM(fees) as swap_fees
             , SUM(supply_side_fees) as supply_side_fees
-            , SUM(revenue) as revenue
+            , SUM(revenue) as swap_revenue
         FROM
-            {{ ref('fact_pendle_fees') }}
+            {{ ref('fact_pendle_swap_fees') }}
+        GROUP BY 1
+    )
+    , yield_fees as (
+        SELECT
+            date
+            , SUM(yield_fees_usd) as yield_revenue
+        FROM
+            {{ ref('fact_pendle_yield_fees') }}
         GROUP BY 1
     )
     , daus_txns as (
@@ -45,12 +53,18 @@ with
 
 SELECT
     f.date
-    , f.fees
-    , f.supply_side_fees as primary_supply_side_revenue
-    , 0 as secondary_supply_side_revenue
-    , f.revenue as protocol_revenue
     , d.daus as dau
     , d.daily_txns
+    , yf.yield_revenue as yield_fees
+    , f.fees as swap_fees
+    , yield_fees + swap_fees as fees
+    , f.supply_side_fees as primary_supply_side_revenue
+    , 0 as secondary_supply_side_revenue
+    , primary_supply_side_revenue + secondary_supply_side_revenue as supply_side_revenue
+    , f.swap_revenue as swap_revenue_vependle
+    , yf.yield_revenue as yield_revenue_vependle
+    , swap_revenue + yield_revenue as total_revenue_vependle
+    , 0 as protocol_revenue
     , coalesce(token_incentives, 0) as token_incentives
     , 0 as operating_expenses
     , token_incentives + operating_expenses as total_expenses
@@ -61,7 +75,8 @@ SELECT
     , p.token_turnover_circulating
     , p.token_volume
     , token_holder_count
-FROM fees f
+FROM swap_fees f
+LEFT JOIn yield_fees yf using(date)
 LEFT JOIN daus_txns d using(date)
 LEFT JOIN token_incentives_cte using(date)
 LEFT JOIN price_data_cte p using(date)

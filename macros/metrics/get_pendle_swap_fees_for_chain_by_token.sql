@@ -1,4 +1,4 @@
-{% macro get_pendle_fees_for_chain(chain)%}
+{% macro get_pendle_swap_fees_for_chain_by_token(chain)%}
 
     with
         all_logs as(
@@ -91,23 +91,33 @@
         , swaps_with_meta_data as (
             SELECT
                 l.block_timestamp
-                , l.netSyFee as fee_native
                 , p.symbol
                 , p.price
                 , l.netSyFee * p.price as fee_usd
+                , l.netSyFee as fee_native
+                , l.netSyOut * p.price as volume_usd
+                , l.netSyOut as volume_native
+                , l.netSyToReserve * p.price as revenue_usd
+                , l.netSyToReserve as revenue_native
                 , m.market_address
                 , m.underlying
             FROM
                 swap_logs l
             LEFT JOIN market_to_underlying m on m.market_address = l.market_address
-            LEFT JOIN {{ chain }}_flipside.price.ez_prices_hourly p on p.hour = date_trunc('hour', l.block_timestamp) AND lower(p.token_address) = lower(m.underlying)
+            LEFT JOIN {{ chain }}_flipside.price.ez_prices_hourly p on en
         )
         SELECT
             date(block_timestamp) as date
             , '{{ chain }}' as chain
+            , symbol
             , SUM(fee_usd) as fee_usd
+            , SUM(fee_native) as fee_native
+            , SUM(volume_usd) as volume_usd
+            , SUM(volume_native) as volume_native
+            , SUM(revenue_usd) as revenue_usd
+            , SUM(revenue_native) as revenue_native
         FROM swaps_with_meta_data
-        GROUP BY 1
+        GROUP BY 1, 2, 3
 
 
 {% endmacro %}

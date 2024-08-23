@@ -9,15 +9,16 @@
 }}
 
 with
-    fees as (
+    swap_fees as (
         SELECT
             date
             , chain
-            , fees
-            , supply_side_fees
-            , revenue
+            , SUM(fees) as fees
+            , SUM(supply_side_fees) as supply_side_fees
+            , SUM(revenue) as revenue
         FROM
-            {{ ref('fact_pendle_fees') }}
+            {{ ref('fact_pendle_swap_fees') }}
+        GROUP BY 1, 2
     )
     , daus_txns as (
         SELECT

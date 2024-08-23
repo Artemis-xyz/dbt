@@ -1,6 +1,7 @@
 {{
     config(
-        materialized = 'table'
+        materialized="incremental",
+        snowflake_warehouse="PENDLE"
     )
 }}
 

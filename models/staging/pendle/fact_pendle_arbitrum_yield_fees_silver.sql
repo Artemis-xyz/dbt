@@ -5,4 +5,4 @@
     )
 }}
 
-{{ get_pendle_swap_fees_for_chain_by_token('ethereum') }}
+{{ get_pendle_yield_fees_for_chain_by_token('arbitrum') }}

@@ -1,6 +1,7 @@
 {{
     config(
-        materialized = 'table'
+        materialized="incremental",
+        snowflake_warehouse="PENDLE"
     )
 }}
 
@@ -16,6 +17,7 @@ with agg as (
 SELECT
     date
     , chain
+    , symbol
     , sum(fee_usd) as fees
     , fees * 0.8 as revenue
     , fees * 0.2 as supply_side_fees
