@@ -16,7 +16,7 @@ with
             , SUM(supply_side_fees) as supply_side_fees
             , SUM(revenue) as swap_revenue
         FROM
-            {{ ref('fact_pendle_swap_fees') }}
+        {{ ref('fact_pendle_swap_fees') }}
         GROUP BY 1
     )
     , yield_fees as (
@@ -55,15 +55,15 @@ SELECT
     f.date
     , d.daus as dau
     , d.daily_txns
-    , yf.yield_revenue as yield_fees
-    , f.fees as swap_fees
+    , coalesce(yf.yield_revenue, 0) as yield_fees
+    , f.swap_fees as swap_fees
     , yield_fees + swap_fees as fees
     , f.supply_side_fees as primary_supply_side_revenue
     , 0 as secondary_supply_side_revenue
-    , primary_supply_side_revenue + secondary_supply_side_revenue as supply_side_revenue
+    , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
     , f.swap_revenue as swap_revenue_vependle
-    , yf.yield_revenue as yield_revenue_vependle
-    , swap_revenue + yield_revenue as total_revenue_vependle
+    , coalesce(yf.yield_revenue, 0) as yield_revenue_vependle
+    , swap_revenue_vependle + yield_revenue_vependle as total_revenue_vependle
     , 0 as protocol_revenue
     , coalesce(token_incentives, 0) as token_incentives
     , 0 as operating_expenses

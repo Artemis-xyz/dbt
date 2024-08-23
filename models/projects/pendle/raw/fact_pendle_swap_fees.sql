@@ -12,7 +12,7 @@
 SELECT
     date
     , chain
-    , token
+    , symbol as token
     , fees
     , revenue
     , supply_side_fees

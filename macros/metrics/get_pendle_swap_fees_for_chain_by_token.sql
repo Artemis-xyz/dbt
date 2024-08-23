@@ -104,8 +104,7 @@
             FROM
                 swap_logs l
             LEFT JOIN market_to_underlying m on m.market_address = l.market_address
-            LEFT JOIN {{ chain }}_flipside.price.ez_prices_hourly p on en
-        )
+            LEFT JOIN {{ chain }}_flipside.price.ez_prices_hourly p on p.hour = date_trunc('hour', l.block_timestamp) AND lower(p.token_address) = lower(m.underlying)        )
         SELECT
             date(block_timestamp) as date
             , '{{ chain }}' as chain

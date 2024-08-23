@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="incremental",
+        materialized="table",
         snowflake_warehouse="PENDLE"
     )
 }}
@@ -23,4 +23,4 @@ SELECT
     , fees * 0.2 as supply_side_fees
 FROM agg
 where date < to_date(sysdate())
-GROUP BY 1, 2
+GROUP BY 1, 2, 3
