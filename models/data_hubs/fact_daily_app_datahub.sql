@@ -1,4 +1,7 @@
-{{ config(materialized="table") }}
+{{ config(
+    materialized="table",
+    , snowflake_warehouse="PC_DBT_WH"
+) }}
 with
     app_datahub as (
         {{
