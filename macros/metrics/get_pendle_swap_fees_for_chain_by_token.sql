@@ -1,4 +1,4 @@
-{% macro get_pendle_swap_fees_for_chain_by_token(chain)%}
+{% macro get_pendle_swap_fees_for_chain_by_token(chain, blacklist=(''))%}
 
     with
         swap_logs as (
@@ -18,6 +18,9 @@
             AND DECODED_LOG:netSyToReserve IS NOT NULL
             {% if is_incremental() %}
                 AND block_timestamp > (select max(date)-1 from {{ this }})
+            {% endif %}
+            {% if blacklist is string %} AND lower(contract_address) != '{{ blacklist }}'
+            {% elif blacklist | length > 1 %} AND lower(contract_address) not in {{ blacklist }}
             {% endif %}
         )
         , market_metadata as (
@@ -45,7 +48,7 @@
             FROM
                 swap_logs l
             LEFT JOIN market_metadata m on m.market_address = l.market_address
-            LEFT JOIN {{ chain }}_flipside.price.ez_prices_hourly p on p.hour = date_trunc('hour', l.block_timestamp) AND lower(p.token_address) = lower(m.underlying_address) 
+            LEFT JOIN {{ chain }}_flipside.price.ez_prices_hourly p on p.hour = date_trunc('hour', l.block_timestamp) AND lower(p.token_address) = lower(m.underlying_address)
         )
 
     SELECT
