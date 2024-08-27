@@ -102,7 +102,7 @@ select
     , COALESCE(token_incentives_usd, 0) as total_expenses
     , protocol_revenue - token_incentives as protocol_earnings
     , COALESCE(os.reth_supply, 0) as outstanding_supply
-    , staked_eth_metrics.amount_staked_usd as net_deposits,
+    , staked_eth_metrics.amount_staked_usd as net_deposits
     , staked_eth_metrics.amount_staked_usd as tvl,
     , COALESCE(t.treasury_value, 0) as treasury_value
     , COALESCE(tn.treasury_native, 0) as treasury_value_native
