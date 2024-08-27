@@ -52,7 +52,7 @@ with
     )
 
 SELECT
-    f.date
+    p.date
     , d.daus as dau
     , d.daily_txns
     , coalesce(yf.yield_revenue, 0) as yield_fees
@@ -75,9 +75,9 @@ SELECT
     , p.token_turnover_circulating
     , p.token_volume
     , token_holder_count
-FROM swap_fees f
-LEFT JOIn yield_fees yf using(date)
+FROM price_data_cte p
+LEFT JOIN swap_fees f using(date)
+LEFT JOIN yield_fees yf using(date)
 LEFT JOIN daus_txns d using(date)
 LEFT JOIN token_incentives_cte using(date)
-LEFT JOIN price_data_cte p using(date)
 LEFT JOIN tokenholder_count t using(date)

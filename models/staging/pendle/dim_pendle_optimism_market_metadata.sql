@@ -1,7 +1,9 @@
 {{
     config(
         materialized="incremental",
-        snowflake_warehouse="PENDLE"
+        snowflake_warehouse="PENDLE",
+        unique_key = "market_address"
+
     )
 }}
 

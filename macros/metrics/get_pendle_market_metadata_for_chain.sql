@@ -12,7 +12,7 @@
             WHERE
                 event_name = 'CreateNewMarket'
                 {% if is_incremental() %}
-                    AND block_timestamp > (SELECT dateadd(day, -2, max(block_timestamp)) FROM {{ this }})
+                    AND block_timestamp > dateadd(day, -3, to_date(sysdate()))
                 {% endif %}
         ),
 
@@ -28,7 +28,7 @@
                 AND SUBSTR(input, 35, 40) is not null
                 AND pt_address IN (SELECT pt_address FROM pt_addresses)
                 {% if is_incremental() %}
-                    AND block_timestamp > (SELECT dateadd(day, -2, max(block_timestamp)) FROM {{ this }})
+                    AND block_timestamp > dateadd(day, -3, to_date(sysdate()))
                 {% endif %}
         ),
 
@@ -45,7 +45,7 @@
                 AND DECODED_LOG:tokenIn::STRING <> '0x0000000000000000000000000000000000000000'
                 AND contract_address IN (SELECT sy_address FROM sy_addresses)
                 {% if is_incremental() %}
-                    AND block_timestamp > (SELECT dateadd(day, -2, max(block_timestamp)) FROM {{ this }})
+                    AND block_timestamp > dateadd(day, -3, to_date(sysdate()))
                 {% endif %}
             GROUP BY
                 contract_address, DECODED_LOG:tokenIn::STRING
@@ -78,7 +78,7 @@
         p.pt_address,
         s.sy_address,
         u.underlying_address,
-        max(p.block_timestamp) as block_timestamp  -- Keep track of the timestamp for incremental runs
+        MAX(block_timestamp) as block_timestamp
     FROM
         pt_addresses p
     LEFT JOIN
