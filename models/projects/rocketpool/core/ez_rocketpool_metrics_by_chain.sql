@@ -85,9 +85,9 @@ select
     , 'rocketpool' as app
     , 'DeFi' as category
     , 'ethereum' as chain
-    , staked_eth_metrics.num_staked_eth,
-    , staked_eth_metrics.amount_staked_usd,
-    , staked_eth_metrics.num_staked_eth_net_change,
+    , staked_eth_metrics.num_staked_eth
+    , staked_eth_metrics.amount_staked_usd
+    , staked_eth_metrics.num_staked_eth_net_change
     , staked_eth_metrics.amount_staked_usd_net_change
     , COALESCE(f.cl_rewards_usd, 0) as cl_rewards_usd
     , COALESCE(f.el_rewards_usd, 0) as el_rewards_usd
@@ -103,7 +103,7 @@ select
     , protocol_revenue - token_incentives as protocol_earnings
     , COALESCE(os.reth_supply, 0) as outstanding_supply
     , staked_eth_metrics.amount_staked_usd as net_deposits
-    , staked_eth_metrics.amount_staked_usd as tvl,
+    , staked_eth_metrics.amount_staked_usd as tvl
     , COALESCE(t.treasury_value, 0) as treasury_value
     , COALESCE(tn.treasury_native, 0) as treasury_value_native
     , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
@@ -116,7 +116,7 @@ select
 from staked_eth_metrics
 left join fees_revs_cte f using(date)
 left join token_incentives_cte ti using(date)
-left join outstanding_supply_cte using(date)
+left join outstanding_supply_cte os using(date)
 left join treasury_cte t using(date)
 left join treasury_native_cte tn using(date)
 left join net_treasury_cte nt using(date)
