@@ -99,6 +99,13 @@ with
             , coalesce(variable_borrow_fees, 0) + coalesce(stable_borrow_fees, 0) as borrow_fees
             , borrow_fees_nominal * coalesce(reserve_factor, 0) as reserve_factor_revenue_nominal
             , borrow_fees * coalesce(reserve_factor, 0) as reserve_factor_revenue
+            , daily_liquidity_rate
+            , daily_borrow_rate
+            , stable_borrow_rate
+            , pow(1 + daily_liquidity_rate, 365) - 1 as liquidity_apy
+            , pow(1 + daily_borrow_rate, 365) - 1 as variable_borrow_apy
+            , pow(1 + stable_borrow_rate, 365) - 1 as stable_borrow_apy
+
         from {{ref(raw_table)}} as raw_data
         left join daily_rate 
             on raw_data.date = daily_rate.date
@@ -124,6 +131,12 @@ with
         , sum(borrow_fees) as interest_rate_fees
         , sum(reserve_factor_revenue_nominal) as reserve_factor_revenue_nominal
         , sum(reserve_factor_revenue) as reserve_factor_revenue
+        , avg(daily_liquidity_rate) as daily_liquidity_rate
+        , avg(daily_borrow_rate) as daily_borrow_rate
+        , avg(stable_borrow_rate) as stable_borrow_rate
+        , avg(liquidity_apy) as liquidity_apy
+        , avg(variable_borrow_apy) as variable_borrow_apy
+        , avg(stable_borrow_apy) as stable_borrow_apy
     from data
     group by 1, 2
 {% endmacro %}
