@@ -1,5 +1,5 @@
 {% macro fact_uniswap_v2_fork_dex_swaps(
-    token_address, chain, blacklist, app, fees, version='v2', pair_event_name, swap_event_name
+    token_address, chain, blacklist, app, fees, version='v2'
 ) %}
     with
         pools as (
