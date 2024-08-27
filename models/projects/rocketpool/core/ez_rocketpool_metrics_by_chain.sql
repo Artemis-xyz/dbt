@@ -81,7 +81,7 @@ with
             {{ ref('fact_rocketpool_token_holders') }}
     )
 select
-    staked_eth_metrics.date
+    p.date
     , 'rocketpool' as app
     , 'DeFi' as category
     , 'ethereum' as chain
@@ -113,13 +113,13 @@ select
     , COALESCE(p.token_turnover_fdv, 0) as token_turnover_fdv
     , COALESCE(p.token_turnover_circulating, 0) as token_turnover_circulating
     , COALESCE(th.token_holder_count, 0) as token_holder_count
-from staked_eth_metrics
+from prices_cte p
 left join fees_revs_cte f using(date)
 left join token_incentives_cte ti using(date)
 left join outstanding_supply_cte os using(date)
 left join treasury_cte t using(date)
 left join treasury_native_cte tn using(date)
 left join net_treasury_cte nt using(date)
-left join prices_cte p using(date)
+left join staked_eth_metrics using(date)
 left join token_holders_cte th using(date)
-where staked_eth_metrics.date < to_date(sysdate())
+where p.date < to_date(sysdate())

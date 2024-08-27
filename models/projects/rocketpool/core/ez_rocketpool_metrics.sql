@@ -81,7 +81,7 @@ with
             {{ ref('fact_rocketpool_token_holders') }}
     )
 select
-    staked_eth_metrics.date
+    p.date
     , COALESCE(f.cl_rewards_usd, 0) as cl_rewards_usd
     , COALESCE(f.el_rewards_usd, 0) as el_rewards_usd
     , COALESCE(f.deposit_fees, 0) as deposit_fees
@@ -98,7 +98,7 @@ select
     , os.reth_supply as outstanding_supply
     , staked_eth_metrics.amount_staked_usd as tvl
     , COALESCE(t.treasury_value, 0) as treasury_value
-    , COALESCE(tn.treasury_native, 0) as treasury_native
+    , COALESCE(tn.treasury_native, 0) as treasury_value_native
     , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
     , COALESCE(p.fdmc, 0) as fdmc
     , COALESCE(p.market_cap, 0) as market_cap
@@ -106,13 +106,13 @@ select
     , COALESCE(p.token_turnover_fdv, 0) as token_turnover_fdv
     , COALESCE(p.token_turnover_circulating, 0) as token_turnover_circulating
     , COALESCE(th.token_holder_count, 0) as token_holder_count
-from staked_eth_metrics
+from prices_cte p
 left join fees_revs_cte f using(date)
+left join staked_eth_metrics using(date)
 left join token_incentives_cte ti using(date)
 left join treasury_cte t using(date)
 left join treasury_native_cte tn using(date)
 left join net_treasury_cte nt using(date)
 left join outstanding_supply_cte os using(date)
-left join prices_cte p using(date)
 left join token_holders_cte th using(date)
-where staked_eth_metrics.date < to_date(sysdate())
+where p.date < to_date(sysdate())

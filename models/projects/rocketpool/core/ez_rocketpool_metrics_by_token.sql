@@ -101,7 +101,7 @@ select
     , coalesce(os.reth_supply, 0) as outstanding_supply
     , coalesce(staked_eth_metrics.num_staked_eth, 0) as tvl
     , COALESCE(t.treasury_value, 0) as treasury_value
-    , COALESCE(tn.treasury_native, 0) as treasury_native
+    , COALESCE(tn.treasury_native, 0) as treasury_value_native
     , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
     , COALESCE(th.token_holder_count, 0) as token_holder_count
 from staked_eth_metrics
