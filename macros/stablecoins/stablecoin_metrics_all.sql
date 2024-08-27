@@ -45,7 +45,14 @@ with
             , stablecoin_metrics.symbol
             , from_address
             , stablecoin_transfer_volume * coalesce(
-                d.shifted_token_price_usd, case when c.coingecko_id = 'celo-kenyan-shilling' then 0.0077 else 1 end
+                d.shifted_token_price_usd, 
+                case 
+                    when c.coingecko_id = 'euro-coin' then ({{ avg_l7d_coingecko_price('euro-coin') }})
+                    when c.coingecko_id = 'celo-euro' then ({{ avg_l7d_coingecko_price('celo-euro') }})
+                    when c.coingecko_id = 'celo-real-creal' then ({{ avg_l7d_coingecko_price('celo-real-creal') }})
+                    when c.coingecko_id = 'celo-kenyan-shilling' then ({{ avg_l7d_coingecko_price('celo-kenyan-shilling') }})
+                    else 1
+                end
             ) as stablecoin_transfer_volume
             , stablecoin_daily_txns
         from stablecoin_metrics
