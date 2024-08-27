@@ -96,10 +96,10 @@ select
     , COALESCE(ti.token_incentives, 0) as token_incentives
     , 0 as operating_expenses
     , COALESCE(token_incentives, 0) as total_expenses
-    , protocol_revenue - token_incentives as protocol_earnings
-    , staked_eth_metrics.num_staked_eth as net_deposit
-    , os.reth_supply as outstanding_supply
-    , staked_eth_metrics.num_staked_eth as tvl
+    , coalesce(protocol_revenue,0) - coalesce(token_incentives,0) as protocol_earnings
+    , coalesce(staked_eth_metrics.num_staked_eth, 0) as net_deposit
+    , coalesce(os.reth_supply, 0) as outstanding_supply
+    , coalesce(staked_eth_metrics.num_staked_eth, 0) as tvl
     , COALESCE(t.treasury_value, 0) as treasury_value
     , COALESCE(tn.treasury_native, 0) as treasury_native
     , COALESCE(nt.net_treasury_value, 0) as net_treasury_value

@@ -101,8 +101,11 @@ select
     , 0 as operating_expenses
     , COALESCE(token_incentives_usd, 0) as total_expenses
     , protocol_revenue - token_incentives as protocol_earnings
+    , COALESCE(os.reth_supply, 0) as outstanding_supply
+    , staked_eth_metrics.amount_staked_usd as net_deposits,
+    , staked_eth_metrics.amount_staked_usd as tvl,
     , COALESCE(t.treasury_value, 0) as treasury_value
-    , COALESCE(tn.treasury_native, 0) as treasury_native
+    , COALESCE(tn.treasury_native, 0) as treasury_value_native
     , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
     , COALESCE(p.fdmc, 0) as fdmc
     , COALESCE(p.market_cap, 0) as market_cap
@@ -113,6 +116,7 @@ select
 from staked_eth_metrics
 left join fees_revs_cte f using(date)
 left join token_incentives_cte ti using(date)
+left join outstanding_supply_cte using(date)
 left join treasury_cte t using(date)
 left join treasury_native_cte tn using(date)
 left join net_treasury_cte nt using(date)
