@@ -1,6 +1,6 @@
-{{
-    config(
-        materialized="table"
+{{ config(
+    materialized="table",
+    snowflake_warehouse="ROCKETPOOL"
     )
 }}
 
