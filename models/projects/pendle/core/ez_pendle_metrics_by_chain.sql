@@ -13,21 +13,31 @@ with
         SELECT
             date
             , chain
-            , SUM(fees) as fees
+            , SUM(fees) as swap_fees
             , SUM(supply_side_fees) as supply_side_fees
-            , SUM(revenue) as revenue
+            , SUM(revenue) as swap_revenue
         FROM
             {{ ref('fact_pendle_swap_fees') }}
+        GROUP BY 1, 2
+    )
+    , yield_fees as (
+        SELECT
+            date
+            , chain
+            , SUM(yield_fees_usd) as yield_revenue
+        FROM
+            {{ ref('fact_pendle_yield_fees') }}
         GROUP BY 1, 2
     )
     , daus_txns as (
         SELECT
             date
             , chain
-            , daus
-            , daily_txns
+            , sum(daus) as daus
+            , sum(daily_txns) as daily_txns
         FROM
             {{ ref('fact_pendle_daus_txns') }}
+        GROUP BY 1, 2
     )
     , token_incentives_cte as (
         SELECT
@@ -37,24 +47,28 @@ with
         FROM
             {{ref('fact_pendle_token_incentives_by_chain')}}
     )
-    , tokenholder_count as (
-        select * from {{ref('fact_pendle_token_holders')}}
-    )
 
 
 SELECT
     f.date
-    , chain
-    , f.fees
-    , f.supply_side_fees as primary_supply_side_revenue
+    , f.chain
+    , COALESCE(f.swap_fees, 0) as swap_fees
+    , COALESCE(yf.yield_revenue, 0) as yield_fees
+    , COALESCE(swap_fees,0) + COALESCE(yield_fees,0) as fees
+    , COALESCE(f.supply_side_fees, 0) as primary_supply_side_revenue
     , 0 as secondary_supply_side_revenue
-    , f.revenue as protocol_revenue
-    , coalesce(token_incentives, 0) as token_incentives
+    , COALESCE(f.supply_side_fees, 0) as total_supply_side_revenue
+    , COALESCE(f.swap_revenue, 0) as swap_revenue_vependle
+    , COALESCE(yf.yield_revenue, 0) as yield_revenue_vependle
+    , swap_revenue_vependle + yield_revenue_vependle as total_revenue_vependle
+    , 0 as protocol_revenue
+    , COALESCE(ti.token_incentives, 0) as token_incentives
     , 0 as operating_expenses
-    , token_incentives + operating_expenses as total_expenses
+    , COALESCE(ti.token_incentives, 0) as total_expenses
     , protocol_revenue - total_expenses as protocol_earnings
-    , d.daus as dau
-    , d.daily_txns
-FROM fees f
-LEFT JOIN daus_txns d using(date, chain)
-LEFT JOIN token_incentives_cte using(date, chain)
+    , COALESCE(d.daus, 0) as dau
+    , COALESCE(d.daily_txns, 0) as daily_txns
+FROM swap_fees f
+LEFT JOIN yield_fees yf USING (date, chain)
+LEFT JOIN daus_txns d USING (date, chain)
+LEFT JOIN token_incentives_cte ti USING (date, chain)
