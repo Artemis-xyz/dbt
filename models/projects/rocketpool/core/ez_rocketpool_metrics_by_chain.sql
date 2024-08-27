@@ -23,8 +23,8 @@ with
             date
             , cl_rewards_usd
             , el_rewards_usd
-            , deposit_fee_usd as deposit_fees
-            , cl_rewards_usd + el_rewards_usd + deposit_fees as fees
+            , coalesce(deposit_fee_usd, 0) as deposit_fees
+            , coalesce(cl_rewards_usd, 0) + coalesce(el_rewards_usd, 0) + coalesce(deposit_fee_usd, 0) as fees
             , cl_rewards_usd + el_rewards_usd as primary_supply_side_revenue
             , deposit_fees as secondary_supply_side_revenue
             , fees as total_supply_side_revenue
