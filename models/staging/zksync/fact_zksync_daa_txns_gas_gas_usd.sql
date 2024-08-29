@@ -12,6 +12,7 @@ with
     )
 select
     date
+    , 'zksync' as chain
     , txns
     , daa
     , gas
