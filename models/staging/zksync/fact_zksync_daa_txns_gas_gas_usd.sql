@@ -1,21 +1,21 @@
-{{ config(materialized="view") }}
-
+{{ config(materialized="table") }}
 with
-    max_extraction as (
-        select max(extraction_date) as max_date
-        from {{ source("PROD_LANDING", "raw_zksync_data") }}
-    ),
-    zksync_data as (
-        select parse_json(source_json) as data
-        from {{ source("PROD_LANDING", "raw_zksync_data") }}
-        where extraction_date = (select max_date from max_extraction)
+    prices as ( {{ get_coingecko_price_with_latest("ethereum") }})
+    , fundamentals as (
+        select 
+            block_date as date
+            , count(distinct case when success = 'TRUE' then hash_hex end) as txns
+            , count(distinct from_hex) as daa
+            , sum(gas_used * gas_price) / 1E18 as gas
+        from zksync_dune.zksync.transactions
+        group by 1
     )
 select
-    date(left(value:"date_time"::string, 10)) as date,
-    value:unique_active_users as daa,
-    value:all_transactions as txns,
-    coalesce(value:txn_fees, 0) as gas,
-    coalesce(value:txn_fees_usd, 0) as gas_usd,
-    value as source,
-    'zksync' as chain
-from zksync_data, lateral flatten(input => data:data:records)
+    date
+    , txns
+    , daa
+    , gas
+    , gas * price as gas_usd
+from fundamentals
+left join prices using(date)
+order by date desc
