@@ -63,6 +63,8 @@ models:
         +snowflake_warehouse: "BITCOIN"
       blast:
         +snowflake_warehouse: "BLAST"
+      blur:
+        +snowflake_warehouse: "BLUR"
       cardano:
         +snowflake_warehouse: "CARDANO"
       cctp:
