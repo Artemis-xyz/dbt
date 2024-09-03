@@ -170,12 +170,24 @@
     select
         date
         , from_address
-        , contract_name
-        , contract
-        , application
-        , icon
-        , app
-        , category
+        -- There is currently an issue with ton data
+        -- In order to fix this in the short term we need to remove all tags.
+        {% if chain == 'ton' %}
+            , null as contract_name
+            , null as contract
+            , null as application
+            , null as icon
+            , null as app
+            , null as category
+        {% else %}
+            , contract_name
+            , contract
+            , application
+            , icon
+            , app
+            , category
+        {% endif %}
+        
         , is_wallet
 
         , contract_address
