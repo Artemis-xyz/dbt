@@ -55,6 +55,7 @@ select
     fact_ton_stablecoin_contracts.contract_address
 from 
     {{ ref('fact_ton_stablecoin_transfers') }} as transfers
+where dest_verified and source_verified and account_verified
 left join
     pc_dbt_db.prod.fact_ton_stablecoin_contracts
     on lower(transfers.symbol)
