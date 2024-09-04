@@ -1,7 +1,6 @@
 {{
     config(
-        materialized="incremental",
-        unique_key="date",
+        materialized="table",
         snowflake_warehouse="DAI",
         database="dai",
         schema="core",
@@ -9,4 +8,4 @@
     )
 }}
 
-{{ get_stablecoin_ez_metrics("DAI") }}
+{{ get_stablecoin_metrics("DAI", breakdown='symbol') }}

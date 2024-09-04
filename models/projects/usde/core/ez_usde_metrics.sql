@@ -1,7 +1,6 @@
 {{
     config(
-        materialized="incremental",
-        unique_key="date",
+        materialized="table",
         snowflake_warehouse="USDE",
         database="usde",
         schema="core",
@@ -9,4 +8,4 @@
     )
 }}
 
-{{ get_stablecoin_ez_metrics("USDE") }}
+{{ get_stablecoin_metrics("USDe", breakdown='symbol') }}
