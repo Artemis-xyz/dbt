@@ -1,7 +1,6 @@
 {{
     config(
-        materialized="incremental",
-        unique_key="date",
+        materialized="table",
         snowflake_warehouse="CEUR",
         database="ceur",
         schema="core",
@@ -9,4 +8,4 @@
     )
 }}
 
-{{ get_stablecoin_ez_metrics("CEUR") }}
+{{ get_stablecoin_metrics("cEUR", breakdown='symbol') }}

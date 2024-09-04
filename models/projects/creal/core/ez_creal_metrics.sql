@@ -1,7 +1,6 @@
 {{
     config(
-        materialized="incremental",
-        unique_key="date",
+        materialized="table",
         snowflake_warehouse="CREAL",
         database="creal",
         schema="core",
@@ -9,4 +8,4 @@
     )
 }}
 
-{{ get_stablecoin_ez_metrics("CREAL") }}
+{{ get_stablecoin_metrics("cREAL", breakdown='symbol') }}
