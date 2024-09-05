@@ -4,7 +4,7 @@
         snowflake_warehouse="JUPITER",
         database="jupiter",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
     )
 }}
 
@@ -21,7 +21,6 @@ with
 select
     fees_data.date as date,
     'solana' as chain,
-    'jupiter' as protocol,
     fees_data.fees as fees,
     volume as trading_volume,
     traders as unique_traders,

@@ -62,4 +62,10 @@ perps_mat as(
     FROM hex_cte
     WHERE substring(hex_data,1+16,16) IN ('68452084d423bf2f', '806547a880485654') --LiquidatePosition, LiquidateFullPosition
 )
-SELECT date, sum(size_usd) as volume, sum(fees_usd) as fees, count(distinct owner) as traders FROM perps_mat group by 1 order by 1 desc
+SELECT
+    date
+    , sum(size_usd) as volume
+    , sum(fees_usd) as fees
+    , count(distinct owner) as traders
+    , count(distinct tx_id) as txns
+FROM perps_mat group by 1 order by 1 desc
