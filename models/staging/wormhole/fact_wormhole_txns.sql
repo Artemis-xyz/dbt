@@ -3,7 +3,7 @@
 
 select
     date(timestamp) as date,
-    count(distinct(id)) as bridge_txns
+    count(distinct(id)) as txns
 from
     {{ ref("fact_wormhole_transfers") }}
 group by

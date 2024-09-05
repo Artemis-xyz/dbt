@@ -9,7 +9,7 @@
 with txns as (
     select
         date,
-        bridge_txns
+        txns
     from {{ ref("fact_wormhole_txns") }}
 )
 , daa as (
@@ -21,7 +21,7 @@ with txns as (
 
 select
     coalesce(txns.date, daa.date) as date,
-    coalesce(txns.bridge_txns, 0) as bridge_txns,
+    coalesce(txns.txns, 0) as txns,
     coalesce(daa.bridge_daa, 0) as bridge_daa,
     0 as fees
 from txns
