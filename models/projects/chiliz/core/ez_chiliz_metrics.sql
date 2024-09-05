@@ -25,6 +25,7 @@ txns as (
         date,
         dau
     from {{ref("fact_chiliz_dau")}}
+    where dau < 170000 -- There is a DQ issue with the Chiliz dau data: 2 days with > 170k DAU while the rest of the data around those days is < 1k
 )
 
 select
