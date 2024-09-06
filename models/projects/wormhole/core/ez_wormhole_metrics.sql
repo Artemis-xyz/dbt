@@ -2,7 +2,7 @@
     materialized="table",
     warehouse="WORMHOLE",
     database="WORMHOLE",
-    schema="CORE",
+    schema="core",
     alias="ez_metrics"
 ) }}
 
