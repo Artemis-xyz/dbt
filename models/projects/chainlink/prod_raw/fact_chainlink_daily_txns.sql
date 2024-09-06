@@ -8,3 +8,24 @@
     )
 }}
 
+with
+    max_extraction as (
+        select max(extraction_date) as max_date
+        from {{ source("PROD_LANDING", "raw_chainlink_daily_txns" ) }}
+        
+    ),
+   latest_data as (
+        select parse_json(source_json) as data
+        from {{ source("PROD_LANDING", "raw_chainlink_daily_txns") }}
+        where extraction_date = (select max_date from max_extraction)
+    ),
+    flattened_data as (
+        select
+            f.value:day::date as date,
+            f.value:"total_reqs"::number as daily_txns
+        from latest_data, lateral flatten(input => data) as f
+    )
+select date, daily_txns
+from flattened_data
+where date < to_date(sysdate())
+order by date desc
