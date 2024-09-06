@@ -48,6 +48,14 @@ with
             sum(tvl_by_pool.tvl) as tvl
         from tvl_by_pool
         group by tvl_by_pool.date, tvl_by_pool.chain
+    ),
+    daily_txns_data as (
+        select
+            date(block_timestamp) as date
+            , chain
+            , count(*) as daily_txns
+        from {{ ref("ez_trader_joe_dex_swaps")}}
+        group by 1, 2
     )
 select
     tvl_by_chain.date,
@@ -59,7 +67,9 @@ select
     trading_volume_by_chain.trading_fees,
     trading_volume_by_chain.unique_traders,
     trading_volume_by_chain.gas_cost_native,
-    trading_volume_by_chain.gas_cost_usd
+    trading_volume_by_chain.gas_cost_usd,
+    daily_txns_data.daily_txns as txns
 from tvl_by_chain
 left join trading_volume_by_chain using(date, chain)
+left join daily_txns_data using (date, chain)
 where tvl_by_chain.date < to_date(sysdate())
