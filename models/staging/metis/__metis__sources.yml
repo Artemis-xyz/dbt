@@ -1,0 +1,10 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_metis_trading_volume
+      - name: raw_metis_txns
+      - name: raw_metis_gas_used
+      - name: raw_metis_avg_gas_price
+      - name: raw_metis_dau
