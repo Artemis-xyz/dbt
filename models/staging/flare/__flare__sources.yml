@@ -1,0 +1,10 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_flare_trading_volume
+      - name: raw_flare_txns
+      - name: raw_flare_gas_used
+      - name: raw_flare_avg_gas_price
+      - name: raw_flare_dau
