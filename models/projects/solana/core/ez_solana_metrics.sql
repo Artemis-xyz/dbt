@@ -175,7 +175,7 @@ select
     p2p_stablecoin_txns,
     p2p_stablecoin_dau,
     p2p_stablecoin_mau,
-    p2p_stablecoin_transfer_volume,
+    stablecoin_data.p2p_stablecoin_transfer_volume,
     total_staked_native,
     total_staked_usd,
     issuance,

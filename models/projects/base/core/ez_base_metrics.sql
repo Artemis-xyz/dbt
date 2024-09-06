@@ -58,12 +58,12 @@ select
     p2p_stablecoin_txns,
     p2p_stablecoin_dau,
     p2p_stablecoin_mau,
-    p2p_stablecoin_transfer_volume,
+    stablecoin_data.p2p_stablecoin_transfer_volume,
     nft_trading_volume,
     p2p_native_transfer_volume,
     p2p_token_transfer_volume,
     p2p_transfer_volume,
-    coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume,
+    coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume,
     coalesce(dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
 from fundamental_data
 left join defillama_data on fundamental_data.date = defillama_data.date
