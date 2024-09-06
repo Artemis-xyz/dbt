@@ -227,7 +227,7 @@ select
     , token_turnover_fdv
     , token_volume
     , tokenholder_count
-    , daily_txns
+    , daily_txns as txns
     , dau
 from fm_fees_data
 left join orc_fees_data using (date)
