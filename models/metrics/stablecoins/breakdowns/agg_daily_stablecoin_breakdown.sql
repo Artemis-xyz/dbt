@@ -1,4 +1,4 @@
-{{ config(materialized="incremental", snowflake_warehouse="STABLECOIN_V2_LG") }}
+{{ config(materialized="incremental", unique_key="unique_id", snowflake_warehouse="STABLECOIN_V2_LG") }}
 select
     date
     , contract_address
