@@ -4,67 +4,67 @@ with
         select *
         from {{ref("ez_base_stablecoin_metrics_by_address")}}
         {% if is_incremental() %}
-            where date >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+            where date >= (select dateadd('day', -7, max(date)) from {{ this }})
         {% endif %}
         union all
         select *
         from {{ref("ez_arbitrum_stablecoin_metrics_by_address")}}
         {% if is_incremental() %}
-            where date >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+            where date >= (select dateadd('day', -7, max(date)) from {{ this }})
         {% endif %}
         union all
         select *
         from {{ref("ez_optimism_stablecoin_metrics_by_address")}}
         {% if is_incremental() %}
-            where date >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+            where date >= (select dateadd('day', -7, max(date)) from {{ this }})
         {% endif %}
         union all
         select *
         from {{ref("ez_avalanche_stablecoin_metrics_by_address")}}
         {% if is_incremental() %}
-            where date >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+            where date >= (select dateadd('day', -7, max(date)) from {{ this }})
         {% endif %}
         union all
         select *
         from {{ref("ez_polygon_stablecoin_metrics_by_address")}}
         {% if is_incremental() %}
-            where date >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+            where date >= (select dateadd('day', -7, max(date)) from {{ this }})
         {% endif %}
         union all
         select *
         from {{ref("ez_ethereum_stablecoin_metrics_by_address")}}
         {% if is_incremental() %}
-            where date >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+            where date >= (select dateadd('day', -7, max(date)) from {{ this }})
         {% endif %}
         union all
         select *
         from {{ref("ez_solana_stablecoin_metrics_by_address")}}
         {% if is_incremental() %}
-            where date >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+            where date >= (select dateadd('day', -7, max(date)) from {{ this }})
         {% endif %}
         union all
         select *
         from {{ref("ez_tron_stablecoin_metrics_by_address")}}
         {% if is_incremental() %}
-            where date >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+            where date >= (select dateadd('day', -7, max(date)) from {{ this }})
         {% endif %}
         union all
         select *
         from {{ref("ez_bsc_stablecoin_metrics_by_address")}}
         {% if is_incremental() %}
-            where date >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+            where date >= (select dateadd('day', -7, max(date)) from {{ this }})
         {% endif %}
         union all
         select *
         from {{ref("ez_ton_stablecoin_metrics_by_address")}}
         {% if is_incremental() %}
-            where date >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+            where date >= (select dateadd('day', -7, max(date)) from {{ this }})
         {% endif %}
         union all
         select *
         from {{ref("ez_celo_stablecoin_metrics_by_address")}}
         {% if is_incremental() %}
-            where date >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+            where date >= (select dateadd('day', -7, max(date)) from {{ this }})
         {% endif %}
     )
 select 

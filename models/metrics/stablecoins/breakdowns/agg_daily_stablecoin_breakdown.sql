@@ -18,6 +18,7 @@ select
     , p2p_stablecoin_daily_txns
     , stablecoin_supply
     , is_wallet
+    , unique_id
     , chain
 from {{ ref("agg_daily_stablecoin_breakdown_silver") }}
 {% if is_incremental() %}
