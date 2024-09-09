@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="STABLECOIN_V2_LG") }}
+{{ config(materialized="incremental", snowflake_warehouse="STABLECOIN_V2_LG") }}
 select
     date
     , contract_address
@@ -20,3 +20,6 @@ select
     , is_wallet
     , chain
 from {{ ref("agg_daily_stablecoin_breakdown_silver") }}
+{% if is_incremental() %}
+    where date >= (select dateadd('day', -7, max(date)) from {{ this }})
+{% endif %}
