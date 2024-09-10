@@ -29,6 +29,6 @@ SELECT
     f.fees,
     d.dau,
     d.txns
-FROM fees f
-JOIN dau_txns d using (date)
+FROM dau_txns d
+LEFT JOIN fees f using (date)
 WHERE coalesce(f.date, d.date) < to_date(sysdate())
