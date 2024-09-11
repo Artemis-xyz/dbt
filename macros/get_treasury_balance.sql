@@ -154,5 +154,4 @@ GROUP BY
     , 2
 ORDER BY
     1 DESC
-
 {% endmacro %}
