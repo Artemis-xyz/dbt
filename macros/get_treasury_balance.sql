@@ -1,4 +1,10 @@
-{% macro get_treasury_balance(chain, addresses)%}
+{% macro get_treasury_balance(chain, addresses, earliest_date)%}
+
+{% if addresses is iterable and not addresses is string %}
+    {% set addresses = addresses | map('lower') | list %}
+{% else %}
+    {% set addresses = addresses | lower %}
+{% endif %}
 
 WITH dates AS (
     SELECT
@@ -6,26 +12,32 @@ WITH dates AS (
     FROM
         {{ chain }}_flipside.price.ez_prices_hourly
     WHERE
-        symbol = 'UNI'
+        hour > date('{{earliest_date}}')
 ),
 tokens AS (
     SELECT
         DISTINCT LOWER(contract_address) AS token_address
+        , MAX(decimals) as decimals
     FROM
         {{ chain }}_flipside.core.ez_token_transfers
     WHERE
-        {% if addresses is string %} LOWER(to_address) = '{{ addresses }}'
-        {% elif addresses | length > 1 %} LOWER(to_address) in {{addresses}}
+        {% if addresses is string %}
+            LOWER(to_address) = '{{ addresses }}'
+        {% elif addresses | length > 1 %}
+            LOWER(to_address) IN ( '{{ addresses | join("', '") }}' )
         {% endif %}
+    GROUP BY 1
 ),
 sparse_balances AS (
     SELECT
         DATE(block_timestamp) AS date,
         user_address,
         contract_address,
-        MAX_BY(balance, block_timestamp) / 1e18 AS balance_daily
+        MAX_BY(balance / pow(10, decimals), block_timestamp) AS balance_daily
     FROM
-        {{ chain }}_flipside.core.fact_token_balances
+        {{ chain }}_flipside.core.fact_token_balances b
+        LEFT JOIN tokens t on t.token_address = b.contract_address
+
     WHERE
         LOWER(contract_address) IN (
             SELECT
@@ -34,8 +46,10 @@ sparse_balances AS (
                 tokens
         )
         AND
-        {% if addresses is string %} LOWER(user_address) = '{{ addresses }}'
-        {% elif addresses | length > 1 %} LOWER(user_address) in {{addresses}}
+        {% if addresses is string %}
+            LOWER(user_address) = '{{ addresses }}'
+        {% elif addresses | length > 1 %}
+            LOWER(user_address) IN ( '{{ addresses | join("', '") }}' )
         {% endif %}
     GROUP BY
         1,
@@ -69,17 +83,22 @@ full_balances AS (
     FROM
         dates d
         {% if addresses is string %}
-        CROSS JOIN (SELECT '{{ addresses }}' AS address) ta
+            CROSS JOIN (SELECT '{{ addresses }}' AS address) ta
         {% else %}
-        CROSS JOIN (SELECT unnest({{ addresses }}) AS address) ta
+            CROSS JOIN (
+                SELECT '{{ addresses[0] }}' AS address
+                {% for addr in addresses[1:] %}
+                UNION ALL SELECT '{{ addr }}'
+                {% endfor %}
+            ) ta
         {% endif %}
         CROSS JOIN tokens t
         LEFT JOIN sparse_balances sb ON d.date = sb.date
         AND
         {% if addresses is string %}
-        '{{ addresses }}' = sb.user_address
+            '{{ addresses }}' = sb.user_address
         {% else %}
-        ta.address = sb.user_address
+            ta.address = sb.user_address
         {% endif %}
         AND t.token_address = sb.contract_address
 ),
