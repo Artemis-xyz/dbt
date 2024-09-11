@@ -124,6 +124,22 @@
             lateral flatten(input => outputs)
             where from_address is not null
         ),
+    {% elif chain == 'gnosis' %}
+        distinct_dates as (
+            select 
+                block_timestamp::date as raw_date
+            from gnosis_flipside.core.fact_transactions
+            {% if is_incremental() %}
+                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+        ),
+        distinct_dates_for_rolling_active_address as (
+            select distinct
+                block_timestamp::date as raw_date
+                , from_address as from_address
+            from gnosis_flipside.core.fact_transactions
+            where from_address is not null
+        ),
     {% else %}
         distinct_dates as (
             select distinct 
