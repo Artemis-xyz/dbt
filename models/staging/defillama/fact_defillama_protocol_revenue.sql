@@ -19,3 +19,4 @@ with
 
 select *
 from flattened_data
+where defillama_protocol_id is not null

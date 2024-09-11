@@ -14,7 +14,7 @@ with
         from {{ ref("fact_jupiter_fees_silver") }}
     ),
     perps_data as (
-        select date, volume, traders
+        select date, volume, traders, txns
         from {{ ref("fact_jupiter_perps_silver")}}
     ),
     price_data as ({{ get_coingecko_metrics("jupiter-exchange-solana") }})
@@ -25,6 +25,7 @@ select
     fees_data.fees as fees,
     volume as trading_volume,
     traders as unique_traders,
+    txns,
     price,
     market_cap,
     fdmc

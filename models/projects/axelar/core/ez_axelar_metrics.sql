@@ -13,8 +13,9 @@ with
         select
             date
             , txns
-            , daa as dau
-        from {{ ref("fact_axelar_daa_txns") }}
+            , dau
+            , fees
+        from {{ ref("fact_axelar_crosschain_dau_txns_fees_volume") }}
     )
     , github_data as ({{ get_github_metrics("Axelar Network") }})
     , price_data as ({{ get_coingecko_metrics("axelar") }})
@@ -23,6 +24,7 @@ select
     , 'axelar' as chain
     , txns
     , dau
+    , fees
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem

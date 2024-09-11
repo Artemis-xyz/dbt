@@ -7,37 +7,80 @@
 }}
 
 with
-    chain_transactions as (
+    solana_transfers as (
         select
-            tx_id as tx_hash,
-            max(block_timestamp) as block_timestamp,
-            any_value(signers) as signers,
+            tx_id,
             min_by(value:"programId"::string, index) as program_id,
-            max(fee) as fee,
-            min(index) index,
-            max(succeeded) as succeeded,
-            any_value(post_token_balances) as post_token_balances
+            array_agg(value:"parsed":"info":"destination"::string) as destinations
+        from solana_flipside.core.fact_transactions, lateral flatten(instructions)
+        where
+            value:"programId"::string in ('11111111111111111111111111111111', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') and ARRAY_SIZE(instructions) <= 3
+        -- Chunking required here for backfills
+        {% if is_incremental() %}
+            and block_timestamp
+            >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+        {% else %}
+        -- Making code not compile on purpose. Full refresh of entire history
+        -- takes too long, doing last month will wipe out backfill
+        -- TODO: Figure out a workaround.
+        where
+            block_timestamp
+            >= (select dateadd('month', -1, max(block_timestamp)) from {{ this }})
+        {% endif %}
+        group by tx_id
+    ),
+    instruction_data as (
+        select
+            tx_id,
+            min_by(value:"programId"::string, index) as program_id,
         from solana_flipside.core.fact_transactions, lateral flatten(instructions)
         where
             value:"programId"::string not in (
                 'ComputeBudget111111111111111111111111111111',
                 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
                 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr',
-                'Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo'
+                'Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo',
+                '11111111111111111111111111111111',
+                'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
             )
-            // Chunking required here for backfills
+            -- Chunking required here for backfills
             {% if is_incremental() %}
                 and block_timestamp
                 >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
-        {% else %}
+            {% else %}
             -- Making code not compile on purpose. Full refresh of entire history
             -- takes too long, doing last month will wipe out backfill
             -- TODO: Figure out a workaround.
             where
                 block_timestamp
                 >= (select dateadd('month', -1, max(block_timestamp)) from {{ this }})
-        {% endif %}
+            {% endif %}
         group by tx_id
+    ),
+    chain_transactions as (
+        select 
+            t.tx_id,
+            block_timestamp,
+            signers,
+            fee,
+            succeeded,
+            coalesce(i.program_id, transfers.program_id) as program_id,
+            t.post_token_balances,
+            destinations
+        from solana_flipside.core.fact_transactions as t
+        left join instruction_data as i on t.tx_id = i.tx_id
+        left join solana_transfers as transfers on t.tx_id = transfers.tx_id
+        {% if is_incremental() %}
+            where block_timestamp
+            >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+        {% else %}
+        -- Making code not compile on purpose. Full refresh of entire history
+        -- takes too long, doing last month will wipe out backfill
+        -- TODO: Figure out a workaround.
+        and
+            block_timestamp
+            >= (select dateadd('month', -1, max(block_timestamp)) from {{ this }})
+        {% endif %}
     ),
     app_contracts as (
         select distinct
@@ -69,22 +112,9 @@ with
         where token_id = 'solana'
     ),
     collapsed_prices as (select date, max(price) as price from prices group by date),
-    balances as (
-        select address, date, balance_usd, native_token_balance, stablecoin_balance
-        from {{ ref("fact_solana_daily_balances") }}
-        where
-            {% if is_incremental() %}
-                date >= (select dateadd('day', -5, max(raw_date)) from {{ this }})
-        {% else %}
-            -- Making code not compile on purpose. Full refresh of entire history
-            -- takes too long, doing last month will wipe out backfill
-            -- TODO: Figure out a workaround.
-            where date >= (select dateadd('month', -1, max(raw_date)) from {{ this }})
-        {% endif %}
-    ),
     tagged_transactions as (
         select
-            tx_hash,
+            t.tx_id as tx_hash,
             date_trunc('day', block_timestamp) as raw_date,
             block_timestamp,
             signers,
@@ -104,34 +134,30 @@ with
             coalesce(token.friendly_name, app_contracts.friendly_name) as friendly_name,
             coalesce(token.sub_category, app_contracts.sub_category) as sub_category,
             case
-                when program_id = '11111111111111111111111111111111'
+                when program_id = '11111111111111111111111111111111' and array_size(destinations) = 1
                 then 'EOA'
                 when token.category is not null
                 then token.category
-                when program_id = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+                when program_id = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' and array_size(destinations) = 1
                 then 'Token'
                 when app_contracts.category is not null
                 then app_contracts.category
                 else null
             end as category,
-            sybil.user_type,
-            sybil.address_life_span,
-            sybil.cur_total_txns,
-            sybil.cur_distinct_to_address_count,
-            sybil.probability,
-            sybil.engagement_type,
-            bal.balance_usd,
-            bal.native_token_balance,
-            bal.stablecoin_balance
+            -- deprecating sybil and token balances by address
+            null as user_type,
+            null as address_life_span,
+            null as cur_total_txns,
+            null as cur_distinct_to_address_count,
+            null as probability,
+            null as engagement_type,
+            null as balance_usd,
+            null as native_token_balance,
+            null as stablecoin_balance
         from chain_transactions as t
         left join app_contracts on lower(t.program_id) = lower(app_contracts.address)
         left join app_contracts as token on lower(token_address) = lower(token.address)
-        left join
-            balances as bal on signers[0]::string = bal.address and raw_date = bal.date
         left join collapsed_prices on raw_date = collapsed_prices.date
-        left join
-            {{ ref("dim_solana_sybil_address") }} as sybil
-            on t.signers[0] = sybil.from_address
     )
 select
     tx_hash,

@@ -56,7 +56,7 @@ with
 
 select fd.*, fc.token_categories, fh.token_homepage_link, fcu.token_chat_url
 from flattened_data fd
-join flattened_categories fc using (date, coingecko_token_id)
-join flattened_homepage fh using (date, coingecko_token_id)
-join flattened_chat_url fcu using (date, coingecko_token_id)
+left join flattened_categories fc using (date, coingecko_token_id)
+left join flattened_homepage fh using (date, coingecko_token_id)
+left join flattened_chat_url fcu using (date, coingecko_token_id)
 order by token_market_cap_rank asc

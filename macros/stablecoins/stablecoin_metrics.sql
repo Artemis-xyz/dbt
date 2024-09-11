@@ -176,6 +176,7 @@
         , icon
         , app
         , category
+        
         , is_wallet
 
         , contract_address
