@@ -185,6 +185,18 @@ with
             , tokenholder_count
         from {{ ref("fact_chainlink_tokenholder_count")}}
     )
+    , daily_txns_data as (
+        select
+            date
+            , daily_txns
+        from {{ ref("fact_chainlink_daily_txns")}}
+    ),
+    dau_data as (
+        select
+            date
+            , dau
+        from {{ ref("fact_chainlink_dau")}}
+    )
 
 
 select
@@ -215,6 +227,8 @@ select
     , token_turnover_fdv
     , token_volume
     , tokenholder_count
+    , daily_txns as txns
+    , dau
 from fm_fees_data
 left join orc_fees_data using (date)
 left join automation_fees_data using (date)
@@ -227,4 +241,6 @@ left join tvl_metrics using (date)
 left join token_turnover_metrics using (date)
 left join price_data using (date)
 left join token_holder_data using (date)
+left join daily_txns_data using (date)
+left join dau_data using (date)
 where date < to_date(sysdate())
