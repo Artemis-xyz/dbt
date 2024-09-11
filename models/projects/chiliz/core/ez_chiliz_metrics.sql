@@ -3,7 +3,7 @@
         materialized = "table",
         snowflake_warehouse = "CHILIZ",
         database = "CHILIZ",
-        schema = "CORE",
+        schema = "core",
         alias = "ez_metrics"
     )
 }}
