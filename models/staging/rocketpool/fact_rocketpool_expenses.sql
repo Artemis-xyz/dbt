@@ -16,5 +16,5 @@ WHERE
         -- lower('0x0000000000000000000000000000000000000000'),
         lower('0xd33526068d116ce69f19a9ee46f0bd304f21a51f')
     )
-    AND origin_function_signature = '0x5d3e8ffa'
+    AND origin_function_signature = '0x5d3e8ffa' -- submitRewardSnapshot function
 GROUP BY 1
