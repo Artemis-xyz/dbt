@@ -25,7 +25,7 @@ with fees_tvl_metrics as(
     SELECT
         date,
         token,
-        SUM(amount_usd) as token_incentives
+        SUM(amount_native) as token_incentives
     FROM {{ ref('fact_goldfinch_token_incentives') }}
     GROUP BY date, token
 )
@@ -33,7 +33,7 @@ with fees_tvl_metrics as(
     SELECT
         date,
         token,
-        SUM(usd_balance) as treasury_value
+        SUM(native_balance) as treasury_value
     FROM {{ ref('fact_goldfinch_treasury') }}
     GROUP BY date, token
 )
@@ -50,7 +50,7 @@ with fees_tvl_metrics as(
     SELECT
         date,
         token,
-        SUM(usd_balance) as net_treasury_value
+        SUM(native_balance) as net_treasury_value
     FROM {{ ref('fact_goldfinch_treasury') }}
     WHERE token <> 'GFI'
     GROUP BY date, token
