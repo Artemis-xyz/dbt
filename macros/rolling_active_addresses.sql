@@ -124,20 +124,20 @@
             lateral flatten(input => outputs)
             where from_address is not null
         ),
-    {% else %}
+    {% elif chain == 'celo' %}
         distinct_dates as (
-            select distinct 
-                raw_date
-            from {{ ref("ez_" ~ chain ~ "_transactions") }}
+            select 
+                block_timestamp::date as raw_date
+            from {{ ref("fact_" ~ chain ~ "_transactions")}}  
             {% if is_incremental() %}
                 where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
         ),
         distinct_dates_for_rolling_active_address as (
-            select distinct 
-                raw_date,
-                from_address
-            from {{ ref("ez_" ~ chain ~ "_transactions") }}
+            select 
+                block_timestamp::date as raw_date
+                , from_address as from_address
+            from {{ref("fact_" ~ chain ~ "_transactions")}}
         ),
     {% endif %}
 
