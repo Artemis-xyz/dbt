@@ -140,6 +140,21 @@
             from gnosis_flipside.core.fact_transactions
             where from_address is not null
         ),
+    {% elif chain == 'celo' %}
+        distinct_dates as (
+            select 
+                block_timestamp::date as raw_date
+            from {{ ref("fact_" ~ chain ~ "_transactions")}}  
+            {% if is_incremental() %}
+                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+        ),
+        distinct_dates_for_rolling_active_address as (
+            select 
+                block_timestamp::date as raw_date
+                , from_address as from_address
+            from {{ref("fact_" ~ chain ~ "_transactions")}}
+        ),
     {% else %}
         distinct_dates as (
             select distinct 
