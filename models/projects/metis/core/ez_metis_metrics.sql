@@ -3,7 +3,7 @@
         materialized = "table",
         snowflake_warehouse = "METIS",
         database = "METIS",
-        schema = "CORE",
+        schema = "core",
         alias = "ez_metrics"
     )
 }}
