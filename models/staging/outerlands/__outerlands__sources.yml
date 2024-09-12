@@ -1,0 +1,6 @@
+sources:
+  - name: SIGMA
+    schema: PROD
+    database: SIGMA
+    tables:
+      - name: outerlands_full_universe
