@@ -13,7 +13,7 @@ with
         SELECT
             date
             , chain
-            , SUM(fees) as swap_fees
+            , SUM(fees_usd) as swap_fees
             , SUM(supply_side_fees) as supply_side_fees
             , SUM(revenue) as swap_revenue
         FROM
@@ -37,6 +37,15 @@ with
             , sum(daily_txns) as daily_txns
         FROM
             {{ ref('fact_pendle_daus_txns') }}
+        GROUP BY 1, 2
+    )
+    , tvl as (
+        SELECT
+            date
+            , chain
+            , sum(amount_usd) as tvl
+        FROM
+            {{ref('fact_pendle_tvl_by_token_and_chain')}}
         GROUP BY 1, 2
     )
     , token_incentives_cte as (
@@ -68,7 +77,11 @@ SELECT
     , protocol_revenue - total_expenses as protocol_earnings
     , COALESCE(d.daus, 0) as dau
     , COALESCE(d.daily_txns, 0) as daily_txns
+    , COALESCE(t.tvl, 0) as tvl
+    , COALESCE(t.tvl, 0) as net_deposits
+    , 0 as outstanding_supply
 FROM swap_fees f
 LEFT JOIN yield_fees yf USING (date, chain)
 LEFT JOIN daus_txns d USING (date, chain)
 LEFT JOIN token_incentives_cte ti USING (date, chain)
+LEFT JOIN tvl t USING (date, chain)

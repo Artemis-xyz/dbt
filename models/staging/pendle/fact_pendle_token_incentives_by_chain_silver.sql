@@ -37,6 +37,7 @@ with agg as(
 SELECT
     date
     , chain
+    , 'PENDLE' as token
     , sum(amt_pendle) as amt_pendle
     , sum(amt_usd) as amt_usd
 FROM agg

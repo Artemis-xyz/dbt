@@ -16,9 +16,8 @@ SELECT
     date
     , chain
     , symbol
-    , sum(fee_usd) as fees
-    , fees * 0.8 as revenue
-    , fees * 0.2 as supply_side_fees
+    , sum(fee_usd) as fees_usd
+    , sum(fee_native) as fees_native
 FROM agg
 where date < to_date(sysdate())
 GROUP BY 1, 2, 3

@@ -12,7 +12,7 @@ with
     swap_fees as (
         SELECT
             date
-            , SUM(fees) as swap_fees
+            , SUM(fees_usd) as swap_fees
             , SUM(supply_side_fees) as supply_side_fees
             , SUM(revenue) as swap_revenue
         FROM
@@ -44,6 +44,38 @@ with
             {{ref('fact_pendle_token_incentives_by_chain')}}
         GROUP BY 1
     )
+    , tvl as (
+        SELECT
+            date
+            , SUM(amount_usd) as tvl
+            , SUM(amount_usd) as net_deposits
+        FROM
+            {{ref('fact_pendle_tvl_by_token_and_chain')}}
+        GROUP BY 1
+    )
+    , treasury_value_cte as (
+        select
+            date,
+            sum(amount_usd) as treasury_value
+        from {{ref('fact_pendle_treasury')}}
+        group by 1
+    )
+    , net_treasury_value_cte as (
+        select
+            date,
+            sum(usd_balance) as net_treasury_value
+        from {{ref('fact_pendle_treasury')}}
+        where symbol <> 'PENDLE'
+        group by 1
+    )
+    , treasury_value_native_cte as (
+        select
+            date,
+            sum(native_balance) as treasury_value_native
+        from {{ref('fact_pendle_treasury')}}
+        where symbol = 'PENDLE'
+        group by 1
+    )
     , price_data_cte as(
         {{ get_coingecko_metrics('pendle') }}
     )
@@ -54,7 +86,7 @@ with
 SELECT
     p.date
     , d.daus as dau
-    , d.daily_txns
+    , d.daily_txns as txns
     , coalesce(yf.yield_revenue, 0) as yield_fees
     , f.swap_fees as swap_fees
     , yield_fees + swap_fees as fees
@@ -69,15 +101,25 @@ SELECT
     , 0 as operating_expenses
     , token_incentives + operating_expenses as total_expenses
     , protocol_revenue - total_expenses as protocol_earnings
+    , tc.treasury_value
+    , tn.treasury_value_native
+    , nt.net_treasury_value
+    , t.tvl
+    , t.net_deposits
+    , 0 as outstanding_supply
     , p.fdmc
     , p.market_cap
     , p.token_turnover_fdv
     , p.token_turnover_circulating
     , p.token_volume
-    , token_holder_count
+    , tc.token_holder_count
 FROM price_data_cte p
 LEFT JOIN swap_fees f using(date)
 LEFT JOIN yield_fees yf using(date)
 LEFT JOIN daus_txns d using(date)
 LEFT JOIN token_incentives_cte using(date)
-LEFT JOIN tokenholder_count t using(date)
+LEFT JOIN tvl t USING (date)
+LEFT JOIN treasury_value_cte tc USING (date)
+LEFT JOIN net_treasury_value_cte nt USING (date)
+LEFT JOIN treasury_value_native_cte tn USING (date) 
+LEFT JOIN tokenholder_count tc using(date)

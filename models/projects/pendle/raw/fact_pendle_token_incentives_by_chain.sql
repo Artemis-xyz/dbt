@@ -12,6 +12,7 @@
 SELECT
     date
     , chain
+    , token
     , amt_pendle as token_incentives_native
     , amt_usd as token_incentives
 FROM
