@@ -5,4 +5,4 @@
     )
 }}
 
-{{ rolling_active_addresses("bitcoin") }}
+{{ rolling_active_addresses("zora") }}
