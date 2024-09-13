@@ -155,6 +155,21 @@
                 , from_address as from_address
             from {{ref("fact_" ~ chain ~ "_transactions")}}
         ),
+    {% elif chain == 'linea' %}
+        distinct_dates as (
+            select 
+                CAST(TO_TIMESTAMP(FACT_LINEA_TRANSACTIONS.BLOCK_TIMESTAMP) AS DATE) as raw_date
+            from {{ ref("fact_linea_transactions") }}
+            {% if is_incremental() %}
+                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+        ),
+        distinct_dates_for_rolling_active_address as (
+            select distinct
+                CAST(TO_TIMESTAMP(FACT_LINEA_TRANSACTIONS.BLOCK_TIMESTAMP) AS DATE) as raw_date
+                , from_address as from_address
+            from {{ ref("fact_linea_transactions") }}
+        ),
     {% else %}
         distinct_dates as (
             select distinct 
