@@ -148,7 +148,7 @@ SELECT
 FROM
     full_table
 WHERE
-    USD_BALANCE > 1
+    USD_BALANCE > 100
 GROUP BY
     1
     , 2

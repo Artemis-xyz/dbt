@@ -56,7 +56,7 @@ with
     , treasury_value_cte as (
         select
             date,
-            sum(amount_usd) as treasury_value
+            sum(usd_balance) as treasury_value
         from {{ref('fact_pendle_treasury')}}
         group by 1
     )
@@ -65,7 +65,7 @@ with
             date,
             sum(usd_balance) as net_treasury_value
         from {{ref('fact_pendle_treasury')}}
-        where symbol <> 'PENDLE'
+        where token <> 'PENDLE'
         group by 1
     )
     , treasury_value_native_cte as (
@@ -73,7 +73,7 @@ with
             date,
             sum(native_balance) as treasury_value_native
         from {{ref('fact_pendle_treasury')}}
-        where symbol = 'PENDLE'
+        where token = 'PENDLE'
         group by 1
     )
     , price_data_cte as(
@@ -101,7 +101,7 @@ SELECT
     , 0 as operating_expenses
     , token_incentives + operating_expenses as total_expenses
     , protocol_revenue - total_expenses as protocol_earnings
-    , tc.treasury_value
+    , tv.treasury_value
     , tn.treasury_value_native
     , nt.net_treasury_value
     , t.tvl
@@ -119,7 +119,7 @@ LEFT JOIN yield_fees yf using(date)
 LEFT JOIN daus_txns d using(date)
 LEFT JOIN token_incentives_cte using(date)
 LEFT JOIN tvl t USING (date)
-LEFT JOIN treasury_value_cte tc USING (date)
+LEFT JOIN treasury_value_cte tv USING (date)
 LEFT JOIN net_treasury_value_cte nt USING (date)
 LEFT JOIN treasury_value_native_cte tn USING (date) 
 LEFT JOIN tokenholder_count tc using(date)

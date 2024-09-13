@@ -8,4 +8,4 @@
     )
 }}
 
-{{ get_treasury_balance('ethereum', '0x8270400d528c34e1596EF367eeDEc99080A1b592') }}
+{{ get_treasury_balance('ethereum', '0x8270400d528c34e1596EF367eeDEc99080A1b592', '2021-06-21') }}
