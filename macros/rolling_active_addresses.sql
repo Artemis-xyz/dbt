@@ -283,6 +283,21 @@
                 , signer as from_address
             from combined_signers   
         ),
+    {% elif chain == 'zora' %}
+        distinct_dates as (
+            select 
+                CAST(TO_TIMESTAMP(BLOCK_TIMESTAMP) AS DATE) as raw_date
+            from {{ ref("fact_zora_transactions")}}  
+            {% if is_incremental() %}
+                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+        ),
+        distinct_dates_for_rolling_active_address as (
+            select 
+                CAST(TO_TIMESTAMP(BLOCK_TIMESTAMP) AS DATE) as raw_date
+                , from_address as from_address
+            from {{ref("fact_zora_transactions")}}
+        ),
     {% else %}
         distinct_dates as (
             select distinct 
