@@ -144,7 +144,7 @@
         distinct_dates as (
             select 
                 block_timestamp::date as raw_date
-            from starknet.prod_raw.ez_transactions
+            from {{ ref("ez_" ~ chain ~ "_transactions") }}
             {% if is_incremental() %}
                 where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
@@ -153,7 +153,7 @@
             select distinct
                 block_timestamp::date as raw_date
                 , from_address as from_address
-            from starknet.prod_raw.ez_transactions
+            from {{ ref("ez_" ~ chain ~ "_transactions") }}
             where from_address is not null
         ),
     {% elif chain == 'celo' %}
