@@ -24,12 +24,15 @@ with
     ),
     price_data as ({{ get_coingecko_metrics("aptos") }}),
     defillama_data as ({{ get_defillama_metrics("aptos") }}),
-    github_data as ({{ get_github_metrics("aptos") }})
+    github_data as ({{ get_github_metrics("aptos") }}),
+    rolling_metrics as ({{ get_rolling_active_address_metrics("aptos") }})
 select
     fundamental_data.date,
     fundamental_data.chain,
     txns,
     dau,
+    wau,
+    mau,
     fees_native,
     fees,
     avg_txn_fee,
@@ -48,4 +51,5 @@ from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join github_data on fundamental_data.date = github_data.date
+left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 where fundamental_data.date < to_date(sysdate())
