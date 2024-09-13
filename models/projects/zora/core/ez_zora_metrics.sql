@@ -35,6 +35,8 @@ select
     , 'zora' as chain
     , txns
     , dau
+    , wau
+    , mau
     , fees
     , fees_native
     , revenue
