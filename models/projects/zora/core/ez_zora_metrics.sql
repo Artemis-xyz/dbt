@@ -28,6 +28,7 @@ with
     , github_data as ({{ get_github_metrics("zora") }})
     , contract_data as ({{ get_contract_metrics("zora") }})
     , defillama_data as ({{ get_defillama_metrics("zora") }})
+    , rolling_metrics as ({{ get_rolling_active_address_metrics("zora") }})
 
 select
     fundamental_data.date
@@ -52,4 +53,5 @@ from fundamental_data
 left join github_data using (date)
 left join contract_data using (date)
 left join defillama_data using (date)
+left join rolling_metrics using (date)
 where fundamental_data.date < to_date(sysdate())
