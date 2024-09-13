@@ -91,7 +91,8 @@ SELECT
     , COALESCE(protocol_revenue_native, 0) AS protocol_revenue
     , COALESCE(operating_expenses_native, 0) AS operating_expenses
     , COALESCE(ti.token_incentives_native, 0) AS token_incentives
-    , COALESCE(protocol_revenue_native, 0) - COALESCE(operating_expenses_native, 0) - COALESCE(ti.token_incentives_native, 0) AS protocol_earnings
+    , token_incentives + operating_expenses as total_expenses
+    , protocol_revenue - total_expenses as protocol_earnings
     , COALESCE(t.treasury_value_native, 0) AS treasury_value
     , COALESCE(tn.treasury_native, 0) AS treasury_native
     , COALESCE(nt.net_treasury_value_native, 0) AS net_treasury_value
@@ -106,4 +107,4 @@ FULL JOIN net_treasury_cte nt USING(date, token)
 FULL JOIN token_incentives_cte ti USING(date, token)
 LEFT JOIN steth_outstanding sto USING(date, token)
 LEFT JOIN eth_deposited s USING(date, token)
-WHERE date < CURRENT_DATE()
+WHERE date < to_date(sysdate())

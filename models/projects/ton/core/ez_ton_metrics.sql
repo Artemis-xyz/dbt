@@ -32,11 +32,26 @@ with
             dex_volumes
         from {{ ref("fact_ton_dex_volumes") }}
     ),
-    github_data as ({{ get_github_metrics("ton") }})
+    stablecoin_data as ({{ get_stablecoin_metrics("ton") }}),
+    github_data as ({{ get_github_metrics("ton") }}),
+    rolling_metrics as ({{ get_rolling_active_address_metrics("ton") }})
 select
     ton.date,
     'ton' as chain,
     transaction_nodes,
+    stablecoin_total_supply,
+    stablecoin_txns,
+    stablecoin_dau,
+    stablecoin_mau,
+    stablecoin_transfer_volume,
+    artemis_stablecoin_txns,
+    artemis_stablecoin_dau,
+    artemis_stablecoin_mau,
+    artemis_stablecoin_transfer_volume,
+    p2p_stablecoin_txns,
+    p2p_stablecoin_dau,
+    p2p_stablecoin_mau,
+    p2p_stablecoin_transfer_volume,
     price,
     market_cap,
     fdmc,
@@ -47,6 +62,8 @@ select
     weekly_developers_core_ecosystem,
     weekly_developers_sub_ecosystem,
     dau,
+    wau,
+    mau,
     txns,
     fees_native,
     fees_native * price as fees,
@@ -59,4 +76,6 @@ left join defillama_data on ton.date = defillama_data.date
 left join github_data on ton.date = github_data.date
 left join dex_data on ton.date = dex_data.date
 left join fundamental_data on ton.date = fundamental_data.date
+left join stablecoin_data on ton.date = stablecoin_data.date
+left join rolling_metrics on ton.date = rolling_metrics.date
 where ton.date < to_date(sysdate())

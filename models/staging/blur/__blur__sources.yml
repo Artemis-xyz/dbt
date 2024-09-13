@@ -3,4 +3,6 @@ sources:
     schema: PROD_LANDING
     database: LANDING_DATABASE
     tables:
-      - name: raw_zksync_data
+      - name: raw_blur_dau
+      - name: raw_blur_fees
+      - name: raw_blur_daily_txns

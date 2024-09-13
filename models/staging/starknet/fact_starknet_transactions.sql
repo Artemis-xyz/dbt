@@ -58,6 +58,6 @@ left join prices on raw_date = prices.date and curr = t1.actual_fee_unit
 where coalesce(t1.sender_address_hex, t1.contract_address_hex) is not null
     {% if is_incremental() %}
         -- this filter will only be applied on an incremental run 
-        and t2.block_timestamp
+        and t1.block_time
         >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
     {% endif %}

@@ -1,0 +1,8 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_polymarket_fill_price_by_market
+      - name: raw_polymarket_sell_fill_price_by_market
+ 

@@ -67,15 +67,22 @@ with
                 t1.from_address,
                 t1.to_address,
                 t1.amount,
-                coalesce(
-                    pc_dbt_db.prod.FACT_COINGECKO_TOKEN_DATE_ADJUSTED_GOLD.shifted_token_price_usd * transfer_volume, case when pc_dbt_db.prod.FACT_{{ chain }}_STABLECOIN_CONTRACTS.coingecko_id = 'celo-kenyan-shilling' then 0.0077 else 1 end * transfer_volume
+                transfer_volume * coalesce(
+                    p.shifted_token_price_usd, 
+                    case 
+                        when c.coingecko_id = 'euro-coin' then ({{ avg_l7d_coingecko_price('euro-coin') }})
+                        when c.coingecko_id = 'celo-euro' then ({{ avg_l7d_coingecko_price('celo-euro') }})
+                        when c.coingecko_id = 'celo-real-creal' then ({{ avg_l7d_coingecko_price('celo-real-creal') }})
+                        when c.coingecko_id = 'celo-kenyan-shilling' then ({{ avg_l7d_coingecko_price('celo-kenyan-shilling') }})
+                        else 1
+                    end
                 ) as amount_usd
             from stablecoin_transfers t1
-            join pc_dbt_db.prod.FACT_{{ chain }}_STABLECOIN_CONTRACTS 
-                on lower(t1.contract_address) = lower(pc_dbt_db.prod.FACT_{{ chain }}_STABLECOIN_CONTRACTS.contract_address)
-            left join pc_dbt_db.prod.FACT_COINGECKO_TOKEN_DATE_ADJUSTED_GOLD 
-                on lower(pc_dbt_db.prod.FACT_{{ chain }}_STABLECOIN_CONTRACTS.coingecko_id) = lower(pc_dbt_db.prod.FACT_COINGECKO_TOKEN_DATE_ADJUSTED_GOLD.coingecko_id)
-                and t1.date = pc_dbt_db.prod.FACT_COINGECKO_TOKEN_DATE_ADJUSTED_GOLD.date
+            join {{ ref("fact_"~chain~"_stablecoin_contracts") }} c
+                on lower(t1.contract_address) = lower(c.contract_address)
+            left join {{ ref("fact_coingecko_token_date_adjusted_gold") }} p
+                on lower(c.coingecko_id) = lower(p.coingecko_id)
+                and t1.date = p.date
             where not t1.to_address in (select contract_address from distinct_contracts)
                 and not t1.from_address in (select contract_address from distinct_contracts)
             {% if is_incremental() %} 
