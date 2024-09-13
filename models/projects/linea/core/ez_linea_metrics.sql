@@ -27,11 +27,14 @@ with
     , github_data as ({{ get_github_metrics("linea") }})
     , contract_data as ({{ get_contract_metrics("linea") }})
     , defillama_data as ({{ get_defillama_metrics("linea") }})
+    , rolling_metrics as ({{ get_rolling_active_address_metrics("linea") }})
 select 
    fundamental_data.date
     , 'linea' as chain
     , txns
     , dau
+    , wau
+    , mau
     , fees
     , fees_native
     , revenue
@@ -50,4 +53,5 @@ from fundamental_data
 left join github_data using (date)
 left join contract_data using (date)
 left join defillama_data using (date)
+left join rolling_metrics using (date)
 where fundamental_data.date < to_date(sysdate())
