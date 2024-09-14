@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        unique_key="day",
+        unique_key="date",
         snowflake_warehouse="RAYDIUM",
         database="raydium",
         schema="core",
@@ -27,7 +27,7 @@ with buyback as ( -- revenue
         -- and tx_id = '3RmUQ54hgt8teCdah7B9Wm4Q1EmBwvF1CErZmX9NEGm5Ah2xVwgwd5UQkqvcCKkBx79xCfKEZanzBRiNayLTcZ5f' and block_id = 289035965
     
     {% if is_incremental() %}
-        AND block_timestamp::date >= (select dateadd('day', -2, max(day)) from {{ this }})
+        AND block_timestamp::date >= (select dateadd('day', -2, max(date)) from {{ this }})
     {% else %}
         AND block_timestamp::date >= date('2022-04-22') 
     {% endif %}
@@ -51,7 +51,7 @@ with buyback as ( -- revenue
     -- and tx_id = 'qksFPkjeiVodccqyQTkCCVaciiDEdzcY6nFEykK3PSYAVNWKAStjtX6wcEutzzmzdNP5azGVKAfH6afXqgSiKF3' and block_id = 289019693
 
     {% if is_incremental() %}
-        AND block_timestamp::date >= (select dateadd('day', -2, max(day)) from {{ this }})
+        AND block_timestamp::date >= (select dateadd('day', -2, max(date)) from {{ this }})
     {% else %}
         AND block_timestamp::date >= date('2022-04-22') 
     {% endif %}
@@ -75,7 +75,7 @@ with buyback as ( -- revenue
     -- and tx_id = '3jo6ZRMHxMFga9ACbgWGmBtjYQP85uMKfFz77HUqv2Z1JSqm32yKoiAWSyim1hqkM7B4xZDvCGEdzrv9qPLtNvpL' and block_id = 289024379
 
     {% if is_incremental() %}
-        AND block_timestamp::date >= (select dateadd('day', -2, max(day)) from {{ this }})
+        AND block_timestamp::date >= (select dateadd('day', -2, max(date)) from {{ this }})
     {% else %}
         AND block_timestamp::date >= date('2022-04-22') 
     {% endif %}
@@ -93,7 +93,7 @@ with buyback as ( -- revenue
     where lower(swap_program) like '%raydium%'
     
     {% if is_incremental() %}
-        AND block_timestamp::date >= (select dateadd('day', -2, max(day)) from {{ this }})
+        AND block_timestamp::date >= (select dateadd('day', -2, max(date)) from {{ this }})
     {% else %}
         AND block_timestamp::date >= date('2022-04-22') 
     {% endif %}
@@ -140,7 +140,7 @@ left join pool_creation c on c.day = b.day
 left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pb on pb.token_address = b.token_mint_address
         and pb.hour = b.day and pb.blockchain = 'solana'
         {% if is_incremental() %}
-            AND pb.hour::date >= (select dateadd('day', -2, max(day)) from {{ this }})
+            AND pb.hour::date >= (select dateadd('day', -2, max(date)) from {{ this }})
         {% else %}
             AND pb.hour::date >= date('2022-04-22') 
         {% endif %}
@@ -148,7 +148,7 @@ left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pb on pb.token_address = b.toke
 left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pt on pt.token_address = t.token_mint_address
         and pt.hour = t.day and pt.blockchain = 'solana'
         {% if is_incremental() %}
-            AND pt.hour::date >= (select dateadd('day', -2, max(day)) from {{ this }})
+            AND pt.hour::date >= (select dateadd('day', -2, max(date)) from {{ this }})
         {% else %}
             AND pt.hour::date >= date('2022-04-22') 
         {% endif %}
@@ -156,7 +156,7 @@ left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pt on pt.token_address = t.toke
 left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pc on pc.token_address = c.token_mint_address
         and pc.hour = c.day and pc.blockchain = 'solana'
         {% if is_incremental() %}
-            AND pc.hour::date >= (select dateadd('day', -2, max(day)) from {{ this }})
+            AND pc.hour::date >= (select dateadd('day', -2, max(date)) from {{ this }})
         {% else %}
             AND pc.hour::date >= date('2022-04-22') 
         {% endif %}
