@@ -91,7 +91,12 @@ with buyback as ( -- revenue
         , count(*) as number_of_swaps
     from SOLANA_FLIPSIDE.DEFI.EZ_DEX_SWAPS
     where lower(swap_program) like '%raydium%'
-    
+    and (swap_from_amount_usd is not null and swap_to_amount_usd is not null) 
+    and (swap_from_amount_usd > 0 and swap_to_amount_usd > 0)
+    and abs(
+        ln(coalesce(nullif(swap_from_amount_usd, 0), 1)) / ln(10)
+        - ln(coalesce(nullif(swap_to_amount_usd, 0), 1)) / ln(10)
+    ) < 1
     {% if is_incremental() %}
         AND block_timestamp::date >= (select dateadd('day', -2, max(date)) from {{ this }})
     {% else %}
