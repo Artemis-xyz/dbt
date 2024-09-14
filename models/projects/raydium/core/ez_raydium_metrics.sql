@@ -114,7 +114,8 @@ with buyback as ( -- revenue
     {% endif %}
 )
 
-select b.day as date
+select 
+    coalesce(v.day, b.day) as date
     , v.trading_volume
     
     , b.amount_raw * pb.price / 0.12 + coalesce(c.amount_raw * pc.price, 0) as fees -- trading fee + pool creation
@@ -161,7 +162,7 @@ left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pc on pc.token_address = c.toke
             AND pc.hour::date >= date('2022-04-22') 
         {% endif %}
 
-where b.day < to_date(sysdate())
+where coalesce(v.day, b.day) < to_date(sysdate())
 order by 1 desc 
 
 
