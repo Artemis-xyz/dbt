@@ -133,11 +133,11 @@ select
 
     , v.unique_traders -- not just direct, include aggregator routed
     , v.number_of_swaps
-from buyback b
-left join price_data on price_data.day = b.day
-left join trading_volume v on b.day = v.day
-left join treasury t on t.day = b.day 
-left join pool_creation c on c.day = b.day 
+from trading_volume v
+left join price_data on price_data.day = v.day
+left join buyback as b on v.day = b.day
+left join treasury t on t.day = v.day 
+left join pool_creation c on c.day = v.day 
 left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pb on pb.token_address = b.token_mint_address
         and pb.hour = b.day and pb.blockchain = 'solana'
         {% if is_incremental() %}
