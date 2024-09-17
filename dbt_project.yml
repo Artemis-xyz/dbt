@@ -117,6 +117,8 @@ models:
         +snowflake_warehouse: "OSMOSIS"
       pancakeswap:
         +snowflake_warehouse: "PANCAKESWAP_SM"
+      pendle:
+        +snowflake_warehouse: "PENDLE"
       polkadot:
         +snowflake_warehouse: "POLKADOT"
       polygon:
