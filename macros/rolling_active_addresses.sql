@@ -109,7 +109,7 @@
         ),
     {% elif chain == 'bitcoin' %}
         distinct_dates as (
-            select 
+            select distinct
                 block_timestamp::date as raw_date
             from bitcoin_flipside.core.fact_transactions
             {% if is_incremental() %}
@@ -117,7 +117,7 @@
             {% endif %}
         ),
         distinct_dates_for_rolling_active_address as (
-            select 
+            select distinct
                 block_timestamp::date as raw_date
                 , value:scriptPubKey:address::string as from_address
             from bitcoin_flipside.core.fact_transactions,
@@ -126,7 +126,7 @@
         ),
     {% elif chain == 'gnosis' %}
         distinct_dates as (
-            select 
+            select distinct
                 block_timestamp::date as raw_date
             from gnosis_flipside.core.fact_transactions
             {% if is_incremental() %}
@@ -142,7 +142,7 @@
         ),
     {% elif chain == 'starknet' %}
         distinct_dates as (
-            select 
+            select distinct
                 block_timestamp::date as raw_date
             from {{ ref("ez_" ~ chain ~ "_transactions") }}
             {% if is_incremental() %}
@@ -158,7 +158,7 @@
         ),
     {% elif chain == 'celo' %}
         distinct_dates as (
-            select 
+            select distinct
                 block_timestamp::date as raw_date
             from {{ ref("fact_" ~ chain ~ "_transactions")}}  
             {% if is_incremental() %}
@@ -166,14 +166,14 @@
             {% endif %}
         ),
         distinct_dates_for_rolling_active_address as (
-            select 
+            select distinct
                 block_timestamp::date as raw_date
                 , from_address as from_address
             from {{ref("fact_" ~ chain ~ "_transactions")}}
         ),
     {% elif chain == 'linea' %}
         distinct_dates as (
-            select 
+            select distinct
                 CAST(TO_TIMESTAMP(FACT_LINEA_TRANSACTIONS.BLOCK_TIMESTAMP) AS DATE) as raw_date
             from {{ ref("fact_linea_transactions") }}
             {% if is_incremental() %}
@@ -188,7 +188,7 @@
         ),
     {% elif chain == 'scroll' %}
         distinct_dates as (
-            select 
+            select distinct
                 CAST(TO_TIMESTAMP(BLOCK_TIMESTAMP) AS DATE) as raw_date
             from {{ ref("fact_scroll_transactions")}}  
             {% if is_incremental() %}
@@ -196,7 +196,7 @@
             {% endif %}
         ),
         distinct_dates_for_rolling_active_address as (
-            select 
+            select distinct
                 CAST(TO_TIMESTAMP(BLOCK_TIMESTAMP) AS DATE) as raw_date
                 , from_address as from_address
             from {{ref("fact_scroll_transactions")}}
@@ -269,20 +269,20 @@
         select date, signer
         from bitmap_multi_sig_transactions
     ),
-            distinct_dates as (
-            select 
-                date as raw_date
-            from combined_signers
-            {% if is_incremental() %}
-                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
-            {% endif %}
-        ),
-        distinct_dates_for_rolling_active_address as (
-            select distinct
-                date as raw_date
-                , signer as from_address
-            from combined_signers   
-        ),
+    distinct_dates as (
+        select distinct
+            date as raw_date
+        from combined_signers
+        {% if is_incremental() %}
+            where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
+        {% endif %}
+    ),
+    distinct_dates_for_rolling_active_address as (
+        select distinct
+            date as raw_date
+            , signer as from_address
+        from combined_signers   
+    ),
     {% elif chain == 'zora' %}
         distinct_dates as (
             select 
