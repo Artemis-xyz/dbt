@@ -79,7 +79,6 @@ SELECT
     , COALESCE(d.daily_txns, 0) as daily_txns
     , COALESCE(t.tvl, 0) as tvl
     , COALESCE(t.tvl, 0) as net_deposits
-    , 0 as outstanding_supply
 FROM swap_fees f
 LEFT JOIN yield_fees yf USING (date, chain)
 LEFT JOIN daus_txns d USING (date, chain)

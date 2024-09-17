@@ -12,7 +12,7 @@ select
     , token_address
     , amount_usd
     , amount_native
-from {{ref('fact_pendle_ethereum_tvl_by_token')}}
+from {{ref('fact_pendle_tvl_by_token_and_chain')}}
 union all
 select
     date
