@@ -17,7 +17,7 @@ with
             sum(gas_usd) as fees,
             sum(revenue) as revenue,
             sum(wau) as wau,
-            sum(mau) as mau
+            sum(mau) as mau,
             'cosmoshub' as chain
         from
             (
