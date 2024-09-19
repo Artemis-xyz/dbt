@@ -140,6 +140,38 @@
             from gnosis_flipside.core.fact_transactions
             where from_address is not null
         ),
+    {% elif chain == 'sei_evm' %}
+        distinct_dates as (
+            select 
+                block_timestamp::date as raw_date
+            from sei_flipside.core_evm.fact_transactions
+            {% if is_incremental() %}
+                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+        ),
+        distinct_dates_for_rolling_active_address as (
+            select distinct
+                block_timestamp::date as raw_date
+                , from_address as from_address
+            from sei_flipside.core_evm.fact_transactions
+            where from_address is not null
+        ),
+    {% elif chain == 'sei_wasm' %}
+        distinct_dates as (
+            select 
+                block_timestamp::date as raw_date
+            from sei_flipside.core.fact_transactions
+            {% if is_incremental() %}
+                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
+            {% endif %}
+        ),
+        distinct_dates_for_rolling_active_address as (
+            select distinct
+                block_timestamp::date as raw_date
+                , tx_from as from_address
+            from sei_flipside.core.fact_transactions
+            where tx_from is not null
+        ),
     {% elif chain == 'starknet' %}
         distinct_dates as (
             select distinct
@@ -319,7 +351,7 @@
     rolling_mau as (
         select 
             t1.raw_date,
-            count(distinct t2.from_address) as mau
+            coalesce(count(distinct t2.from_address), 0) as mau
         from distinct_dates t1
         join distinct_dates_for_rolling_active_address t2 on t2.raw_date between dateadd(DAY, -29, t1.raw_date) and t1.raw_date
         group by t1.raw_date
@@ -327,7 +359,7 @@
     rolling_wau as (
         select 
             t1.raw_date,
-            count(distinct t2.from_address) as wau
+            coalesce(count(distinct t2.from_address), 0) as wau
         from distinct_dates t1
         join distinct_dates_for_rolling_active_address t2 on t2.raw_date between dateadd(DAY, -6, t1.raw_date) and t1.raw_date
         group by t1.raw_date
