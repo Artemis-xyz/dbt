@@ -21,6 +21,9 @@ open_league_data as (
         , value:"onchain_median_tx" as onchain_median_tx
         , value:"onchain_total_tx" as onchain_total_tx
         , value:"onchain_uaw" as onchain_uaw
+        , value:"onchain_enrolled_uaw" as onchain_enrolled_uaw
+        , value:"average_score" as average_score
+        , value:"total_points" as  total_points
         , value:"score"::float as score
         , value:"url"::string as url
     from latest_source_jsons, lateral flatten(input => parse_json(source_json:"items"))
@@ -46,6 +49,9 @@ SELECT
     , onchain_median_tx
     , onchain_total_tx
     , onchain_uaw
+    , onchain_enrolled_uaw
+    , average_score
+    , total_points
     , score
     , url
     , end_date
