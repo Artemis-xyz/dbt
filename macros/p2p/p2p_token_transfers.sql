@@ -79,7 +79,7 @@ with
                 block_timestamp,
                 block_id as block_number,
                 tx_hash,
-                fact_token_transfers_id as index,
+                ez_token_transfers_id as index,
                 from_address,
                 to_address,
                 coalesce(amount_raw_precise/pow(10, t5.decimals), 0) as amount,
