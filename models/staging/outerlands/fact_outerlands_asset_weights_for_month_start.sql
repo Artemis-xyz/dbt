@@ -6,28 +6,79 @@
 }}
 
 {%- set sigma_assets = dbt_utils.get_query_results_as_dict(
-    "SELECT * 
-     FROM PC_DBT_DB.PROD.fact_sigma_example_table"
+    "SELECT 
+        artemis_id,
+        coingecko_id,
+        DATE(CONVERT_TIMEZONE('UTC', added_date)) as added_date,
+        DATE(CONVERT_TIMEZONE('UTC', deleted_date)) as deleted_date,
+     FROM " ~ source('SIGMA', 'dim_outerlands_fundamental_index_assets')
 ) -%}
 
-WITH sigma_example AS (
-    SELECT artemis_id, coingecko_id, symbol, added_date, deleted_date
-    FROM {{ ref('fact_sigma_example_table') }}
-),
-combined_data AS (
+{%- set stablecoin_assets = ['ethena']-%}
+{%- set bridge_assets =  ['wormhole']-%}
+{%- set da_assets = ['celestia'] -%}
+{%- set dex_assets = ['trader_joe'] -%}
+{%- set perps_assets = ['jupiter'] -%}
+
+{%- set MINIMUM_MCAP = 30000000 -%}
+
+WITH
+    eligible_assets AS (
+        SELECT 
+            date,
+            coingecko_id,
+            shifted_token_market_cap,
+            DATE_TRUNC('month', date) AS month_start,
+            LEAD(DATE_TRUNC('month', date)) OVER (PARTITION BY coingecko_id ORDER BY date) AS next_month_start
+        FROM {{ ref('fact_coingecko_token_date_adjusted_gold') }}
+        WHERE DATE_TRUNC('month', date) = date  -- Only keep the first day of each month
+            AND shifted_token_market_cap > {{ MINIMUM_MCAP }}
+    )
+, combined_data AS (
     {%- for i in range(sigma_assets['ARTEMIS_ID'] | length) %}
+
+    {%- set artemis_id = sigma_assets['ARTEMIS_ID'][i] -%}
+    {%- set coingecko_id = sigma_assets['COINGECKO_ID'][i] -%}
+    {%- set added_date = sigma_assets['ADDED_DATE'][i] -%}
+    {%- set deleted_date = sigma_assets['DELETED_DATE'][i] %}
+
     SELECT 
-        date, 
-        '{{ sigma_assets['ARTEMIS_ID'][i] }}' AS artemis_id,
-        '{{ sigma_assets['COINGECKO_ID'][i] }}' AS coingecko_id,
-        '{{ sigma_assets['SYMBOL'][i] }}' AS symbol,
-        txns, 
-        dau, 
-        fees
-    FROM {{ sigma_assets['ARTEMIS_ID'][i] }}.prod_core.ez_metrics
-    WHERE date >= '{{ sigma_assets['ADDED_DATE'][i] }}'
-    {%- if sigma_assets['DELETED_DATE'][i] %}
-        AND date < '{{ sigma_assets['DELETED_DATE'][i] }}'
+        m.date, 
+        '{{ artemis_id }}' AS artemis_id,
+        '{{ coingecko_id }}' AS coingecko_id,
+        
+        {%- if artemis_id in stablecoin_assets %}
+            stablecoin_daily_txns as txns,
+        {%- else %}
+            txns as txns,
+        {%- endif %}
+
+        {%- if artemis_id in stablecoin_assets %}
+            stablecoin_daily_dau as dau,
+        {%- elif artemis_id in bridge_assets %}
+            bridge_daa as dau,
+        {%- elif artemis_id in da_assets %}
+            submitters as dau,
+        {%- elif artemis_id in dex_assets or artemis_id in perps_assets %}
+            unique_traders as dau,
+        {%- else %}
+            dau as dau, 
+        {%- endif %}
+
+        {%- if artemis_id in dex_assets %}
+            trading_fees as fees
+        {%- else %}
+            fees as fees
+        {%- endif %}
+
+        FROM {{ artemis_id }}.prod_core.ez_metrics m
+    
+    JOIN eligible_assets e ON '{{ coingecko_id }}' = e.coingecko_id
+    AND date_trunc('month', m.date) = e.month_start
+
+    WHERE m.date >= '{{ added_date }}'
+    {%- if deleted_date %}
+        AND m.date < '{{ deleted_date }}'
     {%- endif %}
     {%- if not loop.last %}
     UNION ALL
@@ -39,7 +90,6 @@ trailing_30d_sums_by_protocol AS (
         date,
         artemis_id,
         coingecko_id,
-        symbol,
         SUM(txns) OVER (PARTITION BY artemis_id ORDER BY date ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) AS trailing_30d_sum_txns,
         SUM(dau) OVER (PARTITION BY artemis_id ORDER BY date ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) AS trailing_30d_sum_dau,
         SUM(fees) OVER (PARTITION BY artemis_id ORDER BY date ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) AS trailing_30d_sum_fees
@@ -56,10 +106,9 @@ total_sums AS (
 ),
 trailing_and_totals AS (
     SELECT 
-        t.date,
+        DATEADD('day', 1, t.date) as date,
         t.artemis_id,
         t.coingecko_id,
-        t.symbol,
         t.trailing_30d_sum_txns,
         t.trailing_30d_sum_dau,
         t.trailing_30d_sum_fees,
@@ -68,14 +117,18 @@ trailing_and_totals AS (
         tot.total_trailing_30d_sum_fees
     FROM trailing_30d_sums_by_protocol t
     JOIN total_sums tot ON t.date = tot.date
-    WHERE DATE_TRUNC('month', t.date) = t.date  -- First day of each month
+    WHERE date(t.date) = DATEADD('day', -1, DATEADD('month', 1, DATE_TRUNC('month', t.date)))  -- First last day of each prev month    AND t.trailing_30d_sum_txns is not null
+    AND t.trailing_30d_sum_txns >= 0
+    AND t.trailing_30d_sum_dau is not null
+    AND t.trailing_30d_sum_dau >= 0
+    AND t.trailing_30d_sum_fees is not null
+    AND t.trailing_30d_sum_fees >= 0
     ORDER BY t.date DESC, t.artemis_id
 )
 SELECT
     date,
     artemis_id,
     coingecko_id,
-    symbol,
     trailing_30d_sum_txns / NULLIF(total_trailing_30d_sum_txns, 0) AS txns_percent_of_total,
     trailing_30d_sum_dau / NULLIF(total_trailing_30d_sum_dau, 0) AS dau_percent_of_total,
     trailing_30d_sum_fees / NULLIF(total_trailing_30d_sum_fees, 0) AS fees_percent_of_total,

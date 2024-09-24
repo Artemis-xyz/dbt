@@ -6,12 +6,6 @@
 }}
 
 WITH 
-    sigma_assets AS (
-        SELECT
-            coingecko_id
-        FROM
-            {{ ref('fact_sigma_example_table') }}
-    ),
     price_data AS (
         SELECT
             date,
@@ -21,8 +15,8 @@ WITH
         FROM
             pc_dbt_db.prod.fact_coingecko_token_date_adjusted_gold
         WHERE
-            coingecko_id IN (select coingecko_id from sigma_assets)
-)
+            coingecko_id IN (select coingecko_id from {{ source('SIGMA', 'dim_outerlands_fundamental_index_assets') }})
+    )
 SELECT
     date,
     coingecko_id,
