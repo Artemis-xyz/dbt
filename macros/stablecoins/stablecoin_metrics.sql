@@ -1,5 +1,7 @@
 {% macro stablecoin_metrics(chain) %}
     {% set backfill_date = '' %}
+    {% set new_stablecoin_address = '' %}
+
     with
         stablecoin_supply as (
             select
@@ -23,14 +25,21 @@
                 {% endif %}
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_balances")}}
-            {% if is_incremental() %}
+            {% if is_incremental() and new_stablecoin_address == '' %}
                 where date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
             {% if backfill_date != '' %}
-                {% if is_incremental() %}
+                {% if is_incremental() and new_stablecoin_address == '' %}
                     and date < '{{ backfill_date }}'
                 {% else %}
                     where date < '{{ backfill_date }}'
+                {% endif %}
+            {% endif %}
+            {% if new_stablecoin_address != '' %}
+                {% if backfill_date != '' %}
+                    and lower(contract_address) = lower('{{ new_stablecoin_address }}')
+                {% else %}
+                    where lower(contract_address) = lower('{{ new_stablecoin_address }}')
                 {% endif %}
             {% endif %}
         )
@@ -44,14 +53,21 @@
                 , stablecoin_daily_txns
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_metrics_all")}}
-            {% if is_incremental() %}
+            {% if is_incremental() and new_stablecoin_address == '' %}
                 where date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
             {% if backfill_date != '' %}
-                {% if is_incremental() %}
+                {% if is_incremental() and new_stablecoin_address == '' %}
                     and date < '{{ backfill_date }}'
                 {% else %}
                     where date < '{{ backfill_date }}'
+                {% endif %}
+            {% endif %}
+            {% if new_stablecoin_address != '' %}
+                {% if backfill_date != '' %}
+                    and lower(contract_address) = lower('{{ new_stablecoin_address }}')
+                {% else %}
+                    where lower(contract_address) = lower('{{ new_stablecoin_address }}')
                 {% endif %}
             {% endif %}
         )
@@ -65,14 +81,21 @@
                 , stablecoin_daily_txns as artemis_stablecoin_daily_txns
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_metrics_artemis")}}
-            {% if is_incremental() %}
+            {% if is_incremental() and new_stablecoin_address == '' %}
                 where date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
             {% if backfill_date != '' %}
-                {% if is_incremental() %}
+                {% if is_incremental() and new_stablecoin_address == '' %}
                     and date < '{{ backfill_date }}'
                 {% else %}
                     where date < '{{ backfill_date }}'
+                {% endif %}
+            {% endif %}
+            {% if new_stablecoin_address != '' %}
+                {% if backfill_date != '' %}
+                    and lower(contract_address) = lower('{{ new_stablecoin_address }}')
+                {% else %}
+                    where lower(contract_address) = lower('{{ new_stablecoin_address }}')
                 {% endif %}
             {% endif %}
         )
@@ -86,14 +109,21 @@
                 , stablecoin_daily_txns as p2p_stablecoin_daily_txns
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_metrics_p2p")}}
-            {% if is_incremental() %}
+            {% if is_incremental() and new_stablecoin_address == '' %}
                 where date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
             {% if backfill_date != '' %}
-                {% if is_incremental() %}
+                {% if is_incremental() and new_stablecoin_address == '' %}
                     and date < '{{ backfill_date }}'
                 {% else %}
                     where date < '{{ backfill_date }}'
+                {% endif %}
+            {% endif %}
+            {% if new_stablecoin_address != '' %}
+                {% if backfill_date != '' %}
+                    and lower(contract_address) = lower('{{ new_stablecoin_address }}')
+                {% else %}
+                    where lower(contract_address) = lower('{{ new_stablecoin_address }}')
                 {% endif %}
             {% endif %}
         )

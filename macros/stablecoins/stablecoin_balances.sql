@@ -7,6 +7,8 @@
     -- Make sure to set to '' after backfill is complete
 
     {% set backfill_date = '' %}
+    {% set new_stablecoin_address = '' %}
+
 with
     stablecoin_balances as (
         select 
@@ -37,11 +39,14 @@ with
             {% if backfill_date != '' %}
                 and block_timestamp < '{{ backfill_date }}'
             {% endif %}
-        {% if is_incremental() %}
-                and block_timestamp > (select dateadd('day', -3, max(date)) from {{ this }}) 
-        {% endif %}
+            {% if new_stablecoin_address != '' %}
+                and lower(t1.contract_address) = lower('{{ new_stablecoin_address }}')
+            {% endif %}
+            {% if is_incremental() and new_stablecoin_address == '' %}
+                    and block_timestamp > (select dateadd('day', -3, max(date)) from {{ this }}) 
+            {% endif %}
     )
-    {% if is_incremental() %}
+    {% if is_incremental() and new_stablecoin_address == '' %}
         --Get the most recent data in the existing table
         , stale_stablecoin_balances as (
             select 
@@ -65,7 +70,7 @@ with
             , address
             , stablecoin_supply_native
         from stablecoin_balances
-        {% if is_incremental() %}
+        {% if is_incremental() and new_stablecoin_address == '' %}
             union
             select 
                 block_timestamp
