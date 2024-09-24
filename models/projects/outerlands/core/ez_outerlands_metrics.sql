@@ -8,4 +8,4 @@
     )
 }}
 
-SELECT * FROM {{ ref('fact_outerlands_index_full_universe') }}
+SELECT date, cumulative_index_value FROM {{ ref('fact_outerlands_fundamental_index_performance') }}
