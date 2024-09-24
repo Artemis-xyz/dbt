@@ -171,7 +171,7 @@
             trunc(block_timestamp, 'day') as date,
             block_id as block_number,
             tx_hash,
-            fact_token_transfers_id as index,
+            ez_token_transfers_id as index,
             from_address,
             to_address,
             from_address = 'system' or from_address is null as is_mint,
