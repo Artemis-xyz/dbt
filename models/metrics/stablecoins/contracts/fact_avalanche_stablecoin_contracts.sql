@@ -14,5 +14,6 @@ from
             ),
             ('USDT', '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7', 6, 'tether', 0),
             ('USDT', '0xc7198437980c041c805A1EDcbA50c1Ce5db95118', 6, 'tether', 0),
-            ('EURC', '0xc891eb4cbdeff6e073e859e987815ed1505c2acd', 6, 'euro-coin', 0)
+            ('EURC', '0xc891eb4cbdeff6e073e859e987815ed1505c2acd', 6, 'euro-coin', 0),
+            ('AUSD', '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a', 6, 'agora-dollar', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
