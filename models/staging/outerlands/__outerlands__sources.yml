@@ -4,3 +4,4 @@ sources:
     database: SIGMA
     tables:
       - name: outerlands_full_universe
+      - name: outerlands_full_universe_assets
