@@ -33,6 +33,7 @@ select
     dau,
     fees_native,
     fees,
+    fees / txns as avg_txn_fee,
     revenue_native,
     revenue,
     price,

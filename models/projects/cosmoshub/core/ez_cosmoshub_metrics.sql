@@ -45,6 +45,7 @@ select
     wau,
     mau,
     fees,
+    fees / txns as avg_txn_fee,
     revenue,
     price,
     market_cap,
