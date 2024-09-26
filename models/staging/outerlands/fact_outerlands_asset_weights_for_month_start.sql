@@ -23,13 +23,12 @@
 {%- set MINIMUM_MCAP = 30000000 -%}
 
 WITH
-    eligible_assets AS (
+    eligible_months_per_asset AS (
         SELECT 
             date,
             coingecko_id,
             shifted_token_market_cap,
             DATE_TRUNC('month', date) AS month_start,
-            LEAD(DATE_TRUNC('month', date)) OVER (PARTITION BY coingecko_id ORDER BY date) AS next_month_start
         FROM {{ ref('fact_coingecko_token_date_adjusted_gold') }}
         WHERE DATE_TRUNC('month', date) = date  -- Only keep the first day of each month
             AND shifted_token_market_cap > {{ MINIMUM_MCAP }}
@@ -72,9 +71,6 @@ WITH
         {%- endif %}
 
         FROM {{ artemis_id }}.prod_core.ez_metrics m
-    
-    JOIN eligible_assets e ON '{{ coingecko_id }}' = e.coingecko_id
-    AND date_trunc('month', m.date) = e.month_start
 
     WHERE m.date >= '{{ added_date }}'
     {%- if deleted_date %}
@@ -95,13 +91,27 @@ trailing_30d_sums_by_protocol AS (
         SUM(fees) OVER (PARTITION BY artemis_id ORDER BY date ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) AS trailing_30d_sum_fees
     FROM combined_data
 ),
+eligible_assets AS (
+    SELECT t.*
+    FROM trailing_30d_sums_by_protocol t
+    JOIN eligible_months_per_asset e 
+        ON e.coingecko_id = t.coingecko_id 
+        AND DATE_TRUNC('month', DATEADD('day', 1, t.date)) = e.month_start
+    WHERE date(t.date) = DATEADD('day', -1, DATEADD('month', 1, DATE_TRUNC('month', t.date)))  -- First last day of each prev month
+    AND t.trailing_30d_sum_txns is not null
+    AND t.trailing_30d_sum_txns >= 0
+    AND t.trailing_30d_sum_dau is not null
+    AND t.trailing_30d_sum_dau >= 0
+    AND t.trailing_30d_sum_fees is not null
+    AND t.trailing_30d_sum_fees >= 0
+),
 total_sums AS (
     SELECT 
         date,
         SUM(trailing_30d_sum_txns) AS total_trailing_30d_sum_txns,
         SUM(trailing_30d_sum_dau) AS total_trailing_30d_sum_dau,
         SUM(trailing_30d_sum_fees) AS total_trailing_30d_sum_fees
-    FROM trailing_30d_sums_by_protocol
+    FROM eligible_assets
     GROUP BY date
 ),
 trailing_and_totals AS (
@@ -115,20 +125,16 @@ trailing_and_totals AS (
         tot.total_trailing_30d_sum_txns,
         tot.total_trailing_30d_sum_dau,
         tot.total_trailing_30d_sum_fees
-    FROM trailing_30d_sums_by_protocol t
+    FROM eligible_assets t
     JOIN total_sums tot ON t.date = tot.date
-    WHERE date(t.date) = DATEADD('day', -1, DATEADD('month', 1, DATE_TRUNC('month', t.date)))  -- First last day of each prev month    AND t.trailing_30d_sum_txns is not null
-    AND t.trailing_30d_sum_txns >= 0
-    AND t.trailing_30d_sum_dau is not null
-    AND t.trailing_30d_sum_dau >= 0
-    AND t.trailing_30d_sum_fees is not null
-    AND t.trailing_30d_sum_fees >= 0
-    ORDER BY t.date DESC, t.artemis_id
 )
 SELECT
-    date,
-    artemis_id,
-    coingecko_id,
+    t.date,
+    t.artemis_id,
+    t.coingecko_id,
+    trailing_30d_sum_txns,
+    trailing_30d_sum_dau,
+    trailing_30d_sum_fees,
     trailing_30d_sum_txns / NULLIF(total_trailing_30d_sum_txns, 0) AS txns_percent_of_total,
     trailing_30d_sum_dau / NULLIF(total_trailing_30d_sum_dau, 0) AS dau_percent_of_total,
     trailing_30d_sum_fees / NULLIF(total_trailing_30d_sum_fees, 0) AS fees_percent_of_total,
@@ -137,5 +143,5 @@ SELECT
         COALESCE(trailing_30d_sum_dau / NULLIF(total_trailing_30d_sum_dau, 0), 0) +
         COALESCE(trailing_30d_sum_fees / NULLIF(total_trailing_30d_sum_fees, 0), 0)
     ) AS combined_score
-FROM trailing_and_totals
+FROM trailing_and_totals t
 ORDER BY date DESC, artemis_id
