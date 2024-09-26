@@ -27,6 +27,7 @@ select
     , wasm_rolling_metrics.wau + evm_rolling_metrics.wau as wau
     , wasm_gas + coalesce(evm_gas, 0) as fees_native
     , wasm_gas_usd + coalesce(evm_gas_usd, 0) as fees
+    , fees / txns as avg_txn_fee
     , 0 as revenue
     , wasm_txns
     , wasm_daa as wasm_dau

@@ -35,6 +35,7 @@ select
     mau,
     fees_native, 
     fees,
+    fees / txns as avg_txn_fee,
     l1_data_cost_native,  
     l1_data_cost,
     coalesce(fees_native, 0) - l1_data_cost_native as revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)

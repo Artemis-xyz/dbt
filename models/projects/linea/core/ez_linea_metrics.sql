@@ -37,6 +37,7 @@ select
     , mau
     , fees
     , fees_native
+    , fees / txns as avg_txn_fee
     , revenue
     , revenue_native
     , l1_data_cost
