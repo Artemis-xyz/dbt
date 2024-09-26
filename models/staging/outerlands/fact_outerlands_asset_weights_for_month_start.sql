@@ -74,7 +74,7 @@ WITH
 
     WHERE m.date >= '{{ added_date }}'
     {%- if deleted_date %}
-        AND m.date < '{{ deleted_date }}'
+        AND m.date < DATEADD('month', -1, DATE_TRUNC('month', DATE('{{ deleted_date }}')))
     {%- endif %}
     {%- if not loop.last %}
     UNION ALL
