@@ -8,4 +8,4 @@
     )
 }}
 
-SELECT date, cumulative_index_value FROM {{ ref('fact_outerlands_fundamental_index_performance') }}
+SELECT date, cumulative_index_value as price FROM {{ ref('fact_outerlands_fundamental_index_performance') }}
