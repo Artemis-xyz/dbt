@@ -3,5 +3,4 @@ sources:
     schema: PROD
     database: SIGMA
     tables:
-      - name: outerlands_full_universe
       - name: dim_outerlands_fundamental_index_assets
