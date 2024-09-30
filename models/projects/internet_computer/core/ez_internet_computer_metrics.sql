@@ -26,6 +26,7 @@ select
     , icp_burned
     , icp_burned * price as fees
     , icp_burned * price as revenue
+    , fees / txns as avg_txn_fee
     , total_native_fees -- total transaction fees
     , nns_tvl_native * price as nns_tvl -- same as total icp staked in NNS
     , nns_tvl_native 

@@ -171,12 +171,12 @@
             trunc(block_timestamp, 'day') as date,
             block_id as block_number,
             tx_hash,
-            fact_token_transfers_id as index,
+            ez_token_transfers_id as index,
             from_address,
             to_address,
             from_address = 'system' or from_address is null as is_mint,
             to_address = 'system' or to_address is null as is_burn,
-            amount_raw_precise / 1E24 as amount,
+            amount_raw_precise / pow(10, num_decimals) as amount,
             case
                 when is_mint then 1 * amount
                 when is_burn then -1 * amount

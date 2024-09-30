@@ -71,22 +71,57 @@ with
             , inserted_timestamp
         FROM
             msg_atts_base
+    ),
+    sei_transactions as (
+        SELECT 
+            t1.tx_hash
+            , t1.block_timestamp
+            , t1.raw_date
+            , t1.tx_succeeded as success
+            , t1.contract_address
+            , t3.name
+            , t3.app
+            , t3.friendly_name
+            , t3.sub_category
+            , t3.category
+            , t2.tx_from as signer
+            , (split(t2.fee, 'usei')[0] / pow(10, 6)) as tx_fee
+            , (split(t2.fee, 'usei')[0] / pow(10, 6)) * t4.price as gas_usd
+            , t1.inserted_timestamp
+        FROM 
+            transaction_contract_data as t1
+        LEFT JOIN 
+            sei_flipside.core.fact_transactions as t2
+            ON t1.tx_hash = t2.tx_id
+        LEFT JOIN 
+            new_contracts as t3
+            ON t1.contract_address = t3.address
+        LEFT JOIN 
+            prices as t4
+            ON t1.raw_date = t4.price_date
+        WHERE
+            t1.block_timestamp < date(sysdate())
+            {% if is_incremental() %}
+            AND 
+            t2.inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
+            {% endif %}
     )
-    SELECT 
-        t1.tx_hash
-        , t1.block_timestamp
-        , t1.raw_date
-        , t1.tx_succeeded as success
-        , t1.contract_address
-        , t3.name
-        , t3.app
-        , t3.friendly_name
-        , t3.sub_category
-        , t3.category
-        , t2.tx_from as signer
-        , (split(t2.fee, 'usei')[0] / pow(10, 6)) as tx_fee
-        , (split(t2.fee, 'usei')[0] / pow(10, 6)) * t4.price as gas_usd
-        , t1.inserted_timestamp
+    SELECT
+        tx_hash
+        , max(success) as success
+        , max(block_timestamp) as block_timestamp
+        , max(raw_date) as raw_date
+        , max(signer) as signer
+        , max(tx_fee) as tx_fee
+        , max(gas_usd) as gas_usd
+        , 'sei' as chain
+        , max(contract_address) as contract_address
+        , max(name) as name
+        , max(app) as app
+        , max(friendly_name) as friendly_name
+        , max(sub_category) as sub_category
+        , max(inserted_timestamp) as inserted_timestamp
+        , max(category) as category
         , null as user_type
         , null as address_life_span
         , null as cur_total_txns
@@ -96,20 +131,5 @@ with
         , null as balance_usd
         , null as native_token_balance
         , null as stablecoin_balance
-    FROM 
-        transaction_contract_data as t1
-    LEFT JOIN 
-        sei_flipside.core.fact_transactions as t2
-        ON t1.tx_hash = t2.tx_id
-    LEFT JOIN 
-        new_contracts as t3
-        ON t1.contract_address = t3.address
-    LEFT JOIN 
-        prices as t4
-        ON t1.raw_date = t4.price_date
-    WHERE
-        t1.block_timestamp < date(sysdate())
-        {% if is_incremental() %}
-        AND 
-        t2.inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
-        {% endif %}
+    FROM sei_transactions
+    group by tx_hash

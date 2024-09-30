@@ -14,8 +14,12 @@ with
             date
             , txns
             , daa as dau
+            , gas as fees_native
+            , gas_usd as fees
+            , case when txns > 0 then fees / txns end as avg_txn_fee
         from {{ ref("fact_multiversx_txns") }}
         left join {{ ref("fact_multiversx_daa") }} using (date)
+        left join {{ ref("fact_multiversx_gas_gas_usd") }} using (date)
     )
     , github_data as ({{ get_github_metrics("elrond") }})
     , defillama_data as ({{ get_defillama_metrics("elrond") }})
@@ -26,6 +30,9 @@ select
     , 'multiversx' as chain
     , txns
     , dau
+    , fees
+    , fees_native
+    , avg_txn_fee
     , tvl
     , dex_volumes
     , weekly_commits_core_ecosystem

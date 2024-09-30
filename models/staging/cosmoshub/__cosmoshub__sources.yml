@@ -6,3 +6,4 @@ sources:
       - name: raw_cosmoshub_daa
       - name: raw_cosmoshub_txns
       - name: raw_cosmoshub_fees
+      - name: raw_cosmoshub_rolling_active_addresses

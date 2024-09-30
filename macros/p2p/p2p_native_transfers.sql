@@ -80,7 +80,7 @@
                         block_timestamp,
                         block_id as block_number,
                         tx_hash,
-                        fact_token_transfers_id as index,
+                        ez_token_transfers_id as index,
                         from_address,
                         to_address,
                         amount_raw_precise / 1E24 as amount

@@ -60,6 +60,16 @@ There are two ways to get help:
 3. Write SQL model changes
 4. Open a PR and view results of your changes directly in the Github Actions - more on this in [adding a new metric](#adding-a-new-metric).
 
+For running on snowflake, create a `.env.local` file in the root of this repo with the following structure:
+
+```
+export SYSTEM_SNOWFLAKE_USER=''
+export SYSTEM_SNOWFLAKE_PASSWORD=''
+export SYSTEM_SNOWFLAKE_ROLE=''
+```
+
+Run `source .env.local` to load these environment variables into your shell.
+
 ## System Design
 
 In terms of system design, Artemis manages a data pipeline that pipes raw data from a series of vendors, including [Flipside](https://flipsidecrypto.xyz/), [Goldsky](https://goldsky.com/), and [QuickNode](https://www.quicknode.com/chains) into our Snowflake data warehouse. This repository contains the business logic for turning raw data into `fact` tables that describe an individual protocol or collection of protocols.

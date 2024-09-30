@@ -28,13 +28,17 @@ with
     , github_data as ({{ get_github_metrics("scroll") }})
     , contract_data as ({{ get_contract_metrics("scroll") }})
     , defillama_data as ({{ get_defillama_metrics("scroll") }})
+    , rolling_metrics as ({{ get_rolling_active_address_metrics("scroll") }})
 
 select
     fundamental_data.date
     , 'scroll' as chain
     , txns
     , dau
+    , wau
+    , mau
     , fees
+    , fees / txns as avg_txn_fee
     , fees_native
     , revenue
     , revenue_native
@@ -52,4 +56,5 @@ from fundamental_data
 left join github_data using (date)
 left join contract_data using (date)
 left join defillama_data using (date)
+left join rolling_metrics using (date)
 where fundamental_data.date < to_date(sysdate())

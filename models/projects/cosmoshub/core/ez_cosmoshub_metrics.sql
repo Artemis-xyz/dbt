@@ -16,6 +16,8 @@ with
             sum(daa) as dau,
             sum(gas_usd) as fees,
             sum(revenue) as revenue,
+            sum(wau) as wau,
+            sum(mau) as mau,
             'cosmoshub' as chain
         from
             (
@@ -25,6 +27,7 @@ with
                             ref("fact_cosmoshub_daa"),
                             ref("fact_cosmoshub_txns"),
                             ref("fact_cosmoshub_fees_and_revenue"),
+                            ref("fact_cosmoshub_rolling_active_addresses"),
                         ]
                     )
                 }}
@@ -39,7 +42,10 @@ select
     fundamental_data.chain,
     txns,
     dau,
+    wau,
+    mau,
     fees,
+    fees / txns as avg_txn_fee,
     revenue,
     price,
     market_cap,

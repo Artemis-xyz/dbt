@@ -1,4 +1,9 @@
-{{ config(materialized="table") }}
+{{ config(
+    materialized="table",
+    snowflake_warehouse="ROCKETPOOL"
+    )
+}}
+
 with
     prices as ({{get_coingecko_price_with_latest("ethereum")}}),
     temp as (

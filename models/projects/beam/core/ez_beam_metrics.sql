@@ -23,6 +23,7 @@ select
     txns,
     fees_native,
     fees_native * price as fees,
+    fees / txns as avg_txn_fee,
     price,
     market_cap,
     fdmc,

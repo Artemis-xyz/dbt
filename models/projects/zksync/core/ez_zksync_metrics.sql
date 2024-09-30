@@ -30,10 +30,11 @@ select
     fundamental_data.chain,
     dau,
     mau,
-    wau
+    wau,
     txns,
     gas as fees_native,
     gas_usd as fees,
+    fees / txns as avg_txn_fee,
     revenue,
     revenue_native,
     l1_data_cost,

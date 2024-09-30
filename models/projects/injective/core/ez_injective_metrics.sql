@@ -18,6 +18,8 @@ select
     fundamental_data.date,
     'injective' as chain,
     fundamental_data.dau,
+    fundamental_data.wau,
+    fundamental_data.mau,
     fundamental_data.txns,
     fundamental_data.fees,
     fundamental_data.fees_native,
