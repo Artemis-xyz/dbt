@@ -1,4 +1,3 @@
---depends_on: {{ ref("agg_celo_stablecoin_metrics") }}
 {{
     config(
         materialized="table",
