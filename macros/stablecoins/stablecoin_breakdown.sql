@@ -35,7 +35,7 @@ select
     {% endif %}
 from {{ ref("agg_daily_stablecoin_breakdown_silver") }}
 {% if is_incremental() %}
-    where date >= (select dateadd('{{granularity}}', -7, max(date_granularity)) from {{ this }})
+    where date >= (select dateadd('{{granularity}}', -3, max(date_granularity)) from {{ this }})
 {% endif %}
 {% if 'application' in breakdowns %}
     {% if not is_incremental() %}
