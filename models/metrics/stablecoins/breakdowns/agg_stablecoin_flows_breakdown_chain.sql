@@ -13,7 +13,7 @@ with
     , inflow_data as (
         select 
             chain, 
-            sum(inflow) as stablecoin_supply_inflow
+            sum(inflow) as stablecoin_inflow
         from transfers_data
         where inflow > 0
         group by 1
@@ -21,7 +21,7 @@ with
     , outflow_data as (
         select 
             chain, 
-            sum(inflow) as stablecoin_supply_outflow
+            sum(inflow) as stablecoin_outflow
         from transfers_data
         where inflow < 0
         group by 1
@@ -29,15 +29,15 @@ with
     , net_flow_data as (
         select 
             chain, 
-            sum(inflow) as stablecoin_supply_net_flow
+            sum(inflow) as stablecoin_netflow
         from transfers_data
         group by 1
     )
 select 
     chain, 
-    stablecoin_supply_inflow, 
-    stablecoin_supply_outflow, 
-    stablecoin_supply_net_flow
+    stablecoin_inflow, 
+    stablecoin_outflow, 
+    stablecoin_netflow
 from net_flow_data
 full join outflow_data using (chain)
 full join inflow_data using (chain)
