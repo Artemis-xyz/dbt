@@ -4,7 +4,7 @@
         snowflake_warehouse="COMMON",
         database="common",
         schema="core",
-        materialized='table'
+        materialized='view'
     )
 }}
 
