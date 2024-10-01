@@ -34,8 +34,15 @@ select
         , sum(case when is_wallet::number = 1 and date = date_trunc('{{granularity}}', date) then stablecoin_supply else 0 end) as p2p_stablecoin_supply
     {% endif %}
 from {{ ref("agg_daily_stablecoin_breakdown_silver") }}
+{% if is_incremental() %}
+    where date >= (select dateadd('{{granularity}}', -7, max(date_granularity)) from {{ this }})
+{% endif %}
 {% if 'application' in breakdowns %}
-    where application is not null
+    {% if not is_incremental() %}
+        where application is not null
+    {% else %}
+        and application is not null
+    {% endif %}
 {% endif %}
 group by date_granularity {% for breakdown in breakdowns %}, {{ breakdown }} {% endfor %}
 order by date_granularity
