@@ -35,7 +35,7 @@ with
     )
 select 
     symbol, 
-    stablecoin_outflow, 
+    stablecoin_inflow, 
     stablecoin_outflow, 
     stablecoin_netflow
 from net_flow_data
