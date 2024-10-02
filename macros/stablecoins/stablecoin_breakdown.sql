@@ -2,7 +2,11 @@
 select
     date_trunc('{{granularity}}', date) as date_granularity
     {% for breakdown in breakdowns %}
-        , {{ breakdown }}
+        {% if breakdown in ('application', 'category') %}
+            , coalesce({{ breakdown }}, 'Unlabeled') as {{ breakdown }}
+        {% else %}
+            , {{ breakdown }}
+        {% endif %}
     {% endfor %}
     , count(distinct case when stablecoin_daily_txns > 0 then from_address end) as stablecoin_dau
     , sum(stablecoin_transfer_volume) as stablecoin_transfer_volume
@@ -35,7 +39,7 @@ select
     {% endif %}
 from {{ ref("agg_daily_stablecoin_breakdown_silver") }}
 {% if is_incremental() %}
-    where date >= (select dateadd('{{granularity}}', -3, max(date_granularity)) from {{ this }})
+    where date >= (select dateadd('{{granularity}}', -5, max(date_granularity)) from {{ this }})
 {% endif %}
 {% if 'application' in breakdowns %}
     {% if not is_incremental() %}
