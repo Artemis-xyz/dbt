@@ -1,6 +1,18 @@
 {{ config(materialized="incremental", unique_key="date") }}
 
 with
+    min_date as (
+        select min(block_timestamp) as start_timestamp, tx_from
+        from sei_flipside.core.fact_transactions as t
+        group by tx_from
+    ),
+    new_users as (
+        select
+            count(distinct tx_from) as wasm_new_users,
+            date_trunc('day', start_timestamp) as start_date
+        from min_date
+        group by start_date
+    ),
     sei_raw_data as (
         select
             trunc(block_timestamp, 'day') as date,
@@ -26,9 +38,20 @@ with
         group by date
     ),
     prices as ({{ get_coingecko_price_with_latest("sei-network") }})
-select daily.date, 'sei' as chain, avg_tps as wasm_avg_tps, txns as wasm_txns, daa as wasm_daa, gas as wasm_gas, gas * price as wasm_gas_usd, 0 as wasm_revenue
+select 
+    daily.date
+    , 'sei' as chain
+    , avg_tps as wasm_avg_tps
+    , txns as wasm_txns
+    , daa as wasm_daa
+    , gas as wasm_gas
+    , gas * price as wasm_gas_usd
+    , 0 as wasm_revenue
+    , (daa - wasm_new_users) as wasm_returning_users
+    , wasm_new_users
 from daily
 left join prices on daily.date = prices.date
+left join new_users on daily.date = new_users.start_date
 where
 daily.date < date(sysdate())
 order by date
