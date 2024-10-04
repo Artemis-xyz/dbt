@@ -26,7 +26,23 @@ max_extraction as (
         ,value:proposals_count::int as total_proposals_count
         ,value:registered_canisters_count::int as total_registered_canister_count
         ,value:total_transactions::int as total_transactions
-        ,value:estimated_rewards_percentage:"1_year"::float as one_year_staking_apy
+        -- DQ issues where estimated returns are sometimes >> 1 Trillion
+        , case 
+            when 
+                abs(
+                    ln(abs(coalesce(value:estimated_rewards_percentage:"1_year"::float, 1))) / ln(10)
+                    - ln(abs(coalesce(lag(value:estimated_rewards_percentage:"1_year"::float) OVER (ORDER BY value:day::date), 1))) / ln(10)
+                )
+                < 2
+                and 
+                abs(
+                    ln(abs(coalesce(value:estimated_rewards_percentage:"1_year"::float, 1))) / ln(10)
+                    - ln(abs(coalesce(lead(value:estimated_rewards_percentage:"1_year"::float) OVER (ORDER BY value:day::date), 1))) / ln(10)
+                )
+                < 2
+            then value:estimated_rewards_percentage:"1_year"::float
+            else null
+        end as one_year_staking_apy
         ,value:ckbtc_total_supply::int / 10e7 as ckbtc_total_supply
         ,value:cycle_burn_rate_average::int as cycle_burn_rate_average
         ,value:canister_memory_usage_bytes::int as canister_memory_usage_bytes
@@ -57,3 +73,4 @@ select
     , total_internet_identity_user_count
     , 'internet_computer' as chain
 from icp_expanded_data
+where dau is not null 
