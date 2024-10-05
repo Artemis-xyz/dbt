@@ -3,7 +3,7 @@
 with
 max_date as (
     select max(date) as date
-    from {{ ref("agg_daily_stablecoin_breakdown") }}
+    from {{ ref("agg_daily_stablecoin_breakdown_silver") }}
 )
 
 select
@@ -12,6 +12,6 @@ select
     , sum(stablecoin_daily_txns) as stablecoin_daily_txns
     , count(distinct case when stablecoin_transfer_volume > 0 then from_address end) as stablecoin_dau
     , sum(case when date = (select date from max_date) then stablecoin_supply end) as stablecoin_supply
-from {{ ref("agg_daily_stablecoin_breakdown") }}
+from {{ ref("agg_daily_stablecoin_breakdown_silver") }}
 where date >= dateadd(day, -31, to_date(sysdate()))
 group by chain

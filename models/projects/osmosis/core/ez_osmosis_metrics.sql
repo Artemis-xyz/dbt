@@ -43,6 +43,7 @@ select
     gas_usd,
     trading_fees,
     fees,
+    fees / txns as avg_txn_fee,
     revenue,
     price,
     market_cap,

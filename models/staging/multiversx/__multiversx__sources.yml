@@ -5,3 +5,4 @@ sources:
     tables:
       - name: raw_multiversx_daa
       - name: raw_multiversx_txns
+      - name: raw_multiversx_gas_fees

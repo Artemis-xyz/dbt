@@ -27,6 +27,7 @@ select
     , txns
     , dau
     , fees
+    , case when txns > 0 then fees / txns end as avg_txn_fee
     , fees_native
     , tvl
     , dex_volumes

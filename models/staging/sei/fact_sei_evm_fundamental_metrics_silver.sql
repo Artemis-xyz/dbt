@@ -5,7 +5,20 @@
     )
 }}
 
-with daa_txns as (
+with 
+min_date as (
+    select min(block_timestamp) as start_timestamp, from_address
+    from sei_flipside.core_evm.fact_transactions as t
+    group by from_address
+),
+new_users as (
+    select
+        count(distinct from_address) as evm_new_users,
+        date_trunc('day', start_timestamp) as start_date
+    from min_date
+    group by start_date
+),
+daa_txns as (
     select 
         date_trunc('day', block_timestamp) as date,
         count(DISTINCT tx_hash) as txns,
@@ -36,8 +49,11 @@ select
     daa as evm_daa,
     avg_tps as evm_avg_tps,
     gas as evm_gas,
-    gas * price as evm_gas_usd
+    gas * price as evm_gas_usd,
+    (daa - evm_new_users) as evm_returning_users,
+    evm_new_users
 from daa_txns 
+left join new_users on daa_txns.date = new_users.start_date
 left join tx_fee on daa_txns.date = tx_fee.date
 left join prices on daa_txns.date = prices.date
 where daa_txns.date < date(sysdate())

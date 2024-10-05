@@ -23,13 +23,19 @@ select
     , 'sei' as chain
     , wasm_txns + coalesce(evm_txns, 0) as txns
     , wasm_daa + coalesce(evm_daa, 0) as dau
+    , wasm_new_users + coalesce(evm_new_users, 0) as new_users
+    , wasm_returning_users + coalesce(evm_returning_users, 0) as returning_users
     , wasm_rolling_metrics.mau + evm_rolling_metrics.mau as mau
     , wasm_rolling_metrics.wau + evm_rolling_metrics.wau as wau
     , wasm_gas + coalesce(evm_gas, 0) as fees_native
     , wasm_gas_usd + coalesce(evm_gas_usd, 0) as fees
+    , fees / txns as avg_txn_fee
+    , 0 as revenue_native
     , 0 as revenue
     , wasm_txns
     , wasm_daa as wasm_dau
+    , wasm_returning_users
+    , wasm_new_users
     , wasm_rolling_metrics.mau as wasm_mau
     , wasm_rolling_metrics.wau as wasm_wau
     , wasm_gas as wasm_fees_native
@@ -41,6 +47,8 @@ select
     , dex_volumes
     , price
     , market_cap
+    , evm_new_users
+    , evm_returning_users
     , evm_txns
     , evm_daa as evm_dau
     , evm_rolling_metrics.mau as evm_mau

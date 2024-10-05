@@ -43,6 +43,7 @@ select
     mau,
     fees_native,
     fees,
+    fees / txns as avg_txn_fee,
     price,
     market_cap,
     fdmc,

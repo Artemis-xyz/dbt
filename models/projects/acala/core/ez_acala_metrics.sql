@@ -23,6 +23,7 @@ select
     txns,
     gas as fees_native,
     gas_usd as fees,
+    fees / txns as avg_txn_fee,
     revenue,
     wau,
     mau,

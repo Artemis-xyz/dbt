@@ -25,6 +25,7 @@ select
     , txns
     , dau
     , fees
+    , fees / txns as avg_txn_fee
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem

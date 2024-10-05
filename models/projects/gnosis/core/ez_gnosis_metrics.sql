@@ -35,6 +35,7 @@ select
     , mau
     , wau
     , fees
+    , fees / txns as avg_txn_fee
     , fees_native
     , revenue
     , revenue as revenue_native

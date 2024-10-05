@@ -31,6 +31,7 @@ select
     l1_data_cost_native,
     l1_data_cost,
     fees,
+    fees / txns as avg_txn_fee,
     coalesce(fees, 0) - l1_data_cost as revenue,
     price,
     market_cap,
