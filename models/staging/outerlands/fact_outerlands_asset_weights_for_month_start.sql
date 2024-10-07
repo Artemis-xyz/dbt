@@ -15,7 +15,7 @@
 ) -%}
 
 {%- set stablecoin_assets = ['ethena']-%}
-{%- set bridge_assets =  ['wormhole']-%}
+{%- set bridge_assets =  ['wormhole', 'layerzero', 'axelar']-%}
 {%- set da_assets = ['celestia'] -%}
 {%- set dex_assets = ['trader_joe'] -%}
 {%- set perps_assets = ['jupiter'] -%}
@@ -48,6 +48,8 @@ WITH
         
         {%- if artemis_id in stablecoin_assets %}
             stablecoin_daily_txns as txns,
+        {%- elif artemis_id in bridge_assets %}
+            bridge_txns as txns,
         {%- else %}
             txns as txns,
         {%- endif %}
@@ -97,7 +99,7 @@ eligible_assets AS (
     JOIN eligible_months_per_asset e 
         ON e.coingecko_id = t.coingecko_id 
         AND DATE_TRUNC('month', DATEADD('day', 1, t.date)) = e.month_start
-    WHERE date(t.date) = DATEADD('day', -1, DATEADD('month', 1, DATE_TRUNC('month', t.date)))  -- First last day of each prev month
+    WHERE date(t.date) = DATEADD('day', -1, DATEADD('month', 1, DATE_TRUNC('month', t.date)))
     AND t.trailing_30d_sum_txns is not null
     AND t.trailing_30d_sum_txns >= 0
     AND t.trailing_30d_sum_dau is not null
