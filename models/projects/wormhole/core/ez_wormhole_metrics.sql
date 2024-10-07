@@ -21,7 +21,7 @@ with txns as (
 
 select
     coalesce(txns.date, daa.date) as date,
-    coalesce(txns.txns, 0) as txns,
+    coalesce(txns.txns, 0) as bridge_txns,
     coalesce(daa.bridge_daa, 0) as bridge_daa,
     0 as fees
 from txns

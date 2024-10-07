@@ -6,9 +6,9 @@ max_extraction as (
 ,latest_data as (
     select 
         date(value:timestamp) as date
-        , value:users::number as dau
+        , value:users::number as bridge_daa
         , value:fee::number as fees
-        , value:num_txs::number as txns
+        , value:num_txs::number as bridge_txns
         , value:volume::number as volume
     from {{ source("PROD_LANDING", "raw_axelar_dau_txns_volume_fees") }},
     lateral flatten(input => parse_json(source_json):data)
@@ -17,9 +17,9 @@ max_extraction as (
 )
 select
     date
-    , dau
+    , bridge_daa
     , fees
-    , txns
+    , bridge_txns
     , volume
     , 'axelar' as chain
     , 'axelar' as app
