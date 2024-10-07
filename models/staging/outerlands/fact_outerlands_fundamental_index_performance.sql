@@ -41,15 +41,6 @@ WITH
             FIRST_VALUE(date) OVER (ORDER BY date) AS start_date
         FROM index_daily_performance
         WHERE date >= date('2013-05-01')
-    ),
-    bitcoin_performance AS (
-        SELECT
-            date,
-            daily_percent_change / 100 AS btc_daily_return,
-            EXP(SUM(LN(1 + COALESCE(daily_percent_change, 0) / 100)) OVER (ORDER BY date)) AS cumulative_btc_value
-        FROM fact_outerlands_daily_asset_price_change
-        WHERE coingecko_id = 'bitcoin'
-        AND date >= (SELECT MIN(date) FROM cumulative_performance)
     )
 SELECT
     cp.date,
@@ -57,12 +48,6 @@ SELECT
     CASE 
         WHEN cp.date = cp.start_date THEN 1
         ELSE cp.cumulative_index_value
-    END AS cumulative_index_value,
-    bp.btc_daily_return,
-    CASE 
-        WHEN bp.date = cp.start_date THEN 1
-        ELSE bp.cumulative_btc_value 
-    END AS cumulative_btc_performance
+    END AS cumulative_index_value
 FROM cumulative_performance cp
-JOIN bitcoin_performance bp ON cp.date = bp.date
 ORDER BY cp.date
