@@ -7,8 +7,6 @@ with
         {{
             dbt_utils.union_relations(
                 relations=[
-                    ref("fact_wormhole_bridge_volume_gold"),
-                    ref("fact_wormhole_bridge_daa_gold"),
                     ref("fact_synapse_bridge_volume_gold"),
                     ref("fact_synapse_bridge_daa_gold"),
                     ref("fact_zksync_era_bridge_bridge_volume_gold"),

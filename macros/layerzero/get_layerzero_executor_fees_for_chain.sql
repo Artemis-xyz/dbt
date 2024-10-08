@@ -7,6 +7,12 @@
                 SUM(PC_DBT_DB.PROD.HEX_TO_INT(substr(data, 67, 64))::number / 1e18) as eth_amount
             FROM {{chain}}_flipside.core.fact_event_logs
             WHERE topics[0] = '0x61ed099e74a97a1d7f8bb0952a88ca8b7b8ebd00c126ea04671f92a81213318a'
+            {% if is_incremental() %}
+                and date(block_timestamp) >= (
+                    select dateadd('day', -1, max(date))
+                    from {{ this }}
+                    )
+            {% endif %}
             GROUP BY date(block_timestamp)
         ),
         prices AS (
