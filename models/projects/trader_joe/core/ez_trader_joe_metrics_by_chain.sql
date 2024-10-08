@@ -57,18 +57,19 @@ with
         from {{ ref("ez_trader_joe_dex_swaps")}}
         group by 1, 2
     )
+
 select
     tvl_by_chain.date,
     'trader_joe' as app,
     'DeFi' as category,
     tvl_by_chain.chain,
     tvl_by_chain.tvl,
-    trading_volume_by_chain.trading_volume,
-    trading_volume_by_chain.trading_fees,
-    trading_volume_by_chain.unique_traders,
+    coalesce(trading_volume_by_chain.trading_volume, 0) as trading_volume,
+    coalesce(trading_volume_by_chain.trading_fees, 0) as trading_fees,
+    coalesce(trading_volume_by_chain.unique_traders, 0) as unique_traders,
     trading_volume_by_chain.gas_cost_native,
     trading_volume_by_chain.gas_cost_usd,
-    daily_txns_data.daily_txns as txns
+    coalesce(daily_txns_data.daily_txns, 0) as txns
 from tvl_by_chain
 left join trading_volume_by_chain using(date, chain)
 left join daily_txns_data using (date, chain)
