@@ -21,8 +21,6 @@ with
                     ref("fact_starknet_bridge_bridge_daa_gold"),
                     ref("fact_polygon_pos_bridge_bridge_volume_gold"),
                     ref("fact_polygon_pos_bridge_bridge_daa_gold"),
-
-                    
                     ref("fact_avalanche_bridge_bridge_volume_gold"),
                     ref("fact_avalanche_bridge_bridge_daa_gold"),
                     ref("fact_arbitrum_one_bridge_bridge_volume_gold"),
