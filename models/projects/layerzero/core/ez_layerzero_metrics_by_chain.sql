@@ -30,6 +30,6 @@ SELECT
     f.fees,
     d.dau as bridge_daa,
     d.txns as bridge_txns
-FROM fees f
-JOIN dau_txns d using (date, chain)
+FROM dau_txns d
+LEFT JOIN  fees f using (date, chain)
 WHERE coalesce(f.date, d.date) < to_date(sysdate())

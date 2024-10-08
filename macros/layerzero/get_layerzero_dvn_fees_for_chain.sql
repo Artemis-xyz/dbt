@@ -9,6 +9,12 @@ WITH fee_exploded AS (
             LATERAL FLATTEN(input => decoded_log['fees']) 
         WHERE
             event_name = 'DVNFeePaid'
+        {% if is_incremental() %}
+            and date(block_timestamp) >= (
+                select dateadd('day', -1, max(date))
+                from {{ this }}
+                )
+        {% endif %}
         ),
         total_fees_native AS (
             SELECT

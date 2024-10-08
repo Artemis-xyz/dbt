@@ -11,5 +11,11 @@
             '0xe8d23d927749ec8e512eb885679c2977d57068839d8cca1a85685dbbea0648f6',
             '0xe9bded5f24a4168e4f3bf44e00298c993b22376aad8c58c7dda9718a54cbea82'
         )
+    {% if is_incremental() %}
+        and date(block_timestamp) >= (
+        select dateadd('day', -1, max(date))
+        from {{ this }}
+        )
+    {% endif %}
     group by 1 
 {% endmacro %}
