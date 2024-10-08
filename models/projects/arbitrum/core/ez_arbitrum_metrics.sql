@@ -95,4 +95,6 @@ left join contract_data on fundamental_data.date = contract_data.date
 left join nft_metrics on fundamental_data.date = nft_metrics.date
 left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
+left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
+left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 where fundamental_data.date < to_date(sysdate())
