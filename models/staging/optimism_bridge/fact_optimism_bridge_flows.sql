@@ -22,7 +22,7 @@ with
 
 select
     date_trunc('day', hour) as date,
-    'optimism_bridge' as app,
+    'optimism' as app,
     source_chain,
     destination_chain,
     category,

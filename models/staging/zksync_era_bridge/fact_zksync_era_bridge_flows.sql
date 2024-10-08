@@ -21,7 +21,7 @@ with
 
 select
     date_trunc('day', hour) as date,
-    'zksync_era_bridge' as app,
+    'zksync' as app,
     source_chain,
     destination_chain,
     category,

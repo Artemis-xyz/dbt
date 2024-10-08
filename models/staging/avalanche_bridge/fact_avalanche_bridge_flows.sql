@@ -34,7 +34,7 @@ with
 
 select
     date_trunc('day', hour) as date,
-    'avalanche_bridge' as app,
+    'avalanche' as app,
     source_chain,
     destination_chain,
     category,
