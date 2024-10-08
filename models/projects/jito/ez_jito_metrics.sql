@@ -9,7 +9,7 @@
 }}
 
 SELECT 
-    day
+    day as date
     , fees
     , revenue
     , supply_side_fees

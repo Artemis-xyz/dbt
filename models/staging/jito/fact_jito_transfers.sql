@@ -18,5 +18,5 @@ WHERE tx_to IN ('96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5' -- all the tip pa
                 ,'DttWaMuVvTiduZRnguLF7jNxTgiMBZ1hyAumKUiL2KRL'
                 ,'3AVi9Tg9Uo68tJfuvoKvqKNWKkC5wPdSSdeBnizKZ6jT')
 {% if is_incremental() %}
-    AND block_timestamp > (select dateadd('day', -1, max(day)) from {{ this }})
+    AND block_timestamp > (select dateadd('day', -1, max(block_timestamp)) from {{ this }})
 {% endif %}
