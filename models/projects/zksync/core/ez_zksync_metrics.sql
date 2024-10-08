@@ -48,11 +48,11 @@ select
     revenue_native,
     l1_data_cost,
     l1_data_cost_native,
-    bridge_volume.bridge_volume,
-    bridge_daa.bridge_daa
+    bridge_volume_metrics.bridge_volume,
+    bridge_daa_metrics.bridge_daa
 from fundamental_data
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join revenue_data on fundamental_data.date = revenue_data.date
-left join bridge_volume_metrics on fundamental_data.date = bridge_volume.date
-left join bridge_daa_metrics on fundamental_data.date = bridge_daa.date
+left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
+left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 where fundamental_data.date < to_date(sysdate())
