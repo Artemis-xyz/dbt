@@ -40,7 +40,7 @@ with
 
 select
     date_trunc('day', hour) as date,
-    'arbitrum_one_bridge' as app,
+    'arbitrum' as app,
     source_chain,
     destination_chain,
     category,

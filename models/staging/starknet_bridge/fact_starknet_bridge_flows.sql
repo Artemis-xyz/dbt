@@ -22,7 +22,7 @@ with
 
 select
     date_trunc('day', hour) as date,
-    'starknet_bridge' as app,
+    'starknet' as app,
     source_chain,
     destination_chain,
     category,

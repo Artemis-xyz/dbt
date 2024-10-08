@@ -39,7 +39,7 @@ with
 
 select
     date_trunc('day', hour) as date,
-    'polygon_pos_bridge' as app,
+    'polygon' as app,
     source_chain,
     destination_chain,
     category,
