@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="internet_computer",
         database="internet_computer",
         schema="core",
@@ -26,7 +26,7 @@ select
     , icp_burned
     , icp_burned * price as fees
     , icp_burned * price as revenue
-    , fees / txns as avg_txn_fee
+    , icp_transaction_fees / txns as avg_txn_fee
     , total_native_fees -- total transaction fees
     , nns_tvl_native * price as nns_tvl -- same as total icp staked in NNS
     , nns_tvl_native 
@@ -55,3 +55,7 @@ full join icp_total_canister_state on price_data.date = icp_total_canister_state
 full join icp_neuron_funds on price_data.date = icp_neuron_funds.date
 full join defillama_data on price_data.date = defillama_data.date
 where coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_blocks.date, icp_total_canister_state.date, icp_neuron_funds.date) < to_date(sysdate())
+{% if is_incremental() %}
+    and coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_total_canister_state.date, icp_neuron_funds.date, icp_blocks.date)
+    >= (select dateadd('day', -5, max(date)) from {{ this }})
+{% endif %}

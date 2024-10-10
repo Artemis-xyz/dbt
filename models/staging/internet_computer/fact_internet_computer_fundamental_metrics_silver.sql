@@ -63,6 +63,7 @@ select
       end as icp_burned
     , icp_burned_total as total_icp_burned
     , icp_burned_fees as total_native_fees -- total transaction fees
+    , icp_burned_fees - LAG(icp_burned_fees, 1, null) OVER (ORDER BY date) as icp_transaction_fees
     , nns_tvl as nns_tvl_native -- same as total icp staked in NNS
     , total_proposals_count - LAG(total_proposals_count, 1, null) OVER (ORDER BY date) as nns_proposal_count
     , total_registered_canister_count -- total cannister count 
