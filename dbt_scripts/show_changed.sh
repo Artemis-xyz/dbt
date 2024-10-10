@@ -1,7 +1,10 @@
+# Obtain DBT Manifest
+wget https://artemis-xyz.github.io/dbt/manifest.json
+
 changed_models=$(dbt ls --select state:modified+1 --resource-type model --state . --quiet)
 
 echo "\nCHANGED MODELS:"
-echo $changed_models
+echo "$changed_models"
 echo "\n"
 echo "$changed_models" | while IFS= read -r model; do
     echo "SHOWING $model"
