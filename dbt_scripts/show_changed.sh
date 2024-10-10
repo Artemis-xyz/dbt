@@ -1,3 +1,6 @@
+# Obtain DBT Manifest
+wget https://artemis-xyz.github.io/dbt/manifest.json
+
 changed_models=$(dbt ls --select state:modified+1 --resource-type model --state . --quiet)
 
 echo "\nCHANGED MODELS:"
