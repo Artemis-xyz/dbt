@@ -1,12 +1,12 @@
--- depends_on: {{ ref('fact_optimism_stablecoin_contracts') }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
+        unique_key=["date", "symbol"],
         database="optimism",
         schema="core",
         alias="ez_stablecoin_metrics_by_currency",
-        snowflake_warehouse="optimism",
+        snowflake_warehouse="STABLECOIN_V2_LG_2",
     )
 }}
 
-{{ agg_chain_stablecoin_metrics("optimism") }}
+{{stablecoin_metrics_by_currency("optimism")}}

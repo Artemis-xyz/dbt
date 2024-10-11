@@ -1,12 +1,12 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
+        unique_key=["date", "symbol"],
         database="solana",
         schema="core",
         alias="ez_stablecoin_metrics_by_currency",
-        snowflake_warehouse="solana",
+        snowflake_warehouse="STABLECOIN_V2_LG_2",
     )
 }}
 
-select *
-from {{ ref("agg_solana_stablecoin_metrics") }}
+{{stablecoin_metrics_by_currency("solana")}}

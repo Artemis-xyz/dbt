@@ -1,12 +1,12 @@
--- depends_on: {{ ref('fact_bsc_stablecoin_contracts') }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
+        unique_key=["date", "symbol"],
         database="bsc",
         schema="core",
         alias="ez_stablecoin_metrics_by_currency",
-        snowflake_warehouse="BSC_MD",
+        snowflake_warehouse="STABLECOIN_V2_LG_2",
     )
 }}
 
-{{ agg_chain_stablecoin_metrics("bsc") }}
+{{stablecoin_metrics_by_currency("bsc")}}
