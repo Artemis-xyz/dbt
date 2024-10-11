@@ -1,12 +1,12 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
+        unique_key=["date", "symbol"],
         database="tron",
         schema="core",
         alias="ez_stablecoin_metrics_by_currency",
-        snowflake_warehouse="TRON",
+        snowflake_warehouse="STABLECOIN_V2_LG_2",
     )
 }}
 
-select *
-from {{ ref("agg_tron_stablecoin_metrics") }}
+{{stablecoin_metrics_by_currency("tron")}}

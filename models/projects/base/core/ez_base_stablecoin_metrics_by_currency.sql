@@ -1,12 +1,12 @@
--- depends_on: {{ ref('fact_base_stablecoin_contracts') }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
+        unique_key=["date", "symbol"],
         database="base",
         schema="core",
         alias="ez_stablecoin_metrics_by_currency",
-        snowflake_warehouse="base",
+        snowflake_warehouse="STABLECOIN_V2_LG_2",
     )
 }}
 
-{{ agg_chain_stablecoin_metrics("base") }}
+{{stablecoin_metrics_by_currency("base")}}
