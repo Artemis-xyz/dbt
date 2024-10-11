@@ -1,4 +1,3 @@
--- depends_on: {{ ref('fact_ethereum_stablecoin_contracts') }}
 {{
     config(
         materialized="incremental",
