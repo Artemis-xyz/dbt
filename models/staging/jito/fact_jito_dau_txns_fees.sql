@@ -21,7 +21,7 @@ SELECT
     , sum(t.amount * p.price) * 0.95 as supply_side_fees
     , count(*) as txns
     , count(distinct t.tx_from) as dau
-FROM {{ ref('fact_jito_transfers') }} t
+FROM {{ source('SOLANA_FLIPSIDE', 'fact_transfers') }} t
 LEFT JOIN prices p on p.date = date_trunc('day',t.block_timestamp)
 WHERE tx_to IN ('96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5' -- all the tip payment accounts 
                 ,'HFqU5x63VTqvQss8hp11i4wVV8bD44PvwucfZ2bU7gRe'
@@ -33,7 +33,7 @@ WHERE tx_to IN ('96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5' -- all the tip pa
                 ,'3AVi9Tg9Uo68tJfuvoKvqKNWKkC5wPdSSdeBnizKZ6jT')
 and t.mint = 'So11111111111111111111111111111111111111111'
 {% if is_incremental() %}
-    AND block_timestamp > (select dateadd('day', -2, max(day)) from {{ this }})
+    AND block_timestamp > (select dateadd('day', -1, max(day)) from {{ this }})
 {% endif %}
 group by 1
 order by 1 desc
