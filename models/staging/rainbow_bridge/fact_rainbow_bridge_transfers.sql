@@ -1,5 +1,6 @@
 {{ config(
     materialized="incremental",
+
 ) }}
 WITH functioncall AS (
     SELECT
@@ -143,10 +144,13 @@ near_prices as (
     select 
         hour::date as date,
         token_address,
-        decimals,
+        case 
+            when token_address = 'wrap.near' then 24
+            else max(decimals) 
+        end as decimals,
         avg(price) as price
     from near_flipside.price.ez_prices_hourly
-    group by 1, 2, 3
+    group by 1, 2
 ),
 near_aurora_token_transfers as (
     select
