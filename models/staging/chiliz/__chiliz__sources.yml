@@ -3,7 +3,6 @@ sources:
     schema: PROD_LANDING
     database: LANDING_DATABASE
     tables:
-      - name: raw_chiliz_trading_volume
       - name: raw_chiliz_txns
       - name: raw_chiliz_gas_used
       - name: raw_chiliz_avg_gas_price
