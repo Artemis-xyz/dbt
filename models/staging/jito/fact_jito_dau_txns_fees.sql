@@ -1,6 +1,7 @@
 {{
     config(
         materialized='incremental',
+        unique_key='day',
         snowflake_warehouse='jito'
     )
 }}
@@ -32,7 +33,7 @@ WHERE tx_to IN ('96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5' -- all the tip pa
                 ,'3AVi9Tg9Uo68tJfuvoKvqKNWKkC5wPdSSdeBnizKZ6jT')
 and t.mint = 'So11111111111111111111111111111111111111111'
 {% if is_incremental() %}
-    AND block_timestamp > (select dateadd('day', -1, max(day)) from {{ this }})
+    AND block_timestamp > (select dateadd('day', -2, max(day)) from {{ this }})
 {% endif %}
 group by 1
 order by 1 desc
