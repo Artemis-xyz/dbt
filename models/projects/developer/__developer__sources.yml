@@ -1,0 +1,20 @@
+sources:
+  - name: STAGING
+    schema: PROD
+    database: PC_DBT_DB
+      tables:
+        - name: core_weeklycommithistory
+        - name: core_ecosystemrepositories
+        - name: core_ecosystems
+        - name: core_weeklycommitsglobal
+        - name: core_weeklycommitsglobalwithoutforks
+        - name: core_weeklycommitscoreecosystem
+        - name: core_weeklycommitscoreecosystemwithoutforks
+        - name: core_weeklycommitssubecosystems
+        - name: core_weeklycommitssubecosystemswithoutforks
+        - name: core_weeklydevsglobal
+        - name: core_weeklydevsglobalwithoutforks
+        - name: core_weeklydevscoreecosystem
+        - name: core_weeklydevscoreecosystemwithoutforks
+        - name: core_weeklydevssubecosystems
+        - name: core_weeklydevssubecosystemswithoutforks
