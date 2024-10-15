@@ -17,4 +17,4 @@ select
     , num_additions
     , num_deletions 
 from 
-    {{source("staging", "core_weeklycommithistory")}}
+    {{source("STAGING", "core_weeklycommithistory")}}

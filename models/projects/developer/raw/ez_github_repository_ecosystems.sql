@@ -16,5 +16,5 @@ select
     , forked_from
     , ecosystem_name
     , symbol 
-from {{ source("staging", "core_ecosystemrepositories") }} as er
-left join {{ source("staging", "core_ecosystems") }} as ecosystems  on er.ecosystem_id = ecosystems.id
+from {{ source("STAGING", "core_ecosystemrepositories") }} as er
+left join {{ source("STAGING", "core_ecosystems") }} as ecosystems  on er.ecosystem_id = ecosystems.id
