@@ -4,6 +4,7 @@ from
     (
         values
             ('USDC', '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 6, 'usd-coin', 0),
+            ('EURC', '0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42', 6, 'euro-coin', 0),
             ('DAI', '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb', 18, 'dai', 0),
             (
                 'USDC',
