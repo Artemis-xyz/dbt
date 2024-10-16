@@ -28,6 +28,8 @@ prices as (
     inner join tracked_metadata 
         on lower(t1.token_address) = lower(tracked_metadata.contract_address) 
         and t1.chain = tracked_metadata.chain
+    -- Filter out EURC pairs becuase we want to price things in USD
+    where pair not like '%EURC%'
 )
 
 select
@@ -36,6 +38,7 @@ select
     , max(price) as high
     , min(price) as low
     , avg(price) as average
+    , median(price) as median
     , nyc_operating_hours
 from prices
 group by hour, symbol, nyc_operating_hours
