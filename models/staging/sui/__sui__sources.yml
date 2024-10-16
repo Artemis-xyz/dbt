@@ -9,6 +9,10 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_sui_contracts
+      - name: ez_sui_metrics
+      - name: ez_sui_metrics_by_contract
+      - name: ez_sui_metrics_by_application
+      - name: ez_sui_metrics_by_category
   - name: ZETTABLOCKS_SUI
     schema: SUI_MAINNET
     database: ZETTABLOCK_DS

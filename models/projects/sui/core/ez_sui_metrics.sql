@@ -9,54 +9,21 @@
 }}
 
 with
-    min_date as (
-        select min(block_timestamp) as start_timestamp, sender
-        from {{ ref("ez_sui_transactions") }}
-        group by sender
-    ),
-    new_users as (
-        select
-            count(distinct sender) as new_users,
-            date_trunc('day', start_timestamp) as start_date
-        from min_date
-        group by start_date
-    ),
-    dau_txns as (
-        select
-            raw_date as date,
-            chain,
-            count(*) as txns,
-            count(distinct sender) as dau
-        from {{ ref("ez_sui_transactions") }}
-        where status = 'success'
-        group by raw_date, chain
-    ),
-    fundamental_data as (
-        select
-            raw_date as date,
-            chain,
-            sum(tx_fee) as fees_native,
-            sum(gas_usd) as fees,
-            sum(revenue) as revenue,
-            sum(tx_fee) / count(*) as avg_txn_fee,
-            sum(native_revenue) as revenue_native
-        from {{ ref("ez_sui_transactions") }}
-        group by raw_date, chain
-    ),
+    fundamental_data as (select * EXCLUDE date, TO_TIMESTAMP_NTZ(date) AS date from {{ source('PROD_LANDING', 'ez_injective_metrics') }}),
     price_data as ({{ get_coingecko_metrics("sui") }}),
     defillama_data as ({{ get_defillama_metrics("sui") }}),
     github_data as ({{ get_github_metrics("sui") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("sui") }})
 select
     fundamental_data.date,
-    fundamental_data.chain,
+    'sui' as chain,
     avg_txn_fee,
     txns,
     dau,
     wau,
     mau,
     new_users,
-    dau - new_users as returning_users,
+    returning_users,
     fees_native,
     fees,
     revenue_native,
