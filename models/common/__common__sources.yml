@@ -1,0 +1,6 @@
+sources:
+  - name: GEO
+    schema: PROD
+    database: PC_DBT_DB
+    tables:
+      - name: dim_geo_labels
