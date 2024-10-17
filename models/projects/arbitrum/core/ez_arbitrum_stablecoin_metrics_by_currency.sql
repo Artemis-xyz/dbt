@@ -1,12 +1,12 @@
--- depends_on: {{ ref('fact_arbitrum_stablecoin_contracts') }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
+        unique_key=["date", "symbol"],
         database="arbitrum",
         schema="core",
         alias="ez_stablecoin_metrics_by_currency",
-        snowflake_warehouse="ARBITRUM_MD",
+        snowflake_warehouse="STABLECOIN_V2_LG_2",
     )
 }}
 
-{{ agg_chain_stablecoin_metrics("arbitrum") }}
+{{ stablecoin_metrics_by_currency("arbitrum") }}
