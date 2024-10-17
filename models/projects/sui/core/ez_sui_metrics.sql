@@ -15,14 +15,14 @@ with
     github_data as ({{ get_github_metrics("sui") }})
 select
     fundamental_data.date,
-    fundamental_data.chain,
+    'sui' as chain,
     avg_txn_fee,
     txns,
     dau,
     wau,
     mau,
     new_users,
-    dau - new_users as returning_users,
+    returning_users,
     fees_native,
     fees,
     revenue_native,
