@@ -298,7 +298,7 @@ with
         left join {{ ref("dim_chain_ids")}} t2 on t1.origin_chain_id = t2.id
         left join {{ ref("dim_chain_ids")}} t3 on t1.destination_chain_id = t3.id
         left join dim_contracts t4 on lower(destination_token_address) = lower(t4.address) and t3.chain = t4.chain
-        -- Filter due to synapse data quality issue
+        -- Filter due to synapse data quality issues
         where final_usd_value < 1000000000
     )
 
