@@ -6,6 +6,8 @@ with
     ),
     coingecko_price as (
         select 
+            -- This the currency address of allETH that can often times caused problems. Should be priced the same as regular ETH
+            -- Part of proposal: https://polkachu.com/gov_proposals/4059
             'factory/osmo1k6c8jln7ejuqwtqmay3yvzrg3kueaczl96pk067ldg8u835w0yhsw27twm/alloyed/allETH' as currency,
             *
         from coingecko_eth_price
