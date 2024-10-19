@@ -124,7 +124,7 @@ with amm_pool_creation AS ( -- special treatment for AMM v4 as the buyback event
 
 select date_trunc('day', b.block_timestamp) as date 
     , b.token_pair
-    , sum(t.amount * p.price) as amount_usd
+    , sum(t.amount * p.price) as buyback-- amount_usd
 from buyback_event b 
 left join SOLANA_FLIPSIDE.CORE.FACT_TRANSFERS t on t.block_id = b.block_id and t.tx_id = b.tx_id
 left join SOLANA_FLIPSIDE.PRICE.EZ_ASSET_METADATA m on m.token_address = t.mint
