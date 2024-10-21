@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        unique_key="date",
+        unique_key=["date", "token_pair"],
         snowflake_warehouse="RAYDIUM",
         database="raydium",
         schema="core",
