@@ -83,11 +83,21 @@ with
         where category is not null and chain is not null
     )
 select
+    t.id,
+    timestamp,
+    amount,
+    fee,
+    fee_address,
+    fee_chain,
+    from_address,
+    to_address,
+    token_address,
     date_trunc('day', timestamp) as date,
     c1.chain as source_chain,
     c2.chain as destination_chain,
     coalesce(t2.category, t3.category, 'Not Categorized') as category,
-    amount_usd
+    amount_usd,
+    symbol
 from transfers t
 left join chain_ids c1 on t.from_chain = c1.id
 left join chain_ids c2 on t.to_chain = c2.id
