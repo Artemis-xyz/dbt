@@ -1,6 +1,17 @@
 {{ config(materialized="view") }}
 
 with
+    coingecko_eth_price as (
+        {{ get_coingecko_price_with_latest('ethereum') }}
+    ),
+    coingecko_price as (
+        select 
+            -- This the currency address of allETH that can often times caused problems. Should be priced the same as regular ETH
+            -- Part of proposal: https://polkachu.com/gov_proposals/4059
+            'factory/osmo1k6c8jln7ejuqwtqmay3yvzrg3kueaczl96pk067ldg8u835w0yhsw27twm/alloyed/allETH' as currency,
+            *
+        from coingecko_eth_price
+    ),
     data as (
         select
             to_date(block_timestamp) as date,
@@ -15,7 +26,8 @@ with
             currency, 
             avg(price) as price, 
             case 
-                when currency = 'factory/osmo1z0qrq605sjgcqpylfl4aa6s90x738j7m58wyatt0tdzflg2ha26q67k743/wbtc' then 1E8 --error in underlying pricing table
+                when currency = 'factory/osmo1z0qrq605sjgcqpylfl4aa6s90x738j7m58wyatt0tdzflg2ha26q67k743/wbtc' then 8 --error in underlying pricing table
+                when currency = 'factory/osmo1k6c8jln7ejuqwtqmay3yvzrg3kueaczl96pk067ldg8u835w0yhsw27twm/alloyed/allETH' then 18
                 else decimal
             end as decimal
         from osmosis_flipside.price.ez_prices
@@ -27,9 +39,10 @@ with
             data.date,
             data.currency,
             coalesce(gas, 0) / pow(10, t2.decimal) as gas_adj,
-            gas_adj * coalesce(price, 0) as gas_usd
+            gas_adj * coalesce(t3.price, t2.price, 0) as gas_usd
         from data
         inner join prices t2 on data.date = t2.date and data.currency = t2.currency
+        inner join coingecko_price t3 on data.date=t3.date and data.currency = t3.currency
     )
 select date, 'osmosis' as chain, sum(gas_usd) as gas_usd
 from by_token
