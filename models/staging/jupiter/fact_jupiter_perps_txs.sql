@@ -16,9 +16,9 @@ with hex_cte as (
     where
     {% if is_incremental() %}
         -- this filter will only be applied on an incremental run
-        block_timestamp::date >= (select dateadd('day', -7, max(date)) from {{ this }})
+        block_timestamp >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
     {% else %}
-        block_timestamp::date > '2023-07-17'
+        block_timestamp > date('2023-07-17')
     {% endif %}
     and program_id = 'PERPHjGBqRHArX4DySjwM6UJHiR3sWAatqfdBS2qQJu'
     and f.value:data is not null
