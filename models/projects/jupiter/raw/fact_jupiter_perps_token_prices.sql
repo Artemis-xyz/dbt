@@ -8,4 +8,13 @@
     )
 }}
 
-SELECT * FROM {{ ref('fact_jupiter_perps_txs') }}
+SELECT
+    block_timestamp,
+    tx_id,
+    chain,
+    app,
+    mint,
+    price,
+    size_usd,
+    fee_usd
+FROM {{ ref('fact_jupiter_perps_txs') }}
