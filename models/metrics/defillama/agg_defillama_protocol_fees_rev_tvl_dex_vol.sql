@@ -67,8 +67,8 @@ select
     max(combined_data.dex_volumes) as dex_volumes,
     max(combined_data.tvl) as tvl
 from combined_data
-where defillama_protocol_id is not null
 left join
     {{ ref("fact_defillama_protocols") }} as protocol_names
     on combined_data.defillama_protocol_id = protocol_names.id
+where defillama_protocol_id is not null
 group by combined_data.date, combined_data.defillama_protocol_id, protocol_names.name
