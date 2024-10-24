@@ -34,6 +34,9 @@ WITH lbpairs AS (        -- Step 1: Extract all Pools addresses that were create
             SELECT lbpair_address FROM lbpairs
         )
     AND event_name = 'Swap' 
+    {% if is_incremental() %}
+        AND block_timestamp > (SELECT MAX(block_timestamp) FROM {{this}})
+    {% endif %}
 )
 SELECT
     s.block_timestamp,

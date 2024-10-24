@@ -38,6 +38,9 @@ WHERE
             lbpairs
     )
     AND topics[0] = '0xad7d6f97abf51ce18e17a38f4d70e975be9c0708474987bb3e26ad21bd93ca70'
+    {% if is_incremental() %}
+        AND block_timestamp > (SELECT MAX(block_timestamp) FROM {{this}})
+    {% endif %}
 )
 SELECT
     s.block_timestamp,
