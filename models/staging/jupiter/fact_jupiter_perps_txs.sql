@@ -1,6 +1,7 @@
 {{
     config(
         materialized='incremental',
+        unique_key=['tx_id'],
         snowflake_warehouse='JUPITER',
     )
 }}
