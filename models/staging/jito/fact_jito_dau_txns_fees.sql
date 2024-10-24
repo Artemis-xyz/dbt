@@ -23,7 +23,7 @@ SELECT
     , count(distinct t.tx_from) as dau
 FROM {{ source('SOLANA_FLIPSIDE', 'fact_transfers') }} t
 LEFT JOIN prices p on p.date = date_trunc('day',t.block_timestamp)
-WHERE tx_to IN ('96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5' -- all the tip payment accounts 
+WHERE tx_to IN ('96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5' -- all the tip payment accounts from: https://jito-foundation.gitbook.io/mev/mev-payment-and-distribution/on-chain-addresses#mainnet
                 ,'HFqU5x63VTqvQss8hp11i4wVV8bD44PvwucfZ2bU7gRe'
                 ,'Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY'
                 ,'ADaUMid9yfUytqMBgopwjb2DTLSokTSzL1zt6iGPaS49'
