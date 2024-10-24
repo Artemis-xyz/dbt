@@ -29,19 +29,6 @@ with all_versions_metrics as (
         total_fees,
         protocol_fees
     FROM {{ref('fact_trader_joe_v_2_2_metrics')}}
-
-    UNION ALL
-
-    SELECT 
-        date, 
-        chain,
-        version,
-        null as unique_traders,
-        null as daily_txns,
-        total_volume,
-        total_fees,
-        protocol_fees
-    FROM {{ref('fact_trader_joe_v2_0_metrics')}}
 )
 SELECT
     date,
