@@ -70,4 +70,5 @@ from combined_data
 left join
     {{ ref("fact_defillama_protocols") }} as protocol_names
     on combined_data.defillama_protocol_id = protocol_names.id
+where defillama_protocol_id is not null
 group by combined_data.date, combined_data.defillama_protocol_id, protocol_names.name
