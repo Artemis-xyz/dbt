@@ -27,4 +27,4 @@ SELECT
 FROM
     daily_balances
 ORDER BY
-    block_date ASC
+    block_date DESC
