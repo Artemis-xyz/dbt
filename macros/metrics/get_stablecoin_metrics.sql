@@ -30,6 +30,9 @@ with mau as (
         , p2p_stablecoin_daily_txns as p2p_stablecoin_txns
         , p2p_stablecoin_dau
 
+        , stablecoin_token_holder_count
+        , p2p_stablecoin_token_holder_count
+
         , p2p_stablecoin_supply as p2p_stablecoin_total_supply
         , stablecoin_supply as stablecoin_total_supply
     from {{ ref("agg_daily_stablecoin_breakdown_" ~ breakdown) }}
@@ -54,6 +57,8 @@ select
     , p2p_stablecoin_txns
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
+    , stablecoin_token_holder_count
+    , p2p_stablecoin_token_holder_count
     , p2p_stablecoin_total_supply
     , stablecoin_total_supply
 from daily_metrics

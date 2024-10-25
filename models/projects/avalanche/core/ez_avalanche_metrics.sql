@@ -78,6 +78,8 @@ select
     p2p_stablecoin_dau,
     p2p_stablecoin_mau,
     stablecoin_data.p2p_stablecoin_transfer_volume,
+    stablecoin_token_holder_count,
+    p2p_stablecoin_token_holder_count,
     total_staked_native,
     total_staked_usd,
     issuance,
