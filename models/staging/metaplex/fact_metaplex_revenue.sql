@@ -44,8 +44,8 @@ WITH metaplex_revenue AS (
 SELECT
     block_date,
     protocol_revenue,
-    SUM(protocol_revenue) OVER (ORDER BY block_date ASC) AS cumulative_revenue
+    SUM(protocol_revenue) OVER (ORDER BY block_date DESC) AS cumulative_revenue
 FROM 
     metaplex_revenue
 ORDER BY 
-    block_date ASC
+    block_date DESC
