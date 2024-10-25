@@ -57,8 +57,14 @@ select
     , p2p_stablecoin_txns
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
-    , stablecoin_token_holder_count
-    , p2p_stablecoin_token_holder_count
+    {% if breakdown == "chain" %}
+        , stablecoin_token_holder_count
+        , p2p_stablecoin_token_holder_count
+    {% elif breakdown == "symbol" %}
+        , stablecoin_token_holder_count as token_holder_count
+        , p2p_stablecoin_token_holder_count as p2p_token_holder_count
+    {% endif %}
+    
     , p2p_stablecoin_total_supply
     , stablecoin_total_supply
 from daily_metrics
