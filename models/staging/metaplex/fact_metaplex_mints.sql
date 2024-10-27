@@ -5,7 +5,7 @@
 
 SELECT 
     tx_id,
-    DATE(block_timestamp) AS event_date,
+    DATE(block_timestamp) AS date,
     program_id,
     mint,
     mint_price,

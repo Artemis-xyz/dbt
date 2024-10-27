@@ -5,7 +5,7 @@
 
 WITH daily_balances AS (
     SELECT
-        DATE_TRUNC('day', block_timestamp) AS block_date,
+        DATE_TRUNC('day', block_timestamp) AS date,
         account_address,
         mint,
         MAX(balance) AS ending_balance
@@ -22,9 +22,9 @@ WITH daily_balances AS (
 )
 
 SELECT
-    block_date,
+    date,
     ending_balance
 FROM
     daily_balances
 ORDER BY
-    block_date DESC
+    date DESC

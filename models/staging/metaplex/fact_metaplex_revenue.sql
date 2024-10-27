@@ -29,7 +29,7 @@ WITH metaplex_revenue AS (
     UNION ALL
 
     SELECT
-        DATE(block_timestamp) AS block_date,
+        DATE(block_timestamp) AS date,
         COUNT(DISTINCT tx_id) * 0.0015 AS protocol_revenue
     FROM solana_flipside.core.fact_decoded_instructions
     WHERE decoded_instruction:name::STRING IN ('CreateV1', 'CreateV2')
@@ -38,14 +38,14 @@ WITH metaplex_revenue AS (
             UNION ALL
             SELECT 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'  -- Token Metadata
         )
-    GROUP BY block_date
+    GROUP BY date
 )
 
 SELECT
-    block_date,
+    date,
     protocol_revenue,
-    SUM(protocol_revenue) OVER (ORDER BY block_date DESC) AS cumulative_revenue
+    SUM(protocol_revenue) OVER (ORDER BY date DESC) AS cumulative_revenue
 FROM 
     metaplex_revenue
 ORDER BY 
-    block_date DESC
+    date DESC
