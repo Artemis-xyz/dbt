@@ -29,6 +29,16 @@
             , min(type) as type
         FROM ton_contracts
         GROUP BY contract_address
+    {% elif chain == "mantle" %}
+        select min(block_time) as block_timestamp, address_hex as contract_address, min(type) as type
+        from zksync_dune.mantle.traces 
+        where type = 'create'
+            and address is not null --if the deploy fails the to address will be null
+            {% if is_incremental() %}
+                and block_time
+                >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+            {% endif %}
+        group by contract_address
     {% else %}
         select min(block_timestamp) as block_timestamp, to_address as contract_address, min(type) as type --Contracts can be redeployed at the same addresses with CREATE2
         from {{ chain }}_flipside.core.fact_traces

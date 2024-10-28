@@ -236,8 +236,30 @@
                 select lower(contract_address)
                 from {{ref("fact_" ~chain~ "_stablecoin_contracts")}}
             )
-            -- DO NOT include mint / burn events here - they will be duped
             and tx_status = 1
+    {% elif chain in ("mantle") %}
+        select
+            block_timestamp
+            , raw_date as date
+            , block_number
+            , event_index as index
+            , tx_hash
+            , from_address
+            , to_address
+            , from_address = '0x0000000000000000000000000000000000000000' as is_mint
+            , to_address = '0x0000000000000000000000000000000000000000' as is_burn
+            , amount / pow(10, num_decimals) as amount
+            , case
+                when is_mint then amount / pow(10, num_decimals) when is_burn then -1 * amount / pow(10, num_decimals) else 0
+            end as inflow
+            , case
+                when not is_mint and not is_burn then amount / pow(10, num_decimals) else 0
+            end as transfer_volume
+            , t1.contract_address
+            , contracts.symbol
+        from {{ref("fact_" ~ chain ~ "_token_transfers")}} t1 
+        inner join {{ref("fact_" ~chain~ "_stablecoin_contracts")}} contracts
+            on lower(t1.contract_address) = lower(contracts.contract_address)
     {% else %}
         select
             block_timestamp,
