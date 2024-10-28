@@ -5,15 +5,14 @@
     )
 }}
 
-WITH pools AS (SELECT * FROM {{ ref('dim_maple_pools') }}),
-loans AS (
+WITH loans AS (
     SELECT DISTINCT
         l.loan_id,
         l.pool_name,
         l.pool_id,
-        precision
+        l.asset,
+        l.precision
     FROM {{ ref('fact_maple_v1_loans') }} l
-    LEFT JOIN pools ON pools.pool_id = l.pool_id
 ),
 
 v1_payments AS (
@@ -22,6 +21,7 @@ v1_payments AS (
         contract_address as loan_id,
         loans.pool_name,
         loans.pool_id,
+        loans.asset,
         interestPaid / POWER(10, loans.precision) as gross_interest_paid,
         principalPaid / POWER(10, loans.precision) as principal_paid
     FROM
@@ -36,6 +36,7 @@ payments AS (
         contract_address as loan_id,
         loans.pool_name,
         loans.pool_id,
+        loans.asset,
         interestPaid_ / POWER(10, loans.precision) as gross_interest_paid,
         principalPaid_ / POWER(10, loans.precision) as principal_paid
     FROM

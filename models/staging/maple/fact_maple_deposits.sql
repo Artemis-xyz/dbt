@@ -11,6 +11,7 @@ WITH deposits AS (
         d.tx_hash,
         d.block,
         p.pool_name,
+        p.asset,
         d.owner_ AS lender_id,
         d.shares_ / POWER(10, p.precision) AS shares,
         d.assets_ / POWER(10, p.precision) AS amount,

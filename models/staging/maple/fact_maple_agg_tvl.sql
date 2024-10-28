@@ -10,20 +10,26 @@ WITH v1_tvl AS (
 ),
 
 v2_tvl AS (
-    SELECT * FROM {{ ref('fact_maple_tvl') }}
+    SELECT * FROM {{ ref('fact_maple_v2_tvl') }}
 ),
 
 agg_tvl AS (
     SELECT 
         date, 
         pool_name, 
-        outstanding_usd as tvl 
+        asset,
+        outstanding_usd as tvl,
+        outstanding_usd as tvl_native,
+        null as outstanding_supply
     FROM v1_tvl
     UNION ALL
     SELECT 
         date, 
         pool_name, 
-        tvl 
+        asset,
+        tvl,
+        tvl_native,
+        outstanding as outstanding_supply
     FROM v2_tvl
 )
 

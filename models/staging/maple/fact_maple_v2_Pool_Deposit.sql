@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="MAPLE",
     )
 }}
@@ -42,3 +42,6 @@ FROM
     {{source('ETHEREUM_FLIPSIDE', 'ez_decoded_event_logs')}} l
 join pools p on lower(p.pool_address) = lower(l.contract_address)
 where event_name = 'Deposit'
+{% if is_incremental() %}
+    AND block_timestamp > (select dateadd('day', -1, max(block_timestamp)) from {{ this }})
+{% endif %}

@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="MAPLE",
     )
 }}
@@ -31,3 +31,6 @@ where
             loan_manager_addresses
     ) 
     and contract_address <> '0x7a459f1fb7d257fc62e23aaa8b802e061cec68d7'
+{% if is_incremental() %}
+    AND block_timestamp > (select dateadd('day', -1, max(block_timestamp)) from {{ this }})
+{% endif %}

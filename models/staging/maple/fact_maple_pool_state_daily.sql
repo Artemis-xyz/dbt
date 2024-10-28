@@ -10,7 +10,7 @@ WITH dates AS (
 ),
 
 pool_ids AS (
-    SELECT DISTINCT pool_id, pool_name, block_activated 
+    SELECT DISTINCT pool_id, asset, pool_name, block_activated 
     FROM {{ ref('dim_maple_pools') }}
     WHERE pool_name NOT IN ('Celsius WETH Pool', 'Alameda Research - USDC', 'BlockTower Capital - USDC01')
 ),
@@ -21,7 +21,8 @@ dates_pools AS (
         -- For the UNIX timestamp, we want the LAST timestamp of the day, so add 86399 seconds
         DATE_PART('epoch', d.date) + 86399 as last_ts,
         d.last_block, 
-        p.pool_name
+        p.pool_name,
+        p.asset
     FROM dates d 
     CROSS JOIN pool_ids p
     -- Only add Pool to each date if it had already been activated
@@ -40,7 +41,7 @@ latest_states_only AS (
 -- Fill in Pool values for every day where there was not an update
 states AS (
     SELECT 
-        d.date, d.last_ts, d.last_block, d.pool_name,
+        d.date, d.last_ts, d.last_block, d.pool_name, d.asset,
         LAST_VALUE(s.assets) IGNORE NULLS OVER (
             PARTITION BY d.pool_name 
             ORDER BY d.date
@@ -89,7 +90,7 @@ states AS (
 -- Prep some columns like accrued interest that will be needed for total assets
 prep_states AS (
     SELECT
-        date, last_ts, last_block, pool_name, assets, pool_shares, outstanding, 
+        date, last_ts, last_block, pool_name, asset, assets, pool_shares, outstanding, 
         -- Balance is the amount of assets in the Pool that is currently earning interest; outstanding + idle cash
         assets + outstanding as balance,
         accounted,

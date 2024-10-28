@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="MAPLE",
     )
 }}
@@ -17,3 +17,6 @@ from
     {{source('ETHEREUM_FLIPSIDE', 'ez_decoded_event_logs')}}
 where
     event_name = 'AccountingStateUpdated'
+{% if is_incremental() %}
+    AND block_timestamp > (select dateadd('day', -1, max(block_timestamp)) from {{ this }})
+{% endif %}

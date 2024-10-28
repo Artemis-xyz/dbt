@@ -11,6 +11,6 @@
             '0xa9466eabd096449d650d5aeb0dd3da6f52fd0b19',
             '0xd6d4Bcde6c816F17889f1Dd3000aF0261B03a196'
         ],
-        earliest_date='2024-09-01'
+        earliest_date='2020-09-12'
     )
 }}

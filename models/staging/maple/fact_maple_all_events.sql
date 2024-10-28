@@ -12,6 +12,7 @@ WITH deposits AS (
         block,
         'Deposit' as description,
         pool_name,
+        asset,
         amount,
         shares,
         NULL as interest,
@@ -34,6 +35,7 @@ withdrawals AS (
         block,
         'Withdrawal' as description,
         pool_name,
+        asset,
         amount * -1 as amount,
         shares * -1 as shares,
         NULL as interest,
@@ -56,6 +58,7 @@ payments AS (
         block,
         description,
         pool_name,
+        asset,
         NULL as amount,
         NULL as shares,
         net_interest_paid as interest,
@@ -78,6 +81,7 @@ accounting AS (
         block,
         description,
         pool_name,
+        asset,
         NULL as amount,
         NULL as shares,
         NULL as interest,
@@ -100,6 +104,7 @@ outstanding AS (
         block,
         description,
         pool_name,
+        asset,
         NULL as amount,
         NULL as shares,
         NULL as interest,
@@ -130,6 +135,7 @@ outstanding_accounting AS (
             ELSE 'Accounting Update'
         END AS description,
         outs.pool_name,
+        outs.asset,
         outs.amount,
         outs.shares,
         CASE
@@ -157,6 +163,7 @@ interest_payments AS (
         p.block,
         p.description,
         p.pool_name,
+        p.asset,
         p.amount,
         p.shares,
         p.interest,
@@ -196,6 +203,7 @@ all_events_migration AS (
         block,
         description,
         pool_name,
+        asset,
         CASE
             WHEN block = 16164991 AND pool_name = 'M11 Credit USDC1' THEN 8765965.068493
             WHEN block = 16164991 AND pool_name = 'Orthogonal Credit USDC1' THEN 16944059.896081
@@ -225,6 +233,7 @@ SELECT
     block,
     description,
     pool_name,
+    asset,
     COALESCE(amount, 0) as amount,
     COALESCE(shares, 0) as shares,
     COALESCE(interest, 0) as interest,

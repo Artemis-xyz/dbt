@@ -14,3 +14,10 @@ sources:
     database: ethereum_flipside
     tables:
       - name: ez_prices_hourly
+  
+  - name: PROD_LANDING
+    schema: prod_landing
+    database: landing_database
+    tables:
+      - name: raw_maple_otc_by_day
+      - name: raw_maple_solana_by_day

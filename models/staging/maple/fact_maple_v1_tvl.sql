@@ -9,19 +9,21 @@ WITH daily_orig AS (
     SELECT
         date,
         pool_name,
+        asset,
         SUM(amount_funded) as daily_funded
     FROM {{ ref('fact_maple_v1_loans') }}
-    GROUP BY 1,2
+    GROUP BY 1,2,3
 ),
 
 daily_pays AS (
     SELECT
         date,
         pool_name,
+        asset,
         SUM(principal_paid) as daily_repaid
     FROM {{ ref('fact_maple_v1_repayments') }}
     WHERE principal_paid > 0
-    GROUP BY 1,2
+    GROUP BY 1,2,3
 ),
 
 dates AS (
@@ -46,6 +48,7 @@ prep_daily AS (
     SELECT
         d.date,
         d.pool_name,
+        coalesce(daily_orig.asset, daily_pays.asset) as asset,
         COALESCE(daily_orig.daily_funded, 0) as daily_funded,
         COALESCE(daily_pays.daily_repaid, 0) as daily_repaid
     FROM dates_pools d
@@ -70,6 +73,7 @@ final AS (
 SELECT 
     date,
     pool_name,
+    asset,
     daily_funded,
     daily_repaid,
     CASE

@@ -17,6 +17,7 @@ with rewards_contracts as (
     SELECT
         hour,
         price,
+        decimals,
         token_address,
         symbol
     FROM
@@ -26,8 +27,8 @@ with rewards_contracts as (
 SELECT
     block_timestamp,
     symbol as token,
-    decoded_log:reward as incentive_native,
-    decoded_log:reward * p.price as incentive_usd
+    decoded_log:reward * POWER(10, p.decimals) as incentive_native,
+    decoded_log:reward * p.price / POWER(10, p.decimals) as incentive_usd
 FROM
     {{ source('ETHEREUM_FLIPSIDE', 'ez_decoded_event_logs') }} l
 LEFT JOIN mpl_prices p ON p.hour = DATE_TRUNC('hour', l.block_timestamp)

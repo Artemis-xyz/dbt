@@ -11,6 +11,7 @@ WITH ftl_payments AS (
         f.tx_hash,
         f.block,
         p.pool_name,
+        p.asset,
         f.principal_ / POWER(10, p.precision) AS principal_paid,
         f.netInterest_ / POWER(10, p.precision) AS net_interest_paid,
         'FTL Interest Payment' AS description
@@ -24,6 +25,7 @@ otl_payments AS (
         o.tx_hash,
         o.block,
         p.pool_name,
+        p.asset,
         o.principal_ / POWER(10, p.precision) AS principal_paid,
         (o.netInterest_ - o.platformManagementFee_ - o.delegateManagementFee_) / POWER(10, p.precision) AS net_interest_paid,
         'OTL Interest Payment' AS description

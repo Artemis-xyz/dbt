@@ -1,3 +1,10 @@
+{{
+    config(
+        materialized='incremental',
+        snowflake_warehouse='MAPLE'
+    )
+}}
+
 with pools as (
     SELECT
         decoded_log:pool as pool_address,
@@ -21,3 +28,6 @@ select
 from {{ source('ETHEREUM_FLIPSIDE', 'fact_event_logs') }} l
 join pools p on p.pool_address = l.contract_address
 where topics[0] = lower('0x21280d282ce6aa29c649fd1825373d7c77892fac3f1958fd98d5ca52dd82a197')
+{% if is_incremental() %}
+    AND l.block_timestamp > (select dateadd('day', -1, max(block_timestamp)) from {{ this }})
+{% endif %}

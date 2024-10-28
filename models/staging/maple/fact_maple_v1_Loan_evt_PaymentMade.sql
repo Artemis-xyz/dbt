@@ -1,6 +1,6 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='MAPLE',
     )
 }}
@@ -23,3 +23,6 @@ from
 where
     event_name = 'PaymentMade'
     and decoded_log:interestPaid is not null
+{% if is_incremental() %}
+    AND block_timestamp > (select dateadd('day', -1, max(block_timestamp)) from {{ this }})
+{% endif %}

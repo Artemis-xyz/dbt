@@ -1,6 +1,6 @@
 {{
     config(
-        materialized='table', 
+        materialized='incremental', 
         snowflake_warehouse='MAPLE',
     )
 }}
@@ -29,6 +29,9 @@ from
 where
     event_name = 'PaymentMade'
     and contract_address in (select instance_address from fixed_term_loan_pools)
+{% if is_incremental() %}
+    AND block_timestamp > (select dateadd('day', -1, max(block_timestamp)) from {{ this }})
+{% endif %}
 
 union all
 
@@ -43,3 +46,6 @@ select
 from ethereum_flipside.core.fact_event_logs
 where topics[0] = lower('0xcf358e925a8e033c6db877f18d10df6f21cd04ef165537bad5fc814eb23af960')
 and contract_address in (select instance_address from fixed_term_loan_pools)
+{% if is_incremental() %}
+    AND block_timestamp > (select dateadd('day', -1, max(block_timestamp)) from {{ this }})
+{% endif %}
