@@ -1,14 +1,15 @@
 {{
     config(
         materialized="incremental",
+        unique_key= ['tx_hash', 'event_index'],
         snowflake_warehouse="MAPLE",
     )
 }}
 
--- 96 rows as expected
 select
     block_timestamp
     , tx_hash
+    , event_index
     , block_number as block
     , contract_address
     , decoded_log:loan_::string as loan_

@@ -1,6 +1,7 @@
 {{
     config(
         materialized="incremental",
+        unique_key= ['tx_hash', 'event_index'],
         snowflake_warehouse="MAPLE",
     )
 }}
@@ -17,6 +18,7 @@ with loan_manager_addresses as (
 select
     block_timestamp
     , tx_hash
+    , event_index
     , block_number as block
     , contract_address
     , decoded_log:principalOut_::number as principalOut_

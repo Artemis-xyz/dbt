@@ -21,8 +21,8 @@ with fees as (
 )
 , revenues as (
     SELECT
-        DATE(block_timestamp) AS date,
-        SUM(revenue_usd) AS revenue
+        date,
+        SUM(revenue) AS revenue
     FROM {{ ref('fact_maple_revenue') }}
     GROUP BY 1
 )
@@ -36,7 +36,8 @@ with fees as (
 , tvl as (
     SELECT
         date,
-        SUM(tvl) AS tvl
+        SUM(tvl) AS tvl,
+        SUM(outstanding_supply) AS outstanding_supply
     FROM {{ ref('fact_maple_agg_tvl') }}
     GROUP BY 1
 )
@@ -63,13 +64,6 @@ with fees as (
     WHERE token = 'MPL'
     GROUP BY 1
 )
-, outstanding_supply as (
-    SELECT
-        date,
-        SUM(tvl) AS tvl
-    FROM {{ ref('fact_maple_agg_tvl') }}
-    GROUP BY 1
-)
 , price as(
     {{ get_coingecko_metrics('maple')}}
 )
@@ -78,31 +72,31 @@ with fees as (
 )
 
 SELECT 
-    fees.date,
-    fees.fees as interest_fees,
-    fees.supply_side_fees as primary_supply_side_revenue,
-    fees.supply_side_fees as total_supply_side_revenue,
-    revenues.revenue as protocol_revenue,
-    token_incentives.token_incentives,
-    token_incentives.token_incentives as protocol_expenses,
-    treasury.treasury_value,
-    treasury_native.treasury_value_native,
-    net_treasury.net_treasury_value,
-    tvl.tvl,
-    tvl.tvl as net_deposits,
-    price.price,
-    price.market_cap,
-    price.fdmc,
+    price.date,
+    coalesce(fees.fees, 0) as interest_fees,
+    coalesce(fees.supply_side_fees, 0) as primary_supply_side_revenue,
+    coalesce(fees.supply_side_fees, 0) as total_supply_side_revenue,
+    coalesce(revenues.revenue, 0) as protocol_revenue,
+    coalesce(token_incentives.token_incentives, 0) as protocol_expenses,
+    coalesce(treasury.treasury_value, 0) as treasury_value,
+    coalesce(treasury_native.treasury_value_native, 0) as treasury_value_native,
+    coalesce(net_treasury.net_treasury_value, 0) as net_treasury_value,
+    coalesce(tvl.tvl, 0) as tvl,
+    coalesce(tvl.tvl, 0) as net_deposits,
+    coalesce(tvl.outstanding_supply, 0) as outstanding_supply,
+    coalesce(price.price, 0) as price,
+    coalesce(price.market_cap, 0) as market_cap,
+    coalesce(price.fdmc, 0) as fdmc,
     price.token_turnover_circulating,
     price.token_turnover_fdv,
     price.token_volume,
     tokenholders.token_holder_count
-FROM fees
+FROM price
+LEFT JOIN fees USING(date)
 LEFT JOIN revenues USING(date)
 LEFT JOIN token_incentives USING(date)
 LEFT JOIN tvl USING(date)
 LEFT JOIN treasury USING(date)
 LEFT JOIN treasury_native USING(date)
 LEFT JOIN net_treasury USING(date)
-LEFT JOIN price USING(date)
 LEFT JOIN tokenholders USING(date)

@@ -48,4 +48,4 @@ payments AS (
 SELECT * FROM v1_payments
 UNION ALL
 -- For the newer versions of Loan, filter out anything after the V2 migration
-SELECT * FROM payments WHERE date < DATE('2022-12-11')
+SELECT * FROM payments 

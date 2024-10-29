@@ -19,7 +19,7 @@ with fees as (
 )
 , revenues as (
     SELECT
-        date(block_timestamp) as date,
+        date,
         token,
         SUM(revenue_native) AS revenue_native
     FROM {{ ref('fact_maple_revenue') }}
@@ -69,9 +69,9 @@ with fees as (
 )
 
 SELECT
-    date
-    , token
-    , fees.fees_native as interest_fees_native
+    coalesce(fees.date, revenues.date, token_incentives.date, tvl.date, treasury.date) as date,
+    coalesce(fees.token, revenues.token, token_incentives.token, tvl.token, treasury.token) as token,
+    fees.fees_native as interest_fees_native
     , fees.fees_native as supply_side_revenue_native
     , fees.fees_native as total_supply_side_revenue_native
     , revenues.revenue_native
@@ -91,4 +91,4 @@ full join tvl using(date, token)
 full join treasury using(date, token)
 full join treasury_native using(date, token)
 full join net_treasury using(date, token)
-
+WHERE coalesce(fees.date, revenues.date, token_incentives.date, tvl.date, treasury.date) < to_date(sysdate())

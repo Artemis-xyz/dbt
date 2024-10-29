@@ -22,3 +22,4 @@ SELECT
     SUM(revenue_native) as revenue_native
 FROM
     {{ ref('fact_maple_onchain_revenue') }}
+GROUP BY 1, 2

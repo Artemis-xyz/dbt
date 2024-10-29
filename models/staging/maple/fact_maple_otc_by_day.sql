@@ -23,6 +23,7 @@ select
     value:hy_collat_btc::float as hy_collat_btc,
     value:hy_collat_eth::float as hy_collat_eth,
     value:hy_collat_sol::float as hy_collat_sol,
+    value:hy_collat_ftm::float as hy_collat_ftm,
     value:syrup_usdc_collat_btc::float as syrup_usdc_collat_btc,
     value:syrup_usdc_collat_eth::float as syrup_usdc_collat_eth,
     value:syrup_usdc_collat_orca::float as syrup_usdc_collat_orca,
@@ -31,7 +32,8 @@ select
     value:syrup_usdt_collat_btc::float as syrup_usdt_collat_btc,
     value:syrup_usdt_collat_eth::float as syrup_usdt_collat_eth,
     value:syrup_usdt_collat_pt::float as syrup_usdt_collat_pt,
-    value:syrup_usdt_collat_sol::float as syrup_usdt_collat_sol
+    value:syrup_usdt_collat_sol::float as syrup_usdt_collat_sol,
+    value:otc_revenue::float as otc_revenue
 from
     {{ source("PROD_LANDING", "raw_maple_otc_by_day") }},
     lateral flatten(input => parse_json(source_json))

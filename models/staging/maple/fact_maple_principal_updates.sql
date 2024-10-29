@@ -38,7 +38,6 @@ WITH ftl_principal AS (
         FROM all_ftl
     )
     SELECT * FROM intermediate
-    WHERE date > date('2022-12-12')
     UNION ALL
     select
         *

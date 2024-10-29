@@ -1,5 +1,12 @@
+{{
+    config(
+        materialized = 'table',
+        snowflake_warehouse = 'MAPLE'
+    )
+}}
+
 with eth_prices as (
-    select * from {{ source('ETHEREUM_FLIPSIDE', 'ez_prices_hourly') }}
+    select * from {{source('ETHEREUM_FLIPSIDE', 'ez_prices_hourly')}}
     where is_native = True
 )
 , ftlm_interest as (
@@ -7,6 +14,8 @@ with eth_prices as (
         block_timestamp,
         tx_hash,
         contract_address,
+        pools.pool_name,
+        pools.asset,
         CASE WHEN
             contract_address = '0x373bdcf21f6a939713d5de94096ffdb24a406391'
             THEN netinterest_ / POW(10,18) * p.price
@@ -19,6 +28,7 @@ with eth_prices as (
         END AS net_interest_native
     from {{ ref('fact_maple_v2_LoanManager_FundsDistributed') }} f
     left join eth_prices p on p.hour = date_trunc('hour', f.block_timestamp)
+    LEFT JOIN {{ ref('dim_maple_pools') }} pools ON f.contract_address = pools.loan_manager 
 )
 
 -- OTLM (448 rows)
@@ -27,6 +37,8 @@ with eth_prices as (
         block_timestamp,
         contract_address,
         tx_hash,
+        pools.pool_name,
+        pools.asset,
         CASE 
             WHEN contract_address in ('0x373bdcf21f6a939713d5de94096ffdb24a406391', '0xe3aac29001c769fafcef0df072ca396e310ed13b')
                 THEN netinterest_ / POW(10,18) * p.price
@@ -39,6 +51,7 @@ with eth_prices as (
         END AS net_interest_native
     from {{ ref('fact_maple_v2_OpenTermLoanManager_ClaimedFundsDistributed') }} f
     left join eth_prices p on p.hour = date_trunc('hour', f.block_timestamp)
+    LEFT JOIN {{ ref('dim_maple_pools') }} pools ON f.contract_address = pools.open_term_loan_manager 
 )
 , agg as(
     SELECT
@@ -49,13 +62,5 @@ with eth_prices as (
         *
     FROM otlm_interest
 )
-SELECT
-    block_timestamp,
-    contract_address,
-    p.pool_name,
-    p.asset,
-    tx_hash,
-    net_interest,
-    net_interest_native
-FROM agg
-LEFT JOIN {{ ref('dim_maple_pools') }} p ON agg.contract_address = p.loan_manager
+SELECT * FROM agg 
+WHERE pool_name is not null

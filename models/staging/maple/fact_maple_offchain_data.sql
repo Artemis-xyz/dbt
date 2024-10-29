@@ -73,6 +73,26 @@ bc_totals AS (
         {{ ref('fact_maple_otc_by_day') }} d
         LEFT JOIN prices btc using (date) 
         WHERE btc.symbol = 'WBTC'
+    UNION ALL
+    SELECT
+        d.date,
+        eth.symbol as asset,
+        d.hy_collat_eth as collateral_amount_native,
+        d.hy_collat_eth * eth.price as collateral_usd
+    FROM                
+        {{ ref('fact_maple_otc_by_day') }} d
+        LEFT JOIN prices eth using (date)
+        WHERE eth.symbol = 'ETH'
+    UNION ALL
+    SELECT
+        d.date,
+        ftm.symbol as asset,
+        d.hy_collat_ftm as collateral_amount_native,
+        d.hy_collat_ftm * ftm.price as collateral_usd
+    FROM                
+        {{ ref('fact_maple_otc_by_day') }} d
+        LEFT JOIN prices ftm using (date)
+        WHERE ftm.symbol = 'FTM'
 ),
 
 hy_totals AS (
@@ -167,6 +187,24 @@ syrup_usdt_collateral_by_token AS (
        {{ ref('fact_maple_otc_by_day') }} d
        LEFT JOIN prices btc using (date)
        WHERE btc.symbol = 'WBTC'
+    UNION ALL
+    SELECT
+       d.date,
+       eth.symbol as asset,
+       d.syrup_usdt_collat_eth as collateral_amount_native,
+       d.syrup_usdt_collat_eth * eth.price as collateral_usd
+   FROM                
+       {{ ref('fact_maple_otc_by_day') }} d
+       LEFT JOIN prices eth using (date)
+       WHERE eth.symbol = 'ETH'
+   UNION ALL
+   SELECT
+       d.date,
+       'PT-USDT' as asset,
+       d.syrup_usdt_collat_pt as collateral_amount_native,
+       d.syrup_usdt_collat_pt * 0.95 as collateral_usd
+   FROM                
+       {{ ref('fact_maple_otc_by_day') }} d
 ),
 
 syrup_usdt_totals AS (

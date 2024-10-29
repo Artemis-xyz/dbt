@@ -4,16 +4,7 @@
         snowflake_warehouse='MAPLE',
     )
 }}
-
-WITH v1_tvl AS (
-    SELECT * FROM {{ ref('fact_maple_v1_tvl') }}
-),
-
-v2_tvl AS (
-    SELECT * FROM {{ ref('fact_maple_v2_tvl') }}
-),
-
-agg_tvl AS (
+WITH agg_tvl AS (
     SELECT 
         date, 
         pool_name, 
@@ -21,7 +12,7 @@ agg_tvl AS (
         outstanding_usd as tvl,
         outstanding_usd as tvl_native,
         null as outstanding_supply
-    FROM v1_tvl
+    FROM {{ ref('fact_maple_v1_tvl') }}
     UNION ALL
     SELECT 
         date, 
@@ -30,11 +21,18 @@ agg_tvl AS (
         tvl,
         tvl_native,
         outstanding as outstanding_supply
-    FROM v2_tvl
+    FROM {{ ref('fact_maple_v2_tvl') }}
 )
 
-SELECT *
+SELECT
+    date,
+    pool_name,
+    asset,
+    sum(tvl) as tvl,
+    sum(tvl_native) as tvl_native,
+    sum(outstanding_supply) as outstanding_supply
 FROM agg_tvl
+GROUP BY 1, 2, 3
 -- WHERE
 --  pool_name NOT IN ('Orthogonal Credit USDC1')
 ORDER BY date DESC, pool_name

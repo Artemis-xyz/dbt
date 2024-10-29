@@ -1,6 +1,7 @@
 {{
     config(
         materialized='incremental',
+        unique_key= ['tx_hash', 'event_index'],
         snowflake_warehouse='MAPLE'
     )
 }}
@@ -18,6 +19,7 @@ with pools as (
 select
     l.block_timestamp,
     l.tx_hash,
+    l.event_index,
     l.contract_address,
     l.topics,
     l.data,

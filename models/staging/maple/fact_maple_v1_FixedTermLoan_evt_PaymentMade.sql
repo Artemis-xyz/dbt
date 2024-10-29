@@ -1,6 +1,7 @@
 {{
     config(
         materialized='incremental', 
+        unique_key= ['tx_hash', 'event_index'],
         snowflake_warehouse='MAPLE',
     )
 }}
@@ -19,6 +20,7 @@ with fixed_term_loan_pools as (
 select
     block_timestamp
     , tx_hash
+    , event_index
     , block_number as block
     , contract_address
     , decoded_log:principalPaid_::number as principalPaid_
@@ -38,6 +40,7 @@ union all
 select
     block_timestamp
     , tx_hash
+    , event_index
     , block_number as block
     , contract_address
     , PC_DBT_DB.PROD.HEX_TO_INT(SUBSTR(data, 3, 64)) as principalPaid_

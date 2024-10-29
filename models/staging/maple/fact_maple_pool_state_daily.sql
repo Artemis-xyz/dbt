@@ -35,7 +35,6 @@ latest_states_only AS (
         *, 
         ROW_NUMBER() OVER (PARTITION BY pool_name, date ORDER BY date DESC) as row_num
     FROM {{ ref('fact_maple_pool_state_history') }}
-    WHERE date > date('2022-12-11')
 ),
 
 -- Fill in Pool values for every day where there was not an update

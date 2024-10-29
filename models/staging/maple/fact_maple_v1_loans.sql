@@ -14,5 +14,5 @@ FROM
 LEFT JOIN
     {{ ref('dim_maple_pools') }} pools ON pools.v1_pool_id = contract_address
 WHERE
-    -- Exclude the migration Loans that were funded to bring Pools from V1->V2; December 11 2022
+--     -- Exclude the migration Loans that were funded to bring Pools from V1->V2; December 11 2022
     DATE_TRUNC('day', block_timestamp) < DATE('2022-12-11')
