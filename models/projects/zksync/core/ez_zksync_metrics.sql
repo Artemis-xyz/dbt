@@ -18,6 +18,7 @@ with
             txns,
             gas,
             gas_usd,
+            median_gas_usd as median_txn_fee
         from {{ ref("fact_zksync_daa_txns_gas_gas_usd") }}
     ),
     rolling_metrics as ({{ get_rolling_active_address_metrics("zksync") }}),
@@ -44,6 +45,7 @@ select
     gas as fees_native,
     gas_usd as fees,
     fees / txns as avg_txn_fee,
+    median_txn_fee,
     revenue,
     revenue_native,
     l1_data_cost,

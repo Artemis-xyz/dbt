@@ -45,7 +45,8 @@
                 sum(gas_usd) fees,
                 count(*) txns,
                 sum(gas_usd) / count(*) as avg_txn_fee,
-                count(distinct from_address) dau
+                count(distinct from_address) dau,
+                median(gas_usd) as median_txn_fee
             from {{ chain }}.prod_raw.ez_transactions as t
             group by t.raw_date
         )
@@ -68,6 +69,7 @@
         fees_native,
         fees,
         avg_txn_fee,
+        median_txn_fee,
         (dau - new_users) as returning_users,
         new_users,
         {% if (chain not in ("starknet")) %}
