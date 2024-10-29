@@ -48,6 +48,7 @@ select
     fees_native,
     case when fees is null then fees_native * price else fees end as fees,
     avg_txn_fee,
+    median_txn_fee,
     revenue_native,
     revenue,
     fees_native - revenue_native as priority_fee_native,

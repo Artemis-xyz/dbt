@@ -36,6 +36,7 @@ select
     fees_native,
     case when fees is null then fees_native * price else fees end as fees,
     avg_txn_fee,
+    median_txn_fee,
     revenue_native,
     revenue,
     returning_users,

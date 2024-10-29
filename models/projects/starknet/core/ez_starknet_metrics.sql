@@ -42,6 +42,7 @@ select
     coalesce(fees_native, 0) -  l1_data_cost_native as revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     coalesce(fees, 0) -  l1_data_cost as revenue,
     avg_txn_fee,
+    median_txn_fee,
     returning_users,
     new_users,
     price,
