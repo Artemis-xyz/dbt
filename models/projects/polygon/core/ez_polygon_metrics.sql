@@ -52,6 +52,7 @@ select
     fees_native,
     fees,
     avg_txn_fee,
+    median_txn_fee,
     revenue_native,
     revenue,
     l1_data_cost_native,

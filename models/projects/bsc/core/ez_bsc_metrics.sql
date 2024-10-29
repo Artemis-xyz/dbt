@@ -28,6 +28,7 @@ select
     fees_native,
     fees,
     avg_txn_fee,
+    median_txn_fee,
     fees_native * .1 as revenue_native,
     fees * .1 as revenue,
     sybil_users,

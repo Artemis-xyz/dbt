@@ -4,6 +4,7 @@ with
         select
             to_timestamp(block_timestamp)::date as date,
             sum(gas_used * gas_price + l1_fee) / 1e18 as gas,
+            median(gas_used * gas_price + l1_fee) as median_gas,
             'zora' as chain
         from {{ ref("fact_zora_transactions") }}
         group by 1
@@ -24,6 +25,7 @@ with
 select
     gas.*,
     gas.gas * price as gas_usd,
+    median_gas * price as median_gas_usd,
     (gas.gas - coalesce(expenses.gas, 0)) * price as revenue,
     (gas.gas - coalesce(expenses.gas, 0)) as revenue_native,
     expenses.gas as l1_data_cost_native,

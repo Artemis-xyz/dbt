@@ -34,6 +34,7 @@ select
     fees,
     fees as revenue,
     avg_txn_fee,
+    median_txn_fee,
     returning_users,
     new_users,
     price,
