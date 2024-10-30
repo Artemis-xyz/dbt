@@ -13,7 +13,9 @@ with fees as (
     SELECT
         date,
         asset as token,
-        SUM(net_interest_native) AS fees_native
+        SUM(net_interest_native) AS fees_native,
+        SUM(platform_fees_native) AS platform_fees_native,
+        SUM(delegate_fees_native) AS delegate_fees_native
     FROM {{ ref('fact_maple_fees') }}
     GROUP BY 1, 2
 )
@@ -71,13 +73,15 @@ with fees as (
 SELECT
     coalesce(fees.date, revenues.date, token_incentives.date, tvl.date, treasury.date) as date,
     coalesce(fees.token, revenues.token, token_incentives.token, tvl.token, treasury.token) as token,
-    fees.fees_native as interest_fees_native
-    , fees.fees_native as supply_side_revenue_native
-    , fees.fees_native as total_supply_side_revenue_native
-    , revenues.revenue_native
-    , token_incentives.token_incentives_native
-    , token_incentives.token_incentives_native as expenses_native
-    , revenues.revenue_native - token_incentives.token_incentives_native as protocol_earnings_native
+    fees.fees_native as interest_fees_native,
+    fees.platform_fees_native as platform_fees_native,
+    fees.delegate_fees_native as delegate_fees_native,
+    fees.fees_native - fees.platform_fees_native - fees.delegate_fees_native as supply_side_revenue_native,
+    supply_side_revenue_native as total_supply_side_revenue_native,
+    revenues.revenue_native,
+    token_incentives.token_incentives_native,
+    token_incentives.token_incentives_native as expenses_native,
+    revenues.revenue_native - token_incentives.token_incentives_native as protocol_earnings_native
     , tvl.tvl_native
     , tvl.tvl_native as net_deposits_native
     , treasury.treasury_value_native

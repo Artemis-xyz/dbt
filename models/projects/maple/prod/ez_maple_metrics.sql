@@ -15,7 +15,9 @@ with fees as (
     SELECT
         date,
         SUM(net_interest_usd) AS fees,
-        SUM(net_interest_usd) AS supply_side_fees
+        SUM(net_interest_usd) AS supply_side_fees,
+        SUM(platform_fees_usd) AS platform_fees,
+        SUM(delegate_fees_usd) AS delegate_fees
     FROM {{ ref('fact_maple_fees') }}
     GROUP BY 1
 )
@@ -74,10 +76,15 @@ with fees as (
 SELECT 
     price.date,
     coalesce(fees.fees, 0) as interest_fees,
-    coalesce(fees.supply_side_fees, 0) as primary_supply_side_revenue,
-    coalesce(fees.supply_side_fees, 0) as total_supply_side_revenue,
+    coalesce(fees.platform_fees, 0) as platform_fees,
+    coalesce(fees.delegate_fees, 0) as delegate_fees,
+    coalesce(fees.fees, 0) as fees,
+    coalesce(interest_fees, 0) - coalesce(platform_fees, 0) - coalesce(delegate_fees, 0) as primary_supply_side_revenue,
+    coalesce(primary_supply_side_revenue, 0) as total_supply_side_revenue,
     coalesce(revenues.revenue, 0) as protocol_revenue,
-    coalesce(token_incentives.token_incentives, 0) as protocol_expenses,
+    coalesce(token_incentives.token_incentives, 0) as token_incentives,
+    coalesce(token_incentives.token_incentives, 0) as total_expenses,
+    coalesce(protocol_revenue, 0) - coalesce(total_expenses, 0) as protocol_earnings,
     coalesce(treasury.treasury_value, 0) as treasury_value,
     coalesce(treasury_native.treasury_value_native, 0) as treasury_value_native,
     coalesce(net_treasury.net_treasury_value, 0) as net_treasury_value,
