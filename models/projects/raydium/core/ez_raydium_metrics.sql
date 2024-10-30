@@ -9,9 +9,13 @@
     )
 }}
 
--- @TODO need to add trading volume for CPMM new pools  
+with buyback_from_pair as (
+    select date, sum(coalesce(buyback, 0)) as buyback
+    from {{ ref("ez_raydium_metrics_by_pair") }}
+    group by 1
+)
 
-with buyback as ( -- revenue
+, buyback as ( --> buyback by tracking the direct RAY deposit, due to RAY price, will be the most accurate for amount usd, but it's less frequent
     select date_trunc('day', block_timestamp) as day
         , mint as token_mint_address
         , sum(amount) as amount_raw -- RAY amount 
@@ -120,16 +124,16 @@ with buyback as ( -- revenue
 )
 
 select 
-    coalesce(v.day, b.day) as date
+    coalesce(price_data.day, v.day, bfp.date, b.day) as date
     , v.trading_volume
     
-    , b.amount_raw * pb.price / 0.12 + coalesce(c.amount_raw * pc.price, 0) as fees -- trading fee + pool creation
-    , b.amount_raw * pb.price / 0.12 as trading_fees -- total_trading_fee = revenue (12%) + treasury (4%) + LP(84%)
+    , bfp.buyback / 0.12 + coalesce(c.amount_raw * pc.price, 0) as fees -- trading fee + pool creation
+    , bfp.buyback / 0.12 as trading_fees -- total_trading_fee = buyback (12%) + treasury (4%) + LP(84%); using buyback from token pair as it's more frequent than actual deposit of RAY
     
     , coalesce(b.amount_raw * pb.price, 0) + coalesce(t.amount_raw * pt.price, 0) as revenue
     , b.amount_raw * pb.price as buyback
     , b.amount_raw as buyback_native
-    , coalesce(t.amount_raw * pt.price, 0) as treasury_fees -- pool creation can be null
+    , coalesce(t.amount_raw * pt.price, 0) as treasury_fees -- treasury fees can be null
     , coalesce(t.amount_raw, 0) as treasury_fees_native 
     , coalesce(c.amount_raw * pc.price, 0) as pool_creation_fees -- pool creation can be null
     , coalesce(c.amount_raw, 0) as pool_creation_fees_native
@@ -141,6 +145,7 @@ select
 from trading_volume v
 left join price_data on price_data.day = v.day
 left join buyback as b on v.day = b.day
+left join buyback_from_pair as bfp on v.day = bfp.date
 left join treasury t on t.day = v.day 
 left join pool_creation c on c.day = v.day 
 left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pb on pb.token_address = b.token_mint_address
@@ -167,7 +172,7 @@ left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pc on pc.token_address = c.toke
             AND pc.hour::date >= date('2022-04-22') 
         {% endif %}
 
-where coalesce(v.day, b.day) < to_date(sysdate())
+where coalesce(v.day, bfp.date, b.day) < to_date(sysdate())
 order by 1 desc 
 
 

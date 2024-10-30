@@ -46,6 +46,7 @@ select
     coalesce(fees_native, 0) - l1_data_cost_native as revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     coalesce(fees, 0) - l1_data_cost as revenue,
     avg_txn_fee,
+    median_txn_fee,
     sybil_users,
     non_sybil_users,
     returning_users,
@@ -77,6 +78,8 @@ select
     p2p_stablecoin_dau,
     p2p_stablecoin_mau,
     stablecoin_data.p2p_stablecoin_transfer_volume,
+    stablecoin_tokenholder_count,
+    p2p_stablecoin_tokenholder_count,
     nft_trading_volume,
     p2p_native_transfer_volume,
     p2p_token_transfer_volume,

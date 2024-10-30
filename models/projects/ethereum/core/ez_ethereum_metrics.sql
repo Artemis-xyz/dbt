@@ -48,6 +48,7 @@ select
     fees_native,
     case when fees is null then fees_native * price else fees end as fees,
     avg_txn_fee,
+    median_txn_fee,
     revenue_native,
     revenue,
     fees_native - revenue_native as priority_fee_native,
@@ -86,6 +87,8 @@ select
     p2p_stablecoin_dau,
     p2p_stablecoin_mau,
     stablecoin_data.p2p_stablecoin_transfer_volume,
+    stablecoin_tokenholder_count,
+    p2p_stablecoin_tokenholder_count,
     
     censored_blocks,
     semi_censored_blocks,

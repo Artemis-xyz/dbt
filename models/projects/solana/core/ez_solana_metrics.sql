@@ -6,6 +6,7 @@
         database="solana",
         schema="core",
         alias="ez_metrics",
+        on_schema_change='append_new_columns'
     )
 }}
 
@@ -27,6 +28,7 @@ with
             select
                 date_trunc('day', block_timestamp) as date,
                 sum(case when index = 0 then fee / pow(10, 9) else 0 end) gas,
+                median(case when index = 0 then fee / pow(10, 9) end) as median_txn_fee_native,
                 sum(
                     case
                         when index = 0 then (array_size(signers) * (5000 / 1e9)) else 0
@@ -55,7 +57,8 @@ with
                 txns,
                 dau,
                 returning_users,
-                new_users
+                new_users,
+                median_txn_fee_native * price as median_txn_fee
             from unrefreshed_data
             left join price on unrefreshed_data.date = price.date
         ),
@@ -89,6 +92,7 @@ with
             max(chain) as chain,
             sum(case when index = 0 then tx_fee else 0 end) gas,
             sum(case when index = 0 then gas_usd else 0 end) gas_usd,
+            median(case when index = 0 then gas_usd end) as median_txn_fee,
             sum(
                 case when index = 0 then (array_size(signers) * (5000 / 1e9)) else 0 end
             ) as base_fee_native,
@@ -105,6 +109,7 @@ with
             agg_data.raw_date as date,
             gas,
             gas_usd,
+            median_txn_fee,
             base_fee_native,
             txns,
             dau,
@@ -118,6 +123,7 @@ with
                 date,
                 gas,
                 gas_usd,
+                median_txn_fee,
                 base_fee_native,
                 txns,
                 dau,
@@ -142,6 +148,7 @@ select
     gas + vote_tx_fee_native as fees_native,
     vote_tx_fee_usd + gas_usd as fees,
     gas_usd / txns as avg_txn_fee,
+    median_txn_fee,
     fees_native * .5 as revenue_native,
     fees * .5 as revenue,
     price,
@@ -176,6 +183,8 @@ select
     p2p_stablecoin_dau,
     p2p_stablecoin_mau,
     stablecoin_data.p2p_stablecoin_transfer_volume,
+    stablecoin_tokenholder_count,
+    p2p_stablecoin_tokenholder_count,
     total_staked_native,
     total_staked_usd,
     issuance,

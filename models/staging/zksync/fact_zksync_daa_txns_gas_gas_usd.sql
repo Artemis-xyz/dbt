@@ -7,6 +7,7 @@ with
             , count(distinct case when success = 'TRUE' then hash_hex end) as txns
             , count(distinct from_hex) as daa
             , sum(gas_used * gas_price) / 1E18 as gas
+            , median(gas_used * gas_price) / 1E18 as median_gas
         from zksync_dune.zksync.transactions
         group by 1
     )
@@ -17,6 +18,7 @@ select
     , daa
     , gas
     , gas * price as gas_usd
+    , median_gas * price as median_gas_usd
 from fundamentals
 left join prices using(date)
 order by date desc
