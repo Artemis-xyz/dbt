@@ -1,62 +1,73 @@
 {{ config(
-    materialized="table",
+    materialized="incremental",
     snowflake_warehouse="METAPLEX"
 ) }}
 
-WITH minter_activity AS (
+WITH all_activity AS (
+    -- Minter activity
     SELECT 
-        DATE_TRUNC('DAY', m.block_timestamp) AS activity_date, 
+        DATE_TRUNC('DAY', m.block_timestamp) AS date, 
         m.purchaser AS wallet
     FROM 
         {{ source('SOLANA_FLIPSIDE_NFT', 'fact_nft_mints') }} AS m
     WHERE 
         m.program_id IN (SELECT program_id FROM {{ ref('fact_metaplex_programs') }})
-),
+    {% if is_incremental() %}
+        AND block_timestamp > (SELECT MAX(date) FROM {{ this }})
+    {% endif %}
 
-seller_activity AS (
+    UNION ALL
+
+    -- Seller activity
     SELECT 
-        DATE_TRUNC('DAY', s.block_timestamp) AS activity_date, 
-        s.seller AS wallet
+        DATE_TRUNC('DAY', s.block_timestamp) AS date, 
+        seller AS wallet
     FROM 
-        {{ source('SOLANA_FLIPSIDE_NFT', 'fact_nft_sales') }} AS s
-    JOIN 
-        {{ ref('fact_metaplex_mints') }} AS m ON s.mint = m.mint
-),
+        {{ ref('fact_metaplex_sales') }} AS s
+    
+    UNION ALL
 
-buyer_activity AS (
+    -- Buyer activity
     SELECT 
-        DATE_TRUNC('DAY', s.block_timestamp) AS activity_date, 
-        s.purchaser AS wallet
+        DATE_TRUNC('DAY', s.block_timestamp) AS date, 
+        purchaser AS wallet
     FROM 
-        {{ source('SOLANA_FLIPSIDE_NFT', 'fact_nft_sales') }} AS s
-    JOIN 
-        {{ ref('fact_metaplex_mints') }} AS m ON s.mint = m.mint
-),
+        {{ ref('fact_metaplex_sales') }} AS s
+ç
+    UNION ALL       
 
-recipient_activity AS (
+    -- Recipient activity
     SELECT 
-        DATE_TRUNC('DAY', t.block_timestamp) AS activity_date, 
+        DATE_TRUNC('DAY', t.block_timestamp) AS date, 
         t.tx_to AS wallet
     FROM 
         {{ source('SOLANA_FLIPSIDE', 'fact_transfers') }} AS t
     WHERE 
         EXISTS (SELECT 1 FROM {{ ref('fact_metaplex_mints') }} AS m WHERE m.mint = t.mint)
-),
+    {% if is_incremental() %}
+        AND block_timestamp > (SELECT MAX(date) FROM {{ this }})
+    {% endif %}
 
-event_activity AS (
+    UNION ALL
+
+    -- Event activity
     SELECT 
-        DATE_TRUNC('DAY', fe.block_timestamp) AS activity_date, 
+        DATE_TRUNC('DAY', fe.block_timestamp) AS date, 
         signer.value AS wallet
     FROM 
         {{ source('SOLANA_FLIPSIDE', 'fact_events') }} AS fe,
         LATERAL FLATTEN(input => fe.signers) AS signer
     WHERE 
         fe.program_id IN (SELECT program_id FROM {{ ref('fact_metaplex_programs') }})
-),
+    {% if is_incremental() %}
+        AND block_timestamp > (SELECT MAX(date) FROM {{ this }})
+    {% endif %}
 
-transaction_activity AS (
+    UNION ALL
+
+    -- Transaction activity
     SELECT 
-        DATE_TRUNC('DAY', ft.block_timestamp) AS activity_date, 
+        DATE_TRUNC('DAY', ft.block_timestamp) AS date, 
         signer.value AS wallet
     FROM 
         {{ source('SOLANA_FLIPSIDE', 'fact_transactions') }} AS ft
@@ -65,11 +76,15 @@ transaction_activity AS (
         LATERAL FLATTEN(input => ft.signers) AS signer
     WHERE 
         fe.program_id IN (SELECT program_id FROM {{ ref('fact_metaplex_programs') }})
-),
+    {% if is_incremental() %}
+        AND block_timestamp > (SELECT MAX(date) FROM {{ this }})
+    {% endif %}
 
-decoded_instruction_activity AS (
+    UNION ALL
+
+    -- Decoded instruction activity
     SELECT 
-        DATE_TRUNC('DAY', di.block_timestamp) AS activity_date, 
+        DATE_TRUNC('DAY', di.block_timestamp) AS date, 
         account.value:pubkey::TEXT AS wallet
     FROM 
         {{ source('SOLANA_FLIPSIDE', 'fact_decoded_instructions') }} AS di,
@@ -77,60 +92,9 @@ decoded_instruction_activity AS (
     WHERE 
         di.program_id IN (SELECT program_id FROM {{ ref('fact_metaplex_programs') }})
         AND account.value:name::TEXT IN ('leafOwner', 'payer', 'treeAuthority', 'leafDelegate', 'treeDelegate', 'collectionAuthority')
-),
-
-
-unique_daily_activity AS (
-    SELECT 
-        activity_date AS day, 
-        wallet 
-    FROM 
-        minter_activity 
-    UNION ALL
-    SELECT 
-        activity_date AS day, 
-        wallet 
-    FROM 
-        seller_activity 
-    UNION ALL
-    SELECT 
-        activity_date AS day, 
-        wallet 
-    FROM 
-        buyer_activity 
-    UNION ALL
-    SELECT 
-        activity_date AS day, 
-        wallet 
-    FROM 
-        recipient_activity 
-    UNION ALL
-    SELECT 
-        activity_date AS day, 
-        wallet 
-    FROM 
-        event_activity 
-    UNION ALL
-    SELECT 
-        activity_date AS day, 
-        wallet 
-    FROM 
-        transaction_activity 
-    UNION ALL
-    SELECT 
-        activity_date AS day, 
-        wallet 
-    FROM 
-        decoded_instruction_activity
-),
-
-
-cumulative_data AS (
-    SELECT 
-        day as date, 
-        wallet
-    FROM 
-        unique_daily_activity
+    {% if is_incremental() %}
+        AND block_timestamp > (SELECT MAX(date) FROM {{ this }})
+    {% endif %}
 )
 
 
@@ -138,7 +102,7 @@ SELECT
     date,
     COUNT(DISTINCT wallet) AS daily_active_users
 FROM 
-    cumulative_data
+    all_activity
 GROUP BY 
     date
 ORDER BY 

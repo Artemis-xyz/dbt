@@ -9,16 +9,26 @@ WITH filtered_transactions AS (
         DATE_TRUNC('day', t.block_timestamp) AS day_date,
         ARRAY_AGG(DISTINCT TRIM(LOWER(unnested_signer.value::STRING))) AS signers
     FROM 
-        solana_flipside.core.fact_transactions t
+        {{ source('SOLANA_FLIPSIDE', 'fact_transactions') }} t
     INNER JOIN 
-        solana_flipside.core.fact_events e 
+        {{ source('SOLANA_FLIPSIDE', 'fact_events') }} e 
         ON t.tx_id = e.tx_id
         AND e.succeeded = TRUE
         AND t.succeeded = TRUE
+        {% if is_incremental() %}
+            AND e.block_timestamp > (SELECT MAX(date) FROM {{ this }})
+        {% else %}
+            AND e.block_timestamp > date('2021-08-01') -- Metaplex was launched in August 2021
+        {% endif %}
     INNER JOIN 
         {{ ref('fact_metaplex_programs') }} mp 
         ON e.program_id = mp.program_id
     , LATERAL FLATTEN(input => t.signers) AS unnested_signer
+    {% if is_incremental() %}
+        WHERE t.block_timestamp > (SELECT MAX(date) FROM {{ this }})
+    {% else %}
+        AND e.block_timestamp > date('2021-08-01') -- Metaplex was launched in August 2021  
+    {% endif %}
     GROUP BY 
         t.tx_id, day_date
 ),
