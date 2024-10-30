@@ -1,5 +1,5 @@
 {{ config(
-    materialized="table",
+    materialized="incremental",
     snowflake_warehouse="METAPLEX"
 ) }}
 
@@ -12,7 +12,7 @@ SELECT
     mint_currency,
     is_compressed
 FROM 
-    solana_flipside.nft.fact_nft_mints
+    {{ source('SOLANA_FLIPSIDE_NFT', 'fact_nft_mints') }}
 WHERE 
     succeeded = TRUE
     AND program_id IN (
@@ -23,3 +23,6 @@ WHERE
         'Guard1JwRhJkVH6XZhzoYxeBVQe872VH6QggF4BWmS9g',  -- Candy Guard
         'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'    -- Token Metadata
     )
+    {% if is_incremental() %}
+        AND block_timestamp > (SELECT MAX(date) FROM {{ this }})
+    {% endif %}

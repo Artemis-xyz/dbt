@@ -9,7 +9,7 @@ all_metaplex_transactions AS (
         program_id,
         DATE_TRUNC('DAY', block_timestamp) AS day
     FROM
-        solana_flipside.core.fact_events
+        {{ source('SOLANA_FLIPSIDE', 'fact_events') }}
     WHERE
         program_id IN (SELECT program_id FROM {{ ref('fact_metaplex_programs') }})
         AND succeeded = TRUE
@@ -21,7 +21,7 @@ all_metaplex_transactions AS (
         program_id,
         DATE_TRUNC('DAY', block_timestamp) AS day
     FROM
-        solana_flipside.core.fact_events_inner
+        {{ source('SOLANA_FLIPSIDE', 'fact_events') }}
     WHERE
         program_id IN (SELECT program_id FROM {{ ref('fact_metaplex_programs') }})
         AND succeeded = TRUE

@@ -3,7 +3,7 @@
     snowflake_warehouse="METAPLEX"
 ) }}
 
-filtered_transactions AS (
+WITH filtered_transactions AS (
     SELECT 
         t.tx_id,
         DATE_TRUNC('day', t.block_timestamp) AS day_date,

@@ -23,7 +23,7 @@ metaplex_mints AS (
         m.mint, 
         m.program_id
     FROM 
-        solana_flipside.nft.fact_nft_mints AS m
+        {{ source('SOLANA_FLIPSIDE_NFT', 'fact_nft_mints') }} AS m
     WHERE 
         m.program_id IN (SELECT program_id FROM metaplex_programs)
 ),
@@ -33,7 +33,7 @@ minter_activity AS (
         DATE_TRUNC('DAY', m.block_timestamp) AS activity_date, 
         m.purchaser AS wallet
     FROM 
-        solana_flipside.nft.fact_nft_mints AS m
+        {{ source('SOLANA_FLIPSIDE_NFT', 'fact_nft_mints') }} AS m
     WHERE 
         m.program_id IN (SELECT program_id FROM metaplex_programs)
 ),
@@ -50,7 +50,7 @@ decoded_instruction_activity AS (
                 END
         ) AS rank
     FROM 
-        solana_flipside.core.fact_decoded_instructions AS di,
+        {{ source('SOLANA_FLIPSIDE', 'fact_decoded_instructions') }} AS di,
         LATERAL FLATTEN(input => di.decoded_instruction:accounts) AS account
     WHERE 
         di.program_id = 'BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY'

@@ -10,7 +10,7 @@ WITH daily_balances AS (
         mint,
         MAX(balance) AS ending_balance
     FROM
-        solana_flipside.core.fact_token_balances
+        {{ source('SOLANA_FLIPSIDE', 'fact_token_balances') }}
     WHERE
         owner = 'E7Hzc1cQwx5BgJa8hJGVuDF2G2f2penLrhiKU6nU53gK'
         AND mint = 'METAewgxyPbgwsseH8T16a39CQ5VyVxZi9zXiDPY18m'
