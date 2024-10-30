@@ -4,7 +4,7 @@ with
         select
             to_timestamp(block_timestamp)::date as date,
             sum(gas_used * gas_price + l1_fee) / 1e18 as gas,
-            median(gas_used * gas_price + l1_fee) as median_gas,
+            median((gas_used * gas_price + l1_fee) / 1e18) as median_gas,
             'scroll' as chain
         from {{ ref("fact_scroll_transactions") }}
         group by 1
