@@ -9,11 +9,9 @@ WITH all_activity AS (
         DATE_TRUNC('DAY', m.block_timestamp) AS date, 
         m.purchaser AS wallet
     FROM 
-        {{ source('SOLANA_FLIPSIDE_NFT', 'fact_nft_mints') }} AS m
-    WHERE 
-        m.program_id IN (SELECT program_id FROM {{ ref('fact_metaplex_programs') }})
+        {{ ref('fact_filtered_metaplex_solana_nft_mints') }} AS m
     {% if is_incremental() %}
-        AND block_timestamp > (SELECT MAX(date) FROM {{ this }})
+        WHERE block_timestamp >= (SELECT MAX(date) FROM {{ this }})
     {% endif %}
 
     UNION ALL
@@ -33,7 +31,7 @@ WITH all_activity AS (
         purchaser AS wallet
     FROM 
         {{ ref('fact_metaplex_sales') }} AS s
-ç
+
     UNION ALL       
 
     -- Recipient activity
@@ -45,7 +43,7 @@ WITH all_activity AS (
     WHERE 
         EXISTS (SELECT 1 FROM {{ ref('fact_metaplex_mints') }} AS m WHERE m.mint = t.mint)
     {% if is_incremental() %}
-        AND block_timestamp > (SELECT MAX(date) FROM {{ this }})
+        AND t.block_timestamp > (SELECT MAX(date) FROM {{ this }})
     {% endif %}
 
     UNION ALL
@@ -55,12 +53,10 @@ WITH all_activity AS (
         DATE_TRUNC('DAY', fe.block_timestamp) AS date, 
         signer.value AS wallet
     FROM 
-        {{ source('SOLANA_FLIPSIDE', 'fact_events') }} AS fe,
+        {{ ref('fact_filtered_metaplex_solana_events') }} AS fe,
         LATERAL FLATTEN(input => fe.signers) AS signer
-    WHERE 
-        fe.program_id IN (SELECT program_id FROM {{ ref('fact_metaplex_programs') }})
     {% if is_incremental() %}
-        AND block_timestamp > (SELECT MAX(date) FROM {{ this }})
+        WHERE fe.block_timestamp > (SELECT MAX(date) FROM {{ this }})
     {% endif %}
 
     UNION ALL
@@ -72,12 +68,10 @@ WITH all_activity AS (
     FROM 
         {{ source('SOLANA_FLIPSIDE', 'fact_transactions') }} AS ft
     JOIN 
-        {{ source('SOLANA_FLIPSIDE', 'fact_events') }} AS fe ON ft.tx_id = fe.tx_id,
+        {{ ref('fact_filtered_metaplex_solana_events') }} AS fe ON ft.tx_id = fe.tx_id,
         LATERAL FLATTEN(input => ft.signers) AS signer
-    WHERE 
-        fe.program_id IN (SELECT program_id FROM {{ ref('fact_metaplex_programs') }})
     {% if is_incremental() %}
-        AND block_timestamp > (SELECT MAX(date) FROM {{ this }})
+        WHERE ft.block_timestamp > (SELECT MAX(date) FROM {{ this }})
     {% endif %}
 
     UNION ALL
@@ -87,13 +81,12 @@ WITH all_activity AS (
         DATE_TRUNC('DAY', di.block_timestamp) AS date, 
         account.value:pubkey::TEXT AS wallet
     FROM 
-        {{ source('SOLANA_FLIPSIDE', 'fact_decoded_instructions') }} AS di,
+        {{ ref('fact_filtered_metaplex_solana_instructions') }} AS di,
         LATERAL FLATTEN(input => di.decoded_instruction:accounts) AS account
     WHERE 
-        di.program_id IN (SELECT program_id FROM {{ ref('fact_metaplex_programs') }})
-        AND account.value:name::TEXT IN ('leafOwner', 'payer', 'treeAuthority', 'leafDelegate', 'treeDelegate', 'collectionAuthority')
+        account.value:name::TEXT IN ('leafOwner', 'payer', 'treeAuthority', 'leafDelegate', 'treeDelegate', 'collectionAuthority')
     {% if is_incremental() %}
-        AND block_timestamp > (SELECT MAX(date) FROM {{ this }})
+        AND di.block_timestamp > (SELECT MAX(date) FROM {{ this }})
     {% endif %}
 )
 
@@ -106,4 +99,4 @@ FROM
 GROUP BY 
     date
 ORDER BY 
-    date DESC;
+    date DESC

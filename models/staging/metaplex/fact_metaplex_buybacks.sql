@@ -23,12 +23,27 @@ WITH daily_balances AS (
         account_address,
         mint
 )
+, prices AS (
+    SELECT
+        date(hour) AS date,
+        symbol,
+        avg(price) as price
+    FROM
+        {{source('SOLANA_FLIPSIDE_PRICE', 'ez_prices_hourly')}}
+    WHERE token_address = 'METAewgxyPbgwsseH8T16a39CQ5VyVxZi9zXiDPY18m'
+    GROUP BY 1, 2
+)
 
 SELECT
-    date,
-    ending_balance,
-    ending_balance - LAG(ending_balance) OVER (ORDER BY date DESC) AS buyback_amount
+    b.date,
+    p.symbol,
+    b.ending_balance,
+    b.ending_balance - LAG(b.ending_balance) OVER (ORDER BY b.date DESC) AS buyback_native,
+    buyback_native * p.price AS buyback_usd
 FROM
-    daily_balances
+    daily_balances b
+LEFT JOIN
+    prices p
+    ON b.date = p.date
 ORDER BY
-    date DESC
+    b.date DESC

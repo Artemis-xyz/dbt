@@ -15,3 +15,10 @@ sources:
       - name: fact_transactions
       - name: fact_token_balances
       - name: fact_decoded_instructions
+      - name: fact_events_inner
+  
+  - name: SOLANA_FLIPSIDE_PRICE
+    schema: PRICE
+    database: SOLANA_FLIPSIDE
+    tables:
+      - name: ez_prices_hourly

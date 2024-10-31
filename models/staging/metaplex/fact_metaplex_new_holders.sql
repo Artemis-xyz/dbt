@@ -23,9 +23,7 @@ metaplex_mints AS (
         m.mint, 
         m.program_id
     FROM 
-        {{ source('SOLANA_FLIPSIDE_NFT', 'fact_nft_mints') }} AS m
-    WHERE 
-        m.program_id IN (SELECT program_id FROM metaplex_programs)
+        {{ ref('fact_filtered_metaplex_solana_nft_mints') }} AS m
 ),
 
 minter_activity AS (
@@ -33,9 +31,7 @@ minter_activity AS (
         DATE_TRUNC('DAY', m.block_timestamp) AS activity_date, 
         m.purchaser AS wallet
     FROM 
-        {{ source('SOLANA_FLIPSIDE_NFT', 'fact_nft_mints') }} AS m
-    WHERE 
-        m.program_id IN (SELECT program_id FROM metaplex_programs)
+        {{ ref('fact_filtered_metaplex_solana_nft_mints') }} AS m
 ),
 
 decoded_instruction_activity AS (
@@ -50,11 +46,10 @@ decoded_instruction_activity AS (
                 END
         ) AS rank
     FROM 
-        {{ source('SOLANA_FLIPSIDE', 'fact_decoded_instructions') }} AS di,
+        {{ ref('fact_filtered_metaplex_solana_instructions') }} AS di,
         LATERAL FLATTEN(input => di.decoded_instruction:accounts) AS account
     WHERE 
-        di.program_id = 'BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY'
-        AND account.value:name::TEXT IN ('leafOwner', 'newLeafOwner')
+        account.value:name::TEXT IN ('leafOwner', 'newLeafOwner')
         AND LOWER(event_type) IN ('mintv1', 'minttocollectionv1')
 ),
 
@@ -87,4 +82,4 @@ FROM
 GROUP BY 
     date
 ORDER BY 
-    date DESC;
+    date DESC

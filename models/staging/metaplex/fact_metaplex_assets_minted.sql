@@ -16,7 +16,7 @@ WITH daily_mints AS (
     FROM 
         {{ ref('fact_metaplex_mints') }}
     GROUP BY 
-        event_date
+        date
 )
 
 SELECT 
@@ -32,4 +32,4 @@ SELECT
 FROM 
     daily_mints
 ORDER BY 
-    date DESC;
+    date DESC

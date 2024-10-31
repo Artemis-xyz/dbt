@@ -12,7 +12,7 @@ SELECT
     mint_currency,
     is_compressed
 FROM 
-    {{ source('SOLANA_FLIPSIDE_NFT', 'fact_nft_mints') }}
+    {{ ref('fact_filtered_metaplex_solana_nft_mints') }}
 WHERE 
     succeeded = TRUE
     AND program_id IN (
