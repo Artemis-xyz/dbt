@@ -6,6 +6,15 @@
     )
 }}
 with
+    evm_txs AS (
+        SELECT 
+            DISTINCT tx_id 
+        FROM SEI_FLIPSIDE.CORE.FACT_MSG_ATTRIBUTES 
+        WHERE attribute_key = 'evm_addr'  
+        {% if is_incremental() %}
+            AND inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
+        {% endif %}
+    ),
     new_contracts as (
         select distinct
             address,
@@ -105,6 +114,10 @@ with
             AND 
             t2.inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
             {% endif %}
+            AND tx_id NOT IN (
+                SELECT tx_id
+                FROM evm_txs e 
+            )
     )
     SELECT
         tx_hash
