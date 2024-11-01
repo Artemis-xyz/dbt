@@ -1,4 +1,4 @@
-{{ config(materialized="view") }}
+{{ config(materialized="incremental", unique_key="date") }}
 
 with
     coingecko_eth_price as (
@@ -18,9 +18,12 @@ with
             sum(regexp_substr(fee, '^[0-9]+')::number) as gas,
             substring(fee, length(regexp_substr(fee, '^[0-9]+')) + 1) as currency
         from osmosis_flipside.core.fact_transactions
+        {% if is_incremental() %}
+            where to_date(block_timestamp) >= (select dateadd('day', -5, max(date)) from {{ this }})
+        {% endif %}
         group by date, currency
     ),
-      prices as (
+    prices as (
         select
             trunc(recorded_hour, 'day') as date, 
             currency, 
@@ -41,8 +44,8 @@ with
             coalesce(gas, 0) / pow(10, t2.decimal) as gas_adj,
             gas_adj * coalesce(t3.price, t2.price, 0) as gas_usd
         from data
-        inner join prices t2 on data.date = t2.date and data.currency = t2.currency
-        inner join coingecko_price t3 on data.date=t3.date and data.currency = t3.currency
+        left join prices t2 on data.date = t2.date and data.currency = t2.currency
+        left join coingecko_price t3 on data.date=t3.date and data.currency = t3.currency
     )
 select date, 'osmosis' as chain, sum(gas_usd) as gas_usd
 from by_token
