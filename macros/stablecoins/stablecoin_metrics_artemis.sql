@@ -29,8 +29,10 @@ with
             st.*
             , coalesce(dl.app,'other') as from_app
             , coalesce(dlt.app,'other') as to_app
-            , coalesce(dl.sub_category,'other') as from_category
-            , coalesce(dlt.sub_category,'other') as to_category
+            , coalesce(dl.category,'other') as from_category
+            , coalesce(dlt.category,'other') as to_category
+            , coalesce(dl.sub_category,'other') as from_sub_category
+            , coalesce(dlt.sub_category,'other') as to_sub_category
         from stablecoin_transfers st
         left join filtered_contracts dl on lower(st.from_address) = lower(dl.address)
         left join filtered_contracts dlt on lower(st.to_address) = lower(dlt.address)
@@ -40,7 +42,7 @@ with
         select distinct tx_hash
         from artemis_mev_filtered
         where from_app = to_app
-            and lower(from_category) in ('cex', 'market maker') 
+            and lower(from_sub_category) in ('cex', 'market maker') 
     ),
     artemis_ranked_transfer_filter as (
         select 
