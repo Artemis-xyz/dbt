@@ -1,3 +1,3 @@
-{{ config(materialized="incremental", unique_key=["date_granularity", "symbol", "chain"], snowflake_warehouse="STABLECOIN_V2_LG_2") }}
+{{ config(materialized="incremental", unique_key=["date_granularity", "symbol", "chain"], snowflake_warehouse="STABLECOIN_MONTHLY") }}
 
 {{ stablecoin_breakdown(["symbol", "chain"], "week") }}
