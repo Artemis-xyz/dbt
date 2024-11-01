@@ -34,7 +34,7 @@ with
         from stablecoin_transfers st
         left join filtered_contracts dl on lower(st.from_address) = lower(dl.address)
         left join filtered_contracts dlt on lower(st.to_address) = lower(dlt.address)
-        where lower(from_app) != 'mev' and lower(to_app) != 'mev'
+        where lower(from_category) != 'mev' and lower(from_category) != 'mev'
     ),
     artemis_cex_filters as (
         select distinct tx_hash
