@@ -14,7 +14,7 @@ SELECT
     interest_fees,
     primary_supply_side_revenue,
     total_supply_side_revenue,
-    protocol_revenue,
+    revenue,
     token_incentives,
     total_expenses,
     protocol_earnings,
