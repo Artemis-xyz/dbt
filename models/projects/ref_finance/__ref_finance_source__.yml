@@ -1,0 +1,15 @@
+sources:
+  - name: NEAR_FLIPSIDE
+    schema: DEFI
+    database: NEAR_FLIPSIDE
+    tables:
+      - name: ez_dex_swaps
+
+  - name: DEFILLAMA
+    schema: PROD
+    database: PC_DBT_DB
+    tables:
+      - name: fact_defillama_protocol_fees
+      - name: fact_defillama_protocol_revenue
+      - name: fact_defillama_protocols
+      - name: fact_defillama_protocol_tvls
