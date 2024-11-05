@@ -9,7 +9,7 @@
 with hex_cte as(
     SELECT
       date(block_timestamp) as date,
-      PC_DBT_DB.PROD.BASE58_TO_HEX(f.value:data) as hex_data,
+      {{ base58_to_hex("f.value:data") }} as hex_data,
       f.value:data as base58_data,
       tx_id
     FROM
@@ -28,8 +28,8 @@ with hex_cte as(
 processed_ic as( -- processed hex data
     SELECT
         date,
-        {{ big_endian_hex_to_decimal(SUBSTRING(hex_data,224+1,16)) }} as amount, -- fee amount in token units
-        {{ hex_to_base58(SUBSTRING(hex_data, 160+1, 64)) }} as mint,
+        {{ big_endian_hex_to_decimal("SUBSTR(hex_data,224+1,16)") }} as amount, -- fee amount in token units
+        {{ hex_to_base58("SUBSTR(hex_data, 160+1, 64)") }} as mint,
         hex_data,
         tx_id
     FROM hex_cte
