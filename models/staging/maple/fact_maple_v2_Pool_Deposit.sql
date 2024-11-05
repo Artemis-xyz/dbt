@@ -10,7 +10,7 @@
 
 with pools as (
     SELECT
-        distinct('0x' || SUBSTR(topics[1], 24+3, 40)::string) as pool_address
+        distinct({{ hex_string_to_evm_address("SUBSTR(data, 27, 40)::string") }}) as pool_address
     FROM
     {{source('ETHEREUM_FLIPSIDE', 'fact_event_logs')}}
     where topics[0] = lower('0xf55841bdafd5af17a3183b609d4042325203ab6eb4747e435c6a044b6eb27b05')
@@ -18,7 +18,7 @@ with pools as (
     UNION ALL
 
     SELECT
-        distinct('0x' || SUBSTR(data, 24+3, 40)::string) as pool_address
+        distinct({{ hex_string_to_evm_address("SUBSTR(data, 27, 40)::string") }}) as pool_address
     FROM
         {{source('ETHEREUM_FLIPSIDE', 'ez_decoded_event_logs')}}
     WHERE topics[0] = '0x0f91882b50d9330af0b1d4998e6af7f2eaee90ce7e77ea54fea089af166d021d'

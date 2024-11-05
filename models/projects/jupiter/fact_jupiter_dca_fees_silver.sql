@@ -28,8 +28,8 @@ with hex_cte as(
 processed_ic as( -- processed hex data
     SELECT
         date,
-        PC_DBT_DB.PROD.BIG_ENDIAN_HEX_TO_DECIMAL(SUBSTRING(hex_data,224+1,16)) as amount, -- fee amount in token units
-        PC_DBT_DB.PROD.HEX_TO_BASE58(SUBSTRING(hex_data, 160+1, 64)) as mint,
+        {{ big_endian_hex_to_decimal(SUBSTRING(hex_data,224+1,16)) }} as amount, -- fee amount in token units
+        {{ hex_to_base58(SUBSTRING(hex_data, 160+1, 64)) }} as mint,
         hex_data,
         tx_id
     FROM hex_cte
