@@ -9,12 +9,12 @@
 
 with agg as(
     SELECT
-        distinct({{ hex_string_to_evm_address("SUBSTR(data, 27, 40)::string") }}) as pool_address
+        distinct({{ hex_string_to_evm_address("SUBSTR(topics[1], 27, 40)::string") }}) as pool_address
     FROM
     {{source('ETHEREUM_FLIPSIDE', 'fact_event_logs')}}
     where topics[0] = lower('0xf55841bdafd5af17a3183b609d4042325203ab6eb4747e435c6a044b6eb27b05')
     {% if is_incremental() %}
-        and block_timestamp > (select max(last_updated) from {{this}})
+        and block_timestamp > (select dateadd('day', -1, max(last_updated)) from {{this}})
     {% endif %}
 
     UNION ALL
@@ -32,7 +32,7 @@ with agg as(
         , lower('0x7F0d63e2250bC99f48985B183AF0c9a66BbC8ac3')
     )
     {% if is_incremental() %}
-        and block_timestamp > (select max(last_updated) from {{this}})
+        and block_timestamp > (select dateadd('day', -1, max(last_updated)) from {{this}})
     {% endif %}
 )
 SELECT
