@@ -6,3 +6,20 @@ sources:
       - name: raw_gmx_fees
       - name: raw_gmx_trading_volume
       - name: raw_gmx_unique_traders
+      - name: raw_gmx_arbitrum_index_token_metadata
+      - name: raw_gmx_avalanche_index_token_metadata
+
+  - name: ARBITRUM_FLIPSIDE
+    schema: core
+    database: ARBITRUM_FLIPSIDE
+    tables:
+      - name: ez_decoded_event_logs
+      - name: fact_traces
+      - name: dim_contracts
+  - name: AVALANCHE_FLIPSIDE
+    schema: core
+    database: AVALANCHE_FLIPSIDE
+    tables:
+      - name: ez_decoded_event_logs
+      - name: fact_traces
+      - name: dim_contracts
