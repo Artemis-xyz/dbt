@@ -12,7 +12,7 @@ with
         group by timestamp
     )
 select 
-    distinct TO_CHAR(TO_TIMESTAMP(source_json:timestamp::string / 1000), 'YYYY-MM-DD HH24:MI:SS') as timestamp
+    distinct to_timestamp(TO_CHAR(TO_TIMESTAMP(source_json:timestamp::string / 1000), 'YYYY-MM-DD HH24:MI:SS')) as timestamp
     , source_json:price::float as price
     , source_json:size::float as size
     , source_json:type::string as type
