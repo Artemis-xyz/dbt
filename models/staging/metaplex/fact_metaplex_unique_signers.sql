@@ -16,7 +16,7 @@ filtered_transactions AS (
         AND e.succeeded = TRUE
         AND t.succeeded = TRUE
     INNER JOIN 
-        {{ ref('metaplex_programs') }} mp 
+        {{ ref('fact_metaplex_programs') }} mp 
         ON e.program_id = mp.program_id
     , LATERAL FLATTEN(input => t.signers) AS unnested_signer
     GROUP BY 
