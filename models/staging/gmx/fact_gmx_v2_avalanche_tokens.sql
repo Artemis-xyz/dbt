@@ -17,14 +17,10 @@ with
     ),
     flattened_data as (
         select
-            date(to_timestamp(value:block_date::number / 1000)) as date,
-            value:"token_address"::string as token_address,
-            value:"symbol"::string as symbol,
-            value:"name"::string as name
-        from latest_data, lateral flatten(input => data)
+            value:address::string as address,
+            value:decimals::number as decimals,
+            value:symbol::string as symbol
+        from latest_data, lateral flatten(input => data:tokens)
     )
-select date, token_address, symbol, name
+select address, decimals, symbol
 from flattened_data
-where date < to_date(sysdate())
-order by date desc
-

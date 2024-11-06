@@ -10,6 +10,6 @@ with arbitrum_v1 as (
 avalanche_v1 as (
     {{ get_gmx_v1_price_per_trade_for_chain('avalanche') }}
 )
-select * from arbitrum
+select * from arbitrum_v1
 union all
-select * from avalanche
+select * from avalanche_v1  

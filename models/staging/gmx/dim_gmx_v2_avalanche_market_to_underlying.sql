@@ -1,12 +1,14 @@
 {{
     config(
-        materialized = 'table',
-        snowflake_warehouse = 'GMX'
+        materialized = 'incremental',
+        snowflake_warehouse = 'GMX',
+        unique_key = ['market', 'index_token_address']
     )
 }}
 
 with market_creation_txs as (
     select 
+        distinct
         created_tx_hash,
         e.market
     from {{ source('AVALANCHE_FLIPSIDE', 'dim_contracts') }} c
@@ -15,8 +17,9 @@ with market_creation_txs as (
 
 , index_token_addresses as (
     select
+        distinct
         m.market,
-        {{ hex_string_to_evm_address('substr(t.input, 35, 40)') }} as index_token_address
+        '0x' || substr(t.input, 35, 40) as index_token_address
     from 
     {{ source('AVALANCHE_FLIPSIDE', 'fact_traces') }} t
     join market_creation_txs m on m.created_tx_hash = t.tx_hash

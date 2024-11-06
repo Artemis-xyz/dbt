@@ -1,7 +1,8 @@
 {{
     config(
         materialized = 'incremental',
-        snowflake_warehouse = 'GMX'
+        snowflake_warehouse = 'GMX',
+        unique_key =  ['tx_hash', 'event_index']
     )
 }}
 
