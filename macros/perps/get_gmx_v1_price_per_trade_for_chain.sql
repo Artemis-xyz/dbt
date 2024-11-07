@@ -12,7 +12,7 @@ with gmx_vault_events as (
     from {{ source((chain | upper) ~ '_FLIPSIDE', 'ez_decoded_event_logs') }}
     where contract_address = lower('{{ contract_address }}')
     {% if is_incremental() %}
-        and block_timestamp > (select date_add('day', -1, max(block_timestamp)) from {{ this }})
+        and block_timestamp > (select dateadd('day', -1, max(block_timestamp)) from {{ this }})
     {% endif %}
 )
 select
