@@ -9,19 +9,14 @@
 }}
 
 
-with fundamental_data as (
-    select
-        date
-        , txns
-        , daa as dau
-        , gas_usd as fees
-        , gas as fees_native
-        , revenue
-        , l1_data_cost
-        , l1_data_cost_native
-    from {{ ref("fact_mantle_daa_txns_gas_gas_usd_revenue") }}
+with 
+fundamental_data as ({{ get_fundamental_data_for_chain("mantle") }})
+, expenses_data as (
+    select date, chain, l1_data_cost_native, l1_data_cost
+    from {{ ref("fact_mantle_l1_data_cost") }}
 )
 , github_data as ({{ get_github_metrics("mantle") }})
+, rolling_metrics as ({{ get_rolling_active_address_metrics("mantle") }})
 , defillama_data as ({{ get_defillama_metrics("mantle") }})
 , price_data as ({{ get_coingecko_metrics("mantle") }})
 
@@ -30,11 +25,15 @@ select
     , 'mantle' as chain
     , txns
     , dau
+    , wau
+    , mau
     , fees
     , fees_native
-    , revenue
     , l1_data_cost
     , l1_data_cost_native
+    , coalesce(fees_native, 0) - l1_data_cost_native as revenue_native -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(fees, 0) - l1_data_cost as revenue
+    , avg_txn_fee
     , tvl
     , dex_volumes
     , weekly_commits_core_ecosystem
@@ -48,4 +47,6 @@ from fundamental_data
 left join github_data using (date)
 left join defillama_data using (date)
 left join price_data using (date)
+left join expenses_data using (date)
+left join rolling_metrics using (date)
 where fundamental_data.date < to_date(sysdate())
