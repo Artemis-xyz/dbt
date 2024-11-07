@@ -8,4 +8,4 @@
     )
 }}
 
-select * from {{ ref("fact_sec_gov_10q") }}
+select * from {{ ref("fact_sec_gov_10q_pivot") }}

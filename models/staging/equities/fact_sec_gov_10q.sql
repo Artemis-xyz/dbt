@@ -13,6 +13,7 @@ with
             value:"metric_value"::VARCHAR AS metric_value,
             value:"parent_metric"::VARCHAR AS parent_metric,
             value:"time_period"::VARCHAR AS time_period,
+            to_date(to_timestamp(value:"date"::NUMBER / 1000)) AS date,
             extraction_date
         from
             {{ source("PROD_LANDING", "equities_metrics") }},
