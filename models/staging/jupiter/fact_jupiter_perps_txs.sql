@@ -53,17 +53,7 @@ with hex_cte as (
         {{ hex_to_base58("SUBSTRING(hex_data,456+1,64)") }} as owner, -- owner/trader address
         {{ hex_to_base58("SUBSTRING(hex_data,243,64)") }} as mint,
         -- Price calculation with dynamic offset
-        {{ big_endian_hex_to_decimal("SUBSTRING(hex_data,619+1,16)") }}/1e6 as price,
-            SUBSTRING(
-                hex_data,
-                619 -- Base offset to price
-                + (CASE WHEN SUBSTRING(hex_data, 618, 1) = '1'
-                        THEN 16
-                        ELSE 0
-                    END) -- Add offset if transferToken present
-                , 16
-            )
-        )/1e6 as price,        
+        {{ big_endian_hex_to_decimal("SUBSTRING(hex_data,619+1,16)") }}/1e6 as price,      
         hex_data
     FROM hex_cte
     WHERE substring(hex_data,1+16,16) = '409c2b4a6d83107f' -- DecreasePosition
