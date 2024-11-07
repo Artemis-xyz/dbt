@@ -19,4 +19,4 @@ with
             lateral flatten(input => parse_json(source_json))
         where extraction_date = (select max_date from max_extraction)
     )
-select * from data;
+select * from data
