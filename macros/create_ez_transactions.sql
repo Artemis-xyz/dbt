@@ -20,10 +20,10 @@
         {% if chain in ("near") %}
             tx_succeeded,
         {% endif %}
-        {% if (chain not in ("tron", "starknet")) %} user_type,
+        {% if (chain not in ("tron", "starknet", "mantle")) %} user_type,
         {% else %} null as user_type,
         {% endif %}
-        {% if (chain not in ("near", "starknet")) %}
+        {% if (chain not in ("near", "starknet", "mantle")) %}
             balance_usd, native_token_balance, stablecoin_balance,
         {% else %}
             null as balance_usd,
