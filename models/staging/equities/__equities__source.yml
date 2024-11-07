@@ -3,4 +3,4 @@ sources:
     schema: PROD_LANDING
     database: LANDING_DATABASE
     tables:
-      - name: equities_metrics_asset
+      - name: equities_metrics

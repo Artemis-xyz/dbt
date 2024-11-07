@@ -2,7 +2,7 @@
 with
     max_extraction as (
         select max(extraction_date) as max_date
-        from {{ source("PROD_LANDING", "equities_metrics_asset") }}
+        from {{ source("PROD_LANDING", "equities_metrics") }}
     ),
     data as (
         select 
@@ -15,7 +15,7 @@ with
             value:"time_period"::VARCHAR AS time_period,
             extraction_date
         from
-            {{ source("PROD_LANDING", "equities_metrics_asset") }},
+            {{ source("PROD_LANDING", "equities_metrics") }},
             lateral flatten(input => parse_json(source_json))
         where extraction_date = (select max_date from max_extraction)
     )

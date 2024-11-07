@@ -3,7 +3,7 @@
         materialized="table",
         snowflake_warehouse="X_SMALL",
         database="equities",
-        schema="prod_core",
+        schema="core",
         alias="ez_sec_metrics",
     )
 }}
