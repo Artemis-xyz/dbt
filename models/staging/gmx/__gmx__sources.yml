@@ -16,6 +16,7 @@ sources:
       - name: ez_decoded_event_logs
       - name: fact_traces
       - name: dim_contracts
+
   - name: AVALANCHE_FLIPSIDE
     schema: core
     database: AVALANCHE_FLIPSIDE
