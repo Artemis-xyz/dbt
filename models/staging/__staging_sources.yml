@@ -1,0 +1,24 @@
+sources:
+  - name: SOLANA_FLIPSIDE_NFT
+    schema: NFT
+    database: SOLANA_FLIPSIDE
+    tables:
+      - name: fact_nft_mints
+      - name: fact_nft_sales
+
+  - name: SOLANA_FLIPSIDE
+    schema: CORE
+    database: SOLANA_FLIPSIDE
+    tables:
+      - name: fact_transfers
+      - name: fact_events
+      - name: fact_transactions
+      - name: fact_token_balances
+      - name: fact_decoded_instructions
+      - name: fact_events_inner
+  
+  - name: SOLANA_FLIPSIDE_PRICE
+    schema: PRICE
+    database: SOLANA_FLIPSIDE
+    tables:
+      - name: ez_prices_hourly

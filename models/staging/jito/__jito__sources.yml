@@ -1,6 +1,0 @@
-sources:
-  - name: SOLANA_FLIPSIDE
-    schema: core
-    database: solana_flipside
-    tables:
-      - name: fact_transfers
