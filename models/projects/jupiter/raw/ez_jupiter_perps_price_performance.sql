@@ -14,11 +14,7 @@ with agg as (
         agg.price,
         agg.mint,
         m.symbol,
-        CASE 
-            when date_part('DOW', convert_timezone('UTC', 'America/New_York', block_timestamp)) IN (0, 6) then 'FALSE'
-            when convert_timezone('UTC', 'America/New_York', block_timestamp)::time between '09:00:00' and '15:59:59' then 'TRUE'
-            else 'FALSE'
-        END AS nyc_operating_hours
+        {{ is_nyc_operating_hours('hour') }} as nyc_operating_hours
     FROM {{ ref('fact_jupiter_perps_txs') }} agg
     LEFT JOIN solana_flipside.price.ez_asset_metadata m ON m.token_address = agg.mint
 )
