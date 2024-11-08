@@ -9,4 +9,15 @@
     )
 }}
 
-SELECT * FROM {{ ref('fact_gmx_all_versions_trades') }}
+SELECT
+    block_timestamp,
+    tx_hash,
+    t1.chain,
+    'gmx' as app,
+    tracked_metadata.symbol,
+    price,
+    token_address
+FROM {{ ref('fact_gmx_all_versions_trades') }} t1
+inner join  {{ref('wrapped_token_majors_by_chain')}} tracked_metadata
+    on lower(t1.token_address) = lower(tracked_metadata.contract_address) 
+    and t1.chain = tracked_metadata.chain
