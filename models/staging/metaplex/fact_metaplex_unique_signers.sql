@@ -1,6 +1,7 @@
 {{ config(
-    materialized="table",
-    snowflake_warehouse="METAPLEX"
+    materialized="incremental",
+    snowflake_warehouse="METAPLEX",
+    unique_key=["date"]
 ) }}
 
 with filtered_transactions AS (
@@ -9,16 +10,18 @@ with filtered_transactions AS (
         DATE_TRUNC('day', t.block_timestamp) AS day_date,
         ARRAY_AGG(DISTINCT TRIM(LOWER(unnested_signer.value::STRING))) AS signers
     FROM 
-        solana_flipside.core.fact_transactions t
+        {{ source('SOLANA_FLIPSIDE', 'fact_transactions') }} t
     INNER JOIN 
-        solana_flipside.core.fact_events e 
+        {{ ref('fact_filtered_metaplex_solana_events') }} e 
         ON t.tx_id = e.tx_id
         AND e.succeeded = TRUE
         AND t.succeeded = TRUE
-    INNER JOIN 
-        {{ ref('fact_metaplex_programs') }} mp 
-        ON e.program_id = mp.program_id
     , LATERAL FLATTEN(input => t.signers) AS unnested_signer
+    {% if is_incremental() %}
+        WHERE t.block_timestamp > (SELECT DATEADD(day, -2, MAX(date)) FROM {{ this }})
+    {% else %}
+        WHERE t.block_timestamp > '2021-07-01'::date
+    {% endif %}
     GROUP BY 
         t.tx_id, day_date
 ),
@@ -60,5 +63,6 @@ LEFT JOIN
     daily_stats m 
 ON 
     d.day = m.day
+where date < to_date(sysdate())
 ORDER BY 
     d.day DESC
