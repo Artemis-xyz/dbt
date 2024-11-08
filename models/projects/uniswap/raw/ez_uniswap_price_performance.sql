@@ -19,7 +19,7 @@ prices as (
         date_trunc('hour', block_timestamp) as hour
         , unwrapped_symbol as symbol
         , price
-        , {{ is_nyc_operating_hours(hour) }} as nyc_operating_hours
+        , {{ is_nyc_operating_hours('hour') }} as nyc_operating_hours
     from {{ref('fact_uniswap_dex_token_prices')}} t1
     inner join tracked_metadata 
         on lower(t1.token_address) = lower(tracked_metadata.contract_address) 

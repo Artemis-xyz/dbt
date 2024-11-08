@@ -10,11 +10,11 @@
 
 SELECT
     block_timestamp,
-    tx_id,
+    tx_id as tx_hash,
     chain,
     app,
-    mint,
+    symbol,
     price,
-    size_usd,
-    fee_usd
-FROM {{ ref('fact_jupiter_perps_txs') }}
+    mint as token_address
+FROM {{ ref('fact_jupiter_perps_txs') }} t
+LEFT JOIN solana_flipside.price.ez_asset_metadata m ON m.token_address = t.mint

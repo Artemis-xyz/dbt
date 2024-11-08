@@ -13,8 +13,9 @@ with prices as (
         date_trunc('hour', block_timestamp) as hour
         , symbol
         , price
-        , {{ is_nyc_operating_hours(hour) }} as nyc_operating_hours
+        , {{ is_nyc_operating_hours('hour') }} as nyc_operating_hours
     from {{ref('fact_dydx_v4_perps_prices')}} t1
+    WHERE symbol in ('BTC', 'ETH')
 )
 
 select

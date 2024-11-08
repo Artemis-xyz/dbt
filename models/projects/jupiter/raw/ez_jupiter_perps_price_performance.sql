@@ -14,8 +14,7 @@ with agg as (
         agg.price,
         agg.mint,
         m.symbol,
-        CASE 
-        , {{ is_nyc_operating_hours(hour) }} as nyc_operating_hours
+        {{ is_nyc_operating_hours('hour') }} as nyc_operating_hours
     FROM {{ ref('fact_jupiter_perps_txs') }} agg
     LEFT JOIN solana_flipside.price.ez_asset_metadata m ON m.token_address = agg.mint
 )
