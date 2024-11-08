@@ -15,6 +15,7 @@ raw AS (
             , 'factory/osmo19hdqma2mj0vnmgcxag6ytswjnr8a3y07q7e70p/wLIBRA'
             , 'factory/osmo1q77cw0mmlluxu0wr29fcdd0tdnh78gzhkvhe4n6ulal9qvrtu43qtd0nh8/turd'
         )
+    AND fees_usd < 1000000 -- filter out mispriced trades
     GROUP BY date
 )
 
