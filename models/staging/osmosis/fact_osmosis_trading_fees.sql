@@ -55,6 +55,7 @@ with
         from data
         left join prices t2 on data.date = t2.date and lower(data.currency) = lower(t2.currency)
         left join coingecko_price t3 on data.date=t3.date and lower(data.currency) = lower(t3.currency)
+        where trading_fees < 1000000
     )
 select date, 'osmosis' as chain, sum(trading_fees) as trading_fees
 from by_token
