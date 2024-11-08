@@ -9,6 +9,8 @@ SELECT
     block_timestamp,
     chain,
     'v1' as version,
+    tx_hash,
+    event_index,
     price,
     token_address
 FROM {{ ref('fact_gmx_v1_price_per_trade') }}
@@ -19,6 +21,8 @@ SELECT
     block_timestamp,
     chain,
     'v2' as version,
+    tx_hash,
+    event_index,
     price,
     token_address
 FROM {{ ref('fact_gmx_v2_price_per_trade') }}
