@@ -5,4 +5,5 @@ select
     count(*) as txns,
     'axelar' as chain
 from axelar_flipside.core.fact_transactions
+where block_timestamp is not null
 group by date
