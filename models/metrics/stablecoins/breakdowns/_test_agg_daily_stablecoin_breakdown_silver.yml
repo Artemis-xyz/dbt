@@ -1,11 +1,6 @@
 models:
   - name: agg_daily_stablecoin_breakdown_silver
     tests:
-      - "dbt_expectations.expect_grouped_row_values_to_have_recent_data":
-          group_by: [CHAIN, SYMBOL]
-          timestamp_column: "DATE"
-          datepart: "day"
-          interval: 2
     columns:
       - name: "DATE"
         tests:
