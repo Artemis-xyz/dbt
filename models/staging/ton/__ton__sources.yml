@@ -13,3 +13,4 @@ sources:
       - name: raw_ton_app_daa
       - name: raw_ton_app_txns_fees
       - name: raw_ton_transactions
+      - name: raw_ton_transactions_avro

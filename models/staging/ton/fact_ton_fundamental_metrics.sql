@@ -8,7 +8,7 @@ with flatten_ton_transaction as (
         NOT ARRAY_CONTAINS(0, ARRAY_UNIQUE_AGG(success)) as success
         , trace_id
         , max(block_timestamp::date) as date
-        , min_by(transaction_account_interfaces, lt) as interfaces
+        , min_by(transaction_account_interface, lt) as interface
         , min_by(transaction_account, lt) as first_account
         , min_by(transaction_account_workchain, lt) as workchain
         , sum(total_fees) as transaction_fees
@@ -37,7 +37,7 @@ dau as (
         date
         , count(distinct first_account) as dau
     from flatten_ton_transaction
-    where success and GET(interfaces, 0) like 'wallet_v%'
+    where success and interface like '%wallet%'
     group by date
 )
 SELECT

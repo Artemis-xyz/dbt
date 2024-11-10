@@ -19,7 +19,7 @@ with
     flatten_ton_transactions as (
         select
             NOT ARRAY_CONTAINS(0, ARRAY_UNIQUE_AGG(success)) as success
-            , min_by(transaction_account_interfaces, lt) as interfaces
+            , min_by(transaction_account_interface, lt) as interface
             , min_by(transaction_account, lt) as first_account
             , max(block_timestamp::date) as raw_date
         from {{ ref("fact_ton_transactions") }}
@@ -31,7 +31,7 @@ with
             raw_date,
             first_account as from_address 
         from flatten_ton_transactions
-        where success and GET(interfaces, 0) like 'wallet_v%'
+        where success and interface like '%wallet%'
     ),
     rolling_mau as (
         select 
