@@ -1,6 +1,5 @@
 models:
   - name: agg_daily_stablecoin_breakdown_silver
-    tests:
     columns:
       - name: "DATE"
         tests:
