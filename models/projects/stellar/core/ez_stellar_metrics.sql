@@ -31,7 +31,7 @@ select
     fundamental_data.classic_txns AS txns,
     fundamental_data.soroban_txns AS soroban_txns,
     fundamental_data.daily_fees as fees_native,
-    fundamental_data.daily_fees * price as fees_usd,
+    fundamental_data.daily_fees * price as fees,
     fundamental_data.assets_deployed as assets_deployed,
     fundamental_data.operations as operations,
     fundamental_data.active_contracts as active_contracts,
