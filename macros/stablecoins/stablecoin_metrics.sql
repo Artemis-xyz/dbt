@@ -167,7 +167,7 @@
                     else filtered_contracts.category 
                 end as category
                 , case 
-                    {% if chain not in ('solana', 'tron', 'near') %}
+                    {% if chain not in ('solana', 'tron', 'near', 'ton') %}
                         when 
                             from_address not in (select contract_address from {{ ref("dim_" ~ chain ~ "_contract_addresses")}}) 
                             then 1
