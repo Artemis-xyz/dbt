@@ -1,13 +1,9 @@
 {% macro p2p_stablecoin_transfers(chain) %}
 with 
     stablecoin_transfers as (
-        {% if chain in ("ton") %}
-            select * from {{ ref("ez_" ~ chain ~ "_stablecoin_transfers") }}
-        {% else %}
-            select * from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers") }}
-        {% endif %}
+        select * from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers") }}
     ),
-    {% if chain in ("tron", "solana", "near") %}
+    {% if chain in ("tron", "solana", "near", "ton") %}
          distinct_peer_address as (
             select address
             from {{ ref("dim_" ~ chain ~ "_eoa_addresses") }}

@@ -1,8 +1,6 @@
---depends_on: {{ ref("ez_ton_stablecoin_transfers") }}
 {{
     config(
-        materialized="incremental",
-        unique_key="tx_hash",
+        materialized="view",
         snowflake_warehouse="TON",
         database="ton",
         schema="raw",
@@ -10,4 +8,5 @@
     )
 }}
 
-{{ p2p_stablecoin_transfers("ton") }}
+select * 
+from {{ref("fact_ton_p2p_stablecoin_transfers")}}

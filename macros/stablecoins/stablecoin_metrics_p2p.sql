@@ -9,11 +9,7 @@ with
             , symbol
             , amount_usd as transfer_volume
             , to_address
-        {% if chain in ("ton") %}
-            from {{ ref("ez_" ~ chain ~ "_p2p_stablecoin_transfers")}} t
-        {% else %}
-            from {{ ref("fact_" ~ chain ~ "_p2p_stablecoin_transfers")}} t
-        {% endif %}
+        from {{ ref("fact_" ~ chain ~ "_p2p_stablecoin_transfers")}} t
         left join {{ ref( "fact_" ~ chain ~ "_stablecoin_contracts") }} c
             on lower(t.token_address) = lower(c.contract_address)
         {% if is_incremental() %} 
