@@ -1,7 +1,8 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="outerlands"
+        snowflake_warehouse="outerlands",
+        unique_key=["date", "artemis_id"]
     )
 }}
 
