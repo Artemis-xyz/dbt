@@ -11,3 +11,5 @@ sources:
       - name: raw_bitcoin_addresses_with_balance_gte_one_hundred
       - name: raw_bitcoin_hodl_wave
       - name: raw_bitcoin_nft_trading_volume
+      - name: raw_bitcoin_etf_addresses
+      - name: raw_bitcoin_etf_metadata
