@@ -30,6 +30,20 @@ with revenue as (
     from {{ ref("fact_metaplex_active_wallets") }}
     group by 1
 )
+, unique_signers as (
+    select
+        date
+        , sum(unique_signers) as unique_signers
+    from {{ ref("fact_metaplex_unique_signers") }}
+    group by 1
+)
+, new_holders as (
+    select
+        date
+        , sum(daily_new_holders) as daily_new_holders
+    from {{ ref("fact_metaplex_new_holders") }}
+    group by 1
+)
 , transactions as (
     select
         date
@@ -57,6 +71,8 @@ SELECT
     , coalesce(mints.daily_mints, 0) as daily_mints
     , coalesce(active_wallets.dau, 0) as dau
     , coalesce(transactions.txns, 0) as txns
+    , coalesce(unique_signers.unique_signers, 0) as unique_signers
+    , coalesce(new_holders.daily_new_holders, 0) as daily_new_holders
     , coalesce(price.price, 0) as price
     , coalesce(price.market_cap, 0) as market_cap
     , price.fdmc
@@ -69,4 +85,6 @@ LEFT JOIN buybacks USING (date)
 LEFT JOIN mints USING (date)
 LEFT JOIN active_wallets USING (date)
 LEFT JOIN transactions USING (date)
+LEFT JOIN unique_signers USING (date)
+LEFT JOIN new_holders USING (date)
 where coalesce(price.date, revenue.date, buybacks.date, transactions.date) < to_date(sysdate())
