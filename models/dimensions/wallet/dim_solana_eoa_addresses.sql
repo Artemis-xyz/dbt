@@ -1,2 +1,2 @@
 {{config(materialized="table") }}
-{{ distinct_eoa_addresses("ton") }}
+{{ distinct_eoa_addresses("solana") }}
