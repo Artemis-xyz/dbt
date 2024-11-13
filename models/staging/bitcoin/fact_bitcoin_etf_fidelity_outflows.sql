@@ -10,15 +10,12 @@
 with
     max_extraction as (
         select max(extraction_date) as max_date
-        from {{ source("PROD_LANDING", "raw_bitcoin_etf_addresses") }}
+        from {{ source("PROD_LANDING", "raw_bitcoin_fidelity_outflows") }}
     )
 select
-    value:address::string as address,
-    value:inverse_values::string as inverse_values,
-    value:issuer::string as issuer,
-    value:track_inflow::string as track_inflow,
-    value:track_outflow::string as track_outflow
+    value:date::date as date,
+    value:amount::float as amount
 from
-    {{ source("PROD_LANDING", "raw_bitcoin_etf_addresses") }},
+    {{ source("PROD_LANDING", "raw_bitcoin_fidelity_outflows") }},
     lateral flatten(input => parse_json(source_json))
 where extraction_date = (select max_date from max_extraction)

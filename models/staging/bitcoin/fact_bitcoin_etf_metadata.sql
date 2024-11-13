@@ -5,16 +5,19 @@
     )
 }}
 
+-- Credit to @hildobby for the original version of this model: https://dune.com/hildobby/btc-etfs
+
 with
     max_extraction as (
         select max(extraction_date) as max_date
         from {{ source("PROD_LANDING", "raw_bitcoin_etf_metadata") }}
     )
 select
-    date(to_timestamp(value:date::number / 1000)) as date,
-    value:addresses::int as addresses,
-    value as source,
-    'bitcoin' as chain
+    value:custodian::string as custodian,
+    left(value:fee, 4)::float as fee,
+    value:issuer::string as issuer,
+    value:ticker::string as ticker,
+    value:website::string as website
 from
     {{ source("PROD_LANDING", "raw_bitcoin_etf_metadata") }},
     lateral flatten(input => parse_json(source_json))
