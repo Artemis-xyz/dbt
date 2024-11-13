@@ -46,6 +46,7 @@ with
         from data
         left join prices t2 on data.date = t2.date and data.currency = t2.currency
         left join coingecko_price t3 on data.date=t3.date and data.currency = t3.currency
+        where gas_usd < 10000
     )
 select date, 'osmosis' as chain, sum(gas_usd) as gas_usd
 from by_token
