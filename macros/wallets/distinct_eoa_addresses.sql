@@ -1,7 +1,7 @@
 {% macro distinct_eoa_addresses(chain) %}
     {% if chain == "tron" %}
         select distinct from_address as address, 'eoa' as address_type
-        from tron_allium.raw.contracts
+        from tron_allium.raw.transactions
     {% elif chain == "ton" %}
         select distinct transaction_account as address, 'wallet' as address_type
         from {{ref("fact_ton_transactions")}}
