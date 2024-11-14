@@ -7,8 +7,6 @@
 
 -- Credit to @hildobby for the original version of this model: https://dune.com/hildobby/btc-etfs
 
-select * from bitcoin_flipside.core.fact_outputs limit 10;
-
 WITH unaggregated AS (
     SELECT 
         i.block_timestamp
@@ -16,7 +14,7 @@ WITH unaggregated AS (
         , eat.ticker AS etf_ticker
         , 'deposit' AS flow_type
         , CASE WHEN inverse_values::boolean THEN -i.value ELSE i.value END AS amount
-    FROM bitcoin_flipside.core.fact_outputs i
+    FROM {{ source('BITCOIN_FLIPSIDE', 'fact_outputs') }} i
     INNER JOIN {{ ref('fact_bitcoin_etf_addresses') }} -- Known ETF address list
         a ON a.address::string = i.PUBKEY_SCRIPT_ADDRESS::string
         AND a.track_inflow
@@ -32,7 +30,7 @@ WITH unaggregated AS (
         , eat.ticker AS etf_ticker
         , 'withdrawal' AS flow_type
         , CASE WHEN inverse_values::boolean THEN i.value ELSE -i.value END AS amount
-    FROM bitcoin_flipside.core.fact_inputs i
+    FROM {{ source('BITCOIN_FLIPSIDE', 'fact_inputs') }} i
     INNER JOIN {{ ref('fact_bitcoin_etf_addresses') }} -- Known ETF address list
         a ON a.address= i.PUBKEY_SCRIPT_ADDRESS::string
         AND a.track_outflow
