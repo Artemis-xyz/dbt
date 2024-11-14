@@ -15,7 +15,7 @@ SELECT
     raw_amount_precise / pow(10, p.decimals) * p.price as revenue_usd
 FROM
     {{ source('ETHEREUM_FLIPSIDE', 'ez_token_transfers') }} t
-LEFT JOIN {{ source('ETHEREUM_FLIPSIDE', 'ez_prices_hourly') }} p 
+LEFT JOIN {{ source('ETHEREUM_FLIPSIDE_PRICE', 'ez_prices_hourly') }} p 
     ON date_trunc('hour', block_timestamp) = p.hour 
     AND p.token_address = t.contract_address
 WHERE t.to_address = lower('0xa9466eabd096449d650d5aeb0dd3da6f52fd0b19')

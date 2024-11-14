@@ -78,7 +78,7 @@ SELECT
     daily_repaid,
     CASE
         WHEN pool_name = 'M11 Credit WETH' OR pool_name = 'Celsius WETH Pool' 
-        THEN outstanding * (SELECT price FROM {{ source('ETHEREUM_FLIPSIDE', 'ez_prices_hourly') }} WHERE is_native = TRUE ORDER BY hour DESC LIMIT 1)
+        THEN outstanding * (SELECT price FROM {{ source('ETHEREUM_FLIPSIDE_PRICE', 'ez_prices_hourly') }} WHERE is_native = TRUE ORDER BY hour DESC LIMIT 1)
         ELSE outstanding
     END as outstanding_usd
 FROM final

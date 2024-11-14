@@ -13,7 +13,7 @@ WITH prices AS (
         symbol,
         avg(price) as price
     FROM
-        {{ source('ETHEREUM_FLIPSIDE', 'ez_prices_hourly') }}
+        {{ source('ETHEREUM_FLIPSIDE_PRICE', 'ez_prices_hourly') }}
     WHERE
         symbol in ('WBTC', 'INJ', 'SOL', 'STETH')
         or is_native = true

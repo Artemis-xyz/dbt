@@ -6,7 +6,7 @@
 }}
 
 with eth_prices as (
-    select * from {{ source('ETHEREUM_FLIPSIDE', 'ez_prices_hourly') }}
+    select * from {{ source('ETHEREUM_FLIPSIDE_PRICE', 'ez_prices_hourly') }}
     where is_native = True
 )
 select
