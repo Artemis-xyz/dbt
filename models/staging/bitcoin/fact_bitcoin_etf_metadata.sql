@@ -5,7 +5,7 @@
     )
 }}
 
--- Credit to @hildobby for the original version of this model: https://dune.com/hildobby/btc-etfs
+-- Credit to @hildobby for the original version of this dataset: https://dune.com/data/dune.hildobby.dataset_bitcoin_etf_metadata
 
 with
     max_extraction as (

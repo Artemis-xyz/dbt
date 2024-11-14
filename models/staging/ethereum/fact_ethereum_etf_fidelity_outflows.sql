@@ -5,7 +5,7 @@
     )
 }}
 
--- Credit to @hildobby for the original version of this model: https://dune.com/hildobby/eth-etfs
+-- Credit to @hildobby for the original version of this dataset: https://dune.com/data/dune.hildobby.dataset_ethereum_etf_fidelity_outflows
 
 with
     max_extraction as (

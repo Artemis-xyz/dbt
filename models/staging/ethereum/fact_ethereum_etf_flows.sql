@@ -5,6 +5,8 @@
     )
 }}
 
+-- Credit to @hildobby for the original version of this model: https://dune.com/queries/4208557/7083511
+
 WITH time_series AS (
     SELECT 
         date

@@ -5,7 +5,7 @@
     )
 }}
 
--- Credit to @hildobby for the original version of this model: https://dune.com/hildobby/btc-etfs
+-- Credit to @hildobby for the original version of this model: https://dune.com/queries/3430945
 
 WITH unaggregated AS (
     SELECT 
