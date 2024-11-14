@@ -11,7 +11,7 @@ WITH drift_data AS (
     SELECT 
         block_date AS date,
         -- Perp trading volume only
-        SUM_IF(market_type = 1, total_volume) AS perp_trading_volume,
+        SUM(IFF(market_type = 1, total_volume, 0)) AS trading_volume,
         'solana' AS chain
     FROM {{ ref("fact_drift_parsed_logs") }}
     GROUP BY
