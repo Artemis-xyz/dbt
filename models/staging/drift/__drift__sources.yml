@@ -10,3 +10,5 @@ sources:
       - name: raw_drift_spot_market_data
       - name: raw_drift_float_revenue
       - name: raw_drift_borrow_lending_revenue
+      - name: raw_drift_parsed_logs
+ 
