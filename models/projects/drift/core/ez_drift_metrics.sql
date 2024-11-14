@@ -10,12 +10,12 @@
 WITH parsed_log_metrics AS (
     SELECT 
         block_date AS date,
-        SUM_IF(market_type = 1, total_taker_fee) AS perp_fees,
-        SUM_IF(market_type = 1, total_revenue) AS perp_revenue,
-        SUM_IF(market_type = 1, total_volume) AS perp_trading_volume,
-        SUM_IF(market_type = 0, total_revenue) AS spot_fees,
-        SUM_IF(market_type = 0, total_taker_fee) AS spot_revenue,
-        SUM_IF(market_type = 0, total_volume) AS spot_trading_volume
+        SUM(IFF(market_type = 1, total_taker_fee, 0)) AS perp_fees,
+        SUM(IFF(market_type = 1, total_revenue, 0)) AS perp_revenue,
+        SUM(IFF(market_type = 1, total_volume, 0)) AS perp_trading_volume,
+        SUM(IFF(market_type = 0, total_revenue, 0)) AS spot_fees,
+        SUM(IFF(market_type = 0, total_taker_fee, 0)) AS spot_revenue,
+        SUM(IFF(market_type = 0, total_volume, 0)) AS spot_trading_volume
     FROM {{ ref("fact_drift_parsed_logs") }}
     GROUP BY
         block_date
@@ -28,7 +28,7 @@ SELECT
         fact_drift_prediction_markets.date,
         fact_drift_float_borrow_lending_revenue.date,
         defillama_data.date,
-        parsed_log_metrics.block_date
+        parsed_log_metrics.date
     ) as date,
     'drift' AS app,
     'DeFi' AS category,
