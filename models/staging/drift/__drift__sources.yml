@@ -6,4 +6,7 @@ sources:
       - name: raw_drift_trading_volume
       - name: raw_drift_fill_price_by_market
       - name: raw_drift_sell_fill_price_by_market
- 
+      - name: raw_drift_perp_market_data
+      - name: raw_drift_spot_market_data
+      - name: raw_drift_float_revenue
+      - name: raw_drift_borrow_lending_revenue
