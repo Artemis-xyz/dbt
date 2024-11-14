@@ -24,5 +24,6 @@ SELECT
     value:total_taker_fee::float AS total_taker_fee,
     value:total_volume::float AS total_volume,
     value:trade_count::integer AS trade_count
-FROM {{ source("PROD_LANDING", "raw_drift_parsed_logs") }}
+FROM {{ source("PROD_LANDING", "raw_drift_parsed_logs") }},
 lateral flatten(input => parse_json(source_json))
+qualify row_number() over (partition by block_date, market_index, market_type order by extraction_date desc) = 1
