@@ -7,13 +7,29 @@
         alias="ez_metrics",
     )
 }}
-
-
-with
+WITH parsed_log_metrics AS (
+    SELECT 
+        block_date AS date,
+        SUM_IF(market_type = 1, total_taker_fee) AS perp_fees,
+        SUM_IF(market_type = 1, total_revenue) AS perp_revenue,
+        SUM_IF(market_type = 1, total_volume) AS perp_trading_volume,
+        SUM_IF(market_type = 0, total_revenue) AS spot_fees,
+        SUM_IF(market_type = 0, total_taker_fee) AS spot_revenue,
+        SUM_IF(market_type = 0, total_volume) AS spot_trading_volume
+    FROM {{ ref("fact_drift_parsed_logs") }}
+    GROUP BY
+        block_date
+),
     price_data as ({{ get_coingecko_metrics("drift-protocol") }}),
     defillama_data as ({{ get_defillama_protocol_metrics("drift trade") }})
 SELECT 
-    coalesce(price_data.date, fact_drift_prediction_markets.date, fact_drift_float_borrow_lending_revenue.date, defillama_data.date) as date,
+    coalesce(
+        price_data.date,
+        fact_drift_prediction_markets.date,
+        fact_drift_float_borrow_lending_revenue.date,
+        defillama_data.date,
+        parsed_log_metrics.block_date
+    ) as date,
     'drift' AS app,
     'DeFi' AS category,
     price,
@@ -23,10 +39,17 @@ SELECT
     kamala_prediction_market_100k_sell_order_price,
     daily_avg_float_revenue as float_revenue,
     daily_avg_lending_revenue as lending_revenue,
-    defillama_data.fees as perp_fees,
-    defillama_data.revenue as perp_revenue,
-    coalesce(float_revenue, 0) + coalesce(lending_revenue, 0) + coalesce(defillama_data.revenue,0) as revenue,
-    defillama_data.fees as fees
+    parsed_log_metrics.perp_fees,
+    parsed_log_metrics.perp_revenue,
+    parsed_log_metrics.perp_trading_volume as trading_volume,
+    parsed_log_metrics.spot_fees,
+    parsed_log_metrics.spot_revenue,
+    parsed_log_metrics.spot_trading_volume,
+    coalesce(float_revenue, 0) + 
+    coalesce(lending_revenue, 0) +
+    coalesce(parsed_log_metrics.perp_revenue, 0) +
+    coalesce(parsed_log_metrics.spot_revenue, 0) as revenue,
+    coalesce(parsed_log_metrics.perp_fees + parsed_log_metrics.spot_fees, 0) as fees
 FROM price_data 
 FULL JOIN {{ ref("fact_drift_prediction_markets") }} as fact_drift_prediction_markets
     ON price_data.date = fact_drift_prediction_markets.date
@@ -34,3 +57,5 @@ FULL JOIN {{ ref("fact_drift_float_borrow_lending_revenue") }} as fact_drift_flo
     ON price_data.date = fact_drift_float_borrow_lending_revenue.date
 FULL JOIN defillama_data
     ON price_data.date = defillama_data.date
+FULL JOIN parsed_log_metrics
+    ON price_data.date = parsed_log_metrics.date
