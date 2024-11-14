@@ -21,7 +21,7 @@ with rewards_contracts as (
         token_address,
         symbol
     FROM
-        {{ source('ETHEREUM_FLIPSIDE', 'ez_prices_hourly') }}
+        {{ source('ETHEREUM_FLIPSIDE_PRICE', 'ez_prices_hourly') }}
     WHERE token_address = lower('0x33349b282065b0284d756f0577fb39c158f935e6')
 )
 SELECT

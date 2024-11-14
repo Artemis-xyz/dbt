@@ -9,12 +9,6 @@ sources:
       - name: fact_decoded_event_logs
       - name: ez_token_transfers
   
-  - name: ETHEREUM_FLIPSIDE
-    schema: price
-    database: ethereum_flipside
-    tables:
-      - name: ez_prices_hourly
-  
   - name: PROD_LANDING
     schema: prod_landing
     database: landing_database
