@@ -7,18 +7,21 @@
         alias="ez_metrics_by_chain",
     )
 }}
-
-
-with
-    drfit_data as (
-        select date, trading_volume, chain
-        from {{ ref("fact_drift_trading_volume") }}
-    )
+WITH drift_data AS (
+    SELECT 
+        block_date AS date,
+        -- Perp trading volume only
+        SUM_IF(market_type = 1, total_volume) AS perp_trading_volume,
+        'solana' AS chain
+    FROM {{ ref("fact_drift_parsed_logs") }}
+    GROUP BY
+        block_date
+)
 select
     date,
     'drift' as app,
     'DeFi' as category,
     chain,
     trading_volume
-from drfit_data
+from drift_data
 where date < to_date(sysdate())

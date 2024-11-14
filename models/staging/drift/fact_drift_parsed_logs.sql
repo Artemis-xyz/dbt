@@ -1,7 +1,7 @@
 {{ config(materialized="table") }}
 
 SELECT 
-    value:block_date::varchar AS block_date,
+    value:block_date::date AS block_date,
     value:EstExternalFillCost::float AS est_external_fill_cost,
     value:LiquidationVolume::float AS liquidation_volume,
     value:OrderFillWithOpenbookV1::float AS order_fill_with_openbook_v1,
