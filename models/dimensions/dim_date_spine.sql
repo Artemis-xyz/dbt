@@ -10,28 +10,32 @@ with spine as (
   select dateadd('day', 1, date) from spine
    where date < '2049-12-31'
 ),
-days (number, name, short_name, shorter_name) as (
-    select 1, 'Monday',    'Mon', 'M'  union
-    select 2, 'Tuesday',   'Tue', 'Tu' union
-    select 3, 'Wednesday', 'Wed', 'W'  union
-    select 4, 'Thursday',  'Thu', 'Th' union
-    select 5, 'Friday',    'Fri', 'F'  union
-    select 6, 'Saturday',  'Sat', 'Sa' union
-    select 0, 'Sunday',    'Sun', 'Su'
+days as (
+    select * from (values 
+        (1, 'Monday',    'Mon', 'M'),
+        (2, 'Tuesday',   'Tue', 'Tu'),
+        (3, 'Wednesday', 'Wed', 'W'),
+        (4, 'Thursday',  'Thu', 'Th'),
+        (5, 'Friday',    'Fri', 'F'),
+        (6, 'Saturday',  'Sat', 'Sa'),
+        (0, 'Sunday',    'Sun', 'Su')
+    ) as t(number, name, short_name, shorter_name)
 ),
-months (number, name, short_name) as (
-    select  1, 'January',   'Jan' union
-    select  2, 'February',  'Feb' union
-    select  3, 'March',     'Mar' union
-    select  4, 'April',     'Apr' union
-    select  5, 'May',       'May' union
-    select  6, 'June',      'Jun' union
-    select  7, 'July',      'Jul' union
-    select  8, 'August',    'Aug' union
-    select  9, 'September', 'Sep' union
-    select 10, 'October',   'Oct' union
-    select 11, 'November',  'Nov' union
-    select 12, 'December',  'Dec'
+months as (
+    select * from (values
+        (1,  'January',   'Jan'),
+        (2,  'February',  'Feb'),
+        (3,  'March',     'Mar'),
+        (4,  'April',     'Apr'),
+        (5,  'May',       'May'),
+        (6,  'June',      'Jun'),
+        (7,  'July',      'Jul'),
+        (8,  'August',    'Aug'),
+        (9,  'September', 'Sep'),
+        (10, 'October',   'Oct'),
+        (11, 'November',  'Nov'),
+        (12, 'December',  'Dec')
+    ) as t(number, name, short_name)
 ),
 dates as (
   select date,
