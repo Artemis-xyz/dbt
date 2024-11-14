@@ -74,9 +74,9 @@ WITH time_series AS (
 SELECT
     c.date,
     c.issuer,
-    amount,
-    cum_amount,
-    amount * p.price as amount_usd,
-    cum_amount * p.price as cum_usd
+    amount as net_etf_flow_native,
+    cum_amount as cumulative_etf_flow_native,
+    amount * p.price as net_etf_flow,
+    cum_amount * p.price as cumulative_etf_flow
 FROM cumulative c
 LEFT JOIN eth_prices p on p.date = c.date

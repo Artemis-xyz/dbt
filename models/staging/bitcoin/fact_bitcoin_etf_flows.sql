@@ -98,9 +98,9 @@ SELECT
     c.date,
     c.issuer,
     c.etf_ticker,
-    c.amount,
-    c.cum_amount,
-    c.amount * p.price as amount_usd,
-    c.cum_amount * p.price as cum_amount_usd
+    c.amount as net_etf_flow_native,
+    c.cum_amount as cumulative_etf_flow_native,
+    c.amount * p.price as net_etf_flow,
+    c.cum_amount * p.price as cumulative_etf_flow
 FROM cumulative_native c
 LEFT JOIN bitcoin_prices p ON p.date = c.date
