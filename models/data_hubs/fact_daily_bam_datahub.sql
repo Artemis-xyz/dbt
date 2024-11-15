@@ -99,11 +99,11 @@ select
         coalesce(
             cast(app_symbol as string),
             cast(bam.app as string),
-            cast(category_symbol as string),
+            cast(lower(replace(bam.category, ' ', '_')) as string),
             ''
         ),
         '-',
-        coalesce(cast(chain_symbol as string), cast(chain as string))
+        coalesce(chain_symbol, chain, 'all')
     ) as excel_symbol
 from bam_data as bam
 left join app_coingecko on bam.app = app_coingecko.app
