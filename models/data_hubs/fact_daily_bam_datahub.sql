@@ -97,9 +97,9 @@ select
     bam.non_sybil_users,
     concat(
         coalesce(
-            cast(app_symbol as string),
-            cast(bam.app as string),
-            cast(lower(replace(bam.category, ' ', '_')) as string),
+            app_coingecko.token_symbol,
+            bam.app,
+            lower(replace(bam.category, ' ', '_')),
             ''
         ),
         '-',
