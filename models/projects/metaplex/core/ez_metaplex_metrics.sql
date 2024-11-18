@@ -64,9 +64,9 @@ with revenue as (
 
 SELECT
     coalesce(price.date, revenue.date, buybacks.date, transactions.date) as date
-    , coalesce(revenue.revenue_usd, 0) as fees
-    , coalesce(revenue.revenue_usd, 0) as revenue -- 50% of fees go to buybacks but buybacks are done in batches, while fees are paid continuously
-    , coalesce(buybacks.buyback, 0) as buyback -- buybacks in USD, at the time of the buyback
+    , coalesce(revenue.revenue_usd * 2, 0) as fees
+    , coalesce(revenue.revenue_usd, 0) as revenue -- Fees are paid continuously, but revenue is only recognized at the time of the buyback
+    , coalesce(buybacks.buyback, 0) as buyback -- 50% of fees (ie all of revenue) go to buybacks but buybacks are done in batches, at the time of the buyback
     , coalesce(buybacks.buyback_native, 0) as buyback_native
     , coalesce(mints.daily_mints, 0) as daily_mints
     , coalesce(active_wallets.dau, 0) as dau
