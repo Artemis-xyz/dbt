@@ -84,7 +84,7 @@ select
     bam.category,
     lower(replace(bam.category, ' ', '_')) as category_symbol,
     chain,
-    chains.symbol as chain_symbol,
+    coalesce(chains.symbol, 'all') as chain_symbol,
     bam.gas,
     bam.gas_usd,
     bam.txns,
