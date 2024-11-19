@@ -8,13 +8,28 @@ with
         select parse_json(source_json) as data
         from {{ source("PROD_LANDING", "raw_polygon_zk_data") }}
         where extraction_date = (select max_date from max_extraction)
+    ), 
+    prices as ({{ get_coingecko_price_with_latest('ethereum') }})
+    , extracted_data as (
+        select
+            date(left(value:"date_time"::string, 10)) as date,
+            value:unique_active_users as daa,
+            value:all_transactions as txns,
+            value:txn_fees::double as gas,
+            value as source,
+            'polygon_zk' as chain
+        from polygon_zk_data, 
+        lateral flatten(input => data:"data":"records")
+        where date < to_date(sysdate())
     )
-select
-    date(left(value:"date_time"::string, 10)) as date,
-    value:unique_active_users as daa,
-    value:all_transactions as txns,
-    value:txn_fees_usd::double as gas_usd,
-    value as source,
+select 
+    extracted_data.date,
+    daa,
+    txns,
+    gas,
+    gas * price as gas_usd,
     'polygon_zk' as chain
-from polygon_zk_data, lateral flatten(input => data:"data":"records")
-where date < to_date(sysdate())
+from extracted_data
+left join prices using(date)
+
+
