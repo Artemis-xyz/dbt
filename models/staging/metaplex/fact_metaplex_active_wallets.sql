@@ -1,6 +1,7 @@
 {{ config(
     materialized="incremental",
-    snowflake_warehouse="METAPLEX"
+    snowflake_warehouse="METAPLEX",
+    unique_key=["date"]
 ) }}
 
 WITH all_activity AS (
@@ -22,6 +23,9 @@ WITH all_activity AS (
         seller AS wallet
     FROM 
         {{ ref('fact_metaplex_sales') }} AS s
+    {% if is_incremental() %}
+        WHERE block_timestamp >= (SELECT MAX(date) FROM {{ this }})
+    {% endif %}
     
     UNION ALL
 
@@ -31,6 +35,9 @@ WITH all_activity AS (
         purchaser AS wallet
     FROM 
         {{ ref('fact_metaplex_sales') }} AS s
+    {% if is_incremental() %}
+        WHERE block_timestamp >= (SELECT MAX(date) FROM {{ this }})
+    {% endif %}
 
     UNION ALL       
 
@@ -96,6 +103,7 @@ SELECT
     COUNT(DISTINCT wallet) AS daily_active_users
 FROM 
     all_activity
+WHERE date < to_date(sysdate())
 GROUP BY 
     date
 ORDER BY 

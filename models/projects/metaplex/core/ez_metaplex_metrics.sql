@@ -7,8 +7,13 @@
         alias="ez_metrics",
     )
 }}
-
-with revenue as (
+-- 2020-10-25
+with date_spine as (
+    select date
+    from {{ ref("dim_date_spine") }}
+    where date between date('2021-03-29') and to_date(sysdate())
+)
+, revenue as (
     select
         date
         , sum(revenue_usd) as revenue_usd
@@ -47,7 +52,7 @@ with revenue as (
 , transactions as (
     select
         date
-        , sum(txns) as txns
+        , sum(daily_signed_transactions) as txns
     from {{ ref("fact_metaplex_transaction_counts") }}
     group by 1
 )
@@ -63,7 +68,7 @@ with revenue as (
 )
 
 SELECT
-    coalesce(price.date, revenue.date, buybacks.date, transactions.date) as date
+    ds.date
     , coalesce(revenue.revenue_usd * 2, 0) as fees
     , coalesce(revenue.revenue_usd, 0) as revenue -- Fees are paid continuously, but revenue is only recognized at the time of the buyback
     , coalesce(buybacks.buyback, 0) as buyback -- 50% of fees (ie all of revenue) go to buybacks but buybacks are done in batches, at the time of the buyback
@@ -79,7 +84,8 @@ SELECT
     , price.token_turnover_circulating
     , price.token_turnover_fdv
     , price.token_volume
-FROM price
+FROM date_spine ds
+LEFT JOIN price USING (date)
 LEFT JOIN revenue USING (date)
 LEFT JOIN buybacks USING (date)
 LEFT JOIN mints USING (date)
@@ -87,4 +93,4 @@ LEFT JOIN active_wallets USING (date)
 LEFT JOIN transactions USING (date)
 LEFT JOIN unique_signers USING (date)
 LEFT JOIN new_holders USING (date)
-where coalesce(price.date, revenue.date, buybacks.date, transactions.date) < to_date(sysdate())
+where ds.date < to_date(sysdate())
