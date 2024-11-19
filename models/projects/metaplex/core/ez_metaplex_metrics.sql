@@ -69,8 +69,8 @@ with date_spine as (
 
 SELECT
     ds.date
-    , coalesce(revenue.revenue_usd * 2, 0) as fees
-    , coalesce(revenue.revenue_usd, 0) as revenue -- Fees are paid continuously, but revenue is only recognized at the time of the buyback
+    , coalesce(revenue.revenue_usd, 0) as fees
+    , coalesce(revenue.revenue_usd, 0) / 2 as revenue -- Fees are paid continuously, but revenue is only recognized at the time of the buyback
     , coalesce(buybacks.buyback, 0) as buyback -- 50% of fees (ie all of revenue) go to buybacks but buybacks are done in batches, at the time of the buyback
     , coalesce(buybacks.buyback_native, 0) as buyback_native
     , coalesce(mints.daily_mints, 0) as daily_mints
