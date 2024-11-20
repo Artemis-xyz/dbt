@@ -23,12 +23,20 @@ with usde_metrics as (
     left join  {{ ref('fact_ethena_collateral_fees') }} collateral_fees using(date)
     group by 1
 )
+, tvl as (
+    SELECT
+        date,
+        stablecoin_total_supply
+    FROM {{ ref('ez_usde_metrics') }}
+)
 select
     usde_metrics.date,
     usde_metrics.stablecoin_dau as stablecoin_dau,
     usde_metrics.stablecoin_txns as stablecoin_txns,
-    coalesce(ena_metrics.fees, 0) as fees
+    coalesce(ena_metrics.fees, 0) as fees,
+    tvl.stablecoin_total_supply as tvl
 from usde_metrics
 left join ena_metrics using(date)
+left join tvl using(date)
 where usde_metrics.date < to_date(sysdate())
 order by 1 desc
