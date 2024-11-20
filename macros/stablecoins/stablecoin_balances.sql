@@ -7,6 +7,8 @@
     -- Make sure to set to '' after backfill is complete
 
     {% set backfill_date = '' %}
+
+    -- This is used to backfill a new stablecoin, make sure the run is incremental
     {% set new_stablecoin_address = '' %}
 
 with
