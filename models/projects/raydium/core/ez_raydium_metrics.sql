@@ -31,7 +31,7 @@ with buyback_from_pair as (
         -- and tx_id = '3RmUQ54hgt8teCdah7B9Wm4Q1EmBwvF1CErZmX9NEGm5Ah2xVwgwd5UQkqvcCKkBx79xCfKEZanzBRiNayLTcZ5f' and block_id = 289035965
     
     {% if is_incremental() %}
-        AND block_timestamp::date >= (select dateadd('day', -2, max(date)) from {{ this }})
+        AND block_timestamp::date >= (select dateadd('day', -3, max(date)) from {{ this }})
     {% else %}
         AND block_timestamp::date >= date('2022-04-22') 
     {% endif %}
@@ -55,7 +55,7 @@ with buyback_from_pair as (
     -- and tx_id = 'qksFPkjeiVodccqyQTkCCVaciiDEdzcY6nFEykK3PSYAVNWKAStjtX6wcEutzzmzdNP5azGVKAfH6afXqgSiKF3' and block_id = 289019693
 
     {% if is_incremental() %}
-        AND block_timestamp::date >= (select dateadd('day', -2, max(date)) from {{ this }})
+        AND block_timestamp::date >= (select dateadd('day', -3, max(date)) from {{ this }})
     {% else %}
         AND block_timestamp::date >= date('2022-04-22') 
     {% endif %}
@@ -79,7 +79,7 @@ with buyback_from_pair as (
     -- and tx_id = '3jo6ZRMHxMFga9ACbgWGmBtjYQP85uMKfFz77HUqv2Z1JSqm32yKoiAWSyim1hqkM7B4xZDvCGEdzrv9qPLtNvpL' and block_id = 289024379
 
     {% if is_incremental() %}
-        AND block_timestamp::date >= (select dateadd('day', -2, max(date)) from {{ this }})
+        AND block_timestamp::date >= (select dateadd('day', -3, max(date)) from {{ this }})
     {% else %}
         AND block_timestamp::date >= date('2022-04-22') 
     {% endif %}
@@ -89,25 +89,18 @@ with buyback_from_pair as (
 )
 
 , trading_volume as (
-    select date_trunc('day', block_timestamp) as day
-        , sum(coalesce(swap_from_amount_usd, swap_to_amount_usd, 0)) as trading_volume
-        , count(distinct swapper) as unique_traders
-        , count(*) as number_of_swaps
-    from SOLANA_FLIPSIDE.DEFI.EZ_DEX_SWAPS
-    where lower(swap_program) like '%raydium%'
-    and (swap_from_amount_usd is not null and swap_to_amount_usd is not null) 
-    and (swap_from_amount_usd > 0 and swap_to_amount_usd > 0)
-    and abs(
-        ln(coalesce(nullif(swap_from_amount_usd, 0), 1)) / ln(10)
-        - ln(coalesce(nullif(swap_to_amount_usd, 0), 1)) / ln(10)
-    ) < 1
+    select 
+        date as day
+        , trading_volume
+        , unique_traders
+        , number_of_swaps
+    from {{ ref("fact_raydium_trading_volumes") }}
+    WHERE
     {% if is_incremental() %}
-        AND block_timestamp::date >= (select dateadd('day', -2, max(date)) from {{ this }})
+        date >= (select dateadd('day', -3, max(date)) from {{ this }})
     {% else %}
-        AND block_timestamp::date >= date('2022-04-22') 
+        date >= date('2022-04-22') 
     {% endif %}
-
-    group by 1
 )
 
 , price_data as (
@@ -117,7 +110,7 @@ with buyback_from_pair as (
     from ({{ get_coingecko_metrics("raydium") }})
     where 1=1
     {% if is_incremental() %}
-        AND date >= (select dateadd('day', -2, max(date)) from {{ this }})
+        AND date >= (select dateadd('day', -3, max(date)) from {{ this }})
     {% else %}
         AND date >= date('2022-04-22') 
     {% endif %}
@@ -151,7 +144,7 @@ left join pool_creation c on c.day = v.day
 left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pb on pb.token_address = b.token_mint_address
         and pb.hour = b.day and pb.blockchain = 'solana'
         {% if is_incremental() %}
-            AND pb.hour::date >= (select dateadd('day', -2, max(date)) from {{ this }})
+            AND pb.hour::date >= (select dateadd('day', -3, max(date)) from {{ this }})
         {% else %}
             AND pb.hour::date >= date('2022-04-22') 
         {% endif %}
@@ -159,7 +152,7 @@ left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pb on pb.token_address = b.toke
 left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pt on pt.token_address = t.token_mint_address
         and pt.hour = t.day and pt.blockchain = 'solana'
         {% if is_incremental() %}
-            AND pt.hour::date >= (select dateadd('day', -2, max(date)) from {{ this }})
+            AND pt.hour::date >= (select dateadd('day', -3, max(date)) from {{ this }})
         {% else %}
             AND pt.hour::date >= date('2022-04-22') 
         {% endif %}
@@ -167,7 +160,7 @@ left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pt on pt.token_address = t.toke
 left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pc on pc.token_address = c.token_mint_address
         and pc.hour = c.day and pc.blockchain = 'solana'
         {% if is_incremental() %}
-            AND pc.hour::date >= (select dateadd('day', -2, max(date)) from {{ this }})
+            AND pc.hour::date >= (select dateadd('day', -3, max(date)) from {{ this }})
         {% else %}
             AND pc.hour::date >= date('2022-04-22') 
         {% endif %}
