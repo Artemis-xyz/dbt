@@ -1,3 +1,10 @@
+{{
+    config(
+        materialized="table",
+        snowflake_warehouse="RWA",
+    )
+}}
+
 SELECT symbol, contract_address, num_decimals, coingecko_id, initial_supply FROM 
     (
         VALUES

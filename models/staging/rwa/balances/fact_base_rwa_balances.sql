@@ -2,8 +2,8 @@
     config(
         materialized="incremental",
         unique_key="unique_id",
-        snowflake_warehouse="ONDO",
+        snowflake_warehouse="RWA",
     )
 }}
 
-{{tokenized_treasury_balances("arbitrum")}}
+{{rwa_balances("base")}}
