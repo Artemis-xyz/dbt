@@ -7,10 +7,10 @@
 }}
 with
     evm_txs AS (
-        SELECT 
-            DISTINCT tx_id 
-        FROM SEI_FLIPSIDE.CORE.FACT_MSG_ATTRIBUTES 
-        WHERE attribute_key = 'evm_addr'  
+        select 
+            distinct tx_id from sei_flipside.core.fact_msg_attributes 
+        where 
+            msg_type ='message' and attribute_key = 'action' and ATTRIBUTE_VALUE = '/seiprotocol.seichain.evm.MsgEVMTransaction'
         {% if is_incremental() %}
             AND inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
         {% endif %}
