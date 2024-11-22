@@ -19,6 +19,8 @@ select
     fundamental_data.dau,
     fundamental_data.wau,
     fundamental_data.mau,
+    fundamental_data.tvl,
+    fundamental_data.tvl_net_change,
     fundamental_data.fees_native,
     fundamental_data.fees_usd AS fees,
     fundamental_data.avg_txn_fee,
