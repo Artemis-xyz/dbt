@@ -4,10 +4,10 @@
         , chain
         , symbol
         , '{{ issuer }}' as issuer
-        , sum(rwa_supply_usd) as rwa_supply_usd
-        , sum(net_rwa_supply_usd_change) as net_rwa_supply_usd_change
-        , sum(rwa_supply_native) as rwa_supply_native
-        , sum(net_rwa_supply_native_change) as net_rwa_supply_native_change
+        , sum(rwa_supply_usd) as tokenized_mcap
+        , sum(net_rwa_supply_usd_change) as tokenized_mcap_change
+        , sum(rwa_supply_native) as tokenized_supply
+        , sum(net_rwa_supply_native_change) as tokenized_supply_change
     from {{ ref( "agg_rwa_by_product_and_chain") }}
     where issuer = '{{ issuer }}'
     group by 1, 2, 3
