@@ -6,6 +6,15 @@
     )
 }}
 with
+    evm_txs AS (
+        select 
+            distinct tx_id from sei_flipside.core.fact_msg_attributes 
+        where 
+            msg_type ='message' and attribute_key = 'action' and ATTRIBUTE_VALUE = '/seiprotocol.seichain.evm.MsgEVMTransaction'
+        {% if is_incremental() %}
+            AND inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
+        {% endif %}
+    ),
     new_contracts as (
         select distinct
             address,
@@ -105,6 +114,10 @@ with
             AND 
             t2.inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
             {% endif %}
+            AND tx_id NOT IN (
+                SELECT tx_id
+                FROM evm_txs e 
+            )
     )
     SELECT
         tx_hash
