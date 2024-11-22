@@ -14,5 +14,6 @@ SELECT symbol, issuer, product_type FROM
             ('OUSG', 'Ondo', 'Treasury'),
             ('USYC', 'Hashnote', 'Treasury'),
             ('FOBXX', 'Franklin Templeton', 'Treasury'),
-            ('PAXG', 'Paxos', 'Gold')
+            ('PAXG', 'Paxos', 'Gold'),
+            ('XAUT', 'Tether', 'Gold')
     ) as results(symbol, issuer, product_type)

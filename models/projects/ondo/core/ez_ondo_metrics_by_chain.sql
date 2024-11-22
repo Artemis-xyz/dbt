@@ -17,9 +17,9 @@ select
     tvl.issuer,
     tvl.chain,
     tvl.symbol,
-    tvl.net_rwa_supply_native_change,
-    tvl.net_rwa_supply_usd_change,
-    tvl.rwa_supply_native,
-    tvl.rwa_supply_usd,
+    tvl.tokenized_supply_change,
+    tvl.tokenized_mcap_change,
+    tvl.tokenized_supply,
+    tvl.tokenized_mcap,
 from tvl
 where date < to_date(sysdate())

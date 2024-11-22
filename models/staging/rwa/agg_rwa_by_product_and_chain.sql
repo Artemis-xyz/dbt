@@ -28,6 +28,7 @@ SELECT
     , i.symbol
     , i.issuer
     , i.product_type
+    , price
     , net_rwa_supply_native_change
     , net_rwa_supply_usd_change
     , rwa_supply_native
