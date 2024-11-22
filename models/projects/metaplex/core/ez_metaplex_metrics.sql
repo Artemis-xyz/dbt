@@ -23,10 +23,9 @@ with date_spine as (
 , buybacks as (
     select
         date
-        , sum(buyback_usd) * -1 as buyback
-        , sum(buyback_native) * -1 as buyback_native
+        , buyback
+        , buyback_native
     from {{ ref("fact_metaplex_buybacks") }}
-    group by 1
 )
 , active_wallets as (
     select
