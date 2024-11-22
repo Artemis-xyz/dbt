@@ -130,7 +130,9 @@ with
                         when c.coingecko_id in ('blackrock-usd-institutional-digital-liquidity-fund', 'franklin-onchain-u-s-government-money-fund')
                             then 1  
                         when c.coingecko_id = 'hashnote-usyc'
-                            then h.rate
+                            then coalesce(h.rate, 1)
+                        when c.coingecko_id = 'ousg'
+                            then o.price
                     end
             ) as rwa_supply_usd
         from historical_supply_by_address_balances st
@@ -142,6 +144,9 @@ with
         left join {{ ref( "fact_hashnote_usyc_rate") }} h
             on st.date = h.date
             and st.symbol = 'USYC'
+        left join {{ ref( "fact_ousg_prices") }} o
+            on st.date = o.date
+            and st.symbol = 'OUSG'
         where rwa_supply_native >= 1e-9
     )
 select

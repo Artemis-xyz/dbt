@@ -22,4 +22,16 @@ with
             )
         }}
     )
-SELECT * FROM chain_metrics
+SELECT
+    date
+    , chain
+    , i.symbol
+    , i.issuer
+    , i.product_type
+    , net_rwa_supply_native_change
+    , net_rwa_supply_usd_change
+    , rwa_supply_native
+    , rwa_supply_usd
+FROM chain_metrics
+left join {{ ref( "dim_rwa_product_issuer_and_type") }} i
+    on chain_metrics.symbol = i.symbol

@@ -5,14 +5,14 @@
     )
 }}
 
-SELECT symbol, issuer, type FROM 
+SELECT symbol, issuer, product_type FROM 
     (
         VALUES
             ('BUIDL', 'BlackRock', 'Treasury'),
             ('TBILL', 'OpenEden', 'Treasury'),
             ('USDY', 'Ondo', 'Treasury'),
             ('OUSG', 'Ondo', 'Treasury'),
-            ('USYC', 'Ondo', 'Treasury'),
+            ('USYC', 'Hashnote', 'Treasury'),
             ('FOBXX', 'Franklin Templeton', 'Treasury'),
             ('PAXG', 'Paxos', 'Gold')
-    ) as results(symbol, issuer, type)
+    ) as results(symbol, issuer, product_type)

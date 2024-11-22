@@ -1,16 +1,16 @@
 {{
     config(
         materialized = 'table',
-        database = 'blackrock',
+        database = 'paxos',
         schema = 'core',
-        snowflake_warehouse = 'BLACKROCK',
+        snowflake_warehouse = 'PAXOS',
         alias = 'ez_metrics_by_chain'
     )
 }}
 
 with
 tvl as (
-    select * from {{ ref('fact_blackrock_tvl_by_chain') }}
+    select * from {{ ref('fact_paxos_tvl_by_chain') }}
 )
 select
     tvl.date,
