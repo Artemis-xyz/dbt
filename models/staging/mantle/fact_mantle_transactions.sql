@@ -23,8 +23,8 @@ with
 select
     hash_hex as tx_hash,
     coalesce(to_hex, t.from_hex) as contract_address,
-    block_time as block_timestamp,
-    block_date raw_date,
+    CONVERT_TIMEZONE('UTC', block_time) as block_timestamp,
+    block_timestamp::date raw_date,
     t.from_hex as from_address,
     l1_fee / 1E18 + gas_price * gas_used/1E18 as tx_fee,
     (tx_fee * price) gas_usd,
