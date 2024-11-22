@@ -20,7 +20,7 @@ and abs(
     - ln(coalesce(nullif(swap_to_amount_usd, 0), 1)) / ln(10)
 ) < 1
 {% if is_incremental() %}
-    AND block_timestamp::date >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+    AND block_timestamp::date >= (select dateadd('day', -3, max(date)) from {{ this }})
 {% else %}
     AND block_timestamp::date >= date('2022-04-22')
 {% endif %}
