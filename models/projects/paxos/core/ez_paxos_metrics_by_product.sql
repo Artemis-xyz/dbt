@@ -8,4 +8,4 @@
     )
 }}
 
-{{ ez_rwa_by_product('Paxos') }}
+{{ ez_rwa_by_product('paxos') }}

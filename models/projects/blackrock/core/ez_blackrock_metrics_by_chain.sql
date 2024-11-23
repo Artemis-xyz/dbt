@@ -8,4 +8,4 @@
     )
 }}
 
-{{ ez_rwa_by_chain('Blackrock') }}
+{{ ez_rwa_by_chain('blackrock') }}

@@ -8,4 +8,4 @@
     )
 }}
 
-{{ ez_rwa_by_product('Ondo') }}
+{{ ez_rwa_by_product('ondo') }}

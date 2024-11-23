@@ -8,4 +8,4 @@
     )
 }}
 
-{{ ez_rwa_by_chain('Hashnote') }}
+{{ ez_rwa_by_chain('hashnote') }}

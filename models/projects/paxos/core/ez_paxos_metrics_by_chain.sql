@@ -8,4 +8,4 @@
     )
 }}
 
-{{ ez_rwa_by_chain('Paxos') }}
+{{ ez_rwa_by_chain('paxos') }}
