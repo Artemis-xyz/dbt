@@ -1,7 +1,7 @@
 {% macro token_transfer_events(chain) %}
     {% if chain in ('mantle') %}
         select 
-            block_time as block_timestamp
+            CONVERT_TIMEZONE('UTC', block_time) as block_timestamp
             , block_date as raw_date
             , block_number
             , block_hash_hex as block_hash

@@ -3,45 +3,30 @@
     snowflake_warehouse="METAPLEX"
 ) }}
 
-WITH daily_balances AS (
-    SELECT
-        DATE_TRUNC('day', block_timestamp) AS date,
-        account_address,
-        mint,
-        MAX(balance) AS ending_balance
-    FROM
-        {{ source('SOLANA_FLIPSIDE', 'fact_token_balances') }}
-    WHERE
-        owner = 'E7Hzc1cQwx5BgJa8hJGVuDF2G2f2penLrhiKU6nU53gK'
-        AND mint = 'METAewgxyPbgwsseH8T16a39CQ5VyVxZi9zXiDPY18m'
-        AND succeeded = TRUE
-        {% if is_incremental() %}
-            AND block_timestamp > (SELECT MAX(date) FROM {{ this }})
-        {% endif %}
-    GROUP BY
-        DATE_TRUNC('day', block_timestamp),
-        account_address,
-        mint
+WITH 
+buybacks AS (
+    select 
+       date_trunc('day', block_timestamp) as date
+       , amount 
+       , mint as token_address
+    from solana_flipside.core.fact_transfers 
+    where tx_to = 'E7Hzc1cQwx5BgJa8hJGVuDF2G2f2penLrhiKU6nU53gK' and tx_from = 'BBcPaj5v95nFFbXfgTebYyJDSY5HBCpARuRCLynVWimp'
+    and mint = 'METAewgxyPbgwsseH8T16a39CQ5VyVxZi9zXiDPY18m'
+    {% if is_incremental() %}
+    and block_timestamp >= (select dateadd('day', -5, max(date)) from {{ this }})
+    {% else %}
+    and block_timestamp >= '2024-06-26'
+    {% endif %}
 )
 , prices AS (
-    SELECT
-        date(hour) AS date,
-        symbol,
-        avg(price) as price
-    FROM
-        {{source('SOLANA_FLIPSIDE_PRICE', 'ez_prices_hourly')}}
-    WHERE token_address = 'METAewgxyPbgwsseH8T16a39CQ5VyVxZi9zXiDPY18m'
-    GROUP BY 1, 2
+    {{ get_coingecko_price_with_latest('metaplex') }}
 )
-
 SELECT
     b.date,
-    p.symbol,
-    b.ending_balance,
-    b.ending_balance - LAG(b.ending_balance) OVER (ORDER BY b.date DESC) AS buyback_native,
-    buyback_native * p.price AS buyback_usd
+    b.amount as buyback_native,
+    b.amount * p.price AS buyback
 FROM
-    daily_balances b
+    buybacks b
 LEFT JOIN
     prices p
     ON b.date = p.date

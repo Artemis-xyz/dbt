@@ -5,7 +5,7 @@
 
 with flatten_ton_transaction as (
     select
-        NOT ARRAY_CONTAINS(0, ARRAY_UNIQUE_AGG(success)) as success
+        NOT ARRAY_CONTAINS('false'::boolean, ARRAY_UNIQUE_AGG(success)) as success
         , trace_id
         , max(block_timestamp::date) as date
         , min_by(transaction_account_interface, lt) as interface
