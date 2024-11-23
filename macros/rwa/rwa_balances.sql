@@ -134,7 +134,17 @@ with
                     end
             ) as price
             , rwa_supply_native
-            , rwa_supply_native * price as rwa_supply_usd
+            , rwa_supply_native * 
+                coalesce( d.shifted_token_price_usd,
+                    case 
+                        when c.coingecko_id in ('blackrock-usd-institutional-digital-liquidity-fund', 'franklin-onchain-u-s-government-money-fund')
+                            then 1  
+                        when c.coingecko_id = 'hashnote-usyc'
+                            then coalesce(h.rate, 1)
+                        when c.coingecko_id = 'ousg'
+                            then o.price
+                    end
+            ) as rwa_supply_usd
         from historical_supply_by_address_balances st
         left join {{ ref( "fact_" ~ chain ~ "_rwa_addresses") }} c
                 on lower(st.contract_address) = lower(c.contract_address)

@@ -8,10 +8,6 @@
     )
 }}
 
-with
-tvl as (
-    select * from {{ ref('fact_ondo_tvl_by_chain') }}
-)
 select
     tvl.date,
     tvl.issuer,
@@ -21,5 +17,5 @@ select
     tvl.tokenized_mcap_change,
     tvl.tokenized_supply,
     tvl.tokenized_mcap,
-from tvl
+from {{ ref('fact_ondo_tvl_by_chain') }}
 where date < to_date(sysdate())

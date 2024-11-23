@@ -5,4 +5,4 @@
     )
 }}
 
-{{ rwa_data_by_product_for_issuer("Hashnote") }}
+{{ rwa_data_by_product_for_issuer("Ondo") }}
