@@ -66,6 +66,11 @@ with
         {% if is_incremental() %}
             where date >= (select dateadd('day', -7, max(date)) from {{ this }})
         {% endif %}
+        select *
+        from {{ref("ez_mantle_stablecoin_metrics_by_address")}}
+        {% if is_incremental() %}
+            where date >= (select dateadd('day', -7, max(date)) from {{ this }})
+        {% endif %}
     )
 select 
     date
