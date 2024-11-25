@@ -1,7 +1,8 @@
 {{
     config(
         materialized = 'incremental',
-        snowflake_warehouse = 'METAPLEX'
+        snowflake_warehouse = 'METAPLEX',
+        unique_key = 'block_timestamp'
     )
 }}
 
