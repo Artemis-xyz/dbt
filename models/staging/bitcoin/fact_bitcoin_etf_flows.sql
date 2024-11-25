@@ -37,6 +37,7 @@ WITH unaggregated AS (
     INNER JOIN {{ ref('fact_bitcoin_etf_metadata') }} eat ON a.issuer=eat.issuer
     WHERE i.value > 0
     AND i.block_timestamp > '2019-07-24'::date
+    AND i.block_timestamp < (select bitcoin_update_threshold from {{ ref('fact_bitcoin_etf_update_threshold') }})
     
     UNION ALL
     
