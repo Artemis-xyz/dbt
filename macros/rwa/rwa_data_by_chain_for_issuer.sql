@@ -4,6 +4,7 @@
         , chain
         , symbol
         , '{{ issuer }}' as issuer
+        , avg(price) as price
         , sum(rwa_supply_usd) as tokenized_mcap
         , sum(net_rwa_supply_usd_change) as tokenized_mcap_change
         , sum(rwa_supply_native) as tokenized_supply
