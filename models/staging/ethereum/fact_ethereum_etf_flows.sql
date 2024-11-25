@@ -35,6 +35,7 @@ WITH time_series AS (
     INNER JOIN {{ ref('fact_ethereum_etf_addresses') }} a ON a.address=t.from_address
         AND a.track_outflow = true
     WHERE t.block_timestamp >= date('2017-10-16')
+    AND t.block_timestamp < (select ethereum_update_threshold from {{ ref('fact_ethereum_etf_update_threshold') }})
     GROUP BY 1, 2
         
     UNION ALL

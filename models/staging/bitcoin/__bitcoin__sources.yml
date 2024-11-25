@@ -14,6 +14,7 @@ sources:
       - name: raw_bitcoin_etf_addresses
       - name: raw_bitcoin_etf_metadata
       - name: raw_bitcoin_fidelity_outflows
+      - name: raw_etf_update_thresholds
 
   - name: BITCOIN_FLIPSIDE
     schema: core
