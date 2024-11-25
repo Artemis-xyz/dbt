@@ -58,9 +58,9 @@ with date_spine as (
 , mints as (
     select
         date
-        , sum(daily_mints) as daily_mints
+        , daily_mints
+        , cumulative_mints
     from {{ ref("fact_metaplex_assets_minted") }}
-    group by 1
 )
 , price as (
     {{get_coingecko_metrics('metaplex')}}
@@ -73,6 +73,7 @@ SELECT
     , coalesce(buybacks.buyback, 0) as buyback -- 50% of fees (ie all of revenue) go to buybacks but buybacks are done in batches, at the time of the buyback
     , coalesce(buybacks.buyback_native, 0) as buyback_native
     , coalesce(mints.daily_mints, 0) as daily_mints
+    , coalesce(mints.cumulative_mints, 0) as cumulative_mints
     , coalesce(active_wallets.dau, 0) as dau
     , coalesce(transactions.txns, 0) as txns
     , coalesce(unique_signers.unique_signers, 0) as unique_signers
