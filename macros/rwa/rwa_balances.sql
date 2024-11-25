@@ -157,7 +157,6 @@ with
         left join {{ ref( "fact_ousg_prices") }} o
             on st.date = o.date
             and st.symbol = 'OUSG'
-        where rwa_supply_native >= 1e-9
     )
 select
     date

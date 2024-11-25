@@ -8,6 +8,7 @@ with rwa_balances as (
         , sum(rwa_supply_native) as rwa_supply_native
         , sum(rwa_supply_usd) as rwa_supply_usd
     from {{ ref("fact_" ~ chain ~ "_rwa_balances") }}
+    where rwa_supply_native >= 1e-9
     group by 1, 2, 3
 )
 select
