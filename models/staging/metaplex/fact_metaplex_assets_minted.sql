@@ -3,10 +3,10 @@
     snowflake_warehouse="METAPLEX"
 ) }}
 
-WITH daily_mints AS (
+WITH metaplex_mints AS (
     SELECT 
         date,
-        COUNT(DISTINCT mint) AS daily_mints,
+        COUNT(DISTINCT mint) AS mints,
         COUNT_IF(program_id = 'BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY') AS daily_bubblegum_mints,
         COUNT_IF(program_id = 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s') AS daily_token_metadata_mints,
         COUNT_IF(program_id IN (
@@ -21,8 +21,8 @@ WITH daily_mints AS (
 
 SELECT 
     date,
-    daily_mints,
-    SUM(daily_mints) OVER (ORDER BY date) AS cumulative_mints,
+    mints as daily_mints,
+    SUM(mints) OVER (ORDER BY date) as cumulative_mints,
     daily_bubblegum_mints,
     daily_token_metadata_mints,
     daily_candymachine_mints,
@@ -30,6 +30,6 @@ SELECT
     SUM(daily_token_metadata_mints) OVER (ORDER BY date) AS cumulative_token_metadata_mints,
     SUM(daily_candymachine_mints) OVER (ORDER BY date) AS cumulative_candymachine_mints
 FROM 
-    daily_mints
+    metaplex_mints
 ORDER BY 
     date DESC

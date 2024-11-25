@@ -13,5 +13,5 @@ FROM
 JOIN 
     {{ ref('fact_metaplex_mints') }} AS m ON s.mint = m.mint
 {% if is_incremental() %}
-    AND block_timestamp > (SELECT MAX(block_timestamp) FROM {{ this }})
+    WHERE block_timestamp > (SELECT MAX(block_timestamp) FROM {{ this }})
 {% endif %}
