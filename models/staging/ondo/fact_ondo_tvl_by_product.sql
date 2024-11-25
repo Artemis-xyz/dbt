@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="HASHNOTE",
+        snowflake_warehouse="ONDO",
     )
 }}
 

@@ -1,8 +1,8 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="PAXOS",
+        snowflake_warehouse="HASHNOTE",
     )
 }}
 
-{{ rwa_data_by_product_for_issuer("Paxos") }}
+{{ rwa_data_by_product_for_issuer("Hashnote") }}

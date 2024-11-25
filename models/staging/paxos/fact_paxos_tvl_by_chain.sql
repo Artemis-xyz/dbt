@@ -1,8 +1,8 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="ONDO",
+        snowflake_warehouse="PAXOS",
     )
 }}
 
-{{ rwa_data_by_chain_for_issuer("Ondo") }}
+{{ rwa_data_by_chain_for_issuer("Paxos") }}

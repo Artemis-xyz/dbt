@@ -1,8 +1,8 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="ONDO",
+        snowflake_warehouse="HASHNOTE",
     )
 }}
 
-{{ rwa_data_by_chain_for_issuer("Ondo") }}
+{{ rwa_data_by_chain_for_issuer("Hashnote") }}
