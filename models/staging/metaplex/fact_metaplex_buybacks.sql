@@ -25,13 +25,12 @@ buybacks AS (
 )
 SELECT
     b.date,
-    MAX(b.amount) as buyback_native,
-    MAX(b.amount * p.price) AS buyback
+    b.amount as buyback_native,
+    b.amount * p.price AS buyback
 FROM
     buybacks b
 LEFT JOIN
     prices p
     ON b.date = p.date
-GROUP BY b.date
 ORDER BY
     b.date DESC
