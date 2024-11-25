@@ -5,4 +5,4 @@
     )
 }}
 
-{{ rwa_data_by_chain_for_issuer("Franklin Templeton") }}
+{{ rwa_data_by_chain_for_issuer("franklin_templeton") }}

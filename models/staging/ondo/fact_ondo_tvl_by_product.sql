@@ -5,4 +5,4 @@
     )
 }}
 
-{{ rwa_data_by_product_for_issuer("Ondo") }}
+{{ rwa_data_by_product_for_issuer("ondo") }}

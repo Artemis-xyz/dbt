@@ -26,7 +26,8 @@ SELECT
     date
     , chain
     , i.symbol
-    , i.issuer
+    , i.issuer_id
+    , i.issuer_friendly
     , i.product_type
     , price
     , net_rwa_supply_native_change

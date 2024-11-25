@@ -5,4 +5,4 @@
     )
 }}
 
-{{ rwa_data_by_chain_for_issuer("BlackRock") }}
+{{ rwa_data_by_chain_for_issuer("blackrock") }}
