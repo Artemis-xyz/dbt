@@ -5,7 +5,7 @@
     )
 }}
 
-SELECT symbol, issuer_id, issuer_friendly, product_type FROM 
+SELECT symbol, issuer_id, issuer_friendly_name, product_type FROM 
     (
         VALUES
             ('BUIDL', 'blackrock', 'BlackRock', 'Treasury'),
@@ -16,4 +16,4 @@ SELECT symbol, issuer_id, issuer_friendly, product_type FROM
             ('FOBXX', 'franklin_templeton', 'Franklin Templeton', 'Treasury'),
             ('PAXG', 'paxos', 'Paxos', 'Gold'),
             ('XAUT', 'tether', 'Tether', 'Gold')
-    ) as results(symbol, issuer_id, issuer_friendly, product_type)
+    ) as results(symbol, issuer_id, issuer_friendly_name, product_type)

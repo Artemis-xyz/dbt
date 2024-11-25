@@ -2,7 +2,7 @@
 
 select
     tvl.date,
-    tvl.issuer_friendly,
+    tvl.issuer_friendly_name,
     tvl.symbol,
     sum(tvl.tokenized_supply_change) as tokenized_supply_change,
     sum(tvl.tokenized_mcap_change) as tokenized_mcap_change,

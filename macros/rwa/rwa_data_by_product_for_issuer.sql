@@ -3,7 +3,7 @@
         date
         , chain
         , symbol
-        , issuer_friendly
+        , issuer_friendly_name
         , avg(price) as price
         , sum(rwa_supply_usd) as tokenized_mcap
         , sum(net_rwa_supply_usd_change) as tokenized_mcap_change
