@@ -77,3 +77,9 @@ from {{ ref("injective_trending_daily") }}
 union all
 select *, 'injective' as chain
 from {{ ref("injective_trending_weekly_monthly") }}
+union all
+select *, 'injective' as chain
+from {{ ref("mantle_trending_daily") }}
+union all
+select *, 'injective' as chain
+from {{ ref("injective_trending_weekly_monthly") }}

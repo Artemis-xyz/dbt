@@ -18,6 +18,7 @@ with
                     ref("ez_solana_metrics_by_application"),
                     ref("ez_sui_metrics_by_application"),
                     ref("ez_tron_metrics_by_application"),
+                    ref("ez_mantle_metrics_by_application"),
                 ]
             )
         }}
