@@ -5,4 +5,4 @@
         snowflake_warehouse="RAYDIUM",
     )
 }}
-{{fact_solana_trading_metrics('raydium')}}
+{{fact_solana_dex_swaps('raydium')}}
