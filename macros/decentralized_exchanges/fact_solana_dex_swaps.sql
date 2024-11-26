@@ -1,4 +1,4 @@
-{% fact_solana_dex_swaps(protocol) %}
+{% macro fact_solana_dex_swaps(protocol) %}
 With price as(
     select 
         date
