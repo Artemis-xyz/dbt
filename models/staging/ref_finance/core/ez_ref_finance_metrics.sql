@@ -29,7 +29,7 @@ with fees_revs_tvl as (
 )
 
 select
-    f.date as date,
+    coalesce(d.date, f.date) as date,
     f.fees as trading_fees,
     f.revenue,
     f.tvl,
