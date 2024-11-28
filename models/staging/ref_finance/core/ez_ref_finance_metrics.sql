@@ -42,7 +42,7 @@ select
     p.token_turnover_circulating,
     p.token_turnover_fdv,
     p.token_volume
-from fees_revs_tvl f
-left join price p on f.date = p.date
-left join dau_txns_volume d on d.date = f.date        
+from dau_txns_volume d
+left join price p on d.date = p.date
+left join fees_revs_tvl f on d.date = f.date        
 where d.date < to_date(sysdate())
