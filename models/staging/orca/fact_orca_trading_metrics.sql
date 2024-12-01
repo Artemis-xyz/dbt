@@ -2,9 +2,8 @@
     config(
         materialized="incremental",
         unique_key="date",
-        snowflake_warehouse="RAYDIUM",
+        snowflake_warehouse="ORCA",
     )
 }}
 
-
-{{fact_solana_trading_metrics('raydium')}}
+{{fact_solana_trading_metrics('orca')}}
