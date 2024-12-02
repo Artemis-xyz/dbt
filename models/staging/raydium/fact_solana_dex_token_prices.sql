@@ -53,13 +53,24 @@ priced_ratio as (
     left join {{ ref("fact_raydium_token_prices") }} as token_prices
     on swap_pricing_data.date = token_prices.date and swap_pricing_data.priced_asset_address = token_prices.solana_mint_address
     where token_amount > 0
+),
+solana_dex_token_prices as (
+    select
+        date
+        , token_address
+        , avg(token_price_usd) as price
+        , count(*) as number_of_swaps
+        , count(distinct swapper) as unique_traders
+    from priced_ratio
+    group by 1, 2
+    HAVING count(*) > 1000 and count(distinct swapper) > 50
 )
-select
-    date
+select 
+    solana_dex_token_prices.date
     , token_address
-    , avg(token_price_usd) as price
-    , count(*) as number_of_swaps
-    , count(distinct swapper) as unique_traders
-from priced_ratio
-group by 1, 2
-HAVING count(*) > 1000 and count(distinct swapper) > 50
+    , least(solana_dex_token_prices.price, token_prices.price) as price
+    , number_of_swaps
+    , unique_traders
+from solana_dex_token_prices
+left join {{ ref("fact_raydium_token_prices") }} as token_prices
+on solana_dex_token_prices.date = token_prices.date and solana_dex_token_prices.token_address = token_prices.solana_mint_address
