@@ -68,7 +68,7 @@ solana_dex_token_prices as (
 select 
     solana_dex_token_prices.date
     , token_address
-    , least(solana_dex_token_prices.price, token_prices.price) as price
+    , LEAST_IGNORE_NULLS(solana_dex_token_prices.price, token_prices.price) as price
     , number_of_swaps
     , unique_traders
 from solana_dex_token_prices
