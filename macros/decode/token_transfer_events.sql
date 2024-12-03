@@ -41,12 +41,12 @@
             and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
         {% if chain in ('celo') %}
-            union all
-            select
+            union
+            select distinct
                 t1.block_timestamp,
                 t1.block_number,
                 t1.transaction_hash,
-                null as event_index,
+                -1 as event_index,
                 t1.from_address as origin_from_address,
                 t1.to_address as origin_to_address,
                 t1.fee_currency as contract_address,
