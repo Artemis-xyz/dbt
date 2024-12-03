@@ -37,6 +37,7 @@ select
     median_txn_fee,
     returning_users,
     new_users,
+    dau_over_100,
     price,
     market_cap,
     fdmc,

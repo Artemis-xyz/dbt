@@ -52,6 +52,7 @@ select
     new_users,
     low_sleep_users,
     high_sleep_users,
+    dau_over_100,
     tvl,
     dex_volumes,
     weekly_contracts_deployed,
