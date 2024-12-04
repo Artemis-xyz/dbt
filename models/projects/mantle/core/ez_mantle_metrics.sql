@@ -27,6 +27,8 @@ select
     , dau
     , wau
     , mau
+    , new_users
+    , returning_users
     , fees
     , fees_native
     , l1_data_cost

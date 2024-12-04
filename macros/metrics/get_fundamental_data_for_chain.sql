@@ -8,14 +8,14 @@
         new_users as (
             select
                 count(distinct from_address) as new_users,
-                date_trunc('day', start_timestamp) as start_date
+                start_timestamp::date as start_date
             from min_date
             group by start_date
         ),
         {% if chain not in ("starknet") %}
             bot as (
                 select
-                    raw_date,
+                    raw_date::date as raw_date,
                     count(distinct from_address) as low_sleep_users,
                     count(*) as tx_n
                 from {{ chain }}.prod_raw.ez_transactions
@@ -24,7 +24,7 @@
             ),
             sybil as (
                 select
-                    raw_date,
+                    raw_date::date as raw_date,
                     engagement_type,
                     count(distinct from_address) as sybil_users,
                     count(*) as tx_n
@@ -35,7 +35,7 @@
         {% endif %}
         chain_agg as (
             select
-                raw_date as date,
+                raw_date::date as date,
                 max(chain) as chain,
                 {% if chain not in ("starknet") %} --Starknet allows for multiple types of tokens to be used for gas
                     sum(tx_fee) fees_native,
