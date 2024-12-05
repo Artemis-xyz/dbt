@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="incremental",
+        materialized="table",
         snowflake_warehouse="internet_computer",
         database="internet_computer",
         schema="core",
@@ -55,7 +55,3 @@ left join icp_total_canister_state on price_data.date = icp_total_canister_state
 left join icp_neuron_funds on price_data.date = icp_neuron_funds.date
 left join defillama_data on price_data.date = defillama_data.date
 where coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_blocks.date, icp_total_canister_state.date, icp_neuron_funds.date) < to_date(sysdate())
-{% if is_incremental() %}
-    and coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_total_canister_state.date, icp_neuron_funds.date, icp_blocks.date)
-    >= (select dateadd('day', -5, max(date)) from {{ this }})
-{% endif %}

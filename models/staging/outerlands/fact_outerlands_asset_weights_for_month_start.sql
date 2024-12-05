@@ -18,7 +18,7 @@
 {%- set stablecoin_assets = ['ethena']-%}
 {%- set bridge_assets =  ['wormhole', 'layerzero', 'axelar']-%}
 {%- set da_assets = ['celestia'] -%}
-{%- set dex_assets = ['trader_joe'] -%}
+{%- set dex_assets = ['trader_joe', 'raydium'] -%}
 {%- set perps_assets = ['jupiter'] -%}
 
 {%- set MINIMUM_MCAP = 30000000 -%}
@@ -47,16 +47,20 @@ WITH
         '{{ artemis_id }}' AS artemis_id,
         '{{ coingecko_id }}' AS coingecko_id,
         
+        -- TXNS
         {%- if artemis_id in stablecoin_assets %}
-            stablecoin_daily_txns as txns,
+            stablecoin_txns as txns,
         {%- elif artemis_id in bridge_assets %}
             bridge_txns as txns,
+        {%- elif artemis_id in dex_assets %}
+            number_of_swaps as txns,
         {%- else %}
             txns as txns,
         {%- endif %}
 
+        -- DAU
         {%- if artemis_id in stablecoin_assets %}
-            stablecoin_daily_dau as dau,
+            stablecoin_dau as dau,
         {%- elif artemis_id in bridge_assets %}
             bridge_daa as dau,
         {%- elif artemis_id in da_assets %}
@@ -67,6 +71,7 @@ WITH
             dau as dau, 
         {%- endif %}
 
+        -- FEES
         {%- if artemis_id in dex_assets %}
             trading_fees as fees
         {%- else %}
