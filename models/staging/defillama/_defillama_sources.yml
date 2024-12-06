@@ -5,6 +5,7 @@ sources:
     tables:
       - name: raw_defillama_chain_data
       - name: raw_defillama_yield_data
+      - name: raw_defillama_yield_historical_data
       - name: raw_defillama_protocol_data
       - name: raw_defillama_protocol_tvls
       - name: raw_defillama_chain_tvls

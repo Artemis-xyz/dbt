@@ -1,3 +1,5 @@
+{{ config(materialized="table") }}
+
 WITH max_extraction AS (
         SELECT max(extraction_date) AS max_date
         FROM {{ source("PROD_LANDING", "raw_defillama_yield_data") }}
