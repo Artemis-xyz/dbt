@@ -14,11 +14,10 @@ WITH max_extraction AS (
 
     )
 SELECT
-    date,
+    value:"timestamp"::date AS date,
     pool::varchar AS pool,
     value:"apy"::float AS apy,
     value:"apyBase"::float AS apy_base,
     value:"apyBase7d"::float AS apy_base_7d,
     value:"apyReward"::float AS apy_reward,
-    value:"timestamp"::date AS date
 FROM protocol_data, lateral flatten(input => data)
