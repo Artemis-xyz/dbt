@@ -16,7 +16,7 @@ SELECT
     sum(trading_volume) as trading_volume,
     sum(trading_fees) as trading_fees,
     sum(unique_traders) as unique_traders,
-    sum(txns) as number_of_swaps,
+    sum(number_of_swaps) as number_of_swaps,
     sum(gas_cost_native) as gas_cost_native
 FROM {{ ref("ez_trader_joe_metrics_by_chain") }}
 GROUP BY 1, 2, 3
