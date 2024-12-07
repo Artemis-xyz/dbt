@@ -1,8 +1,8 @@
 {{
     config(
         materialized="view",
-        snowflake_warehouse="RAINBOW",
-        database="rainbow",
+        snowflake_warehouse="RAINBOW_BRIDGE",
+        database="rainbow_bridge",
         schema="raw",
         alias="ez_bridge_transfers",
     )
