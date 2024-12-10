@@ -1,0 +1,38 @@
+{{ config(materialized="table", snowflake_warehouse="BASE_MD") }}
+
+with wallet_cex_data as ({{ get_wallet_cex_amount_funded("base") }})
+select
+    address,
+    indodax_transfer_amt,
+    simpleswap_transfer_amt,
+    hotbit_transfer_amt,
+    mexc_transfer_amt,
+    bitso_transfer_amt,
+    bitget_transfer_amt,
+    catex_transfer_amt,
+    coindcx_transfer_amt,
+    coinbase_transfer_amt,
+    swissborg_transfer_amt,
+    btse_transfer_amt,
+    cryptocom_transfer_amt,
+    maskex_transfer_amt,
+    woonetwork_transfer_amt,
+    lbank_transfer_amt,
+    mxc_transfer_amt,
+    gateio_transfer_amt,
+    fixedfloat_transfer_amt,
+    bitfinex_transfer_amt,
+    maicoin_transfer_amt,
+    phemex_transfer_amt,
+    bingx_transfer_amt,
+    bitbee_transfer_amt,
+    bybit_transfer_amt,
+    binance_transfer_amt,
+    bitbank_transfer_amt,
+    juno_transfer_amt,
+    okx_transfer_amt,
+    cumberland_transfer_amt,
+    kraken_transfer_amt,
+    huobi_transfer_amt,
+    bilaxy_transfer_amt
+from wallet_cex_data
