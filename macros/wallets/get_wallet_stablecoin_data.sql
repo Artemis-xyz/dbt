@@ -1,32 +1,32 @@
 {% macro get_wallet_stablecoin_metrics(chain) %}
     with
         stablecoin_transfers as (
-             select * from fact_{{ chain }}_stablecoin_transfers
+             select * from {{chain}}.prod_raw.ez_stablecoin_transfers
         ),
         -- stablecoin data
         generic_stablecoin_data as (
             select
-                from_address as address,
+                from_address::text as address,
                 avg(amount) as avg_stablecoin_send,
-                mode(to_address) as top_stablecoin_to_address,
+                mode(to_address)::text as top_stablecoin_to_address,
                 count(*) as number_of_stablecoin_transfers_txns,
                 count(distinct to_address) as unique_count_to_address,
                 min(block_timestamp) as first_stablecoin_transfer_date,
                 max(block_timestamp) as latest_stablecoin_transfer_date,
-                min_by(to_address, block_timestamp) as first_stablecoin_to_address
+                min_by(to_address, block_timestamp)::text as first_stablecoin_to_address
             from stablecoin_transfers
             group by from_address
         ),
         generic_stablecoin_received as (
             select
-                to_address as address,
+                to_address::text as address,
                 avg(amount) as avg_stablecoin_received,
-                mode(from_address) as top_stablecoin_from_address,
+                mode(from_address)::text as top_stablecoin_from_address,
                 count(*) as number_of_stablecoin_received_txns,
                 count(distinct from_address) as unique_count_from_address,
                 min(block_timestamp) as first_stablecoin_received_date,
                 max(block_timestamp) as latest_stablecoin_received_date,
-                min_by(from_address, block_timestamp) as first_stablecoin_from_address
+                min_by(from_address, block_timestamp)::text as first_stablecoin_from_address
             from stablecoin_transfers
             group by to_address
         )
