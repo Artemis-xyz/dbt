@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="BASE",
+        snowflake_warehouse="BASE_MD",
         database="base",
         schema="core",
         alias="ez_address",
@@ -91,3 +91,7 @@ full join
 full join
     {{ ref("dim_base_wallets_cex_funded") }} as cex
     on fundamental.address = cex.address
+WHERE fundamental.address is not null
+    or stablecoin.address is not null
+    or dex.address is not null
+    or cex.address is not null

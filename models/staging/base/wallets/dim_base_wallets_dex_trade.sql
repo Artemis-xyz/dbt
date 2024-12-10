@@ -1,6 +1,6 @@
 {{ config(materialized="table", snowflake_warehouse="BASE_MD") }}
 
-with wallet_dex_data as ({{ get_wallet_stablecoin_metrics("base") }})
+with wallet_dex_data as ({{ get_wallet_dex_trades("base") }})
 select
     address,
     number_dex_trades,

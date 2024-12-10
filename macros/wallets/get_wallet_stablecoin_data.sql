@@ -1,7 +1,7 @@
 {% macro get_wallet_stablecoin_metrics(chain) %}
     with
         stablecoin_transfers as (
-             select * from {{chain}}.prod_raw.ez_stablecoin_transfers
+             select * from {{ref("ez_" ~ chain ~ "_stablecoin_transfers")}}
         ),
         -- stablecoin data
         generic_stablecoin_data as (
