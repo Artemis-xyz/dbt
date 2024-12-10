@@ -6,6 +6,7 @@ WITH defillama_data AS (
         UPPER(b.chain) AS chain,
         UPPER(b.symbol) AS stablecoin,
         a.apy,
+        tvl_usd,
         UPPER(b.project) AS project,
         'defillama' AS source,
         MAX(a.date) OVER() AS max_date
@@ -19,6 +20,7 @@ WITH defillama_data AS (
         'SOLANA' AS chain,
         UPPER(market) AS stablecoin,
         daily_avg_deposit_rate AS apy,
+        daily_avg_protocol_balance AS tvl_usd,
         'DRIFT' AS project,
         'artemis' AS source,
         MAX(date) OVER() AS max_date
