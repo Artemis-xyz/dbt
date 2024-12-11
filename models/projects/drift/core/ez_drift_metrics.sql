@@ -28,7 +28,8 @@ SELECT
         fact_drift_prediction_markets.date,
         fact_drift_float_borrow_lending_revenue.date,
         defillama_data.date,
-        parsed_log_metrics.date
+        parsed_log_metrics.date,
+        fact_drift_amm_revenue.date
     ) as date,
     'drift' AS app,
     'DeFi' AS category,
@@ -45,12 +46,24 @@ SELECT
     parsed_log_metrics.spot_fees,
     parsed_log_metrics.spot_revenue,
     parsed_log_metrics.spot_trading_volume,
+    total_revenue as excess_pnl_daily_change,
+    coalesce(float_revenue, 0) + 
+    coalesce(lending_revenue, 0) +
+    coalesce(parsed_log_metrics.perp_revenue, 0) +
+    coalesce(parsed_log_metrics.spot_revenue, 0) as old_revenue,
     coalesce(float_revenue, 0) + 
     coalesce(lending_revenue, 0) +
     coalesce(parsed_log_metrics.perp_revenue, 0) +
     coalesce(parsed_log_metrics.spot_revenue, 0) as revenue,
-    coalesce(parsed_log_metrics.perp_fees + parsed_log_metrics.spot_fees, 0) as fees
+    total_revenue - (coalesce(float_revenue, 0) + 
+    coalesce(lending_revenue, 0) +
+    coalesce(parsed_log_metrics.perp_revenue, 0) +
+    coalesce(parsed_log_metrics.spot_revenue, 0)) as amm_revenue,
+    coalesce(parsed_log_metrics.perp_fees + parsed_log_metrics.spot_fees, 0) as fees,
+    daily_latest_excess_pnl
 FROM price_data 
+LEFT JOIN {{ ref("fact_drift_amm_revenue") }} as fact_drift_amm_revenue
+    ON price_data.date = fact_drift_amm_revenue.date
 FULL JOIN {{ ref("fact_drift_prediction_markets") }} as fact_drift_prediction_markets
     ON price_data.date = fact_drift_prediction_markets.date
 FULL JOIN {{ ref("fact_drift_float_borrow_lending_revenue") }} as fact_drift_float_borrow_lending_revenue
