@@ -60,7 +60,7 @@ SELECT
     coalesce(parsed_log_metrics.perp_revenue, 0) +
     coalesce(parsed_log_metrics.spot_revenue, 0)) as amm_revenue,
     coalesce(parsed_log_metrics.perp_fees + parsed_log_metrics.spot_fees, 0) as fees,
-    daily_latest_excess_pnl
+    latest_excess_pnl as daily_latest_excess_pnl
 FROM price_data 
 LEFT JOIN {{ ref("fact_drift_amm_revenue") }} as fact_drift_amm_revenue
     ON price_data.date = fact_drift_amm_revenue.date
