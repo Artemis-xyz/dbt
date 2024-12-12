@@ -1,7 +1,7 @@
 -- depends_on: {{ ref('fact_celo_decoded_events') }}
 {{
     config(
-        materialized="table",
+        materialized="view",
         snowflake_warehouse="CELO",
         database="celo",
         schema="raw",
