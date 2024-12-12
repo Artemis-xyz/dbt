@@ -1,4 +1,10 @@
-{{ config(materialized="incremental", unique_key=["transaction_hash", "event_index"]) }}
+{{ 
+    config(
+        materialized="incremental",
+        unique_key=["transaction_hash", "event_index"],
+        snowflake_warehouse="CELO_MD"
+    )
+}}
 with
 prices as ({{get_multiple_coingecko_price_with_latest('celo')}})
 , celo_token_transfers as ({{ token_transfer_events("celo") }})
