@@ -50,5 +50,5 @@ select
     , status
     , trace_id
     , id
-from raw_receipt_transactions
+from raw_traces
 qualify row_number() over (partition by id order by block_timestamp desc) = 1
