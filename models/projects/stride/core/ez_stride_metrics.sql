@@ -21,8 +21,8 @@ select
     fundamental_data.mau,
     fundamental_data.tvl,
     fundamental_data.tvl_net_change,
-    fundamental_data.fees_native,
-    fundamental_data.fees_usd AS fees,
+    fundamental_data.fees_native AS gas_fees_native,
+    fundamental_data.fees_usd AS gas_fees_usd,
     fundamental_data.avg_txn_fee,
     fundamental_data.returning_users,
     fundamental_data.new_users,
@@ -32,7 +32,8 @@ select
     fundamental_data.non_sybil_users,
     fundamental_data.total_staking_yield_usd,
     fundamental_data.total_supply_side_revenue_usd,
-    fundamental_data.protocol_revenue_usd,
+    fundamental_data.protocol_revenue_usd AS fees,
+    fundamental_data.protocol_revenue_usd AS revenue,
     fundamental_data.operating_expenses_usd,
     fundamental_data.protocol_earnings_usd
 from fundamental_data
