@@ -141,4 +141,7 @@
             from {{ this }}
         )
     {% endif %}
+    {% if chain == "near" %}
+        qualify row_number() over (partition by tx_hash,index order by block_timestamp desc) = 1
+    {% endif %}
 {% endmacro %}
