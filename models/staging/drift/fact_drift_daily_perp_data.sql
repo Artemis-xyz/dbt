@@ -11,6 +11,7 @@ SELECT
     AVG(value:oi_net::float) as daily_avg_net_open_interest,
     AVG(value:net_user_pnl::float) as daily_avg_net_user_pnl,
     MAX_BY(value:excess_pnl::float, TO_TIMESTAMP(value:timestamp::string, 'YYYY/MM/DD HH24:MI:SS')) as latest_excess_pnl,
+    MAX(TO_TIMESTAMP(value:timestamp::string, 'YYYY/MM/DD HH24:MI:SS')) as latest_timestamp,
     AVG(value:est_funding_dollars::float) as daily_avg_est_funding_dollars
 FROM {{ source("PROD_LANDING", "raw_drift_perp_market_data") }} ,
     lateral flatten(input => parse_json(source_json))
