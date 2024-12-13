@@ -1,28 +1,28 @@
-{{ config(materialized="incremental", unique_key="id") }}
+{{ config(materialized="incremental", unique_key="id", snowflake_warehouse="CELO_MD") }}
 with
     raw_traces as (
         select 
-            parquet_raw:block_number as block_number
+            parquet_raw:block_number::number as block_number
             , parquet_raw:block_timestamp::timestamp as block_timestamp
-            , parquet_raw:block_hash as block_hash
-            , parquet_raw:transaction_hash as transaction_hash
-            , parquet_raw:transaction_index as transaction_index
-            , parquet_raw:from_address as from_address
-            , parquet_raw:to_address as to_address
-            , parquet_raw:value as value
-            , parquet_raw:input as input
-            , parquet_raw:output as output
-            , parquet_raw:trace_type as trace_type
-            , parquet_raw:call_type as call_type
-            , parquet_raw:reward_type as reward_type
-            , parquet_raw:gas as gas
-            , parquet_raw:gas_used as gas_used
-            , parquet_raw:subtraces as subtraces
-            , parquet_raw:trace_address as trace_address
-            , parquet_raw:error as error
-            , parquet_raw:status as status
-            , parquet_raw:trace_id as trace_id
-            , parquet_raw:id as id
+            , parquet_raw:block_hash::string as block_hash
+            , parquet_raw:transaction_hash::string as transaction_hash
+            , parquet_raw:transaction_index::number as transaction_index
+            , parquet_raw:from_address::string as from_address
+            , parquet_raw:to_address::string as to_address
+            , parquet_raw:value::string as value
+            , parquet_raw:input::string as input
+            , parquet_raw:output::string as output
+            , parquet_raw:trace_type::string as trace_type
+            , parquet_raw:call_type::string as call_type
+            , parquet_raw:reward_type::string as reward_type
+            , parquet_raw:gas::string as gas
+            , parquet_raw:gas_used::string as gas_used
+            , parquet_raw:subtraces::string as subtraces
+            , parquet_raw:trace_address::string as trace_address
+            , parquet_raw:error::string as error
+            , parquet_raw:status::number as status
+            , parquet_raw:trace_id::string as trace_id
+            , parquet_raw:id::string as id
         from {{ source("PROD_LANDING", "raw_celo_traces_parquet") }}
         {% if is_incremental() %}
             where block_timestamp::timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
