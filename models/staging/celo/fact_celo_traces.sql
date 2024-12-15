@@ -1,4 +1,4 @@
-{{ config(materialized="incremental", unique_key="id", snowflake_warehouse="CELO_MD") }}
+{{ config(materialized="incremental", unique_key="trace_id", snowflake_warehouse="CELO_LG") }}
 with
     raw_traces as (
         select 
@@ -51,4 +51,4 @@ select
     , trace_id
     , id
 from raw_traces
-qualify row_number() over (partition by id order by block_timestamp desc) = 1
+qualify row_number() over (partition by trace_id order by block_timestamp desc) = 1
