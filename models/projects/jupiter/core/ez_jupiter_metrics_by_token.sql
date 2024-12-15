@@ -4,7 +4,7 @@
         snowflake_warehouse="JUPITER",
         database="jupiter",
         schema="core",
-        alias="ez_metrics_by_market",
+        alias="ez_metrics_by_token",
     )
 }}
 
@@ -12,7 +12,7 @@ SELECT
     block_timestamp::date as date,
     chain,
     app,
-    symbol,
+    symbol as token,
     mint as token_address,
     sum(fee_usd) as trading_fees,
     sum(size_usd) as trading_volume,
