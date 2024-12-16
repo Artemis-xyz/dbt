@@ -13,11 +13,11 @@ select
     s.chain as origin_chain
     , origin_tx_hash
     , origin_block_timestamp
-    , depositor as source_address
+    , depositor as origin_address
     , origin_token_address
     , origin_token_symbol
     , origin_token_amount
-    , d.chain as destiantion_chain
+    , d.chain as destination_chain
     , destination_tx_hash
     , destination_block_timestamp
     , recipient as destination_address
