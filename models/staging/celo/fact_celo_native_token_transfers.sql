@@ -18,7 +18,7 @@ prices as ({{get_coingecko_price_with_latest('celo')}})
         'native-token:42220' as contract_address,
         t1.from_address,
         t1.to_address,
-        t1.value as amount,
+        try_to_number(t1.value) as amount,
         t1.status as tx_status
     from {{ ref("fact_celo_traces") }} t1
     left join {{ ref("fact_celo_transactions") }} t2 using(transaction_hash)
@@ -37,7 +37,7 @@ prices as ({{get_coingecko_price_with_latest('celo')}})
         'native-token:42220' as contract_address,
         t1.from_address,
         t2.miner as to_address,
-        t1.gas * t1.gas_price as amount,
+        try_to_number(t1.gas * t1.gas_price) as amount,
         1 as tx_status -- Fees are paid whether or not the transaction is successful
     from {{ref("fact_celo_transactions")}} t1
     left join {{ref("fact_celo_blocks")}} t2 using (block_number)
@@ -62,5 +62,5 @@ select
     tx_status
 from celo_native_transfers
 left join prices on block_timestamp::date = prices.date
-where amount is not null and amount > 0
+where amount is not null and amount > 0 and block_timestamp < to_date(sysdate())
 

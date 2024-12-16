@@ -25,6 +25,7 @@ select
 from {{ref('fact_celo_native_token_transfers')}}
 {% if is_incremental() %}
     where block_timestamp >= (select max(block_timestamp) from {{ this }})
+    and contract_address = 'native-token:42220'
 {% endif %}
 union all
 select
@@ -44,4 +45,5 @@ select
 from {{ref('fact_celo_token_transfers')}}
 {% if is_incremental() %}
     where block_timestamp >= (select max(block_timestamp) from {{ this }})
+    and contract_address <> 'native-token:42220'
 {% endif %}
