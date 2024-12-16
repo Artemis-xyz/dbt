@@ -27,4 +27,3 @@ select
 from {{ref('fact_across_transfers')}} t1
 left join {{ref('chain_ids')}} t2 on t1.destination_chain_id = t2.id
 left join {{ref('chain_ids')}} t3 on t1.origin_chain_id = t3.id
-limit 10
