@@ -18,7 +18,7 @@ select
     contract_address,
     from_address,
     to_address,
-    amount,
+    amount::number as amount,
     amount_adjusted,
     amount_usd,
     tx_status
@@ -37,7 +37,7 @@ select
     contract_address,
     from_address,
     to_address,
-    amount,
+    amount::number as amount,
     amount_adjusted,
     amount_usd,
     tx_status
