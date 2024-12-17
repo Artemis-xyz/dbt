@@ -60,15 +60,9 @@ There are two ways to get help:
 3. Write SQL model changes
 4. Open a PR and view results of your changes directly in the Github Actions - more on this in [adding a new metric](#adding-a-new-metric).
 
-For running on snowflake, create a `.env.local` file in the root of this repo with the following structure:
+For running on snowflake, create a `.env.local` file in the root of this repo by running `cp .env.local.template .env.local` and filling out the necessary values.
 
-```
-export SYSTEM_SNOWFLAKE_USER=''
-export SYSTEM_SNOWFLAKE_PASSWORD=''
-export SYSTEM_SNOWFLAKE_ROLE=''
-```
-
-Run `source .env.local` to load these environment variables into your shell.
+Run `source syncenv` to load these environment variables into your shell and install the necessary Python dependencies.
 
 ## System Design
 
