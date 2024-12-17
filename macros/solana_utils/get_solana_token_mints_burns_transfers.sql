@@ -11,7 +11,8 @@
         m.token_account as tx_to_account,
         null as tx_from_account,
         m.mint_amount as amount_native,
-        m.mint_authority as token_authority
+        m.mint_authority as token_authority,
+        fact_token_mint_actions_id as unique_id
     from
         solana_flipside.defi.fact_token_mint_actions m
     where
@@ -31,14 +32,15 @@
         tf.block_timestamp,
         tf.tx_id,
         tf.block_id,
-        null as index,
-        null as inner_index,
+        SPLIT_PART(index, '.', 1) as index,
+        COALESCE(NULLIF(SPLIT_PART(index, '.', 2), ''), 0) as inner_index,
         'transfer' as action,
         tf.mint,
         tf.tx_to as tx_to_account,
         tf.tx_from as tx_from_account,
         tf.amount as amount_native,
-        null as token_authority
+        null as token_authority,
+        fact_transfers_id as unique_id
     from
         solana_flipside.core.fact_transfers tf
     where
@@ -64,7 +66,8 @@
         null as tx_to_account,
         b.token_account as tx_from_account,
         b.burn_amount as amount_native,
-        b.burn_authority as token_authority
+        b.burn_authority as token_authority,
+        fact_token_burn_actions_id as unique_id
     from
         solana_flipside.defi.fact_token_burn_actions b
     where

@@ -1,13 +1,16 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="HIVEMAPPER",
+        unique_key=["tx_id", "action", "index", "inner_index"]
     )
 }}
 
 select
     block_timestamp,
     tx_id,
+    index,
+    inner_index,
     log_messages,
     action,
     case 
@@ -34,4 +37,9 @@ left join solana_flipside.core.fact_token_account_owners o1 on o1.account_addres
 left join solana_flipside.core.fact_token_account_owners o2 on o2.account_address = tx_from_account
 left join solana_flipside.price.ez_prices_hourly p on p.hour = date_trunc('hour', block_timestamp) and p.token_address = '4vMsoUT2BWatFweudnQM1xedRLfJgJ7hswhcpz4xgBTy'
 where 1=1
-    and reward_type is not null
+    and (
+        not(action = 'transfer' AND reward_type is null)
+    )
+{% if is_incremental() %}
+    and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+{% endif %}

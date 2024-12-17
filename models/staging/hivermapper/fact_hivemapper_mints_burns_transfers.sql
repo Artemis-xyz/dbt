@@ -1,19 +1,20 @@
 {{
     config(
         materialized="incremental",
-        unique_key=["tx_id", "log_messages", "action"],
         snowflake_warehouse="HIVEMAPPER",
+        unique_key=["tx_id", "action", "index", "inner_index"]
     )
 }}
 
--- mints
 with events as (
-        {{ get_solana_token_mints_burns_transfers('4vMsoUT2BWatFweudnQM1xedRLfJgJ7hswhcpz4xgBTy') }}
+    {{ get_solana_token_mints_burns_transfers('4vMsoUT2BWatFweudnQM1xedRLfJgJ7hswhcpz4xgBTy') }}
 )
 
 SELECT
     tx.block_timestamp,
     tx.tx_id,
+    tx.index,
+    tx.inner_index,
     tx.log_messages,
     e.action,
     e.tx_to_account,
@@ -29,4 +30,4 @@ where
     {% else %}
         and tx.block_timestamp >= '2022-11-01'
     {% endif %}
-    and succeeded
+    and tx.succeeded
