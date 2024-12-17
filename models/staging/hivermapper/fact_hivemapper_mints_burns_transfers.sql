@@ -11,10 +11,10 @@ with events as (
 )
 
 SELECT
-    tx.block_timestamp,
-    tx.tx_id,
-    tx.index,
-    tx.inner_index,
+    e.block_timestamp,
+    e.tx_id,
+    e.index,
+    e.inner_index,
     tx.log_messages,
     e.action,
     e.tx_to_account,
