@@ -31,10 +31,14 @@ with
         ) as supply_side_fees,
         SUM(
             CASE
-                WHEN action = 'burn' and block_timestamp::date >= '2024-04-17' THEN amount_usd -- MIP 15 was introduced on 2024-04-17 and changed the burn fee structure such that 75% of burns are permanent (prev 0%)
+                WHEN action = 'burn' and block_timestamp::date >= '2024-04-17' THEN amount_usd * 0.75 -- MIP 15 was introduced on 2024-04-17 and changed the burn fee structure such that 75% of burns are permanent (prev 0%)
             END
         ) as revenue,
-        revenue as fees,
+        SUM(
+            CASE
+                WHEN action = 'burn' THEN amount_usd -- MIP 15 was introduced on 2024-04-17 and changed the burn fee structure such that 75% of burns are permanent (prev 0%)
+            END
+        ) as fees,
         SUM(
             CASE WHEN action = 'mint'
                 THEN amount_native
