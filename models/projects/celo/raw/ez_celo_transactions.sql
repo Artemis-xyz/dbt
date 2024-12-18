@@ -1,11 +1,13 @@
--- depends_on: {{ ref('fact_celo_decoded_events') }}
 {{
     config(
         materialized="view",
         snowflake_warehouse="CELO",
         database="celo",
         schema="raw",
-        alias="ez_decoded_events",
+        alias="ez_transactions",
     )
 }}
-{{ get_ez_decoded_events("celo") }}
+
+select
+    *
+from {{ref("fact_celo_transactions")}}
