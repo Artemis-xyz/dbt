@@ -68,7 +68,7 @@ SELECT
     COALESCE(stats.revenue, 0) as revenue,
     COALESCE(stats.mints_native, 0) as mints_native,
     COALESCE(stats.burn_native, 0) as burn_native,
-    COALESCE(stats.contributors, 0) as contributors
+    COALESCE(stats.contributors, 0) as dau
 FROM date_spine
 LEFT JOIN stats ON date_spine.date = stats.date
 WHERE date_spine.date < to_date(sysdate())
