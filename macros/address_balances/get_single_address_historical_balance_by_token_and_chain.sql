@@ -1,4 +1,4 @@
-{% macro get_single_address_historical_balance_by_token_and_chain(chain, address, start_date) %}
+{% macro get_single_address_historical_balance_by_token_and_chain(chain, address, start_date, blacklist=('')) %}
     with eod_balances as (
         select
             block_timestamp::date as date,
@@ -9,7 +9,9 @@
             {{ ref('fact_' ~ chain ~ '_address_balances_by_token') }}
         where 1=1
             and address = lower('{{address}}')
-            and contract_address != '0x1a44e35d5451e0b78621a1b3e7a53dfaa306b1d0' -- token causing price issues
+            {% if blacklist is string %} and lower(contract_address) != lower('{{ blacklist }}')
+            {% elif blacklist | length > 1 %} and contract_address not in {{ blacklist }} --make sure you pass in lower
+            {% endif %}
         GROUP BY 1,2,3
         
     )
@@ -41,8 +43,10 @@
     )
     select
         b.date,
+        '{{chain}}' as chain,
         b.address,
         b.contract_address,
+        p.symbol,
         sum(b.eod_balance_ff / pow(10, p.decimals)) as balance_native,
         sum(b.eod_balance_ff * p.price / pow(10, p.decimals)) as balance_usd
     from
@@ -51,7 +55,7 @@
     where 1=1
         and b.eod_balance_ff / pow(10, p.decimals) is not null
         and b.eod_balance_ff * p.price / pow(10, p.decimals) < pow(10,9)
-    group by 1,2,3
+    group by 1,2,3,4,5
     having balance_usd > 0
     order by 1 desc, 5 desc
 {% endmacro %}
