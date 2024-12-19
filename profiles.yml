@@ -6,7 +6,9 @@ snowflake-dagster:
       account: IYTNLTJ-MWB17343
 
       user: "{{ env_var('SYSTEM_SNOWFLAKE_USER') }}"
-      password: "{{ env_var('SYSTEM_SNOWFLAKE_PASSWORD') }}"
+      password: "{{ env_var('SYSTEM_SNOWFLAKE_PASSWORD', '') }}"
+      # snowflake client_store_temporary_credential is automatically set by dbt-snowflake
+      authenticator: "{{ env_var('SYSTEM_SNOWFLAKE_AUTHENTICATOR', 'snowflake') }}"
 
       role: "{{ env_var('SYSTEM_SNOWFLAKE_ROLE') }}"
       database: PC_DBT_DB

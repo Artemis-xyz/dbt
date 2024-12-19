@@ -2,7 +2,7 @@ python3 -m venv venv
 . ./venv/bin/activate
 
 pip install uv==0.2.15
-uv pip sync requirements.txt
+uv pip install -r requirements.txt
 
 chmod +x dbt_scripts/run_sqlfluff_on_changed_files.sh
 
