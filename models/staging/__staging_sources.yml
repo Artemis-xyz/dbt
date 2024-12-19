@@ -25,6 +25,7 @@ sources:
     database: SOLANA_FLIPSIDE
     tables:
       - name: ez_prices_hourly
+      - name: ez_asset_metadata
 
 # ETHEREUM
 
