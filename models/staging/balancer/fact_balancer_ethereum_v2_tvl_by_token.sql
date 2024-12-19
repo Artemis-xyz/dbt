@@ -18,3 +18,4 @@ select
     native_balance,
     usd_balance
 from ethereum_v2_tvl_by_token
+where usd_balance < 1e9 -- filter out DQ issues, no tokens have a balance anywhere near 1bn
