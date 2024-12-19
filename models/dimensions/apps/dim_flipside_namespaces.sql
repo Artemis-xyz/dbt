@@ -7,7 +7,8 @@ with
             namespace,
             initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
             max(category) as category,
-            max(sub_category) as sub_category
+            max(sub_category) as sub_category,
+            max(last_updated) as last_updated
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'arbitrum' and namespace is not null
             and category not in ('NFT', 'Token', 'ERC_1155')
@@ -19,7 +20,8 @@ with
             namespace,
             initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
             max(category) as category,
-            max(sub_category) as sub_category
+            max(sub_category) as sub_category,
+            max(last_updated) as last_updated
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'avalanche' and namespace is not null
             and category not in ('NFT', 'Token', 'ERC_1155')
@@ -31,7 +33,8 @@ with
             namespace,
             initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
             max(category) as category,
-            max(sub_category) as sub_category
+            max(sub_category) as sub_category,
+            max(last_updated) as last_updated
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'base' and namespace is not null
             and category not in ('NFT', 'Token', 'ERC_1155')
@@ -43,7 +46,8 @@ with
             namespace,
             initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
             max(category) as category,
-            max(sub_category) as sub_category
+            max(sub_category) as sub_category,
+            max(last_updated) as last_updated
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'bsc' and namespace is not null
             and category not in ('NFT', 'Token', 'ERC_1155')
@@ -55,7 +59,8 @@ with
             namespace,
             initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
             max(category) as category,
-            max(sub_category) as sub_category
+            max(sub_category) as sub_category,
+            max(last_updated) as last_updated
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'ethereum' and namespace is not null
             and category not in ('NFT', 'Token', 'ERC_1155')
@@ -67,7 +72,8 @@ with
             namespace,
             initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
             max(category) as category,
-            max(sub_category) as sub_category
+            max(sub_category) as sub_category,
+            max(last_updated) as last_updated
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'polygon' and namespace is not null
             and category not in ('NFT', 'Token', 'ERC_1155')
@@ -79,7 +85,8 @@ with
             namespace,
             initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
             max(category) as category,
-            max(sub_category) as sub_category
+            max(sub_category) as sub_category,
+            max(last_updated) as last_updated
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'optimism' and namespace is not null
             and category not in ('NFT', 'Token', 'ERC_1155')
@@ -91,7 +98,8 @@ with
             namespace,
             initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
             max(category) as category,
-            max(sub_category) as sub_category
+            max(sub_category) as sub_category,
+            max(last_updated) as last_updated
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'sei' and namespace is not null
         group by namespace
@@ -102,7 +110,8 @@ with
             namespace,
             initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
             max(category) as category,
-            max(sub_category) as sub_category
+            max(sub_category) as sub_category,
+            max(last_updated) as last_updated
         from {{ ref("dim_flipside_contracts") }}
         where chain = 'near' and namespace is not null
         group by namespace
@@ -114,7 +123,8 @@ with
             namespace,
             initcap(replace(replace(namespace, '-', ' '), '_', ' ')) as friendly_name,
             max(category) as category,
-            null as sub_category
+            null as sub_category,
+            max(last_updated) as last_updated
         from {{ ref("dim_flipside_contracts") }}
         where
             chain = 'solana'
@@ -127,6 +137,7 @@ select
     namespace,
     coalesce(max_by(friendly_name, namespace), max(friendly_name)) as friendly_name,
     coalesce(max_by(category, namespace), max(category)) as category,
-    coalesce(max_by(sub_category, namespace), max(sub_category)) as sub_category
+    coalesce(max_by(sub_category, namespace), max(sub_category)) as sub_category,
+    max(last_updated) as last_updated
 from flipside_namespace
 group by namespace
