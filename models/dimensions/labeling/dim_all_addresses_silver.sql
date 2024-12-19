@@ -12,7 +12,7 @@ with unioned_table as (
         'name', name
     ) AS metadata,
     last_updated
-    FROM {{ ref("dim_legacy_sigma_tagged_contracts") }}
+    FROM {{ source("MANUAL_STATIC_TABLES", "dim_legacy_sigma_tagged_contracts") }}
     UNION ALL
     SELECT address, chain, 'dune' AS source, OBJECT_CONSTRUCT(
         'name', name
