@@ -1,0 +1,12 @@
+workspace:
+  edition: '1.3'
+  name: artemis_dbt
+  includes:
+  - path: target/compiled/sdf/models
+    index: catalog-schema-table-name
+  defaults:
+    environment: dbg
+    dialect: snowflake
+    catalog: PC_DBT_DB
+    schema: PROD
+
