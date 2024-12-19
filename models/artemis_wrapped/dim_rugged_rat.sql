@@ -1,6 +1,6 @@
 {{config(materialized='table')}}
 
-select lower(address) as address, 'WOLF_OF_WALL_STREET' as category, array_agg(distinct symbol) as reason
+select lower(address) as address, 'RUGGED_RAT' as category, array_agg(distinct symbol) as reason
 from {{ ref('agg_solana_tokens_held') }}
 where 
     (symbol = 'HAWKTUAH' and first_seen <= '2024-11-26')
