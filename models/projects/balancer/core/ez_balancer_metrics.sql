@@ -9,11 +9,9 @@
 }}
 
 with date_spine as (
-    {{ dbt_utils.date_spine(
-        datepart="day",
-        start_date="2020-03-01",
-        end_date="current_date()"
-    ) }}
+    select date
+    from {{ ref('dim_date_spine') }}
+    where date between '2020-03-01' and to_date(sysdate())
 )
 
 , all_tvl as (
@@ -27,7 +25,7 @@ with date_spine as (
 , token_holders as (
     SELECT
         date,
-        token_holders
+        token_holder_count
     FROM {{ ref('fact_balancer_token_holders') }}
 )
 , market_data as (
@@ -44,7 +42,7 @@ select
     market_data.token_turnover_circulating,
     market_data.token_turnover_fdv,
     market_data.token_volume,
-    token_holders.token_holders
+    token_holders.token_holder_count
 from date_spine
 left join all_tvl on date_spine.date = all_tvl.date
 left join token_holders on date_spine.date = token_holders.date

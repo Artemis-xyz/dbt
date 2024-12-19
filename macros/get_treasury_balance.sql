@@ -1,4 +1,5 @@
-{% macro get_treasury_balance(chain, addresses, earliest_date)%}
+{% macro get_treasury_balance(chain, addresses, earliest_date, blacklist=(''))%}
+-- Returns the balance of a set of addresses (belonging to an entity such as a treasury) on a given chain aggregated by date and token
 
 {% if addresses is iterable and not addresses is string %}
     {% set addresses = addresses | map('lower') | list %}
@@ -14,20 +15,6 @@ WITH dates AS (
     WHERE
         hour > date('{{earliest_date}}')
 ),
-tokens AS (
-    SELECT
-        DISTINCT LOWER(contract_address) AS token_address
-        , MAX(decimals) as decimals
-    FROM
-        {{ chain }}_flipside.core.ez_token_transfers
-    WHERE
-        {% if addresses is string %}
-            LOWER(to_address) = '{{ addresses }}'
-        {% elif addresses | length > 1 %}
-            LOWER(to_address) IN ( '{{ addresses | join("', '") }}' )
-        {% endif %}
-    GROUP BY 1
-),
 sparse_balances AS (
     SELECT
         DATE(block_timestamp) AS date,
@@ -36,20 +23,15 @@ sparse_balances AS (
         MAX_BY(balance / pow(10, decimals), block_timestamp) AS balance_daily
     FROM
         {{ chain }}_flipside.core.fact_token_balances b
-        LEFT JOIN tokens t on t.token_address = b.contract_address
-
-    WHERE
-        LOWER(contract_address) IN (
-            SELECT
-                token_address
-            FROM
-                tokens
-        )
-        AND
+        LEFT JOIN {{ chain }}_flipside.price.ez_asset_metadata t on t.token_address = b.contract_address
+    WHERE 1=1
         {% if addresses is string %}
-            LOWER(user_address) = '{{ addresses }}'
+            AND LOWER(user_address) = '{{ addresses }}'
         {% elif addresses | length > 1 %}
-            LOWER(user_address) IN ( '{{ addresses | join("', '") }}' )
+            AND LOWER(user_address) IN ( '{{ addresses | join("', '") }}' )
+        {% endif %}
+        {% if blacklist is string %} and lower(contract_address) != lower('{{ blacklist }}')
+        {% elif blacklist | length > 1 %} and contract_address not in {{ blacklist }} --make sure you pass in lower
         {% endif %}
     GROUP BY
         1,
@@ -92,7 +74,7 @@ full_balances AS (
                 {% endfor %}
             ) ta
         {% endif %}
-        CROSS JOIN tokens t
+        CROSS JOIN (SELECT distinct(contract_address) as token_address FROM sparse_balances) t
         LEFT JOIN sparse_balances sb ON d.date = sb.date
         AND
         {% if addresses is string %}
@@ -102,40 +84,19 @@ full_balances AS (
         {% endif %}
         AND t.token_address = sb.contract_address
 ),
-daily_prices AS (
-    SELECT
-        DATE(hour) AS date,
-        token_address,
-        symbol,
-        AVG(price) AS avg_daily_price,
-        MAX(decimals) as decimals
-    FROM
-        {{ chain }}_flipside.price.ez_prices_hourly
-    WHERE
-        token_address IN (
-            SELECT
-                token_address
-            FROM
-                tokens
-        )
-    GROUP BY
-        1,
-        2,
-        3
-),
 full_table as (
     SELECT
         fb.date,
         fb.user_address,
         fb.contract_address,
-        dp.symbol,
+        p.symbol,
         fb.balance_daily as balance_daily,
-        COALESCE(dp.avg_daily_price, 0) AS avg_daily_price,
-        fb.balance_daily * COALESCE(dp.avg_daily_price, 0) AS usd_balance
+        COALESCE(p.price, 0) AS price,
+        fb.balance_daily * COALESCE(p.price, 0) AS usd_balance
     FROM
         full_balances fb
-        LEFT JOIN daily_prices dp ON fb.date = dp.date
-        AND fb.contract_address = dp.token_address -- AND dp.decimals is not null
+        LEFT JOIN ethereum_flipside.price.ez_prices_hourly p ON p.hour = fb.date
+        AND fb.contract_address = p.token_address -- AND dp.decimals is not null
         -- and dp.decimals > 0
     WHERE
         symbol is not null

@@ -9,11 +9,9 @@
 }}
 
 with date_spine as (
-    {{ dbt_utils.date_spine(
-        datepart="day",
-        start_date="2020-03-01",
-        end_date="current_date()"
-    ) }}
+    select date
+    from {{ ref('dim_date_spine') }}
+    where date between '2020-03-01' and to_date(sysdate())
 )
 
 , all_tvl_by_chain as (
