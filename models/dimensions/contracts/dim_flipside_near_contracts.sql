@@ -2,13 +2,14 @@
 
 with
     deployed_contracts as (
-        select tx_signer as address
-        from near_flipside.core.fact_actions_events
+        select tx_signer as address,
+        ft.modified_timestamp
+        from near_flipside.core.fact_actions_events fae
         join
-            near_flipside.core.fact_transactions
-            on near_flipside.core.fact_actions_events.tx_hash
-            = near_flipside.core.fact_transactions.tx_hash
-        where action_name = 'DeployContract' and tx_receiver = tx_signer
+            near_flipside.core.fact_transactions ft
+            on fae.tx_hash
+            = ft.tx_hash
+        where fae.action_name = 'DeployContract' and ft.tx_receiver = ft.tx_signer
         group by 1
     ),
     contracts_tagged as (
@@ -35,7 +36,8 @@ with
                 when label_type = 'bridge'
                 then 'Bridge'
                 else null
-            end as category
+            end as category,
+            contracts.modified_timestamp
         from near_flipside.core.dim_address_labels as labels
         full join deployed_contracts as contracts on labels.address = contracts.address
     )
@@ -272,5 +274,6 @@ select
         else namespace
     end as namespace,
     sub_category,
-    category
+    category,
+    modified_timestamp as last_updated
 from contracts_tagged
