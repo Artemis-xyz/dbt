@@ -7,5 +7,5 @@ select
     max(category) as category,
     max(icon) as icon,
     max(last_updated) as last_updated
-from {{ ref("dim_sui_namespaces") }} as sui_contracts
+from {{ ref("dim_sui_contracts") }} as sui_contracts
 group by namespace
