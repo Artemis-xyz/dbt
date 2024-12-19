@@ -18,17 +18,17 @@ WITH dates AS (
 sparse_balances AS (
     SELECT
         DATE(block_timestamp) AS date,
-        user_address,
+        address as user_address,
         contract_address,
-        MAX_BY(balance / pow(10, decimals), block_timestamp) AS balance_daily
+        MAX_BY(balance_token / pow(10, decimals), block_timestamp) AS balance_daily
     FROM
-        {{ chain }}_flipside.core.fact_token_balances b
+        {{ref('fact_' ~ chain ~ '_address_balances_by_token')}} b
         LEFT JOIN {{ chain }}_flipside.price.ez_asset_metadata t on t.token_address = b.contract_address
     WHERE 1=1
         {% if addresses is string %}
-            AND LOWER(user_address) = '{{ addresses }}'
+            AND LOWER(address) = '{{ addresses }}'
         {% elif addresses | length > 1 %}
-            AND LOWER(user_address) IN ( '{{ addresses | join("', '") }}' )
+            AND LOWER(address) IN ( '{{ addresses | join("', '") }}' )
         {% endif %}
         {% if blacklist is string %} and lower(contract_address) != lower('{{ blacklist }}')
         {% elif blacklist | length > 1 %} and contract_address not in {{ blacklist }} --make sure you pass in lower
@@ -103,6 +103,8 @@ full_table as (
 )
 SELECT
     date,
+    '{{ chain }}' as chain,
+    contract_address,
     symbol as token,
     SUM(balance_daily) as native_balance,
     SUM(usd_balance) as usd_balance
@@ -113,6 +115,8 @@ WHERE
 GROUP BY
     1
     , 2
+    , 3
+    , 4
 ORDER BY
     1 DESC
 {% endmacro %}

@@ -14,7 +14,7 @@ select
     chain,
     'v2' as version,
     contract_address,
-    symbol,
-    balance_native,
-    balance_usd
+    token,
+    native_balance,
+    usd_balance
 from ethereum_v2_tvl_by_token
