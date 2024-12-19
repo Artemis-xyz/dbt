@@ -4,6 +4,9 @@ dbt_modules/
 dbt_packages/
 logs/
 
+### sdf ###
+sdftarget/
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
