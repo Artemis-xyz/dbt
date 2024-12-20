@@ -36,6 +36,7 @@ select
     date_spine.date,
     all_tvl.tvl_native,
     all_tvl.tvl_usd,
+    token_incentives.amount_usd,
     market_data.price,
     market_data.market_cap,
     market_data.fdmc,
