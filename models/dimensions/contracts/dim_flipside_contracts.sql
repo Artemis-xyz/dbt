@@ -46,6 +46,7 @@ select
     coalesce(max_by(name, category), max(name)) as name,
     coalesce(max_by(namespace, category), max(namespace)) as namespace,
     max(sub_category) as sub_category,
-    max(category) as category
+    max(category) as category,
+    max(last_updated) as last_updated
 from flipside_contract
 group by address, chain

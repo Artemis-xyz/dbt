@@ -10,7 +10,7 @@ sui_contracts_sigma_over as (
         max(category) as category,
         max(sub_category) as sub_category,
         'sui' as chain,
-        timestamp as last_updated
+        max(timestamp) as last_updated
     from {{ ref("fact_sui_contracts_silver") }} as sui_contracts full join {{ source("SIGMA", "sui_overwrite_namespace") }} overwrite
     on sui_contracts.namespace = overwrite.sui_namespace
     group by package_id

@@ -38,7 +38,7 @@ with
             coalesce(l.address_name, c.name, null) name,
             coalesce(l.project_name, c.symbol, null) namespace,
             coalesce(a.token_standard, null) category,
-            modified_timestamp
+            coalesce(a.modified_timestamp, l.modified_timestamp, c.modified_timestamp, null) modified_timestamp
         from contract_standard a
         left join
             bsc_flipside.core.dim_contracts c on lower(a.address) = lower(c.address)

@@ -3,7 +3,7 @@
 with
     deployed_contracts as (
         select tx_signer as address,
-        ft.modified_timestamp
+        max(ft.modified_timestamp) as modified_timestamp
         from near_flipside.core.fact_actions_events fae
         join
             near_flipside.core.fact_transactions ft
