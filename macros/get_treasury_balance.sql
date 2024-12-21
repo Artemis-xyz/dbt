@@ -19,8 +19,12 @@ sparse_balances AS (
     SELECT
         DATE(block_timestamp) AS date,
         address as user_address,
-        contract_address,
-        MAX_BY(balance_token / pow(10, decimals), block_timestamp) AS balance_daily
+        case 
+            when contract_address = lower('0x4da27a545c0c5B758a6BA100e3a049001de870f5') -- no pricing data for stkAAVE, so default to AAVE
+                then lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9')
+                else contract_address
+            end as contract_address,        
+        MAX_BY(balance_token / pow(10, coalesce(decimals,18)), block_timestamp) AS balance_daily
     FROM
         {{ref('fact_' ~ chain ~ '_address_balances_by_token')}} b
         LEFT JOIN {{ chain }}_flipside.price.ez_asset_metadata t on t.token_address = b.contract_address

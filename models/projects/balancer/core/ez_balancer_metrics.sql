@@ -17,9 +17,31 @@ with date_spine as (
 , all_tvl as (
     SELECT
         date,
-        sum(tvl_native) as tvl_native,
         sum(tvl_usd) as tvl_usd
     FROM {{ ref('fact_balancer_tvl_by_chain_and_token') }}
+    group by 1
+)
+, treasury as (
+    SELECT
+        date,
+        sum(usd_balance) as net_treasury_usd
+    FROM {{ ref('fact_balancer_treasury_by_token') }}
+    group by 1
+)
+, treasury_native as (
+    SELECT
+        date,
+        sum(native_balance) as treasury_native
+    FROM {{ ref('fact_balancer_treasury_by_token') }}
+    where token = 'BAL'
+    group by 1
+)
+, net_treasury as (
+    SELECT
+        date,
+        sum(usd_balance) as net_treasury_usd
+    FROM {{ ref('fact_balancer_treasury_by_token') }}
+    where token <> 'BAL'
     group by 1
 )
 , token_holders as (
@@ -34,9 +56,10 @@ with date_spine as (
 
 select
     date_spine.date,
-    all_tvl.tvl_native,
-    all_tvl.tvl_usd,
-    token_incentives.amount_usd,
+    all_tvl.tvl_usd as tvl,
+    treasury.net_treasury_usd as treasury_value,
+    net_treasury.net_treasury_usd as net_treasury_value,
+    treasury_native.treasury_native as treasury_native,
     market_data.price,
     market_data.market_cap,
     market_data.fdmc,
@@ -45,6 +68,9 @@ select
     market_data.token_volume,
     token_holders.token_holder_count
 from date_spine
-left join all_tvl on date_spine.date = all_tvl.date
-left join token_holders on date_spine.date = token_holders.date
-left join market_data on date_spine.date = market_data.date
+left join all_tvl using (date)
+left join treasury using (date)
+left join treasury_native using (date)
+left join net_treasury using (date)
+left join token_holders using (date)
+left join market_data using (date)

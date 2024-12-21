@@ -18,7 +18,7 @@ select
     chain,
     version,
     contract_address,
-    symbol,
-    balance_native as tvl_native,
-    balance_usd as tvl_usd
+    token,
+    native_balance as tvl_native,
+    usd_balance as tvl_usd
 from all_tvl_by_chain_and_token
