@@ -28,7 +28,8 @@ with tvl as (
     select
         date,
         token,
-        sum(revenue_usd) as revenue_usd
+        sum(revenue_usd) as revenue_usd,
+        sum(revenue_native) as revenue_native
     from {{ ref('fact_liquity_fees_and_revs') }}
     group by 1, 2
 )

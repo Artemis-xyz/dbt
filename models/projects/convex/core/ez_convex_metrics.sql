@@ -32,14 +32,14 @@ with date_spine as (
 , net_treasury as (
     select
         date,
-        sum(net_treasury_usd) as net_treasury_value
+        sum(usd_balance) as net_treasury_value
     from {{ ref('fact_convex_treasury_balance') }}
     group by 1
 )
 , treasury_native as (
     select
         date,
-        sum(treasury_native) as treasury_native
+        sum(native_balance) as treasury_native
     from {{ ref('fact_convex_treasury_balance') }}
     group by 1
 )

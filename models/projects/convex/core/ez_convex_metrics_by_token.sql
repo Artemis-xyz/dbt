@@ -23,7 +23,7 @@ with
         select
             date,
             token,
-            usd_balance as treasury_value
+            sum(usd_balance) as treasury_value
         from {{ ref('fact_convex_treasury_balance') }}
         group by 1, 2
     )
@@ -31,19 +31,19 @@ with
         select
             date,
             token,
-            usd_balance as net_treasury_value
+            sum(usd_balance) as net_treasury_value
         from {{ ref('fact_convex_treasury_balance') }}
-        group by 1, 2
         where token != 'CVX'
+        group by 1, 2
     )
     , treasury_native as (
         select
             date,
             token,
-            native_balance as treasury_native
+            sum(native_balance) as treasury_native
         from {{ ref('fact_convex_treasury_balance') }}
-        group by 1, 2
         where token = 'CVX'
+        group by 1, 2
     )   
 
 
