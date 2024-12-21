@@ -40,3 +40,19 @@ sources:
     database: ethereum_flipside
     tables:
       - name: ez_native_transfers
+  
+# ARBITRUM
+
+  - name: ARBITRUM_FLIPSIDE_PRICE
+    schema: price
+    database: arbitrum_flipside
+    tables:
+      - name: ez_prices_hourly
+
+# POLYGON
+
+  - name: POLYGON_FLIPSIDE_PRICE
+    schema: price
+    database: polygon_flipside
+    tables:
+      - name: ez_prices_hourly
