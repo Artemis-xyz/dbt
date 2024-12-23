@@ -2,6 +2,9 @@
     config(
         materialized='table',
         snowflake_warehouse='CONVEX',
+        database='CONVEX',
+        schema='raw',
+        alias='fact_convex_revenue'
     )
 }}
 
@@ -58,3 +61,4 @@ from
 group by
     1,
     2
+HAVING fees is not null

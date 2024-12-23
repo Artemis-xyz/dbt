@@ -15,6 +15,7 @@ with all_tvl_by_token as (
         sum(tvl_native) as tvl_native,
         sum(tvl_usd) as tvl_usd
     FROM {{ ref('fact_balancer_tvl_by_chain_and_token') }}
+    where tvl_usd > 0
     group by 1,2
 )
 
@@ -24,6 +25,7 @@ with all_tvl_by_token as (
         token,
         sum(usd_balance) as usd_balance
     FROM {{ ref('fact_balancer_treasury_by_token') }}
+    where usd_balance > 0
     group by 1,2
 )
 , net_treasury as (
@@ -33,6 +35,7 @@ with all_tvl_by_token as (
         sum(usd_balance) as net_treasury_usd
     FROM {{ ref('fact_balancer_treasury_by_token') }}
     where token <> 'BAL'
+    and usd_balance > 0
     group by 1,2
 )
 , treasury_native as (
@@ -42,6 +45,7 @@ with all_tvl_by_token as (
         sum(native_balance) as treasury_native
     FROM {{ ref('fact_balancer_treasury_by_token') }}
     where token = 'BAL'
+    and native_balance > 0
     group by 1,2
 )
 ,date_token_spine as (
