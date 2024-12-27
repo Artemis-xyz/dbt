@@ -18,6 +18,7 @@ SELECT
 FROM
     trades
     LEFT JOIN fees ON trades.transaction_hash = fees.transaction_hash
+WHERE fees.fee_usd < 1e6
 GROUP BY
     trades.block_timestamp::date
 ORDER BY
