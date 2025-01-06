@@ -47,7 +47,6 @@
                 AND '0x' || RIGHT(topics[3], 40) <> '0x0000000000000000000000000000000000000000' -- tokenIn cannot be 0x000...
                 AND contract_address IN (SELECT sy_address FROM sy_addresses)
                 AND topics[0] = '0x5fe47ed6d4225326d3303476197d782ded5a4e9c14f479dc9ec4992af4e85d59' -- Deposit event
-                -- AND contract_address IN (lower('0x9d6Ec7a7B051B32205F74B140A0fa6f09D7F223E')) -- this is a contact address we know exists in our 
             GROUP BY
                 1, 2
         ),
