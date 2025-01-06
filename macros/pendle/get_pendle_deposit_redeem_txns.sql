@@ -20,6 +20,9 @@
         FROM {{ chain }}_flipside.core.fact_event_logs
         WHERE topics[0] in ('0x5fe47ed6d4225326d3303476197d782ded5a4e9c14f479dc9ec4992af4e85d59') -- Deposit event
         AND contract_address in (SELECT sy_address FROM sy_addresses)
+        {% if is_incremental() %}
+            AND block_timestamp > (SELECT DATEADD(day, -1, MAX(block_timestamp)) FROM {{this}})
+        {% endif %}
     ),
 
     redeems AS (
@@ -38,6 +41,9 @@
         FROM {{ chain }}_flipside.core.fact_event_logs
         WHERE topics[0] = '0xaee47cdf925cf525fdae94f9777ee5a06cac37e1c41220d0a8a89ed154f62d1c' -- Redeem event
         AND contract_address in (SELECT sy_address FROM sy_addresses)
+        {% if is_incremental() %}
+            AND block_timestamp > (SELECT DATEADD(day, -1, MAX(block_timestamp)) FROM {{this}})
+        {% endif %}
     )
 
     SELECT
