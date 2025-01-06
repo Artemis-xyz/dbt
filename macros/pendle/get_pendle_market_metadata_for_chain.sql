@@ -13,6 +13,8 @@
                 event_name = 'CreateNewMarket'
                 {% if is_incremental() %}
                     AND block_timestamp > dateadd(day, -3, to_date(sysdate()))
+                {% else %}
+                    AND block_timestamp > '2022-11-22'
                 {% endif %}
         ),
 
@@ -34,21 +36,18 @@
 
         -- Identify new underlying addresses based on deposits related to new SYs
         deposits as (
-            SELECT
+            SELECT 
                 contract_address as sy_address,
-                DECODED_LOG:tokenIn::STRING as underlying_address,
-                COUNT(*) as deposit_count
-            FROM
-                {{ chain }}_flipside.core.ez_decoded_event_logs
-            WHERE
-                event_name = 'Deposit'
-                AND DECODED_LOG:tokenIn::STRING <> '0x0000000000000000000000000000000000000000'
+                '0x' || RIGHT(topics[3], 40) as underlying_address,
+                count(*) as deposit_count
+            FROM {{ chain }}_flipside.core.fact_event_logs
+            WHERE 1=1
+                AND '0x' || RIGHT(topics[3], 40) <> '0x0000000000000000000000000000000000000000' -- tokenIn cannot be 0x000...
                 AND contract_address IN (SELECT sy_address FROM sy_addresses)
-                {% if is_incremental() %}
-                    AND block_timestamp > dateadd(day, -3, to_date(sysdate()))
-                {% endif %}
+                AND topics[0] = '0x5fe47ed6d4225326d3303476197d782ded5a4e9c14f479dc9ec4992af4e85d59' -- Deposit event
+                -- AND contract_address IN (lower('0x9d6Ec7a7B051B32205F74B140A0fa6f09D7F223E')) -- this is a contact address we know exists in our 
             GROUP BY
-                contract_address, DECODED_LOG:tokenIn::STRING
+                1, 2
         ),
 
         -- Rank new underlying addresses by deposit count to get the most frequent one
