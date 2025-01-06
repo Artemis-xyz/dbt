@@ -4,7 +4,7 @@ with
     distinct_sy_underlyings as (
         SELECT distinct sy_address, underlying_address FROM {{ref('dim_pendle_' ~ chain  ~ '_market_metadata')}}
         {% if chain == 'arbitrum' %}
-            WHERE sy_address not in ('0xc79d8a2aa6d769138e599d4dbc30569c9870a6ee', '0x318eec91f653ca72fafb038f9ad792a6bc0d644c')
+            WHERE sy_address not in ('0xc79d8a2aa6d769138e599d4dbc30569c9870a6ee', '0x318eec91f653ca72fafb038f9ad792a6bc0d644c', '0x6f14d3cd37a0647a3ee60eb2214486f8a1cddccc')
         {% endif %}
     )
 , prices as (
@@ -24,19 +24,27 @@ with
         FROM prices p
         CROSS JOIN distinct_sy_underlyings u
 )
-, cum as (
+, cumulative as (
     select
         date(f.block_timestamp) as date
         , m.underlying_address
-        , sum(f.amount / pow(10, 18)) OVER (PARTITION BY m.underlying_address ORDER BY f.block_timestamp) as cum_sum
+        , case 
+            when p.symbol like '%BTC' and p.symbol <> 'WBTC' -- almost all SY tokens with BTC underlying have 8 decimals except for WBTC on Ethereum
+                {% if chain == 'base' %}
+                    and lower(m.sy_address) not in (lower('0x02Adf72d5D06a9C92136562Eb237C07696833a84')) -- One of the CBBTC Standard Yield token implementations has 18 decimals
+                {% endif %}
+                then 8 
+                else 18 end as decimals
+        , sum(f.amount / pow(10, decimals)) OVER (PARTITION BY m.underlying_address ORDER BY f.block_timestamp) as cum_sum
     from
         {{ref('fact_pendle_' ~ chain ~ '_deposit_redeem_txns')}} f
     left join distinct_sy_underlyings m on m.sy_address = f.sy_address
+    left join prices p on p.date = date(f.block_timestamp) and p.token_address = m.underlying_address
     {% if chain == 'ethereum' %}    
         where f.sy_address <> lower('0x065347C1Dd7A23Aa043e3844B4D0746ff7715246')
     {% endif %}
 ),
-filled_cum AS (
+filled_cumulative AS (
         SELECT 
             ac.date,
             ac.underlying_address,
@@ -46,7 +54,7 @@ filled_cum AS (
                 ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
             ) AS cum_sum
         FROM all_combinations ac
-        LEFT JOIN cum c ON ac.date = c.date AND ac.underlying_address = c.underlying_address
+        LEFT JOIN cumulative c ON ac.date = c.date AND ac.underlying_address = c.underlying_address
 )
 SELECT
     fc.date as date,
@@ -55,7 +63,7 @@ SELECT
     p.token_address as token_address,
     AVG(fc.cum_sum) AS amount_native,
     AVG(fc.cum_sum * p.price) AS amount_usd
-FROM filled_cum fc
+FROM filled_cumulative fc
 LEFT JOIN prices p ON p.token_address = fc.underlying_address AND fc.date = p.date
 WHERE fc.cum_sum is not null
 GROUP BY 1, 2, 3, 4

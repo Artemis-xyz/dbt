@@ -4,7 +4,7 @@
         snowflake_warehouse='ENZYME',
         database='ENZYME',
         schema='core',
-        alias='ez_enzyme_metrics'
+        alias='ez_metrics'
     )
 }}
 
