@@ -31,6 +31,8 @@
                 AND pt_address IN (SELECT pt_address FROM pt_addresses)
                 {% if is_incremental() %}
                     AND block_timestamp > dateadd(day, -3, to_date(sysdate()))
+                {% else %}
+                    AND block_timestamp > '2022-11-22'
                 {% endif %}
         ),
 
