@@ -59,6 +59,5 @@
         amount_in::number * -1 as amount,
         tx_hash
     FROM redeems
-    ORDER BY block_timestamp DESC
 
 {% endmacro %}
