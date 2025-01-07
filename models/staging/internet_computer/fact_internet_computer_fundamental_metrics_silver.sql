@@ -53,8 +53,8 @@ select
     date
     , total_transactions
     , dau
-    , total_transactions - LAG(total_transactions, 1, null) OVER (ORDER BY date) as icp_txns
-    , new_total_transactions - LAG(NEW_TOTAL_TRANSACTIONS, 1, null) OVER (ORDER BY date) as txns
+    , total_transactions - LAG(total_transactions, 1, null) OVER (ORDER BY date) as txns
+    , new_total_transactions - LAG(NEW_TOTAL_TRANSACTIONS, 1, null) OVER (ORDER BY date) as icp_txns
     , neurons_total
     , avg_tps
     , avg_blocks_per_second
