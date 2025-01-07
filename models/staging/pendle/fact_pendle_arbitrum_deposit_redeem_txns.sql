@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         snowflake_warehouse="PENDLE",
-        unique_key=["tx_hash", "event_index"]
+        unique_key=["block_timestamp", "tx_hash", "event_index"]
     )
 }}
 

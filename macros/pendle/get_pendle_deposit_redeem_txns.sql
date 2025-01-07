@@ -43,18 +43,16 @@
         FROM {{ chain }}_flipside.core.fact_event_logs
         WHERE topics[0] = '0xaee47cdf925cf525fdae94f9777ee5a06cac37e1c41220d0a8a89ed154f62d1c' -- Redeem event
         AND contract_address in (SELECT sy_address FROM sy_addresses)
->>>>>>> 01e5682 (data quality hygiene update)
         {% if is_incremental() %}
             AND block_timestamp > (SELECT DATEADD(day, -1, MAX(block_timestamp)) FROM {{this}})
         {% endif %}
     )
     SELECT
-        DECODED_LOG:tokenIn::STRING as token_address,
-        DECODED_LOG:amountDeposited::number as amount,
-        contract_address as sy_address,
-        amount_in::number as amount,
+        block_timestamp,
         tx_hash,
-        event_index
+        event_index,
+        contract_address as sy_address,
+        amount_in::number as amount
     FROM deposits
     UNION ALL
     SELECT
