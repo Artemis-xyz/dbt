@@ -3,11 +3,11 @@
     WITH sy_addresses AS (
         SELECT sy_address FROM {{ ref('dim_pendle_' ~ chain ~ '_market_metadata') }}
     )
-
     , deposits AS (
         SELECT 
             block_timestamp,
             tx_hash,
+            event_index,
             contract_address,
             'Deposit' as event_type,
             -- Indexed parameters from topics
@@ -29,6 +29,7 @@
         SELECT 
             block_timestamp,
             tx_hash,
+            event_index,
             contract_address,
             'Redeem' as event_type,
             -- Indexed parameters from topics
@@ -48,16 +49,18 @@
 
     SELECT
         block_timestamp,
+        tx_hash,
+        event_index,
         contract_address as sy_address,
-        amount_in::number as amount,
-        tx_hash
+        amount_in::number as amount
     FROM deposits
     UNION ALL
     SELECT
         block_timestamp,
+        tx_hash,
+        event_index,
         contract_address as sy_address,
-        amount_in::number * -1 as amount,
-        tx_hash
+        amount_out::number as amount
     FROM redeems
 
 {% endmacro %}
