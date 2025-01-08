@@ -20,7 +20,7 @@ with
         from
             {{ source("PROD_LANDING", "raw_apex_trading_volume") }},
             lateral flatten(input => parse_json(source_json))
-    ), 
+    ),
     pro_latest_extration as (
         select pro_all_data.date, pro_all_data.symbol, open, close, volume
         from pro_all_data
@@ -73,7 +73,7 @@ with
         group by 1
         order by 1 asc
     )
-    SELECT 
+    SELECT
         date,
         sum(trading_volume) as trading_volume,
         'apex' as app,
