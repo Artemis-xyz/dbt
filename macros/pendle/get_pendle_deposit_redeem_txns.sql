@@ -1,8 +1,7 @@
 {% macro get_pendle_deposit_redeem_txns(chain) %}
 
     WITH sy_addresses AS (
-        SELECT sy_address
-        FROM {{ref('dim_pendle_' ~ chain ~ '_market_metadata')}}
+        SELECT sy_address FROM {{ ref('dim_pendle_' ~ chain ~ '_market_metadata') }}
     )
     , deposits AS (
         SELECT 
@@ -47,6 +46,7 @@
             AND block_timestamp > (SELECT DATEADD(day, -1, MAX(block_timestamp)) FROM {{this}})
         {% endif %}
     )
+
     SELECT
         block_timestamp,
         tx_hash,
@@ -56,12 +56,11 @@
     FROM deposits
     UNION ALL
     SELECT
-        DECODED_LOG:tokenOut::STRING as token_address,
-        - DECODED_LOG:amountTokenOut::number as amount,
-        contract_address as sy_address,
-        amount_out::number as amount,
+        block_timestamp,
         tx_hash,
-        event_index
-    FROM redeems:wq
+        event_index,
+        contract_address as sy_address,
+        amount_out::number as amount
+    FROM redeems
 
 {% endmacro %}
