@@ -4,3 +4,4 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_apex_trading_volume
+      - name: raw_apex_omni_trading_volume
