@@ -1,8 +1,8 @@
 {{
     config(
         materialized="incremental",
-        unique_key=["address", "chain", "source"],
+        unique_key=["address"],
         incremental_strategy="merge",
     )
 }}
-
+{{ evm_get_all_addresses("optimism") }}
