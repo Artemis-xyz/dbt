@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="outerlands",
         unique_key=["date", "artemis_id"]
     )
@@ -152,4 +152,8 @@ SELECT
         COALESCE(trailing_30d_sum_fees / NULLIF(total_trailing_30d_sum_fees, 0), 0)
     ) AS combined_score
 FROM trailing_and_totals t
+WHERE 1=1
+    {% if is_incremental() %}
+        AND t.date > (SELECT MAX(date) FROM {{ this }})
+    {% endif %}
 ORDER BY date DESC, artemis_id
