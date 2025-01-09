@@ -13,6 +13,7 @@ with
         select
             date,
             sum(mints) as mints,
+            sum(mints_usd) as mints_usd,
             sum(fees_tia) as fees_native,
             sum(fees) as fees,
             sum(transaction_count) as txns,
@@ -25,7 +26,7 @@ with
                 {{
                     dbt_utils.union_relations(
                         relations=[
-                            ref("fact_celestia_mints_silver"),
+                            ref("fact_celestia_mints_with_usd"),
                             ref("fact_celestia_fees_for_blobs_silver"),
                             ref("fact_celestia_namespaces_blob_sizes_silver"),
                             ref("fact_celestia_txn_count_and_fees_silver"),
@@ -45,6 +46,7 @@ select
     coalesce(fees_native, 0) as fees_native,
     coalesce(fees, 0) as fees,
     coalesce(mints, 0) as mints,
+    coalesce(mints_usd, 0) as mints_usd,
     coalesce(unique_namespaces, 0) as submitters,
     blob_size_mib,
     coalesce(fees_for_blobs_native, 0) * price as blob_fees,
