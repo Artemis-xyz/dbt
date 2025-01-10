@@ -11,7 +11,7 @@ with
         from {{ source("PROD_LANDING", "raw_jupiter_aggregator_unique_traders") }}
     )
 select
-    value:date::date as date,
+    left(value:day, 10)::date as date,
     value:num_traders::number as unique_aggregator_traders
 from
     {{ source("PROD_LANDING", "raw_jupiter_aggregator_unique_traders") }},
