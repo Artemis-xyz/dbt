@@ -8,13 +8,12 @@
 with
     max_extraction as (
         select max(extraction_date) as max_date
-        from {{ source("PROD_LANDING", "raw_jupiter_aggregator_metrics") }}
+        from {{ source("PROD_LANDING", "raw_jupiter_aggregator_unique_traders") }}
     )
 select
     value:date::date as date,
-    value:overall::number as aggregator_multi_hop_volume,
-    value:single::number as aggregator_single_hop_volume
+    value:num_traders::number as unique_aggregator_traders
 from
-    {{ source("PROD_LANDING", "raw_jupiter_aggregator_metrics") }},
+    {{ source("PROD_LANDING", "raw_jupiter_aggregator_unique_traders") }},
     lateral flatten(input => parse_json(source_json))
 where extraction_date = (select max_date from max_extraction)

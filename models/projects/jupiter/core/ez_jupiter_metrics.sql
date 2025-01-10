@@ -18,7 +18,7 @@ with
         from {{ ref("fact_jupiter_perps_silver")}}
     ),
     aggregator_data as (
-        select date, overall, single
+        select date, aggregator_multi_hop_volume, aggregator_single_hop_volume, unique_aggregator_traders
         from {{ ref("fact_jupiter_aggregator_stats")}}
     ),
     price_data as ({{ get_coingecko_metrics("jupiter-exchange-solana") }})
@@ -30,8 +30,9 @@ select
     volume as trading_volume,
     traders as unique_traders,
     txns,
-    aggregator_data.overall as aggregator_overall,
-    aggregator_data.single as aggregator_single,
+    aggregator_data.aggregator_multi_hop_volume as aggregator_multi_hop_volume,
+    aggregator_data.aggregator_single_hop_volume as aggregator_single_hop_volume,
+    aggregator_data.unique_aggregator_traders as unique_aggregator_traders,
     price,
     market_cap,
     fdmc
