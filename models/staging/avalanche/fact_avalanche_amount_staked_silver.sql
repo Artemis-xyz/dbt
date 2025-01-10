@@ -22,9 +22,9 @@ with
     map as (
         select
             date,
-            validator_stake_native,
-            delegator_stake_native,
-            validator_stake_native + delegator_stake_native as total_staked_native
+            COALESCE(validator_stake_native, 0) as validator_stake_native,
+            COALESCE(delegator_stake_native, 0) as delegator_stake_native,
+            COALESCE(validator_stake_native, 0) + COALESCE(delegator_stake_native, 0) as total_staked_native
         from data
     )
 select

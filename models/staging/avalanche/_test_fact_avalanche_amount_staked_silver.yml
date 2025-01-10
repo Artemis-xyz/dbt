@@ -19,25 +19,37 @@ models:
               severity: warn
       - name: total_staked_native
         tests:
-          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
           - dbt_expectations.expect_column_to_exist
       - name: total_staked_usd
         tests:
-          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
           - dbt_expectations.expect_column_to_exist
       - name: validator_stake_native
         tests:
-          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
           - dbt_expectations.expect_column_to_exist
       - name: validator_stake_usd
         tests:
-          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
           - dbt_expectations.expect_column_to_exist
       - name: delegator_stake_native
         tests:
-          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
           - dbt_expectations.expect_column_to_exist
       - name: delegator_stake_usd
         tests:
-          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
           - dbt_expectations.expect_column_to_exist
