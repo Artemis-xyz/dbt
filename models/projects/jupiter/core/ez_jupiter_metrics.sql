@@ -17,6 +17,10 @@ with
         select date, volume, traders, txns
         from {{ ref("fact_jupiter_perps_silver")}}
     ),
+    aggregator_data as (
+        select date, overall, single
+        from {{ ref("fact_jupiter_aggregator_stats")}}
+    ),
     price_data as ({{ get_coingecko_metrics("jupiter-exchange-solana") }})
 select
     fees_data.date as date,
@@ -26,10 +30,13 @@ select
     volume as trading_volume,
     traders as unique_traders,
     txns,
+    aggregator_data.overall as aggregator_overall,
+    aggregator_data.single as aggregator_single,
     price,
     market_cap,
     fdmc
 from fees_data
-left join perps_data on perps_data.date = fees_data.date
-left join price_data on fees_data.date = price_data.date
+left join perps_data using (date)
+left join price_data using (date)
+left join aggregator_data using (date)
 where fees_data.date < to_date(sysdate())
