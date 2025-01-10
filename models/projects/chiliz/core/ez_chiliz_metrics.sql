@@ -27,12 +27,32 @@ txns as (
     from {{ref("fact_chiliz_dau")}}
     where dau < 170000 -- There is a DQ issue with the Chiliz dau data: 2 days with > 170k DAU while the rest of the data around those days is < 1k
 )
-
+, burns as (
+    select
+        date,
+        burns_native,
+        burns_usd
+    from {{ref("fact_chiliz_burns")}}
+)
+, treasury as (
+    select
+        date,
+        native_balance,
+        native_balance_change,
+        usd_balance,
+        usd_balance_change
+    from {{ref("fact_chiliz_treasury")}}
+)
 select
     coalesce(fees.date, txns.date, daus.date) as date,
     dau,
     txns,
-    fees_usd as fees
+    fees_usd as fees,
+    burns_usd as burns,
+    treasury_usd as treasury_value,
+    treasury_native_balance_change as treasury_balance_native_change
 from fees
-left join txns on fees.date = txns.date
-left join daus on fees.date = daus.date 
+left join txns using (date)
+left join daus using (date)
+left join burns using (date)
+left join treasury using (date)
