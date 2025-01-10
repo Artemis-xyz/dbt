@@ -25,11 +25,11 @@ WITH raw_addresses AS (
     ] %}
 
     {% for source in sources %}
-        SELECT * FROM 
         {% if source.chain == 'injective' %}
-            {{ source.table }}
+            SELECT address, transaction_trace_type, address_type::STRING, chain, last_updated
+            FROM  {{ source.table }}
         {% else %}
-            {{ ref(source.table) }}
+            SELECT * FROM {{ ref(source.table) }}
         {% endif %}
 
         {% if is_incremental() %}
@@ -41,40 +41,60 @@ WITH raw_addresses AS (
 ),
 -- This contains name + icon metadata grabbed from labels
 labeled_name_metadata AS (
-    SELECT address, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated
+    SELECT address, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 1 AS priority
     FROM {{ source("MANUAL_STATIC_TABLES", "dim_legacy_sigma_tagged_contracts") }}
     UNION ALL
-    SELECT address, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated
+    SELECT address, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 3 AS priority
     FROM {{ ref("dim_dune_contracts") }}
     UNION ALL
-    SELECT address, chain, OBJECT_CONSTRUCT('name', name, 'icon', icon) AS metadata, last_updated
+    SELECT address, chain, OBJECT_CONSTRUCT('name', name, 'icon', icon) AS metadata, last_updated, 4 AS priority
     FROM {{ ref("dim_sui_contracts") }}
     UNION ALL
-    SELECT address, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated
+    SELECT address, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 2 AS priority
     FROM {{ ref("dim_flipside_contracts") }}
+),
+-- This contains deduped labeled_name_metadata
+deduped_labeled_name_metadata AS (
+    SELECT 
+        address,
+        chain,
+        metadata,
+        last_updated
+    FROM labeled_name_metadata
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY priority ASC) = 1
+),
+-- This aggreates all_chains_gas_dau_txns_by_contract by distinct address + chain
+distinct_all_chains AS (
+    SELECT
+        contract_address AS address,
+        chain,
+        SUM(total_gas) AS total_gas,
+        SUM(total_gas_usd) AS total_gas_usd,
+        SUM(transactions) AS total_transactions,
+        ROUND(AVG(dau), 2) AS average_dau
+    FROM {{ ref("all_chains_gas_dau_txns_by_contract") }}
+    GROUP BY contract_address, chain
 )
 
 SELECT 
     TRIM(ra.address) AS address,
+    ra.transaction_trace_type AS transaction_trace_type,
     ra.address_type AS address_type,
     nm.metadata AS metadata,
     ra.chain AS chain,
     ac.total_gas AS total_gas,
     ac.total_gas_usd AS total_gas_usd,
-    ac.transactions AS transactions,
-    ac.dau AS dau,
-    ac.token_transfer_usd AS token_transfer_usd,
-    ac.token_transfer AS token_transfer,
-    ac.avg_token_price AS avg_token_price,
+    ac.total_transactions AS total_transactions,
+    ac.average_dau AS average_dau,
     geo.country AS country,
     geo.region AS region,
     geo.subregion AS subregion,
     ra.last_updated AS last_updated
 FROM raw_addresses ra
-LEFT JOIN {{ ref("all_chains_gas_dau_txns_by_contract") }} ac
-    ON ra.address = ac.contract_address AND ra.chain = ac.chain
+LEFT JOIN distinct_all_chains ac
+    ON ra.address = ac.address AND ra.chain = ac.chain
 LEFT JOIN pc_dbt_db.prod.dim_geo_labels geo
     ON ra.address = geo.address AND ra.chain = geo.chain
-LEFT JOIN labeled_name_metadata nm
+LEFT JOIN deduped_labeled_name_metadata nm
     ON ra.address = nm.address AND ra.chain = nm.chain
 

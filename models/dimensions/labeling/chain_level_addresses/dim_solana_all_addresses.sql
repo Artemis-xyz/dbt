@@ -26,23 +26,29 @@ WITH source_data AS (
 ), union_data AS (
     SELECT 
         trim(program_ids) AS address, 
-        'program_id' AS address_type, 
+        'program_id' AS transaction_trace_type,
+        CASE
+            WHEN trim(program_ids) IS NOT NULL THEN 'smart_contract'
+            ELSE NULL
+        END AS address_type,
         MAX(last_updated) OVER (PARTITION BY program_ids) AS last_updated
     FROM 
         flattened_program_ids
     UNION ALL
     SELECT 
         trim(signer) AS address, 
-        'signer_id' AS address_type, 
+        'signer_id' AS transaction_trace_type, 
+        NULL AS address_type,
         MAX(last_updated) OVER (PARTITION BY signer) AS last_updated
     FROM 
         source_data
 )
 SELECT 
-    DISTINCT address, 
-    address_type,
+    address,
+    ARRAY_AGG(DISTINCT transaction_trace_type) AS transaction_trace_type,
+    COALESCE(MAX(address_type), NULL) AS address_type,
     'solana' AS chain,
-    MAX(last_updated) OVER (PARTITION BY address, address_type) AS last_updated
-FROM 
-    union_data
+    MAX(last_updated) AS last_updated
+FROM union_data
 WHERE address IS NOT NULL
+GROUP BY address 

@@ -14,14 +14,16 @@ WITH source_data AS (
     {% endif %}
 ),
 union_data AS (
-    SELECT trim(tx_receiver) AS address, 'tx_receiver' AS address_type, last_updated FROM source_data
+    SELECT trim(tx_receiver) AS address, 'tx_receiver' AS transaction_trace_type, last_updated FROM source_data
     UNION ALL
-    SELECT trim(tx_signer) AS address, 'tx_signer' AS address_type, last_updated FROM source_data
+    SELECT trim(tx_signer) AS address, 'tx_signer' AS transaction_trace_type, last_updated FROM source_data
 )
-SELECT DISTINCT 
-    address, 
-    address_type,
-    'near' as chain,
-    MAX(last_updated) OVER () AS last_updated
+SELECT 
+    address,
+    ARRAY_AGG(DISTINCT transaction_trace_type) AS transaction_trace_type,
+    NULL AS address_type,
+    'near' AS chain,
+    MAX(last_updated) AS last_updated
 FROM union_data
 WHERE address IS NOT NULL
+GROUP BY address 
