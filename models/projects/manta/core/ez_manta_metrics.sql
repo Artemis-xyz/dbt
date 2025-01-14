@@ -1,7 +1,10 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="MANTA"
+        snowflake_warehouse="MANTA",
+        database="manta",
+        schema="core",
+        alias="ez_metrics"
     )
 }}
 

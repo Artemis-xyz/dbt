@@ -15,6 +15,17 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle") }})
     select date, chain, l1_data_cost_native, l1_data_cost
     from {{ ref("fact_mantle_l1_data_cost") }}
 )
+, treasury_data as (
+    SELECT   
+        date,
+        sum(native_balance) as native_balance,
+        sum(native_balance) - lag(sum(native_balance)) over (order by date) as native_balance_change,
+        sum(usd_balance) as usd_balance,
+        sum(usd_balance) - lag(sum(usd_balance)) over (order by date) as usd_balance_change
+    FROM {{ ref("fact_mantle_treasury_balance") }}
+    WHERE token = 'MNT'
+    GROUP BY 1
+)
 , github_data as ({{ get_github_metrics("mantle") }})
 , rolling_metrics as ({{ get_rolling_active_address_metrics("mantle") }})
 , defillama_data as ({{ get_defillama_metrics("mantle") }})

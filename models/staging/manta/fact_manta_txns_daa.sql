@@ -15,7 +15,7 @@ with
             left(value:date, 10)::date as date,
             value:daily_txns::number as daily_txns,
             value:daa::number as dau,
-            value:gas_native::number as gas_native
+            value:gas_native as gas_native
         from
             {{ source("PROD_LANDING", "raw_manta_daily_txns_and_daa") }},
             lateral flatten(input => parse_json(source_json))
