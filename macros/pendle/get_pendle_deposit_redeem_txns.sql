@@ -60,7 +60,7 @@
         tx_hash,
         event_index,
         contract_address as sy_address,
-        amount_out::number as amount
+        -1 * amount_out::number as amount
     FROM redeems
 
 {% endmacro %}
