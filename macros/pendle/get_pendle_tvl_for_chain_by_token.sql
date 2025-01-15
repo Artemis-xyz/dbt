@@ -65,7 +65,7 @@ SELECT
     AVG(fc.cum_sum * p.price) AS amount_usd
 FROM filled_cumulative fc
 LEFT JOIN prices p ON p.token_address = fc.underlying_address AND fc.date = p.date
-WHERE fc.cum_sum is not null
+WHERE fc.cum_sum is not null and fc.cum_sum < 1e11 -- filter out outliers, highly unlikely any one token will have more than 100B USD in TVL.
 GROUP BY 1, 2, 3, 4
 ORDER BY 1, 3
 
