@@ -53,6 +53,7 @@ with
             date
             , chain
             , token_incentives
+            , token_incentives_native
         FROM
             {{ref('fact_pendle_token_incentives_by_chain')}}
     )
@@ -74,6 +75,7 @@ SELECT
     , COALESCE(ti.token_incentives, 0) as token_incentives
     , 0 as operating_expenses
     , COALESCE(ti.token_incentives, 0) as total_expenses
+    , COALESCE(ti.token_incentives_native, 0) as mints_native
     , protocol_revenue - total_expenses as protocol_earnings
     , COALESCE(d.daus, 0) as dau
     , COALESCE(d.daily_txns, 0) as daily_txns
