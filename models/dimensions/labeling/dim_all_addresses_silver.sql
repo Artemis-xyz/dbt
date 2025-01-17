@@ -41,27 +41,28 @@ WITH raw_addresses AS (
 ),
 -- This contains name + icon metadata grabbed from labels
 labeled_name_metadata AS (
-    SELECT address, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 1 AS priority
+    SELECT address, NULL AS namespace, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 1 AS priority
     FROM {{ source("MANUAL_STATIC_TABLES", "dim_legacy_sigma_tagged_contracts") }}
     UNION ALL
-    SELECT address, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 3 AS priority
+    SELECT address, namespace, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 2 AS priority
     FROM {{ ref("dim_dune_contracts") }}
     UNION ALL
-    SELECT address, chain, OBJECT_CONSTRUCT('name', name, 'icon', icon) AS metadata, last_updated, 4 AS priority
+    SELECT address, namespace, chain, OBJECT_CONSTRUCT('name', name, 'icon', icon) AS metadata, last_updated, 3 AS priority
     FROM {{ ref("dim_sui_contracts") }}
     UNION ALL
-    SELECT address, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 2 AS priority
+    SELECT address, namespace, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 4 AS priority
     FROM {{ ref("dim_flipside_contracts") }}
 ),
 -- This contains deduped labeled_name_metadata
 deduped_labeled_name_metadata AS (
     SELECT 
         address,
+        namespace,
         chain,
         metadata,
         last_updated
     FROM labeled_name_metadata
-    QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY priority ASC) = 1
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY address, namespace, chain ORDER BY priority ASC) = 1
 ),
 -- This aggreates all_chains_gas_dau_txns_by_contract by distinct address + chain
 distinct_all_chains AS (
@@ -81,6 +82,7 @@ SELECT
     ra.transaction_trace_type AS transaction_trace_type,
     ra.address_type AS address_type,
     nm.metadata AS metadata,
+    nm.namespace AS namespace,
     ra.chain AS chain,
     ac.total_gas AS total_gas,
     ac.total_gas_usd AS total_gas_usd,
