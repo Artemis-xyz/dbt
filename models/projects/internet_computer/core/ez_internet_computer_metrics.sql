@@ -18,6 +18,7 @@ with
 select
     coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_total_canister_state.date, icp_neuron_funds.date, icp_blocks.date) as date
     , total_transactions
+    , icp_txns
     , dau
     , txns
     , neurons_total -- accounts that are staking ICP
@@ -26,7 +27,7 @@ select
     , icp_burned
     , icp_burned * price as fees
     , icp_burned * price as revenue
-    , fees / txns as avg_txn_fee
+    , icp_transaction_fees / txns as avg_txn_fee
     , total_native_fees -- total transaction fees
     , nns_tvl_native * price as nns_tvl -- same as total icp staked in NNS
     , nns_tvl_native 
@@ -49,9 +50,9 @@ select
     , dex_volumes
     , 5 as storage_cost
 from price_data
-full join icp_metrics on price_data.date = icp_metrics.date
-full join icp_blocks on price_data.date = icp_blocks.date
-full join icp_total_canister_state on price_data.date = icp_total_canister_state.date
-full join icp_neuron_funds on price_data.date = icp_neuron_funds.date
-full join defillama_data on price_data.date = defillama_data.date
+left join icp_metrics on price_data.date = icp_metrics.date
+left join icp_blocks on price_data.date = icp_blocks.date
+left join icp_total_canister_state on price_data.date = icp_total_canister_state.date
+left join icp_neuron_funds on price_data.date = icp_neuron_funds.date
+left join defillama_data on price_data.date = defillama_data.date
 where coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_blocks.date, icp_total_canister_state.date, icp_neuron_funds.date) < to_date(sysdate())

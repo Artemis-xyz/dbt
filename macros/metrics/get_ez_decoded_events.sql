@@ -7,8 +7,10 @@
         contract_address,
         origin_from_address,
         origin_to_address,
-        status,
+        tx_status,
         event_name,
-        decoded_event
+        decoded_log,
+        topic_zero,
+        data
     from {{ ref("fact_" ~ chain ~ "_decoded_events") }}
 {% endmacro %}

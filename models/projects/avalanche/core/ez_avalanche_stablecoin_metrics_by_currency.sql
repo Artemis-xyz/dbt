@@ -1,12 +1,12 @@
--- depends_on: {{ ref('fact_avalanche_stablecoin_contracts') }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
+        unique_key=["date", "symbol"],
         database="avalanche",
         schema="core",
         alias="ez_stablecoin_metrics_by_currency",
-        snowflake_warehouse="AVALANCHE",
+        snowflake_warehouse="STABLECOIN_V2_LG_2",
     )
 }}
 
-{{ agg_chain_stablecoin_metrics("avalanche") }}
+{{stablecoin_metrics_by_currency("avalanche")}}

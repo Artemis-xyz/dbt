@@ -13,7 +13,8 @@ with retention_data as (
                 ref("ez_optimism_retention"),
                 ref("ez_polygon_retention"),
                 ref("ez_sei_retention"),
-                ref("ez_tron_retention")
+                ref("ez_tron_retention"),
+                ref("ez_mantle_retention"),
             ],
         )
     }}

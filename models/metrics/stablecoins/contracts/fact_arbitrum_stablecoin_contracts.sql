@@ -12,5 +12,7 @@ from
                 'usd-coin-ethereum-bridged',
                 0
             ),
-            ('USDT', '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9', 6, 'tether', 0)
+            ('USDT', '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9', 6, 'tether', 0),
+            ('USDY', '0x35e050d3C0eC2d29D269a8EcEa763a183bDF9A9D', 18, 'ondo-us-dollar-yield', 0),
+            ('USD0', '0x35f1c5cb7fb977e669fd244c567da99d8a3a6850', 18, 'usual-usd', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)

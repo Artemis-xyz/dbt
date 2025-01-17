@@ -1,7 +1,6 @@
--- depends_on: {{ ref("ez_ton_address_balances_by_token") }}
 {{
     config(
-        materialized="table",
+        materialized="view",
         database="ton",
         schema="core",
         name="ez_current_balances",
@@ -9,4 +8,5 @@
     )
 }}
 
-{{ current_balances("ton") }}
+select *
+from {{ ref("dim_ton_current_balances") }}

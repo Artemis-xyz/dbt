@@ -1,0 +1,8 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_stellar_rwa_tvl
+      - name: raw_stellar_stablecoin_tvl
+      - name: ez_stellar_metrics

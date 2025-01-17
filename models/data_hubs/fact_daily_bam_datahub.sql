@@ -84,7 +84,7 @@ select
     bam.category,
     lower(replace(bam.category, ' ', '_')) as category_symbol,
     chain,
-    chains.symbol as chain_symbol,
+    coalesce(chains.symbol, 'all') as chain_symbol,
     bam.gas,
     bam.gas_usd,
     bam.txns,
@@ -97,13 +97,13 @@ select
     bam.non_sybil_users,
     concat(
         coalesce(
-            cast(app_symbol as string),
-            cast(bam.app as string),
-            cast(category_symbol as string),
+            app_coingecko.token_symbol,
+            bam.app,
+            lower(replace(bam.category, ' ', '_')),
             ''
         ),
         '-',
-        coalesce(cast(chain_symbol as string), cast(chain as string))
+        coalesce(chain_symbol, chain, 'all')
     ) as excel_symbol
 from bam_data as bam
 left join app_coingecko on bam.app = app_coingecko.app

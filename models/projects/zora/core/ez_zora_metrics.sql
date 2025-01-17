@@ -17,6 +17,7 @@ with
             , daa as dau
             , gas_usd as fees
             , gas as fees_native
+            , median_gas as median_txn_fee
             , revenue
             , revenue_native
             , l1_data_cost
@@ -39,6 +40,7 @@ select
     , mau
     , fees
     , fees_native
+    , median_txn_fee
     , fees / txns as avg_txn_fee
     , revenue
     , revenue_native

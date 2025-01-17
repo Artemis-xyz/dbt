@@ -1,15 +1,3 @@
-{{ config(materialized="incremental", unique_key="date") }}
+{{ config(materialized="incremental", unique_key="date", snowflake_warehouse='ARBITRUM_MD') }}
 
-select
-    'arbitrum' as chain,
-    date_trunc(week, block_timestamp) as date,
-    count(distinct from_address) as contract_deployers,
-    count(*) as contracts_deployed
-from arbitrum_flipside.core.fact_transactions
-where
-    to_address is null
-    {% if is_incremental() %}
-        and block_timestamp >= (select max(date) from {{ this }})
-    {% endif %}
-group by date
-order by date desc
+{{get_contract_deployments("arbitrum")}}

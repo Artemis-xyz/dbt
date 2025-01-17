@@ -7,6 +7,8 @@
     -- Make sure to set to '' after backfill is complete
 
     {% set backfill_date = '' %}
+
+    -- This is used to backfill a new stablecoin, make sure the run is incremental
     {% set new_stablecoin_address = '' %}
 
 with
@@ -18,16 +20,10 @@ with
             , address
             {% if chain in ('solana') %}
                 , amount as stablecoin_supply_native
-            {% elif chain == 'ton' %}
-                , balance_token as stablecoin_supply_native
             {% else %}
                 , balance_token / pow(10, num_decimals) as stablecoin_supply_native
             {% endif %}
-        {% if chain == "ton" %}
-            from {{ ref("ez_" ~ chain ~ "_address_balances_by_token")}} t1
-        {% else %}
-            from {{ ref("fact_" ~ chain ~ "_address_balances_by_token")}} t1
-        {% endif %}
+        from {{ ref("fact_" ~ chain ~ "_address_balances_by_token")}} t1
         inner join {{ ref("fact_" ~ chain ~ "_stablecoin_contracts")}} t2
             on lower(t1.contract_address) = lower(t2.contract_address)
         where block_timestamp < to_date(sysdate())

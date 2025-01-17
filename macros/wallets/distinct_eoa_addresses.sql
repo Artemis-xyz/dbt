@@ -1,8 +1,11 @@
 {% macro distinct_eoa_addresses(chain) %}
     {% if chain == "tron" %}
-        select 
-            distinct from_address as address, 'eoa' as address_type
+        select distinct from_address as address, 'eoa' as address_type
         from tron_allium.raw.transactions
+    {% elif chain == "ton" %}
+        select distinct transaction_account as address, 'wallet' as address_type
+        from {{ref("fact_ton_transactions")}}
+        where transaction_account_workchain <> -1 and transaction_account_interface ilike '%wallet%'
     {% elif chain == "solana" %}
         select distinct signer as address,  'signer' as address_type
         from solana_flipside.core.ez_signers 

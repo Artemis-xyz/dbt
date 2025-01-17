@@ -1,5 +1,3 @@
---depends_on: {{ ref("fact_stride_rolling_active_addresses") }}
-
 {{
     config(
         materialized="table",
@@ -11,20 +9,31 @@
 }}
 
 with
-    fundamental_metrics as (
-        select
-            date, chain, daa, gas_usd, txns
-        from {{ ref("fact_stride_daa_gas_usd_txns") }}
-    ),
-    rolling_metrics as ({{ get_rolling_active_address_metrics("stride") }})
+    -- Alternative fundamental source from BigQuery, preferred when possible over Snowflake data
+    fundamental_data as (select * EXCLUDE date, TO_TIMESTAMP_NTZ(date) AS date from {{ source('PROD_LANDING', 'ez_stride_metrics') }})
+
 select
-    fundamental_metrics.date,
-    fundamental_metrics.chain,
-    daa as dau,
-    gas_usd as fees,
-    txns,
-    wau,
-    mau,
-from fundamental_metrics
-left join rolling_metrics on fundamental_metrics.date = rolling_metrics.date
-where fundamental_metrics.date < to_date(sysdate())
+    fundamental_data.date,
+    fundamental_data.chain,
+    fundamental_data.txns,
+    fundamental_data.dau,
+    fundamental_data.wau,
+    fundamental_data.mau,
+    fundamental_data.tvl,
+    fundamental_data.tvl_net_change,
+    fundamental_data.fees_native AS gas_fees_native,
+    fundamental_data.fees_usd AS gas_fees_usd,
+    fundamental_data.avg_txn_fee,
+    fundamental_data.returning_users,
+    fundamental_data.new_users,
+    fundamental_data.low_sleep_users,
+    fundamental_data.high_sleep_users,
+    fundamental_data.sybil_users,
+    fundamental_data.non_sybil_users,
+    fundamental_data.total_staking_yield_usd,
+    fundamental_data.total_supply_side_revenue_usd,
+    fundamental_data.protocol_revenue_usd AS fees,
+    fundamental_data.protocol_revenue_usd AS revenue,
+    fundamental_data.operating_expenses_usd,
+    fundamental_data.protocol_earnings_usd
+from fundamental_data

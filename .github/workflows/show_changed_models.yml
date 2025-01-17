@@ -14,7 +14,9 @@ concurrency:
   cancel-in-progress: true
 jobs:
   check-user:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    outputs:
+      skip_workflow: ${{ steps.check_user.outputs.skip_workflow }}
     steps:
       - name: Check out PR
         uses: actions/checkout@v3
@@ -34,11 +36,12 @@ jobs:
             const skipWorkflow = maintainers.includes(context.actor);
 
             console.log(`User is maintainer of Artemis dbt Repo: ${skipWorkflow}. Skip Action if TRUE`);
-            core.setOutput("skip_workflow", skipWorkflow);
+            core.setOutput("skip_workflow", skipWorkflow ? 'true' : 'false');
+
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: check-user
-    if: needs.check-user.outputs.skip_workflow == 'false'
+    if: ${{ needs.check-user.outputs.skip_workflow == 'false' }}
     steps:
       - uses: actions/setup-python@v2
         with:

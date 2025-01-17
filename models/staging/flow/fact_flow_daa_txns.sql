@@ -7,3 +7,4 @@ select
 from flow_flipside.core.fact_transactions
 where tx_succeeded = 'TRUE'
 group by date
+

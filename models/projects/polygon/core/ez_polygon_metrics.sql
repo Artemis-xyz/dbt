@@ -31,7 +31,16 @@ with
     ),
     nft_metrics as ({{ get_nft_metrics("polygon") }}),
     p2p_metrics as ({{ get_p2p_metrics("polygon") }}),
-    rolling_metrics as ({{ get_rolling_active_address_metrics("polygon") }})
+    rolling_metrics as ({{ get_rolling_active_address_metrics("polygon") }}),
+    bridge_volume_metrics as (
+        select date, bridge_volume
+        from {{ ref("fact_polygon_pos_bridge_bridge_volume") }}
+        where chain is null
+    ),
+    bridge_daa_metrics as (
+        select date, bridge_daa
+        from {{ ref("fact_polygon_pos_bridge_bridge_daa") }}
+    )
 
 select
     fundamental_data.date,
@@ -43,6 +52,7 @@ select
     fees_native,
     fees,
     avg_txn_fee,
+    median_txn_fee,
     revenue_native,
     revenue,
     l1_data_cost_native,
@@ -78,12 +88,16 @@ select
     p2p_stablecoin_dau,
     p2p_stablecoin_mau,
     stablecoin_data.p2p_stablecoin_transfer_volume,
+    stablecoin_tokenholder_count,
+    p2p_stablecoin_tokenholder_count,
     nft_trading_volume,
     p2p_native_transfer_volume,
     p2p_token_transfer_volume,
     p2p_transfer_volume,
     coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume,
-    coalesce(dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
+    coalesce(dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
+    bridge_volume,
+    bridge_daa
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -95,4 +109,6 @@ left join nft_metrics on fundamental_data.date = nft_metrics.date
 left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join l1_cost_data on fundamental_data.date = l1_cost_data.date
+left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
+left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 where fundamental_data.date < to_date(sysdate())

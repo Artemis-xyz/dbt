@@ -16,6 +16,10 @@ from
                 '0xdAC17F958D2ee523a2206206994597C13D831ec7',
                 '0x3ee18B2214AFF97000D974cf647E7C347E8fa585'
             ),
+            (
+                '0xdC035D45d973E3EC169d2276DDab16f1e407384F',
+                '0x7d4958454a3f520bDA8be764d06591B054B0bf33'
+            ),
             --      Axelar
             (
                 '0xdAC17F958D2ee523a2206206994597C13D831ec7',

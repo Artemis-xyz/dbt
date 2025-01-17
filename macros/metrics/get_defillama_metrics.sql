@@ -15,3 +15,38 @@
         lower(dex.defillama_chain_name) = lower('{{ defillama_chain_name }}')
         or lower(tvl.defillama_chain_name) = lower('{{ defillama_chain_name }}')
 {% endmacro %}
+
+
+{% macro get_defillama_protocol_metrics(defillama_protocol_name) %}
+-- First get the Drift Trade protocol ID once
+WITH defillama_protocol AS (
+    SELECT id
+    FROM {{ref("fact_defillama_protocols")}}
+    WHERE lower(name) = lower('{{ defillama_protocol_name }}')
+),
+
+defillama_fees AS (
+    SELECT 
+        date,
+        fees
+    FROM {{ref("fact_defillama_protocol_fees")}} f
+    WHERE f.defillama_protocol_id = (SELECT id FROM defillama_protocol)
+),
+
+defillama_revenue AS (
+    SELECT 
+        date,
+        revenue
+    FROM {{ref("fact_defillama_protocol_revenue")}} r
+    WHERE r.defillama_protocol_id = (SELECT id FROM defillama_protocol)
+)
+
+SELECT 
+    COALESCE(f.date, r.date) AS date,
+    f.fees,
+    r.revenue 
+FROM defillama_fees f
+FULL OUTER JOIN defillama_revenue r
+    ON f.date = r.date
+ORDER BY date DESC
+{% endmacro %}

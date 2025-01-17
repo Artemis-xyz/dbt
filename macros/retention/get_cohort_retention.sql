@@ -10,6 +10,8 @@ base_table as(
         date_trunc('month', raw_date) as base_month,
         from_address as address
     from {{ ref( "ez_" ~ chain ~ "_transactions") }}
+    where 
+        date_trunc('month', raw_date) < date_trunc('month', sysdate())
     group by 1,2
 ),
 -- from user_cohorts onward, should be able to reuse ctes on any chain 

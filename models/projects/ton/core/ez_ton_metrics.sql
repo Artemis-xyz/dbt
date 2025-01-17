@@ -26,12 +26,6 @@ with
     ),
     price_data as ({{ get_coingecko_metrics("the-open-network") }}),
     defillama_data as ({{ get_defillama_metrics("ton") }}),
-    dex_data as (
-        select
-            date,
-            dex_volumes
-        from {{ ref("fact_ton_dex_volumes") }}
-    ),
     stablecoin_data as ({{ get_stablecoin_metrics("ton") }}),
     github_data as ({{ get_github_metrics("ton") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("ton") }})
@@ -52,11 +46,12 @@ select
     p2p_stablecoin_dau,
     p2p_stablecoin_mau,
     p2p_stablecoin_transfer_volume,
+    stablecoin_tokenholder_count,
+    p2p_stablecoin_tokenholder_count,
     price,
     market_cap,
     fdmc,
     tvl,
-    dex_data.dex_volumes,
     weekly_commits_core_ecosystem,
     weekly_commits_sub_ecosystem,
     weekly_developers_core_ecosystem,
@@ -74,7 +69,6 @@ from ton_apps_fundamental_data as ton
 left join price_data on ton.date = price_data.date
 left join defillama_data on ton.date = defillama_data.date
 left join github_data on ton.date = github_data.date
-left join dex_data on ton.date = dex_data.date
 left join fundamental_data on ton.date = fundamental_data.date
 left join stablecoin_data on ton.date = stablecoin_data.date
 left join rolling_metrics on ton.date = rolling_metrics.date

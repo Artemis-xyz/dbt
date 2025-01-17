@@ -22,7 +22,16 @@ with
     ),  -- supply side revenue and fees
     nft_metrics as ({{ get_nft_metrics("optimism") }}),
     p2p_metrics as ({{ get_p2p_metrics("optimism") }}),
-    rolling_metrics as ({{ get_rolling_active_address_metrics("optimism") }})
+    rolling_metrics as ({{ get_rolling_active_address_metrics("optimism") }}),
+    bridge_volume_metrics as (
+        select date, bridge_volume
+        from {{ ref("fact_optimism_bridge_bridge_volume") }}
+        where chain is null
+    ),
+    bridge_daa_metrics as (
+        select date, bridge_daa
+        from {{ ref("fact_optimism_bridge_bridge_daa") }}
+    )
 
 select
     coalesce(
@@ -46,6 +55,7 @@ select
     coalesce(fees_native, 0) - l1_data_cost_native as revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     coalesce(fees, 0) - l1_data_cost as revenue,
     avg_txn_fee,
+    median_txn_fee,
     sybil_users,
     non_sybil_users,
     returning_users,
@@ -77,12 +87,16 @@ select
     p2p_stablecoin_dau,
     p2p_stablecoin_mau,
     stablecoin_data.p2p_stablecoin_transfer_volume,
+    stablecoin_tokenholder_count,
+    p2p_stablecoin_tokenholder_count,
     nft_trading_volume,
     p2p_native_transfer_volume,
     p2p_token_transfer_volume,
     p2p_transfer_volume,
     coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume,
-    coalesce(dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
+    coalesce(dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
+    bridge_volume,
+    bridge_daa
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -93,4 +107,6 @@ left join contract_data on fundamental_data.date = contract_data.date
 left join nft_metrics on fundamental_data.date = nft_metrics.date
 left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
+left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
+left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 where fundamental_data.date < to_date(sysdate())

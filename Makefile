@@ -11,3 +11,6 @@ dbt-test:
 
 dbt-perms:
 	python dbt_scripts/grant_permissions.py
+
+pipcompile:
+	uv pip compile --annotation-style=line requirements.in -o requirements.txt --no-strip-extras

@@ -46,6 +46,45 @@
             )
     -- TODO: Refactor to support native currencies. Currently assumes everything is $1
     -- b/c of perf issues when joining
+    {% elif chain in ("ton") %}
+        select
+            block_timestamp
+            , trunc(block_timestamp, 'day') as date
+            , null as block_number
+            , event_index as index
+            , trace_id
+            , tx_hash
+            , from_address
+            , to_address
+            , type = 'mint' or lower(from_address) in (
+                select distinct (lower(premint_address))
+                from {{ ref("fact_ton_stablecoin_premint_addresses") }}
+            ) as is_mint
+            , type = 'burn' or lower(to_address) in (
+                select distinct (lower(premint_address))
+                from {{ ref("fact_ton_stablecoin_premint_addresses") }}
+            ) as is_burn
+            , coalesce(amount / POWER(10, num_decimals), 0) as amount
+            , case
+                when is_mint then amount / POWER(10, num_decimals) when is_burn then -1 * amount / POWER(10, num_decimals) else 0
+            end as inflow
+            , case
+                when
+                    not is_mint
+                    and not is_burn
+                then amount / POWER(10, num_decimals)
+                else 0
+            end as transfer_volume
+            , contracts.symbol
+            , transfers.contract_address
+        from {{ ref('fact_ton_token_transfers') }} transfers
+        left join {{ ref('fact_ton_stablecoin_contracts') }} contracts
+            on lower(transfers.contract_address) = lower(contracts.contract_address)
+        where lower(transfers.contract_address) in (
+                select lower(contract_address)
+                from {{ ref('fact_ton_stablecoin_contracts') }}
+            )
+            and tx_status = 'TRUE'
     {% elif chain in ("solana") %}
     -- CASE 1: Mints into non-premint addresses
         select
@@ -236,8 +275,30 @@
                 select lower(contract_address)
                 from {{ref("fact_" ~chain~ "_stablecoin_contracts")}}
             )
-            -- DO NOT include mint / burn events here - they will be duped
             and tx_status = 1
+    {% elif chain in ("mantle") %}
+        select
+            block_timestamp
+            , raw_date as date
+            , block_number
+            , event_index as index
+            , tx_hash
+            , from_address
+            , to_address
+            , from_address = '0x0000000000000000000000000000000000000000' as is_mint
+            , to_address = '0x0000000000000000000000000000000000000000' as is_burn
+            , amount / pow(10, num_decimals) as amount
+            , case
+                when is_mint then amount / pow(10, num_decimals) when is_burn then -1 * amount / pow(10, num_decimals) else 0
+            end as inflow
+            , case
+                when not is_mint and not is_burn then amount / pow(10, num_decimals) else 0
+            end as transfer_volume
+            , t1.contract_address
+            , contracts.symbol
+        from {{ref("fact_" ~ chain ~ "_token_transfers")}} t1 
+        inner join {{ref("fact_" ~chain~ "_stablecoin_contracts")}} contracts
+            on lower(t1.contract_address) = lower(contracts.contract_address)
     {% else %}
         select
             block_timestamp,

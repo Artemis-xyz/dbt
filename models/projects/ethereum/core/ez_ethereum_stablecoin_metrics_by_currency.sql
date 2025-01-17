@@ -1,12 +1,14 @@
 -- depends_on: {{ ref('fact_ethereum_stablecoin_contracts') }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
+        unique_key=["date", "symbol"],
         database="ethereum",
         schema="core",
         alias="ez_stablecoin_metrics_by_currency",
-        snowflake_warehouse="ETHEREUM_LG",
+        snowflake_warehouse="STABLECOIN_V2_LG_2",
     )
 }}
 
-{{ agg_chain_stablecoin_metrics("ethereum") }}
+{{stablecoin_metrics_by_currency("ethereum")}}
+

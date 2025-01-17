@@ -1,0 +1,18 @@
+sources:
+  - name: ETHEREUM_FLIPSIDE
+    schema: core
+    database: ethereum_flipside
+    tables:
+      - name: ez_decoded_event_logs
+      - name: fact_event_logs
+      - name: fact_blocks
+      - name: fact_decoded_event_logs
+      - name: ez_token_transfers
+  
+  - name: PROD_LANDING
+    schema: prod_landing
+    database: landing_database
+    tables:
+      - name: raw_maple_otc_by_day
+      - name: raw_maple_solana_by_day
+      - name: raw_maple_dim_pools

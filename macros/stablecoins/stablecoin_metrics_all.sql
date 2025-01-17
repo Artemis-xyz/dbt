@@ -9,11 +9,7 @@ with
             , symbol
             , transfer_volume
             , to_address
-        {% if chain in ("ton") %}
-            from {{ ref("ez_" ~ chain ~ "_stablecoin_transfers")}} t
-        {% else %}
-            from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers")}}
-        {% endif %}
+        from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers")}}
         {% if is_incremental() %} 
             where block_timestamp >= (
                 select dateadd('day', -3, max(date))

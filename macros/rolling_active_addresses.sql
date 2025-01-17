@@ -235,86 +235,86 @@
         ),
     {% elif chain == 'aptos' %}
         single_signed_transactions as (
-        select block_timestamp::date as date, parse_json(signature):public_key as signer
-        from aptos_flipside.core.fact_transactions
-        where
-            tx_type = 'user_transaction'
-            and success = 'true'
-            and parse_json(signature):public_key is not null
+            select block_timestamp::date as date, parse_json(signature):public_key as signer
+            from aptos_flipside.core.fact_transactions
+            where
+                tx_type = 'user_transaction'
+                and success = 'true'
+                and parse_json(signature):public_key is not null
+                {% if is_incremental() %}
+                    and block_timestamp::date > (select dateadd('day', -30, max(date)) from {{ this }})
+                {% endif %}
+        ),
+        primary_multi_signed_transactions as (
+            select
+                block_timestamp::date as date,
+                parse_json(signature):sender:public_key as signer
+            from aptos_flipside.core.fact_transactions
+            where
+                tx_type = 'user_transaction'
+                and success = 'true'
+                and parse_json(signature):sender is not null
+                {% if is_incremental() %}
+                    and block_timestamp::date > (select dateadd('day', -30, max(date)) from {{ this }})
+                {% endif %}
+        ),
+        raw_secondary_multi_signed_transactions as (
+            select
+                block_timestamp,
+                parse_json(signature):secondary_signers as secondary_signers
+            from aptos_flipside.core.fact_transactions
+            where
+                tx_type = 'user_transaction'
+                and success = 'true'
+                and parse_json(signature):secondary_signers is not null
+                {% if is_incremental() %}
+                    and block_timestamp::date > (select dateadd('day', -30, max(date)) from {{ this }})
+                {% endif %}
+        ),
+        secondary_multi_signed_transactions as (
+            select block_timestamp::date as date, value:"public_key" as signer
+            from
+                raw_secondary_multi_signed_transactions,
+                lateral flatten(input => secondary_signers)
+            where value:"public_key" is not null
+        ),
+        raw_bitmap_multi_sig_transactions as (
+            select block_timestamp::date as date, value:"public_keys" as public_keys
+            from
+                raw_secondary_multi_signed_transactions,
+                lateral flatten(input => secondary_signers)
+        ),
+        bitmap_multi_sig_transactions as (
+            select date, value as signer
+            from raw_bitmap_multi_sig_transactions, lateral flatten(input => public_keys)
+        ),
+        combined_signers as (
+            select date, signer
+            from single_signed_transactions
+            union all
+            select date, signer
+            from primary_multi_signed_transactions
+            union all
+            select date, signer
+            from secondary_multi_signed_transactions
+            union all
+            select date, signer
+            from bitmap_multi_sig_transactions
+        ),
+        distinct_dates as (
+            select distinct
+                date as raw_date
+            from combined_signers
             {% if is_incremental() %}
-                and block_timestamp::date > (select dateadd('day', -30, max(date)) from {{ this }})
+                where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
-    ),
-    primary_multi_signed_transactions as (
-        select
-            block_timestamp::date as date,
-            parse_json(signature):sender:public_key as signer
-        from aptos_flipside.core.fact_transactions
-        where
-            tx_type = 'user_transaction'
-            and success = 'true'
-            and parse_json(signature):sender is not null
-            {% if is_incremental() %}
-                and block_timestamp::date > (select dateadd('day', -30, max(date)) from {{ this }})
-            {% endif %}
-    ),
-    raw_secondary_multi_signed_transactions as (
-        select
-            block_timestamp,
-            parse_json(signature):secondary_signers as secondary_signers
-        from aptos_flipside.core.fact_transactions
-        where
-            tx_type = 'user_transaction'
-            and success = 'true'
-            and parse_json(signature):secondary_signers is not null
-            {% if is_incremental() %}
-                and block_timestamp::date > (select dateadd('day', -30, max(date)) from {{ this }})
-            {% endif %}
-    ),
-    secondary_multi_signed_transactions as (
-        select block_timestamp::date as date, value:"public_key" as signer
-        from
-            raw_secondary_multi_signed_transactions,
-            lateral flatten(input => secondary_signers)
-        where value:"public_key" is not null
-    ),
-    raw_bitmap_multi_sig_transactions as (
-        select block_timestamp::date as date, value:"public_keys" as public_keys
-        from
-            raw_secondary_multi_signed_transactions,
-            lateral flatten(input => secondary_signers)
-    ),
-    bitmap_multi_sig_transactions as (
-        select date, value as signer
-        from raw_bitmap_multi_sig_transactions, lateral flatten(input => public_keys)
-    ),
-    combined_signers as (
-        select date, signer
-        from single_signed_transactions
-        union all
-        select date, signer
-        from primary_multi_signed_transactions
-        union all
-        select date, signer
-        from secondary_multi_signed_transactions
-        union all
-        select date, signer
-        from bitmap_multi_sig_transactions
-    ),
-    distinct_dates as (
-        select distinct
-            date as raw_date
-        from combined_signers
-        {% if is_incremental() %}
-            where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
-        {% endif %}
-    ),
-    distinct_dates_for_rolling_active_address as (
-        select distinct
-            date as raw_date
-            , signer as from_address
-        from combined_signers   
-    ),
+        ),
+        distinct_dates_for_rolling_active_address as (
+            select distinct
+                date as raw_date
+                , signer as from_address
+            from combined_signers   
+        ),
     {% elif chain == 'zora' %}
         distinct_dates as (
             select 

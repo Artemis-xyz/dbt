@@ -47,6 +47,8 @@ select
     artemis_stablecoin_dau,
     artemis_stablecoin_mau,
     artemis_stablecoin_transfer_volume,
+    stablecoin_tokenholder_count,
+    p2p_stablecoin_tokenholder_count,
     p2p_stablecoin_txns,
     p2p_stablecoin_dau,
     p2p_stablecoin_mau,

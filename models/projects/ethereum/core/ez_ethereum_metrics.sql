@@ -36,6 +36,16 @@ with
     da_metrics as (
         select date, blob_fees_native, blob_fees, blob_size_mib, avg_mib_per_second, avg_cost_per_mib, avg_cost_per_mib_gwei, submitters
         from {{ ref("fact_ethereum_da_metrics") }}
+    ),
+    etf_metrics as (
+        SELECT
+            date,
+            sum(net_etf_flow_native) as net_etf_flow_native,
+            sum(net_etf_flow) as net_etf_flow,
+            sum(cumulative_etf_flow_native) as cumulative_etf_flow_native,
+            sum(cumulative_etf_flow) as cumulative_etf_flow
+        FROM {{ ref("ez_ethereum_etf_metrics") }}
+        GROUP BY 1
     )
 
 select
@@ -48,6 +58,7 @@ select
     fees_native,
     case when fees is null then fees_native * price else fees end as fees,
     avg_txn_fee,
+    median_txn_fee,
     revenue_native,
     revenue,
     fees_native - revenue_native as priority_fee_native,
@@ -86,6 +97,8 @@ select
     p2p_stablecoin_dau,
     p2p_stablecoin_mau,
     stablecoin_data.p2p_stablecoin_transfer_volume,
+    stablecoin_tokenholder_count,
+    p2p_stablecoin_tokenholder_count,
     
     censored_blocks,
     semi_censored_blocks,
@@ -111,7 +124,11 @@ select
     avg_mib_per_second,
     avg_cost_per_mib_gwei,
     avg_cost_per_mib,
-    submitters
+    submitters,
+    net_etf_flow_native,
+    net_etf_flow,
+    cumulative_etf_flow_native,
+    cumulative_etf_flow
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -126,4 +143,5 @@ left join nft_metrics on fundamental_data.date = nft_metrics.date
 left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join da_metrics on fundamental_data.date = da_metrics.date
+left join etf_metrics on fundamental_data.date = etf_metrics.date
 where fundamental_data.date < to_date(sysdate())

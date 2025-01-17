@@ -26,6 +26,7 @@ max_extraction as (
         ,value:proposals_count::int as total_proposals_count
         ,value:registered_canisters_count::int as total_registered_canister_count
         ,value:total_transactions::int as total_transactions
+        ,value:total_update_transactions_till_date::int + value:total_query_transactions_till_date::int as new_total_transactions
         -- DQ issues where estimated returns are sometimes >> 1 Trillion
         , case 
             when 
@@ -52,7 +53,8 @@ select
     date
     , total_transactions
     , dau
-    , total_transactions - LAG(total_transactions, 1, null) OVER (ORDER BY date) as txns
+    , total_transactions - LAG(total_transactions, 1, null) OVER (ORDER BY date) as icp_txns
+    , new_total_transactions - LAG(NEW_TOTAL_TRANSACTIONS, 1, null) OVER (ORDER BY date) as txns
     , neurons_total
     , avg_tps
     , avg_blocks_per_second
@@ -63,6 +65,7 @@ select
       end as icp_burned
     , icp_burned_total as total_icp_burned
     , icp_burned_fees as total_native_fees -- total transaction fees
+    , icp_burned_fees - LAG(icp_burned_fees, 1, null) OVER (ORDER BY date) as icp_transaction_fees
     , nns_tvl as nns_tvl_native -- same as total icp staked in NNS
     , total_proposals_count - LAG(total_proposals_count, 1, null) OVER (ORDER BY date) as nns_proposal_count
     , total_registered_canister_count -- total cannister count 

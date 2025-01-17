@@ -7,10 +7,16 @@ sources:
       - name: raw_ton_gas
       - name: raw_ton_revenue
       - name: raw_ton_txns
-      - name: raw_ton_dex_volumes
       - name: raw_ton_stablecoin_transfers
       - name: raw_ton_apps_openleague
       - name: raw_ton_tokens_openleague
       - name: raw_ton_app_daa
       - name: raw_ton_app_txns_fees
       - name: raw_ton_transactions
+      - name: raw_ton_transactions_avro
+      - name: raw_ton_jetton_events_avro
+  - name: BALANCES
+    schema: PROD
+    database: PC_DBT_DB
+    tables:
+      - name: dim_ton_current_balances
