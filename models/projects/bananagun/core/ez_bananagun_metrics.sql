@@ -8,28 +8,32 @@
     )
 }}
 
-with metrics as (
-    SELECT 
-        trade_date,
-        SUM(trading_volume) as trading_volume,
-        SUM(dau) as dau,
-        SUM(daily_txns) as daily_txns,
-        SUM(fees_usd) as fees_usd
+WITH metrics AS (
+    SELECT
+        trade_date
+        , SUM(trading_volume) AS trading_volume
+        , SUM(dau) AS dau
+        , SUM(daily_txns) AS daily_txns
+        , SUM(fees_usd) AS fees_usd
     FROM {{ ref('fact_bananagun_all_metrics') }}
     GROUP BY trade_date
 )
-, burns as (
-    select date, burn_amount_usd as revenue from {{ ref('fact_bananagun_coin_metrics') }}
+
+, burns AS (
+    SELECT
+        date
+        , burns_usd AS revenue
+    FROM {{ ref('fact_bananagun_coin_metrics') }}
 )
 
-select
-    metrics.trade_date,
-    metrics.trading_volume,
-    metrics.dau,
-    metrics.daily_txns,
-    metrics.fees_usd as fees,
-    metrics.fees_usd * 0.6 as supply_side_fees,
-    metrics.fees_usd * 0.4 + burns.revenue as revenue
-from metrics
-left join burns on metrics.trade_date = burns.date
-order by metrics.trade_date desc
+SELECT
+    metrics.trade_date
+    , metrics.trading_volume
+    , metrics.dau
+    , metrics.daily_txns
+    , metrics.fees_usd AS fees
+    , metrics.fees_usd * 0.6 AS supply_side_fees
+    , metrics.fees_usd * 0.4 + burns.revenue AS revenue
+FROM metrics
+LEFT JOIN burns ON metrics.trade_date = burns.date
+ORDER BY metrics.trade_date DESC
