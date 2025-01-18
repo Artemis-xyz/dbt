@@ -7,18 +7,10 @@
 
 --This is because they had a faulty contract on ethereum on 9/13/2023
 WITH date_range AS (
-    SELECT DISTINCT
-        date::date as date
-    FROM (
-        SELECT 
-            dateadd(
-                'day',
-                seq4(),
-                CAST('2023-09-14' as date)
-            ) as date
-        FROM TABLE(GENERATOR(ROWCOUNT => 500)) 
-    )
-    WHERE date <= CURRENT_DATE()
+    SELECT
+        date
+    FROM pc_dbt_db.prod.dim_date_spine
+    where date between '2023-09-14' and to_date(sysdate())
 ),
 
 transfers AS (
@@ -26,13 +18,11 @@ transfers AS (
         date_trunc('day', BLOCK_TIMESTAMP)::date as date,
         FROM_ADDRESS as sender,
         TO_ADDRESS as recipient,
+        contract_address,
         RAW_AMOUNT / 1e18 as amount,
         CASE 
             WHEN lower(TO_ADDRESS) = lower('0x000000000000000000000000000000000000dead') 
-            AND NOT (
-                lower(FROM_ADDRESS) = lower('0xDa74C6B4E6813bdb83cb4cff6ad4eB8D43F34B0D')
-                AND (RAW_AMOUNT / 1e18) >= 50000  -- Exclude treasury-unlock-burns >= 50000
-            ) THEN 'burn'
+            THEN 'burn'
             WHEN lower(FROM_ADDRESS) = lower('0xECC6c8C7EdA9C600773F0D133549d9933a91dBFB') THEN 'reward'
             ELSE 'other'
         END as transfer_type
@@ -44,8 +34,10 @@ transfers AS (
 daily_burns AS (
     SELECT
         date,
-        SUM(amount) * -1 as burn_amount
+        SUM(amount) * -1 as burn_amount,
+        SUM(amount * p.price) as burn_amount_usd
     FROM transfers
+    LEFT JOIN ethereum_flipside.price.ez_prices_hourly p on p.hour = date and p.token_address = contract_address
     WHERE transfer_type = 'burn'
     GROUP BY date
 ),
@@ -70,6 +62,7 @@ daily_metrics AS (
         d.date,
         COALESCE(r.reward_amount, 0) as rewards,
         COALESCE(b.burn_amount, 0) as burns,
+        COALESCE(b.burn_amount_usd, 0) as burns_usd,
         COALESCE(a.airdrop_amount, 0) as airdrops,
         COALESCE(r.reward_amount, 0) + COALESCE(b.burn_amount, 0) + COALESCE(a.airdrop_amount, 0) as net_supply_change
     FROM date_range d
@@ -81,10 +74,11 @@ daily_metrics AS (
 SELECT
     date,
     net_supply_change,
-    2500000 + SUM(net_supply_change) OVER (ORDER BY date) as circulating_supply,
+    4831781.163 + SUM(net_supply_change) OVER (ORDER BY date) as circulating_supply,
     burns,
     rewards as gross_emissions,
-    airdrops as pre_mine_unlocks
+    airdrops as pre_mine_unlocks,
+    burns_usd
 FROM daily_metrics
 WHERE date IS NOT NULL
 ORDER BY date DESC 
