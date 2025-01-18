@@ -69,11 +69,7 @@ select
     coalesce(trading_volume_by_chain.unique_traders, 0) as unique_traders,
     trading_volume_by_chain.gas_cost_native,
     trading_volume_by_chain.gas_cost_usd,
-<<<<<<< HEAD
-    coalesce(daily_txns_data.daily_txns, 0) as txns
-=======
     daily_txns_data.daily_txns as number_of_swaps
->>>>>>> origin
 from tvl_by_chain
 left join trading_volume_by_chain using(date, chain)
 left join daily_txns_data using (date, chain)

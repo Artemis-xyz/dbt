@@ -35,7 +35,7 @@ SELECT
     chain,
     version,
     sum(coalesce(unique_traders, 0)) as unique_traders,
-    sum(coalesce(daily_txns, 0)) as daily_txns,
+    sum(coalesce(daily_txns, 0)) as number_of_swaps,
     sum(total_volume) as total_volume,
     sum(total_fees) as total_fees,
     sum(protocol_fees) as protocol_fees

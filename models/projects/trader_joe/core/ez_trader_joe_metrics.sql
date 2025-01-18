@@ -13,7 +13,7 @@ with
         with agg as (
             select
                 date,
-                avg(tvl) as tvl
+                sum(tvl) as tvl
             from
                 pc_dbt_db.prod.fact_defillama_protocol_tvls
             where
@@ -52,7 +52,7 @@ with
         sum(unique_traders) as unique_traders,
         sum(gas_cost_native) as gas_cost_native,
         sum(gas_cost_usd) as gas_cost_usd,
-        sum(txns) as txns
+        sum(number_of_swaps) as number_of_swaps
     from {{ref("ez_trader_joe_metrics_by_chain")}}
     group by 1, 2, 3
 )
@@ -68,7 +68,7 @@ select
     sum(coalesce(e.unique_traders, 0) + coalesce(v2_data.unique_traders, 0)) as unique_traders,
     sum(coalesce(e.gas_cost_native, 0)) as gas_cost_native,
     sum(coalesce(e.gas_cost_usd, 0)) as gas_cost_usd,
-    sum(coalesce(e.txns, 0) + coalesce(v2_data.daily_txns, 0)) as txns
+    sum(coalesce(e.number_of_swaps, 0) + coalesce(v2_data.daily_txns, 0)) as number_of_swaps
 from ez_metrics_agg e
 left join v2_data using (date)
 left join v2_tvl using (date)
