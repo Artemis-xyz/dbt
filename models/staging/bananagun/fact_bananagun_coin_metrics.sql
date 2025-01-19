@@ -34,7 +34,7 @@ transfers AS (
 daily_burns AS (
     SELECT
         date,
-        SUM(amount) * -1 as burn_amount,
+        SUM(amount) * as burn_amount,
         SUM(amount * p.price) as burn_amount_usd
     FROM transfers
     LEFT JOIN ethereum_flipside.price.ez_prices_hourly p on p.hour = date and p.token_address = contract_address
@@ -64,7 +64,7 @@ daily_metrics AS (
         COALESCE(b.burn_amount, 0) as burns,
         COALESCE(b.burn_amount_usd, 0) as burns_usd,
         COALESCE(a.airdrop_amount, 0) as airdrops,
-        COALESCE(r.reward_amount, 0) + COALESCE(b.burn_amount, 0) + COALESCE(a.airdrop_amount, 0) as net_supply_change
+        COALESCE(r.reward_amount, 0) + COALESCE(-1* b.burn_amount, 0) + COALESCE(a.airdrop_amount, 0) as net_supply_change
     FROM date_range d
     LEFT JOIN daily_burns b ON d.date = b.date
     LEFT JOIN daily_rewards r ON d.date = r.date
