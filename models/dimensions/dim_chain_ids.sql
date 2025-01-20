@@ -27,5 +27,10 @@ from
             (81457, 'blast'),
             (534352, 'scroll'),
             (34443, 'mode'),
-            (1135, 'lisk')
+            (1135, 'lisk'),
+            (690, 'redstone'),
+            (7777777, 'zora'),
+            (480, 'world_chain'),
+            (57073, 'ink'),
+            (1868, 'soneium')
     ) as t(id, chain)
