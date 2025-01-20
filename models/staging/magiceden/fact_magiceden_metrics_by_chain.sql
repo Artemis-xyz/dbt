@@ -1,5 +1,6 @@
 SELECT
     date,
+    tx_hash,
     'ethereum' AS chain,
     daily_trading_volume_usd,
     active_wallets,
@@ -15,6 +16,7 @@ UNION ALL
 
 SELECT
     date,
+    tx_id,
     'solana' as chain,
     daily_trading_volume_usd,
     active_wallets,

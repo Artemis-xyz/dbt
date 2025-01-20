@@ -49,11 +49,6 @@ WITH transaction_data AS (
     WHERE 
         n.marketplace ILIKE 'magic eden%' -- Filter for Magic Eden marketplace
         AND n.succeeded = TRUE -- Ensure the transaction succeeded
-        -- {% if is_incremental() %}
-        --     and t.block_timestamp >= (select dateadd('day', -3, max(date)) from {{ this }})
-        -- {% else %}
-        --     and DATE(n.block_timestamp) >= '2020-03-16'
-        -- {% endif %}
         {% if is_incremental() %}
             AND t.block_timestamp >= (SELECT DATEADD(DAY, -3, MAX(date)) FROM {{ this }})
         {% else %}

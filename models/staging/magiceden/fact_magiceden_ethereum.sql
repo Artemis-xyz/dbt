@@ -7,20 +7,20 @@
 
 SELECT 
     DATE(BLOCK_TIMESTAMP) AS date,
-    'ethereum' as chain,
-    SUM(PRICE_USD) AS daily_trading_volume_usd,
-    COUNT(DISTINCT SELLER_ADDRESS) + COUNT(DISTINCT BUYER_ADDRESS) AS active_wallets,
-    COUNT(DISTINCT PROJECT_NAME) AS collections_transacted,
-    COUNT(*) AS total_trades,
-    SUM(TOTAL_FEES_USD) AS total_fees_usd,
-    SUM(PLATFORM_FEE_USD) AS total_platform_fees,
-    SUM(CREATOR_FEE_USD) AS total_creator_fees
+    tx_hash,
+    'ethereum' AS chain,
+    PRICE_USD AS daily_trading_volume_usd,
+    CAST(2 AS NUMERIC) AS active_wallets,
+    CAST(1 AS NUMERIC) AS collections_transacted,
+    CAST(1 AS NUMERIC) AS total_trades,
+    TOTAL_FEES_USD AS total_fees_usd,
+    PLATFORM_FEE_USD AS total_platform_fees,
+    CREATOR_FEE_USD AS total_creator_fees
 FROM 
     ETHEREUM_FLIPSIDE.NFT.EZ_NFT_SALES
 WHERE 
-    PLATFORM_NAME ILIKE 'magic eden%' AND TOTAL_FEES_USD != 0
+    PLATFORM_NAME ILIKE 'magic eden%' 
+    AND TOTAL_FEES_USD != 0
     AND DATE(BLOCK_TIMESTAMP) >= '2024-2-6'
-GROUP BY 
-    1
-ORDER BY
-    1 DESC
+ORDER BY 
+    DATE(BLOCK_TIMESTAMP) DESC, tx_hash
