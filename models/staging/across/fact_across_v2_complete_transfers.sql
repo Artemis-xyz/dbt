@@ -1,4 +1,4 @@
-{{config(materialized='table', unique_key=['src_tx_hash', 'dst_tx_hash'])}}
+{{config(materialized='incremental', unique_key=['deposit_id', 'origin_chain_id', 'dst_tx_hash'], snowflake_warehouse="ACROSS_V2")}}
 
 with filled_relay_events as (
     select
@@ -19,7 +19,7 @@ with filled_relay_events as (
         , chain as dst_chain
     from {{ref('fact_across_v2_filledrelay')}}
     {% if is_incremental() %}
-        where block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+        where block_timestamp >= (select dateadd('day', -3, least(max(src_block_timestamp), max(dst_block_timestamp))) from {{ this }})
     {% endif %}
 )
 , funds_deposited_events as (
@@ -39,7 +39,7 @@ with filled_relay_events as (
         , chain as src_chain
     from {{ref('fact_across_v2_fundsdeposited')}}
     {% if is_incremental() %}
-        where block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+        where block_timestamp >= (select dateadd('day', -3, least(max(src_block_timestamp), max(dst_block_timestamp)) ) from {{ this }})
     {% endif %}
 )
 select

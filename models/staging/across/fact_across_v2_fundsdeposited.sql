@@ -1,4 +1,4 @@
-{{config(materialized='table', unique_key=['tx_hash', 'event_index'])}}
+{{config(materialized='incremental', unique_key=['tx_hash', 'chain', 'event_index'], snowflake_warehouse="ACROSS_V2")}}
 
 ({{ across_v2_decode_funds_deposited('base', '0x09aea4b2242abc8bb4bb78d537a67a245a7bec64') }})
 union all
