@@ -31,7 +31,7 @@ with tvl as (
 , token_holders as (
     select
         date,
-        total_holder_count
+        token_holder_count
     from {{ ref('fact_liquity_token_holders') }}
     group by 1
 )
@@ -51,7 +51,7 @@ select
     os.outstanding_supply,
     fr.revenue_usd as fees,
     fr.revenue_usd as revenue,
-    th.total_holder_count,
+    th.token_holder_count,
     md.price,
     md.market_cap,
     md.fdmc,
