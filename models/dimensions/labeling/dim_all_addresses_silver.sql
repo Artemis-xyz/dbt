@@ -78,12 +78,12 @@ distinct_all_chains AS (
 )
 
 SELECT 
-    TRIM(ra.address) AS address,
+    COALESCE(ua.address, TRIM(ra.address)) AS address,
     ra.transaction_trace_type AS transaction_trace_type,
     ra.address_type AS address_type,
-    nm.metadata AS metadata,
+    COALESCE(OBJECT_CONSTRUCT('name', ua.name), nm.metadata, NULL) AS metadata,
     nm.namespace AS namespace,
-    ra.chain AS chain,
+    COALESCE(ua.chain, ra.chain, NULL) AS chain,
     ac.total_gas AS total_gas,
     ac.total_gas_usd AS total_gas_usd,
     ac.total_transactions AS total_transactions,
@@ -99,4 +99,6 @@ LEFT JOIN pc_dbt_db.prod.dim_geo_labels geo
     ON ra.address = geo.address AND ra.chain = geo.chain
 LEFT JOIN deduped_labeled_name_metadata nm
     ON ra.address = nm.address AND ra.chain = nm.chain
+FULL OUTER JOIN pc_dbt_db.prod.uploaded_labeled_addresses ua
+    ON ra.address = ua.address
 
