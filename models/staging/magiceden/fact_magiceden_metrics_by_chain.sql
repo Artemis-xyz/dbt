@@ -1,29 +1,31 @@
 SELECT
     date,
-    tx_hash,
     'ethereum' AS chain,
-    daily_trading_volume_usd,
-    active_wallets,
-    collections_transacted,
-    total_trades,
-    total_platform_fees,
-    total_creator_fees,
-    total_fees_usd
+    SUM(trading_volume)as daily_trading_volume,
+    SUM(active_wallets) as active_wallets,
+    SUM(collections_transacted) as collections_transacted,
+    SUM(total_trades) as total_trades,
+    SUM(total_platform_fees) as total_platform_fees,
+    SUM(total_creator_fees) as total_creator_fees,
+    SUM(total_fees_usd) as total_fees_usd
 FROM 
-    {{ ref('fact_magiceden_ethereum') }}
+    {{ ref('fact_magiceden_ethereum_transactions') }}
+GROUP BY
+    1
 
 UNION ALL
 
 SELECT
     date,
-    tx_id,
     'solana' as chain,
-    daily_trading_volume_usd,
-    active_wallets,
-    collections_transacted,
-    total_trades,
-    total_platform_fees,
-    total_creator_fees,
-    total_fees_usd
+    SUM(trading_volume) as daily_trading_volume,
+    SUM(active_wallets) as active_wallets,
+    SUM(collections_transacted) as collections_transacted,
+    SUM(total_trades) as total_trades,
+    SUM(total_platform_fees) as total_platform_fees,
+    SUM(total_creator_fees) as total_creator_fees,
+    SUM(total_fees_usd) as total_fees_usd
 FROM 
-    {{ ref('fact_magiceden_solana') }}
+    {{ ref('fact_magiceden_solana_transactions') }}
+GROUP BY
+    1 

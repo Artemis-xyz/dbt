@@ -16,7 +16,7 @@ WITH date_spine AS (
 magiceden_metrics AS (
     SELECT
         date,
-        SUM(daily_trading_volume_usd) AS daily_trading_volume,
+        SUM(daily_trading_volume) AS daily_trading_volume,
         SUM(active_wallets) AS dau, 
         SUM(collections_transacted) AS collections_transacted,
         SUM(total_trades) AS txns,
