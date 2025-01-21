@@ -41,7 +41,7 @@ with
     left join distinct_sy_underlyings m on m.sy_address = f.sy_address
     left join prices p on p.date = date(f.block_timestamp) and p.token_address = m.underlying_address
     {% if chain == 'ethereum' %}    
-        where f.sy_address <> lower('0x065347C1Dd7A23Aa043e3844B4D0746ff7715246')
+        where f.sy_address not in ('0xd84e88abbe6a44a2ef9b72de9def68317d6df336', '0xab659cfa8a179fc305df3a083f1400e6a230bf15', lower('0x065347C1Dd7A23Aa043e3844B4D0746ff7715246'))
     {% endif %}
 ),
 filled_cumulative AS (
@@ -65,7 +65,7 @@ SELECT
     AVG(fc.cum_sum * p.price) AS amount_usd
 FROM filled_cumulative fc
 LEFT JOIN prices p ON p.token_address = fc.underlying_address AND fc.date = p.date
-WHERE fc.cum_sum is not null
+WHERE fc.cum_sum is not null and fc.cum_sum * p.price < 1e11 -- filter out outliers, highly unlikely any one token will have more than 100B USD in TVL.
 GROUP BY 1, 2, 3, 4
 ORDER BY 1, 3
 

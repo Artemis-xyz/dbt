@@ -15,5 +15,6 @@ from
             ('PYUSD', '2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo', 6, 'paypal-usd', 0),
             ('USDS', 'USDSwr9ApdHk5bvJKMjzff41FfuX8bSxdKcR81vTwcA', 6, 'usds', 0),
             ('USDe', 'DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT', 9, 'ethena-usde', 0),
-            ('FDUSD', '9zNQRsGLjNKwCUU5Gq5LR8beUCPzQMVMqKAi3SSZh54u', 6, 'first-digital-usd', 0)
+            ('FDUSD', '9zNQRsGLjNKwCUU5Gq5LR8beUCPzQMVMqKAi3SSZh54u', 6, 'first-digital-usd', 0),
+            ('USDY', 'A1KLoBrKBde8Ty9qtNQUtq3C2ortoC3u7twggz7sEto6', 6, 'ondo-us-dollar-yield', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)

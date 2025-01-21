@@ -29,6 +29,8 @@ with stablecoin_transfers as (
     {{ l30d_stablecoin_transfers('celo') }}
     union all
     {{ l30d_stablecoin_transfers('mantle') }}
+    union all
+    {{ l30d_stablecoin_transfers('sui') }}
 )
 select
     stablecoin_transfers.date
