@@ -12,4 +12,3 @@ select
     * 
 from
     {{ ref('fact_magiceden_metrics_by_chain') }}
-
