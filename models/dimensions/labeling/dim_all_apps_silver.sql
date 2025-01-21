@@ -1,25 +1,31 @@
 {{
     config(
-        materialized="incremental",
-        unique_key=["application", "source"],
-        incremental_strategy="merge",
+        materialized="table"
     )
 }}
 
--- there are technically two more tables:
--- dim_new_apps_post_sigma and dim_apps_post_sigma
--- but they can be handled later
-with unioned_table as (
-    SELECT namespace as application, 'dune' AS source, last_updated
-    FROM {{ ref("dim_dune_namespaces") }} where namespace is not null
-    UNION
-    SELECT namespace as application, 'sui' AS source, last_updated
-    FROM {{ ref("dim_sui_namespaces") }} where namespace is not null
-    UNION
-    SELECT namespace as application, 'flipside' AS source, last_updated
-    FROM {{ ref("dim_flipside_namespaces") }} where namespace is not null
-) 
-select * from unioned_table
-{% if is_incremental() %}
-    where last_updated > (SELECT MAX(last_updated) FROM {{ this }})
-{% endif %}
+WITH new_apps AS (
+    SELECT 
+        DISTINCT artemis_application_id 
+    FROM pc_dbt_db.prod.dim_namespace_to_application
+    WHERE artemis_application_id IS NOT NULL
+)
+SELECT
+    COALESCE(na.artemis_application_id, sil.artemis_application_id) AS artemis_application_id,
+    sil.category,
+    sil.artemis_id,
+    sil.coingecko_id,
+    sil.ecosystem_id,
+    sil.defillama_protocol_id,
+    sil.visibility,
+    coalesce(token.token_symbol, sil.symbol) as symbol,
+    coalesce(token.token_image_small, sil.icon) as symbol,
+FROM
+    {{ this }} sil
+FULL OUTER JOIN 
+    new_apps na
+ON 
+    na.artemis_application_id = sil.artemis_application_id
+LEFT JOIN
+    dim_coingecko_tokens token
+ON sil.coingecko_id = token.coingecko_token_id
