@@ -48,9 +48,9 @@ select
     dau,
     txns,
     fees_usd as fees,
-    burns_usd as burns,
+    burns_usd as revenue,
     treasury_usd as treasury_value,
-    treasury_native_balance_change as treasury_balance_native_change
+    treasury_native_balance_change as treasury_value_native_change
 from fees
 left join txns using (date)
 left join daus using (date)
