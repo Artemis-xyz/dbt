@@ -28,5 +28,6 @@ from
             ('FDUSD', '0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409', 18, 'first-digital-usd', 0),
             ('USDY', '0x96F6eF951840721AdBF46Ac996b59E0235CB985C', 18, 'ondo-us-dollar-yield', 0),
             ('USD0', '0x73a15fed60bf67631dc6cd7bc5b6e8da8190acf5', 18, 'usual-usd', 0),
-            ('USDX', '0xf3527ef8dE265eAa3716FB312c12847bFBA66Cef', 18, 'usdx-money-usdx', 0)
+            ('USDX', '0xf3527ef8dE265eAa3716FB312c12847bFBA66Cef', 18, 'usdx-money-usdx', 0),
+            ('USR', '0x66a1E37c9b0eAddca17d3662D6c05F4DECf3e110', 18, 'resolv-usr', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
