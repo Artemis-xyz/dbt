@@ -7,3 +7,5 @@ sources:
       - name: raw_hyperliquid_trading_volume
       - name: raw_hyperliquid_btc_price_data
       - name: raw_hyperliquid_eth_price_data
+      - name: raw_hyperliquid_daily_transactions
+      - name: raw_hyperliquid_fees

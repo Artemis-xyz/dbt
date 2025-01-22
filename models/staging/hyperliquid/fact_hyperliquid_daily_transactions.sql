@@ -8,7 +8,7 @@ with
 
     extracted_daily_transactions as (
         select
-            value:daily_trades as trades,
+            value:daily_trades::NUMBER as trades,
             'hyperliquid' as app,
             'hyperliquid' as chain,
             'DeFi' as category,
