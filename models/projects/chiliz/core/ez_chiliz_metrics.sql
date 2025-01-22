@@ -31,7 +31,7 @@ txns as (
     select
         date,
         burns_native,
-        burns_usd
+        revenue
     from {{ref("fact_chiliz_burns")}}
 )
 , treasury as (
@@ -48,7 +48,8 @@ select
     dau,
     txns,
     fees_usd as fees,
-    burns_usd as revenue,
+    revenue,
+    burns_native as burns_native,
     treasury_usd as treasury_value,
     treasury_native_balance_change as treasury_value_native_change
 from fees
