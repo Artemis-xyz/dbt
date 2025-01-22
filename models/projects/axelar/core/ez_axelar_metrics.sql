@@ -57,6 +57,7 @@ select
     , github_data.weekly_developers_sub_ecosystem
     , price_data.price
     , price_data.market_cap
+    , fdmc
 from crosschain_data
 left join axelar_chain_data using (date)
 left join github_data using (date)
