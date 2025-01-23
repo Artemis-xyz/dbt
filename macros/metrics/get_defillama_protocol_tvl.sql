@@ -2,7 +2,8 @@
 
 select 
     t.date, 
-    tvl
+    tvl,
+    p.name
 from pc_dbt_db.prod.fact_defillama_protocol_tvls t
 join pc_dbt_db.prod.fact_defillama_protocols p 
     on p.id = t.defillama_protocol_id 
