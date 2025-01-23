@@ -14,7 +14,7 @@ WITH new_apps AS (
         artemis_application_id,
         ARRAY_DISTINCT(ARRAY_AGG(category)) AS category
     FROM
-        {{ ref("dim_all_addresses_labeled_silver") }}
+        {{ ref("dim_all_addresses_labeled_gold") }}
     GROUP BY
         artemis_application_id
 ), augmented_applications AS (
@@ -40,7 +40,7 @@ WITH new_apps AS (
 )
 SELECT
     aa.artemis_application_id,
-    COALESCE(uc.category, aa.category) AS category,
+    ARRAY_DISTINCT(ARRAY_CAT(aa.category, uc.category)) AS category,
     aa.artemis_id,
     aa.coingecko_id,
     aa.ecosystem_id,

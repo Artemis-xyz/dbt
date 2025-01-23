@@ -6,7 +6,7 @@
     )
 }}
 
-SELECT * FROM {{ ref("dim_all_addresses_silver" )}} 
+SELECT * FROM {{ ref("dim_all_addresses_labeled_silver") }}
 {% if is_incremental() %}
     WHERE last_updated > (SELECT MAX(last_updated) FROM {{ this }})
 {% endif %}

@@ -99,6 +99,6 @@ LEFT JOIN pc_dbt_db.prod.dim_geo_labels geo
     ON ra.address = geo.address AND ra.chain = geo.chain
 LEFT JOIN deduped_labeled_name_metadata nm
     ON ra.address = nm.address AND ra.chain = nm.chain
-FULL OUTER JOIN pc_dbt_db.prod.uploaded_labeled_addresses ua
+FULL OUTER JOIN pc_dbt_db.prod.dim_manual_labeled_addresses ua
     ON ra.address = ua.address
 
