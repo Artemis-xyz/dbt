@@ -4,7 +4,7 @@
         snowflake_warehouse='STELLASWAP',
         database='STELLASWAP',
         schema='core',
-        alias='ez_metrics_by_chain'
+        alias='ez_metrics'
     )
 }}
 

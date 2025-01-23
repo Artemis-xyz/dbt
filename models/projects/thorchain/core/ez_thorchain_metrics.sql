@@ -4,7 +4,7 @@
         snowflake_warehouse='THORCHAIN',
         database='THORCHAIN',
         schema='core',
-        alias='ez_metrics_by_chain'
+        alias='ez_metrics'
     )
 }}
 
