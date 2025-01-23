@@ -43,7 +43,8 @@ with filtered_address as (
             when label_type = 'cex'
             then 'CEX'
             else null
-        end as sub_category
+        end as sub_category,
+        modified_timestamp
     from sei_flipside.core.dim_labels as labels
     union all 
     select
@@ -69,7 +70,8 @@ with filtered_address as (
             then 'Token'
             else null
         end as category,
-        null as sub_category
+        null as sub_category,
+        modified_timestamp
     from sei_flipside.core_evm.dim_contracts
 )
 select 
@@ -97,5 +99,6 @@ select
         when namespace = 'webump' or namespace = 'pallet' then 'NFT Apps'
         else category
     end as category,
-    sub_category
+    sub_category,
+    modified_timestamp as last_updated
 from filtered_address
