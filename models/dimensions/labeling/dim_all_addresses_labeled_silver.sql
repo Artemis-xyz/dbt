@@ -27,7 +27,7 @@ WITH addresses_with_namespace AS (
         a.chain,
         a.last_updated
     FROM addresses_with_namespace a
-    LEFT JOIN pc_dbt_db.prod.dim_namespace_to_application n
+    LEFT JOIN {{ source("PYTHON_LOGIC", "dim_namespace_to_application") }} n
         ON a.namespace = n.namespace
     WHERE n.artemis_application_id IS NOT NULL
 ), final AS (
@@ -40,7 +40,7 @@ WITH addresses_with_namespace AS (
         COALESCE(dmla.chain, lat.chain) AS chain,
         COALESCE(dmla.last_updated, lat.last_updated) AS last_updated
     FROM labeled_automatic_table lat
-    FULL OUTER JOIN pc_dbt_db.prod.dim_manual_labeled_addresses dmla
+    FULL OUTER JOIN {{ source("PYTHON_LOGIC", "dim_manual_labeled_addresses") }} dmla
         ON lat.address = dmla.address
 ) 
 SELECT

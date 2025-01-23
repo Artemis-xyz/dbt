@@ -7,7 +7,7 @@
 WITH new_apps AS (
     SELECT 
         DISTINCT artemis_application_id 
-    FROM pc_dbt_db.prod.dim_namespace_to_application
+    FROM {{ source("PYTHON_LOGIC", "dim_namespace_to_application") }}
     WHERE artemis_application_id IS NOT NULL
 ), updated_categories AS (
     SELECT

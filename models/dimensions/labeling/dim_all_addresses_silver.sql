@@ -14,7 +14,7 @@ WITH raw_addresses AS (
         {"table": "dim_base_all_addresses", "chain": "base"},
         {"table": "dim_bsc_all_addresses", "chain": "bsc"},
         {"table": "dim_ethereum_all_addresses", "chain": "ethereum"},
-        {"table": "landing_database.prod_landing.dim_injective_all_addresses", "chain": "injective"},
+        {"table": "dim_injective_all_addresses", "chain": "injective"},
         {"table": "dim_near_all_addresses", "chain": "near"},
         {"table": "dim_optimism_all_addresses", "chain": "optimism"},
         {"table": "dim_polygon_all_addresses", "chain": "polygon"},
@@ -24,16 +24,16 @@ WITH raw_addresses AS (
         {"table": "dim_tron_all_addresses", "chain": "tron"}
     ] %}
 
-    {% for source in sources %}
-        {% if source.chain == 'injective' %}
+    {% for sourc in sources %}
+        {% if sourc.chain == 'injective' %}
             SELECT address, transaction_trace_type, address_type::STRING, chain, last_updated
-            FROM  {{ source.table }}
+            FROM  {{ source("PROD_LANDING", sourc.table) }}
         {% else %}
-            SELECT * FROM {{ ref(source.table) }}
+            SELECT * FROM {{ ref(sourc.table) }}
         {% endif %}
 
         {% if is_incremental() %}
-            WHERE last_updated > (SELECT MAX(last_updated) FROM {{ this }} WHERE chain = '{{ source.chain }}')
+            WHERE last_updated > (SELECT MAX(last_updated) FROM {{ this }} WHERE chain = '{{ sourc.chain }}')
         {% endif %}
 
         {% if not loop.last %} UNION ALL {% endif %}
@@ -62,7 +62,7 @@ deduped_labeled_name_metadata AS (
         metadata,
         last_updated
     FROM labeled_name_metadata
-    QUALIFY ROW_NUMBER() OVER (PARTITION BY address, namespace, chain ORDER BY priority ASC) = 1
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY priority ASC) = 1
 ),
 -- This aggreates all_chains_gas_dau_txns_by_contract by distinct address + chain
 distinct_all_chains AS (
@@ -91,7 +91,7 @@ SELECT
     geo.country AS country,
     geo.region AS region,
     geo.subregion AS subregion,
-    ra.last_updated AS last_updated
+    COALESCE(ua.last_updated, ra.last_updated) AS last_updated
 FROM raw_addresses ra
 LEFT JOIN distinct_all_chains ac
     ON ra.address = ac.address AND ra.chain = ac.chain
@@ -99,6 +99,6 @@ LEFT JOIN pc_dbt_db.prod.dim_geo_labels geo
     ON ra.address = geo.address AND ra.chain = geo.chain
 LEFT JOIN deduped_labeled_name_metadata nm
     ON ra.address = nm.address AND ra.chain = nm.chain
-FULL OUTER JOIN pc_dbt_db.prod.dim_manual_labeled_addresses ua
+FULL OUTER JOIN {{ source("PYTHON_LOGIC", "dim_manual_labeled_addresses") }} ua
     ON ra.address = ua.address
 
