@@ -10,3 +10,4 @@ sources:
     tables:
       - name: dim_namespace_to_application
       - name: dim_manual_labeled_addresses
+      - name: dim_automatic_categories_map

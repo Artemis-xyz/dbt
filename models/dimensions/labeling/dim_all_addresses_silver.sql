@@ -41,16 +41,16 @@ WITH raw_addresses AS (
 ),
 -- This contains name + icon metadata grabbed from labels
 labeled_name_metadata AS (
-    SELECT address, NULL AS namespace, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 1 AS priority
+    SELECT address, NULL AS namespace, NULL AS raw_category, NULL AS raw_sub_category, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 1 AS priority
     FROM {{ source("MANUAL_STATIC_TABLES", "dim_legacy_sigma_tagged_contracts") }}
     UNION ALL
-    SELECT address, namespace, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 2 AS priority
+    SELECT address, namespace, NULL AS raw_category, NULL AS raw_sub_category, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 2 AS priority
     FROM {{ ref("dim_dune_contracts") }}
     UNION ALL
-    SELECT address, namespace, chain, OBJECT_CONSTRUCT('name', name, 'icon', icon) AS metadata, last_updated, 3 AS priority
+    SELECT address, namespace, category AS raw_category, sub_category AS raw_sub_category, chain, OBJECT_CONSTRUCT('name', name, 'icon', icon) AS metadata, last_updated, 3 AS priority
     FROM {{ ref("dim_sui_contracts") }}
     UNION ALL
-    SELECT address, namespace, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 4 AS priority
+    SELECT address, namespace, category AS raw_category, sub_category AS raw_sub_category, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 4 AS priority
     FROM {{ ref("dim_flipside_contracts") }}
 ),
 -- This contains deduped labeled_name_metadata
@@ -58,6 +58,8 @@ deduped_labeled_name_metadata AS (
     SELECT 
         address,
         namespace,
+        raw_category,
+        raw_sub_category,
         chain,
         metadata,
         last_updated
@@ -83,6 +85,8 @@ SELECT
     ra.address_type AS address_type,
     COALESCE(OBJECT_CONSTRUCT('name', ua.name), nm.metadata, NULL) AS metadata,
     nm.namespace AS namespace,
+    nm.raw_category,
+    nm.raw_sub_category,
     COALESCE(ua.chain, ra.chain, NULL) AS chain,
     ac.total_gas AS total_gas,
     ac.total_gas_usd AS total_gas_usd,
