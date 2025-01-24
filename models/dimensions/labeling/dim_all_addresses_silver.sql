@@ -47,10 +47,10 @@ labeled_name_metadata AS (
     SELECT address, namespace, NULL AS raw_category, NULL AS raw_sub_category, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 2 AS priority
     FROM {{ ref("dim_dune_contracts") }}
     UNION ALL
-    SELECT address, namespace, category AS raw_category, sub_category AS raw_sub_category, chain, OBJECT_CONSTRUCT('name', name, 'icon', icon) AS metadata, last_updated, 3 AS priority
+    SELECT address, namespace, LOWER(category) AS raw_category, sub_category AS raw_sub_category, chain, OBJECT_CONSTRUCT('name', name, 'icon', icon) AS metadata, last_updated, 3 AS priority
     FROM {{ ref("dim_sui_contracts") }}
     UNION ALL
-    SELECT address, namespace, category AS raw_category, sub_category AS raw_sub_category, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 4 AS priority
+    SELECT address, namespace, LOWER(category) AS raw_category, sub_category AS raw_sub_category, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 4 AS priority
     FROM {{ ref("dim_flipside_contracts") }}
 ),
 -- This contains deduped labeled_name_metadata

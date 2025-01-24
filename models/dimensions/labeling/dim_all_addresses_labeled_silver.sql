@@ -31,7 +31,7 @@ WITH addresses_with_namespace_and_category AS (
     FROM addresses_with_namespace_and_category a
     LEFT JOIN {{ source("PYTHON_LOGIC", "dim_namespace_to_application") }} n
         ON a.namespace = n.namespace
-    LEFT JOIN {{ source("PYTHON_LOGIC", "dim_automatic_categories_map") }} c
+    LEFT JOIN {{ source("PYTHON_LOGIC", "automatic_categories_map_seed") }} c
         ON a.raw_category = c.raw_category AND a.raw_sub_category = c.raw_sub_category
     WHERE n.artemis_application_id IS NOT NULL OR c.raw_category IS NOT NULL OR c.raw_sub_category IS NOT NULL
 ), final AS (
