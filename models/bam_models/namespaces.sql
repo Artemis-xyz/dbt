@@ -12,5 +12,5 @@ select
     case when np.category = 'Unlabeled' then null else np.category end as category,
     np.chain
 from namespaces as np
-left join {{ ref("dim_apps_gold") }} as apps on np.namespace = apps.namespace
+left join {{ ref("dim_all_apps_gold") }} as apps on np.namespace = apps.artemis_application_id
 where (visibility <> false)

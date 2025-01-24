@@ -53,13 +53,13 @@ from stablecoin_transfers
 left join {{ ref('dim_all_addresses_labeled_gold')}} t1 
     on lower(stablecoin_transfers.from_address) = lower(t1.address) 
     and lower(stablecoin_transfers.chain) = lower(t1.chain)
-left join {{ ref('dim_apps_gold')}} a1 
-    on lower(t1.app) = lower(a1.namespace)
+left join {{ ref('dim_all_apps_gold')}} a1 
+    on lower(t1.app) = lower(a1.artemis_application_id)
 left join {{ ref('dim_all_addresses_labeled_gold')}} t2 
     on lower(stablecoin_transfers.to_address) = lower(t2.address) 
     and lower(stablecoin_transfers.chain) = lower(t2.chain)
-left join {{ ref('dim_apps_gold')}} a2
-    on lower(t2.app) = lower(a2.namespace)
+left join {{ ref('dim_all_apps_gold')}} a2
+    on lower(t2.app) = lower(a2.artemis_application_id)
 left join {{ ref( "fact_coingecko_token_date_adjusted_gold") }} d
     on lower(stablecoin_transfers.coingecko_id) = lower(d.coingecko_id)
     and stablecoin_transfers.date = d.date::date

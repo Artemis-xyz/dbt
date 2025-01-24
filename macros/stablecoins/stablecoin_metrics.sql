@@ -159,7 +159,7 @@
                 , filtered_contracts.name as contract_name
                 , coalesce(filtered_contracts.name, chain_stablecoin_metrics.from_address) as contract
                 , filtered_contracts.friendly_name as application
-                , dim_apps_gold.icon as icon
+                , dim_all_apps_gold.icon as icon
                 , filtered_contracts.artemis_application_id as app
                 , case 
                     when filtered_contracts.artemis_sub_category_id = 'Market Maker' then filtered_contracts.artemis_sub_category_id
@@ -194,8 +194,8 @@
             from chain_stablecoin_metrics
             left join filtered_contracts
                 on lower(chain_stablecoin_metrics.from_address) = lower(filtered_contracts.address)
-            left join {{ref("dim_apps_gold")}} dim_apps_gold 
-                on filtered_contracts.app = dim_apps_gold.namespace
+            left join {{ref("dim_all_apps_gold")}} dim_all_apps_gold 
+                on filtered_contracts.app = dim_all_apps_gold.artemis_application_id
         )
     select
         date

@@ -5,7 +5,7 @@ with
         from {{ ref("dim_chain") }}
         union
         select distinct coingecko_id
-        from {{ ref("dim_apps_gold") }}
+        from {{ ref("dim_all_apps_gold") }}
     )
 select
     date,

@@ -153,7 +153,7 @@ create or replace secure view PC_DBT_DB.BAM.NAMESPACES(
 	VISIBILITY,
 	SYMBOL,
 	ICON
-FROM PC_DBT_DB.PROD.dim_apps_gold;
+FROM PC_DBT_DB.PROD.dim_all_apps_gold;
 
 
 -- _________                                       

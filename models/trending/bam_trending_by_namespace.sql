@@ -25,7 +25,7 @@ with
             token_image_thumb as image_thumbnail,
             token_image_small as image_small,
             cg.coingecko_token_id as coingecko_id
-        from {{ ref("dim_apps_gold") }} pn
+        from {{ ref("dim_all_apps_gold") }} pn
         left join
             {{ ref("dim_coingecko_tokens") }} cg
             on pn.coingecko_id = cg.coingecko_token_id
