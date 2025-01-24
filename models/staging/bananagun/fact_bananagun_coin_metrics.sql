@@ -34,7 +34,7 @@ transfers AS (
 daily_burns AS (
     SELECT
         date,
-        SUM(amount) * as burn_amount,
+        SUM(amount) as burn_amount,
         SUM(amount * p.price) as burn_amount_usd
     FROM transfers
     LEFT JOIN ethereum_flipside.price.ez_prices_hourly p on p.hour = date and p.token_address = contract_address
