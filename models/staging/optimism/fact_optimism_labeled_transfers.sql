@@ -12,11 +12,11 @@ with
             address, 
             name, 
             friendly_name, 
-            app, 
+            artemis_application_id AS app, 
             chain, 
-            category, 
-            sub_category
-        FROM {{ ref("dim_contracts_gold") }}
+            artemis_category_id AS category, 
+            artemis_sub_category_id AS sub_category
+        FROM {{ ref("dim_all_addresses_labeled_gold") }}
         WHERE chain = 'optimism'
     ),
     all_optimism_contracts as (

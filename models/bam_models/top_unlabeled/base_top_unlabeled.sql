@@ -1,7 +1,7 @@
 {{ config(materialized="table") }}
 with
     contracts as (
-        select address, name from {{ ref("dim_contracts_gold") }} where chain = 'base'
+        select address, name from {{ ref("dim_all_addresses_labeled_gold") }} where chain = 'base'
     )
 select t.to_address address
 from base_flipside.core.fact_transactions as t

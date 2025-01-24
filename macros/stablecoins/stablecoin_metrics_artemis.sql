@@ -22,17 +22,17 @@ with
         {% endif %} 
     ),
     filtered_contracts as (
-        select * from {{ ref("dim_contracts_gold")}} where chain = '{{ chain }}'
+        select * from {{ ref("dim_all_addresses_labeled_gold")}} where chain = '{{ chain }}'
     ),
     artemis_mev_filtered as (
         select
             st.*
-            , coalesce(dl.app,'other') as from_app
-            , coalesce(dlt.app,'other') as to_app
-            , coalesce(dl.category,'other') as from_category
-            , coalesce(dlt.category,'other') as to_category
-            , coalesce(dl.sub_category,'other') as from_sub_category
-            , coalesce(dlt.sub_category,'other') as to_sub_category
+            , coalesce(dl.artemis_application_id,'other') as from_app
+            , coalesce(dlt.artemis_application_id,'other') as to_app
+            , coalesce(dl.artemis_category_id,'other') as from_category
+            , coalesce(dlt.artemis_category_id,'other') as to_category
+            , coalesce(dl.artemis_sub_category_id,'other') as from_sub_category
+            , coalesce(dlt.artemis_sub_category_id,'other') as to_sub_category
         from stablecoin_transfers st
         left join filtered_contracts dl on lower(st.from_address) = lower(dl.address)
         left join filtered_contracts dlt on lower(st.to_address) = lower(dlt.address)

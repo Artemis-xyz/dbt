@@ -87,11 +87,11 @@ with
             address,
             contract.name,
             contract.chain,
-            contract.category,
-            contract.sub_category,
-            contract.app,
+            contract.artemis_category_id AS category,
+            contract.artemis_sub_category_id AS sub_category,
+            contract.artemis_application_id AS app,
             contract.friendly_name
-        from pc_dbt_db.prod.dim_contracts_gold as contract
+        from pc_dbt_db.prod.dim_all_addresses_labeled_gold as contract
         where chain = 'solana'
     ),
     token_contracts as (

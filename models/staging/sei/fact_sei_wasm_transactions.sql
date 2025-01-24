@@ -19,11 +19,11 @@ with
         select distinct
             address,
             contract.name,
-            contract.category,
-            contract.sub_category,
-            contract.app,
+            contract.artemis_category_id AS category,
+            contract.artemis_sub_category_id AS sub_category,
+            contract.artemis_application_id AS app,
             contract.friendly_name
-        from {{ ref("dim_contracts_gold") }} as contract
+        from {{ ref("dim_all_addresses_labeled_gold") }} as contract
         where chain = 'sei'
     ),
     prices as (

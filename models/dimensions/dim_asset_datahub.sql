@@ -2,12 +2,12 @@
 
 with
     token_apps as (
-        select app, min(category) as category from pc_dbt_db.prod.dim_contracts_gold
-        where category in ('Token', 'Tokens', 'NFT', 'ERC_1155')
-        group by app
+        select artemis_application_id as app, min(artemis_category_id) as category from pc_dbt_db.prod.dim_all_addresses_labeled_gold
+        where artemis_category_id in ('Token', 'Tokens', 'NFT', 'ERC_1155')
+        group by artemis_application_id
     ),
     unlabeled_apps as (
-        select distinct app, 'unlabeled' as category from pc_dbt_db.prod.dim_contracts_gold
+        select distinct artemis_application_id as app, 'unlabeled' as category from pc_dbt_db.prod.dim_all_addresses_labeled_gold
         where category is null
     ), 
     unlabeled_token_apps as (

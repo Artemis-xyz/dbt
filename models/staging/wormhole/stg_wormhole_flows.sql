@@ -78,9 +78,9 @@ with
     ),
 
     dim_contracts as (
-        select distinct address, chain, category
-        from {{ ref("dim_contracts_gold") }} 
-        where category is not null and chain is not null
+        select distinct address, chain, artemis_category_id AS category
+        from {{ ref("dim_all_addresses_labeled_gold") }} 
+        where artemis_category_id is not null and chain is not null
     )
 select
     t.id,

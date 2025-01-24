@@ -39,23 +39,23 @@ select
     , stablecoin_transfers.contract_address
     , stablecoin_transfers.from_address
     , t1.friendly_name as from_application
-    , t1.app as from_app
-    , t1.category as from_category
+    , t1.artemis_application_id as from_app
+    , t1.artemis_category_id as from_category
     , a1.icon as from_icon
     , stablecoin_transfers.to_address
     , t2.friendly_name as to_application
-    , t2.app as to_app
-    , t2.category as to_category
+    , t2.artemis_application_id as to_app
+    , t2.artemis_category_id as to_category
     , a2.icon as to_icon
     , inflow * {{ waterfall_stablecoin_prices('stablecoin_transfers', 'd') }} as inflow
     , transfer_volume * {{ waterfall_stablecoin_prices('stablecoin_transfers', 'd') }} as transfer_volume
 from stablecoin_transfers
-left join {{ ref('dim_contracts_gold')}} t1 
+left join {{ ref('dim_all_addresses_labeled_gold')}} t1 
     on lower(stablecoin_transfers.from_address) = lower(t1.address) 
     and lower(stablecoin_transfers.chain) = lower(t1.chain)
 left join {{ ref('dim_apps_gold')}} a1 
     on lower(t1.app) = lower(a1.namespace)
-left join {{ ref('dim_contracts_gold')}} t2 
+left join {{ ref('dim_all_addresses_labeled_gold')}} t2 
     on lower(stablecoin_transfers.to_address) = lower(t2.address) 
     and lower(stablecoin_transfers.chain) = lower(t2.chain)
 left join {{ ref('dim_apps_gold')}} a2
