@@ -33,7 +33,7 @@ WITH addresses_with_namespace_and_category AS (
         ON a.namespace = n.namespace
     LEFT JOIN {{ source("PYTHON_LOGIC", "automatic_categories_map_seed") }} c
         ON a.raw_category = c.raw_category AND a.raw_sub_category = c.raw_sub_category
-    WHERE n.artemis_application_id IS NOT NULL OR c.raw_category IS NOT NULL OR c.raw_sub_category IS NOT NULL
+    WHERE n.artemis_application_id IS NOT NULL 
 ), final AS (
     SELECT
         COALESCE(dmla.address, lat.address) AS address,
@@ -52,8 +52,8 @@ SELECT
     name,
     INITCAP(REPLACE(name, '_', ' ')) as friendly_name,
     artemis_application_id,
-    category,
-    sub_category,
+    artemis_category_id,
+    artemis_sub_category_id,
     chain,
     last_updated
 FROM final
