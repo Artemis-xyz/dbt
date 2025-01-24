@@ -57,5 +57,5 @@ SELECT
     SUM("daily_txns") as daily_txns,
     SUM("fees_usd") as fees_usd
 FROM all_metrics
-GROUP BY chain, trade_date
-ORDER BY trade_date DESC
+GROUP BY chain, date
+ORDER BY date DESC
