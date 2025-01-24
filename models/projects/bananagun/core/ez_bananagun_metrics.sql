@@ -10,13 +10,13 @@
 
 WITH metrics AS (
     SELECT
-        trade_date
+        date
         , SUM(trading_volume) AS trading_volume
         , SUM(dau) AS dau
         , SUM(daily_txns) AS daily_txns
         , SUM(fees_usd) AS fees_usd
     FROM {{ ref('fact_bananagun_all_metrics') }}
-    GROUP BY trade_date
+    GROUP BY date
 )
 
 , burns AS (
@@ -27,7 +27,7 @@ WITH metrics AS (
 )
 
 SELECT
-    metrics.trade_date
+    metrics.date
     , metrics.trading_volume
     , metrics.dau
     , metrics.daily_txns
@@ -35,5 +35,5 @@ SELECT
     , metrics.fees_usd * 0.6 AS supply_side_fees
     , metrics.fees_usd * 0.4 + burns.revenue AS revenue
 FROM metrics
-LEFT JOIN burns ON metrics.trade_date = burns.date
-ORDER BY metrics.trade_date DESC
+LEFT JOIN burns ON metrics.date = burns.date
+ORDER BY metrics.date DESC

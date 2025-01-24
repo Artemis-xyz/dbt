@@ -50,8 +50,8 @@ WITH all_metrics AS (
 )
 
 SELECT
+    trade_date as date,
     chain,
-    trade_date,
     SUM("trading_volume") as trading_volume,
     SUM("dau") as dau,
     SUM("daily_txns") as daily_txns,

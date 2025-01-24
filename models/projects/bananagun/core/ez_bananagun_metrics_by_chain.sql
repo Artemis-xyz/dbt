@@ -12,4 +12,4 @@ SELECT *
 FROM {{ ref('fact_bananagun_all_metrics') }}
 
 
-ORDER BY trade_date DESC
+ORDER BY date DESC
