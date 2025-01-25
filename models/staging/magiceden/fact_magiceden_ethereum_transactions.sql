@@ -6,21 +6,22 @@
 }}
 
 SELECT 
-    DATE(BLOCK_TIMESTAMP) AS date,
-    tx_hash,
+    DATE(block_timestamp) AS date,
     'ethereum' AS chain,
-    PRICE_USD AS trading_volume,
-    CAST(2 AS NUMERIC) AS active_wallets,
-    CAST(1 AS NUMERIC) AS collections_transacted,
-    CAST(1 AS NUMERIC) AS total_trades,
-    TOTAL_FEES_USD AS total_fees_usd,
-    PLATFORM_FEE_USD AS total_platform_fees,
-    CREATOR_FEE_USD AS total_creator_fees
-FROM 
-    ETHEREUM_FLIPSIDE.NFT.EZ_NFT_SALES
+    SUM(price_usd) AS daily_trading_volume_usd,
+    COUNT(DISTINCT seller_address) + COUNT(DISTINCT buyer_address) AS active_wallets,
+    COUNT(DISTINCT project_name) AS collections_transacted,
+    COUNT(*) AS total_trades,
+    SUM(total_fees_usd) AS total_fees_usd,
+    SUM(platform_fee_usd) AS total_platform_fees,
+    SUM(creator_fee_usd) AS total_creator_fees
+FROM
+    ethereum_flipside.nft.ez_nft_sales
 WHERE 
-    PLATFORM_NAME ILIKE 'magic eden%' 
-    AND TOTAL_FEES_USD != 0
-    AND DATE(BLOCK_TIMESTAMP) >= '2024-2-6'
+    platform_name ilike 'magic eden%'
+    AND total_fees_usd != 0
+    AND DATE(block_timestamp) >= '2024-02-06'
+GROUP BY 
+    DATE(block_timestamp)
 ORDER BY 
-    DATE(BLOCK_TIMESTAMP) DESC, tx_hash
+    DATE(block_timestamp) DESC
