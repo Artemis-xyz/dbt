@@ -11,7 +11,7 @@ with
         from {{ source("PROD_LANDING", "raw_helium_new_hotspot_onboards") }}
     )
 select
-    value:date::date as date,
+    left(value:date, 10)::date as date,
     value:total_onboarded::number as device_onboards
 from
     {{ source("PROD_LANDING", "raw_helium_new_hotspot_onboards") }},

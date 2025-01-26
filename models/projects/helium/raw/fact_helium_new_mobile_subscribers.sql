@@ -11,7 +11,7 @@ with
         from {{ source("PROD_LANDING", "raw_helium_new_mobile_subscribers") }}
     )
 select
-    value:date::date as date,
+    left(value:date, 10)::date as date,
     value:subscribers::number as new_subscribers
 from
     {{ source("PROD_LANDING", "raw_helium_new_mobile_subscribers") }},
