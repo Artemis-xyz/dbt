@@ -5,3 +5,4 @@ sources:
     tables:
       - name: raw_helium_new_mobile_subscribers
       - name: raw_helium_new_hotspot_onboards
+      - name: raw_helium_mints
