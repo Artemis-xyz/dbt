@@ -32,7 +32,7 @@ select
     txns,
     aggregator_data.aggregator_multi_hop_volume as aggregator_multi_hop_volume,
     aggregator_data.aggregator_single_hop_volume as aggregator_single_hop_volume,
-    aggregator_data.unique_aggregator_traders as unique_aggregator_traders,
+    aggregator_data.unique_aggregator_traders as aggregator_unique_traders,
     price,
     market_cap,
     fdmc
