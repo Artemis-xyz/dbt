@@ -19,16 +19,17 @@ with
             m.txns,
             m.fees_native,
             m.fees_native * p.price as fees,
+            fees as total_supply_side_revenue,
             case when
                 m.date > '2023-04-01' 
-                    then fees * 0.3
+                    then fees * 0.7
                     else 0
-                end as primary_supply_side_revenue,
+                end as primary_supply_side_revenue, -- 70% of fees go to validators
             case when
                 m.date > '2023-04-01'
-                    then fees * 0.7
+                    then fees * 0.3
                     else fees
-                end as secondary_supply_side_revenue
+                end as secondary_supply_side_revenue -- 30% of fees go to app developers
         from {{ ref("fact_iotex_metrics") }} m
         left join price p on p.date = m.date
     ),
@@ -63,13 +64,14 @@ select
     metrics.dau,
     metrics.txns,
     metrics.fees,
+    metrics.total_supply_side_revenue,
     metrics.primary_supply_side_revenue,
     metrics.secondary_supply_side_revenue,
     supply.burn_usd as revenue,
     tvl.tvl,
     dex_volume.dex_volumes,
-    supply.burn,
-    supply.mints,
+    supply.burn as burns_native,
+    supply.mints as mints_native,
     supply.mints_usd,
     supply.circulating_supply
 from metrics
