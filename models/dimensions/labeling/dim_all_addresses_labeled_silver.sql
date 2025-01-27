@@ -10,8 +10,8 @@ WITH addresses_with_namespace_and_category AS (
     SELECT 
         address, 
         namespace,
-        raw_category,
-        raw_sub_category,
+        raw_external_category,
+        raw_external_sub_category,
         chain,
         last_updated
     FROM {{ ref("dim_all_addresses_gold") }}
@@ -24,15 +24,15 @@ WITH addresses_with_namespace_and_category AS (
         a.address,
         a.namespace AS name,
         n.artemis_application_id,
-        c.mapped_category AS artemis_category_id,
-        c.mapped_sub_category AS artemis_sub_category_id,
+        c.artemis_category_id,
+        c.artemis_sub_category_id,
         a.chain,
         a.last_updated
     FROM addresses_with_namespace_and_category a
     LEFT JOIN {{ source("PYTHON_LOGIC", "dim_namespace_to_application") }} n
         ON a.namespace = n.namespace
     LEFT JOIN {{ source("PYTHON_LOGIC", "automatic_categories_map_seed") }} c
-        ON a.raw_category = c.raw_category AND a.raw_sub_category = c.raw_sub_category
+        ON a.raw_external_category = c.raw_external_category AND a.raw_external_sub_category = c.raw_external_sub_category
     WHERE n.artemis_application_id IS NOT NULL 
 ), final AS (
     SELECT
