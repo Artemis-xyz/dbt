@@ -75,7 +75,7 @@ distinct_all_chains AS (
         SUM(total_gas_usd) AS total_gas_usd,
         SUM(transactions) AS total_transactions,
         ROUND(AVG(dau), 2) AS average_dau
-    FROM {{ ref("all_chains_gas_dau_txns_by_contract") }}
+    FROM pc_dbt_db.prod.all_chains_gas_dau_txns_by_contract
     GROUP BY contract_address, chain
 )
 
