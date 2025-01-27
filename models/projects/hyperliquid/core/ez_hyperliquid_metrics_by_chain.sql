@@ -35,7 +35,20 @@ with
             LAG(total_fees) OVER (PARTITION BY chain ORDER BY date ASC) AS prev_day_total_fees,
             LAG(cumulative_spot_fees) OVER (PARTITION BY chain ORDER BY date ASC) AS prev_day_spot_fees
         FROM fees_data
-)   
+    ),
+    auction_fees_data as (
+        select date, auction_fees, chain
+        from {{ ref("fact_hyperliquid_auction_fees") }}
+    ),
+    daily_burn_data as (
+        select date, daily_burn, chain
+        from {{ ref("fact_hyperliquid_daily_burn") }}
+    ),
+    daily_price_data as (
+        select date, shifted_token_price_usd as daily_price, coingecko_id as chain 
+        from {{ ref("fact_coingecko_token_date_adjusted_gold") }}
+        where coingecko_id = 'hyperliquid'
+    )
 select
     date,
     'hyperliquid' as app,
@@ -44,15 +57,22 @@ select
     trading_volume,
     unique_traders,
     trades, 
-    COALESCE(total_fees - prev_day_total_fees, total_fees) AS fees,
-    COALESCE(cumulative_spot_fees - prev_day_spot_fees, cumulative_spot_fees) AS spot_fees,
-    fees - spot_fees as perp_fees,  
+    COALESCE(total_fees, 0) - COALESCE(prev_day_total_fees, 0) AS fees,
+    COALESCE(cumulative_spot_fees, 0) - COALESCE(prev_day_spot_fees, 0) AS spot_fees,
+    COALESCE(fees, 0) - (COALESCE(spot_fees, 0) + COALESCE(auction_fees, 0)) AS perp_fees,
+    COALESCE(auction_fees, 0) AS auction_fees,
+    COALESCE(daily_burn, 0) AS daily_burn,
+    COALESCE(daily_price, 0) AS daily_price,
     -- protocol’s revenue split between HLP (supplier) and AF (holder) at a ratio of 46%:54%
-    fees * 0.46 as total_supply_side_revenue,
-    fees * 0.54 as revenue
+    COALESCE(fees, 0) * 0.46 as total_supply_side_revenue,
+    -- add daily burn back to the revenue
+    (COALESCE(fees, 0) * 0.54) + COALESCE(daily_burn * daily_price, 0) as revenue
 from unique_traders_data
 left join trading_volume_data using(date, chain)
 left join daily_transactions_data using(date, chain)
 left join fees_data using(date, chain)
 left join current_day_max using(date, chain)
+left join auction_fees_data using(date, chain)
+left join daily_burn_data using(date, chain)
+left join daily_price_data using(date, chain)
 where date < to_date(sysdate())
