@@ -29,19 +29,19 @@ with date_spine as (
     select 
         date, 
         num_swaps, 
-        num_traders 
+        unique_traders 
     from {{ ref("fact_orca_dau_txns") }}
 )
 
 select
     ds.date,
     fees_and_volume.climate_fund_fees,
-    fees_and_volume.dao_treasury_fees,
-    fees_and_volume.lp_fees,
-    fees_and_volume.total_fees,
+    fees_and_volume.dao_treasury_fees as revenue,
+    fees_and_volume.lp_fees as supply_side_revenue,
+    fees_and_volume.total_fees as fees,
     fees_and_volume.volume,
-    dau_txns.num_swaps,
-    dau_txns.num_traders
+    dau_txns.num_swaps as number_of_swaps,
+    dau_txns.unique_traders
 from date_spine ds
 left join fees_and_volume on ds.date = fees_and_volume.date
 left join dau_txns on ds.date = dau_txns.date
