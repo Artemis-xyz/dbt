@@ -1,4 +1,4 @@
-{{ config(materialized="incremental", snowflake_warehouse="SONEIUM", unique_key=["transaction_hash", "block_timestamp"]) }}
+{{ config(materialized="table", snowflake_warehouse="INK", unique_key=["transaction_hash"]) }}
 with
     raw_receipt_transactions as (
         select
@@ -80,7 +80,7 @@ with
         , parquet_raw:gateway_fee::integer as gateway_fee
         , parquet_raw:fee_currency::string as fee_currency
         , parquet_raw:gateway_fee_recipient::string as gateway_fee_recipient
-        from {{ source("PROD_LANDING", "raw_soneium_transactions_parquet") }}
+        from {{ source("PROD_LANDING", "raw_ink_transactions_parquet") }}
         {% if is_incremental() %}
             where parquet_raw:block_timestamp::timestamp_ntz >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
