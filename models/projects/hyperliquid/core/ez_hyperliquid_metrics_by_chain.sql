@@ -48,8 +48,8 @@ select
     COALESCE(cumulative_spot_fees - prev_day_spot_fees, cumulative_spot_fees) AS spot_fees,
     fees - spot_fees as perp_fees,  
     -- protocol’s revenue split between HLP (supplier) and AF (holder) at a ratio of 46%:54%
-    fees * 0.46 as supplier_fees,
-    fees * 0.54 as holder_fees
+    fees * 0.46 as total_supply_side_revenue,
+    fees * 0.54 as revenue
 from unique_traders_data
 left join trading_volume_data using(date, chain)
 left join daily_transactions_data using(date, chain)
