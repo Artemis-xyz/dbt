@@ -4,7 +4,7 @@
         unique_key="tx_hash",
     )
 }}
-select
+select distinct
     avro_raw:hash::string as tx_hash
     , avro_raw:trace_id::string as trace_id
     , avro_raw:now::timestamp as block_timestamp 
