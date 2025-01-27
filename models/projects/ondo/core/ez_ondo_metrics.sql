@@ -35,3 +35,4 @@ select
 from date_spine ds
 left join fees on ds.date = fees.date
 left join tvl on ds.date = tvl.date
+where ds.date < to_date(sysdate())
