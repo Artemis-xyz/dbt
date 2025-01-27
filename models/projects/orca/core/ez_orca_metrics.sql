@@ -12,7 +12,7 @@ with date_spine as (
     select
         date
     from {{ ref("dim_date_spine") }}
-    where date between '2023-01-26' and to_date(sysdate())
+    where date between '2021-04-15' and to_date(sysdate())
 )
 
 , fees_and_volume as (
@@ -32,6 +32,10 @@ with date_spine as (
         unique_traders 
     from {{ ref("fact_orca_dau_txns") }}
 )
+, tvl as (
+    select t.date, t.tvl from {{ ref("fact_defillama_protocol_tvls") }} t
+    join {{ ref("fact_defillama_protocols") }} p on p.id = t.defillama_protocol_id and p.name = 'Orca'
+)
 
 select
     ds.date,
@@ -41,7 +45,12 @@ select
     fees_and_volume.total_fees as fees,
     fees_and_volume.volume,
     dau_txns.num_swaps as number_of_swaps,
-    dau_txns.unique_traders
+    dau_txns.unique_traders,
+    COALESCE(tvl.tvl, 
+        last_value(tvl ignore nulls) over (
+            order by date desc rows between unbounded preceding and current row
+        )) as tvl
 from date_spine ds
-left join fees_and_volume on ds.date = fees_and_volume.date
-left join dau_txns on ds.date = dau_txns.date
+left join fees_and_volume using (date)
+left join dau_txns using (date)
+left join tvl using (date)
