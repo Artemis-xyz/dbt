@@ -1,4 +1,15 @@
-{{config(materialized='table', unique_key=['tx_hash', 'chain', 'event_index'], snowflake_warehouse="ACROSS")}}
+{{
+    config (
+        materialized="table",
+        snowflake_warehouse="ACROSS",
+        database="across",
+        schema="raw",
+        alias="ez_complete_bridge_transfers",
+        unique_key=['tx_hash', 'chain', 'event_index'],
+    )
+}}
+
+
 SELECT    
     src_messaging_contract_address
     , src_block_timestamp
@@ -18,7 +29,7 @@ SELECT
     , destination_chain_id
     , destination_token
     , origin_chain_id
-    , src_realized_lp_fee_pct as realized_lp_fee_pct
+    , realized_lp_fee_pct
     , dst_relayer_fee_pct
     , dst_message
     , dst_chain

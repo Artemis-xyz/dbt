@@ -18,7 +18,7 @@ select
     , destination_chain_id
     , destination_token
     , origin_chain_id
-    , src_realized_lp_fee_pct as realized_lp_fee_pct
+    , realized_lp_fee_pct
     , dst_relayer_fee_pct
     , dst_message
     , dst_chain
@@ -47,7 +47,7 @@ select
     , destination_chain_id
     , destination_token
     , origin_chain_id
-    , src_realized_lp_fee_pct as realized_lp_fee_pct
+    , realized_lp_fee_pct
     , dst_relayer_fee_pct
     , dst_message
     , dst_chain
