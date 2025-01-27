@@ -8,7 +8,7 @@
 SELECT 
     DATE(block_timestamp) AS date,
     'ethereum' AS chain,
-    SUM(price_usd) AS daily_trading_volume_usd,
+    SUM(price_usd) AS trading_volume,
     COUNT(DISTINCT seller_address) + COUNT(DISTINCT buyer_address) AS active_wallets,
     COUNT(DISTINCT project_name) AS collections_transacted,
     COUNT(*) AS total_trades,
