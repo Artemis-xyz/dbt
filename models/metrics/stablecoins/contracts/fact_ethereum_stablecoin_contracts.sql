@@ -30,5 +30,6 @@ from
             ('USD0', '0x73a15fed60bf67631dc6cd7bc5b6e8da8190acf5', 18, 'usual-usd', 0),
             ('USDX', '0xf3527ef8dE265eAa3716FB312c12847bFBA66Cef', 18, 'usdx-money-usdx', 0),
             ('USR', '0x66a1E37c9b0eAddca17d3662D6c05F4DECf3e110', 18, 'resolv-usr', 0),
-            ('TUSD', '0x0000000000085d4780B73119b644AE5ecd22b376', 18, 'true-usd', 0)
+            ('TUSD', '0x0000000000085d4780B73119b644AE5ecd22b376', 18, 'true-usd', 0),
+            ('FRAX', '0x853d955acef822db058eb8505911ed77f175b99e', 18, 'frax', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
