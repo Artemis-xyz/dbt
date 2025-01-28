@@ -12,7 +12,7 @@ WITH new_apps AS (
 ), updated_categories AS (
     SELECT
         artemis_application_id,
-        ARRAY_DISTINCT(ARRAY_AGG(artemis_category_id)) AS artemis_category_id
+        ARRAY_DISTINCT(ARRAY_AGG(DISTINCT artemis_category_id)) AS artemis_category_id
     FROM
         {{ ref("dim_all_addresses_labeled_gold") }}
     GROUP BY

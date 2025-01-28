@@ -3,6 +3,7 @@
         materialized="incremental",
         unique_key=["address", "chain"],
         incremental_strategy="merge",
+        snowflake_warehouse='ANALYTICS_XL'
     )
 }}
 
@@ -58,13 +59,34 @@ deduped_labeled_name_metadata AS (
     SELECT 
         address,
         namespace,
-        raw_external_category,
-        raw_external_sub_category,
+        LOWER(REPLACE(raw_external_category, ' ', '_')) AS raw_external_category,
+        LOWER(REPLACE(raw_external_sub_category, ' ', '_')) AS raw_external_sub_category,
         chain,
         metadata,
         last_updated
     FROM labeled_name_metadata
     QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY priority ASC) = 1
+),
+-- This updates metadata with specific contract/wallet type if labeled
+deduped_labeled_name_metadata_with_types AS (
+    SELECT 
+        address,
+        namespace,
+        raw_external_category,
+        raw_external_sub_category,
+        chain,
+        CASE 
+            WHEN raw_external_sub_category IN ('nf_token_contract', 'staking_contract', 'token_contract', 'general_contract', 'swap_contract', 'aggregator_contract', 'mint_contract', 'airdrop_contract') THEN OBJECT_INSERT(metadata, 'smart_contract_type', raw_external_sub_category, FALSE)
+            WHEN raw_external_sub_category = 'token_address' THEN OBJECT_INSERT(metadata, 'smart_contract_type', 'token_contract', FALSE)
+            WHEN raw_external_sub_category = 'token_distribution' THEN OBJECT_INSERT(metadata, 'smart_contract_type', 'distribution_contract', FALSE)
+            WHEN raw_external_sub_category = 'swap_router' THEN OBJECT_INSERT(metadata, 'smart_contract_type', 'swap_contract', FALSE)
+            WHEN raw_external_sub_category IN ('fee_wallet', 'hot_wallet', 'cold_wallet', 'deposit_wallet') THEN OBJECT_INSERT(metadata, 'eoa_type', raw_external_sub_category, FALSE)
+            WHEN raw_external_sub_category = 'donation_address' THEN OBJECT_INSERT(metadata, 'eoa_type', 'donation_wallet', FALSE)
+            WHEN raw_external_sub_category = 'contract_deployer' THEN OBJECT_INSERT(metadata, 'eoa_type', 'deployer_wallet', FALSE)
+            ELSE metadata
+        END AS metadata,
+        last_updated
+    FROM deduped_labeled_name_metadata
 ),
 -- This aggreates all_chains_gas_dau_txns_by_contract by distinct address + chain
 distinct_all_chains AS (
@@ -85,8 +107,8 @@ SELECT
     ra.address_type AS address_type,
     COALESCE(OBJECT_CONSTRUCT('name', ua.name), nm.metadata, NULL) AS metadata,
     nm.namespace AS namespace,
-    LOWER(REPLACE(nm.raw_external_category, ' ', '_')) AS raw_external_category,
-    LOWER(REPLACE(nm.raw_external_sub_category, ' ', '_')) AS raw_external_sub_category,
+    nm.raw_external_category,
+    nm.raw_external_sub_category,
     COALESCE(ua.chain, ra.chain, NULL) AS chain,
     ac.total_gas AS total_gas,
     ac.total_gas_usd AS total_gas_usd,
@@ -101,7 +123,7 @@ LEFT JOIN distinct_all_chains ac
     ON ra.address = ac.address AND ra.chain = ac.chain
 LEFT JOIN pc_dbt_db.prod.dim_geo_labels geo
     ON ra.address = geo.address AND ra.chain = geo.chain
-LEFT JOIN deduped_labeled_name_metadata nm
+LEFT JOIN deduped_labeled_name_metadata_with_types nm
     ON ra.address = nm.address AND ra.chain = nm.chain
 FULL OUTER JOIN {{ source("PYTHON_LOGIC", "dim_manual_labeled_addresses") }} ua
     ON ra.address = ua.address
