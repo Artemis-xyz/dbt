@@ -38,6 +38,8 @@ select
     fundamental_data.dau as dau,
     fundamental_data.wau as wau,
     fundamental_data.mau as mau,
+    fundamental_data.returning_users as returning_users,
+    fundamental_data.new_users as new_users,
     fundamental_data.ledgers_closed as ledgers_closed,
     stablecoin_tvl.stablecoin_mc,
     rwa_tvl.rwa_tvl,
