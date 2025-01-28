@@ -18,10 +18,8 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle") }})
 , treasury_data as (
     SELECT   
         date,
-        sum(native_balance) as native_balance,
-        sum(native_balance) - lag(sum(native_balance)) over (order by date) as native_balance_change,
-        sum(usd_balance) as usd_balance,
-        sum(usd_balance) - lag(sum(usd_balance)) over (order by date) as usd_balance_change
+        sum(native_balance) as treasury_value_native,
+        sum(native_balance) - lag(sum(native_balance)) over (order by date) as treasury_value_native_change,
     FROM {{ ref("fact_mantle_treasury_balance") }}
     WHERE token = 'MNT'
     GROUP BY 1
@@ -49,6 +47,8 @@ select
     , avg_txn_fee
     , tvl
     , dex_volumes
+    , treasury_data.treasury_value_native
+    , treasury_data.treasury_value_native_change
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
@@ -62,4 +62,5 @@ left join defillama_data using (date)
 left join price_data using (date)
 left join expenses_data using (date)
 left join rolling_metrics using (date)
+left join treasury_data using (date)
 where fundamental_data.date < to_date(sysdate())
