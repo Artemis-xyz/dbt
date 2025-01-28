@@ -16,8 +16,8 @@ SELECT
     , src_tx_hash
     , src_event_index
     , src_amount
-    , src_relayer_fee_pct
     , src_chain
+    , origin_chain_id
     , origin_token
     , dst_messaging_contract_address
     , dst_block_timestamp
@@ -28,9 +28,6 @@ SELECT
     , recipient
     , destination_chain_id
     , destination_token
-    , origin_chain_id
-    , realized_lp_fee_pct
-    , dst_relayer_fee_pct
     , dst_message
     , dst_chain
     , deposit_id
