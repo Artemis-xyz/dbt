@@ -1,0 +1,6 @@
+sources:
+  - name: SEI_FLIPSIDE
+    schema: GOV
+    database: SEI_FLIPSIDE
+    tables:
+      - name: fact_staking_rewards
