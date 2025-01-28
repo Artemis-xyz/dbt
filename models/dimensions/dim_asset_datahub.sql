@@ -26,14 +26,14 @@ with
         select distinct namespace as app_namespace
         from {{ ref("all_chains_gas_dau_txns_by_namespace") }}
         union
-        select distinct namespace as app_namespace
-        from {{ ref("dim_apps_gold") }}
+        select distinct artemis_application_id as app_namespace
+        from {{ ref("dim_all_apps_gold") }}
         where artemis_id is not null
     ),
     asset_table as (
         select
             parent_apps.app_namespace,
-            friendly_name as app_name,
+            INITCAP(REPLACE(parent_apps.app_namespace, '_', ' ')) as app_name,
             null as chain_name,
             artemis_id,
             coingecko_id,
@@ -53,8 +53,8 @@ with
             sub_category
         from parent_apps
         left join
-            {{ ref("dim_apps_gold") }} as app_gold
-            on parent_apps.app_namespace = app_gold.namespace
+            {{ ref("dim_all_apps_gold") }} as app_gold
+            on parent_apps.app_namespace = app_gold.artemis_application_id
         left join unlabeled_token_apps
             on parent_apps.app_namespace = unlabeled_token_apps.app
         union
