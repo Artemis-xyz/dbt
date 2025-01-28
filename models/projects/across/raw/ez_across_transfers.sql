@@ -36,3 +36,5 @@ SELECT
     , version
 FROM 
     {{ ref('fact_across_complete_transfers') }}
+WHERE 
+    src_block_timestamp <= to_date(sysdate())
