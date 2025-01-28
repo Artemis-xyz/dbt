@@ -40,7 +40,7 @@ WITH new_apps AS (
 )
 SELECT
     aa.artemis_application_id,
-    ARRAY_DISTINCT(ARRAY_CAT(aa.artemis_category_id, uc.artemis_category_id)) AS artemis_category_id,
+    ARRAY_DISTINCT(ARRAY_CAT(aa.artemis_category_id, COALESCE(uc.artemis_category_id, ARRAY_CONSTRUCT()))) AS artemis_category_id,
     aa.artemis_id,
     aa.coingecko_id,
     aa.ecosystem_id,
