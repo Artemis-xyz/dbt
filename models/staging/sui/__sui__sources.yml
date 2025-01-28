@@ -15,3 +15,4 @@ sources:
       - name: ez_sui_metrics_by_category
       - name: raw_sui_transfers_parquet
       - name: raw_sui_balances_parquet
+      - name: raw_sui_epoch_data
