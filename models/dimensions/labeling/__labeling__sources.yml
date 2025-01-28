@@ -1,0 +1,13 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING  
+    database: LANDING_DATABASE
+    tables:
+      - name: dim_injective_all_addresses
+  - name: PYTHON_LOGIC
+    schema: PROD
+    database: PC_DBT_DB
+    tables:
+      - name: dim_namespace_to_application
+      - name: dim_manual_labeled_addresses
+      - name: automatic_categories_map_seed

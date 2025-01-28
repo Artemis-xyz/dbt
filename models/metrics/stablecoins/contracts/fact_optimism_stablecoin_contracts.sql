@@ -12,5 +12,6 @@ from
                 'bridged-usd-coin-optimism',
                 13913880
             ),
-            ('USDT', '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58', 6, 'tether', 8064094)
+            ('USDT', '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58', 6, 'tether', 8064094),
+            ('FRAX', '0x2e3d870790dc77a83dd1d18184acc7439a53f475', 18, 'frax', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
