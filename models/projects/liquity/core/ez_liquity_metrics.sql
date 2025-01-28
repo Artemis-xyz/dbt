@@ -4,7 +4,7 @@
         snowflake_warehouse='LIQUITY',
         database='LIQUITY',
         schema='core',
-        alias='ez_liquity_metrics'
+        alias='ez_metrics'
     )
 }}
 
@@ -33,7 +33,6 @@ with tvl as (
         date,
         token_holder_count
     from {{ ref('fact_liquity_token_holders') }}
-    group by 1
 )
 , market_data as (
     {{ get_coingecko_metrics('liquity') }}
