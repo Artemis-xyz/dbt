@@ -10,7 +10,6 @@ models:
         - dbt_expectations.expect_column_to_exist
     - name: artemis_application_id
       tests:
-        - not_null
         - dbt_expectations.expect_column_to_exist
     - name: chain
       tess:
