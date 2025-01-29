@@ -77,7 +77,8 @@ with
             high_sleep_users,
             sybil_users,
             non_sybil_users
-        from {{ ref("all_chains_gas_dau_txns_by_chain_v2") }} as bam_by_chain
+        from {{ ref("all_chains_gas_dau_txns_by_chain") }} as bam_by_chain
+        where chain = 'arbitrum'
     ),
     app_coingecko as (
         select
@@ -97,7 +98,7 @@ select
         '|',
         coalesce(cast(bam.sub_category as string), '_this_is_null_'),
         '|',
-        coalesce(cast(bam.chain as string), '_this_is_null_'),
+        coalesce(cast(bam.chain as string), '_this_is_null_')
         -- '|',
         -- coalesce(cast(bam.date as string), '_this_is_null_')
     ) as unique_id,

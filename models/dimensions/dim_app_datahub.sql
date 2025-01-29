@@ -10,4 +10,4 @@ select
     visibility,
     symbol as app_symbol,
     icon as app_icon,
-from dim_all_apps_gold
+from {{ ref("dim_all_apps_gold") }}

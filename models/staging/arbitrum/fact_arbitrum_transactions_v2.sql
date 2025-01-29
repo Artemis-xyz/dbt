@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key="tx_hash",
-        snowflake_warehouse="BAM_TRANSACTION_SM",
+        snowflake_warehouse="BAM_TRANSACTION_XLG",
     )
 }}
 

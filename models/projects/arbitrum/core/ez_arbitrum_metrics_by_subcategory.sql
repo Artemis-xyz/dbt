@@ -2,7 +2,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="ARBITRUM",
+        snowflake_warehouse="ARBITRUM_LG",
         database="arbitrum",
         schema="core",
         alias="ez_metrics_by_subcategory",
