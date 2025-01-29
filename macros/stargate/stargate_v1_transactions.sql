@@ -1,4 +1,4 @@
-{% macro rolling_active_addresses(chain) %}
+{% macro stargate_v1_transactions(chain) %}
 
 -- TODO add input token column
 with
