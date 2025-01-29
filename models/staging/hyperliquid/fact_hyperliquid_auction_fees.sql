@@ -15,7 +15,6 @@ with
             'DeFi' as category,
             date(value:time) as date
         from latest_source_json, lateral flatten(input => parse_json(source_json))
-        where date(value:time) >= '2024-11-17'
     )
 select
     name,

@@ -22,19 +22,26 @@ with
         from {{ ref("fact_hyperliquid_daily_transactions") }}
     ),
     fees_data as (
-        select date_col as date, max_by(fees, date)/1e6 as total_fees, max_by(spot_fees, date)/1e6 as cumulative_spot_fees, chain
-        from {{ ref("fact_hyperliquid_fees") }}
-        group by date, chain
-    ),
-    current_day_max AS (
         SELECT 
-            date,
-            chain,
-            total_fees,
-            cumulative_spot_fees,
-            LAG(total_fees) OVER (PARTITION BY chain ORDER BY date ASC) AS prev_day_total_fees,
-            LAG(cumulative_spot_fees) OVER (PARTITION BY chain ORDER BY date ASC) AS prev_day_spot_fees
-        FROM fees_data
+        date(timestamp) AS date, 
+        chain,
+        max_by(fees, timestamp) / 1e6 AS total_fees,
+        max_by(spot_fees, timestamp) / 1e6 AS cumulative_spot_fees,
+        CASE 
+            WHEN date(timestamp) >= '2024-12-23' THEN 
+                total_fees - COALESCE(LAG(total_fees) OVER (PARTITION BY chain ORDER BY date ASC), 0)
+            ELSE NULL
+        END AS trading_fees,
+        CASE 
+            WHEN date(timestamp) >= '2024-12-23' THEN 
+                cumulative_spot_fees - COALESCE(LAG(cumulative_spot_fees) OVER (PARTITION BY chain ORDER BY date ASC), 0)
+            ELSE NULL
+        END AS spot_fees,
+        COALESCE(total_fees - COALESCE(LAG(total_fees) OVER (PARTITION BY chain ORDER BY date ASC), 0), 0) 
+        - COALESCE(cumulative_spot_fees - COALESCE(LAG(cumulative_spot_fees) OVER (PARTITION BY chain ORDER BY date ASC), 0), 0
+        ) AS perp_fees
+    FROM {{ ref("fact_hyperliquid_fees") }}
+    group by date(timestamp), chain
     ),
     auction_fees_data as (
         select date, auction_fees, chain
@@ -57,12 +64,9 @@ select
     trading_volume,
     unique_traders,
     trades, 
-    COALESCE(total_fees, 0) - COALESCE(prev_day_total_fees, 0) AS fees,
-    COALESCE(cumulative_spot_fees, 0) - COALESCE(prev_day_spot_fees, 0) AS spot_fees,
-    CASE 
-        WHEN COALESCE(fees, 0) = 0 THEN 0
-        ELSE COALESCE(fees, 0) - (COALESCE(spot_fees, 0) + COALESCE(auction_fees, 0))
-    END AS perp_fees,
+    COALESCE(trading_fees, 0) + COALESCE(auction_fees, 0) AS fees,
+    COALESCE(spot_fees, 0) AS spot_fees,
+    COALESCE(perp_fees, 0) AS perp_fees,
     COALESCE(auction_fees, 0) AS auction_fees,
     COALESCE(daily_burn, 0) AS daily_burn,
     COALESCE(daily_price, 0) AS daily_price,
@@ -74,7 +78,6 @@ from unique_traders_data
 left join trading_volume_data using(date, chain)
 left join daily_transactions_data using(date, chain)
 left join fees_data using(date, chain)
-left join current_day_max using(date, chain)
 left join auction_fees_data using(date, chain)
 left join daily_burn_data using(date, chain)
 left join daily_price_data using(date, chain)

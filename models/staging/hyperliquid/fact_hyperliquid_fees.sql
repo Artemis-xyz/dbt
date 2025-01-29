@@ -13,14 +13,14 @@ with
             'hyperliquid' as app,
             'hyperliquid' as chain,
             'DeFi' as category,
-            date(value:time) as date_col
+            value:time as timestamp
         from latest_source_json, lateral flatten(input => parse_json(source_json))
-        where date(value:time) >= '2024-12-23' 
+        where date(timestamp) >= '2024-12-22' 
     )
 select
     fees,
     spot_fees,
-    date_col,
+    timestamp,
     'hyperliquid' as app,
     'hyperliquid' as chain,
     'DeFi' as category
