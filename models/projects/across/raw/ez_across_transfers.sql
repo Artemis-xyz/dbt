@@ -37,4 +37,5 @@ SELECT
 FROM 
     {{ ref('fact_across_complete_transfers') }}
 WHERE 
-    src_block_timestamp <= to_date(sysdate())
+    (src_block_timestamp <= to_date(sysdate()) or src_block_timestamp is null)
+    and (dst_block_timestamp <= to_date(sysdate()) or dst_block_timestamp is null)
