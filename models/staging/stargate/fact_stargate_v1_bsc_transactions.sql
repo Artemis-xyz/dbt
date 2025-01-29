@@ -8,4 +8,4 @@
     )
 }}
 
-{{ stargate_v1_transactions("optimism") }}
+{{ stargate_v1_transactions("bsc") }}

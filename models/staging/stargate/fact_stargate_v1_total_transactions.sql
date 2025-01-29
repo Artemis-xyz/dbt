@@ -1,8 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="STARGATE_MD",
-        alias="fact_stargate_v1_total_transactions.sql"
+        snowflake_warehouse="STARGATE"
     )
 }}
 

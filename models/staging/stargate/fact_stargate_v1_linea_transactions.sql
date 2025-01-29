@@ -4,8 +4,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="STARGATE_MD",
-        alias="fact_stargate_v1_linea_transactions"
+        snowflake_warehouse="STARGATE"
     )
 }}
 
@@ -39,7 +38,7 @@ select
     parquet_raw:log_index event_index,
     parquet_raw:event_signature::string event_signature,
     parquet_raw:event_params event_params
-from LANDING_DATABASE.PROD_LANDING.RAW_LINEA_LOGS_PARQUET
+from {{ source("PROD_LANDING", "raw_linea_logs_parquet") }}
 where 1=1
     and parquet_raw:address::string in (select address from pools)
     and parquet_raw:event_signature::string in (select event_signature from event_signatures)
