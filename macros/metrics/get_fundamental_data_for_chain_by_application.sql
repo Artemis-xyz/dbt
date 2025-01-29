@@ -1,8 +1,8 @@
-{% macro get_fundamental_data_for_chain_by_application(chain) %}
+{% macro get_fundamental_data_for_chain_by_application(chain, model_version='') %}
     with
         min_date as (
             select min(raw_date) as start_date, from_address, app
-            from {{ chain }}.prod_raw.ez_transactions
+            from {{ chain }}.prod_raw.ez_transactions{% if model_version == 'v2' %}_v2{% endif %}
             where not equal_null(category, 'EOA') and app is not null
             group by app, from_address
         ),
@@ -17,7 +17,7 @@
                 app,
                 count(distinct from_address) as low_sleep_users,
                 count(*) as tx_n
-            from {{ chain }}.prod_raw.ez_transactions
+            from {{ chain }}.prod_raw.ez_transactions{% if model_version == 'v2' %}_v2{% endif %}
             where user_type = 'LOW_SLEEP' and app is not null
             group by user_type, raw_date, app
         ),
@@ -27,7 +27,7 @@
                 app,
                 count(distinct from_address) as sybil_users,
                 count(*) as tx_n
-            from {{ chain }}.prod_raw.ez_transactions
+            from {{ chain }}.prod_raw.ez_transactions{% if model_version == 'v2' %}_v2{% endif %}
             where engagement_type = 'sybil'
             group by engagement_type, raw_date, app
         ),
@@ -38,11 +38,12 @@
                 max(chain) as chain,
                 max(friendly_name) friendly_name,
                 max(category) category,
+                max(sub_category) as sub_category,
                 sum(tx_fee) gas,
                 sum(gas_usd) gas_usd,
                 count(*) txns,
                 count(distinct from_address) dau
-            from {{ chain }}.prod_raw.ez_transactions
+            from {{ chain }}.prod_raw.ez_transactions{% if model_version == 'v2' %}_v2{% endif %}
             where not equal_null(category, 'EOA') and app is not null
             group by raw_date, app
         )
@@ -52,6 +53,7 @@
         chain,
         friendly_name,
         category,
+        sub_category,
         gas,
         gas_usd,
         txns,
