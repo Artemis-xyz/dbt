@@ -1,0 +1,10 @@
+models:
+- name: dim_all_apps_silver
+  columns:
+    - name: artemis_application_id
+      tests:
+        - dbt_expectations.expect_column_to_exist
+        - dbt_expectations.expect_column_values_to_be_unique
+        - not_null
+
+
