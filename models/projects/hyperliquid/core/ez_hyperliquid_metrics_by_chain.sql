@@ -22,7 +22,7 @@ with
         from {{ ref("fact_hyperliquid_daily_transactions") }}
     ),
     fees_data as (
-        select date, max_by(fees, date)/1e6 as total_fees, max_by(spot_fees, date)/1e6 as cumulative_spot_fees, chain
+        select date_col as date, max_by(fees, date)/1e6 as total_fees, max_by(spot_fees, date)/1e6 as cumulative_spot_fees, chain
         from {{ ref("fact_hyperliquid_fees") }}
         group by date, chain
     ),
@@ -59,7 +59,10 @@ select
     trades, 
     COALESCE(total_fees, 0) - COALESCE(prev_day_total_fees, 0) AS fees,
     COALESCE(cumulative_spot_fees, 0) - COALESCE(prev_day_spot_fees, 0) AS spot_fees,
-    COALESCE(fees, 0) - (COALESCE(spot_fees, 0) + COALESCE(auction_fees, 0)) AS perp_fees,
+    CASE 
+        WHEN COALESCE(fees, 0) = 0 THEN 0
+        ELSE COALESCE(fees, 0) - (COALESCE(spot_fees, 0) + COALESCE(auction_fees, 0))
+    END AS perp_fees,
     COALESCE(auction_fees, 0) AS auction_fees,
     COALESCE(daily_burn, 0) AS daily_burn,
     COALESCE(daily_price, 0) AS daily_price,
