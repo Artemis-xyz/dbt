@@ -86,3 +86,4 @@ from '{{ chain }}'_flipside.core.fact_decoded_event_logs
 where 1=1
     and contract_address in (select address from pools)
     and event_name in (select name from event_names)
+{% endmacro %}
