@@ -10,7 +10,8 @@ WITH contracts AS (
         contracts.address,
         contracts.name,
         metrics.app,
-        metrics.txns,
+        -- Counting soroban txns as txns
+        metrics.soroban_txns AS txns,
         metrics.dau,
         metrics.gas,
         metrics.gas_usd,
@@ -27,7 +28,7 @@ WITH contracts AS (
         contracts.address,
         contracts.name,
         metrics.app,
-        metrics.txns,
+        metrics.soroban_txns AS txns,
         metrics.dau,
         metrics.gas,
         metrics.gas_usd
