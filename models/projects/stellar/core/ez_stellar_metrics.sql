@@ -27,7 +27,6 @@ stablecoin_tvl as (
 ), prices as ({{ get_coingecko_price_with_latest("stellar") }})
 select
     fundamental_data.date,
-    'stellar' as chain,
     fundamental_data.classic_txns AS txns,
     fundamental_data.soroban_txns AS soroban_txns,
     fundamental_data.daily_fees as fees_native,
