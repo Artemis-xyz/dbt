@@ -1,6 +1,7 @@
 {{ config(materialized="table") }}
 
 select 
+    concat(coalesce(artemis_category_id, '_this_is_null_'), '|', coalesce(artemis_sub_category_id, '_this_is_null_')) as unique_id,
     artemis_category_id,
     artemis_sub_category_id,
     initcap(replace(artemis_category_id, '_', ' ')) as category_display_name,
