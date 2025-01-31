@@ -37,10 +37,17 @@ daily_metrics AS (
         AVG(usd_value) AS avg_daily_transaction_size,
         SUM(usd_value) AS daily_volume,
         COUNT(DISTINCT depositor) AS daily_active_addresses,
-        SUM(treasury_fee) AS protocol_treasury_fee,
-        SUM(usd_value * 0.0001) AS vestg_fee,
-        SUM(usd_value * 0.0001) AS lp_fee,
-        SUM(COALESCE(treasury_fee, 0) + (usd_value * 0.0002)) AS total_fee
+        SUM(daily_active_addresses) OVER (ORDER BY transaction_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
+        AS cumulative_active_addresses,
+        SUM(treasury_fee) AS daily_protocol_treasury_fee,
+        SUM(usd_value * 0.0001) AS daily_vestg_fee,
+        SUM(usd_value * 0.0001) AS daily_lp_fee,
+        SUM(usd_value * 0.0001) + SUM(usd_value * 0.0001) AS daily_incentive_driven_fee,
+        SUM(daily_incentive_driven_fee) OVER (ORDER BY transaction_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
+        AS cumulative_incentive_driven_fee,
+        SUM(COALESCE(treasury_fee, 0) + (usd_value * 0.0002)) AS daily_total_fee,
+        SUM(daily_total_fee) OVER (ORDER BY transaction_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
+        AS cumulative_total_fee
     FROM {{source('PROD_LANDING', 'raw_stargate_data_dump')}}
     GROUP BY transaction_date
 ),
@@ -48,18 +55,28 @@ daily_metrics AS (
 -- Weekly metrics (directly from raw data)
 weekly_metrics AS (
     SELECT 
-        DATE_TRUNC('week', TRY_CAST(src_timestamp AS TIMESTAMP)) AS week_start,
-        COUNT(DISTINCT depositor) AS weekly_active_addresses
-    FROM {{source('PROD_LANDING', 'raw_stargate_data_dump')}}
+        DATE_TRUNC('week', transaction_date) AS week_start,
+        SUM(DISTINCT daily_active_addresses) AS weekly_active_addresses,
+        SUM(daily_protocol_treasury_fee) AS weekly_protocol_treasury_fee,
+        SUM(daily_vestg_fee) AS weekly_vestg_fee,
+        SUM(daily_lp_fee) AS weekly_lp_fee,
+        SUM(daily_incentive_driven_fee) AS weekly_incentive_driven_fee,
+        SUM(daily_total_fee) AS weekly_total_fee
+    FROM daily_metrics
     GROUP BY week_start
 ),
 
 -- Monthly metrics (directly from raw data)
 monthly_metrics AS (
     SELECT 
-        DATE_TRUNC('month', TRY_CAST(src_timestamp AS TIMESTAMP)) AS month_start,
-        COUNT(DISTINCT depositor) AS monthly_active_addresses
-    FROM {{source('PROD_LANDING', 'raw_stargate_data_dump')}}
+        DATE_TRUNC('month', transaction_date) AS month_start,
+        SUM(DISTINCT daily_active_addresses) AS monthly_active_addresses,
+        SUM(daily_protocol_treasury_fee) AS monthly_protocol_treasury_fee,
+        SUM(daily_vestg_fee) AS monthly_vestg_fee,
+        SUM(daily_lp_fee) AS monthly_lp_fee,
+        SUM(daily_incentive_driven_fee) AS monthly_incentive_driven_fee,
+        SUM(daily_total_fee) AS monthly_total_fee,
+    FROM daily_metrics
     GROUP BY month_start
 ),
 
@@ -71,13 +88,17 @@ daily_growth AS (
         avg_daily_transaction_size,
         daily_volume,
         daily_active_addresses,
+        cumulative_active_addresses,
         LAG(daily_transactions) OVER (ORDER BY transaction_date) AS prev_day_transactions,
         ROUND(100.0 * (daily_transactions - LAG(daily_transactions) OVER (ORDER BY transaction_date)) 
               / NULLIF(LAG(daily_transactions) OVER (ORDER BY transaction_date), 0), 2) AS daily_growth_pct,
-        protocol_treasury_fee,
-        vestg_fee,
-        lp_fee,
-        total_fee
+        daily_protocol_treasury_fee,
+        daily_vestg_fee,
+        daily_lp_fee,
+        daily_incentive_driven_fee,
+        cumulative_incentive_driven_fee,
+        daily_total_fee,
+        cumulative_total_fee
     FROM daily_metrics
 ),
 
@@ -92,31 +113,55 @@ transaction_bucket_counts AS (
         COUNT(CASE WHEN usd_value >= 100000 THEN 1 END) AS count_100K_plus
     FROM {{source('PROD_LANDING', 'raw_stargate_data_dump')}}
     GROUP BY transaction_date
+),
+
+-- Active Address Analytics (Daily, Weekly, Monthly, Cumulative)
+active_address_analytics AS (
+    SELECT 
+        d.transaction_date,
+        d.daily_active_addresses,
+        
+    FROM daily_metrics d
+    LEFT JOIN weekly_metrics w ON d.transaction_date = DATE(w.week_start)
+    LEFT JOIN monthly_metrics m ON d.transaction_date = DATE(m.month_start)
 )
 
 -- Final output with simplified GROUP BY
 SELECT 
-    d.transaction_date,
-    d.daily_transactions,
-    d.avg_daily_transaction_size,
-    d.daily_volume,
-    d.daily_active_addresses,
+    d.transaction_date as date,
+    d.daily_transactions as txns,
+    d.avg_daily_transaction_size as avg_txn_size,
+    d.daily_volume as bridge_volume,
+    d.daily_active_addresses as dau,
     COALESCE(n.new_addresses, 0) AS new_addresses,
     COALESCE(r.returning_addresses, 0) AS returning_addresses,
+    d.cumulative_active_addresses as cumulative_addresses,
     d.daily_growth_pct,
-    d.protocol_treasury_fee,
-    d.vestg_fee,
-    d.lp_fee,
-    d.total_fee,
+    d.daily_protocol_treasury_fee,
+    d.daily_vestg_fee,
+    d.daily_lp_fee,
+    d.daily_incentive_driven_fee as incentive_driven_fee,
+    d.cumulative_incentive_driven_fee as cumulative_incentive_driven_fee,
+    d.daily_total_fee as fees,
+    d.cumulative_total_fee as cumulative_fees,
     w.week_start,
     w.weekly_active_addresses,
+    w.weekly_protocol_treasury_fee,
+    w.weekly_vestg_fee,
+    w.weekly_lp_fee,
+    w.weekly_total_fee,
     m.month_start,
     m.monthly_active_addresses,
-    COALESCE(b.count_0_100, 0) AS count_0_100,
-    COALESCE(b.count_100_1K, 0) AS count_100_1K,
-    COALESCE(b.count_1K_10K, 0) AS count_1K_10K,
-    COALESCE(b.count_10K_100K, 0) AS count_10K_100K,
-    COALESCE(b.count_100K_plus, 0) AS count_100K_plus
+    m.monthly_protocol_treasury_fee,
+    m.monthly_vestg_fee,
+    m.monthly_lp_fee,
+    m.monthly_total_fee,
+    COALESCE(b.count_0_100, 0) AS txn_size_0_100,
+    COALESCE(b.count_100_1K, 0) AS txn_size_100_1k,
+    COALESCE(b.count_1K_10K, 0) AS txn_size_1k_10k,
+    COALESCE(b.count_10K_100K, 0) AS txn_size_10k_100k,
+    COALESCE(b.count_100K_plus, 0) AS txn_size_100k_plus,
+    'stargate' as chain
 FROM daily_growth d
 LEFT JOIN new_addresses n ON d.transaction_date = n.transaction_date
 LEFT JOIN returning_addresses r ON d.transaction_date = r.transaction_date

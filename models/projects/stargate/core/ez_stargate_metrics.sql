@@ -8,8 +8,39 @@
     )
 }}
 
-with
-    stargate_metrics as (
-        select * from {{ ref('fact_stargate_metrics') }}
-    )
-select * from stargate_metrics
+SELECT 
+    date,
+    'stargate' as chain,
+    txns,
+    avg_txn_size,
+    bridge_volume,
+    dau,
+    new_addresses,
+    returning_addresses,
+    cumulative_addresses,
+    daily_growth_pct,
+    daily_protocol_treasury_fee,
+    daily_vestg_fee,
+    daily_lp_fee,
+    incentive_driven_fee,
+    cumulative_incentive_driven_fee,
+    fees,
+    cumulative_fees,
+    week_start,
+    weekly_active_addresses,
+    weekly_protocol_treasury_fee,
+    weekly_vestg_fee,
+    weekly_lp_fee,
+    weekly_total_fee,
+    month_start,
+    monthly_active_addresses,
+    monthly_protocol_treasury_fee,
+    monthly_vestg_fee,
+    monthly_lp_fee,
+    monthly_total_fee,
+    txn_size_0_100,
+    txn_size_100_1k,
+    txn_size_1k_10k,
+    txn_size_10k_100k,
+    txn_size_100k_plus
+from {{ ref('fact_stargate_metrics') }}
