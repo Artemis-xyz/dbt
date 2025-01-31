@@ -3,7 +3,7 @@
         materialized="view",
         database="ton",
         schema="core",
-        name="ez_address_balances_by_token",
+        alias="ez_address_balances_by_token",
         snowflake_warehouse="TON_MD",
     )
 }}
