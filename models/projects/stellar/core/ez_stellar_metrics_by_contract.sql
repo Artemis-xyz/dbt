@@ -16,7 +16,7 @@ WITH fundamental_data AS (
 SELECT
     fundamental_data.date,
     fundamental_data.chain,
-    fundamental_data.contract_id,
+    fundamental_data.contract_address,
     fundamental_data.classic_txns AS txns,
     fundamental_data.soroban_txns AS soroban_txns,
     fundamental_data.daily_fees as gas,
