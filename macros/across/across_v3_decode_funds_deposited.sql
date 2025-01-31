@@ -64,13 +64,17 @@
 {% endmacro %}
 
 {% macro across_v3_rpc_decode_funds_deposited(chain) %}       
-    extraction_dates as (
+    with extraction_dates as (
         select
             date_trunc('day', flat_json.value:"block_timestamp"::timestamp) as date,
             max(extraction_date) as extraction_date
         from
             {{ source("PROD_LANDING", "raw_across_v3_" ~ chain ~ "_funds_deposited_events") }},
             lateral flatten(input => parse_json(source_json)) as flat_json
+        {% if is_incremental() %}
+            where
+                date_trunc('day', flat_json.value:"block_timestamp"::timestamp) >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+        {% endif %}
         group by date
         order by date
     ),
@@ -95,11 +99,15 @@
             flat_json.value:"destination_token"::string as destination_token,
             flat_json.value:"origin_chain"::string as origin_chain,
             flat_json.value:"input_token"::string as origin_token,
-            flat_json.value as decoded_log
+            null as decoded_log
         from
             {{ source("PROD_LANDING", "raw_across_v3_" ~ chain ~ "_funds_deposited_events") }},
             lateral flatten(input => parse_json(source_json)) as flat_json
-    ),
+        {% if is_incremental() %}
+            where
+                date_trunc('day', flat_json.value:"block_timestamp"::timestamp) >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+        {% endif %}
+    )
     select
         t1.contract_address as messaging_contract_address
         , t1.block_timestamp

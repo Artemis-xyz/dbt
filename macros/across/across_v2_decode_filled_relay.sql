@@ -29,13 +29,17 @@
 {% endmacro %}
 
 {% macro across_v2_rpc_decode_filled_relay(chain) %}       
-    extraction_dates as (
+    WITH extraction_dates as (
         select
             date_trunc('day', flat_json.value:"block_timestamp"::timestamp) as date,
             max(extraction_date) as extraction_date
         from
-            {{ source("PROD_LANDING", "raw_across_v2_" ~ chain ~ "_filled_relay_event") }},
+            {{ source("PROD_LANDING", "raw_across_v2_" ~ chain ~ "_filled_relay_events") }},
             lateral flatten(input => parse_json(source_json)) as flat_json
+        {% if is_incremental() %}
+            where
+                date_trunc('day', flat_json.value:"block_timestamp"::timestamp) >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+        {% endif %}
         group by date
         order by date
     ),
@@ -60,9 +64,13 @@
             flat_json.value:"realized_lp_fee_pct"::float as realized_lp_fee_pct,
             flat_json.value:"relayer_fee_pct"::float as relayer_fee_pct
         from
-            {{ source("PROD_LANDING", "raw_across_v2_" ~ chain ~ "_filled_relay_event") }},
+            {{ source("PROD_LANDING", "raw_across_v2_" ~ chain ~ "_filled_relay_events") }},
             lateral flatten(input => parse_json(source_json)) as flat_json
-    ),
+        {% if is_incremental() %}
+            where
+                date_trunc('day', flat_json.value:"block_timestamp"::timestamp) >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+        {% endif %}
+    )
     select
         t1.contract_address as messaging_contract_address,
         t1.block_timestamp,

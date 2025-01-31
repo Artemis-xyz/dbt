@@ -9,3 +9,5 @@ union all
 ({{ across_v2_decode_filled_relay('optimism', '0x59485d57eecc4058f7831f46ee83a7078276b4ae') }})
 union all
 ({{ across_v2_decode_filled_relay('polygon', '0x69b5c72837769ef1e7c164abc6515dcff217f920') }})
+union all
+({{ across_v2_rpc_decode_filled_relay('zksync') }})
