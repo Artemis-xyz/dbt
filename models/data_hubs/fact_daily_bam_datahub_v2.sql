@@ -98,9 +98,9 @@ select
         '|',
         coalesce(cast(bam.sub_category as string), '_this_is_null_'),
         '|',
-        coalesce(cast(bam.chain as string), '_this_is_null_')
-        -- '|',
-        -- coalesce(cast(bam.date as string), '_this_is_null_')
+        coalesce(cast(bam.chain as string), '_this_is_null_'),
+        '|',
+        coalesce(cast(bam.date as string), '_this_is_null_')
     ) as unique_id,
     bam.date,
     bam.app,
