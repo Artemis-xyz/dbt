@@ -42,7 +42,8 @@ with
                 then 'Bridge'
                 else null
             end as category,
-            label_subtype as sub_category
+            label_subtype as sub_category,
+            modified_timestamp as last_updated
         from {{ chain }}_flipside.core.dim_labels
     ),
     manual_filter as (
@@ -54,7 +55,8 @@ with
             case
                 when namespace = 'wormhole' then 'Bridge' else category
             end as category,
-            sub_category
+            sub_category,
+            last_updated
         from chain_labels
         where namespace is not null and namespace <> ''
     ),
@@ -65,7 +67,8 @@ with
             , name
             , namespace
             , category
-            , null as sub_category
+            , null as sub_category,
+            last_updated
         from {{ ref( token_type_identifier ~ "_token_type")}}
         union 
         select
@@ -75,10 +78,11 @@ with
             , namespace
             , category
             , sub_category
+            , last_updated
         from manual_filter
         where address not in (select address from {{ ref( token_type_identifier ~ "_token_type")}})
     )
-select address, chain, name, namespace, category, sub_category
+select address, chain, name, namespace, category, sub_category, last_updated
 from token_filter
 
 {% endmacro %}

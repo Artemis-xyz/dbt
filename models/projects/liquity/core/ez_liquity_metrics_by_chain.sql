@@ -4,7 +4,7 @@
         snowflake_warehouse='LIQUITY',
         database='LIQUITY',
         schema='core',
-        alias='ez_liquity_metrics_by_chain'
+        alias='ez_metrics_by_chain'
     )
 }}
 

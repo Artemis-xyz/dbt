@@ -15,5 +15,9 @@ from
             ('PYUSD', '2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo', 6, 'paypal-usd', 0),
             ('USDS', 'USDSwr9ApdHk5bvJKMjzff41FfuX8bSxdKcR81vTwcA', 6, 'usds', 0),
             ('USDe', 'DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT', 9, 'ethena-usde', 0),
-            ('FDUSD', '9zNQRsGLjNKwCUU5Gq5LR8beUCPzQMVMqKAi3SSZh54u', 6, 'first-digital-usd', 0)
+            ('FDUSD', '9zNQRsGLjNKwCUU5Gq5LR8beUCPzQMVMqKAi3SSZh54u', 6, 'first-digital-usd', 0),
+            ('USDY', 'A1KLoBrKBde8Ty9qtNQUtq3C2ortoC3u7twggz7sEto6', 6, 'ondo-us-dollar-yield', 0),
+            ('USD*', 'BenJy1n3WTx9mTjEvy63e8Q1j4RqUc6E4VBMz3ir4Wo6', 6, 'perena-usd', 0), -- coingecko id is a placeholder until updated
+            ('AUSD', 'AUSD1jCcCyPLybk1YnvPWsHQSrZ46dxwoMniN4N2UEB9', 6, 'agora-dollar', 0),
+            ('sUSD', 'susdabGDNbhrnCa6ncrYo81u4s9GM8ecK2UwMyZiq4X', 6, 'solayer-usd', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)

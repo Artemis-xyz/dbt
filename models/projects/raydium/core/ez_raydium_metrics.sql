@@ -103,6 +103,15 @@ with buyback_from_pair as (
     {% endif %}
 )
 
+, tvl as (
+    select 
+        t.date, 
+        avg(t.tvl) as tvl
+    from pc_dbt_db.prod.fact_defillama_protocol_tvls t
+    join pc_dbt_db.prod.fact_defillama_protocols p on p.id = t.DEFILLAMA_PROTOCOL_ID and p.name = 'Raydium'
+    group by 1  -- duplicate entry in source tvl table causing issues with incremental merge
+)
+
 , price_data as (
     select date as day
         , price
@@ -117,7 +126,7 @@ with buyback_from_pair as (
 )
 
 select 
-    coalesce(price_data.day, v.day, bfp.date, b.day) as date
+    coalesce(price_data.day, v.day, bfp.date, b.day, tvl.date) as date
     , v.trading_volume
     
     , bfp.buyback / 0.12 + coalesce(c.amount_raw * pc.price, 0) as fees -- trading fee + pool creation
@@ -132,11 +141,13 @@ select
     , coalesce(c.amount_raw, 0) as pool_creation_fees_native
     , price_data.price 
     , price_data.market_cap
-
+    , coalesce(tvl.tvl,
+            LAST_VALUE(tvl.tvl IGNORE NULLS) OVER (ORDER BY v.day ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)) as tvl 
     , v.unique_traders -- not just direct, include aggregator routed
     , v.number_of_swaps
 from trading_volume v
 left join price_data on price_data.day = v.day
+left join tvl on tvl.date = v.day
 left join buyback as b on v.day = b.day
 left join buyback_from_pair as bfp on v.day = bfp.date
 left join treasury t on t.day = v.day 
@@ -165,7 +176,7 @@ left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pc on pc.token_address = c.toke
             AND pc.hour::date >= date('2022-04-22') 
         {% endif %}
 
-where coalesce(v.day, bfp.date, b.day) < to_date(sysdate())
+where coalesce(v.day, bfp.date, b.day, tvl.date) < to_date(sysdate())
 order by 1 desc 
 
 

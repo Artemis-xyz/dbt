@@ -12,5 +12,6 @@ from
                 'ethena-usde',
                 0
             ),
-            ('AUSD', '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a', 6, 'agora-dollar', 0)
+            ('AUSD', '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a', 6, 'agora-dollar', 0),
+            ('USDY', '0x5bE26527e817998A7206475496fDE1E68957c5A6', 18, 'ondo-us-dollar-yield', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)

@@ -2,6 +2,10 @@
     {% if chain == "tron" %}
         select distinct from_address as address, 'eoa' as address_type
         from tron_allium.raw.transactions
+    {% elif chain == "sui" %}
+        select distinct from_address as address, 'eoa' as address_type
+        from {{ref('fact_sui_token_transfers')}}
+        where from_address is not null and not (from_address like '%POOL%')
     {% elif chain == "ton" %}
         select distinct transaction_account as address, 'wallet' as address_type
         from {{ref("fact_ton_transactions")}}

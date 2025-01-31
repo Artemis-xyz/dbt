@@ -17,7 +17,8 @@ with
                     )
                 then 'NFT'
                 else 'Token'
-            end as token_standard
+            end as token_standard,
+            modified_timestamp
         from base_flipside.core.fact_event_logs
         where
             lower(topics[0]) in (
@@ -36,12 +37,13 @@ with
             coalesce(a.address, l.address, c.address, null) address,
             coalesce(l.address_name, c.name, null) name,
             coalesce(l.project_name, c.symbol, null) namespace,
-            coalesce(a.token_standard, null) category
+            coalesce(a.token_standard, null) category,
+            coalesce(a.modified_timestamp, l.modified_timestamp, c.modified_timestamp, null) modified_timestamp
         from contract_standard a
         left join
             base_flipside.core.dim_contracts c on lower(a.address) = lower(c.address)
         left join base_flipside.core.dim_labels l on lower(a.address) = lower(l.address)
     )
-select address, max(name) name, max(namespace) namespace, max(category) category
+select address, max(name) name, max(namespace) namespace, max(category) category, max(modified_timestamp) as last_updated
 from flipside_labels
 group by address

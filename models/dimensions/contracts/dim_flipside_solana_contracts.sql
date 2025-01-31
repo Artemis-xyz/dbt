@@ -35,7 +35,8 @@ with
                 then 'Bridge'
                 else null
             end as category,
-            label_subtype as sub_category
+            label_subtype as sub_category,
+            modified_timestamp
         from solana_flipside.core.dim_labels as labels
     ),
     manual_filter as (
@@ -47,9 +48,10 @@ with
             case
                 when namespace = 'wormhole' then 'Bridge' else category
             end as category,
-            sub_category
+            sub_category,
+            modified_timestamp
         from solana_labels
         where namespace is not null and namespace <> ''
     )
-select address, chain, name, namespace, category, sub_category
+select address, chain, name, namespace, category, sub_category, modified_timestamp as last_updated
 from manual_filter
