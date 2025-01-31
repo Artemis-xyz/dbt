@@ -9,6 +9,10 @@
 }}
 
 with
+    date_spine as (
+        select date from {{ ref("dim_date_spine") }}
+        where date between '2021-06-23' and to_date(sysdate())
+    ),
     fundamental_data as (
         select
             date,
@@ -33,10 +37,36 @@ with
         group by 1
     ),
     price_data as ({{ get_coingecko_metrics("osmosis") }}),
-    defillama_data as ({{ get_defillama_metrics("osmosis") }}),
-    github_data as ({{ get_github_metrics("osmosis") }})
+    defillama_data as (
+        with raw as ({{ get_defillama_metrics("osmosis") }})
+        , sparse_data as (
+            select
+                date_spine.date,
+                raw.dex_volumes,
+                raw.tvl
+            from date_spine
+            left join raw using (date)
+        )
+        , filled_data as (
+            select
+                date,
+                COALESCE(sparse_data.dex_volumes, 
+                    LAST_VALUE(sparse_data.dex_volumes IGNORE NULLS) OVER (ORDER BY date ASC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+                    ) as dex_volumes,
+                COALESCE(sparse_data.tvl, 
+                    LAST_VALUE(sparse_data.tvl IGNORE NULLS) OVER (ORDER BY date ASC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+                    ) as tvl
+            from sparse_data
+        )
+        select
+            date,
+            dex_volumes,
+            tvl
+        from filled_data
+    )
+    , github_data as ({{ get_github_metrics("osmosis") }})
 select
-    fundamental_data.date,
+    date_spine.date,
     fundamental_data.chain,
     txns,
     dau,
@@ -53,8 +83,9 @@ select
     weekly_commits_sub_ecosystem,
     weekly_developers_core_ecosystem,
     weekly_developers_sub_ecosystem
-from fundamental_data
-left join price_data on fundamental_data.date = price_data.date
-left join defillama_data on fundamental_data.date = defillama_data.date
-left join github_data on fundamental_data.date = github_data.date
-where fundamental_data.date < to_date(sysdate())
+from date_spine
+left join fundamental_data using (date)
+left join price_data using (date)
+left join defillama_data using (date)
+left join github_data using (date)
+where date_spine.date < to_date(sysdate())
