@@ -15,8 +15,10 @@ WITH fundamental_data AS (
 ), prices as ({{ get_coingecko_price_with_latest("stellar") }})
 SELECT
     fundamental_data.date,
-    fundamental_data.app,
     fundamental_data.chain,
+    fundamental_data.app,
+    fundamental_data.category,
+    fundamental_data.name,
     fundamental_data.friendly_name,
     fundamental_data.contract_address,
     fundamental_data.classic_txns AS txns,
