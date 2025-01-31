@@ -6,3 +6,7 @@ sources:
       - name: raw_across_v2_zksync_events
       - name: raw_across_v3_zksync_events
       - name: raw_across_v3_linea_events
+      - name: raw_across_v2_zksync_filled_relay_events
+      - name: raw_across_v2_zksync_funds_deposited_events
+      - name: raw_across_v3_zksync_filled_relay_events
+      - name: raw_across_v3_zksync_funds_deposited_events

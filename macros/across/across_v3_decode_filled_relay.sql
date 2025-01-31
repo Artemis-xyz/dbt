@@ -67,13 +67,17 @@
 {% endmacro %}
 
 {% macro across_v3_rpc_decode_filled_relay(chain) %}       
-    extraction_dates as (
+    with extraction_dates as (
         select
             date_trunc('day', flat_json.value:"block_timestamp"::timestamp) as date,
             max(extraction_date) as extraction_date
         from
             {{ source("PROD_LANDING", "raw_across_v3_" ~ chain ~ "_filled_relay_events") }},
-            lateral flatten(input => parse_json(source_json)) as flat_json
+            lateral flatten(input => to_variant(source_json)) as flat_json
+        {% if is_incremental() %}
+            where
+                date_trunc('day', flat_json.value:"block_timestamp"::timestamp) >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+        {% endif %}
         group by date
         order by date
     ),
@@ -81,7 +85,7 @@
         select
             extraction_date,
             date_trunc('day', flat_json.value:"block_timestamp"::timestamp) as date,
-            to_timestamp(flat_json.value:"block_timestamp"::varchar) as block_timestamp,
+            to_timestamp(flat_json.value:"block_timestamp"::timestamp) as block_timestamp,
             flat_json.value:"contract_address"::string as contract_address,
             flat_json.value:"tx_hash"::string as tx_hash,
             flat_json.value:"event_index"::integer as event_index,
@@ -99,11 +103,15 @@
             flat_json.value:"destination_token"::string as destination_token,
             flat_json.value:"origin_chain_id"::integer as origin_chain_id,
             flat_json.value:"input_token"::string as origin_token,
-            flat_json as decoded_log
+            flat_json.value as decoded_log
         from
             {{ source("PROD_LANDING", "raw_across_v3_" ~ chain ~ "_filled_relay_events") }},
-            lateral flatten(input => parse_json(source_json)) as flat_json
-    ),
+            lateral flatten(input => to_variant(source_json)) as flat_json
+        {% if is_incremental() %}
+            where
+                date_trunc('day', flat_json.value:"block_timestamp"::timestamp) >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+        {% endif %}
+    )
     select
         t1.contract_address as messaging_contract_address
         , t1.block_timestamp
