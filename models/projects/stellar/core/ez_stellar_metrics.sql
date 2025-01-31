@@ -27,7 +27,7 @@ stablecoin_tvl as (
 ), prices as ({{ get_coingecko_price_with_latest("stellar") }})
 select
     fundamental_data.date,
-    'stellar' as chain,
+    fundamental_data.chain,
     fundamental_data.classic_txns AS txns,
     fundamental_data.soroban_txns AS soroban_txns,
     fundamental_data.daily_fees as fees_native,
@@ -38,6 +38,8 @@ select
     fundamental_data.dau as dau,
     fundamental_data.wau as wau,
     fundamental_data.mau as mau,
+    fundamental_data.returning_users as returning_users,
+    fundamental_data.new_users as new_users,
     fundamental_data.ledgers_closed as ledgers_closed,
     stablecoin_tvl.stablecoin_mc,
     rwa_tvl.rwa_tvl,

@@ -251,3 +251,21 @@ select
     null as avg_token_price,
     'mantle' as chain
 from {{ ref("ez_mantle_metrics_by_contract") }}
+union
+select
+    contract_address,
+    date,
+    name,
+    null as symbol,
+    app as namespace,
+    friendly_name,
+    category,
+    gas as total_gas,
+    gas_usd as total_gas_usd,
+    txns as transactions,
+    dau,
+    null as token_transfer_usd,
+    null as token_transfer,
+    null as avg_token_price,
+    'stellar' as chain
+from {{ ref("ez_stellar_metrics_by_contract") }}
