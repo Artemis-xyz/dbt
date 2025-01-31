@@ -13,7 +13,7 @@ with raw as (
 )
 , date_name_spine as (
     select distinct ds.date, name
-    from PC_DBT_DB.PROD.dim_date_spine ds
+    from {{ ref("dim_date_spine") }} ds
     CROSS JOIN (SELECT distinct name FROM raw)
     where ds.date between (select min(date) from raw) and to_date(sysdate())
 )
