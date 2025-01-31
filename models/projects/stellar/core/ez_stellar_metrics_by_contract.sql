@@ -15,15 +15,15 @@ WITH fundamental_data AS (
 ), prices as ({{ get_coingecko_price_with_latest("stellar") }})
 SELECT
     fundamental_data.date,
+    fundamental_data.app,
     fundamental_data.chain,
+    fundamental_data.friendly_name,
     fundamental_data.contract_address,
     fundamental_data.classic_txns AS txns,
     fundamental_data.soroban_txns AS soroban_txns,
     fundamental_data.daily_fees as gas,
     fundamental_data.daily_fees * price as gas_usd,
     fundamental_data.operations as operations,
-    fundamental_data.dau as dau,
-    fundamental_data.returning_users as returning_users,
-    fundamental_data.new_users as new_users
+    fundamental_data.dau as dau
 FROM fundamental_data
 LEFT JOIN prices USING(date)

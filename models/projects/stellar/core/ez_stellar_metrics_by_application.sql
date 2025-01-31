@@ -15,8 +15,10 @@ WITH fundamental_data AS (
 ), prices as ({{ get_coingecko_price_with_latest("stellar") }})
 SELECT
     fundamental_data.date,
-    fundamental_data.chain,
     fundamental_data.app,
+    fundamental_data.category,
+    fundamental_data.chain,
+    fundamental_data.friendly_name,
     fundamental_data.classic_txns AS txns,
     fundamental_data.soroban_txns AS soroban_txns,
     fundamental_data.daily_fees as gas,
