@@ -85,5 +85,40 @@ with
             where parquet_raw:block_timestamp::timestamp_ntz >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
 )
-select *
+select 
+    transaction_hash
+    , max(nonce) as nonce
+    , max(block_hash) as block_hash
+    , max(block_number) as block_number
+    , max(transaction_index) as transaction_index
+    , max(from_address) as from_address
+    , max(to_address) as to_address
+    , max(value) as value
+    , max(gas) as gas
+    , max(gas_price) as gas_price
+    , max(input) as input
+    , max(max_fee_per_gas) as max_fee_per_gas
+    , max(max_priority_fee_per_gas) as max_priority_fee_per_gas
+    , max(transaction_type) as transaction_type
+    , max(block_timestamp) as block_timestamp
+    , max(receipt_cumulative_gas_used) as receipt_cumulative_gas_used
+    , max(receipt_gas_used) as receipt_gas_used
+    , max(receipt_contract_address) as receipt_contract_address
+    , max(receipt_status) as receipt_status
+    , max(receipt_effective_gas_price) as receipt_effective_gas_price
+    , max(receipt_root_hash) as receipt_root_hash
+    , max(receipt_l1_fee) as receipt_l1_fee
+    , max(receipt_l1_gas_used) as receipt_l1_gas_used
+    , max(receipt_l1_gas_price) as receipt_l1_gas_price
+    , max(receipt_l1_fee_scalar) as receipt_l1_fee_scalar
+    , max(receipt_l1_blob_base_fee) as receipt_l1_blob_base_fee
+    , max(receipt_l1_blob_base_fee_scalar) as receipt_l1_blob_base_fee_scalar
+    , max(blob_versioned_hashes) as blob_versioned_hashes
+    , max(max_fee_per_blob_gas) as max_fee_per_blob_gas
+    , max(receipt_l1_block_number) as receipt_l1_block_number
+    , max(receipt_l1_base_fee_scalar) as receipt_l1_base_fee_scalar
+    , max(gateway_fee) as gateway_fee
+    , max(fee_currency) as fee_currency
+    , max(gateway_fee_recipient) as gateway_fee_recipient
 from raw_receipt_transactions
+GROUP BY transaction_hash
