@@ -16,6 +16,8 @@ with filled_relay_events as (
     ({{ across_v3_goldsky_decode_filled_relay('soneium', '0x3baD7AD0728f9917d1Bf08af5782dCbD516cDd96') }})
     union all
     ({{ across_v3_rpc_decode_filled_relay('zksync') }})
+    union all
+    ({{ across_v3_rpc_decode_filled_relay_array('linea') }})
 )
 SELECT
     messaging_contract_address,

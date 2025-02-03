@@ -102,12 +102,120 @@
             null as decoded_log
         from
             {{ source("PROD_LANDING", "raw_across_v3_" ~ chain ~ "_funds_deposited_events") }},
-            lateral flatten(input => parse_json(source_json)) as flat_json
+            lateral flatten(input => to_variant(source_json), outer => true) as flat_json
         {% if is_incremental() %}
             where
                 date_trunc('day', flat_json.value:"block_timestamp"::timestamp) >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
     )
+    select
+        t1.contract_address as messaging_contract_address
+        , t1.block_timestamp
+        , t1.tx_hash
+        , t1.event_index
+        , t1.deposit_id
+        , t1.origin_token
+        , t1.src_amount
+        , t1.dst_amount
+        , t1.depositor
+        , t1.recipient
+        , t1.destination_chain_id
+        , t1.destination_token
+        , null as origin_chain_id
+        , null as realized_lp_fee_pct
+        , null as relayer_fee_pct
+        , src_amount - dst_amount as protocol_fee
+        , null as message
+        , '{{ chain}}' as chain
+        , t1.decoded_log
+    from flattened_json t1
+    left join
+        extraction_dates t2
+        on t1.date = t2.date
+        and t1.extraction_date = t2.extraction_date
+{% endmacro %}
+
+{% macro across_v3_rpc_decode_funds_deposited_array(chain) %}       
+        with
+        outer_flatten as (
+            select
+                extraction_date,
+                index,
+                key,
+                value as json
+            from
+                {{ source("PROD_LANDING", "raw_across_v3_" ~ chain ~ "_funds_deposited_events") }},
+                lateral flatten(input => to_variant(source_json), outer => true) as flat_json
+            WHERE ARRAY_SIZE(source_json) > 1
+        ),
+        un_flatten as (
+            select
+                *
+            from
+                {{ source("PROD_LANDING", "raw_across_v3_" ~ chain ~ "_funds_deposited_events") }},
+                lateral flatten(input => to_variant(source_json), outer => true) as flat_json
+            WHERE ARRAY_SIZE(source_json) = 1
+        ),
+        flattened_json as (
+            select
+                    extraction_date,
+                    date_trunc('day', flat_json.value:"block_timestamp"::timestamp) as date,
+                    to_timestamp(flat_json.value:"block_timestamp"::varchar) as block_timestamp,
+                    flat_json.value:"contract_address"::string as contract_address,
+                    flat_json.value:"tx_hash"::string as tx_hash,
+                    flat_json.value:"event_index"::integer as event_index,
+                    flat_json.value:"input_amount"::double as src_amount,
+                    flat_json.value:"output_amount"::double as dst_amount,
+                    flat_json.value:"deposit_id"::integer as deposit_id,
+                    flat_json.value:"depositor"::string as depositor,
+                    flat_json.value:"recipient"::string as recipient,
+                    flat_json.value:"destination_chain_id"::string as destination_chain_id,
+                    flat_json.value:"quote_timestamp"::string as quote_timestamp,
+                    flat_json.value:"fill_deadline"::string as fill_deadline,
+                    flat_json.value:"exclusivity_deadline"::string as exclusivity_deadline,
+                    flat_json.value:"exclusive_relayer"::string as exclusive_relayer,
+                    flat_json.value:"destination_token"::string as destination_token,
+                    flat_json.value:"origin_chain"::string as origin_chain,
+                    flat_json.value:"input_token"::string as origin_token,
+                    null as decoded_log
+                from
+                    outer_flatten,
+                    lateral flatten(input => to_variant(json), outer => true) as flat_json
+            union 
+                SELECT 
+                    extraction_date,
+                    date_trunc('day', flat_json.value:"block_timestamp"::timestamp) as date,
+                    to_timestamp(flat_json.value:"block_timestamp"::varchar) as block_timestamp,
+                    flat_json.value:"contract_address"::string as contract_address,
+                    flat_json.value:"tx_hash"::string as tx_hash,
+                    flat_json.value:"event_index"::integer as event_index,
+                    flat_json.value:"input_amount"::double as src_amount,
+                    flat_json.value:"output_amount"::double as dst_amount,
+                    flat_json.value:"deposit_id"::integer as deposit_id,
+                    flat_json.value:"depositor"::string as depositor,
+                    flat_json.value:"recipient"::string as recipient,
+                    flat_json.value:"destination_chain_id"::string as destination_chain_id,
+                    flat_json.value:"quote_timestamp"::string as quote_timestamp,
+                    flat_json.value:"fill_deadline"::string as fill_deadline,
+                    flat_json.value:"exclusivity_deadline"::string as exclusivity_deadline,
+                    flat_json.value:"exclusive_relayer"::string as exclusive_relayer,
+                    flat_json.value:"destination_token"::string as destination_token,
+                    flat_json.value:"origin_chain"::string as origin_chain,
+                    flat_json.value:"input_token"::string as origin_token,
+                    null as decoded_log
+                from
+                    un_flatten,
+                    lateral flatten(input => to_variant(source_json), outer => true) as flat_json
+        ),
+        extraction_dates as (
+            select
+                date,
+                max(extraction_date) as extraction_date
+            from
+                flattened_json
+            group by date
+            order by date
+        )
     select
         t1.contract_address as messaging_contract_address
         , t1.block_timestamp

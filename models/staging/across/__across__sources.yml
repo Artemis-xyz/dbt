@@ -10,3 +10,5 @@ sources:
       - name: raw_across_v2_zksync_funds_deposited_events
       - name: raw_across_v3_zksync_filled_relay_events
       - name: raw_across_v3_zksync_funds_deposited_events
+      - name: raw_across_v3_linea_filled_relay_events
+      - name: raw_across_v3_linea_funds_deposited_events

@@ -16,6 +16,8 @@ with funds_deposited_events as (
     ({{ across_v3_goldsky_decode_funds_deposited('soneium', '0x3baD7AD0728f9917d1Bf08af5782dCbD516cDd96') }})
     union all
     ({{ across_v3_rpc_decode_funds_deposited('zksync') }})
+    union all
+    ({{ across_v3_rpc_decode_funds_deposited_array('linea') }})
 )
 select
     messaging_contract_address,
