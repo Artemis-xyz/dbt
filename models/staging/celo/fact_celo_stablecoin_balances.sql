@@ -6,5 +6,6 @@
     )
 }}
 
+{% set contract_address = var('contract_address', "") %} 
 
-{{stablecoin_balances("celo")}}
+{{ stablecoin_balances("celo", contract_address) }}

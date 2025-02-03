@@ -7,4 +7,6 @@
 }}
 
 
-{{stablecoin_metrics_artemis("avalanche")}}
+{% set contract_address = var('contract_address', "") %} 
+
+{{stablecoin_metrics_artemis("avalanche", contract_address)}}

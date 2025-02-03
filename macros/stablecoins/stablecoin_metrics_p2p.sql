@@ -1,4 +1,4 @@
-{% macro stablecoin_metrics_p2p(chain) %}
+{% macro stablecoin_metrics_p2p(chain, new_stablecoin_address) %}
 with
     stablecoin_transfers as (
         select 
@@ -12,12 +12,15 @@ with
         from {{ ref("fact_" ~ chain ~ "_p2p_stablecoin_transfers")}} t
         left join {{ ref( "fact_" ~ chain ~ "_stablecoin_contracts") }} c
             on lower(t.token_address) = lower(c.contract_address)
-        {% if is_incremental() %} 
+        {% if is_incremental() and new_stablecoin_address == '' %} 
             where block_timestamp >= (
                 select dateadd('day', -3, max(date))
                 from {{ this }}
             )
-        {% endif %} 
+        {% endif %}
+        {% if new_stablecoin_address != '' %}
+            where lower(contract_address) = lower('{{ new_stablecoin_address }}')
+        {% endif %}
     )
     , stablecoin_metrics as (
         select
@@ -48,10 +51,13 @@ with
         , date || '-' || from_address || '-' || contract_address as unique_id
     from stablecoin_metrics
     where date < to_date(sysdate())
-    {% if is_incremental() %} 
+    {% if is_incremental() and new_stablecoin_address == '' %} 
         and date >= (
             select dateadd('day', -3, max(date))
             from {{ this }}
         )
+    {% endif %} 
+    {% if new_stablecoin_address != '' %}
+        and lower(contract_address) = lower('{{ new_stablecoin_address }}')
     {% endif %} 
 {% endmacro %}
