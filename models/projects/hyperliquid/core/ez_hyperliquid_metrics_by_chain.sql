@@ -22,26 +22,8 @@ with
         from {{ ref("fact_hyperliquid_daily_transactions") }}
     ),
     fees_data as (
-        SELECT 
-        date(timestamp) AS date, 
-        chain,
-        max_by(fees, timestamp) / 1e6 AS total_fees,
-        max_by(spot_fees, timestamp) / 1e6 AS cumulative_spot_fees,
-        CASE 
-            WHEN date(timestamp) >= '2024-12-23' THEN 
-                total_fees - COALESCE(LAG(total_fees) OVER (PARTITION BY chain ORDER BY date ASC), 0)
-            ELSE NULL
-        END AS trading_fees,
-        CASE 
-            WHEN date(timestamp) >= '2024-12-23' THEN 
-                cumulative_spot_fees - COALESCE(LAG(cumulative_spot_fees) OVER (PARTITION BY chain ORDER BY date ASC), 0)
-            ELSE NULL
-        END AS spot_fees,
-        COALESCE(total_fees - COALESCE(LAG(total_fees) OVER (PARTITION BY chain ORDER BY date ASC), 0), 0) 
-        - COALESCE(cumulative_spot_fees - COALESCE(LAG(cumulative_spot_fees) OVER (PARTITION BY chain ORDER BY date ASC), 0), 0
-        ) AS perp_fees
-    FROM {{ ref("fact_hyperliquid_fees") }}
-    group by date(timestamp), chain
+        SELECT date(timestamp) AS date, chain, trading_fees, spot_fees, perp_fees
+        FROM {{ ref("fact_hyperliquid_fees") }}
     ),
     auction_fees_data as (
         select date, auction_fees, chain
@@ -64,16 +46,16 @@ select
     trading_volume,
     unique_traders,
     trades, 
-    COALESCE(trading_fees, 0) + COALESCE(auction_fees, 0) AS fees,
-    COALESCE(spot_fees, 0) AS spot_fees,
-    COALESCE(perp_fees, 0) AS perp_fees,
-    COALESCE(auction_fees, 0) AS auction_fees,
-    COALESCE(daily_burn, 0) AS daily_burn,
-    COALESCE(daily_price, 0) AS daily_price,
+    trading_fees,
+    spot_fees,
+    perp_fees,
+    auction_fees,
+    daily_burn,
+    daily_price,
     -- protocol’s revenue split between HLP (supplier) and AF (holder) at a ratio of 46%:54%
-    COALESCE(fees, 0) * 0.46 as total_supply_side_revenue,
+    trading_fees * 0.46 as primary_supply_side_revenue,
     -- add daily burn back to the revenue
-    (COALESCE(fees, 0) * 0.54) + COALESCE(daily_burn * daily_price, 0) as revenue
+    (trading_fees * 0.54) + daily_burn * daily_price as revenue
 from unique_traders_data
 left join trading_volume_data using(date, chain)
 left join daily_transactions_data using(date, chain)

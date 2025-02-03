@@ -18,10 +18,23 @@ with
         where date(timestamp) >= '2024-12-22' 
     )
 select
-    fees,
-    spot_fees,
+    max_by(fees, timestamp) / 1e6 AS max_trading_fees,
+    max_by(spot_fees, timestamp) / 1e6 AS max_spot_fees,
+    CASE 
+        WHEN date(timestamp) >= '2024-12-23' THEN 
+            max_by(fees, timestamp) - COALESCE(LAG(max_by(fees, timestamp)) OVER (PARTITION BY chain ORDER BY timestamp ASC), 0)
+        ELSE NULL
+    END AS trading_fees,
+    CASE 
+        WHEN date(timestamp) >= '2024-12-23' THEN 
+            max_by(spot_fees, timestamp) - COALESCE(LAG(max_by(spot_fees, timestamp)) OVER (PARTITION BY chain ORDER BY timestamp ASC), 0)
+        ELSE NULL
+    END AS spot_fees,
+    (max_by(fees, timestamp) - max_by(spot_fees, timestamp)) AS perp_fees,
     timestamp,
     'hyperliquid' as app,
     'hyperliquid' as chain,
     'DeFi' as category
 from extracted_fees
+group by chain, timestamp
+
