@@ -1,4 +1,4 @@
-{% macro stablecoin_balances(chain) %}
+{% macro stablecoin_balances(chain, new_stablecoin_address) %}
     -- This macro takes our balances table and forward fills the values for each address for each stablecoin
 
     -- Use this for a backfill, 
@@ -9,7 +9,6 @@
     {% set backfill_date = '' %}
 
     -- This is used to backfill a new stablecoin, make sure the run is incremental
-    {% set new_stablecoin_address = '' %}
 
 with
     stablecoin_balances as (

@@ -5,4 +5,7 @@
         unique_key=["tx_hash", "index"],
     ) 
 }}
-{{ agg_chain_stablecoin_transfers("arbitrum") }}
+
+{% set contract_address = var('contract_address', "") %} 
+
+{{agg_chain_stablecoin_transfers('arbitrum', contract_address)}}
