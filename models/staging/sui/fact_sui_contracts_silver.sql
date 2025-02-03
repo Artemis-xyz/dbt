@@ -17,7 +17,7 @@ with
         lower(replace(value:"projectName"::string, ' ', '_')) as namespace,
         value:"projectName"::string as friendly_name,
         value:"projectImg"::string as project_img,
-        date(to_timestamp(coalesce(value:"createTimestamp"::number, value:"timestamp"::number) / 1000)) as timestamp,
+        to_timestamp(coalesce(value:"createTimestamp"::number, value:"timestamp"::number) / 1000) as timestamp,
         coalesce(value:"txsCount", value:"transactions") as transactions,
         value:"version"::number as version
     from sui_data, lateral flatten(input => data)

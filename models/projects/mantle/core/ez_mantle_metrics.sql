@@ -15,6 +15,15 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle") }})
     select date, chain, l1_data_cost_native, l1_data_cost
     from {{ ref("fact_mantle_l1_data_cost") }}
 )
+, treasury_data as (
+    SELECT   
+        date,
+        sum(native_balance) as treasury_value_native,
+        sum(native_balance) - lag(sum(native_balance)) over (order by date) as treasury_value_native_change,
+    FROM {{ ref("fact_mantle_treasury_balance") }}
+    WHERE token = 'MNT'
+    GROUP BY 1
+)
 , github_data as ({{ get_github_metrics("mantle") }})
 , rolling_metrics as ({{ get_rolling_active_address_metrics("mantle") }})
 , defillama_data as ({{ get_defillama_metrics("mantle") }})
@@ -38,6 +47,8 @@ select
     , avg_txn_fee
     , tvl
     , dex_volumes
+    , treasury_data.treasury_value_native
+    , treasury_data.treasury_value_native_change
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
@@ -51,4 +62,5 @@ left join defillama_data using (date)
 left join price_data using (date)
 left join expenses_data using (date)
 left join rolling_metrics using (date)
+left join treasury_data using (date)
 where fundamental_data.date < to_date(sysdate())

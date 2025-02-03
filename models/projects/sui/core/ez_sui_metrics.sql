@@ -27,6 +27,7 @@ select
     fees,
     revenue_native,
     revenue,
+    mints_native,
     price,
     market_cap,
     fdmc,

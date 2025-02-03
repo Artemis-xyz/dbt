@@ -6,3 +6,6 @@ sources:
       - name: raw_stellar_rwa_tvl
       - name: raw_stellar_stablecoin_tvl
       - name: ez_stellar_metrics
+      - name: ez_stellar_metrics_by_application
+      - name: ez_stellar_metrics_by_category
+      - name: ez_stellar_metrics_by_contract

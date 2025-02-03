@@ -13,7 +13,8 @@ with
     fundamental_data as (select * EXCLUDE date, TO_TIMESTAMP_NTZ(date) AS date from {{ source('PROD_LANDING', 'ez_injective_metrics') }}),
     daily_txns as (select * from {{ ref("fact_injective_daily_txns_silver") }}),
     revenue as (select * from {{ ref("fact_injective_revenue_silver") }}),
-    mints as (select * from {{ ref("fact_injective_mints_silver") }})
+    mints as (select * from {{ ref("fact_injective_mints_silver") }}),
+    unlocks as (select * from {{ ref("fact_injective_unlocks") }})
 select
     fundamental_data.date,
     'injective' as chain,
@@ -26,7 +27,9 @@ select
     fundamental_data.avg_txn_fee,
     fundamental_data.returning_users,
     fundamental_data.new_users,
+    unlocks.outflows as unlocks,
     coalesce(revenue.revenue, 0) as revenue,
+    coalesce(revenue.revenue_native, 0) as burns_native,
     mints.mints,
     null as low_sleep_users,
     null as high_sleep_users,
@@ -35,3 +38,4 @@ select
 from fundamental_data
 left join revenue on fundamental_data.date = revenue.date
 left join mints on fundamental_data.date = mints.date
+left join unlocks on fundamental_data.date = unlocks.date

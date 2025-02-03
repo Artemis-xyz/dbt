@@ -15,6 +15,7 @@ with
                     ref("ez_polygon_metrics_by_category"),
                     ref("ez_sei_metrics_by_category"),
                     ref("ez_solana_metrics_by_category"),
+                    ref("ez_stellar_metrics_by_category"),
                     ref("ez_sui_metrics_by_category"),
                     ref("ez_tron_metrics_by_category"),
                     ref("ez_mantle_metrics_by_category"),

@@ -40,6 +40,7 @@ with
         SELECT
             date
             , SUM(token_incentives) as token_incentives
+            , SUM(token_incentives_native) as token_incentives_native
         FROM
             {{ref('fact_pendle_token_incentives_by_chain')}}
         GROUP BY 1
@@ -98,6 +99,7 @@ SELECT
     , swap_revenue_vependle + yield_revenue_vependle as total_revenue_vependle
     , 0 as protocol_revenue
     , coalesce(token_incentives, 0) as token_incentives
+    , coalesce(token_incentives_native, 0) as mints_native
     , 0 as operating_expenses
     , token_incentives + operating_expenses as total_expenses
     , protocol_revenue - total_expenses as protocol_earnings

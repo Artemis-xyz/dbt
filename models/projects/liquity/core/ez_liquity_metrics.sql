@@ -4,7 +4,7 @@
         snowflake_warehouse='LIQUITY',
         database='LIQUITY',
         schema='core',
-        alias='ez_liquity_metrics'
+        alias='ez_metrics'
     )
 }}
 
@@ -31,9 +31,8 @@ with tvl as (
 , token_holders as (
     select
         date,
-        total_holder_count
+        token_holder_count
     from {{ ref('fact_liquity_token_holders') }}
-    group by 1
 )
 , market_data as (
     {{ get_coingecko_metrics('liquity') }}
@@ -51,7 +50,7 @@ select
     os.outstanding_supply,
     fr.revenue_usd as fees,
     fr.revenue_usd as revenue,
-    th.total_holder_count,
+    th.token_holder_count,
     md.price,
     md.market_cap,
     md.fdmc,
