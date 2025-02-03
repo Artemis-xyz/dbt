@@ -5,6 +5,7 @@ with
             dbt_utils.union_relations(
                 relations=[
                     ref("ez_arbitrum_metrics_by_category_v2"),
+                    ref("ez_avalanche_metrics_by_category_v2")
                 ]
             )
         }}
