@@ -53,9 +53,9 @@ select
     daily_burn,
     daily_price,
     -- protocol’s revenue split between HLP (supplier) and AF (holder) at a ratio of 46%:54%
-    trading_fees * 0.46 as primary_supply_side_revenue,
+    COALESCE(trading_fees * 0.46, 0) as primary_supply_side_revenue,
     -- add daily burn back to the revenue
-    (trading_fees * 0.54) + daily_burn * daily_price as revenue
+    COALESCE(trading_fees * 0.54, 0) + COALESCE(daily_burn, 0) * daily_price as revenue
 from unique_traders_data
 left join trading_volume_data using(date, chain)
 left join daily_transactions_data using(date, chain)
