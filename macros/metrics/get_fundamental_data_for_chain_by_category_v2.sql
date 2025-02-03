@@ -14,5 +14,5 @@
         sum(sybil_users) as sybil_users,
         sum(non_sybil_users) as non_sybil_users
     from {{ chain }}.prod_core.ez_metrics_by_subcategory
-    group by category
+    group by category, date
 {% endmacro %}
