@@ -35,60 +35,96 @@ select
     null as avg_token_price,
     'avalanche' as chain
 from {{ ref("ez_avalanche_metrics_by_contract_v2") }}
--- union
--- select
---     contract_address,
---     date,
---     name,
---     null as symbol,
---     app as namespace,
---     friendly_name,
---     category,
---     gas as total_gas,
---     gas_usd as total_gas_usd,
---     txns as transactions,
---     dau,
---     null as token_transfer_usd,
---     null as token_transfer,
---     null as avg_token_price,
---     'base' as chain
--- from {{ ref("ez_base_metrics_by_contract") }}
--- union
--- select
---     contract_address,
---     date,
---     name,
---     null as symbol,
---     app as namespace,
---     friendly_name,
---     category,
---     gas as total_gas,
---     gas_usd as total_gas_usd,
---     txns as transactions,
---     dau,
---     null as token_transfer_usd,
---     null as token_transfer,
---     null as avg_token_price,
---     'bsc' as chain
--- from {{ ref("ez_bsc_metrics_by_contract") }}
--- union
--- select
---     contract_address,
---     date,
---     name,
---     null as symbol,
---     app as namespace,
---     friendly_name,
---     category,
---     gas as total_gas,
---     gas_usd as total_gas_usd,
---     txns as transactions,
---     dau,
---     null as token_transfer_usd,
---     null as token_transfer,
---     null as avg_token_price,
---     'ethereum' as chain
--- from {{ ref("ez_ethereum_metrics_by_contract") }}
+union
+select
+    contract_address,
+    date,
+    name,
+    null as symbol,
+    app as namespace,
+    friendly_name,
+    category,
+    gas as total_gas,
+    gas_usd as total_gas_usd,
+    txns as transactions,
+    dau,
+    null as token_transfer_usd,
+    null as token_transfer,
+    null as avg_token_price,
+    'base' as chain
+from {{ ref("ez_base_metrics_by_contract_v2") }}
+union
+select
+    contract_address,
+    date,
+    name,
+    null as symbol,
+    app as namespace,
+    friendly_name,
+    category,
+    gas as total_gas,
+    gas_usd as total_gas_usd,
+    txns as transactions,
+    dau,
+    null as token_transfer_usd,
+    null as token_transfer,
+    null as avg_token_price,
+    'bsc' as chain
+from {{ ref("ez_bsc_metrics_by_contract_v2") }}
+union
+select
+    contract_address,
+    date,
+    name,
+    null as symbol,
+    app as namespace,
+    friendly_name,
+    category,
+    gas as total_gas,
+    gas_usd as total_gas_usd,
+    txns as transactions,
+    dau,
+    null as token_transfer_usd,
+    null as token_transfer,
+    null as avg_token_price,
+    'ethereum' as chain
+from {{ ref("ez_ethereum_metrics_by_contract_v2") }}
+union
+select
+    contract_address,
+    date,
+    name,
+    null as symbol,
+    app as namespace,
+    friendly_name,
+    category,
+    gas as total_gas,
+    gas_usd as total_gas_usd,
+    txns as transactions,
+    dau,
+    null as token_transfer_usd,
+    null as token_transfer,
+    null as avg_token_price,
+    'optimism' as chain
+from {{ ref("ez_optimism_metrics_by_contract_v2") }}
+union
+select
+    contract_address,
+    date,
+    name,
+    null as symbol,
+    app as namespace,
+    friendly_name,
+    category,
+    gas as total_gas,
+    gas_usd as total_gas_usd,
+    txns as transactions,
+    dau,
+    null as token_transfer_usd,
+    null as token_transfer,
+    null as avg_token_price,
+    'polygon' as chain
+from {{ ref("ez_polygon_metrics_by_contract_v2") }}
 -- union
 -- select
 --     contract_address,
@@ -107,42 +143,6 @@ from {{ ref("ez_avalanche_metrics_by_contract_v2") }}
 --     null as avg_token_price,
 --     'near' as chain
 -- from {{ ref("ez_near_metrics_by_contract") }}
--- union
--- select
---     contract_address,
---     date,
---     name,
---     null as symbol,
---     app as namespace,
---     friendly_name,
---     category,
---     gas as total_gas,
---     gas_usd as total_gas_usd,
---     txns as transactions,
---     dau,
---     null as token_transfer_usd,
---     null as token_transfer,
---     null as avg_token_price,
---     'optimism' as chain
--- from {{ ref("ez_optimism_metrics_by_contract") }}
--- union
--- select
---     contract_address,
---     date,
---     name,
---     null as symbol,
---     app as namespace,
---     friendly_name,
---     category,
---     gas as total_gas,
---     gas_usd as total_gas_usd,
---     txns as transactions,
---     dau,
---     null as token_transfer_usd,
---     null as token_transfer,
---     null as avg_token_price,
---     'polygon' as chain
--- from {{ ref("ez_polygon_metrics_by_contract") }}
 -- union
 -- select
 --     contract_address,

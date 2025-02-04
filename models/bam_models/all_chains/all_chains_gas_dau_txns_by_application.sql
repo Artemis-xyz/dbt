@@ -7,6 +7,11 @@ with
                 relations=[
                     ref("ez_arbitrum_metrics_by_application_v2"),
                     ref("ez_avalanche_metrics_by_application_v2"),
+                    ref("ez_base_metrics_by_application_v2"),
+                    ref("ez_bsc_metrics_by_application_v2"),
+                    ref("ez_ethereum_metrics_by_application_v2"),
+                    ref("ez_optimism_metrics_by_application_v2"),
+                    ref("ez_polygon_metrics_by_application_v2")
                 ]
             )
         }}

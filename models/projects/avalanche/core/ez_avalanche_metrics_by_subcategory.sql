@@ -1,8 +1,8 @@
--- depends_on {{ ref("ez_arbitrum_transactions") }}
+-- depends_on {{ ref("ez_avalanche_transactions") }}
 {{
     config(
         materialized="table",
-        snowflake_warehouse="AVALANCHE_LG",
+        snowflake_warehouse="AVALANCHE_MD",
         database="avalanche",
         schema="core",
         alias="ez_metrics_by_subcategory",

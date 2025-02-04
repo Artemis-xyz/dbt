@@ -2,7 +2,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="AVALANCHE_LG",
+        snowflake_warehouse="AVALANCHE_MD",
         database="avalanche",
         schema="core",
         alias="ez_metrics_by_category_v2",
