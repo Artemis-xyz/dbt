@@ -5,6 +5,9 @@
         snowflake_warehouse="SUI",
     ) 
 }}
+
+{% set new_stablecoin_address = var('contract_address', "") %}
+
 select
     block_timestamp
     , date
@@ -34,9 +37,12 @@ select
 from {{ ref("fact_sui_token_transfers") }} t1
 inner join {{ ref("fact_sui_stablecoin_contracts") }} t2 
     on lower(t1.coin_type) = lower(t2.contract_address)
-{% if is_incremental() %} 
+{% if is_incremental() and new_stablecoin_address == '' %} 
     where block_timestamp >= (
         select dateadd('day', -3, max(block_timestamp))
         from {{ this }}
     )
+{% endif %}
+{% if new_stablecoin_address != '' %}
+    where lower(t1.contract_address) = lower('{{ new_stablecoin_address }}')
 {% endif %}
