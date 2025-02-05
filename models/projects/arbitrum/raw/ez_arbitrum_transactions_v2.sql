@@ -3,7 +3,7 @@
     config(
         materialized="incremental",
         unique_key="tx_hash",
-        snowflake_warehouse="ARBITRUM_LG",
+        snowflake_warehouse="ARBITRUM_MD",
         database="arbitrum",
         schema="raw",
         alias="ez_transactions_v2",

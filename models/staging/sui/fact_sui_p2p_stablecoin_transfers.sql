@@ -4,6 +4,9 @@
         unique_key=["unique_id"],
     )
 }}
+
+{% set new_stablecoin_address = var('contract_address', "") %}
+
 with
     stablecoin_transfers as (
         select
@@ -26,11 +29,14 @@ with
         where from_address != to_address 
             and from_address is not null
             and to_address is not null
-        {% if is_incremental() %} 
+        {% if is_incremental() and new_stablecoin_address == '' %} 
             and block_timestamp >= (
                 select dateadd('day', -3, max(block_timestamp))
                 from {{ this }}
             )
+        {% endif %}
+        {% if new_stablecoin_address != '' %}
+            and lower(contract_address) = lower('{{ new_stablecoin_address }}')
         {% endif %}
     )
     , stablecoin_transfers_with_prices as (
@@ -83,3 +89,12 @@ select
     unique_id
 from stablecoin_transfers_with_prices
 where lower(tx_hash) not in (select lower(tx_hash) from cex_filter)
+{% if is_incremental() and new_stablecoin_address == '' %} 
+    and block_timestamp >= (
+        select dateadd('day', -3, max(block_timestamp))
+        from {{ this }}
+    )
+{% endif %}
+{% if new_stablecoin_address != '' %}
+    and lower(token_address) = lower('{{ new_stablecoin_address }}')
+{% endif %}

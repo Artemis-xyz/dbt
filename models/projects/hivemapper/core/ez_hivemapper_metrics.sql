@@ -67,7 +67,7 @@ SELECT
     COALESCE(stats.supply_side_fees, 0) as primary_supply_side_revenue,
     COALESCE(stats.revenue, 0) as revenue,
     COALESCE(stats.mints_native, 0) as mints_native,
-    COALESCE(stats.burn_native, 0) as burn_native,
+    COALESCE(stats.burn_native, 0) as burns_native,
     COALESCE(stats.contributors, 0) as dau
 FROM date_spine
 LEFT JOIN stats ON date_spine.date = stats.date

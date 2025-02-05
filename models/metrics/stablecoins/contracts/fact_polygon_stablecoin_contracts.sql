@@ -8,5 +8,6 @@ from
             ('DAI', '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063', 18, 'dai', 0),
             ('USDT', '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', 6, 'tether', 0),
             ('TUSD', '0x2e1AD108fF1D8C782fcBbB89AAd783aC49586756', 18, 'true-usd', 0),
-            ('FRAX', '0x45c32fa6df82ead1e2ef74d17b76547eddfaff89', 18, 'frax', 0)
+            ('FRAX', '0x45c32fa6df82ead1e2ef74d17b76547eddfaff89', 18, 'frax', 0),
+            ('AUSD', '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a', 6, 'agora-dollar', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
