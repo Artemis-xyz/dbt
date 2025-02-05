@@ -14,7 +14,8 @@ with unioned_swaps as (
         relations = [
             ref('fact_balancer_v2_arbitrum_swaps'),
             ref('fact_balancer_v2_polygon_swaps'),
-            ref('fact_balancer_v2_ethereum_swaps')
+            ref('fact_balancer_v2_ethereum_swaps'),
+            ref('fact_balancer_v2_gnosis_swaps')
         ]
     )
 }}
@@ -37,16 +38,12 @@ select
     -- Input token information
     amount_in_native,
     amount_in_usd,
-    amount_in_fee_native,
-    amount_in_fee_usd,
     token_in_symbol,
     token_in_address,
 
     -- Output token information
     amount_out_native,
     amount_out_usd,
-    amount_out_fee_native,
-    amount_out_fee_usd,
     token_out_symbol,
     token_out_address,
 
