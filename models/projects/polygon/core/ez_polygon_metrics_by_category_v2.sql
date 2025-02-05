@@ -5,7 +5,7 @@
         snowflake_warehouse="polygon",
         database="polygon",
         schema="core",
-        alias="ez_metrics_by_category",
+        alias="ez_metrics_by_category_v2",
     )
 }}
 

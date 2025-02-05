@@ -11,7 +11,9 @@ with
                     ref("ez_bsc_metrics_by_application_v2"),
                     ref("ez_ethereum_metrics_by_application_v2"),
                     ref("ez_optimism_metrics_by_application_v2"),
-                    ref("ez_polygon_metrics_by_application_v2")
+                    ref("ez_polygon_metrics_by_application_v2"),
+                    ref("ez_near_metrics_by_application_v2"),
+                    ref("ez_sei_metrics_by_application_v2")
                 ]
             )
         }}
