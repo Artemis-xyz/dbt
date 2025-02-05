@@ -33,15 +33,14 @@ select
 
     -- Pool information
     pool_address,
-    pool_id,
 
     -- Input token information
-    tokens_in_pool,
     amount_in_native,
     amount_in_usd,
     amount_in_fee_native,
     amount_in_fee_usd,
     token_in_symbol,
+    token_in_address,
 
     -- Output token information
     amount_out_native,
@@ -49,10 +48,18 @@ select
     amount_out_fee_native,
     amount_out_fee_usd,
     token_out_symbol,
+    token_out_address,
 
     -- Fee information
     swap_fee_pct,
     fee_token,
     fee_native,
-    fee_usd
+    fee_usd,
+    CASE WHEN block_timestamp::date > '2022-02-16'
+        then 0.5
+    when block_timestamp::date > '2021-12-13'
+        then 0.1
+    end as protocol_fee_pct,
+    fee_usd * protocol_fee_pct as revenue,
+    fee_usd * (1 - protocol_fee_pct) as supply_side_revenue_usd,
 from unioned_swaps

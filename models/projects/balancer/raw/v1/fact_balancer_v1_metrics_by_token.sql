@@ -10,7 +10,7 @@
 WITH trading_metrics AS (
         SELECT 
             block_date AS date,
-            blockchain AS chain,
+            token_sold_address AS token_address,
             COUNT(*) AS swap_count,
             SUM(swap_fee_usd) AS trading_fees,
             SUM(swap_fee_usd) AS fees, --total fees == trading fees 
@@ -23,16 +23,16 @@ WITH trading_metrics AS (
             0 AS protocol_earnings,       -- to verify
             SUM(token_sold_amount_usd) AS trading_volume,
             COUNT(DISTINCT taker) AS unique_traders
-        FROM {{ ref('fact_balancer_trades') }}
+        FROM {{ ref('fact_balancer_v1_swaps') }}
         WHERE NOT (token_sold_amount_raw > 9E25 AND token_sold_amount_usd > 10000000000) --filter out deprecated, outlier tokens
-        GROUP BY block_date, blockchain
+        GROUP BY block_date, token_sold_address
 ), tvl_balancer_v1 as (
     SELECT
         date,
-        chain,
+        token_address,
         SUM(tvl_token_adjusted) as tvl_usd
     FROM {{ ref('fact_balancer_liquidity') }}
-    group by date, chain
+    group by date, token_address
 ),
 date_spine as (
     select 
@@ -42,7 +42,7 @@ date_spine as (
 )
 SELECT
     date_spine.date,
-    trading_metrics.chain,
+    trading_metrics.token_address,
     '1' as version,
     trading_metrics.swap_count,
     trading_metrics.trading_fees,

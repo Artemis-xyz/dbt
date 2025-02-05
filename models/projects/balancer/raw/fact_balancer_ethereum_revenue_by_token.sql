@@ -4,7 +4,7 @@
         snowflake_warehouse='BALANCER',
         database='BALANCER',
         schema='raw',
-        alias='fact_balancer_ethereum_fees_by_token'
+        alias='fact_balancer_ethereum_revenue_by_token'
     )
 }}
 

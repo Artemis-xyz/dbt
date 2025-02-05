@@ -8,17 +8,13 @@
     )
 }}
 
-with v2_swaps as (
-    select * from ref("fact_balancer_v2_swaps")
-)
-, v1_swaps as (
-    select * from ref("fact_balancer_v1_swaps")
-)
-
-unioned_swaps as (
-    select * from v2_swaps
-    union all
-    select * from v1_swaps
+with all_swaps as (
+    dbt_utils.union_relations(
+        relations = [
+            ref('fact_balancer_v1_swaps'),
+            ref('fact_balancer_v2_swaps')
+        ]
+    )
 )
 
 select
@@ -30,12 +26,17 @@ select
     tx_hash,
     sender,
     recipient,
-    pool,
-    token_0,
-    token_0_symbol,
-    token_1,
-    token_1_symbol,
-    trading_volume,
-    trading_fees,
-    gas_cost_native
-from balancer_swaps
+    pool_address,
+    token_in_address,
+    token_in_symbol,
+    token_out_address,
+    token_out_symbol,
+    amount_in_native,
+    amount_in_usd,
+    amount_out_native,
+    amount_out_usd,
+    swap_fee_pct,
+    fee_usd,
+    revenue,
+    supply_side_revenue_usd
+from unioned_swaps

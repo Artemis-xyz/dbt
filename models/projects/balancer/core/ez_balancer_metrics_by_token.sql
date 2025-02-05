@@ -58,31 +58,6 @@ tvl_balancer_v1 as (
     and native_balance > 0
     group by 1,2
 )
-,   trading_metrics_by_token_sold AS (
-        SELECT 
-            block_date AS date,
-            blockchain AS chain,
-            version,
-            token_sold_address,
-            token_sold_symbol as token,
-            blockchain,
-            COUNT(*) AS swap_count,
-            SUM(swap_fee_usd) AS trading_fees,
-            SUM(swap_fee_usd) AS fees, --total fees == trading fees 
-            SUM(swap_fee_usd) AS primary_supply_side_revenue,
-            0 AS secondary_supply_side_revenue,
-            SUM(swap_fee_usd) AS total_supply_side_revenue,
-            0 AS protocol_revenue,
-            0 AS operating_expenses,
-            0 AS token_incentives,        -- to verify
-            0 AS token_incentives_native,
-            0 AS protocol_earnings,       -- to verify
-            SUM(token_sold_amount_usd) AS trading_volume,
-            COUNT(DISTINCT taker) AS unique_traders,
-        FROM {{ ref('fact_balancer_trades') }}
-        WHERE NOT (token_sold_amount_raw > 9E25 AND token_sold_amount_usd > 10000000000)
-        GROUP BY block_date, token_sold_address, token_sold_symbol, blockchain, version
-) 
 ,date_token_spine as (
     SELECT
         distinct

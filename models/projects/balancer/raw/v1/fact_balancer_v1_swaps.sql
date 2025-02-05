@@ -83,29 +83,34 @@ SWAPS_USD AS (
     WHERE row_num = 1
 )
 SELECT
-    'ethereum' AS blockchain,
-    'balancer' AS project,
-    'v1' AS version,
-    block_date,
-    DATE_TRUNC('MONTH', block_timestamp) AS block_month,
-    block_timestamp AS block_time,
-    tokenOutSymbol AS token_bought_symbol,
-    tokenInSymbol AS token_sold_symbol,
-    CONCAT(tokenOutSymbol, '-', tokenInSymbol) AS token_pair,
-    tokenAmountOut AS token_bought_amount_raw,
-    tokenAmountIn AS token_sold_amount_raw,
-    tokenAmountOutUSD AS token_bount_amount_usd,
-    tokenAmountInUSD AS token_sold_amount_usd,
-    tokenOut AS token_bought_address,
-    tokenIn AS token_sold_address,
-    origin_from_address AS taker, --??
-    ' ' AS maker,                 --??
-    pool AS balancer_pool_address,
-    swapFee AS swap_fee,
-    swapFeeUSD AS swap_fee_usd,
-    'v1' AS pool_type,
+    block_timestamp,
+    chain,
+    'balancer' as app,
+    'v1' as version,
+
+    -- Transaction information
     tx_hash AS tx_hash,
-    origin_from_address AS tx_from, 
-    origin_to_address AS tx_to, 
-    event_index AS evt_index
+    origin_from_address AS sender, 
+    origin_to_address AS recipient, 
+    
+    -- Pool information
+    pool AS pool_address,
+
+    -- Input token information
+    tokenAmountIn AS amount_in_native,
+    tokenAmountInUSD AS amount_in_usd,
+    tokenInSymbol AS token_in_symbol,
+    tokenIn AS token_in_address,
+
+    -- Output token information
+    tokenOutSymbol AS token_out_symbol,
+    tokenOut AS token_out_address,
+    tokenAmountOut AS amount_out_native,
+    tokenAmountOutUSD AS amount_out_usd,
+    
+    -- Fee information
+    swapFee AS swap_fee_pct,
+    swapFeeUSD AS fee_usd,
+    0 as revenue,
+    swapFeeUSD as supply_side_revenue_usd
 FROM SWAPS_USD

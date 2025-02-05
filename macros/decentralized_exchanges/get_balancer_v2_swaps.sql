@@ -53,11 +53,13 @@
         amount_in_native * (f.swap_fee_percentage / 1e18) as amount_in_fee_native,
         (amount_in_native * COALESCE(p_in.price, 0)) * (f.swap_fee_percentage / 1e18) as amount_in_fee_usd,
         p_in.symbol as token_in_symbol,
+        p_in.token_address as token_in_address,
         s.amount_out / pow(10, p_out.decimals) as amount_out_native,
         s.amount_out * COALESCE(p_out.price, 0) / pow(10, p_out.decimals) as amount_out_usd,
         amount_out_native * (f.swap_fee_percentage / 1e18) as amount_out_fee_native,
         (amount_out_native * COALESCE(p_out.price, 0)) * (f.swap_fee_percentage / 1e18) as amount_out_fee_usd,
         p_out.symbol as token_out_symbol,
+        p_out.token_address as token_out_address,
         -- Fee information
         f.swap_fee_percentage / 1e18 as swap_fee_pct,  -- Convert from 18 decimals
         -- Calculate fee amount in USD (based on input amount)
@@ -65,7 +67,7 @@
         coalesce(amount_in_fee_native, amount_out_fee_native) as fee_native,
         coalesce(amount_in_fee_usd, amount_out_fee_usd) as fee_usd
     FROM swaps s
-    LEFT JOIN balancer.prod_raw.fact_balancer_v2_pool_metadata pm 
+    LEFT JOIN {{ ref('fact_balancer_v2_' ~ chain ~ '_pool_metadata') }} pm 
         ON s.pool_id = pm.pool_id
     -- Join with swap fees valid at the time of the swap
     LEFT JOIN swap_fees f 

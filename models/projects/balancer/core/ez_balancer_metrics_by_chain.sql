@@ -69,29 +69,6 @@ with tvl_balancer_v1 as (
     )
     where date between '2020-03-01' and to_date(sysdate())
 )
-,   trading_metrics_by_chain AS (
-        SELECT 
-            block_date AS date,
-            blockchain AS chain,
-            version,
-            COUNT(*) AS swap_count,
-            SUM(swap_fee_usd) AS trading_fees,
-            SUM(swap_fee_usd) AS fees, --total fees == trading fees 
-            SUM(swap_fee_usd) AS primary_supply_side_revenue,
-            0 AS secondary_supply_side_revenue,
-            SUM(swap_fee_usd) AS total_supply_side_revenue,
-            0 AS protocol_revenue,
-            0 AS operating_expenses,
-            0 AS token_incentives,        -- to verify
-            0 AS protocol_earnings,       -- to verify
-            SUM(token_sold_amount_usd) AS trading_volume,
-            COUNT(DISTINCT taker) AS unique_traders,
-            'TBD' AS gas_cost_native,
-            'TBD' AS gas_cost_usd
-        FROM {{ ref('fact_balancer_trades') }}
-        WHERE NOT (token_sold_amount_raw > 9E25 AND token_sold_amount_usd > 10000000000)
-        GROUP BY block_date, blockchain, version
-)
 
 select
     date_chain_spine.date,
