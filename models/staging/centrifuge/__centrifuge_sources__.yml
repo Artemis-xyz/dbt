@@ -1,0 +1,7 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_centrifuge_fees_parquet
+      - name: raw_centrifuge_transactions_parquet

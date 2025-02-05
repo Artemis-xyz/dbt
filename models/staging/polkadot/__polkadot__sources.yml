@@ -5,3 +5,10 @@ sources:
     tables:
       - name: raw_polkadot_daa_txns_gas_gas_usd_revenue
       - name: raw_polkadot_uniq_daily_signers
+      - name: raw_polkadot_fees_parquet
+      - name: raw_polkadot_transactions_parquet
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: polkadot_token_decimals
