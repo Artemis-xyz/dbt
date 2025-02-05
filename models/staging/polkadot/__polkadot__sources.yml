@@ -7,3 +7,8 @@ sources:
       - name: raw_polkadot_uniq_daily_signers
       - name: raw_polkadot_fees_parquet
       - name: raw_polkadot_transactions_parquet
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: polkadot_token_decimals

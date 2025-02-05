@@ -1,9 +1,9 @@
 with
     transactions as (
-        {{ parse_parity_parquets("polkadot", "transactions") }}
+        {{ parse_parity_parquets("acala", "transactions") }}
     ),
     fees as (
-        {{ parse_parity_parquets("polkadot", "fees") }}
+        {{ parse_parity_parquets("acala", "fees") }}
     ),
     decimals as (
         select
@@ -11,9 +11,9 @@ with
             , unit
             , decimals
         from {{ source("MANUAL_STATIC_TABLES", "polkadot_token_decimals") }}
-        where chain = 'polkadot'
+        where chain = 'acala'
     ),
-    prices as ({{ get_coingecko_price_with_latest("polkadot") }})
+    prices as ({{ get_coingecko_price_with_latest("acala") }})
     select
         coalesce(t.timestamp::date, f.timestamp::date) as date
         , coalesce(t.timestamp, f.timestamp) as timestamp
