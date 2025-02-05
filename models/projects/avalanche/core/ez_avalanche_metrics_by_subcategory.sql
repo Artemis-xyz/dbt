@@ -9,4 +9,4 @@
     )
 }}
 
-{{ get_fundamental_data_for_chain_by_subcategory("avalanche") }}
+{{ get_fundamental_data_for_chain_by_subcategory("avalanche", "v2") }}

@@ -161,6 +161,60 @@ select
     null as avg_token_price,
     'sei' as chain
 from {{ ref("ez_sei_metrics_by_contract_v2") }}
+union
+select
+    contract_address,
+    date,
+    name,
+    null as symbol,
+    app as namespace,
+    friendly_name,
+    category,
+    gas as total_gas,
+    gas_usd as total_gas_usd,
+    txns as transactions,
+    dau,
+    null as token_transfer_usd,
+    null as token_transfer,
+    null as avg_token_price,
+    'tron' as chain
+from {{ ref("ez_tron_metrics_by_contract_v2") }}
+union
+select
+    contract_address,
+    date,
+    name,
+    null as symbol,
+    app as namespace,
+    friendly_name,
+    category,
+    gas as total_gas,
+    gas_usd as total_gas_usd,
+    txns as transactions,
+    dau,
+    null as token_transfer_usd,
+    null as token_transfer,
+    null as avg_token_price,
+    'mantle' as chain
+from {{ ref("ez_mantle_metrics_by_contract_v2") }}
+union
+select
+    contract_address,
+    date,
+    name,
+    null as symbol,
+    app as namespace,
+    friendly_name,
+    category,
+    gas as total_gas,
+    gas_usd as total_gas_usd,
+    txns as transactions,
+    dau,
+    null as token_transfer_usd,
+    null as token_transfer,
+    null as avg_token_price,
+    'injective' as chain
+from {{ ref("ez_injective_metrics_by_contract_v2") }}
 -- union
 -- select
 --     contract_address,
@@ -195,59 +249,5 @@ from {{ ref("ez_sei_metrics_by_contract_v2") }}
 --     null as token_transfer_usd,
 --     null as token_transfer,
 --     null as avg_token_price,
---     'tron' as chain
--- from {{ ref("ez_tron_metrics_by_contract") }}
--- union
--- select
---     contract_address,
---     date,
---     name,
---     null as symbol,
---     app as namespace,
---     friendly_name,
---     category,
---     gas as total_gas,
---     gas_usd as total_gas_usd,
---     txns as transactions,
---     dau,
---     null as token_transfer_usd,
---     null as token_transfer,
---     null as avg_token_price,
 --     'sui' as chain
 -- from {{ ref("ez_sui_metrics_by_contract") }}
--- union
--- select
---     contract_address,
---     date,
---     name,
---     null as symbol,
---     app as namespace,
---     friendly_name,
---     category,
---     gas as total_gas,
---     gas_usd as total_gas_usd,
---     txns as transactions,
---     dau,
---     null as token_transfer_usd,
---     null as token_transfer,
---     null as avg_token_price,
---     'injective' as chain
--- from {{ ref("ez_injective_metrics_by_contract") }}
--- union
--- select
---     contract_address,
---     date,
---     name,
---     null as symbol,
---     app as namespace,
---     friendly_name,
---     category,
---     gas as total_gas,
---     gas_usd as total_gas_usd,
---     txns as transactions,
---     dau,
---     null as token_transfer_usd,
---     null as token_transfer,
---     null as avg_token_price,
---     'mantle' as chain
--- from {{ ref("ez_mantle_metrics_by_contract") }}

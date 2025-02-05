@@ -9,4 +9,4 @@
     )
 }}
 
-{{ get_fundamental_data_for_chain_by_subcategory("polygon") }}
+{{ get_fundamental_data_for_chain_by_subcategory("polygon", "v2") }}
