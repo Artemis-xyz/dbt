@@ -16,7 +16,9 @@ with
                     ref("ez_sei_metrics_by_application_v2"),
                     ref("ez_tron_metrics_by_application_v2"),
                     ref("ez_mantle_metrics_by_application_v2"),
-                    ref("ez_injective_metrics_by_application_v2")
+                    ref("ez_injective_metrics_by_application_v2"),
+                    ref("ez_sui_metrics_by_application_v2"),
+                    ref("ez_stellar_metrics_by_application_v2")
                 ]
             )
         }}
