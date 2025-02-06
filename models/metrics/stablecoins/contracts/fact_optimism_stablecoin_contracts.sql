@@ -13,5 +13,6 @@ from
                 13913880
             ),
             ('USDT', '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58', 6, 'tether', 8064094),
-            ('FRAX', '0x2e3d870790dc77a83dd1d18184acc7439a53f475', 18, 'frax', 0)
+            ('FRAX', '0x2e3d870790dc77a83dd1d18184acc7439a53f475', 18, 'frax', 0),
+            ('DOLA', '0x8ae125e8653821e851f12a49f7765db9a9ce7384', 18, 'dola-usd', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)

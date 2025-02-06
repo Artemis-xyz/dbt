@@ -35,5 +35,7 @@ from
             ('RLUSD', '0x8292bb45bf1ee4d140127049757c2e0ff06317ed', 18, 'ripple-usd', 0),
             ('USDa', '0x8a60e489004ca22d775c5f2c657598278d17d9c2', 18, 'usda-2', 0),
             ('DEUSD', '0x15700b564ca08d9439c58ca5053166e8317aa138', 18, 'elixir-deusd', 0),
-            ('GHO', '0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f', 18, 'gho', 0)
+            ('GHO', '0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f', 18, 'gho', 0),
+            ('DOLA', '0x865377367054516e17014ccded1e7d814edc9ce4', 18, 'dola-usd', 0),
+            ('FLEXUSD', '0xa774ffb4af6b0a91331c084e1aebae6ad535e6f3', 18, 'flex-usd', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
