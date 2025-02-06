@@ -1,0 +1,11 @@
+relay,chain,ss58,unit,decimals
+polkadot,acala,10.0,ACA,12
+polkadot,astar,5.0,ASTR,18
+polkadot,bifrost,0.0,BNC,12
+polkadot,centrifuge,36.0,CFG,18
+polkadot,frequency,90.0,FRQCY,8
+polkadot,hydration,63.0,HDX,12
+polkadot,moonbeam,1284.0,GLMR,18
+polkadot,mythos,29972.0,MYTH,18
+polkadot,neuroweb,101.0,NEURO,12
+polkadot,polkadot,0.0,DOT,10
