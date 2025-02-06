@@ -9,12 +9,17 @@
 }}
 
 with all_swaps as (
-    dbt_utils.union_relations(
-        relations = [
-            ref('fact_balancer_v1_swaps'),
-            ref('fact_balancer_v2_swaps')
-        ]
-    )
+    {{
+        dbt_utils.union_relations(
+            relations = [
+                ref('fact_balancer_v1_swaps'),
+                ref('fact_balancer_v2_swaps')
+            ],
+            column_override = {
+                "REVENUE": "float"
+            }
+        )
+    }}
 )
 
 select
@@ -37,6 +42,9 @@ select
     amount_out_usd,
     swap_fee_pct,
     fee_usd,
+    fee_native,
     revenue,
-    supply_side_revenue_usd
+    revenue_native,
+    supply_side_revenue_usd,
+    supply_side_revenue_native
 from all_swaps

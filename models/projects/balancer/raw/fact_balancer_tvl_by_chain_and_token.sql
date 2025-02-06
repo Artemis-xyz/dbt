@@ -24,8 +24,10 @@ select
     date,
     chain,
     version,
-    contract_address,
+    pool_address,
+    token_address,
     token,
-    native_balance as tvl_native,
-    usd_balance as tvl_usd
+    token_balance,
+    token_price,
+    tvl_token_adjusted as amount_usd
 from all_tvl_by_chain_and_token

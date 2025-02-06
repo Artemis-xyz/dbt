@@ -170,6 +170,6 @@
         LEFT JOIN {{source((chain | upper) ~ '_FLIPSIDE_PRICE', 'ez_prices_hourly')}} steth on steth.token_address = lower('0xae7ab96520de3a18e5e111b5eaab095312d7fe84') and steth.hour = date
         LEFT JOIN {{ ref('fact_balancer_v2_' ~ chain ~ '_pool_metadata') }} pm on pm.pool_id = b.pool_id
     WHERE 1=1
-            and usd_balance is not null and usd_balance < 10000000000 -- ten billion
-            and usd_balance > 1
+            and tvl_token_adjusted is not null and tvl_token_adjusted < 10000000000 -- ten billion
+            and tvl_token_adjusted > 1
 {% endmacro %}

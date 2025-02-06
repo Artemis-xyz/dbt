@@ -56,19 +56,22 @@ SWAPS_USD_RAW AS (
         caller,
         source_fees.tx_hash as set_fee_tx_hash,
         tokenIn, 
-        tokenAmountIn, 
+        tokenAmountIn,
         tokenInPrice,
         tokenInSymbol,
         tokenInDecimals,
         tokenAmountIn  / pow(10, tokenInDecimals) * tokenInPrice as tokenAmountInUSD,
+        tokenAmountIn  / pow(10, tokenInDecimals) as tokenAmountInNative,
         tokenOut, 
         tokenAmountOut, 
         tokenOutPrice,
         tokenOutSymbol,
         tokenOutDecimals,
         tokenAmountOut  / pow(10, tokenOutDecimals) * tokenOutPrice as tokenAmountOutUSD,
+        tokenAmountOut  / pow(10, tokenOutDecimals) as tokenAmountOutNative,
         source_fees.decoded_input_data:swapFee / 1e18 as swapFee,
         swapFee * tokenAmountInUSD as swapFeeUSD,
+        swapFee * tokenAmountInNative as swapFeeNative,
         ROW_NUMBER() OVER (PARTITION BY source_fees.to_address, swap.tx_hash, swap.event_index ORDER BY source_fees.block_number DESC NULLS FIRST) AS row_num
     FROM SWAP_DETAILS swap
     LEFT JOIN {{ source("ETHEREUM_FLIPSIDE", "ez_decoded_traces")}} source_fees --ethereum_flipside.core.ez_decoded_traces source_fees 
@@ -111,6 +114,8 @@ SELECT
     -- Fee information
     swapFee AS swap_fee_pct,
     swapFeeUSD AS fee_usd,
+    swapFeeNative as fee_native,
     0 as revenue,
-    swapFeeUSD as supply_side_revenue_usd
+    swapFeeUSD as supply_side_revenue_usd,
+    swapFeeNative as supply_side_revenue_native
 FROM SWAPS_USD

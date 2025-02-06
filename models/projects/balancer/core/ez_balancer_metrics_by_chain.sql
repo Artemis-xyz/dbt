@@ -8,7 +8,29 @@
     )
 }}
 
-with treasury_by_chain as (
+with swap_metrics as (
+    SELECT
+        block_timestamp::date as date,
+        chain,
+        count(distinct sender) as unique_traders,
+        count(*) as number_of_swaps,
+        sum(amount_in_usd) as trading_volume,
+        sum(fee_usd) as trading_fees,
+        sum(revenue) as revenue,
+        sum(supply_side_revenue_usd) as primary_supply_side_revenue
+    FROM {{ ref('ez_balancer_dex_swaps') }}
+    group by 1,2
+)
+, tvl as (
+    SELECT
+        date,
+        chain,
+        sum(amount_usd) as tvl_usd
+    FROM {{ ref('fact_balancer_tvl_by_chain_and_token') }}
+    group by 1,2
+)
+
+, treasury_by_chain as (
     SELECT
         date,
         'ethereum' as chain,
@@ -42,8 +64,8 @@ with treasury_by_chain as (
     FROM {{ ref('dim_date_spine') }}
     CROSS JOIN (SELECT distinct chain from treasury_by_chain
         UNION
-        --SELECT distinct chain from all_tvl_by_chain
-        --UNION
+        SELECT distinct chain from tvl
+        UNION
         SELECT distinct chain from treasury_native
         UNION
         SELECT distinct chain from net_treasury
@@ -52,30 +74,25 @@ with treasury_by_chain as (
 )
 
 select
-    date_chain_spine.date,
-    date_chain_spine.chain,
-    trading_metrics_by_chain.version,
-    trading_metrics_by_chain.swap_count,
-    trading_metrics_by_chain.trading_fees,
-    trading_metrics_by_chain.fees,
-    trading_metrics_by_chain.primary_supply_side_revenue,
-    trading_metrics_by_chain.secondary_supply_side_revenue,
-    trading_metrics_by_chain.total_supply_side_revenue,
-    trading_metrics_by_chain.protocol_revenue,
-    trading_metrics_by_chain.operating_expenses,
-    trading_metrics_by_chain.token_incentives,
-    trading_metrics_by_chain.protocol_earnings,
-    --all_tvl_by_chain.tvl_usd as tvl,
-    tvl_balancer_v1.tvl_usd,
-    treasury_by_chain.usd_balance as treasury_value,
-    treasury_native.treasury_native as treasury_native,
-    net_treasury.net_treasury_usd as net_treasury_value,
-    trading_metrics_by_chain.trading_volume,
-    trading_metrics_by_chain.unique_traders
+    date_chain_spine.date
+    , date_chain_spine.chain
+    , swap_metrics.number_of_swaps
+    , swap_metrics.trading_volume
+    , swap_metrics.unique_traders
+    , swap_metrics.trading_fees
+    , swap_metrics.trading_fees as fees
+    , swap_metrics.primary_supply_side_revenue
+    , swap_metrics.primary_supply_side_revenue as total_supply_side_revenue
+    , swap_metrics.revenue
+    , tvl.tvl_usd
+    , tvl.tvl_usd as net_deposits
+    , treasury_by_chain.usd_balance as treasury_value
+    , treasury_native.treasury_native as treasury_native
+    , net_treasury.net_treasury_usd as net_treasury_value
 from date_chain_spine
 --left join all_tvl_by_chain using (date, chain)
 left join treasury_by_chain using (date, chain)
 left join treasury_native using (date, chain)
 left join net_treasury using (date, chain)
-left join trading_metrics_by_chain using (date, chain)
-left join tvl_balancer_v1 using (date, chain)
+left join swap_metrics using (date, chain)
+left join tvl using (date, chain)

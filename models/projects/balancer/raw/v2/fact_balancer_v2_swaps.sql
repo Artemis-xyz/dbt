@@ -58,5 +58,7 @@ select
         then 0.1
     end as protocol_fee_pct,
     fee_usd * protocol_fee_pct as revenue,
+    fee_native * protocol_fee_pct as revenue_native,
     fee_usd * (1 - protocol_fee_pct) as supply_side_revenue_usd,
+    fee_native * (1 - protocol_fee_pct) as supply_side_revenue_native
 from unioned_swaps

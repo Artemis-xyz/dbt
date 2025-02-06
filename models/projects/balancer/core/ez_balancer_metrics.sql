@@ -13,11 +13,22 @@ with date_spine as (
     from {{ ref('dim_date_spine') }}
     where date between '2020-03-01' and to_date(sysdate())
 )
-
+, swap_metrics as (
+    SELECT
+        block_timestamp::date as date,
+        count(distinct sender) as unique_traders,
+        count(*) as number_of_swaps,
+        sum(amount_in_usd) as trading_volume,
+        sum(fee_usd) as trading_fees,
+        sum(supply_side_revenue_usd) as primary_supply_side_revenue,
+        sum(revenue) as revenue
+    FROM {{ ref('ez_balancer_dex_swaps') }}
+    group by 1
+)
 , all_tvl as (
     SELECT
         date,
-        sum(tvl_usd) as tvl_usd
+        sum(amount_usd) as tvl_usd
     FROM {{ ref('fact_balancer_tvl_by_chain_and_token') }}
     group by 1
 )
@@ -55,23 +66,17 @@ with date_spine as (
 )
 select
     date_spine.date,
-    trading_metrics.version,
-    trading_metrics.swap_count,
-    trading_metrics.trading_fees,
-    trading_metrics.fees,
-    trading_metrics.primary_supply_side_revenue,
-    trading_metrics.secondary_supply_side_revenue,
-    trading_metrics.total_supply_side_revenue,
-    trading_metrics.protocol_revenue,
-    trading_metrics.operating_expenses,
-    trading_metrics.token_incentives,
-    trading_metrics.protocol_earnings,
-   -- all_tvl.tvl_usd as tvl,
-    tvl_balancer_v1.tvl_usd,
+    swap_metrics.unique_traders,
+    swap_metrics.number_of_swaps,
+    swap_metrics.trading_volume,
+    swap_metrics.trading_fees,
+    swap_metrics.trading_fees as fees,
+    swap_metrics.primary_supply_side_revenue,
+    swap_metrics.revenue,
+    all_tvl.tvl_usd as tvl,
     treasury.net_treasury_usd as treasury_value,
     net_treasury.net_treasury_usd as net_treasury_value,
     treasury_native.treasury_native as treasury_native,
-    trading_metrics.trading_volume,
     market_data.price,
     market_data.market_cap,
     market_data.fdmc,
@@ -86,5 +91,4 @@ left join treasury_native using (date)
 left join net_treasury using (date)
 left join token_holders using (date)
 left join market_data using (date)
-left join tvl_balancer_v1 using (date)
-left join trading_metrics using (date)
+left join swap_metrics using (date)
