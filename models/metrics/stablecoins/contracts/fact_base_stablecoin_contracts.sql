@@ -13,5 +13,6 @@ from
                 'bridged-usd-coin-base',
                 0
             ),
-            ('USDS', '0x820C137fa70C8691f0e44Dc420a5e53c168921Dc', 18, 'usds', 0)
+            ('USDS', '0x820C137fa70C8691f0e44Dc420a5e53c168921Dc', 18, 'usds', 0),
+            ('DOLA', '0x4621b7a9c75199271f773ebd9a499dbd165c3191', 18, 'dola-usd', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)

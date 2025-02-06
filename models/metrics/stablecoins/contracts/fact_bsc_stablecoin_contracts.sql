@@ -11,5 +11,6 @@ from
             ('USDX', '0xf3527ef8dE265eAa3716FB312c12847bFBA66Cef', 18, 'usdx-money-usdx', 0),
             ('TUSD', '0x40af3827F39D0EAcBF4A168f8D4ee67c121D11c9', 18, 'true-usd', 0),
             ('FRAX', '0x90c97f71e18723b0cf0dfa30ee176ab653e89f40', 18, 'frax', 0),
-            ('USDa', '0x9356086146be5158e98ad827e21b5cf944699894', 18, 'usda-2', 0)
+            ('USDa', '0x9356086146be5158e98ad827e21b5cf944699894', 18, 'usda-2', 0),
+            ('DOLA', '0x2f29bc0ffaf9bff337b31cbe6cb5fb3bf12e5840', 18, 'dola-usd', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
