@@ -14,7 +14,7 @@ with swap_metrics as (
         pool_address,
         count(*) as number_of_swaps,
         count(distinct sender) as unique_traders,
-        sum(amount_in_usd) as trading_volume,
+        sum(trading_volume) as trading_volume,
         sum(fee_usd) as trading_fees,
         sum(revenue) as revenue
     FROM {{ ref('ez_balancer_dex_swaps') }}

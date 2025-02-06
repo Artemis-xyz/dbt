@@ -14,8 +14,8 @@ with swap_metrics as (
         token_in_symbol as token,
         count(*) as number_of_swaps,
         count(distinct sender) as unique_traders,
-        sum(amount_in_usd) as trading_volume,
-        sum(amount_in_native) as trading_volume_native,
+        sum(trading_volume) as trading_volume,
+        sum(trading_volume_native) as trading_volume_native,
         sum(fee_usd) as trading_fees,
         sum(fee_native) as trading_fees_native,
         sum(supply_side_revenue_usd) as primary_supply_side_revenue,
@@ -105,13 +105,13 @@ select
     , swap_metrics.primary_supply_side_revenue_native
     , swap_metrics.revenue
     , swap_metrics.revenue_native
+    , token_incentives.token_incentives
+    , token_incentives.token_incentives_native
     , tvl.tvl_usd
     , tvl.tvl_native
     , treasury_by_token.usd_balance as treasury_value
     , net_treasury.net_treasury_usd as net_treasury_value
     , treasury_native.treasury_native as treasury_native
-    , token_incentives.token_incentives
-    , token_incentives.token_incentives_native
 from date_token_spine
 full outer join treasury_by_token using (date, token)
 full outer join net_treasury using (date, token)

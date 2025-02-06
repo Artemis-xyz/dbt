@@ -40,11 +40,49 @@ select
     amount_in_usd,
     amount_out_native,
     amount_out_usd,
+    case 
+        when amount_in_usd < 1e8
+            then amount_in_usd
+        when amount_out_usd < 1e8
+            then amount_out_usd
+        else NULL
+    end as trading_volume,
+    case 
+        when amount_in_usd < 1e8
+            then amount_in_native
+        when amount_out_usd < 1e8
+            then amount_out_native
+        else NULL
+    end as trading_volume_native,
     swap_fee_pct,
-    fee_usd,
-    fee_native,
-    revenue,
-    revenue_native,
-    supply_side_revenue_usd,
-    supply_side_revenue_native
+    case 
+        when fee_usd < 1e6
+            then fee_usd
+        else NULL
+    end as fee_usd,
+    case 
+        when fee_usd < 1e6
+            then fee_native
+        else NULL
+    end as fee_native,
+    case 
+        when revenue < 1e5
+            then revenue
+        else NULL
+    end as revenue,
+    case 
+        when revenue < 1e5
+            then revenue_native
+        else NULL
+    end as revenue_native,
+    case 
+        when supply_side_revenue_usd < 1e5
+            then supply_side_revenue_usd
+        else NULL
+    end as supply_side_revenue_usd,
+    case 
+        when supply_side_revenue_usd < 1e5
+            then supply_side_revenue_native
+        else NULL
+    end as supply_side_revenue_native
 from all_swaps

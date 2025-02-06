@@ -14,7 +14,7 @@ with swap_metrics as (
         chain,
         count(distinct sender) as unique_traders,
         count(*) as number_of_swaps,
-        sum(amount_in_usd) as trading_volume,
+        sum(trading_volume) as trading_volume,
         sum(fee_usd) as trading_fees,
         sum(revenue) as revenue,
         sum(supply_side_revenue_usd) as primary_supply_side_revenue

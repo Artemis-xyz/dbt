@@ -18,11 +18,18 @@ with date_spine as (
         block_timestamp::date as date,
         count(distinct sender) as unique_traders,
         count(*) as number_of_swaps,
-        sum(amount_in_usd) as trading_volume,
+        sum(trading_volume) as trading_volume,
         sum(fee_usd) as trading_fees,
         sum(supply_side_revenue_usd) as primary_supply_side_revenue,
         sum(revenue) as revenue
     FROM {{ ref('ez_balancer_dex_swaps') }}
+    group by 1
+)
+, token_incentives as (
+    SELECT
+        date,
+        sum(amount_usd) as token_incentives_usd
+    FROM {{ ref('fact_balancer_token_incentives') }}
     group by 1
 )
 , all_tvl as (
@@ -73,6 +80,9 @@ select
     swap_metrics.trading_fees as fees,
     swap_metrics.primary_supply_side_revenue,
     swap_metrics.revenue,
+    token_incentives.token_incentives_usd as token_incentives,
+    token_incentives.token_incentives_usd as expenses,
+    swap_metrics.revenue - token_incentives.token_incentives_usd as protocol_earnings,
     all_tvl.tvl_usd as tvl,
     treasury.net_treasury_usd as treasury_value,
     net_treasury.net_treasury_usd as net_treasury_value,
@@ -92,3 +102,4 @@ left join net_treasury using (date)
 left join token_holders using (date)
 left join market_data using (date)
 left join swap_metrics using (date)
+left join token_incentives using (date)
