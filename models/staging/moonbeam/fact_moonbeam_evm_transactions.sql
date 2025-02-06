@@ -9,6 +9,6 @@ select
     , parquet_raw:"receiver"::string as receiver 
     , parquet_raw:"relay_chain"::string as relay_chain
     , parquet_raw:"signer"::string as signer 
-    , to_timestamp(RIGHT(parquet_raw:"timestamp", 3)::integer) as timestamp
+    , to_timestamp(parquet_raw:"timestamp"::integer/1000000) as timestamp
     , parquet_raw:"timestamp" as timestamp_raw
 from {{ source("PROD_LANDING", "raw_moonbeam_evm_transactions_parquet") }} 
