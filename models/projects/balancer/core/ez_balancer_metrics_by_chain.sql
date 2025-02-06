@@ -29,6 +29,14 @@ with swap_metrics as (
     FROM {{ ref('fact_balancer_tvl_by_chain_and_token') }}
     group by 1,2
 )
+, token_incentives as (
+    SELECT
+        date,
+        'ethereum' as chain,
+        sum(amount_usd) as token_incentives_usd
+    FROM {{ ref('fact_balancer_token_incentives') }}
+    group by 1,2
+)
 
 , treasury_by_chain as (
     SELECT
@@ -84,7 +92,9 @@ select
     , swap_metrics.primary_supply_side_revenue
     , swap_metrics.primary_supply_side_revenue as total_supply_side_revenue
     , swap_metrics.revenue
-    , tvl.tvl_usd
+    , token_incentives.token_incentives_usd as token_incentives
+    , swap_metrics.revenue - token_incentives.token_incentives_usd as protocol_earnings
+    , tvl.tvl_usd as tvl
     , tvl.tvl_usd as net_deposits
     , treasury_by_chain.usd_balance as treasury_value
     , treasury_native.treasury_native as treasury_native
@@ -95,4 +105,5 @@ left join treasury_by_chain using (date, chain)
 left join treasury_native using (date, chain)
 left join net_treasury using (date, chain)
 left join swap_metrics using (date, chain)
+left join token_incentives using (date, chain)
 left join tvl using (date, chain)

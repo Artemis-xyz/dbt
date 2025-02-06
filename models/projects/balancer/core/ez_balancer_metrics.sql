@@ -86,14 +86,14 @@ select
     all_tvl.tvl_usd as tvl,
     treasury.net_treasury_usd as treasury_value,
     net_treasury.net_treasury_usd as net_treasury_value,
-    treasury_native.treasury_native as treasury_native,
+    treasury_native.treasury_native as treasury_value_native,
     market_data.price,
     market_data.market_cap,
     market_data.fdmc,
     market_data.token_turnover_circulating,
     market_data.token_turnover_fdv,
     market_data.token_volume,
-    token_holders.token_holder_count
+    token_holders.token_holder_count as tokenholder_count
 from date_spine
 left join all_tvl using (date)
 left join treasury using (date)
