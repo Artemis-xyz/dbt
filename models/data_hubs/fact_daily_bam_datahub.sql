@@ -59,9 +59,9 @@ with
     ),
     app_coingecko as (
         select
-            apps.namespace as app,
+            apps.artemis_application_id as app,
             coalesce(apps.symbol, coingecko_tokens.token_symbol) as token_symbol
-        from {{ ref("dim_apps_gold") }} as apps
+        from {{ ref("dim_all_apps_gold") }} as apps
         left join
             {{ ref("dim_coingecko_tokens") }} as coingecko_tokens
             on apps.coingecko_id = coingecko_tokens.coingecko_token_id

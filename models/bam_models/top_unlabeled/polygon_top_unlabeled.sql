@@ -2,7 +2,7 @@
 with
     contracts as (
         select address, name
-        from {{ ref("dim_contracts_gold") }}
+        from {{ ref("dim_all_addresses_labeled_gold") }}
         where chain = 'polygon'
     )
 select t.to_address address

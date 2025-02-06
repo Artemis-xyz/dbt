@@ -148,7 +148,7 @@
             where stablecoin_supply.stablecoin_supply != 0 or all_metrics.from_address is not null
         )
         , filtered_contracts as (
-            select * from {{ ref("dim_contracts_gold")}} where chain = '{{ chain }}'
+            select * from {{ ref("dim_all_addresses_labeled_gold")}} where chain = '{{ chain }}'
         )
         , tagged_chain_stablecoin_metrics as (
             select
@@ -158,12 +158,12 @@
                 , filtered_contracts.name as contract_name
                 , coalesce(filtered_contracts.name, chain_stablecoin_metrics.from_address) as contract
                 , filtered_contracts.friendly_name as application
-                , dim_apps_gold.icon as icon
-                , filtered_contracts.app as app
+                , dim_all_apps_gold.icon as icon
+                , filtered_contracts.artemis_application_id as app
                 , case 
-                    when filtered_contracts.sub_category = 'Market Maker' then filtered_contracts.sub_category
-                    when filtered_contracts.sub_category = 'CEX' then filtered_contracts.sub_category
-                    else filtered_contracts.category 
+                    when filtered_contracts.artemis_sub_category_id = 'Market Maker' then filtered_contracts.artemis_sub_category_id
+                    when filtered_contracts.artemis_sub_category_id = 'CEX' then filtered_contracts.artemis_sub_category_id
+                    else filtered_contracts.artemis_category_id 
                 end as category
                 , case 
                     {% if chain not in ('solana', 'tron', 'near', 'ton', 'sui') %}
@@ -193,8 +193,8 @@
             from chain_stablecoin_metrics
             left join filtered_contracts
                 on lower(chain_stablecoin_metrics.from_address) = lower(filtered_contracts.address)
-            left join {{ref("dim_apps_gold")}} dim_apps_gold 
-                on filtered_contracts.app = dim_apps_gold.namespace
+            left join {{ref("dim_all_apps_gold")}} dim_all_apps_gold 
+                on filtered_contracts.app = dim_all_apps_gold.artemis_application_id
         )
     select
         date

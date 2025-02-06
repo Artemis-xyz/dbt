@@ -2,8 +2,8 @@
 
 with
     tron_contracts as (
-        select address, name, app as namespace, friendly_name, category
-        from {{ ref("dim_contracts_gold") }}
+        select address, name, artemis_application_id as namespace, friendly_name, artemis_category_id AS category
+        from {{ ref("dim_all_addresses_labeled_gold") }}
         where chain = 'tron'
     ),
     tron_fees as (

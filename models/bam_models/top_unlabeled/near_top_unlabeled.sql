@@ -1,7 +1,7 @@
 {{ config(materialized="table") }}
 with
     contracts as (
-        select address, name from {{ ref("dim_contracts_gold") }} where chain = 'near'
+        select address, name from {{ ref("dim_all_addresses_labeled_gold") }} where chain = 'near'
     )
 select t.tx_receiver address
 from near_flipside.core.fact_transactions as t

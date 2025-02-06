@@ -122,11 +122,11 @@ create or replace secure view PC_DBT_DB.BAM.CONTRACTS(
 	SUB_CATEGORY
 ) as SELECT ADDRESS,
 	NAME,
-	APP,
+	artemis_application_id AS app,
 	CHAIN,
-	CATEGORY,
-	SUB_CATEGORY
-FROM PC_DBT_DB.PROD.dim_contracts_gold;
+	artemis_category_id AS category,
+	artemis_sub_category_id AS sub_category
+FROM PC_DBT_DB.PROD.dim_all_addresses_labeled_gold;
 
 create or replace secure view PC_DBT_DB.BAM.NAMESPACES(
 	NAMESPACE,
