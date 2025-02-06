@@ -103,11 +103,11 @@ SELECT
     tokenIn AS token_in_address,
 
     -- Output token information
-    tokenOutSymbol AS token_out_symbol,
-    tokenOut AS token_out_address,
     tokenAmountOut AS amount_out_native,
     tokenAmountOutUSD AS amount_out_usd,
-    
+    tokenOutSymbol AS token_out_symbol,
+    tokenOut AS token_out_address,
+
     -- Fee information
     swapFee AS swap_fee_pct,
     swapFeeUSD AS fee_usd,

@@ -25,13 +25,7 @@ WITH trading_metrics AS (
         FROM {{ ref('fact_balancer_v1_swaps') }}
         WHERE NOT (token_sold_amount_raw > 9E25 AND token_sold_amount_usd > 10000000000) --filter out deprecated, outlier tokens
         GROUP BY block_date
-), tvl_balancer_v1 as (
-    SELECT
-        date,
-        SUM(tvl_token_adjusted) as tvl_usd
-    FROM {{ ref('fact_balancer_liquidity') }}
-    group by date
-),
+), 
 date_spine as (
     select date
     from {{ ref('dim_date_spine') }}

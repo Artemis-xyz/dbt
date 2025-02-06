@@ -161,12 +161,11 @@ adjusted_tvl AS (
 
 SELECT 
     date,
-    pool_address,
     'ethereum' as chain,
-    '1' as version,
+    'v1' as version,
+    pool_address,
     token_address,
-    token_symbol,
-    token_balance_raw,
+    token_symbol as token,
     token_balance,
     token_price,
     tvl_token_adjusted

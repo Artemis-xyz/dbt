@@ -39,4 +39,4 @@ select
     fee_usd,
     revenue,
     supply_side_revenue_usd
-from unioned_swaps
+from all_swaps

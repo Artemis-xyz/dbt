@@ -7,27 +7,8 @@
         alias='ez_metrics_by_chain'
     )
 }}
-/*
-    with all_tvl_by_chain as (
-        SELECT
-            date,
-            chain,
-            sum(tvl_native) as tvl_native,
-            sum(tvl_usd) as tvl_usd
-        FROM {{ ref('fact_balancer_tvl_by_chain_and_token') }}
-        group by 1,2
-),
-*/
-with tvl_balancer_v1 as (
-    SELECT
-        date,
-        'ethereum' as chain,
-        SUM(tvl_token_adjusted) as tvl_usd
-    FROM {{ ref('fact_balancer_liquidity') }}
-    group by 1,2
-)
 
-, treasury_by_chain as (
+with treasury_by_chain as (
     SELECT
         date,
         'ethereum' as chain,

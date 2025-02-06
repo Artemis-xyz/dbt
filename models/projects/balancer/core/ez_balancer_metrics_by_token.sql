@@ -18,15 +18,6 @@ with all_tvl_by_token as (
     where tvl_usd > 0
     group by 1,2
 ),
-tvl_balancer_v1 as (
-    SELECT
-        date,
-        token_address,
-        token_symbol as token,
-        SUM(tvl_token_adjusted) as tvl_usd
-    FROM {{ ref('fact_balancer_liquidity') }}
-    group by 1,2,3
-)
 
 
 , treasury_by_token as (

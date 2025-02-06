@@ -21,13 +21,6 @@ with date_spine as (
     FROM {{ ref('fact_balancer_tvl_by_chain_and_token') }}
     group by 1
 )
-, tvl_balancer_v1 as (
-    SELECT
-        date,
-        SUM(tvl_token_adjusted) as tvl_usd
-    FROM {{ ref('fact_balancer_liquidity') }}
-    group by 1
-)
 , treasury as (
     SELECT
         date,

@@ -1,6 +1,6 @@
 {{
     config(
-        materialized = 'incremental',
+        materialized = 'table',
         snowflake_warehouse = 'MEDIUM',
         database = 'BALANCER',
         schema = 'raw',

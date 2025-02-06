@@ -147,24 +147,28 @@
     )
     SELECT
         date,
-        pool_id,
+        '{{ chain }}' as chain,
+        'v2' as version,
+        pm.pool_address,
         b.token_address,
         CASE WHEN b.token_address = lower('0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0') and date < '2021-10-08' -- No WSETH pricing data before '2021-10-08', so hardcode symbol
             THEN 'WSTETH'
             ELSE p.symbol
-            END AS symbol,
-        native_balance,
-        CASE WHEN b.token_address = lower('0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0') and date < '2021-10-08' -- No WSETH pricing data before '2021-10-08', so default to STETH
-            THEN steth.price
+            END AS token,
+        native_balance as token_balance,
+        CASE 
+            WHEN b.token_address = lower('0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0') and date < '2021-10-08' -- No WSETH pricing data before '2021-10-08', so default to STETH
+                THEN steth.price
             ELSE
-            p.price
-        END as price_adj,
-        native_balance * price_adj as usd_balance
+                p.price
+        END as token_price,
+        native_balance * token_price as tvl_token_adjusted
     FROM
         filled_balances b
         LEFT JOIN {{source((chain | upper) ~ '_FLIPSIDE_PRICE', 'ez_prices_hourly')}} p on p.hour = date
         and p.token_address = b.token_address
         LEFT JOIN {{source((chain | upper) ~ '_FLIPSIDE_PRICE', 'ez_prices_hourly')}} steth on steth.token_address = lower('0xae7ab96520de3a18e5e111b5eaab095312d7fe84') and steth.hour = date
+        LEFT JOIN {{ ref('fact_balancer_v2_' ~ chain ~ '_pool_metadata') }} pm on pm.pool_id = b.pool_id
     WHERE 1=1
             and usd_balance is not null and usd_balance < 10000000000 -- ten billion
             and usd_balance > 1
