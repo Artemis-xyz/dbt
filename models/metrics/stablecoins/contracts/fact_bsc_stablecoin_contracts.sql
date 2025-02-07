@@ -13,5 +13,6 @@ from
             ('FRAX', '0x90c97f71e18723b0cf0dfa30ee176ab653e89f40', 18, 'frax', 0),
             ('USDa', '0x9356086146be5158e98ad827e21b5cf944699894', 18, 'usda-2', 0),
             ('DOLA', '0x2f29bc0ffaf9bff337b31cbe6cb5fb3bf12e5840', 18, 'dola-usd', 0),
-            ('USDF', '0x5A110fC00474038f6c02E89C707D638602EA44B5', 18, 'astherus-usdf', 0)
+            ('USDF', '0x5A110fC00474038f6c02E89C707D638602EA44B5', 18, 'astherus-usdf', 0),
+            ('crvUSD', '0xe2fb3f127f5450dee44afe054385d74c392bdef4', 18, 'crvusd', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
