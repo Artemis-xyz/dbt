@@ -7,6 +7,16 @@ sources:
       - name: raw_polkadot_uniq_daily_signers
       - name: raw_polkadot_fees_parquet
       - name: raw_polkadot_transactions_parquet
+      - name: raw_collectives_fees_parquet
+      - name: raw_collectives_transactions_parquet
+      - name: raw_coretime_fees_parquet
+      - name: raw_coretime_transactions_parquet
+      - name: raw_people_fees_parquet
+      - name: raw_people_transactions_parquet
+      - name: raw_polkadot_asset_hub_fees_parquet
+      - name: raw_polkadot_asset_hub_transactions_parquet
+      - name: raw_polkadot_bridgehub_fees_parquet
+      - name: raw_polkadot_bridgehub_transactions_parquet
   - name: MANUAL_STATIC_TABLES
     schema: prod
     database: pc_dbt_db
