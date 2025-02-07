@@ -40,5 +40,6 @@ from
             ('FLEXUSD', '0xa774ffb4af6b0a91331c084e1aebae6ad535e6f3', 18, 'flex-usd', 0),
             ('USDz', '0xa469b7ee9ee773642b3e93e842e5d9b5baa10067', 18, 'anzen-usdz', 0),
             ('USDtb', '0xc139190f447e929f090edeb554d95abb8b18ac1c', 18, 'usdtb', 0),
-            ('crvUSD', '0xf939e0a03fb07f59a73314e73794be0e57ac1b4e', 18, 'crvusd', 0)
+            ('crvUSD', '0xf939e0a03fb07f59a73314e73794be0e57ac1b4e', 18, 'crvusd', 0),
+            ('GUSD', '0x056fd409e1d7a124bd7017459dfea2f387b6d5cd', 2, 'gemini-dollar', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
