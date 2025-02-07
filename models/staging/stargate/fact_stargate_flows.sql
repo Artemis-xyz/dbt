@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="BRIDGE_MD") }}
 
 with  
     dim_contracts as (
@@ -8,34 +8,27 @@ with
     )
     , transfers_data as (
         select
-            version
-            , src_timestamp
-            , src_hash
-            , src.chain as source_chain
-            , depositor
+            dst_chain
+            , src_block_timestamp
+            , src_chain
+            , src_address
             , src_token_address
-            , category
-            , dst_timestamp
-            , dst.chain as destination_chain
-            , recipient
-            , usd_value
-            , coalesce(treasury_fee, 0) as treasury_fee
-        from {{ref("fact_stargate_transfers")}} t
-        left join {{ ref("stargate_chain_ids") }} src on src_chain = src.id
-        left join {{ ref("stargate_chain_ids") }} dst on dst_chain = dst.id
-        left join dim_contracts t2 on lower(t.src_token_address) = lower(t2.address) and src.chain = t2.chain
+            , t2.category as category
+            , amount_sent
+            , fee_amount
+        from {{ref("fact_stargate_v2_transfers")}} t
+        left join dim_contracts t2 on lower(t.src_token_address) = lower(t2.address) and src_chain = t2.chain
     )
-
 select
-    src_timestamp as block_timestamp
+    src_block_timestamp::date as date
     , 'stargate' as app
-    , source_chain
-    , destination_chain
+    , src_chain as source_chain
+    , dst_chain as destination_chain
     , category
-    , sum(usd_value) as amount_usd
-    , sum(treasury_fee) as treasury_fee_usd
+    , sum(amount_sent) as amount_usd
+    , sum(fee_amount) as fee_usd
 from transfers_data
-where src_timestamp::date < to_date(sysdate())
+where src_block_timestamp::date < to_date(sysdate())
 group by 1, 2, 3, 4, 5
 
 
