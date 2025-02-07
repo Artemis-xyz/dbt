@@ -12,8 +12,8 @@
 with
     fundamental_data as (
         select
-            date, chain, daa, txns, gas, gas_usd, revenue
-        from {{ ref("fact_acala_daa_txns_gas_gas_usd_revenue") }}
+            date, chain, daa, txns, fees_native, fees_usd as fees, fees_usd * .2 as revenue
+        from {{ ref("fact_acala_fundamental_metrics") }}
     ),
     rolling_metrics as ({{ get_rolling_active_address_metrics("acala") }})
 select
@@ -21,12 +21,12 @@ select
     fundamental_data.chain,
     daa as dau,
     txns,
-    gas as fees_native,
-    gas_usd as fees,
+    fees_native,
+    fees,
     fees / txns as avg_txn_fee,
     revenue,
     wau,
-    mau,
+    mau
 from fundamental_data
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 where fundamental_data.date < to_date(sysdate())

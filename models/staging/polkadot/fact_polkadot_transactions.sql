@@ -15,7 +15,8 @@ with
     ),
     prices as ({{ get_coingecko_price_with_latest("polkadot") }})
     select
-        coalesce(t.timestamp::date, f.timestamp::date) as date
+        coalesce(t.chain, f.chain) as chain
+        , coalesce(t.timestamp::date, f.timestamp::date) as date
         , coalesce(t.timestamp, f.timestamp) as timestamp
         , coalesce(t.number, f.number) as number
         , coalesce(t.hash, f.hash) as hash

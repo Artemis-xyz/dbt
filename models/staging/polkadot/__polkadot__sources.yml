@@ -7,6 +7,7 @@ sources:
       - name: raw_polkadot_uniq_daily_signers
       - name: raw_polkadot_fees_parquet
       - name: raw_polkadot_transactions_parquet
+      - name: raw_polkadot_burned_parquet
       - name: raw_collectives_fees_parquet
       - name: raw_collectives_transactions_parquet
       - name: raw_coretime_fees_parquet
