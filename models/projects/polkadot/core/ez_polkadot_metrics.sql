@@ -15,12 +15,13 @@ with
             date,
             chain,
             txns,
-            daa as dau,
-            gas as fees_native,
-            gas_usd as fees,
-            revenue,
-            gas * .8 as revenue_native
-        from {{ ref("fact_polkadot_daa_txns_gas_gas_usd_revenue") }}
+            dau,
+            fees_native,
+            fees_usd as fees,
+            burns,
+            fees_usd * .8 as revenue,
+            fees_native * .8 as revenue_native
+        from {{ ref("fact_polkadot_fundamental_metrics") }}
     ),
     collectives_fundamental_data as (
         select
