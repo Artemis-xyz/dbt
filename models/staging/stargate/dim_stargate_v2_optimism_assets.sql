@@ -1,4 +1,4 @@
-{{config(materialized="table", snowflake_warehouse='BAM_TRENDING_WAREHOUSE_LG')}}
+{{config(materialized="table", snowflake_warehouse='STARGATE')}}
 {{
     stargate_asset_map(
         'optimism'
