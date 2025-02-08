@@ -14,8 +14,8 @@ WITH dates AS (
         {{ chain }}_flipside.price.ez_prices_hourly
     WHERE
         hour > date('{{earliest_date}}')
-),
-sparse_balances AS (
+)
+, sparse_balances AS (
     SELECT
         DATE(block_timestamp) AS date,
         address as user_address,
@@ -23,8 +23,13 @@ sparse_balances AS (
             when contract_address = lower('0x4da27a545c0c5B758a6BA100e3a049001de870f5') -- no pricing data for stkAAVE, so default to AAVE
                 then lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9')
                 else contract_address
-            end as contract_address,        
-        MAX_BY(balance_token / pow(10, coalesce(decimals,18)), block_timestamp) AS balance_daily
+            end as contract_address,      
+        case
+            when contract_address = 'native_token' 
+                then 0
+            else decimals
+        end as decimals_adj,
+        MAX_BY(balance_token / pow(10, coalesce(decimals_adj,18)), block_timestamp) AS balance_daily
     FROM
         {{ref('fact_' ~ chain ~ '_address_balances_by_token')}} b
         LEFT JOIN {{ chain }}_flipside.price.ez_asset_metadata t on t.token_address = b.contract_address
@@ -40,9 +45,10 @@ sparse_balances AS (
     GROUP BY
         1,
         2,
-        3
-),
-full_balances AS (
+        3,
+        4
+)
+, full_balances AS (
     SELECT
         d.date,
         {% if addresses is string %}
@@ -87,29 +93,50 @@ full_balances AS (
             ta.address = sb.user_address
         {% endif %}
         AND t.token_address = sb.contract_address
-),
-full_table as (
+)
+, full_table as (
     SELECT
         fb.date,
         fb.user_address,
         fb.contract_address,
-        p.symbol,
+        CASE 
+            WHEN contract_address = 'native_token'
+                {% if chain == 'ethereum' %}
+                THEN 'ETH' 
+                {% elif chain == 'solana' %}
+                THEN 'SOL'
+                {% else %}
+                THEN 'NATIVE'
+                {% endif %}
+            ELSE p.symbol
+        END AS symbol_adj,            
         fb.balance_daily as balance_daily,
-        COALESCE(p.price, 0) AS price,
-        fb.balance_daily * COALESCE(p.price, 0) AS usd_balance
+        CASE 
+            WHEN contract_address = 'native_token'
+                THEN coalesce(weth.price, 0) -- use WETH for ETH price 
+            ELSE COALESCE(p.price, 0)
+        END AS price_adj,    
+        fb.balance_daily * COALESCE(price_adj, 0) AS usd_balance
     FROM
         full_balances fb
-        LEFT JOIN ethereum_flipside.price.ez_prices_hourly p ON p.hour = fb.date
-        AND fb.contract_address = p.token_address -- AND dp.decimals is not null
-        -- and dp.decimals > 0
+        LEFT JOIN ethereum_flipside.price.ez_prices_hourly p ON 
+                (
+                    p.hour = fb.date
+                    AND fb.contract_address = p.token_address -- AND dp.decimals is not null
+                )
+            LEFT JOIN ethereum_flipside.price.ez_prices_hourly weth ON  -- use WETH for ETH price 
+                (
+                    weth.hour = fb.date 
+                    AND lower(weth.token_address) = lower('0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2')
+                )
     WHERE
-        symbol is not null
+        symbol_adj is not null
 )
 SELECT
     date,
     '{{ chain }}' as chain,
     contract_address,
-    symbol as token,
+    symbol_adj as token,
     SUM(balance_daily) as native_balance,
     SUM(usd_balance) as usd_balance
 FROM
