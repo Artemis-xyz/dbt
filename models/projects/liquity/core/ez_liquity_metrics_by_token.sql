@@ -8,12 +8,13 @@
     )
 }}
 
-with tvl as (
+with  fees_and_revs as (
     select
         date,
         token,
-        sum(tvl_usd) as tvl
-    from {{ ref('fact_liquity_tvl') }}
+        sum(revenue_usd) as revenue_usd,
+        sum(revenue_native) as revenue_native
+    from {{ ref('fact_liquity_fees_and_revs') }}
     group by 1, 2
 )
 , outstanding_supply as (
@@ -24,13 +25,38 @@ with tvl as (
     from {{ ref('fact_liquity_outstanding_supply') }}
     group by 1, 2
 )
-, fees_and_revs as (
+, treasury as (
+    SELECT
+        date,
+        token,
+        sum(native_balance) as treasury_value,
+        SUM(
+            CASE WHEN token = 'LQTY'
+                THEN native_balance
+            END
+        ) AS treasury_native_value,
+        SUM(
+            CASE WHEN token <> 'LQTY'
+                THEN native_balance
+            END
+        ) AS net_treasury_value
+    FROM {{ ref('fact_liquity_treasury') }}
+    GROUP BY 1, 2
+)
+, token_incentives as (
     select
         date,
         token,
-        sum(revenue_usd) as revenue_usd,
-        sum(revenue_native) as revenue_native
-    from {{ ref('fact_liquity_fees_and_revs') }}
+        sum(token_incentives_native) as token_incentives_native
+    from {{ ref('fact_liquity_token_incentives') }}
+    group by 1, 2
+)
+, tvl as (
+    select
+        date,
+        token,
+        sum(tvl_usd) as tvl
+    from {{ ref('fact_liquity_tvl') }}
     group by 1, 2
 )
 , date_token_spine as (
@@ -49,13 +75,25 @@ with tvl as (
 select
     dts.date,
     dts.token,
-    tvl.tvl,
-    os.outstanding_supply,
+
+    -- Fees and revenue
     fr.revenue_usd as fees,
     fr.revenue_native as fees_native,
     fr.revenue_usd as revenue,
-    fr.revenue_native as revenue_native
+    fr.revenue_native as revenue_native,
+    ti.token_incentives_native as token_incentives_native,
+
+    -- Treasury
+    treasury.treasury_value,
+    treasury.treasury_native_value,
+    treasury.net_treasury_value,
+
+    -- TVL
+    tvl.tvl,
+    os.outstanding_supply,
 from date_token_spine dts
 left join tvl using (date, token)
 left join outstanding_supply os using (date, token)
 left join fees_and_revs fr using (date, token)
+left join treasury using (date, token)
+left join token_incentives ti using (date, token)
