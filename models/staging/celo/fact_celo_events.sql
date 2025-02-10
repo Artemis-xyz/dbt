@@ -3,6 +3,7 @@
     config(
         materialized="incremental",
         unique_key=["transaction_hash", "event_index"],
+        snowflake_warehouse='ANALYTICS_XL',
     )
 }}
 {{
@@ -29,6 +30,7 @@ select
     event_index,
     contract_address,
     topics,
+    replace(array_to_string(array_slice(topics, 1, array_size(topics)), ''), '0x', '') as topic_data,
     data,
     removed,
     topic_zero,
