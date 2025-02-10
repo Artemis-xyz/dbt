@@ -29,8 +29,8 @@ with fees as (
     GROUP BY 1, 2
 )
 SELECT
-    fees.date,
-    fees.pool_name,
+    coalesce(fees.date, tvl.date) as date,
+    coalesce(fees.pool_name, tvl.pool_name) as pool_name,
     fees.fees,
     fees.platform_fees,
     fees.delegate_fees,
