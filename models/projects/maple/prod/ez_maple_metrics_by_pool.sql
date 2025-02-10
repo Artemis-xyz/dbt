@@ -18,23 +18,23 @@ with fees as (
     FROM {{ ref('fact_maple_fees') }}
     GROUP BY 1, 2
 )
--- , tvl as (
---     SELECT
---         date,
---         pool_name,
---         SUM(tvl_native) AS tvl_native,
---         SUM(tvl) AS tvl,
---         SUM(outstanding_supply) AS outstanding_supply
---     FROM {{ ref('fact_maple_agg_tvl') }}
---     GROUP BY 1, 2
--- )
+, tvl as (
+    SELECT
+        date,
+        pool_name,
+        -- SUM(tvl_native) AS tvl_native,
+        SUM(tvl) AS tvl,
+        SUM(outstanding_supply) AS outstanding_supply
+    FROM {{ ref('fact_maple_agg_tvl') }}
+    GROUP BY 1, 2
+)
 SELECT
     fees.date,
     fees.pool_name,
     fees.fees,
     fees.platform_fees,
     fees.delegate_fees,
-    -- tvl.tvl,
-    -- tvl.outstanding_supply
+    tvl.tvl,
+    tvl.outstanding_supply
 FROM fees
--- FULL OUTER JOIN tvl ON fees.date = tvl.date AND fees.pool_name = tvl.pool_name
+FULL OUTER JOIN tvl ON fees.date = tvl.date AND fees.pool_name = tvl.pool_name
