@@ -12,7 +12,7 @@ burns as (
         date,
         sum(burns_native) as burns_native,
         sum(burns) as burns
-    from {{ ref("fact_polkadot_burned") }}
+    from {{ ref("fact_polkadot_burns") }}
     where date < to_date(sysdate())
     group by date
 ),

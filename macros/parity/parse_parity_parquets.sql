@@ -9,7 +9,7 @@
             , to_timestamp_ntz(parquet_raw:"timestamp"::integer/1000000) as timestamp
             , parquet_raw:"relay_chain"::string as relay_chain
         FROM {{ source("PROD_LANDING", "raw_" ~ chain  ~ "_transactions_parquet") }}
-    {% elif metric_type == "burned" %}
+    {% elif metric_type == "burns" %}
         with decimals as (
             select
                 chain
@@ -28,7 +28,7 @@
             , f.parquet_raw as parquet_raw
             , decimals
             , unit
-        FROM {{ source("PROD_LANDING", "raw_" ~ chain  ~ "_burned_parquet") }} as f
+        FROM {{ source("PROD_LANDING", "raw_" ~ chain  ~ "_burns_parquet") }} as f
         LEFT JOIN decimals on f.parquet_raw:"chain"::string = decimals.chain
     {% else %}
     with decimals as (
