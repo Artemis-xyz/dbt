@@ -35,14 +35,14 @@ with fees as (
     FROM {{ ref('fact_maple_token_incentives') }}
     GROUP BY 1, 2
 )
-, tvl as (
-    SELECT
-        date,
-        asset as token,
-        SUM(tvl_native) AS tvl_native
-    FROM {{ ref('fact_maple_agg_tvl') }}
-    GROUP BY 1, 2
-)
+-- , tvl as (
+--     SELECT
+--         date,
+--         asset as token,
+--         SUM(tvl_native) AS tvl_native
+--     FROM {{ ref('fact_maple_agg_tvl') }}
+--     GROUP BY 1, 2
+-- )
 , treasury as (
     SELECT
         date,
@@ -71,8 +71,8 @@ with fees as (
 )
 
 SELECT
-    coalesce(fees.date, revenues.date, token_incentives.date, tvl.date, treasury.date) as date,
-    coalesce(fees.token, revenues.token, token_incentives.token, tvl.token, treasury.token) as token,
+    coalesce(fees.date, revenues.date, token_incentives.date, treasury.date) as date,
+    coalesce(fees.token, revenues.token, token_incentives.token, treasury.token) as token,
     fees.fees_native as interest_fees_native,
     fees.platform_fees_native as platform_fees_native,
     fees.delegate_fees_native as delegate_fees_native,
@@ -82,8 +82,8 @@ SELECT
     token_incentives.token_incentives_native,
     token_incentives.token_incentives_native as expenses_native,
     revenues.revenue_native - token_incentives.token_incentives_native as protocol_earnings_native
-    , tvl.tvl_native
-    , tvl.tvl_native as net_deposits_native
+    -- , tvl.tvl_native
+    -- , tvl.tvl_native as net_deposits_native
     , treasury.treasury_value_native
     , treasury_native.treasury_native
     , net_treasury.net_treasury_value
@@ -91,8 +91,8 @@ FROM
     fees
 full join revenues using(date, token)
 full join token_incentives using(date, token)
-full join tvl using(date, token)
+-- full join tvl using(date, token)
 full join treasury using(date, token)
 full join treasury_native using(date, token)
 full join net_treasury using(date, token)
-WHERE coalesce(fees.date, revenues.date, token_incentives.date, tvl.date, treasury.date) < to_date(sysdate())
+WHERE coalesce(fees.date, revenues.date, token_incentives.date, treasury.date) < to_date(sysdate())

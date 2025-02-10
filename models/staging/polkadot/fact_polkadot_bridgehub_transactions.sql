@@ -1,9 +1,9 @@
 with
     transactions as (
-        {{ parse_parity_parquets("polkadot", "transactions") }}
+        {{ parse_parity_parquets("polkadot_bridgehub", "transactions") }}
     ),
     fees as (
-        {{ parse_parity_parquets("polkadot", "fees") }}
+        {{ parse_parity_parquets("polkadot_bridgehub", "fees") }}
     ),
     decimals as (
         select
