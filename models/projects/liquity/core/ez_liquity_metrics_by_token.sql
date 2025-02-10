@@ -82,7 +82,7 @@ select
     fr.revenue_usd as revenue,
     fr.revenue_native as revenue_native,
     ti.token_incentives_native as token_incentives_native,
-
+    ti.token_incentives_native as expenses_native,
     -- Treasury
     treasury.treasury_value,
     treasury.treasury_native_value,
