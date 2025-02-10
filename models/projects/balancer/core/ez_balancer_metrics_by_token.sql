@@ -108,7 +108,9 @@ select
     , token_incentives.token_incentives
     , token_incentives.token_incentives_native
     , tvl.tvl_usd
+    , tvl.tvl_usd as net_deposits
     , tvl.tvl_native
+    , tvl.tvl_native as net_deposits_native
     , treasury_by_token.usd_balance as treasury_value
     , net_treasury.net_treasury_usd as net_treasury_value
     , treasury_native.treasury_native as treasury_native

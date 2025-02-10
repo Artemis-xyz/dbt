@@ -47,6 +47,7 @@ select
     , swap_metrics.trading_fees
     , swap_metrics.revenue
     , tvl.tvl_usd
+    , tvl.tvl_usd as net_deposits
 from date_pool_spine
 left join swap_metrics using (date, pool_address)
 left join tvl using (date, pool_address)

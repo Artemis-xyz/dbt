@@ -84,6 +84,7 @@ select
     token_incentives.token_incentives_usd as expenses,
     swap_metrics.revenue - token_incentives.token_incentives_usd as protocol_earnings,
     all_tvl.tvl_usd as tvl,
+    all_tvl.tvl_usd as net_deposits,
     treasury.net_treasury_usd as treasury_value,
     net_treasury.net_treasury_usd as net_treasury_value,
     treasury_native.treasury_native as treasury_value_native,
