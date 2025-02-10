@@ -16,3 +16,4 @@ sources:
       - name: raw_maple_otc_by_day
       - name: raw_maple_solana_by_day
       - name: raw_maple_dim_pools
+      - name: raw_maple_tvl_dune
