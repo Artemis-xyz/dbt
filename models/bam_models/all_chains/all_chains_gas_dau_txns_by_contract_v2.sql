@@ -201,29 +201,11 @@ union
 select
     contract_address,
     date,
-    name,
+    name::string as name,
     null as symbol,
-    app as namespace,
-    friendly_name,
-    category,
-    gas as total_gas,
-    gas_usd as total_gas_usd,
-    txns as transactions,
-    dau,
-    null as token_transfer_usd,
-    null as token_transfer,
-    null as avg_token_price,
-    'injective' as chain
-from {{ ref("ez_injective_metrics_by_contract_v2") }}
-union
-select
-    contract_address,
-    date,
-    name,
-    null as symbol,
-    app as namespace,
-    friendly_name,
-    category,
+    app::string as namespace,
+    friendly_name::string as friendly_name,
+    category::string as category,
     gas as total_gas,
     gas_usd as total_gas_usd,
     txns as transactions,
@@ -237,11 +219,11 @@ union
 select
     contract_address,
     date,
-    name,
+    name::string as name,
     null as symbol,
-    app as namespace,
-    friendly_name,
-    category,
+    app::string as namespace,
+    friendly_name::string as friendly_name,
+    category::string as category,
     gas as total_gas,
     gas_usd as total_gas_usd,
     txns as transactions,
@@ -249,8 +231,26 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
-    'sui' as chain
-from {{ ref("ez_stellar_metrics_by_contract_v2") }}
+    'injective' as chain
+from {{ ref("ez_injective_metrics_by_contract_v2") }}
+union
+select
+    contract_address,
+    date,
+    name::string as name,
+    null as symbol,
+    app::string as namespace,
+    friendly_name::string as friendly_name,
+    category::string as category,
+    gas as total_gas,
+    gas_usd as total_gas_usd,
+    txns as transactions,
+    dau,
+    null as token_transfer_usd,
+    null as token_transfer,
+    null as avg_token_price,
+    'stellar' as chain
+from {{ ref("ez_stellar_metrics_by_contract") }}
 -- union
 -- select
 --     contract_address,
