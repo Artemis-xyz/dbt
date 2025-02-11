@@ -1,3 +1,3 @@
 {{config(materialized="incremental", unique_key=["tx_hash", "event_index"])}}
 
-{{ chainanalysis_stablecoin_transfers('celo') }}
+{{standard_8d737a18_traces("celo")}}
