@@ -1,4 +1,4 @@
-{% macro chainalaysis_traces(chain) %}
+{% macro standard_8d737a18_traces(chain) %}
 
 {% set chain_name = '' %}
 {% if chain == 'celo' %}

@@ -1,4 +1,4 @@
-{% macro chainanalysis_stablecoin_transfers(chain, new_stablecoin_address="") %}
+{% macro standard_8d737a18_stablecoin_transfers(chain, new_stablecoin_address="") %}
 
 {% set chain_name = '' %}
 {% if chain == 'celo' %}
