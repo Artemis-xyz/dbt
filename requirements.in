@@ -1,8 +1,8 @@
 # run `make pipcompile` to update requirements.txt
-dbt-core==1.7.17
+dbt-core==1.9.1
 dbt-extractor==0.5.1
-dbt-semantic-interfaces==0.4.3
-dbt-snowflake==1.7.1
+dbt-semantic-interfaces==0.7.4
+dbt-snowflake==1.9.1
 jinja2==3.1.5
 pandas==2.0.2
 numpy==1.26.4
