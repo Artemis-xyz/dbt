@@ -26,6 +26,7 @@ parity_transactions as (
 )
 select
     coalesce(t.date, e.date) as date
+    , 'acala' as chain
     , t.txns + e.txns as txns
     , t.daa + e.daa as daa
     , t.fees_native as fees_native
