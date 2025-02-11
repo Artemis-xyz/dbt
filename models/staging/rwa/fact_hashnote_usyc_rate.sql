@@ -15,13 +15,14 @@ with raw as (
     group by 1
 )
 , dates as (
-    SELECT date FROM
-    pc_dbt_db.prod.dim_date_spine
-    WHERE date between
-        (SELECT MIN(date) FROM raw)
-        AND to_date(sysdate())
-)
-, sparse as (
+    {{
+        dbt_utils.date_spine(
+            datepart="day",
+            start_date="CAST('2015-08-08' as date)",
+            end_date="to_date(sysdate())"
+        )
+    }}
+) , sparse as (
     SELECT
         d.date,
         rate
