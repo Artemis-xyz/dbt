@@ -10,10 +10,14 @@
 
 with 
     date_spine as ( 
-        select * from {{ ref('dim_date_spine') }}
-        where date between '2022-12-20' and to_date(sysdate())
+        {{
+            dbt_utils.date_spine(
+                datepart="day",
+                start_date="cast('2022-12-20' as date)",
+                end_date="to_date(sysdate())"
+            )
+        }}
     )
-
 , bme_reward_types_cte as (
     SELECT
         distinct reward_type as bme_reward_types

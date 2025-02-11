@@ -83,22 +83,19 @@ with
     )
     , date_range as (
         select 
-            min(block_timestamp)::date as date
-            , contract_address
-            , symbol
-            , address
-        from heal_balance_table
-        group by contract_address, address, symbol
-        
-        union all   
-        
-        select
-            dateadd(day, 1, date) as date
-            , contract_address
-            , symbol
-            , address
-        from date_range
-        where date < dateadd(day, -1, to_date(sysdate()))
+            dateadd(
+                day,
+                row_number() over (partition by contract_address, symbol, address order by seq4()) - 1,
+                min_date
+            ) as date,
+            contract_address,
+            symbol,
+            address
+        from min_dates,
+        table(generator(rowcount => (
+            select datediff(day, min_date, dateadd(day, -1, to_date(sysdate()))) + 1
+            from min_dates
+        )))
     )
     , historical_supply_by_address_balances as (
         select

@@ -9,9 +9,13 @@
 }}
 -- 2020-10-25
 with date_spine as (
-    select date
-    from {{ ref("dim_date_spine") }}
-    where date between date('2021-03-29') and to_date(sysdate())
+    {{
+        dbt_utils.date_spine(
+            datepart="day",
+            start_date="cast('2021-03-29' as date)",
+            end_date="to_date(sysdate())"
+        )
+    }}
 )
 , revenue as (
     select

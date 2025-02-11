@@ -12,5 +12,5 @@ SELECT
     'cardano' AS chain
 FROM
     cardano_data,
-    LATERAL FLATTEN(input => data:data:values) AS F
+    LATERAL FLATTEN(input => GET_PATH(data, 'data', 'values')) AS F
 ORDER BY DATE DESC

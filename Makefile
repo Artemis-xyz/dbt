@@ -14,3 +14,7 @@ dbt-perms:
 
 pipcompile:
 	uv pip compile --annotation-style=line requirements.in -o requirements.txt --no-strip-extras
+
+update-sdf:
+	dbt compile && sdf dbt refresh && sdf compile
+
