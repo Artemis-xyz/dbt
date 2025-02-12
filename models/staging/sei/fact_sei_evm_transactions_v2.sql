@@ -17,7 +17,7 @@ with
             contract.artemis_application_id as app,
             contract.friendly_name
         from {{ ref("dim_all_addresses_labeled_gold") }} as contract
-        where chain = 'sei'
+        where chain = 'sei' and is_token is null
     ),
     prices as ({{ get_coingecko_price_with_latest("sei-network") }}),
     sei_transactions as ( 

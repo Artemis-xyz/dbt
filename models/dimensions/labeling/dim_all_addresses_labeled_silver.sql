@@ -48,6 +48,7 @@ SELECT
     lat.address,
     lat.name,
     INITCAP(REPLACE(lat.name, '_', ' ')) as friendly_name,
+    lat.artemis_application_id,
     ag.artemis_category_id,
     ag.artemis_sub_category_id,
     lat.chain,
