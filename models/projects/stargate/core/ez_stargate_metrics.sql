@@ -57,6 +57,7 @@ daily_metrics AS (
         SUM(amount_sent * 0.0001) as supply_side_fee,
         SUM(COALESCE(NULLIF(fee_amount, 0), amount_sent * 0.0004) + (amount_sent * 0.0002)) AS total_fee
     FROM {{ ref("fact_stargate_v2_transfers") }} t
+    where amount_sent > 0 and fee_amount > 0
     GROUP BY transaction_date
 ),
 
