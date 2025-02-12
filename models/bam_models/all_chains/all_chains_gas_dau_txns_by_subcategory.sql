@@ -16,7 +16,8 @@ with
                     ref("ez_mantle_metrics_by_subcategory"),
                     ref("ez_injective_metrics_by_subcategory"),
                     ref("ez_sui_metrics_by_subcategory"),
-                    ref("ez_stellar_metrics_by_subcategory")
+                    ref("ez_stellar_metrics_by_subcategory"),
+                    ref("ez_solana_metrics_by_subcategory")
                 ]
             )
         }}
