@@ -34,7 +34,7 @@
             end as transfer_volume,
             token_address as contract_address,
             fact_{{ chain }}_stablecoin_contracts.symbol
-        from tron_allium.assets.trc20_token_transfers
+        from tron_allium.assets.trc20_token_transfers t1
         join
             fact_{{ chain }}_stablecoin_contracts
             on lower(tron_allium.assets.trc20_token_transfers.token_address)
@@ -82,7 +82,7 @@
             on lower(transfers.contract_address) = lower(contracts.contract_address)
         where lower(transfers.contract_address) in (
                 select lower(contract_address)
-                from {{ ref('fact_ton_stablecoin_contracts') }}
+                from {{ ref('fact_ton_stablecoin_contracts') }} t1
             )
             and tx_status = 'TRUE'
     {% elif chain in ("solana") %}
@@ -196,7 +196,7 @@
             end as transfer_volume,
             mint as contract_address,
             fact_{{ chain }}_stablecoin_contracts.symbol
-        from solana_flipside.core.fact_transfers
+        from solana_flipside.core.fact_transfers t1
         join
             fact_{{ chain }}_stablecoin_contracts
             on lower(solana_flipside.core.fact_transfers.mint)
