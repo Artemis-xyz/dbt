@@ -1,16 +1,16 @@
 {{ config(materialized="table", snowflake_warehouse="BAM_TRENDING_WAREHOUSE_MD") }}
 
 select *, 'arbitrum' as chain
-from {{ ref("arb_trending_daily_v2") }}
+from {{ ref("arbitrum_trending_daily_v2") }}
 union all
 select *, 'arbitrum' as chain
-from {{ ref("arb_trending_weekly_monthly_v2") }}
+from {{ ref("arbitrum_trending_weekly_monthly_v2") }}
 union all
 select *, 'avalanche' as chain
-from {{ ref("avax_trending_daily_v2") }}
+from {{ ref("avalanche_trending_daily_v2") }}
 union all
 select *, 'avalanche' as chain
-from {{ ref("avax_trending_weekly_monthly_v2") }}
+from {{ ref("avalanche_trending_weekly_monthly_v2") }}
 union all
 select *, 'base' as chain
 from {{ ref("base_trending_daily_v2") }}
