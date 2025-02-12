@@ -25,10 +25,10 @@ select *, 'bsc' as chain
 from {{ ref("bsc_trending_weekly_monthly_v2") }}
 union all
 select *, 'ethereum' as chain
-from {{ ref("eth_trending_daily_v2") }}
+from {{ ref("ethereum_trending_daily_v2") }}
 union all
 select *, 'ethereum' as chain
-from {{ ref("eth_trending_weekly_monthly_v2") }}
+from {{ ref("ethereum_trending_weekly_monthly_v2") }}
 union all
 select *, 'near' as chain
 from {{ ref("near_trending_daily_v2") }}
