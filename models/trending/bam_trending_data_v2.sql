@@ -37,10 +37,10 @@ select *, 'near' as chain
 from {{ ref("near_trending_weekly_monthly_v2") }}
 union all
 select *, 'optimism' as chain
-from {{ ref("opt_trending_daily_v2") }}
+from {{ ref("optimism_trending_daily_v2") }}
 union all
 select *, 'optimism' as chain
-from {{ ref("opt_trending_weekly_monthly_v2") }}
+from {{ ref("optimism_trending_weekly_monthly_v2") }}
 union all
 select *, 'polygon' as chain
 from {{ ref("polygon_trending_daily_v2") }}
