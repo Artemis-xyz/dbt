@@ -119,7 +119,28 @@ with
     {% if is_incremental() %}
         and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}
-)
+),
+dvn_fees as (
+    select
+        block_timestamp,
+        tx_hash,
+        contract_address,
+        decoded_log:"fees"[0]/1e18 as dvnFees
+    from ethereum_flipside.core.fact_decoded_event_logs
+    where lower(contract_address) = lower('0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1') -- ether: 0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1, 
+    and event_name = 'DVNFeePaid'
+),
+executor_fees as (
+    select
+        block_timestamp,
+        tx_hash,
+        contract_address,
+        decoded_log:"fee"/1e18 as executorFees
+    from ethereum_flipside.core.fact_decoded_event_logs
+    where lower(contract_address) = lower('0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1') and
+    event_name = 'ExecutorFeePaid'
+),
+
 {% endif %}
 select
     events.block_timestamp
