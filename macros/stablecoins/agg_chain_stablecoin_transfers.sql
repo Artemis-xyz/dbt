@@ -34,7 +34,7 @@
             end as transfer_volume,
             token_address as contract_address,
             fact_{{ chain }}_stablecoin_contracts.symbol
-        from tron_allium.assets.trc20_token_transfers t1
+        from tron_allium.assets.trc20_token_transfers
         join
             fact_{{ chain }}_stablecoin_contracts
             on lower(tron_allium.assets.trc20_token_transfers.token_address)
@@ -42,7 +42,7 @@
         where
             lower(tron_allium.assets.trc20_token_transfers.token_address) in (
                 select lower(contract_address)
-                from fact_{{ chain }}_stablecoin_contracts
+                from fact_{{ chain }}_stablecoin_contracts t1
             )
     -- TODO: Refactor to support native currencies. Currently assumes everything is $1
     -- b/c of perf issues when joining
@@ -196,14 +196,14 @@
             end as transfer_volume,
             mint as contract_address,
             fact_{{ chain }}_stablecoin_contracts.symbol
-        from solana_flipside.core.fact_transfers t1
+        from solana_flipside.core.fact_transfers
         join
             fact_{{ chain }}_stablecoin_contracts
             on lower(solana_flipside.core.fact_transfers.mint)
             = lower(fact_{{ chain }}_stablecoin_contracts.contract_address)
         where
             mint
-            in (select distinct contract_address from fact_solana_stablecoin_contracts)
+            in (select distinct contract_address from fact_solana_stablecoin_contracts t1)
     {% elif chain in ("near") %}
         select
             block_timestamp,
