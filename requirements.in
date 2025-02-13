@@ -1,5 +1,5 @@
 # run `make pipcompile` to update requirements.txt
-dbt-core==1.9.1
+dbt-core==1.9.2
 dbt-extractor==0.5.1
 dbt-semantic-interfaces==0.7.4
 dbt-snowflake==1.9.1
