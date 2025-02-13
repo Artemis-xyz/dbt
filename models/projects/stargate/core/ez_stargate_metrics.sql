@@ -50,12 +50,12 @@ daily_metrics AS (
         SUM(daily_active_addresses) OVER (ORDER BY transaction_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
         AS cumulative_active_addresses,
         -- If treasury_fee is NULL or zero, apply 4 basis points (0.0004) of amount_sent
-        SUM(COALESCE(NULLIF(fee_amount, 0), amount_sent * 0.0004)) AS protocol_treasury_fee,
+        SUM(amount_sent * 0.0004) AS protocol_treasury_fee,
         SUM(amount_sent * 0.0001) AS vestg_fee,
         SUM(amount_sent * 0.0001) AS lp_fee,
-        SUM(COALESCE(NULLIF(fee_amount, 0), amount_sent * 0.0004)) + SUM(amount_sent * 0.0001) as revenue,
+        SUM(amount_sent * 0.0004) + SUM(amount_sent * 0.0001) as revenue,
         SUM(amount_sent * 0.0001) as supply_side_fee,
-        SUM(COALESCE(NULLIF(fee_amount, 0), amount_sent * 0.0004) + (amount_sent * 0.0002)) AS total_fee
+        SUM(amount_sent * 0.0004 + (amount_sent * 0.0002)) AS total_fee
     FROM {{ ref("fact_stargate_v2_transfers") }} t
     GROUP BY transaction_date
 ),
