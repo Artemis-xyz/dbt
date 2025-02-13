@@ -5,3 +5,4 @@ sources:
     tables:
       - name: raw_astar_fees_parquet
       - name: raw_astar_transactions_parquet
+      - name: raw_astar_evm_transactions_parquet

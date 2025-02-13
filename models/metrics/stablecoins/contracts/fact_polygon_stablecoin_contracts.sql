@@ -11,5 +11,6 @@ from
             ('FRAX', '0x45c32fa6df82ead1e2ef74d17b76547eddfaff89', 18, 'frax', 0),
             ('AUSD', '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a', 6, 'agora-dollar', 0),
             ('DOLA', '0xbC2b48BC930Ddc4E5cFb2e87a45c379Aab3aac5C', 18, 'dola-usd', 0),
-            ('crvUSD', '0xc4ce1d6f5d98d65ee25cf85e9f2e9dcfee6cb5d6', 18, 'crvusd', 0)
+            ('crvUSD', '0xc4ce1d6f5d98d65ee25cf85e9f2e9dcfee6cb5d6', 18, 'crvusd', 0),
+            ('MIM', '0x49a0400587a7f65072c87c4910449fdcc5c47242', 18, 'magic-internet-money-polygon', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)

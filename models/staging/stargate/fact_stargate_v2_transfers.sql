@@ -30,7 +30,7 @@ select
     
     , amount_sent_native - amount_received_native as fee_amount_native
     , amount_sent_adjusted - amount_received_adjusted as fee_amount_adjusted
-    , amount_sent - amount_received as fee_amount
+    , case when amount_sent - amount_received < 0 then 0 else amount_sent - amount_received end as fee_amount
 
     , guid
 from {{ref("fact_stargate_v2_event_OFTReceived")}} as OFTReceived

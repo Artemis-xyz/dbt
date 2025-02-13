@@ -5,3 +5,4 @@ sources:
     tables:
       - name: raw_centrifuge_fees_parquet
       - name: raw_centrifuge_transactions_parquet
+      - name: raw_centrifuge_evm_transactions_parquet

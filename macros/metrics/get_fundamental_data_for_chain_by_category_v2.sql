@@ -1,6 +1,6 @@
 {% macro get_fundamental_data_for_chain_by_category_v2(chain) %}
     select 
-        max(date) as date,
+        date,
         category,
         max(chain) as chain,
         sum(gas) as gas,

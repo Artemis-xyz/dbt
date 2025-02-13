@@ -27,10 +27,10 @@ parity_transactions as (
 )
 select
     coalesce(t.date, e.date) as date
-    , t.txns + e.txns as txns
-    , t.daa + e.daa as daa
-    , t.fees_native as fees_native
-    , t.fees_usd as fees_usd
+    , coalesce(t.txns,0) + coalesce(e.txns,0) as txns
+    , coalesce(t.daa,0) + coalesce(e.daa, 0) as daa
+    , coalesce(t.fees_native,0) as fees_native
+    , coalesce(t.fees_usd,0) as fees_usd
 from parity_transactions as t
-left join evm_transactions as e on t.date = e.date
+full join evm_transactions as e on t.date = e.date
     and coalesce(t.date, e.date) < to_date(sysdate())

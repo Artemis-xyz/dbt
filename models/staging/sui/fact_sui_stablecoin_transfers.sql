@@ -44,5 +44,5 @@ inner join {{ ref("fact_sui_stablecoin_contracts") }} t2
     )
 {% endif %}
 {% if new_stablecoin_address != '' %}
-    where lower(t1.contract_address) = lower('{{ new_stablecoin_address }}')
+    where lower(t2.contract_address) = lower('{{ new_stablecoin_address }}')
 {% endif %}

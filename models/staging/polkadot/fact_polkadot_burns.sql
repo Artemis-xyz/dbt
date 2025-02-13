@@ -1,6 +1,6 @@
 with   
     burns as (
-        {{ parse_parity_parquets("polkadot", "burned") }}
+        {{ parse_parity_parquets("polkadot", "burns") }}
     ) 
     , prices as ({{ get_coingecko_price_with_latest("polkadot") }})
     select
