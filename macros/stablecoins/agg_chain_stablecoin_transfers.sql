@@ -42,7 +42,7 @@
         where
             lower(tron_allium.assets.trc20_token_transfers.token_address) in (
                 select lower(contract_address)
-                from fact_{{ chain }}_stablecoin_contracts
+                from fact_{{ chain }}_stablecoin_contracts t1
             )
     -- TODO: Refactor to support native currencies. Currently assumes everything is $1
     -- b/c of perf issues when joining
@@ -82,7 +82,7 @@
             on lower(transfers.contract_address) = lower(contracts.contract_address)
         where lower(transfers.contract_address) in (
                 select lower(contract_address)
-                from {{ ref('fact_ton_stablecoin_contracts') }}
+                from {{ ref('fact_ton_stablecoin_contracts') }} t1
             )
             and tx_status = 'TRUE'
     {% elif chain in ("solana") %}
@@ -203,7 +203,7 @@
             = lower(fact_{{ chain }}_stablecoin_contracts.contract_address)
         where
             mint
-            in (select distinct contract_address from fact_solana_stablecoin_contracts)
+            in (select distinct contract_address from fact_solana_stablecoin_contracts t1)
     {% elif chain in ("near") %}
         select
             block_timestamp,

@@ -61,7 +61,7 @@ with
                 t1.from_address,
                 t1.to_address,
                 t1.amount,
-                transfer_volume * {{waterfall_stablecoin_prices('c', 'd')}} as amount_usd
+                transfer_volume * {{waterfall_stablecoin_prices('c', 'p')}} as amount_usd
             from stablecoin_transfers t1
             join {{ ref("fact_"~chain~"_stablecoin_contracts") }} c
                 on lower(t1.contract_address) = lower(c.contract_address)
