@@ -9,7 +9,7 @@ stg_balances AS (
             PARTITION BY ADDRESS 
             ORDER BY BLOCK_TIMESTAMP DESC
         ) AS today
-    FROM pc_dbt_db.prod.fact_{{chain}}_address_balances_by_token
+    FROM {{ ref("fact_"~ chain ~"_address_balances_by_token")}}
     WHERE lower(contract_address) = lower('{{token_contract_address}}')
 ),
 circulating_supply AS (
