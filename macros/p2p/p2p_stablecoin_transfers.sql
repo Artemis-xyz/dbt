@@ -61,16 +61,7 @@ with
                 t1.from_address,
                 t1.to_address,
                 t1.amount,
-                transfer_volume * coalesce(
-                    p.shifted_token_price_usd, 
-                    case 
-                        when c.coingecko_id = 'euro-coin' then ({{ avg_l7d_coingecko_price('euro-coin') }})
-                        when c.coingecko_id = 'celo-euro' then ({{ avg_l7d_coingecko_price('celo-euro') }})
-                        when c.coingecko_id = 'celo-real-creal' then ({{ avg_l7d_coingecko_price('celo-real-creal') }})
-                        when c.coingecko_id = 'celo-kenyan-shilling' then ({{ avg_l7d_coingecko_price('celo-kenyan-shilling') }})
-                        else 1
-                    end
-                ) as amount_usd
+                transfer_volume * {{waterfall_stablecoin_prices('c', 'p')}} as amount_usd
             from stablecoin_transfers t1
             join {{ ref("fact_"~chain~"_stablecoin_contracts") }} c
                 on lower(t1.contract_address) = lower(c.contract_address)

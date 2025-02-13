@@ -77,6 +77,32 @@ with
         group by token_id
     )
 
-select *
+select 
+    date,
+    token_id,
+    token_symbol,
+    token_name,
+    token_image,
+    token_current_price,
+    token_market_cap,
+    token_market_cap_rank,
+    coalesce(token_current_price * token_max_supply, token_current_price * token_total_supply, token_fully_diluted_valuation)  as token_fully_diluted_valuation,
+    token_total_volume,
+    token_high_24h,
+    token_low_24h,
+    token_price_change_24h,
+    token_price_change_percentage_24h,
+    token_market_cap_change_24h,
+    token_market_cap_change_percentage_24h,
+    token_circulating_supply,
+    token_total_supply,
+    token_max_supply,
+    token_ath,
+    token_ath_change_percentage,
+    token_ath_date,
+    token_atl,
+    token_atl_change_percentage,
+    token_atl_date,
+    token_last_updated
 from grouped_data
 order by token_market_cap_rank asc
