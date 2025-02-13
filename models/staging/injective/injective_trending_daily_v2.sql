@@ -1,7 +1,11 @@
 {{ config(materialized="table", snowflake_warehouse="BAM_TRENDING_WAREHOUSE") }}
 WITH contracts AS (
     SELECT
-        *
+        address,
+        name,
+        friendly_name,
+        artemis_application_id as app,
+        artemis_category_id as category
     FROM {{ ref('dim_all_addresses_labeled_gold') }}
     WHERE
         chain = 'injective'

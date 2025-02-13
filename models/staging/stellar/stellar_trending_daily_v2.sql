@@ -8,19 +8,20 @@ WITH contracts AS (
         artemis_category_id as category
     FROM {{ ref('dim_all_addresses_labeled_gold') }}
     WHERE
-        chain = 'sui'
+        chain = 'stellar'
 ), last_day AS (
     SELECT
         contracts.address,
         contracts.name,
         metrics.app,
-        metrics.txns,
+        -- Counting soroban txns as txns
+        metrics.soroban_txns AS txns,
         metrics.dau,
         metrics.gas,
         metrics.gas_usd,
         metrics.friendly_name,
         metrics.category
-    FROM {{ source('PROD_LANDING', 'ez_sui_metrics_by_application') }} metrics
+    FROM {{ ref('ez_stellar_metrics_by_application') }} metrics
     LEFT join contracts 
         ON metrics.app = contracts.app
     where 
@@ -31,11 +32,11 @@ WITH contracts AS (
         contracts.address,
         contracts.name,
         metrics.app,
-        metrics.txns,
+        metrics.soroban_txns AS txns,
         metrics.dau,
         metrics.gas,
         metrics.gas_usd
-    FROM {{ source('PROD_LANDING', 'ez_sui_metrics_by_application') }} metrics
+    FROM {{ ref('ez_stellar_metrics_by_application') }} metrics
     LEFT join contracts 
         ON metrics.app = contracts.app
     WHERE

@@ -60,6 +60,12 @@ union all
 select *, 'solana' as chain
 from {{ ref("solana_trending_weekly_monthly_v2") }}
 union all
+select *, 'stellar' as chain
+from {{ ref("stellar_trending_daily_v2") }}
+union all
+select *, 'stellar' as chain
+from {{ ref("stellar_trending_weekly_monthly_v2") }}
+union all
 select *, 'sui' as chain
 from {{ ref("sui_trending_daily_v2") }}
 union all
@@ -77,3 +83,9 @@ from {{ ref("injective_trending_daily_v2") }}
 union all
 select *, 'injective' as chain
 from {{ ref("injective_trending_weekly_monthly_v2") }}
+union all
+select *, 'mantle' as chain
+from {{ ref("mantle_trending_daily_v2") }}
+union all
+select *, 'mantle' as chain
+from {{ ref("mantle_trending_weekly_monthly_v2") }}
