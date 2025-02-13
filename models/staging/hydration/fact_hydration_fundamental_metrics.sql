@@ -8,7 +8,7 @@
 with evm_transactions as (
     select
         date(timestamp) as date
-        , count(distinct receiver) as daa
+        , count(distinct signer) as daa
         , count(*) as txns
     from {{ ref("fact_hydration_evm_transactions") }}
     group by date
