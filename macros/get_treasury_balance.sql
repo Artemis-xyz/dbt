@@ -101,33 +101,28 @@ WITH dates AS (
         fb.contract_address,
         CASE 
             WHEN contract_address = 'native_token'
-                {% if chain == 'ethereum' %}
-                THEN 'ETH' 
-                {% elif chain == 'solana' %}
-                THEN 'SOL'
-                {% else %}
-                THEN 'NATIVE'
-                {% endif %}
+                THEN native_token.symbol
             ELSE p.symbol
         END AS symbol_adj,            
         fb.balance_daily as balance_daily,
         CASE 
             WHEN contract_address = 'native_token'
-                THEN coalesce(weth.price, 0) -- use WETH for ETH price 
+                THEN coalesce(native_token.price, 0)
             ELSE COALESCE(p.price, 0)
         END AS price_adj,    
         fb.balance_daily * COALESCE(price_adj, 0) AS usd_balance
     FROM
         full_balances fb
-        LEFT JOIN ethereum_flipside.price.ez_prices_hourly p ON 
+        LEFT JOIN {{ chain }}_flipside.price.ez_prices_hourly p ON 
                 (
                     p.hour = fb.date
-                    AND fb.contract_address = p.token_address -- AND dp.decimals is not null
+                    AND fb.contract_address = p.token_address
                 )
-            LEFT JOIN ethereum_flipside.price.ez_prices_hourly weth ON  -- use WETH for ETH price 
+        -- left join native token price
+        LEFT JOIN {{ chain }}_flipside.price.ez_prices_hourly native_token ON
                 (
-                    weth.hour = fb.date 
-                    AND lower(weth.token_address) = lower('0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2')
+                    native_token.hour = fb.date 
+                    AND (lower(native_token.token_address) is null AND fb.contract_address = 'native_token')
                 )
     WHERE
         symbol_adj is not null
