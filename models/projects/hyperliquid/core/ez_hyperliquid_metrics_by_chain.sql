@@ -42,7 +42,7 @@ select
     'DeFi' as category,
     chain,
     trading_volume,
-    unique_traders,
+    unique_traders::string as unique_traders,
     trades as txns,
     trading_fees as fees,
     spot_fees,
