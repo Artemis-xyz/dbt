@@ -33,10 +33,8 @@ with
         select date, daily_burn, chain
         from {{ ref("fact_hyperliquid_daily_burn") }}
     ),
-    daily_price_data as (
-        select date, shifted_token_price_usd as daily_price, coingecko_id as chain 
-        from {{ ref("fact_coingecko_token_date_adjusted_gold") }}
-        where coingecko_id = 'hyperliquid'
+    price as (
+        select * from ({{ get_coingecko_price_with_latest("hyperliquid") }}) 
     )
 select
     date,
@@ -51,16 +49,16 @@ select
     perp_fees,
     auction_fees,
     daily_burn,
-    daily_price,
+    price,
     -- protocol’s revenue split between HLP (supplier) and AF (holder) at a ratio of 46%:54%
     COALESCE(trading_fees * 0.46, 0) as primary_supply_side_revenue,
     -- add daily burn back to the revenue
-    COALESCE(trading_fees * 0.54, 0) + COALESCE(daily_burn, 0) * daily_price as revenue
+    COALESCE(trading_fees * 0.54, 0) + COALESCE(daily_burn, 0) * p.price as revenue
 from unique_traders_data
 left join trading_volume_data using(date, chain)
 left join daily_transactions_data using(date, chain)
 left join fees_data using(date, chain)
 left join auction_fees_data using(date, chain)
 left join daily_burn_data using(date, chain)
-left join daily_price_data using(date, chain)
+left join price p using(date)
 where date < to_date(sysdate())
