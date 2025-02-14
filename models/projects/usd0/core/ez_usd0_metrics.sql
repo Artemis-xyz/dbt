@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse= "USD0",
+        snowflake_warehouse="USD0",
         database="usd0",
         schema="core",
         alias="ez_metrics",
