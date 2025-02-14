@@ -1,6 +1,5 @@
-{% macro stablecoin_metrics(chain) %}
+{% macro stablecoin_metrics(chain, new_stablecoin_address) %}
     {% set backfill_date = '' %}
-    {% set new_stablecoin_address = '' %}
 
     with
         stablecoin_supply as (

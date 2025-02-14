@@ -4,4 +4,7 @@
         unique_key="tx_hash",
     )
 }}
-{{ p2p_stablecoin_transfers("ton") }}
+
+{% set contract_address = var('contract_address', "") %} 
+
+{{ p2p_stablecoin_transfers("ton", contract_address) }}

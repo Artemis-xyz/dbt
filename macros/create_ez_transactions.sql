@@ -1,4 +1,4 @@
-{% macro create_ez_transactions(chain) %}
+{% macro create_ez_transactions(chain, model_version='') %}
 
     select
         tx_hash,
@@ -41,7 +41,7 @@
         ) %}probability, engagement_type
         {% else %}null as probability, null as engagement_type
         {% endif %}
-    from pc_dbt_db.prod.fact_{{ chain }}_transactions
+    from pc_dbt_db.prod.fact_{{ chain }}_transactions{% if model_version == 'v2' %}_v2{% endif %}
     where
         raw_date < to_date(sysdate())
         {% if is_incremental() %}

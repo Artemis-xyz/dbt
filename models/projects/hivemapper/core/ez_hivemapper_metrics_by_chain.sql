@@ -15,6 +15,6 @@ select
     primary_supply_side_revenue,
     revenue,
     mints_native,
-    burn_native,
+    burns_native,
     dau
 from {{ ref('ez_hivemapper_metrics') }}

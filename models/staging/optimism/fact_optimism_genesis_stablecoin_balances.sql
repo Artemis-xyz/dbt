@@ -9,8 +9,12 @@ with
 
     , usdt as ({{genesis_stablecoin_balances("raw_optimism_genesis_usdt_stablecoin_balances", genesis_timestamp)}})
 
+    , s_usd as ({{genesis_stablecoin_balances("raw_optimism_genesis_s_usd_stablecoin_balances", genesis_timestamp)}})
+
 select * from dai
 union all
 select * from usdce
 union all 
 select * from usdt
+union all
+select * from s_usd

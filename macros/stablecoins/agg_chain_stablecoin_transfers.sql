@@ -3,7 +3,7 @@
 -- 2. The table `{{ chain }}_flipside.core.ez_decoded_event_logs` exists and the
 -- contracts in `fact_{{ chain }}_stablecoin_contracts` are decoded
 -- 3. The table `{{ chain }}_flipside.core.fact_transactions` exists
-{% macro agg_chain_stablecoin_transfers(chain) %}
+{% macro agg_chain_stablecoin_transfers(chain, new_stablecoin_address) %}
     -- TRON Special case - comes from Allium
     {% if chain in ("tron") %}
         select
@@ -42,7 +42,7 @@
         where
             lower(tron_allium.assets.trc20_token_transfers.token_address) in (
                 select lower(contract_address)
-                from fact_{{ chain }}_stablecoin_contracts
+                from fact_{{ chain }}_stablecoin_contracts t1
             )
     -- TODO: Refactor to support native currencies. Currently assumes everything is $1
     -- b/c of perf issues when joining
@@ -82,7 +82,7 @@
             on lower(transfers.contract_address) = lower(contracts.contract_address)
         where lower(transfers.contract_address) in (
                 select lower(contract_address)
-                from {{ ref('fact_ton_stablecoin_contracts') }}
+                from {{ ref('fact_ton_stablecoin_contracts') }} t1
             )
             and tx_status = 'TRUE'
     {% elif chain in ("solana") %}
@@ -203,7 +203,7 @@
             = lower(fact_{{ chain }}_stablecoin_contracts.contract_address)
         where
             mint
-            in (select distinct contract_address from fact_solana_stablecoin_contracts)
+            in (select distinct contract_address from fact_solana_stablecoin_contracts t1)
     {% elif chain in ("near") %}
         select
             block_timestamp,
@@ -299,6 +299,8 @@
         from {{ref("fact_" ~ chain ~ "_token_transfers")}} t1 
         inner join {{ref("fact_" ~chain~ "_stablecoin_contracts")}} contracts
             on lower(t1.contract_address) = lower(contracts.contract_address)
+        where
+            1=1
     {% else %}
         select
             block_timestamp,
@@ -375,10 +377,14 @@
             and event_name in ('Transfer', 'Issue', 'Redeem')
             and tx_status = 'SUCCESS'
     {% endif %}
-    {% if is_incremental() %} 
+    {% if is_incremental() and new_stablecoin_address == '' %} 
         and block_timestamp >= (
             select dateadd('day', -3, max(block_timestamp))
             from {{ this }}
         )
     {% endif %}
+    {% if new_stablecoin_address != '' %}
+        and lower(t1.contract_address) = lower('{{ new_stablecoin_address }}')
+    {% endif %}
+
 {% endmacro %}

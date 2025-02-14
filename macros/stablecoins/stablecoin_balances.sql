@@ -1,4 +1,4 @@
-{% macro stablecoin_balances(chain) %}
+{% macro stablecoin_balances(chain, new_stablecoin_address) %}
     -- This macro takes our balances table and forward fills the values for each address for each stablecoin
 
     -- Use this for a backfill, 
@@ -9,7 +9,6 @@
     {% set backfill_date = '' %}
 
     -- This is used to backfill a new stablecoin, make sure the run is incremental
-    {% set new_stablecoin_address = '' %}
 
 with
     stablecoin_balances as (
@@ -143,16 +142,7 @@ with
             , st.contract_address
             , st.symbol
             , stablecoin_supply_native
-            , stablecoin_supply_native * coalesce(
-                d.shifted_token_price_usd, 
-                case 
-                    when c.coingecko_id = 'euro-coin' then ({{ avg_l7d_coingecko_price('euro-coin') }})
-                    when c.coingecko_id = 'celo-euro' then ({{ avg_l7d_coingecko_price('celo-euro') }})
-                    when c.coingecko_id = 'celo-real-creal' then ({{ avg_l7d_coingecko_price('celo-real-creal') }})
-                    when c.coingecko_id = 'celo-kenyan-shilling' then ({{ avg_l7d_coingecko_price('celo-kenyan-shilling') }})
-                    else 1
-                end
-            ) as stablecoin_supply
+            , stablecoin_supply_native * {{waterfall_stablecoin_prices('c', 'd')}} as stablecoin_supply
         from historical_supply_by_address_balances st
         left join {{ ref( "fact_" ~ chain ~ "_stablecoin_contracts") }} c
                 on lower(st.contract_address) = lower(c.contract_address)

@@ -37,6 +37,7 @@
         {% endfor %}
         {% for column_name in log_columns.items %} {{ column_name }}, {% endfor %}
         topics[0]::string as topic_zero,
+        replace(array_to_string(array_slice(topics, 1, array_size(topics)), ''), '0x', '') as topic_data,
         {{ target.schema }}.concat_topics_and_data(topics, data) as event_data
     from log_data
     {% if is_incremental() %}

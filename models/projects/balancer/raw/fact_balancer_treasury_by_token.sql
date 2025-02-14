@@ -2,6 +2,9 @@
     config(
         materialized='table',
         snowflake_warehouse='BALANCER',
+        database='BALANCER',
+        schema='raw',
+        alias='fact_balancer_treasury_by_token'
     )
 }}
 

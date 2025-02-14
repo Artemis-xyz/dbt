@@ -1,4 +1,4 @@
-{% macro p2p_stablecoin_transfers(chain) %}
+{% macro p2p_stablecoin_transfers(chain, new_stablecoin_address) %}
 with 
     stablecoin_transfers as (
         select * from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers") }}
@@ -36,16 +36,14 @@ with
             {% if chain == "solana" %}
                 where block_timestamp::date > '2022-12-31' -- Prior to 2023, volumes data not high fidelity enough to report. Continuing to do analysis on this data. 
             {% endif %}
-            {% if is_incremental() %} 
-                {% if chain == "solana" %}
-                    and 
-                {% else %}
-                    where 
-                {% endif %}
-                block_timestamp >= (
+            {% if is_incremental() and new_stablecoin_address == '' %} 
+                and block_timestamp >= (
                     select dateadd('day', -3, max(block_timestamp))
                     from {{ this }}
                 )
+            {% endif %}
+            {% if new_stablecoin_address != '' %}
+                and lower(token_address) = lower('{{ new_stablecoin_address }}')
             {% endif %}
         )
     {% else %}
@@ -63,16 +61,7 @@ with
                 t1.from_address,
                 t1.to_address,
                 t1.amount,
-                transfer_volume * coalesce(
-                    p.shifted_token_price_usd, 
-                    case 
-                        when c.coingecko_id = 'euro-coin' then ({{ avg_l7d_coingecko_price('euro-coin') }})
-                        when c.coingecko_id = 'celo-euro' then ({{ avg_l7d_coingecko_price('celo-euro') }})
-                        when c.coingecko_id = 'celo-real-creal' then ({{ avg_l7d_coingecko_price('celo-real-creal') }})
-                        when c.coingecko_id = 'celo-kenyan-shilling' then ({{ avg_l7d_coingecko_price('celo-kenyan-shilling') }})
-                        else 1
-                    end
-                ) as amount_usd
+                transfer_volume * {{waterfall_stablecoin_prices('c', 'p')}} as amount_usd
             from stablecoin_transfers t1
             join {{ ref("fact_"~chain~"_stablecoin_contracts") }} c
                 on lower(t1.contract_address) = lower(c.contract_address)
@@ -81,11 +70,14 @@ with
                 and t1.date = p.date
             where not t1.to_address in (select contract_address from distinct_contracts)
                 and not t1.from_address in (select contract_address from distinct_contracts)
-            {% if is_incremental() %} 
+            {% if is_incremental() and new_stablecoin_address == '' %} 
                 and block_timestamp >= (
                     select dateadd('day', -3, max(block_timestamp))
                     from {{ this }}
                 )
+            {% endif %}
+            {% if new_stablecoin_address != '' %}
+                and lower(token_address) = lower('{{ new_stablecoin_address }}')
             {% endif %}
         )
     {% endif %}
@@ -119,11 +111,13 @@ with
     {% if chain == "solana" %}
         and block_timestamp::date > '2022-12-31' -- Prior to 2023, volumes data not high fidelity enough to report. Continuing to do analysis on this data. 
     {% endif %}
-    {% if is_incremental() %} 
+    {% if is_incremental() and new_stablecoin_address == '' %} 
         and block_timestamp >= (
             select dateadd('day', -3, max(block_timestamp))
             from {{ this }}
         )
     {% endif %}
-
+    {% if new_stablecoin_address != '' %}
+        and lower(token_address) = lower('{{ new_stablecoin_address }}')
+    {% endif %}
 {% endmacro %}
