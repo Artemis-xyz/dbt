@@ -49,13 +49,10 @@ daily_metrics AS (
         COUNT(DISTINCT src_address) AS daily_active_addresses,
         SUM(daily_active_addresses) OVER (ORDER BY transaction_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
         AS cumulative_active_addresses,
-        -- If treasury_fee is NULL or zero, apply 4 basis points (0.0004) of amount_sent
-        SUM(COALESCE(NULLIF(fee_amount, 0), amount_sent * 0.0004)) AS protocol_treasury_fee,
-        SUM(amount_sent * 0.0001) AS vestg_fee,
-        SUM(amount_sent * 0.0001) AS lp_fee,
-        SUM(COALESCE(NULLIF(fee_amount, 0), amount_sent * 0.0004)) + SUM(amount_sent * 0.0001) as revenue,
-        SUM(amount_sent * 0.0001) as supply_side_fee,
-        SUM(COALESCE(NULLIF(fee_amount, 0), amount_sent * 0.0004) + (amount_sent * 0.0002)) AS total_fee
+        -- v2 fees (fee allocation breakdown) -veSTG Holders (1/6) of all fees generated & Protocol Treasury (5/6) of all fees generated
+        SUM(fees) AS fees,
+        SUM(fees) * 1/6 AS supply_side_fee,
+        SUM(fees) * 5/6 AS revenue,
     FROM {{ ref("fact_stargate_v2_transfers") }} t
     GROUP BY transaction_date
 ),
@@ -90,12 +87,9 @@ daily_growth AS (
         LAG(daily_transactions) OVER (ORDER BY transaction_date) AS prev_day_transactions,
         ROUND(100.0 * (daily_transactions - LAG(daily_transactions) OVER (ORDER BY transaction_date)) 
               / NULLIF(LAG(daily_transactions) OVER (ORDER BY transaction_date), 0), 2) AS daily_growth_pct,
-        protocol_treasury_fee,
-        vestg_fee,
-        lp_fee,
         revenue,
         supply_side_fee,
-        total_fee
+        fees
     FROM daily_metrics
 ),
 
@@ -124,12 +118,9 @@ SELECT
     COALESCE(r.returning_addresses, 0) AS returning_addresses,
     d.cumulative_active_addresses as cumulative_addresses,
     d.daily_growth_pct,
-    d.protocol_treasury_fee,
-    d.vestg_fee,
-    d.lp_fee,
     d.supply_side_fee,
     d.revenue,
-    d.total_fee as fees,
+    d.fees,
     w.week_start,
     w.weekly_active_addresses,
     m.month_start,

@@ -33,6 +33,15 @@ select
     , amount_sent - amount_received as fee_amount
 
     , guid
-from {{ref("fact_stargate_v2_event_OFTReceived")}} as OFTReceived
-inner join {{ref("fact_stargate_v2_event_OFTSent")}} as OFTSent 
+
+    , fees.fees_native
+    , fees.fees_usd
+
+    , fees_usd + fee_amount as fees
+    
+
+from {{ref("fact_stargate_v2_event_OFTSent")}} as OFTSent
+inner join {{ref("fact_stargate_v2_event_OFTReceived")}} as OFTReceived 
     using(guid, src_chain, dst_chain)
+left join {{ref("fact_stargate_fees")}} as fees
+    on OFTSent.tx_hash = fees.tx_hash
