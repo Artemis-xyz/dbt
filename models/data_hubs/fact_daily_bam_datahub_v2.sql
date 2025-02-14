@@ -78,7 +78,6 @@ with
             sybil_users,
             non_sybil_users
         from {{ ref("all_chains_gas_dau_txns_by_chain") }} as bam_by_chain
-        where chain = 'arbitrum'
     ),
     app_coingecko as (
         select

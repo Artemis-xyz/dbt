@@ -11,3 +11,4 @@ sources:
       - name: raw_optimism_genesis_dai_stablecoin_balances
       - name: raw_optimism_genesis_usdce_stablecoin_balances
       - name: raw_optimism_genesis_usdt_stablecoin_balances
+      - name: raw_optimism_genesis_s_usd_stablecoin_balances
