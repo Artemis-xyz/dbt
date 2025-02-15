@@ -2,7 +2,6 @@
 
 {% set chain_list = ['arbitrum', 'avalanche', 'base', 'bsc', 'celo', 'ethereum', 'mantle', 'optimism', 'polygon', 'solana', 'sui', 'ton', 'tron'] %}
 {% set list_stablecoin_address = var('list_stablecoin_address', []) %}
-{% endfor %}
 
 with
     daily_data as (
