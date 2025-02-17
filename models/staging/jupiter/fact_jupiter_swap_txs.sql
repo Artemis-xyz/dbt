@@ -1,58 +1,133 @@
 {{
     config(
         materialized='incremental',
-        unique_key=['tx_id', 'swap_id'],
-        snowflake_warehouse='JUPITER',
+        unique_key=['tx_id', 'index', 'inner_index'],
+        snowflake_warehouse='ANALYTICS_XL',
     )
 }}
 
 SELECT 
-    e.TX_ID,
     e.BLOCK_TIMESTAMP,
+    e.TX_ID,
+    e.INDEX,
+    e.INNER_INDEX,
     e.PROGRAM_ID,
-    e.DECODED_ARGS:id::number AS swap_id,
-    
-    -- Token In Details
-    e.DECODED_ARGS:inAmount::FLOAT AS token_in_amount_raw,
-    p_in.DECIMALS AS token_in_decimals,
-    (e.DECODED_ARGS:inAmount::FLOAT / POWER(10, p_in.DECIMALS)) AS token_in_amount_native,
-    ((e.DECODED_ARGS:inAmount::FLOAT / POWER(10, p_in.DECIMALS)) * p_in.PRICE) AS token_in_amount_usd,
-    p_in.SYMBOL AS token_in_symbol,
-    e.DECODED_INSTRUCTION:accounts[3].pubkey::string AS token_in_address,  -- sourceTokenAccount
-    
-    -- Token Out Details
-    e.DECODED_ARGS:quotedOutAmount::FLOAT AS token_out_amount_raw,
-    p_out.DECIMALS AS token_out_decimals,
-    (e.DECODED_ARGS:quotedOutAmount::FLOAT / POWER(10, p_out.DECIMALS)) AS token_out_amount_native,
-    ((e.DECODED_ARGS:quotedOutAmount::FLOAT / POWER(10, p_out.DECIMALS)) * p_out.PRICE) AS token_out_amount_usd,
-    p_out.SYMBOL AS token_out_symbol,
-    e.DECODED_INSTRUCTION:accounts[6].pubkey::string AS token_out_address, -- destinationTokenAccount
-    
+    e.EVENT_TYPE AS instruction_name,
+
+    -- Route Plan
+    e.DECODED_ARGS:routePlan AS route_plan,
+
     -- User Info
-    e.DECODED_INSTRUCTION:accounts[2].pubkey::string AS user_address, -- userTransferAuthority
+    e.DECODED_INSTRUCTION:accounts[1].pubkey::string AS user_address, -- user_transfer_authority
+
     
-    -- Fee Information
-    (e.DECODED_ARGS:platformFeeBps / 100) AS fee_percent,
-    token_in_amount_native * fee_percent AS fee_native,
-    token_in_amount_usd * fee_percent AS fee_usd,
-    token_in_address AS fee_token_address, -- platformFeeAccount
-    p_in.SYMBOL AS fee_token_symbol,
+    -- IN token
+    CASE 
+        WHEN e.EVENT_TYPE IN ('exact_out_route', 'shared_accounts_exact_out_route') 
+        THEN e.DECODED_ARGS:quotedInAmount::FLOAT
+        ELSE e.DECODED_ARGS:inAmount::FLOAT
+    END AS token_in_amount_raw,
+    p_in.decimals as token_in_decimals,
+    (token_in_amount_raw / POWER(10, p_in.DECIMALS)) * p_in.PRICE AS token_in_amount_usd,
+    token_in_amount_raw / POWER(10, p_in.DECIMALS) AS token_in_amount_native,
+    p_in.symbol as token_in_symbol,
+    COALESCE(
+        -- If `source_mint` is explicitly provided in the instruction, use it
+        CASE 
+            WHEN e.EVENT_TYPE like 'shared_accounts_%'
+                THEN e.DECODED_INSTRUCTION:accounts[7].pubkey -- Correct index for these instructions
+            WHEN e.EVENT_TYPE like 'exact_out_route'
+                THEN e.DECODED_INSTRUCTION:accounts[5].pubkey -- Correct index for these instructions
+        END,
+        -- If missing, get `source_mint` from token account mapping
+        tam.mint
+    ) AS token_in_address, 
 
-    e.succeeded
+    -- OUT token
+    CASE 
+        WHEN e.EVENT_TYPE IN ('route', 'shared_accounts_route', 'route_with_token_ledger', 'shared_accounts_route_with_token_ledger') 
+        THEN e.DECODED_ARGS:quotedOutAmount::FLOAT
+        ELSE e.DECODED_ARGS:outAmount::FLOAT 
+    END AS token_out_amount_raw,
+    p_out.decimals as token_out_decimals,
+    (token_out_amount_raw / POWER(10, p_out.DECIMALS)) * p_out.PRICE AS token_out_amount_usd,
+    token_out_amount_raw / POWER(10, p_out.DECIMALS) AS token_out_amount_native,
+    p_out.symbol as token_out_symbol,
+    CASE 
+        WHEN e.EVENT_TYPE like 'shared_accounts_%' 
+            THEN e.DECODED_INSTRUCTION:accounts[8].pubkey::STRING -- Correct index for these instructions
+        WHEN e.EVENT_TYPE like 'exact_out_route'
+            THEN e.DECODED_INSTRUCTION:accounts[6].pubkey -- Correct index for these instructions
+        ELSE e.DECODED_INSTRUCTION:accounts[5].pubkey::STRING -- Correct for `route`, `exact_out_route`, `route_with_token_ledger`
+    END AS token_out_address,
 
-FROM solana_flipside.core.ez_events_decoded e
+    -- Fee token information
+    e.DECODED_ARGS:platformFeeBps::NUMBER AS platform_fee_bps,
 
--- Joining token prices based on mint addresses
-LEFT JOIN SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY p_in
-    ON p_in.TOKEN_ADDRESS = e.DECODED_INSTRUCTION:accounts[7].pubkey::string -- sourceMint
+    -- If token OUT information is missing, use token IN information to calculate fees
+    -- Fee is paid in the OUT token
+    COALESCE(token_out_amount_usd, token_in_amount_usd) * platform_fee_bps / 10000 AS fee_amount_usd,
+    COALESCE(token_out_amount_native, token_in_amount_native) * platform_fee_bps / 10000 AS fee_amount_native,        
+    COALESCE(p_out.symbol, p_in.symbol) as fee_token_symbol,
+    COALESCE(token_out_address, token_in_address) as fee_token_address,
+
+    -- Platform fee account used to determine Ultra Fees
+    
+    (CASE 
+        WHEN e.EVENT_TYPE = 'exact_out_route'
+            THEN e.DECODED_INSTRUCTION:accounts[4].pubkey
+        WHEN e.EVENT_TYPE like 'shared_accounts_%'
+            THEN e.DECODED_INSTRUCTION:accounts[9].pubkey
+        ELSE e.DECODED_INSTRUCTION:accounts[6].pubkey -- Correct for `route`, `route_with_token_ledger`
+    END)::string AS platform_fee_account,
+    COALESCE(fao.owner, platform_fee_account) as platform_fee_account_owner  -- Need to coalesce because Jup v6 program does not have an owner
+
+FROM 
+    SOLANA_FLIPSIDE.CORE.EZ_EVENTS_DECODED e
+
+-- Join to get `source_mint` using `user_source_token_account`
+LEFT JOIN pc_dbt_db.prod.fact_solana_token_account_to_mint tam
+    ON tam.account_address = e.DECODED_INSTRUCTION:accounts[2].pubkey  -- user_source_token_account
+
+-- Join to get the fee account owner
+LEFT JOIN pc_dbt_db.prod.fact_solana_token_account_to_mint fao
+    ON fao.account_address =
+        (CASE 
+            WHEN e.EVENT_TYPE = 'exact_out_route'
+                THEN e.DECODED_INSTRUCTION:accounts[4].pubkey
+            WHEN e.EVENT_TYPE like 'shared_accounts_%'
+                THEN e.DECODED_INSTRUCTION:accounts[9].pubkey
+            ELSE e.DECODED_INSTRUCTION:accounts[6].pubkey -- Correct for `route`, `route_with_token_ledger
+        END)::string  -- user_source_token_account
+
+
+LEFT JOIN solana_flipside.price.ez_prices_hourly p_in
+    ON p_in.TOKEN_ADDRESS = COALESCE(
+        -- Use `source_mint` from instruction if it exists
+        CASE 
+            WHEN e.EVENT_TYPE like 'shared_accounts_%'
+                THEN e.DECODED_INSTRUCTION:accounts[7].pubkey -- Correct index for these instructions
+            WHEN e.EVENT_TYPE like 'exact_out_route'
+                THEN e.DECODED_INSTRUCTION:accounts[5].pubkey -- Correct index for these instructions
+        END,
+        -- If missing, get `source_mint` from token account mapping
+        tam.mint
+    )  
     AND p_in.HOUR = DATE_TRUNC('hour', e.BLOCK_TIMESTAMP)
 
-LEFT JOIN SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY p_out
-    ON p_out.TOKEN_ADDRESS = e.DECODED_INSTRUCTION:accounts[8].pubkey::string -- destinationMint
+
+LEFT JOIN solana_flipside.price.ez_prices_hourly p_out
+    ON p_out.TOKEN_ADDRESS =
+        CASE 
+            WHEN e.EVENT_TYPE like 'shared_accounts_%' 
+                THEN e.DECODED_INSTRUCTION:accounts[8].pubkey::STRING -- Correct index for these instructions
+            WHEN e.EVENT_TYPE like 'exact_out_route'
+                THEN e.DECODED_INSTRUCTION:accounts[6].pubkey -- Correct index for these instructions
+            ELSE e.DECODED_INSTRUCTION:accounts[5].pubkey::STRING -- Correct for `route`, `exact_out_route`, `route_with_token_ledger`
+        END
     AND p_out.HOUR = DATE_TRUNC('hour', e.BLOCK_TIMESTAMP)
-WHERE 1=1
-    AND program_id = 'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4' 
-    AND event_type = 'sharedAccountsRoute'
-    {% if is_incremental() %}
-    AND e.BLOCK_TIMESTAMP > (SELECT MAX(BLOCK_TIMESTAMP) FROM {{ this }})
-    {% endif %}
+
+
+WHERE e.PROGRAM_ID = 'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'
+    AND e.SUCCEEDED
+    AND e.EVENT_TYPE IN ('route', 'route_with_token_ledger', 'shared_accounts_route', 'shared_accounts_exact_out_route', 'exact_out_route', 'shared_accounts_route_with_token_ledger')
