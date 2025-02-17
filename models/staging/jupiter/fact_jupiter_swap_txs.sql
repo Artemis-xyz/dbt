@@ -2,7 +2,7 @@
     config(
         materialized='incremental',
         unique_key=['tx_id', 'index', 'inner_index'],
-        snowflake_warehouse='ANALYTICS_XL',
+        snowflake_warehouse='MEDIUM',
     )
 }}
 
