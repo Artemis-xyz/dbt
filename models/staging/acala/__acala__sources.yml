@@ -6,4 +6,5 @@ sources:
       - name: raw_acala_daa_txns_gas_gas_usd_revenue
       - name: raw_acala_fees_parquet
       - name: raw_acala_transactions_parquet
+      - name: raw_acala_evm_transactions_parquet
       - name: raw_acala_uniq_daily_signers

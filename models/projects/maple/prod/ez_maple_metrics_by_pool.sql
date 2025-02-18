@@ -22,7 +22,7 @@ with fees as (
     SELECT
         date,
         pool_name,
-        SUM(tvl_native) AS tvl_native,
+        -- SUM(tvl_native) AS tvl_native,
         SUM(tvl) AS tvl,
         SUM(outstanding_supply) AS outstanding_supply
     FROM {{ ref('fact_maple_agg_tvl') }}

@@ -3,6 +3,8 @@
 select 
     artemis_application_id,
     initcap(replace(artemis_application_id, '_', ' ')) as app_name,
+    artemis_category_id,
+    artemis_sub_category_id,
     artemis_id,
     coingecko_id,
     ecosystem_id,

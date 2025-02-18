@@ -5,6 +5,18 @@ with
             dbt_utils.union_relations(
                 relations=[
                     ref("ez_arbitrum_metrics_by_subcategory"),
+                    ref("ez_avalanche_metrics_by_subcategory"),
+                    ref("ez_base_metrics_by_subcategory"),
+                    ref("ez_bsc_metrics_by_subcategory"),
+                    ref("ez_ethereum_metrics_by_subcategory"),
+                    ref("ez_polygon_metrics_by_subcategory"),
+                    ref("ez_near_metrics_by_subcategory"),
+                    ref("ez_sei_metrics_by_subcategory"),
+                    ref("ez_tron_metrics_by_subcategory"),
+                    ref("ez_mantle_metrics_by_subcategory"),
+                    ref("ez_injective_metrics_by_subcategory"),
+                    ref("ez_sui_metrics_by_subcategory"),
+                    ref("ez_stellar_metrics_by_subcategory")
                 ]
             )
         }}

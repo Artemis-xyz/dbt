@@ -4,6 +4,7 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: dim_injective_all_addresses
+      - name: dim_stellar_all_addresses
   - name: PYTHON_LOGIC
     schema: PROD
     database: PC_DBT_DB

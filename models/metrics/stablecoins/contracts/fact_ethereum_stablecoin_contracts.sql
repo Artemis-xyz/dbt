@@ -35,5 +35,17 @@ from
             ('RLUSD', '0x8292bb45bf1ee4d140127049757c2e0ff06317ed', 18, 'ripple-usd', 0),
             ('USDa', '0x8a60e489004ca22d775c5f2c657598278d17d9c2', 18, 'usda-2', 0),
             ('DEUSD', '0x15700b564ca08d9439c58ca5053166e8317aa138', 18, 'elixir-deusd', 0),
-            ('GHO', '0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f', 18, 'gho', 0)
+            ('GHO', '0x40d16fc0246ad3160ccc09b8d0d3a2cd28ae6c2f', 18, 'gho', 0),
+            ('DOLA', '0x865377367054516e17014ccded1e7d814edc9ce4', 18, 'dola-usd', 0),
+            ('FLEXUSD', '0xa774ffb4af6b0a91331c084e1aebae6ad535e6f3', 18, 'flex-usd', 0),
+            ('USDz', '0xa469b7ee9ee773642b3e93e842e5d9b5baa10067', 18, 'anzen-usdz', 0),
+            ('USDtb', '0xc139190f447e929f090edeb554d95abb8b18ac1c', 18, 'usdtb', 0),
+            ('crvUSD', '0xf939e0a03fb07f59a73314e73794be0e57ac1b4e', 18, 'crvusd', 0),
+            ('GUSD', '0x056fd409e1d7a124bd7017459dfea2f387b6d5cd', 2, 'gemini-dollar', 0),
+            ('S_USD', '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51', 18, 'nusd', 0),
+            ('USDD', '0x3D7975EcCFc61a2102b08925CbBa0a4D4dBB6555', 18, 'usdd', 0),
+            ('FRXUSD', '0xcacd6fd266af91b8aed52accc382b4e165586e29', 18, 'frax-usd', 0),
+            ('MIM', '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', 18, 'magic-internet-money', 0),
+            ('USN', '0xdA67B4284609d2d48e5d10cfAc411572727dc1eD', 18, 'noon-usn', 0),
+            ('USD3', '0x0d86883faf4ffd7aeb116390af37746f45b6f378', 18, 'web-3-dollar', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)

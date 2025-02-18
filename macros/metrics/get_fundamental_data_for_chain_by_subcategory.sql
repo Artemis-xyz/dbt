@@ -1,4 +1,4 @@
-{% macro get_fundamental_data_for_chain_by_subcategory(chain) %}
+{% macro get_fundamental_data_for_chain_by_subcategory(chain, model_version='') %}
     with
         min_date as (
             select min(raw_date) as start_date, from_address, category, sub_category
