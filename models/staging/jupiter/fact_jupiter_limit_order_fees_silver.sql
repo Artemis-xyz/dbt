@@ -9,6 +9,7 @@
 with all_transfers as(
     SELECT
       tr.block_timestamp,
+      tr.tx_id,
       tr.amount,
       tr.mint,
       p.price,
@@ -28,7 +29,9 @@ with all_transfers as(
 )
 select
   date(a.block_timestamp) as date,
-  sum(amount*price) as fees
+  sum(amount*price) as fees,
+  sum(amount*price) / 0.02 as volume, -- we can back into volume since Jupiter Limit Order do charge a platform fees of 0.2% on taker.
+  count(distinct tx_id) as txns
 from all_transfers a
 WHERE
   ((amount*price) > 100 and a.mint in (SELECT mint FROM pc_dbt_db.prod.dim_solana_top_500_tokens_by_transfer_count limit 100))
