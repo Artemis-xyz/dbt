@@ -6,6 +6,8 @@
     )
 }}
 
+--TODO: Make incremental
+
 SELECT 
     e.BLOCK_TIMESTAMP,
     e.TX_ID,
@@ -23,7 +25,7 @@ SELECT
     
     -- IN token
     CASE 
-        WHEN e.EVENT_TYPE IN ('exact_out_route', 'shared_accounts_exact_out_route') 
+        WHEN e.EVENT_TYPE IN ('exact_out_route', 'shared_accounts_exact_out_route', 'exactOutRoute', 'sharedAccountsExactOutRoute') 
         THEN e.DECODED_ARGS:quotedInAmount::FLOAT
         ELSE e.DECODED_ARGS:inAmount::FLOAT
     END AS token_in_amount_raw,
@@ -34,9 +36,9 @@ SELECT
     COALESCE(
         -- If `source_mint` is explicitly provided in the instruction, use it
         CASE 
-            WHEN e.EVENT_TYPE like 'shared_accounts_%'
+            WHEN e.EVENT_TYPE like 'shared_accounts_%' or e.EVENT_TYPE like 'sharedAccounts%'
                 THEN e.DECODED_INSTRUCTION:accounts[7].pubkey -- Correct index for these instructions
-            WHEN e.EVENT_TYPE like 'exact_out_route'
+            WHEN e.EVENT_TYPE = 'exact_out_route' or e.EVENT_TYPE = 'exactOutRoute'
                 THEN e.DECODED_INSTRUCTION:accounts[5].pubkey -- Correct index for these instructions
         END,
         -- If missing, get `source_mint` from token account mapping
@@ -45,7 +47,12 @@ SELECT
 
     -- OUT token
     CASE 
-        WHEN e.EVENT_TYPE IN ('route', 'shared_accounts_route', 'route_with_token_ledger', 'shared_accounts_route_with_token_ledger') 
+        WHEN e.EVENT_TYPE IN (
+                'route', 
+                'shared_accounts_route', 'sharedAccountsRoute',
+                'route_with_token_ledger', 'routeWithTokenLedger',
+                'shared_accounts_route_with_token_ledger', 'sharedAccountsRouteWithTokenLedger'
+            ) 
         THEN e.DECODED_ARGS:quotedOutAmount::FLOAT
         ELSE e.DECODED_ARGS:outAmount::FLOAT 
     END AS token_out_amount_raw,
@@ -54,9 +61,9 @@ SELECT
     token_out_amount_raw / POWER(10, p_out.DECIMALS) AS token_out_amount_native,
     p_out.symbol as token_out_symbol,
     CASE 
-        WHEN e.EVENT_TYPE like 'shared_accounts_%' 
+        WHEN e.EVENT_TYPE like 'shared_accounts_%' or e.EVENT_TYPE like 'sharedAccounts%'
             THEN e.DECODED_INSTRUCTION:accounts[8].pubkey::STRING -- Correct index for these instructions
-        WHEN e.EVENT_TYPE like 'exact_out_route'
+        WHEN e.EVENT_TYPE = 'exact_out_route' or e.EVENT_TYPE = 'exactOutRoute'
             THEN e.DECODED_INSTRUCTION:accounts[6].pubkey -- Correct index for these instructions
         ELSE e.DECODED_INSTRUCTION:accounts[5].pubkey::STRING -- Correct for `route`, `exact_out_route`, `route_with_token_ledger`
     END AS token_out_address,
@@ -74,13 +81,15 @@ SELECT
     -- Platform fee account used to determine Ultra Fees
     
     (CASE 
-        WHEN e.EVENT_TYPE = 'exact_out_route'
+        WHEN e.EVENT_TYPE = 'exact_out_route' or e.EVENT_TYPE = 'exactOutRoute'
             THEN e.DECODED_INSTRUCTION:accounts[4].pubkey
-        WHEN e.EVENT_TYPE like 'shared_accounts_%'
+        WHEN e.EVENT_TYPE like 'shared_accounts_%' or e.EVENT_TYPE like 'sharedAccounts%'
             THEN e.DECODED_INSTRUCTION:accounts[9].pubkey
         ELSE e.DECODED_INSTRUCTION:accounts[6].pubkey -- Correct for `route`, `route_with_token_ledger`
     END)::string AS platform_fee_account,
-    COALESCE(fao.owner, platform_fee_account) as platform_fee_account_owner  -- Need to coalesce because Jup v6 program does not have an owner
+    COALESCE(fao.owner, platform_fee_account) as platform_fee_account_owner,  -- Need to coalesce because Jup v6 program does not have an owner
+
+    e.SUCCEEDED
 
 FROM 
     SOLANA_FLIPSIDE.CORE.EZ_EVENTS_DECODED e
@@ -93,9 +102,9 @@ LEFT JOIN pc_dbt_db.prod.fact_solana_token_account_to_mint tam
 LEFT JOIN pc_dbt_db.prod.fact_solana_token_account_to_mint fao
     ON fao.account_address =
         (CASE 
-            WHEN e.EVENT_TYPE = 'exact_out_route'
+            WHEN e.EVENT_TYPE = 'exact_out_route' or e.EVENT_TYPE = 'exactOutRoute'
                 THEN e.DECODED_INSTRUCTION:accounts[4].pubkey
-            WHEN e.EVENT_TYPE like 'shared_accounts_%'
+            WHEN e.EVENT_TYPE like 'shared_accounts_%' or e.EVENT_TYPE like 'sharedAccounts%'
                 THEN e.DECODED_INSTRUCTION:accounts[9].pubkey
             ELSE e.DECODED_INSTRUCTION:accounts[6].pubkey -- Correct for `route`, `route_with_token_ledger
         END)::string  -- user_source_token_account
@@ -105,9 +114,9 @@ LEFT JOIN solana_flipside.price.ez_prices_hourly p_in
     ON p_in.TOKEN_ADDRESS = COALESCE(
         -- Use `source_mint` from instruction if it exists
         CASE 
-            WHEN e.EVENT_TYPE like 'shared_accounts_%'
+            WHEN e.EVENT_TYPE like 'shared_accounts_%' or e.EVENT_TYPE like 'sharedAccounts%'
                 THEN e.DECODED_INSTRUCTION:accounts[7].pubkey -- Correct index for these instructions
-            WHEN e.EVENT_TYPE like 'exact_out_route'
+            WHEN e.EVENT_TYPE = 'exact_out_route' or e.EVENT_TYPE = 'exactOutRoute'
                 THEN e.DECODED_INSTRUCTION:accounts[5].pubkey -- Correct index for these instructions
         END,
         -- If missing, get `source_mint` from token account mapping
@@ -119,9 +128,9 @@ LEFT JOIN solana_flipside.price.ez_prices_hourly p_in
 LEFT JOIN solana_flipside.price.ez_prices_hourly p_out
     ON p_out.TOKEN_ADDRESS =
         CASE 
-            WHEN e.EVENT_TYPE like 'shared_accounts_%' 
+            WHEN e.EVENT_TYPE like 'shared_accounts_%' or e.EVENT_TYPE like 'sharedAccounts%'
                 THEN e.DECODED_INSTRUCTION:accounts[8].pubkey::STRING -- Correct index for these instructions
-            WHEN e.EVENT_TYPE like 'exact_out_route'
+            WHEN e.EVENT_TYPE = 'exact_out_route' or e.EVENT_TYPE = 'exactOutRoute'
                 THEN e.DECODED_INSTRUCTION:accounts[6].pubkey -- Correct index for these instructions
             ELSE e.DECODED_INSTRUCTION:accounts[5].pubkey::STRING -- Correct for `route`, `exact_out_route`, `route_with_token_ledger`
         END
@@ -129,5 +138,12 @@ LEFT JOIN solana_flipside.price.ez_prices_hourly p_out
 
 
 WHERE e.PROGRAM_ID = 'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'
-    AND e.SUCCEEDED
-    AND e.EVENT_TYPE IN ('route', 'route_with_token_ledger', 'shared_accounts_route', 'shared_accounts_exact_out_route', 'exact_out_route', 'shared_accounts_route_with_token_ledger')
+    AND e.EVENT_TYPE IN (
+            'route', 
+            -- Account for camel and snake case
+            'route_with_token_ledger', 'routeWithTokenLedger', 
+            'shared_accounts_route', 'sharedAccountsRoute',
+            'shared_accounts_exact_out_route', 'sharedAccountsExactOutRoute',
+            'exact_out_route', 'exactOutRoute',
+            'shared_accounts_route_with_token_ledger', 'sharedAccountsRouteWithTokenLedger'
+    )

@@ -37,7 +37,9 @@ processed_ic as( -- processed hex data
 )
 SELECT
   date,
-  SUM(p.price*ic.amount/pow(10, p.decimals)) as fees
+  SUM(p.price*ic.amount/pow(10, p.decimals)) as fees,
+  SUM(p.price*ic.amount/pow(10, p.decimals)) / 0.01 as volume, -- we can back into volume since Jupiter DCA do charge a platform fees of 0.1% on order completion
+  COUNT(distinct ic.tx_id) as txns
 FROM
   processed_ic ic
 left join solana_flipside.price.ez_prices_hourly p -- missing PUPS data
