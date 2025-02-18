@@ -79,6 +79,10 @@ select
     fr.revenue_usd as fees,
     fr.revenue_usd as revenue,
     ti.token_incentives,
+<<<<<<< HEAD
+=======
+    ti.token_incentives as expenses,
+>>>>>>> 78bb945ba67884898bd870efea26d09c447b26d1
     fr.revenue_usd - ti.token_incentives as protocol_earnings,
 
     -- Treasury

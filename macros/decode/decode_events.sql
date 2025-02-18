@@ -10,8 +10,8 @@
         status as tx_status,
         t1.topic_zero,
         t2.event_name,
-        {{ target.schema }}.decode_evm_event_log(
-            event_data, t2.event_info
+        {{ target.schema }}.decode_evm_event_log_v2(
+            topic_data,  REPLACE(data, '0x', ''), t2.event_info
         ) as decoded_log,
         data
     from {{ ref("fact_" ~ chain ~ "_events") }} t1

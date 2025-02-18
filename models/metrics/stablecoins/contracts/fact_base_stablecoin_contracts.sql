@@ -13,5 +13,10 @@ from
                 'bridged-usd-coin-base',
                 0
             ),
-            ('USDS', '0x820C137fa70C8691f0e44Dc420a5e53c168921Dc', 18, 'usds', 0)
+            ('USDS', '0x820C137fa70C8691f0e44Dc420a5e53c168921Dc', 18, 'usds', 0),
+            ('DOLA', '0x4621b7a9c75199271f773ebd9a499dbd165c3191', 18, 'dola-usd', 0),
+            ('USDz','0x04d5ddf5f3a8939889f11e97f8c4bb48317f1938', 18, 'anzen-usdz', 0),
+            ('crvUSD', '0x417ac0e078398c154edfadd9ef675d30be60af93', 18, 'crvusd', 0),
+            ('cgUSD', '0xca72827a3d211cfd8f6b00ac98824872b72cab49', 6, 'cygnus-finance-global-usd', 0),
+            ('USD3', '0xefb97aaf77993922ac4be4da8fbc9a2425322677', 18, 'web-3-dollar', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)

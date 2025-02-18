@@ -20,8 +20,8 @@ with
 select
     date
     , txns
-    , daa
+    , daa as dau
     , coalesce(fees_native, 0) as fees_native
-    , coalesce(fees_usd, 0) as fees_usd
+    , coalesce(fees_usd, 0) as fees
 from fundamental_data
 where fundamental_data.date < to_date(sysdate())

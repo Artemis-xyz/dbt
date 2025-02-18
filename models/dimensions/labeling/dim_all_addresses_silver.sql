@@ -16,6 +16,7 @@ WITH raw_addresses AS (
         {"table": "dim_bsc_all_addresses", "chain": "bsc"},
         {"table": "dim_ethereum_all_addresses", "chain": "ethereum"},
         {"table": "dim_injective_all_addresses", "chain": "injective"},
+        {"table": "dim_stellar_all_addresses", "chain": "stellar"},
         {"table": "dim_near_all_addresses", "chain": "near"},
         {"table": "dim_optimism_all_addresses", "chain": "optimism"},
         {"table": "dim_polygon_all_addresses", "chain": "polygon"},
@@ -26,7 +27,7 @@ WITH raw_addresses AS (
     ] %}
 
     {% for sourc in sources %}
-        {% if sourc.chain == 'injective' %}
+        {% if sourc.chain in ['injective', 'stellar']  %}
             SELECT address, transaction_trace_type, address_type::STRING, chain, last_updated
             FROM  {{ source("PROD_LANDING", sourc.table) }}
         {% else %}
