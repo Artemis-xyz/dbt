@@ -82,11 +82,7 @@ select
     fr.revenue_usd as revenue,
     fr.revenue_native as revenue_native,
     ti.token_incentives_native as token_incentives_native,
-<<<<<<< HEAD
-
-=======
     ti.token_incentives_native as expenses_native,
->>>>>>> 78bb945ba67884898bd870efea26d09c447b26d1
     -- Treasury
     treasury.treasury_value,
     treasury.treasury_native_value,
