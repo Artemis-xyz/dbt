@@ -1,4 +1,4 @@
-{% macro standard_8d737a18_stablecoin_transfers(chain, new_stablecoin_address="") %}
+{% macro standard_8d737a18_stablecoin_transfers(chain) %}
 
 {% set chain_name = '' %}
 {% if chain == 'celo' %}
@@ -30,14 +30,11 @@ select
     symbol as asset_symbol,
     '{{chain_name}}' as chain_name
 from {{ ref( "fact_"~ chain ~ "_stablecoin_transfers") }}
-{% if is_incremental() and new_stablecoin_address == '' %} 
+{% if is_incremental() %} 
     where block_timestamp >= (
         select dateadd('day', -3, max(block_timestamp))
         from {{ this }}
     )
-{% endif %}
-{% if new_stablecoin_address != '' %}
-    where lower(contract_address) = lower('{{ new_stablecoin_address }}')
 {% endif %}
 
 {% endmacro %}

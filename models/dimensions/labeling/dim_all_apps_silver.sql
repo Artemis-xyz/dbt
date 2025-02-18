@@ -21,6 +21,15 @@ SELECT
     sil.visibility,
     coalesce(token.token_symbol, sil.symbol) as symbol,
     coalesce(token.token_image_small, sil.icon) as icon,
+    sil.app_name,
+    sil.description,
+    sil.website_url,
+    sil.github_url,
+    sil.x_handle,
+    sil.discord_handle,
+    sil.developer_name,
+    sil.developer_email,
+    sil.developer_x_handle
 FROM
     {{ this }} sil
 FULL OUTER JOIN 
