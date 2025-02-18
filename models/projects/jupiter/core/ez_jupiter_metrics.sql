@@ -26,6 +26,7 @@ with
         sum(CASE WHEN trade_type = 'dca' THEN revenue ELSE 0 END) as dca_revenue,
         sum(CASE WHEN trade_type = 'limit_order' THEN revenue ELSE 0 END) as limit_order_revenue,
         sum(revenue) as revenue,
+        sum(CASE WHEN date >= '2025-02-17' THEN revenue * 0.5 ELSE 0 END) as buybacks,
 
         -- Supply Side Revenue
         sum(CASE WHEN trade_type = 'perps' THEN supply_side_revenue ELSE 0 END) as perps_supply_side_revenue,
@@ -47,8 +48,8 @@ with
         sum(txns) as txns,
 
         -- DAU
-        sum(CASE WHEN trade_type = 'perps' THEN traders ELSE 0 END) as unique_traders, -- Perps specific metric
-        sum(CASE WHEN trade_type = 'aggregator' THEN traders ELSE 0 END) as aggregator_dau,
+        sum(CASE WHEN trade_type = 'perps' THEN dau ELSE 0 END) as unique_traders, -- Perps specific metric
+        sum(CASE WHEN trade_type = 'aggregator' THEN dau ELSE 0 END) as aggregator_dau,
         sum(dau) as dau
        from {{ ref("fact_jupiter_all_trade_metrics") }}
        where date < to_date(sysdate())
@@ -59,25 +60,53 @@ select
     all_trade_metrics.date as date,
     'solana' as chain,
     'jupiter' as protocol,
+
+    -- Fees
     all_trade_metrics.perps_fees,
     all_trade_metrics.aggregator_fees,
     all_trade_metrics.dca_fees,
     all_trade_metrics.limit_order_fees,
     all_trade_metrics.fees,
-    all_trade_metrics.volume as trading_volume,
-    all_trade_metrics.unique_traders as unique_traders,
+
+    -- Revenue
+    all_trade_metrics.perps_revenue,
+    all_trade_metrics.aggregator_revenue,
+    all_trade_metrics.dca_revenue,
+    all_trade_metrics.limit_order_revenue,
+    all_trade_metrics.revenue,
+    all_trade_metrics.buybacks,
+
+    -- Supply Side Revenue
+    all_trade_metrics.perps_supply_side_revenue,
+    all_trade_metrics.primary_supply_side_revenue,
+    all_trade_metrics.total_supply_side_revenue,
+
+    -- Volume
+    all_trade_metrics.aggregator_volume,
+    all_trade_metrics.trading_volume,
+    all_trade_metrics.dca_volume,
+    all_trade_metrics.limit_order_volume,
+    all_trade_metrics.volume,
+
+    -- Txns
+    all_trade_metrics.aggregator_txns,
+    all_trade_metrics.perps_txns,
+    all_trade_metrics.dca_txns,
+    all_trade_metrics.limit_order_txns,
     all_trade_metrics.txns,
-    all_trade_metrics.aggregator_txns as aggregator_txns,
-    all_trade_metrics.perps_txns as perps_txns,
-    all_trade_metrics.dca_txns as dca_txns,
-    all_trade_metrics.limit_order_txns as limit_order_txns,
-    all_trade_metrics.aggregator_volume as aggregator_volume,
-    all_trade_metrics.perps_volume as perps_volume,
-    all_trade_metrics.dca_volume as dca_volume,
-    all_trade_metrics.limit_order_volume as limit_order_volume,
+
+    -- DAU
+    all_trade_metrics.unique_traders, -- perps specific metric
+    all_trade_metrics.aggregator_dau,
+    all_trade_metrics.dau,
+
+    -- Market Data
     price,
     market_cap,
-    fdmc
+    fdmc,
+    token_turnover_circulating,
+    token_turnover_fdv,
+    token_volume
 from all_trade_metrics
 left join price_data using (date)
 where all_trade_metrics.date < to_date(sysdate())
