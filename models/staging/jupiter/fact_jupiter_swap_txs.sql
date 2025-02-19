@@ -12,7 +12,7 @@ SELECT
     e.BLOCK_TIMESTAMP,
     e.TX_ID,
     e.INDEX,
-    e.INNER_INDEX,
+    e.INNER_INDEX, -- Usually null but there are some transactions with inner index
     e.PROGRAM_ID,
     e.EVENT_TYPE AS instruction_name,
 
@@ -145,5 +145,5 @@ WHERE e.PROGRAM_ID = 'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'
             'shared_accounts_route_with_token_ledger', 'sharedAccountsRouteWithTokenLedger'
     )
     {% if is_incremental() %}
-        AND e.BLOCK_TIMESTAMP > (SELECT MAX(BLOCK_TIMESTAMP) FROM {{ this }})
+        AND e.BLOCK_TIMESTAMP > (SELECT DATEADD(day, -3, MAX(BLOCK_TIMESTAMP)) FROM {{ this }})
     {% endif %}
