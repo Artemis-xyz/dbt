@@ -1,22 +1,7 @@
 {% macro standard_8d737a18_traces(chain) %}
-
-{% set chain_name = '' %}
-{% if chain == 'celo' %}
-    {% set chain_name = 'eip155:42220' %}
-{% elif chain == 'solana' %}
-    {% set chain_name = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' %}
-{% elif chain == 'ton' %}
-    {% set chain_name = 'tvm:-239' %}
-{% endif %}
-
-
-{% if chain_name == '' %}
-  {{ exceptions.raise_compiler_error("Error: chain_name is not set. Please update marco to include mapping of " ~ chain) }}
-{% endif %}
-
 select 
     block_number
-    , block_timestamp as transaction_timestamp
+    , TO_VARCHAR(block_timestamp, 'YYYY-MM-DD"T"HH24:MI:SS.FF3') as transaction_timestamp
     , block_hash
     , transaction_hash as transaction_hash
     , transaction_index as transfer_index
@@ -35,7 +20,10 @@ select
     , error
     , status
     , trace_id
-    , '{{chain_name}}' as chain_name
+    , '{{chain}}' as chain_name
+    , ca.chain_agnostic_id as chain_id
     , id
 from {{ref("fact_"~ chain ~ "_traces")}}
+left join {{ ref("chain_agnostic_ids") }} ca
+    on '{{chain}}' = ca.chain
 {% endmacro %}
