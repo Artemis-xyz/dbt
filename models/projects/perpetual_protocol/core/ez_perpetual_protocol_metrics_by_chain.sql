@@ -37,7 +37,8 @@ select
     chain,
     trading_volume,
     unique_traders,
-    fees
+    fees,
+    fees * 0.2 as revenue,
     tvl,
     {{ daily_pct_change('tvl') }} as tvl_growth
 from unique_traders_data
