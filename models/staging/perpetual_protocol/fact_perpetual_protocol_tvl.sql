@@ -1,42 +1,20 @@
 {{ config(
     materialized="table",
-    snowflake_warehouse='MEDIUM',
+    snowflake_warehouse='ANALYTICS_XL',
 ) }}
 
-with ethereum_balances as (
-    {{ get_treasury_balance(
-        chain='ethereum',
-        addresses=[
-            '0x0f346e19F01471C02485DF1758cfd3d624E399B4',
-        ],
-        earliest_date='2021-06-28'
-    )
-}}
-)
-, optimism_balances as (
-    {{ get_treasury_balance(
-        chain='optimism',
-        addresses=[
-            '0xD360B73b19Fb20aC874633553Fb1007e9FcB2b78'
-        ],
-        earliest_date='2021-06-28'
-    )
-}}
-)
-, aggregate_balances as (
-    select
-        *
-    from ethereum_balances
-    where contract_address = lower('0xbC396689893D065F41bc2C6EcbeE5e0085233447')
-    union all
-    select
-        *
-    from optimism_balances
-    where contract_address = lower('0x9e1028F5F1D5eDE59748FFceE5532509976840E0')
+with optimism_balances as (
+    {{
+        get_treasury_balance(
+            chain='optimism',
+            addresses='0xAD7b4C162707E0B2b5f6fdDbD3f8538A5fbA0d60',
+            earliest_date='2021-12-19'
+        )
+    }}
 )
 select
     date,
     chain,
     sum(usd_balance) as tvl
-from aggregate_balances
+from optimism_balances
 group by date, chain
