@@ -38,7 +38,7 @@ select
     trading_volume,
     unique_traders,
     fees,
-    fees * 0.2 as revenue,
+    fees * 0.2 as revenue, -- https://support.perp.com/general/legacy-reward-programs#how-it-works search '20%'
     tvl,
     {{ daily_pct_change('tvl') }} as tvl_growth
 from unique_traders_data
