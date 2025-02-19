@@ -144,3 +144,6 @@ WHERE e.PROGRAM_ID = 'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'
             'exact_out_route', 'exactOutRoute',
             'shared_accounts_route_with_token_ledger', 'sharedAccountsRouteWithTokenLedger'
     )
+    {% if is_incremental() %}
+        AND e.BLOCK_TIMESTAMP > (SELECT MAX(BLOCK_TIMESTAMP) FROM {{ this }})
+    {% endif %}
