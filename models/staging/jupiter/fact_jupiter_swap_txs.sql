@@ -16,9 +16,6 @@ SELECT
     e.PROGRAM_ID,
     e.EVENT_TYPE AS instruction_name,
 
-    -- Route Plan
-    e.DECODED_ARGS:routePlan AS route_plan,
-
     -- User Info
     e.DECODED_INSTRUCTION:accounts[1].pubkey::string AS user_address, -- user_transfer_authority
 
