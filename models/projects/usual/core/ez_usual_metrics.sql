@@ -56,8 +56,8 @@ select
     ubm.daily_supply as daily_supply,
     ubm.daily_treasury as daily_treasury,
     ubm.daily_burned as daily_burned,
-    -- revenue is the sum of treasury revenue and daily burned
-    treasury_revenue + daily_burned as revenue, 
+    -- revenue is the sum of treasury revenue, daily burned, and fees
+    usual.fees + usual.daily_treasury_revenue + ubm.daily_burned as revenue
 from usd0_metrics usd0 
 left join usd0pp_metrics usd0pp on usd0.date = usd0pp.date
 left join usual_fees usual on usd0.date = usual.date
