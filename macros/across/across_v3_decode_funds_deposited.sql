@@ -38,13 +38,13 @@
         transaction_hash as tx_hash,
         event_index,
         decoded_log:"depositId"::integer as deposit_id,
-        decoded_log:"inputToken"::string as origin_token,
+        IFF(event_name = 'FundsDeposited', '0x' || substr(decoded_log:"inputToken"::string, 25, 40), decoded_log:"inputToken") as origin_token,
         decoded_log:"inputAmount"::double as src_amount,
         decoded_log:"outputAmount"::double as dst_amount,
-        decoded_log:"depositor"::string as depositor,
-        decoded_log:"recipient"::string as recipient,
+        IFF(event_name = 'FundsDeposited', '0x' || substr(decoded_log:"depositor"::string, 25, 40), decoded_log:"depositor") as depositor,
+        IFF(event_name = 'FundsDeposited', '0x' || substr(decoded_log:"recipient"::string, 25, 40), decoded_log:"recipient") as recipient,
         decoded_log:"destinationChainId"::integer as destination_chain_id,
-        decoded_log:"outputToken"::string as destination_token,
+        IFF(event_name = 'FundsDeposited', '0x' || substr(decoded_log:"outputToken"::string, 25, 40), decoded_log:"outputToken")  destination_token,
         decoded_log:"originChainId"::integer as origin_chain_id,
         null as realized_lp_fee_pct,
         null as relayer_fee_pct,
@@ -54,7 +54,7 @@
         decoded_log
     from {{ ref("fact_" ~ chain  ~ "_decoded_events") }}
     where
-        event_name = 'V3FundsDeposited'
+        ((event_name = 'FundsDeposited' and block_timestamp >= '2025-02-07') or (event_name = 'V3FundsDeposited'))
         and
         lower(contract_address) = lower('{{ spot_fee_contract }}')
     {% if is_incremental() %}
