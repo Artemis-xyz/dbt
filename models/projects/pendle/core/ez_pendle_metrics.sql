@@ -107,6 +107,7 @@ SELECT
     , tn.treasury_value_native
     , nt.net_treasury_value
     , t.tvl
+    , {{ daily_pct_change('t.tvl') }} as tvl_growth
     , t.net_deposits
     , 0 as outstanding_supply
     , p.fdmc

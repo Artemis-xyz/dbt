@@ -24,6 +24,11 @@ with
         select date, fees, chain
         from {{ ref("fact_perpetual_protocol_fees") }}
         where chain is not null
+    ),
+    tvl_data as (
+        select date, tvl, chain
+        from {{ ref("fact_perpetual_protocol_tvl") }}
+        where chain is not null
     )
 select
     date as date,
@@ -32,8 +37,12 @@ select
     chain,
     trading_volume,
     unique_traders,
-    fees
+    fees,
+    fees * 0.2 as revenue, -- https://support.perp.com/general/legacy-reward-programs#how-it-works search '20%'
+    tvl,
+    {{ daily_pct_change('tvl') }} as tvl_growth
 from unique_traders_data
 left join trading_volume_data using(date, chain)
 left join fees_data using(date, chain)
-where date > '2021-11-25' and date < to_date(sysdate())
+left join tvl_data using(date, chain)
+where date < to_date(sysdate())
