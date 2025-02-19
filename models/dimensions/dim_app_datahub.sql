@@ -25,7 +25,7 @@ FROM {{ ref("dim_all_apps_gold") }} t3
 LEFT JOIN (
     SELECT 
         namespace, 
-        MIN(date) AS earliest_deployment
+        CAST(MIN(date) AS DATE) AS earliest_deployment
     FROM {{ ref("all_chains_gas_dau_txns_by_contract_v2") }}
     GROUP BY namespace
 ) min_dates ON t3.artemis_application_id = min_dates.namespace
