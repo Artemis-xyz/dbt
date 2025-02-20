@@ -1,6 +1,5 @@
 {{ config(
-    materialized="table",
-    snowflake_warehouse='ANALYTICS_XL',
+    materialized="table"
 ) }}
 
 with optimism_balances as (
