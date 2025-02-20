@@ -19,3 +19,7 @@
 {% macro to_timestamp(v) %} {{ v }}::timestamp {% endmacro %}
 
 {% macro to_date(v) %} {{ v }}::date {% endmacro %}
+
+{% macro daily_pct_change(v, date_col='date') %}
+    {{ v }} / nullif(lag({{ v }}) OVER (ORDER BY {{ date_col }}), 0) - 1
+{% endmacro %}
