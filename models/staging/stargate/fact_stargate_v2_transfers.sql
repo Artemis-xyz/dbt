@@ -28,11 +28,25 @@ select
     , OFTSent.amount_sent_adjusted
     , OFTSent.amount_sent
     
-    , amount_sent_native - amount_received_native as fee_amount_native
-    , amount_sent_adjusted - amount_received_adjusted as fee_amount_adjusted
+    , case when amount_sent_native - amount_received_native < 0 then 0 else amount_sent_native - amount_received_native end as fee_amount_native
+    , case when amount_sent_adjusted - amount_received_adjusted < 0 then 0 else amount_sent_adjusted - amount_received_adjusted end as fee_amount_adjusted
     , case when amount_sent - amount_received < 0 then 0 else amount_sent - amount_received end as fee_amount
 
+    -- token rewards
+    , case when amount_sent_native - amount_received_native < 0 then abs(amount_sent_native - amount_received_native) else 0 end as token_rewards_native
+    , case when amount_sent_adjusted - amount_received_adjusted < 0 then abs(amount_sent_adjusted - amount_received_adjusted) else 0 end as token_rewards_adjusted
+    , case when amount_sent - amount_received < 0 then abs(amount_sent - amount_received) else 0 end as token_rewards
+
     , guid
-from {{ref("fact_stargate_v2_event_OFTReceived")}} as OFTReceived
-inner join {{ref("fact_stargate_v2_event_OFTSent")}} as OFTSent 
+
+    , fees.fees_native
+    , fees.fees_usd
+
+    , fees_usd + fee_amount as fees
+    
+
+from {{ref("fact_stargate_v2_event_OFTSent")}} as OFTSent
+inner join {{ref("fact_stargate_v2_event_OFTReceived")}} as OFTReceived 
     using(guid, src_chain, dst_chain)
+left join {{ref("fact_stargate_fees")}} as fees
+    on OFTSent.tx_hash = fees.tx_hash

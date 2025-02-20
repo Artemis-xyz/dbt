@@ -1,4 +1,17 @@
 {% macro stargate_OFTReceived(chain)%}
+{% set chain_name = chain %}
+{% if chain == 'bsc' %}
+    {% set chain_name = 'binance-smart-chain' %}
+{% elif chain == 'arbitrum' %}
+    {% set chain_name = 'arbitrum-one' %}
+{% elif chain == 'optimism' %}
+    {% set chain_name = 'optimistic-ethereum' %}
+{% elif chain == 'polygon' %}
+    {% set chain_name = 'polygon-pos' %}
+{% elif chain == 'sei' %}
+    {% set chain_name = 'sei-v2' %}
+{% endif %}
+
 with 
 {% if chain in ('berachain', 'mantle') %}
     prices as (
@@ -14,28 +27,7 @@ with
     )
 {% else %}
     prices as (
-        select
-            hour::date as date
-            , token_address as contract_address
-            , avg(price) as price
-        from {{chain}}_flipside.price.ez_prices_hourly
-        where token_address is not null
-        group by 1, 2
-        {% if chain == 'sei' %}
-            union all
-            --On 2025-02-12, SEI Flipside does not contain prices for the eth token. Need to add this manually.
-            select
-                date
-                , '0x160345fc359604fc6e70e3c5facbde5f7a9342d8' as contract_address
-                , price
-            from ({{ get_coingecko_price_with_latest('ethereum')}})
-            where not exists (
-                select 1 
-                from {{chain}}_flipside.price.ez_prices_hourly 
-                where lower(token_address) = lower('0x160345fc359604fc6e70e3c5facbde5f7a9342d8')
-                limit 1
-            )
-        {% endif %}
+            {{ get_multiple_coingecko_price_with_latest(chain_name) }}
     )
 {% endif %}
 
@@ -140,7 +132,9 @@ select
     , amount_received_ld / pow(10, events.decimals) as amount_received_adjusted
     , price * amount_received_ld / pow(10, events.decimals) as amount_received
     , events.tx_status
+    , prices.price
 from events
+
 {% if chain in ('berachain', 'mantle') %}
     left join prices on block_timestamp::date = prices.date and lower(events.coingecko_id) = lower(prices.coingecko_id)
 {% else %}
