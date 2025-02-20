@@ -42,13 +42,14 @@ returning_addresses AS (
 -- Daily metrics with modified treasury_fee calculation
 daily_metrics AS (
     SELECT 
-        t.src_block_timestamp::date AS transaction_date,
+        t.dst_block_timestamp::date AS transaction_date,
         COUNT(*) AS daily_transactions,
         AVG(amount_sent) AS avg_daily_transaction_size,
         SUM(amount_sent) AS daily_volume,
         COUNT(DISTINCT src_address) AS daily_active_addresses,
         SUM(daily_active_addresses) OVER (ORDER BY transaction_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
         AS cumulative_active_addresses,
+        SUM(token_rewards) AS token_rewards,
         -- v2 fees (fee allocation breakdown) -veSTG Holders (1/6) of all fees generated & Protocol Treasury (5/6) of all fees generated
         SUM(fees) AS fees,
         SUM(fees) * 1/6 AS supply_side_fee,
@@ -89,7 +90,8 @@ daily_growth AS (
               / NULLIF(LAG(daily_transactions) OVER (ORDER BY transaction_date), 0), 2) AS daily_growth_pct,
         revenue,
         supply_side_fee,
-        fees
+        fees,
+        token_rewards
     FROM daily_metrics
 ),
 
@@ -121,6 +123,7 @@ SELECT
     d.supply_side_fee,
     d.revenue,
     d.fees,
+    d.token_rewards,
     w.week_start,
     w.weekly_active_addresses,
     m.month_start,

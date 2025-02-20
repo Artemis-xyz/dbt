@@ -1,4 +1,17 @@
 {% macro stargate_OFTSent(chain)%}
+{% set chain_name = chain %}
+{% if chain == 'bsc' %}
+    {% set chain_name = 'binance-smart-chain' %}
+{% elif chain == 'arbitrum' %}
+    {% set chain_name = 'arbitrum-one' %}
+{% elif chain == 'optimism' %}
+    {% set chain_name = 'optimistic-ethereum' %}
+{% elif chain == 'polygon' %}
+    {% set chain_name = 'polygon-pos' %}
+{% elif chain == 'sei' %}
+    {% set chain_name = 'sei-v2' %}
+{% endif %}
+
 with 
 {% if chain in ('berachain', 'mantle') %}
     prices as (
@@ -14,30 +27,9 @@ with
     )
 {% else %}
     prices as (
-        select
-            hour::date as date
-            , token_address as contract_address
-            , avg(price) as price
-        from {{chain}}_flipside.price.ez_prices_hourly
-        group by 1, 2
-        --On 2025-02-12, SEI Flipside does not contain prices for the eth token. Need to add this manually.
-        {% if chain == 'sei' %}
-            union all
-                select
-                    date
-                    , '0x160345fc359604fc6e70e3c5facbde5f7a9342d8' as contract_address
-                    , price
-                from ({{ get_coingecko_price_with_latest('ethereum')}})
-                where not exists (
-                    select 1 
-                    from {{chain}}_flipside.price.ez_prices_hourly 
-                    where lower(token_address) = lower('0x160345fc359604fc6e70e3c5facbde5f7a9342d8')
-                    limit 1
-                )
-        {% endif %}
+        {{ get_multiple_coingecko_price_with_latest(chain_name) }}
     )
 {% endif %}
-
 {% if chain == 'mantle' %}
     , events as (
         select 
@@ -137,12 +129,37 @@ select
     , events.symbol
     , amount_sent_ld as amount_sent_native
     , amount_sent_ld / pow(10, events.decimals) as amount_sent_adjusted
-    , price * amount_sent_ld / pow(10, events.decimals) as amount_sent
+    , case 
+        {% if chain == 'arbitrum' %}
+            when events.src_chain = 'arbitrum' and lower(events.symbol) = lower('WETH') 
+            then eth_prices.price * amount_sent_ld / pow(10, events.decimals)
+            else prices.price * amount_sent_ld / pow(10, events.decimals)
+        {% else %}
+            when true
+            then prices.price * amount_sent_ld / pow(10, events.decimals)
+        {% endif %}
+      end as amount_sent
     , events.tx_status
-from events
-{% if chain in ('berachain', 'mantle') %}
-    left join prices on block_timestamp::date = prices.date and lower(events.coingecko_id) = lower(prices.coingecko_id)
-{% else %}
-    left join prices on block_timestamp::date = prices.date and lower(prices.contract_address) = lower(token_address)
-{% endif %}
+    , case 
+        {% if chain == 'arbitrum' %}
+            when events.src_chain = 'arbitrum' and lower(events.symbol) = lower('WETH') 
+            then eth_prices.price
+            else prices.price
+        {% else %}
+            when true
+            then prices.price
+        {% endif %}
+      end as price
+    from events
+    {% if chain in ('berachain', 'mantle') %}
+        left join prices on block_timestamp::date = prices.date and lower(events.coingecko_id) = lower(prices.coingecko_id)
+    {% else %}
+        left join prices on block_timestamp::date = prices.date and lower(prices.contract_address) = lower(token_address)
+        left join (
+            select date, shifted_token_price_usd as price 
+            from {{ ref("fact_coingecko_token_date_adjusted_gold") }}
+            where coingecko_id = 'ethereum'
+        ) eth_prices 
+        on block_timestamp::date = eth_prices.date
+    {% endif %}
 {% endmacro %}
