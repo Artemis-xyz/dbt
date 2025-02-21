@@ -9,7 +9,10 @@
                 , symbol
                 , address as from_address
                 {% if chain in ('ethereum', 'tron') %}
-                    , case 
+                    , case
+                        -- This is for FDUSD on a preminted address on ETH that is not preminted
+                        when lower(contract_address) = lower('0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409') 
+                            and lower(address) = lower('0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503') then stablecoin_supply
                         when lower(address) in (select lower(premint_address) from {{ref("fact_"~chain~"_stablecoin_bridge_addresses")}}) then 0
                         else stablecoin_supply
                     end as stablecoin_supply
