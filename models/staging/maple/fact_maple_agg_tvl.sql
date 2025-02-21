@@ -13,15 +13,6 @@ WITH agg_tvl AS (
         -- outstanding_usd as tvl_native,
         null as outstanding_supply
     FROM {{ ref('fact_maple_v1_tvl') }}
-    -- UNION ALL
-    -- SELECT 
-    --     date, 
-    --     pool_name, 
-    --     asset,
-    --     tvl,
-    --     tvl_native,
-    --     outstanding as outstanding_supply
-    -- FROM {{ ref('fact_maple_v2_tvl') }}
     UNION ALL
     SELECT 
         date, 

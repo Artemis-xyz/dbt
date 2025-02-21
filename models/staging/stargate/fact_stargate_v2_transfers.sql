@@ -43,3 +43,5 @@ select
 from {{ref("fact_stargate_v2_event_OFTSent")}} as OFTSent
 inner join {{ref("fact_stargate_v2_event_OFTReceived")}} as OFTReceived 
     using(guid, src_chain, dst_chain)
+left join {{ref("fact_stargate_fees")}} as fees
+    on OFTSent.tx_hash = fees.tx_hash

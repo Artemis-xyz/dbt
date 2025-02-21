@@ -102,12 +102,16 @@ WITH dates AS (
         CASE 
             WHEN contract_address = 'native_token'
                 THEN native_token.symbol
+            WHEN contract_address = lower('0x7F5c764cBc14f9669B88837ca1490cCa17c31607') and fb.date < '2023-09-07' -- Flipside deosn't have pricing data for USDC.e before this date
+                THEN 'USDC.e'
             ELSE p.symbol
         END AS symbol_adj,            
         fb.balance_daily as balance_daily,
         CASE 
             WHEN contract_address = 'native_token'
                 THEN coalesce(native_token.price, 0)
+            WHEN contract_address = lower('0x7F5c764cBc14f9669B88837ca1490cCa17c31607') and fb.date < '2023-09-07' -- Flipside deosn't have pricing data for USDC.e before this date
+                THEN 1
             ELSE COALESCE(p.price, 0)
         END AS price_adj,    
         fb.balance_daily * COALESCE(price_adj, 0) AS usd_balance
