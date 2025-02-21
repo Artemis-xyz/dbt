@@ -12,6 +12,9 @@ combined_events as (
                 ref("fact_stargate_v2_ethereum_event_OFTReceived"),
                 ref("fact_stargate_v2_optimism_event_OFTReceived"),
                 ref("fact_stargate_v2_polygon_event_OFTReceived"),
+                ref("fact_stargate_v2_sei_event_OFTReceived"),
+                ref("fact_stargate_v2_berachain_event_OFTReceived"),
+                ref("fact_stargate_v2_mantle_event_OFTReceived"),
             ],
         )
     }}

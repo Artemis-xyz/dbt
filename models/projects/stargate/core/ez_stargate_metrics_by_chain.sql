@@ -24,7 +24,32 @@ WITH
         from {{ ref("fact_stargate_bridge_volume") }}
         where chain is not null
     ), 
-    first_seen_global AS (
+    , treasury_models as (
+    {{
+        dbt_utils.union_relations(
+            relations=[
+                ref("fact_stargate_v2_arbitrum_treasury_balance"),
+                ref("fact_stargate_v2_avalanche_treasury_balance"),
+                ref("fact_stargate_v2_base_treasury_balance"),
+                ref("fact_stargate_v2_bsc_treasury_balance"),
+                ref("fact_stargate_v2_ethereum_treasury_balance"),
+                ref("fact_stargate_v2_optimism_treasury_balance"),
+                ref("fact_stargate_v2_polygon_treasury_balance"),
+                ref("fact_stargate_v2_mantle_treasury_balance"),
+            ],
+        )
+    }}
+)
+, treasury_metrics as (
+    select
+        date
+        , chain
+        , sum(balance_usd) as treasury_usd
+    from treasury_models
+    where balance_usd is not null
+    group by date, chain
+    )
+    , first_seen_global AS (
         SELECT src_address, MIN(first_seen) AS first_seen_date
         FROM aggregated_data
         GROUP BY src_address
@@ -52,6 +77,8 @@ SELECT
     , returning_addresses
     , inflow
     , outflow
+    , treasury_usd
 FROM chain_metrics
 left join flows using (date, chain)
+left join treasury_metrics using (date, chain)
 where date < to_date(sysdate())
