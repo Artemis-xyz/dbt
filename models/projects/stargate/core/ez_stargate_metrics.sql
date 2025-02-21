@@ -56,10 +56,34 @@ daily_metrics AS (
         SUM(fees) * 5/6 AS revenue,
     FROM {{ ref("fact_stargate_v2_transfers") }} t
     GROUP BY transaction_date
-),
+)
+, treasury_models as (
+    {{
+        dbt_utils.union_relations(
+            relations=[
+                ref("fact_stargate_v2_arbitrum_treasury_balance"),
+                ref("fact_stargate_v2_avalanche_treasury_balance"),
+                ref("fact_stargate_v2_base_treasury_balance"),
+                ref("fact_stargate_v2_bsc_treasury_balance"),
+                ref("fact_stargate_v2_ethereum_treasury_balance"),
+                ref("fact_stargate_v2_optimism_treasury_balance"),
+                ref("fact_stargate_v2_polygon_treasury_balance"),
+                ref("fact_stargate_v2_mantle_treasury_balance"),
+            ],
+        )
+    }}
+)
+, treasury_metrics as (
+    select
+        date
+        , sum(balance_usd) as treasury_usd
+    from treasury_models
+    where balance_usd is not null
+    group by date
+)
 
 -- Weekly metrics (directly from raw data)
-weekly_metrics AS (
+, weekly_metrics AS (
     SELECT 
         DATE_TRUNC('week', src_block_timestamp) AS week_start,
         COUNT(DISTINCT src_address) AS weekly_active_addresses
@@ -132,11 +156,13 @@ SELECT
     COALESCE(b.count_100_1K, 0) AS TXN_SIZE_100_1K,
     COALESCE(b.count_1K_10K, 0) AS TXN_SIZE_1K_10K,
     COALESCE(b.count_10K_100K, 0) AS TXN_SIZE_10K_100K,
-    COALESCE(b.count_100K_plus, 0) AS TXN_SIZE_100K_PLUS
+    COALESCE(b.count_100K_plus, 0) AS TXN_SIZE_100K_PLUS,
+    t.treasury_usd
 FROM daily_growth d
 LEFT JOIN new_addresses n ON d.transaction_date = n.transaction_date
 LEFT JOIN returning_addresses r ON d.transaction_date = r.transaction_date
 LEFT JOIN weekly_metrics w ON d.transaction_date = DATE(w.week_start)
 LEFT JOIN monthly_metrics m ON d.transaction_date = DATE(m.month_start)
 LEFT JOIN transaction_bucket_counts b ON d.transaction_date = b.transaction_date
+LEFT JOIN treasury_metrics t ON d.transaction_date = t.date
 ORDER BY d.transaction_date DESC
