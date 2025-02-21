@@ -39,10 +39,11 @@ labeled_automatic_table AS (
         COALESCE(dmla.chain, a.chain) AS chain,
         COALESCE(dmla.is_token, NULL) AS is_token,
         COALESCE(dmla.is_fungible, NULL) AS is_fungible,
-        COALESCE(dmla.last_updated, a.last_updated) AS last_updated
+        COALESCE(dmla.type, NULL) AS type,
+        COALESCE(dmla.last_updated, a.last_updated) AS last_updated,
     FROM mapped_addresses a
     FULL OUTER JOIN PC_DBT_DB.PROD.dim_manual_labeled_addresses dmla
-        ON a.address = dmla.address
+        ON LOWER(a.address) = LOWER(dmla.address)
 )
 SELECT
     lat.address,
@@ -54,6 +55,7 @@ SELECT
     lat.chain,
     lat.is_token,
     lat.is_fungible,
+    lat.type,
     lat.last_updated
 FROM labeled_automatic_table lat
 LEFT JOIN {{ ref("dim_all_apps_gold") }} ag
