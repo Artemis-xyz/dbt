@@ -38,8 +38,8 @@ select
     , case when amount_sent - amount_received < 0 then abs(amount_sent - amount_received) else 0 end as token_rewards
 
     , guid
-    
 
 from {{ref("fact_stargate_v2_event_OFTSent")}} as OFTSent
 inner join {{ref("fact_stargate_v2_event_OFTReceived")}} as OFTReceived 
     using(guid, src_chain, dst_chain)
+

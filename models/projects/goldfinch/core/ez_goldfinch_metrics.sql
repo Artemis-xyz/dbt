@@ -79,6 +79,7 @@ SELECT
     , tn.treasury_native_value as treasury_value_native
     , nt.net_treasury_value as net_treasury_value
     , m.tvl as tvl
+    , {{ daily_pct_change('m.tvl') }} as tvl_growth
     , pd.price
     , pd.market_cap
     , pd.fdmc
