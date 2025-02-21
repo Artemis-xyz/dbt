@@ -181,5 +181,6 @@ final_result AS (
     JOIN grouped_stats gs ON s.app_or_address = gs.app_or_address AND s.chain = gs.chain
 ) 
 SELECT DISTINCT 
+    CONCAT(app_or_address, '|', chain) AS unique_id,
     *
 FROM final_result
