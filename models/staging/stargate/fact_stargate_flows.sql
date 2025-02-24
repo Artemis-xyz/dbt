@@ -15,7 +15,7 @@ with
             , src_token_address
             , t2.category as category
             , amount_sent
-            , fee_amount
+            , fees
         from {{ref("fact_stargate_v2_transfers")}} t
         left join dim_contracts t2 on lower(t.src_token_address) = lower(t2.address) and src_chain = t2.chain
     )
@@ -26,7 +26,7 @@ select
     , dst_chain as destination_chain
     , category
     , sum(amount_sent) as amount_usd
-    , sum(fee_amount) as fee_usd
+    , sum(fees) as fee_usd
 from transfers_data
 where src_block_timestamp::date < to_date(sysdate())
 group by 1, 2, 3, 4, 5

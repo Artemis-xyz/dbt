@@ -29,8 +29,8 @@ select
     , OFTSent.amount_sent_adjusted
     , OFTSent.amount_sent
     
-    , case when amount_sent_native - amount_received_native < 0 then 0 else amount_sent_native - amount_received_native end as fee_amount_native
-    , case when amount_sent_adjusted - amount_received_adjusted < 0 then 0 else amount_sent_adjusted - amount_received_adjusted end as fee_amount_adjusted
+    , case when amount_sent_native - amount_received_native < 0 then 0 else amount_sent_native - amount_received_native end as fees_native
+    , case when amount_sent_adjusted - amount_received_adjusted < 0 then 0 else amount_sent_adjusted - amount_received_adjusted end as fees_adjusted
     , case when amount_sent - amount_received < 0 then 0 else amount_sent - amount_received end as fees
 
     -- token rewards
