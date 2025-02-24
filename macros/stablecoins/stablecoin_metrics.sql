@@ -9,8 +9,11 @@
                 , symbol
                 , address as from_address
                 {% if chain in ('ethereum', 'tron') %}
-                    , case 
-                        when lower(address) in (select lower(premint_address) from {{ref("fact_"~chain~"_stablecoin_bridge_addresses")}}) then 0
+                    , case
+                        when (lower(address) in (select lower(premint_address) from {{ref("fact_"~chain~"_stablecoin_bridge_addresses")}})
+                            and not(lower(address) = lower('0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503')
+                                and lower(contract_address) = lower('0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409'))
+                            then 0
                         else stablecoin_supply
                     end as stablecoin_supply
                 {% elif chain in ('solana', 'celo', 'ton', 'sui') %}
