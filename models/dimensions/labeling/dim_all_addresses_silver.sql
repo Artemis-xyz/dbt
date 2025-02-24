@@ -3,7 +3,7 @@
         materialized="incremental",
         unique_key=["address", "chain"],
         incremental_strategy="merge",
-        snowflake_warehouse='ANALYTICS_XL'
+        snowflake_warehouse='BAM_TRANSACTION_XLG'
     )
 }}
 
@@ -28,10 +28,10 @@ WITH raw_addresses AS (
 
     {% for sourc in sources %}
         {% if sourc.chain in ['injective', 'stellar']  %}
-            SELECT address, transaction_trace_type, address_type::STRING, chain, last_updated
+            SELECT LOWER(address) AS address, transaction_trace_type, address_type::STRING, chain, last_updated
             FROM  {{ source("PROD_LANDING", sourc.table) }}
         {% else %}
-            SELECT * FROM {{ ref(sourc.table) }}
+            SELECT LOWER(address) AS address, transaction_trace_type, address_type, chain, last_updated FROM {{ ref(sourc.table) }}
         {% endif %}
 
         {% if is_incremental() %}
@@ -43,8 +43,8 @@ WITH raw_addresses AS (
 ),
 -- This contains name + icon metadata grabbed from labels
 labeled_name_metadata AS (
-    SELECT address, NULL AS namespace, NULL AS raw_external_category, NULL AS raw_external_sub_category, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 1 AS priority
-    FROM {{ source("MANUAL_STATIC_TABLES", "dim_legacy_sigma_tagged_contracts") }}
+    SELECT address, namespace, NULL AS raw_external_category, NULL AS raw_external_sub_category, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 1 AS priority
+    FROM {{ ref("dim_legacy_sigma_tagged_contracts") }}
     UNION ALL
     SELECT address, namespace, NULL AS raw_external_category, NULL AS raw_external_sub_category, chain, OBJECT_CONSTRUCT('name', name) AS metadata, last_updated, 2 AS priority
     FROM {{ ref("dim_dune_contracts") }}
@@ -58,7 +58,7 @@ labeled_name_metadata AS (
 -- This contains deduped labeled_name_metadata
 deduped_labeled_name_metadata AS (
     SELECT 
-        address,
+        LOWER(address) AS address,
         namespace,
         LOWER(REPLACE(raw_external_category, ' ', '_')) AS raw_external_category,
         LOWER(REPLACE(raw_external_sub_category, ' ', '_')) AS raw_external_sub_category,
@@ -66,7 +66,7 @@ deduped_labeled_name_metadata AS (
         metadata,
         last_updated
     FROM labeled_name_metadata
-    QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY priority ASC) = 1
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY LOWER(address), chain ORDER BY priority ASC) = 1
 ),
 -- This updates metadata with specific contract/wallet type if labeled
 deduped_labeled_name_metadata_with_types AS (
@@ -127,5 +127,5 @@ LEFT JOIN pc_dbt_db.prod.dim_geo_labels geo
 LEFT JOIN deduped_labeled_name_metadata_with_types nm
     ON ra.address = nm.address AND ra.chain = nm.chain
 FULL OUTER JOIN {{ source("PYTHON_LOGIC", "dim_manual_labeled_addresses") }} ua
-    ON ra.address = ua.address
+    ON ra.address = ua.address AND ra.chain = ua.chain
 

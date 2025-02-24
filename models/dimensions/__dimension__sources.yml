@@ -38,5 +38,4 @@ sources:
       - name: dim_chains
       - name: dim_sub_categories
       - name: dim_categories
-      - name: dim_legacy_sigma_tagged_contracts
       - name: all_categories_seed
