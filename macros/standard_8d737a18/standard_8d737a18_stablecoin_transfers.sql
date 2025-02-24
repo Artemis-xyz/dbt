@@ -1,6 +1,6 @@
 {% macro standard_8d737a18_stablecoin_transfers(chain) %}
 select
-    TO_VARCHAR(block_timestamp, 'YYYY-MM-DD"T"HH24:MI:SS.FF3') as transaction_timestamp
+    block_timestamp as transaction_timestamp
     , date::date as date_day
     , block_number
     , index as transfer_index
