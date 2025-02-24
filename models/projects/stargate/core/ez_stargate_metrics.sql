@@ -16,19 +16,19 @@ first_seen AS (
         min(src_block_timestamp::date) AS first_seen_date
     FROM {{ ref("fact_stargate_v2_transfers") }}
     GROUP BY src_address
-),
+)
 
 -- New addresses per day (first transaction)
-new_addresses AS (
+, new_addresses AS (
     SELECT 
         first_seen_date AS transaction_date, 
         COUNT(DISTINCT src_address) AS new_addresses
     FROM first_seen
     GROUP BY transaction_date
-),
+)
 
 -- Returning addresses per day (transactions AFTER first_seen_date)
-returning_addresses AS (
+, returning_addresses AS (
     SELECT 
         src_block_timestamp::date AS transaction_date,
         COUNT(DISTINCT t.src_address) AS returning_addresses
@@ -37,15 +37,16 @@ returning_addresses AS (
         ON t.src_address = f.src_address
         AND t.src_block_timestamp > f.first_seen_date
     GROUP BY transaction_date
-),
+)
 
 -- Daily metrics with modified treasury_fee calculation
-daily_metrics AS (
+, daily_metrics AS (
     SELECT 
         t.dst_block_timestamp::date AS transaction_date,
         COUNT(*) AS daily_transactions,
         AVG(amount_sent) AS avg_daily_transaction_size,
         SUM(amount_sent) AS daily_volume,
+        COUNT(DISTINCT src_address) AS daily_active_addresses,
         SUM(daily_active_addresses) OVER (ORDER BY transaction_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
         AS cumulative_active_addresses,
         SUM(token_rewards) AS token_rewards,
@@ -88,19 +89,19 @@ daily_metrics AS (
         COUNT(DISTINCT src_address) AS weekly_active_addresses
     FROM {{ ref("fact_stargate_v2_transfers") }}
     GROUP BY week_start
-),
+)
 
 -- Monthly metrics (directly from raw data)
-monthly_metrics AS (
+, monthly_metrics AS (
     SELECT 
         DATE_TRUNC('month', src_block_timestamp) AS month_start,
         COUNT(DISTINCT src_address) AS monthly_active_addresses
     FROM {{ ref("fact_stargate_v2_transfers") }}
     GROUP BY month_start
-),
+)
 
 -- Daily growth percentages
-daily_growth AS (
+, daily_growth AS (
     SELECT 
         transaction_date, 
         daily_transactions,
@@ -116,10 +117,10 @@ daily_growth AS (
         fees,
         token_rewards
     FROM daily_metrics
-),
+)
 
 -- Transaction Bucket Counts (Pre-Aggregated)
-transaction_bucket_counts AS (
+, transaction_bucket_counts AS (
     SELECT 
         src_block_timestamp::date AS transaction_date,
         COUNT(CASE WHEN amount_sent < 100 THEN 1 END) AS count_0_100,
@@ -137,8 +138,7 @@ SELECT
     d.daily_transactions as txns,
     d.avg_daily_transaction_size as avg_txn_size,
     d.daily_volume as bridge_volume,
-    n.new_addresses + r.returning_addresses as dau,
-    d.daily_active_addresses as bridge_daa, 
+    d.daily_active_addresses as bridge_daa,
     COALESCE(n.new_addresses, 0) AS new_addresses,
     COALESCE(r.returning_addresses, 0) AS returning_addresses,
     d.cumulative_active_addresses as cumulative_addresses,
