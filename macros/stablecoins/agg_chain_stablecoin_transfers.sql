@@ -195,15 +195,15 @@
                 else 0
             end as transfer_volume,
             mint as contract_address,
-            fact_{{ chain }}_stablecoin_contracts.symbol
+            t1.symbol
         from solana_flipside.core.fact_transfers
         join
-            fact_{{ chain }}_stablecoin_contracts
+            fact_{{ chain }}_stablecoin_contracts t1
             on lower(solana_flipside.core.fact_transfers.mint)
-            = lower(fact_{{ chain }}_stablecoin_contracts.contract_address)
+            = lower(t1.contract_address)
         where
             mint
-            in (select distinct contract_address from fact_solana_stablecoin_contracts t1)
+            in (select distinct contract_address from fact_solana_stablecoin_contracts)
     {% elif chain in ("near") %}
         select
             block_timestamp,
