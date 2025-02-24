@@ -46,7 +46,6 @@ daily_metrics AS (
         COUNT(*) AS daily_transactions,
         AVG(amount_sent) AS avg_daily_transaction_size,
         SUM(amount_sent) AS daily_volume,
-        COUNT(DISTINCT src_address) AS daily_active_addresses,
         SUM(daily_active_addresses) OVER (ORDER BY transaction_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
         AS cumulative_active_addresses,
         SUM(token_rewards) AS token_rewards,
@@ -114,7 +113,7 @@ SELECT
     d.daily_transactions as txns,
     d.avg_daily_transaction_size as avg_txn_size,
     d.daily_volume as bridge_volume,
-    d.daily_active_addresses as dau,
+    n.new_addresses + r.returning_addresses as dau,
     d.daily_active_addresses as bridge_daa, 
     COALESCE(n.new_addresses, 0) AS new_addresses,
     COALESCE(r.returning_addresses, 0) AS returning_addresses,
