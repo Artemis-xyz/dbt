@@ -1,8 +1,6 @@
 {{
     config(
-        materialized="incremental",
-        unique_key=["address", "chain"],
-        incremental_strategy="merge",
+        materialized="table",
         on_schema_change="append_new_columns"
     )
 }}
@@ -15,9 +13,6 @@ WITH addresses_with_namespace_and_category AS (
         last_updated
     FROM {{ ref("dim_all_addresses_gold") }}
     WHERE namespace IS NOT NULL  
-    {% if is_incremental() %}
-        AND last_updated > (SELECT MAX(last_updated) FROM {{ this }})
-    {% endif %}  
 ), mapped_addresses AS (
     select 
         a.address,
@@ -34,7 +29,7 @@ WITH addresses_with_namespace_and_category AS (
 ),
 labeled_automatic_table AS (
     SELECT
-        COALESCE(dmla.address, a.address) AS address,
+        COALESCE(LOWER(dmla.address), LOWER(a.address)) AS address,
         COALESCE(dmla.name, a.namespace) AS name,
         COALESCE(dmla.artemis_application_id, a.artemis_application_id) AS artemis_application_id,
         COALESCE(dmla.chain, a.chain) AS chain,
