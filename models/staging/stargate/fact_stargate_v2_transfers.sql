@@ -5,7 +5,8 @@ select
     , OFTReceived.event_index as dst_event_index
     , dst_chain
     , dst_address
-
+    , OFTSent.stargate_implementation_pool as src_messaging_contract_address
+    , OFTReceived.stargate_implementation_pool as dst_messaging_contract_address
     , OFTSent.block_timestamp as src_block_timestamp
     , OFTSent.tx_hash as src_tx_hash
     , OFTSent.event_index as src_event_index
