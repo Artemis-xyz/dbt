@@ -1,5 +1,13 @@
 {{ config(materialized="table") }}
 
+
+WITH aggregated_chains AS (
+    SELECT 
+        artemis_application_id, 
+        ARRAY_AGG(DISTINCT chain) AS deployed_on
+    FROM {{ ref('dim_all_addresses_labeled_gold') }}
+    GROUP BY artemis_application_id
+)
 SELECT 
     t3.artemis_application_id,
     t3.app_name,
@@ -20,7 +28,8 @@ SELECT
     t3.developer_name,
     t3.developer_email,
     t3.developer_x_handle,
-    min_dates.earliest_deployment
+    min_dates.earliest_deployment,
+    ac.deployed_on
 FROM {{ ref("dim_all_apps_gold") }} t3
 LEFT JOIN (
     SELECT 
@@ -29,3 +38,5 @@ LEFT JOIN (
     FROM {{ ref("all_chains_gas_dau_txns_by_contract_v2") }}
     GROUP BY namespace
 ) min_dates ON t3.artemis_application_id = min_dates.namespace
+LEFT JOIN aggregated_chains ac 
+ON ac.artemis_application_id = t3.artemis_application_id
