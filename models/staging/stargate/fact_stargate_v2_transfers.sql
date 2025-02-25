@@ -43,4 +43,4 @@ select
 
 from {{ref("fact_stargate_v2_event_OFTSent")}} as OFTSent
 inner join {{ref("fact_stargate_v2_event_OFTReceived")}} as OFTReceived 
-    using(guid, src_chain, dst_chain)
+    using(guid)

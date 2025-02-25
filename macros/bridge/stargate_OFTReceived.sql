@@ -53,8 +53,8 @@ with
             , event_index
             , 'OFTReceived' as event_name
             , '{{ chain }}' as dst_chain
-            , pc_dbt_db.prod.hex_to_int(substr(data, 67))::bigint as amount_received_ld
-            , pc_dbt_db.prod.hex_to_int(substr(data, 0, 66))::bigint as src_e_id
+            , pc_dbt_db.prod.hex_to_int(substr(data, 65))::bigint as amount_received_ld
+            , pc_dbt_db.prod.hex_to_int(substr(data, 0, 64))::bigint as src_e_id
             , '0x' || substr(topics[1]::string, 27, 40) as dst_address
             , topics[0]::string as guid
             , token_messaging_address
@@ -118,14 +118,20 @@ select
     , events.symbol
     , amount_received_ld as amount_received_native
     , amount_received_ld / pow(10, events.decimals) as amount_received_adjusted
-    , price * amount_received_ld / pow(10, events.decimals) as amount_received
+    , coalesce(
+        price, 
+        case when lower(token_address) in ('0x3894085ef7ff0f0aedf52e2a2704928d1ec074f1', '0xb75d0b03c06a926e488e2659df1a861f860bd3d1') then 1 end
+    ) * amount_received_ld / pow(10, events.decimals) as amount_received
     , events.tx_status
-    , prices.price
+    , coalesce(
+        price, 
+        case when lower(token_address) in ('0x3894085ef7ff0f0aedf52e2a2704928d1ec074f1', '0xb75d0b03c06a926e488e2659df1a861f860bd3d1') then 1 end
+    ) as price
 from events
-
 {% if chain in ('berachain', 'mantle') %}
     left join prices on block_timestamp::date = prices.date and lower(events.coingecko_id) = lower(prices.coingecko_id)
 {% else %}
     left join prices on block_timestamp::date = prices.date and lower(prices.contract_address) = lower(token_address)
 {% endif %}
+where events.block_timestamp < to_date(sysdate())
 {% endmacro %}
