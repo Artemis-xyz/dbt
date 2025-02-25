@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="DAILY_BAM") }}
 
 select
     LOWER(contract_address) AS contract_address,
