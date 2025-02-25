@@ -1,10 +1,11 @@
 sources:
   - name: PROD_LANDING
-    schema: PROD_LANDING  
+    schema: PROD_LANDING
     database: LANDING_DATABASE
     tables:
       - name: dim_injective_all_addresses
       - name: dim_stellar_all_addresses
+      - name: raw_manually_labeled_addresses_csv
   - name: PYTHON_LOGIC
     schema: PROD
     database: PC_DBT_DB

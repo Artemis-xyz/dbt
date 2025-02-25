@@ -1,8 +1,7 @@
 {{
     config(
-        materialized="incremental",
-        unique_key=["address", "chain"],
-        incremental_strategy="merge",
+        materialized="table",
+        on_schema_change="append_new_columns"
     )
 }}
 
@@ -14,9 +13,6 @@ WITH addresses_with_namespace_and_category AS (
         last_updated
     FROM {{ ref("dim_all_addresses_gold") }}
     WHERE namespace IS NOT NULL  
-    {% if is_incremental() %}
-        AND last_updated > (SELECT MAX(last_updated) FROM {{ this }})
-    {% endif %}  
 ), mapped_addresses AS (
     select 
         a.address,
@@ -33,16 +29,17 @@ WITH addresses_with_namespace_and_category AS (
 ),
 labeled_automatic_table AS (
     SELECT
-        COALESCE(dmla.address, a.address) AS address,
+        COALESCE(LOWER(dmla.address), LOWER(a.address)) AS address,
         COALESCE(dmla.name, a.namespace) AS name,
         COALESCE(dmla.artemis_application_id, a.artemis_application_id) AS artemis_application_id,
         COALESCE(dmla.chain, a.chain) AS chain,
         COALESCE(dmla.is_token, NULL) AS is_token,
         COALESCE(dmla.is_fungible, NULL) AS is_fungible,
-        COALESCE(dmla.last_updated, a.last_updated) AS last_updated
+        COALESCE(dmla.type, NULL) AS type,
+        COALESCE(dmla.last_updated, a.last_updated) AS last_updated,
     FROM mapped_addresses a
     FULL OUTER JOIN PC_DBT_DB.PROD.dim_manual_labeled_addresses dmla
-        ON a.address = dmla.address
+        ON LOWER(a.address) = LOWER(dmla.address)
 )
 SELECT
     lat.address,
@@ -54,6 +51,7 @@ SELECT
     lat.chain,
     lat.is_token,
     lat.is_fungible,
+    lat.type,
     lat.last_updated
 FROM labeled_automatic_table lat
 LEFT JOIN {{ ref("dim_all_apps_gold") }} ag

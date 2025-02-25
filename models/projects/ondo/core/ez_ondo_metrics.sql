@@ -29,9 +29,9 @@ with date_spine as (
 
 select
     ds.date,
-    fees.fees,
-    tvl.tokenized_mcap_change,
-    tvl.tokenized_mcap
+    coalesce(fees.fees, 0) as fees,
+    coalesce(tvl.tokenized_mcap_change, 0) as tokenized_mcap_change,
+    coalesce(tvl.tokenized_mcap, 0) as tokenized_mcap
 from date_spine ds
 left join fees on ds.date = fees.date
 left join tvl on ds.date = tvl.date

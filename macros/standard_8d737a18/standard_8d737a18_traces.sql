@@ -1,7 +1,7 @@
 {% macro standard_8d737a18_traces(chain) %}
 select 
     block_number
-    , TO_VARCHAR(block_timestamp, 'YYYY-MM-DD"T"HH24:MI:SS.FF3') as transaction_timestamp
+    , block_timestamp as transaction_timestamp
     , block_hash
     , transaction_hash as transaction_hash
     , transaction_index as transfer_index

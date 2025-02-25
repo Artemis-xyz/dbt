@@ -12,3 +12,7 @@ tron:mainnet,tron
 tvm:-239,ton
 solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp,solana
 sui:mainnet,sui
+eip155:1329,sei
+stellar:pubnet,stellar
+cosmos:injective-888,injective
+near:mainnet,near

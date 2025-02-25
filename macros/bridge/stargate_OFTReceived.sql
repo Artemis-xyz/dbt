@@ -1,16 +1,4 @@
 {% macro stargate_OFTReceived(chain)%}
-{% set chain_name = chain %}
-{% if chain == 'bsc' %}
-    {% set chain_name = 'binance-smart-chain' %}
-{% elif chain == 'arbitrum' %}
-    {% set chain_name = 'arbitrum-one' %}
-{% elif chain == 'optimism' %}
-    {% set chain_name = 'optimistic-ethereum' %}
-{% elif chain == 'polygon' %}
-    {% set chain_name = 'polygon-pos' %}
-{% elif chain == 'sei' %}
-    {% set chain_name = 'sei-v2' %}
-{% endif %}
 
 with 
 {% if chain in ('berachain', 'mantle') %}
@@ -27,7 +15,7 @@ with
     )
 {% else %}
     prices as (
-            {{ get_multiple_coingecko_price_with_latest(chain_name) }}
+        {{ get_multiple_coingecko_price_with_latest(chain) }}
     )
 {% endif %}
 

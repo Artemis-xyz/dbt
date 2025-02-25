@@ -66,5 +66,14 @@ from
             (
                 'HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr',
                 '6UpQvp85vJK3ZmR8VWnHJYTRaBz1maatVdec4sTJQVqP'
+            ),
+            -- AUSD
+            (
+                'AUSD1jCcCyPLybk1YnvPWsHQSrZ46dxwoMniN4N2UEB9',
+                '5EWBgCRe581iGMdwEvvtzpUgVANewpz4JFmkLjpD3EKi'
+            ),
+            (
+                'AUSD1jCcCyPLybk1YnvPWsHQSrZ46dxwoMniN4N2UEB9',
+                'C44jAY8ufK2kdaFVdDuh6woQZzb6r9jZquHdFBQYUb95'
             )
     ) as results(contract_address, premint_address)
