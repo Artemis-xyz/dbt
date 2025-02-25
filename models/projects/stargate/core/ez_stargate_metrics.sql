@@ -46,6 +46,7 @@ first_seen AS (
         COUNT(*) AS daily_transactions,
         AVG(amount_sent) AS avg_daily_transaction_size,
         SUM(amount_sent) AS daily_volume,
+        COUNT(DISTINCT src_address) AS daily_active_addresses,
         SUM(daily_active_addresses) OVER (ORDER BY transaction_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
         AS cumulative_active_addresses,
         SUM(token_rewards) AS token_rewards,
