@@ -13,7 +13,7 @@ WITH
     fundamental_data AS (SELECT * EXCLUDE date, TO_TIMESTAMP_NTZ(date) AS date FROM {{ source('PROD_LANDING', 'ez_algorand_metrics') }}),
     prices AS ({{ get_coingecko_price_with_latest("algorand") }})
 SELECT
-    fundamental_data.date,
+    DATE(DATE_TRUNC('DAY', fundamental_data.date)) AS date,
     'algorand' as chain,
     fundamental_data.txns,
     fundamental_data.fees_native,
