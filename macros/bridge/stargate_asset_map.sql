@@ -10,6 +10,9 @@ with
             from {{chain}}_flipside.core.fact_event_logs
         {% endif %}
         where topics[0]::string = '0xac53470cf8e9e3d673caa7d47cd7db36c0d38cf37fc147c70c92bc0c1c4734f5' and lower(contract_address) = lower('{{token_messaging_address}}') --tokenMessagingContract
+        {% if is_incremental() %}
+            and block_timestamp >= (select dateadd('day', -3, max(last_modified_timestamp)) from {{ this }})
+        {% endif %}
     )
     , deploy_traces as (
         select *
@@ -24,11 +27,7 @@ with
 
     , contract_addr_table as (
         select *
-        {% if chain =='sei' %}
-            from {{ chain }}_flipside.core_evm.dim_contracts 
-        {% else %}
-            from {{ chain }}_flipside.core.dim_contracts 
-        {% endif %}
+        from {{ ref('dim_coingecko_token_map')}}
     )
 
 , pool_to_token_map as (
@@ -52,6 +51,7 @@ select
     , token_address
     , decimals
     , symbol
+    , sysdate()::timestamp as last_modified_timestamp
 from pool_to_token_map
-left join contract_addr_table on lower(address) = lower(token_address)
+left join contract_addr_table on lower(contract_address) = lower(token_address)
 {% endmacro %}
