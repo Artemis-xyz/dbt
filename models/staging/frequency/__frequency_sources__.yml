@@ -3,5 +3,5 @@ sources:
     schema: PROD_LANDING
     database: LANDING_DATABASE
     tables:
-      - name: raw_berachain_logs_parquet
-      - name: raw_berachain_transactions_parquet
+      - name: raw_frequency_fees_parquet
+      - name: raw_frequency_transactions_parquet
