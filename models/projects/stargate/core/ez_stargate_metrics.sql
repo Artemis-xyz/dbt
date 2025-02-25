@@ -35,7 +35,7 @@ first_seen AS (
     FROM {{ ref("fact_stargate_v2_transfers") }} t
     JOIN first_seen f 
         ON t.src_address = f.src_address
-        AND t.src_block_timestamp > f.first_seen_date
+        AND t.src_block_timestamp::date > f.first_seen_date
     GROUP BY transaction_date
 )
 
@@ -138,7 +138,7 @@ SELECT
     d.daily_transactions as txns,
     d.avg_daily_transaction_size as avg_txn_size,
     d.daily_volume as bridge_volume,
-    d.daily_active_addresses as bridge_daa,
+    d.daily_active_addresses as bridge_daa, 
     COALESCE(n.new_addresses, 0) AS new_addresses,
     COALESCE(r.returning_addresses, 0) AS returning_addresses,
     d.cumulative_active_addresses as cumulative_addresses,
@@ -164,4 +164,5 @@ LEFT JOIN weekly_metrics w ON d.transaction_date = DATE(w.week_start)
 LEFT JOIN monthly_metrics m ON d.transaction_date = DATE(m.month_start)
 LEFT JOIN transaction_bucket_counts b ON d.transaction_date = b.transaction_date
 LEFT JOIN treasury_metrics t ON d.transaction_date = t.date
+where d.transaction_date < to_date(sysdate())
 ORDER BY d.transaction_date DESC

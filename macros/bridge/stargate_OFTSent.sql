@@ -52,8 +52,8 @@ with
             , event_index
             , 'OFTSent' as event_name
             , '{{ chain }}' as src_chain
-            , pc_dbt_db.prod.hex_to_int(substr(data, 67, 64))::bigint as amount_sent_ld
-            , pc_dbt_db.prod.hex_to_int(substr(data, 0, 66))::bigint as dst_e_id
+            , pc_dbt_db.prod.hex_to_int(substr(data, 65, 64))::bigint as amount_sent_ld
+            , pc_dbt_db.prod.hex_to_int(substr(data, 0, 64))::bigint as dst_e_id
             , '0x' || substr(topics[1]::string, 27, 40) as src_address
             , topics[0]::string as guid
             , token_messaging_address
@@ -117,37 +117,20 @@ select
     , events.symbol
     , amount_sent_ld as amount_sent_native
     , amount_sent_ld / pow(10, events.decimals) as amount_sent_adjusted
-    , case 
-        {% if chain == 'arbitrum' %}
-            when events.src_chain = 'arbitrum' and lower(events.symbol) = lower('WETH') 
-            then eth_prices.price * amount_sent_ld / pow(10, events.decimals)
-            else prices.price * amount_sent_ld / pow(10, events.decimals)
-        {% else %}
-            when true
-            then prices.price * amount_sent_ld / pow(10, events.decimals)
-        {% endif %}
-      end as amount_sent
+    , coalesce(
+        prices.price, 
+        case when lower(events.token_address) in ('0x3894085ef7ff0f0aedf52e2a2704928d1ec074f1', '0xb75d0b03c06a926e488e2659df1a861f860bd3d1') then 1 end
+    ) * amount_sent_ld / pow(10, events.decimals) as amount_sent
     , events.tx_status
-    , case 
-        {% if chain == 'arbitrum' %}
-            when events.src_chain = 'arbitrum' and lower(events.symbol) = lower('WETH') 
-            then eth_prices.price
-            else prices.price
-        {% else %}
-            when true
-            then prices.price
-        {% endif %}
-      end as price
-    from events
-    {% if chain in ('berachain', 'mantle') %}
-        left join prices on block_timestamp::date = prices.date and lower(events.coingecko_id) = lower(prices.coingecko_id)
-    {% else %}
-        left join prices on block_timestamp::date = prices.date and lower(prices.contract_address) = lower(token_address)
-        left join (
-            select date, shifted_token_price_usd as price 
-            from {{ ref("fact_coingecko_token_date_adjusted_gold") }}
-            where coingecko_id = 'ethereum'
-        ) eth_prices 
-        on block_timestamp::date = eth_prices.date
-    {% endif %}
+    , coalesce(
+        prices.price, 
+        case when lower(events.token_address) in ('0x3894085ef7ff0f0aedf52e2a2704928d1ec074f1', '0xb75d0b03c06a926e488e2659df1a861f860bd3d1') then 1 end
+    ) as price
+from events
+{% if chain in ('berachain', 'mantle') %}
+    left join prices on block_timestamp::date = prices.date and lower(events.coingecko_id) = lower(prices.coingecko_id)
+{% else %}
+    left join prices on block_timestamp::date = prices.date and lower(prices.contract_address) = lower(token_address)
+{% endif %}
+where events.block_timestamp < to_date(sysdate())
 {% endmacro %}

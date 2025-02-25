@@ -1,4 +1,4 @@
-{{config(materialized="table", snowflake_warehouse='STARGATE')}}
+{{config(materialized="incremental", unique_key="token_address", snowflake_warehouse='STARGATE_MD')}}
 {{
     stargate_asset_map(
         'bsc'
