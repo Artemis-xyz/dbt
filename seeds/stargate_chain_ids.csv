@@ -1,6 +1,6 @@
 chain,id
 ethereum,30101
-bnb chain,30102
+bsc,30102
 avalanche,30106
 polygon,30109
 arbitrum,30110
@@ -16,7 +16,7 @@ core,30153
 kaia,30150
 iota,30284
 taiko,30290
-rari chain,30235
+rari_chain,30235
 sei,30280
 flare,30295
 gravity,30294
@@ -24,3 +24,5 @@ lightlink,30309
 plume,30318
 abstract,30324
 flow,30336
+ink,30339
+berachain,30362
