@@ -125,7 +125,11 @@ with
             , st.symbol
             , coalesce( d.shifted_token_price_usd,
                     case 
-                        when c.coingecko_id in ('blackrock-usd-institutional-digital-liquidity-fund', 'franklin-onchain-u-s-government-money-fund')
+                        when c.coingecko_id in (
+                                'blackrock-usd-institutional-digital-liquidity-fund', 
+                                'franklin-onchain-u-s-government-money-fund',
+                                'wisdomtree-government-money-market-digital-fund'
+                                )
                             then 1  
                         when c.coingecko_id = 'hashnote-usyc'
                             then coalesce(h.rate, 1)
