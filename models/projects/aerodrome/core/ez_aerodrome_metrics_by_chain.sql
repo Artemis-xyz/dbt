@@ -4,7 +4,7 @@
         snowflake_warehouse='AERODROME',
         database='aerodrome',
         schema='core',
-        alias='ez_metrics'
+        alias='ez_metrics_by_chain'
     )
 }}
 
@@ -41,6 +41,7 @@ with swap_metrics as (
 )
 SELECT
     ds.date,
+    'base' as chain,
     sm.unique_traders,
     sm.total_swaps,
     sm.daily_volume_usd as trading_volume,

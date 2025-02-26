@@ -13,4 +13,12 @@ with combined_tvl as (
     UNION ALL
     SELECT * FROM {{ ref('fact_aerodrome_v2_tvl') }}
 )
-SELECT * FROM combined_tvl
+SELECT
+    date,
+    chain,
+    version,
+    pool_address,
+    token_address,
+    token_balance,
+    token_balance_usd
+FROM combined_tvl

@@ -39,7 +39,9 @@ daily_reserves AS (
         'v1' as version,
         p.pool as pool_address,
         p.token0,
+        t0.symbol as token0_symbol,
         p.token1,
+        t1.symbol as token1_symbol,
         r.token0_reserve / POW(10, COALESCE(t0.DECIMALS, 18)) as token0_balance,
         r.token1_reserve / POW(10, COALESCE(t1.DECIMALS, 18)) as token1_balance,
         (token0_balance * COALESCE(t0.price, 0)) as token0_usd,
@@ -62,6 +64,7 @@ SELECT
     version,
     pool_address,
     token0 as token_address,
+    token0_symbol as token_symbol,
     token0_balance as token_balance,
     token0_usd as token_balance_usd
 FROM all_data
@@ -72,6 +75,7 @@ SELECT
     version,
     pool_address,
     token1 as token_address,
+    token1_symbol as token_symbol,
     token1_balance as token_balance,
     token1_usd as token_balance_usd
 FROM all_data

@@ -9,14 +9,12 @@
 }}
 
 WITH pools AS (
-    SELECT 
-        DECODED_LOG:pool::string as pool_address,
-        DECODED_LOG:token0::string as token0_address,
-        DECODED_LOG:token1::string as token1_address,
-        DECODED_LOG:tickSpacing::integer as tick_spacing
-    FROM BASE_FLIPSIDE.core.ez_decoded_event_logs 
-    WHERE CONTRACT_ADDRESS = LOWER('0x5e7BB104d84c7CB9B682AaC2F3d509f5F406809A')
-    AND EVENT_NAME = 'PoolCreated'
+    SELECT
+        pool_address,
+        token0_address,
+        token1_address,
+        tick_spacing
+    FROM {{ ref('fact_aerodrome_v2_pools') }}
 ),
 pool_fees AS (
    WITH default_fees AS (
@@ -91,7 +89,6 @@ swap_events AS (
         ON e.CONTRACT_ADDRESS = p.pool_address
     LEFT JOIN pool_fees f 
         ON p.pool_address = f.pool_address 
-        AND f.rn = 1
     WHERE e.EVENT_NAME ILIKE 'Swap'
 ),
 prices_and_decimals AS (
@@ -129,9 +126,10 @@ SELECT
     TRY_CAST(pd.amount_out_native AS DECIMAL(38,0)) / POW(10, COALESCE(pd.token_out_decimals, 18)) * pd.token_out_price as amount_out_usd,
     pd.swap_fee_pct,
     (TRY_CAST(pd.amount_in_native AS DECIMAL(38,0)) / POW(10, COALESCE(pd.token_in_decimals, 18)) * pd.token_in_price * pd.swap_fee_pct) as fee_usd,
-    (TRY_CAST(pd.amount_in_native AS DECIMAL(38,0)) / POW(10, COALESCE(pd.token_in_decimals, 18)) * pd.token_in_price * pd.swap_fee_pct * 0.1667) as revenue,
+    (TRY_CAST(pd.amount_in_native AS DECIMAL(38,0)) / POW(10, COALESCE( pd.token_in_decimals, 18)) * pd.token_in_price * pd.swap_fee_pct * 0.1667) as revenue,
     (TRY_CAST(pd.amount_in_native AS DECIMAL(38,0)) / POW(10, COALESCE(pd.token_in_decimals, 18)) * pd.token_in_price * pd.swap_fee_pct * 0.8333) as supply_side_revenue_usd
 FROM prices_and_decimals pd
 WHERE pd.token_in_decimals IS NOT NULL 
 AND pd.token_out_decimals IS NOT NULL
+AND TRY_CAST(pd.amount_in_native AS DECIMAL(38,0)) / POW(10, COALESCE(pd.token_in_decimals, 18)) * pd.token_in_price < 1e9 -- No swaps above 1B
 ORDER BY pd.BLOCK_TIMESTAMP DESC

@@ -122,4 +122,5 @@ SELECT
 FROM prices_and_decimals pd
 WHERE pd.token_in_decimals IS NOT NULL 
 AND pd.token_out_decimals IS NOT NULL
+AND TRY_CAST(pd.amount_in_native AS DECIMAL(38,0)) / POW(10, COALESCE(pd.token_in_decimals, 18)) * pd.token_in_price < 1e9 -- No swaps above 1B
 ORDER BY pd.BLOCK_TIMESTAMP DESC
