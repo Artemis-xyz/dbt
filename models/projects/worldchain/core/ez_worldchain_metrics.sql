@@ -16,6 +16,10 @@ select
     , daa as dau
     , fees_native
     , fees
+    , cost
+    , cost_native
+    , revenue
+    , revenue_native
     -- Market Data
     , price
     , market_cap
