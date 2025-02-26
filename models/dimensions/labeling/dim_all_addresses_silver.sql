@@ -92,7 +92,7 @@ deduped_labeled_name_metadata_with_types AS (
 -- This aggreates all_chains_gas_dau_txns_by_contract by distinct address + chain
 distinct_all_chains AS (
     SELECT
-        contract_address AS address,
+        LOWER(contract_address) AS address,
         chain,
         SUM(total_gas) AS total_gas,
         SUM(total_gas_usd) AS total_gas_usd,
@@ -123,7 +123,7 @@ FROM raw_addresses ra
 LEFT JOIN distinct_all_chains ac
     ON ra.address = ac.address AND ra.chain = ac.chain
 LEFT JOIN pc_dbt_db.prod.dim_geo_labels geo
-    ON ra.address = geo.address AND ra.chain = geo.chain
+    ON LOWER(ra.address) = LOWER(geo.address) AND ra.chain = geo.chain
 LEFT JOIN deduped_labeled_name_metadata_with_types nm
     ON ra.address = nm.address AND ra.chain = nm.chain
 FULL OUTER JOIN {{ source("PYTHON_LOGIC", "dim_manual_labeled_addresses") }} ua

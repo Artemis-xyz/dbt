@@ -1,7 +1,7 @@
 {{ config(materialized="table", snowflake_warehouse="DAILY_BAM") }}
 
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name,
     null as symbol,
@@ -19,7 +19,7 @@ select
 from {{ ref("ez_arbitrum_metrics_by_contract_v2") }}
 union
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name,
     null as symbol,
@@ -37,7 +37,7 @@ select
 from {{ ref("ez_avalanche_metrics_by_contract_v2") }}
 union
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name,
     null as symbol,
@@ -55,7 +55,7 @@ select
 from {{ ref("ez_base_metrics_by_contract_v2") }}
 union
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name,
     null as symbol,
@@ -73,7 +73,7 @@ select
 from {{ ref("ez_bsc_metrics_by_contract_v2") }}
 union
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name,
     null as symbol,
@@ -91,7 +91,7 @@ select
 from {{ ref("ez_ethereum_metrics_by_contract_v2") }}
 union
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name,
     null as symbol,
@@ -109,7 +109,7 @@ select
 from {{ ref("ez_optimism_metrics_by_contract_v2") }}
 union
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name,
     null as symbol,
@@ -127,7 +127,7 @@ select
 from {{ ref("ez_polygon_metrics_by_contract_v2") }}
 union
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name,
     null as symbol,
@@ -145,7 +145,7 @@ select
 from {{ ref("ez_near_metrics_by_contract_v2") }}
 union
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name,
     null as symbol,
@@ -163,7 +163,7 @@ select
 from {{ ref("ez_sei_metrics_by_contract_v2") }}
 union
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name,
     null as symbol,
@@ -181,7 +181,7 @@ select
 from {{ ref("ez_tron_metrics_by_contract_v2") }}
 union
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name,
     null as symbol,
@@ -199,7 +199,7 @@ select
 from {{ ref("ez_mantle_metrics_by_contract_v2") }}
 union
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name::string as name,
     null as symbol,
@@ -217,7 +217,7 @@ select
 from {{ ref("ez_sui_metrics_by_contract_v2") }}
 union
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name::string as name,
     null as symbol,
@@ -235,7 +235,7 @@ select
 from {{ ref("ez_injective_metrics_by_contract_v2") }}
 union
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name::string as name,
     null as symbol,
@@ -253,7 +253,7 @@ select
 from {{ ref("ez_stellar_metrics_by_contract_v2") }}
 union
 select
-    contract_address,
+    LOWER(contract_address) AS contract_address,
     date,
     name,
     null as symbol,
