@@ -1,11 +1,17 @@
 {{ config(materialized="table") }}
 
 
-WITH aggregated_chains AS (
+WITH filtered_labeled_addresses AS (
+    SELECT 
+        lg.* 
+    FROM {{ ref('dim_all_addresses_labeled_gold') }} lg 
+    INNER JOIN {{ ref('all_chains_gas_dau_txns_by_contract_v2') }} ac 
+    ON lg.address = ac.contract_address
+), aggregated_chains AS (
     SELECT 
         artemis_application_id, 
         ARRAY_AGG(DISTINCT chain) AS deployed_on
-    FROM {{ ref('dim_all_addresses_labeled_gold') }}
+    FROM filtered_labeled_addresses
     GROUP BY artemis_application_id
 )
 SELECT 
