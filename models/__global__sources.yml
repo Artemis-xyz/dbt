@@ -47,6 +47,12 @@ sources:
     tables:
       - name: ez_prices_hourly
 
+# ETHEREUM BEACON CHAIN
+  - name: ETHEREUM_FLIPSIDE_BEACON
+    schema: beacon_chain
+    database: ethereum_flipside
+    tables:
+      - name: fact_validators
   
 # ARBITRUM
 
