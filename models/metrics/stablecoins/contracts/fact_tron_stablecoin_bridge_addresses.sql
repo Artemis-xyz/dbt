@@ -10,5 +10,12 @@ from
             (
                 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
                 'TT1DyeqXaaJkt6UhVYFWUXBXknaXnBudTK'
+            ),
+            -- USDT 
+            -- BSC
+            --      tron Bridge
+            (
+                'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+                'TWd4WrZ9wn84f5x1hZhL4DHvk738ns5jwb'
             )
     ) as results(contract_address, premint_address)
