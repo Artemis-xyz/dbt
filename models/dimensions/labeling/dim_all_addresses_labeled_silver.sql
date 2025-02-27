@@ -44,7 +44,7 @@ labeled_automatic_table AS (
 SELECT DISTINCT
     lat.address,
     lat.name,
-    INITCAP(REPLACE(lat.name, '_', ' ')) as friendly_name,
+    ag.app_name as friendly_name,
     lat.artemis_application_id,
     ag.artemis_category_id,
     ag.artemis_sub_category_id,
