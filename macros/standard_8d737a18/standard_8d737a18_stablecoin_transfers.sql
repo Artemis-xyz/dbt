@@ -21,7 +21,7 @@ left join {{ ref("chain_agnostic_ids") }} ca
     on '{{chain}}' = ca.chain
 {% if is_incremental() %} 
     where block_timestamp >= (
-        select dateadd('day', -3, max(block_timestamp))
+        select dateadd('day', -3, max(transaction_timestamp))
         from {{ this }}
     )
 {% endif %}
