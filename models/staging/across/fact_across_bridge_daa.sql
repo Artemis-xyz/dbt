@@ -19,3 +19,4 @@ with
 
 select date, bridge_daa, 'across' as app, null as chain, 'Bridge' as category
 from daily_addresses
+where date is not null

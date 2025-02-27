@@ -6,4 +6,6 @@
     )
 }}
 
-{{ p2p_stablecoin_transfers("tron") }}
+{% set contract_address = var('contract_address', "") %} 
+
+{{ p2p_stablecoin_transfers("tron", contract_address) }}

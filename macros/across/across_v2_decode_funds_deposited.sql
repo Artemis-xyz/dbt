@@ -14,8 +14,7 @@
         decoded_log:"relayerFeePct"::integer / 1e18 as relayer_fee_pct,
         '{{ chain }}' as chain
     from {{ chain }}_flipside.core.fact_decoded_event_logs
-    where
-        event_name = 'FundsDeposited'
+    where block_timestamp < '2025-02-07' and event_name = 'FundsDeposited'
         and
         contract_address = '{{ spot_fee_contract }}'
         {% if is_incremental() %}
@@ -59,8 +58,9 @@
         from
             {{ source("PROD_LANDING", "raw_across_v2_" ~ chain ~ "_funds_deposited_events") }},
             lateral flatten(input => parse_json(source_json)) as flat_json
+        WHERE flat_json.value:"block_timestamp"::timestamp < '2025-02-07' 
         {% if is_incremental() %}
-            where
+            and
                 date_trunc('day', flat_json.value:"block_timestamp"::timestamp) >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
     )

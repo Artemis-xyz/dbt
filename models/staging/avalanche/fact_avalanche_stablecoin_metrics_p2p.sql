@@ -6,5 +6,6 @@
     )
 }}
 
+{% set contract_address = var('contract_address', "") %}  
 
-{{stablecoin_metrics_p2p("avalanche")}}
+{{stablecoin_metrics_p2p("avalanche", contract_address)}}

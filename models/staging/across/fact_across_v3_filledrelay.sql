@@ -1,4 +1,4 @@
-{{config(materialized='table', unique_key=['tx_hash', 'chain', 'event_index'], snowflake_warehouse="ACROSS_V2")}}
+{{config(materialized='incremental', unique_key=['tx_hash', 'chain', 'event_index'], snowflake_warehouse="ACROSS_V2")}}
 
 with filled_relay_events as (
     ({{ across_v3_decode_filled_relay('base', '0x09aea4b2242abc8bb4bb78d537a67a245a7bec64') }})
@@ -15,7 +15,11 @@ with filled_relay_events as (
     union all
     ({{ across_v3_goldsky_decode_filled_relay('soneium', '0x3baD7AD0728f9917d1Bf08af5782dCbD516cDd96') }})
     union all
-    ({{ across_v3_rpc_decode_filled_relay('zksync') }})
+    ({{ across_v3_goldsky_decode_filled_relay('linea', '0x7E63A5f1a8F0B4d0934B2f2327DAED3F6bb2ee75') }})
+    union all
+    ({{ across_v3_goldsky_decode_filled_relay('worldchain', '0x09aea4b2242abC8bb4BB78D537A67a245A7bEC64') }})
+    union all
+    ({{ across_v3_goldsky_decode_filled_relay('unichain', '0x09aea4b2242abC8bb4BB78D537A67a245A7bEC64') }})
 )
 SELECT
     messaging_contract_address,
@@ -39,3 +43,5 @@ SELECT
     decoded_log
 FROM filled_relay_events
 left join {{ ref('dim_chain_ids') }} as ids on filled_relay_events.chain = ids.chain
+WHERE 
+deposit_id is not null and origin_chain_id is not null

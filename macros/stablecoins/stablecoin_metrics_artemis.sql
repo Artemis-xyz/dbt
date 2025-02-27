@@ -1,4 +1,4 @@
-{% macro stablecoin_metrics_artemis(chain) %}
+{% macro stablecoin_metrics_artemis(chain, new_stablecoin_address) %}
 with
     stablecoin_transfers as (
         select 
@@ -14,12 +14,15 @@ with
             , transfer_volume
             , to_address
         from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers")}}
-        {% if is_incremental() %} 
+        {% if is_incremental() and new_stablecoin_address == '' %} 
             where block_timestamp >= (
                 select dateadd('day', -3, max(date))
                 from {{ this }}
             )
-        {% endif %} 
+        {% endif %}
+        {% if new_stablecoin_address != '' %}
+            where lower(contract_address) = lower('{{ new_stablecoin_address }}')
+        {% endif %}
     ),
     filtered_contracts as (
         select * from {{ ref("dim_contracts_gold")}} where chain = '{{ chain }}'
@@ -86,16 +89,7 @@ with
             , stablecoin_metrics.contract_address
             , stablecoin_metrics.symbol
             , from_address
-            , stablecoin_transfer_volume * coalesce(
-                d.shifted_token_price_usd, 
-                case 
-                    when c.coingecko_id = 'euro-coin' then ({{ avg_l7d_coingecko_price('euro-coin') }})
-                    when c.coingecko_id = 'celo-euro' then ({{ avg_l7d_coingecko_price('celo-euro') }})
-                    when c.coingecko_id = 'celo-real-creal' then ({{ avg_l7d_coingecko_price('celo-real-creal') }})
-                    when c.coingecko_id = 'celo-kenyan-shilling' then ({{ avg_l7d_coingecko_price('celo-kenyan-shilling') }})
-                    else 1
-                end
-            ) as stablecoin_transfer_volume
+            , stablecoin_transfer_volume * {{waterfall_stablecoin_prices('c', 'd')}} as stablecoin_transfer_volume
             , stablecoin_daily_txns
         from stablecoin_metrics
         left join {{ ref( "fact_" ~ chain ~ "_stablecoin_contracts") }} c
@@ -115,10 +109,13 @@ with
         , date || '-' || from_address || '-' || contract_address as unique_id
     from results_dollar_denom
     where date < to_date(sysdate())
-    {% if is_incremental() %} 
+    {% if is_incremental() and new_stablecoin_address == '' %} 
         and date >= (
             select dateadd('day', -3, max(date))
             from {{ this }}
         )
     {% endif %} 
+    {% if new_stablecoin_address != '' %}
+        and lower(contract_address) = lower('{{ new_stablecoin_address }}')
+    {% endif %}
 {% endmacro %}

@@ -46,5 +46,6 @@
             fees f
         LEFT JOIN market_metadata m ON f.sy_address = m.sy_address
         LEFT JOIN {{ chain }}_flipside.price.ez_prices_hourly p ON p.hour = date_trunc('hour', f.block_timestamp) AND lower(p.token_address) = lower(m.underlying_address)
+        WHERE fee_sy_amount * p.price < 1e7 -- Less than 10M USD
 
 {% endmacro %}

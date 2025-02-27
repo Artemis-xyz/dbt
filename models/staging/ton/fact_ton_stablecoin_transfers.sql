@@ -4,4 +4,7 @@
         unique_key="tx_hash",
     )
 }}
-{{agg_chain_stablecoin_transfers("ton")}}
+
+{% set contract_address = var('contract_address', "") %} 
+
+{{agg_chain_stablecoin_transfers("ton", contract_address)}}

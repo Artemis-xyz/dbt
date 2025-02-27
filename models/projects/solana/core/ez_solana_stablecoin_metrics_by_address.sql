@@ -9,5 +9,6 @@
     )
 }}
 
+{% set contract_address = var('contract_address', "") %} 
 
-{{stablecoin_metrics("solana")}}
+{{stablecoin_metrics("solana", contract_address) }}

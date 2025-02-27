@@ -1,14 +1,17 @@
 {% macro ez_rwa_by_product(issuer_id) %}
 
 select
-    tvl.date,
-    tvl.issuer_friendly_name,
-    tvl.symbol,
-    sum(tvl.tokenized_supply_change) as tokenized_supply_change,
-    sum(tvl.tokenized_mcap_change) as tokenized_mcap_change,
-    sum(tvl.tokenized_supply) as tokenized_supply,
-    sum(tvl.tokenized_mcap) as tokenized_mcap,
-from {{ ref('fact_' ~ issuer_id ~ '_tvl_by_product') }} tvl
-where date < to_date(sysdate())
-group by 1, 2, 3
+    date
+    , chain
+    , symbol
+    , issuer_friendly_name
+    , avg(price) as price
+    , sum(rwa_supply_usd) as tokenized_mcap
+    , sum(net_rwa_supply_usd_change) as tokenized_mcap_change
+    , sum(rwa_supply_native) as tokenized_supply
+    , sum(net_rwa_supply_native_change) as tokenized_supply_change
+from {{ ref( "agg_rwa_by_product_and_chain") }}
+where issuer_id = '{{ issuer_id }}'
+group by 1, 2, 3, 4
+
 {% endmacro %}

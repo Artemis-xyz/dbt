@@ -6,5 +6,6 @@
     )
 }}
 
+{% set contract_address = var('contract_address', "") %}  
 
-{{stablecoin_metrics_p2p("polygon")}}
+{{stablecoin_metrics_p2p("polygon", contract_address)}}
