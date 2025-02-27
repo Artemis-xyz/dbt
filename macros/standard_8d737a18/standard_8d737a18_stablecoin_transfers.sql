@@ -12,7 +12,7 @@ select
     , amount as amount_asset
     , inflow
     , transfer_volume
-    , ca.chain_agnostic_id || ':' || replace(contract_address, '0x', '') as asset_id
+    , ca.chain_agnostic_id || ':' || replace(replace(contract_address, '0x', ''), '0:', '') as asset_id as asset_id
     , symbol as asset_symbol
     , '{{chain}}' as chain_name
     , ca.chain_agnostic_id as chain_id
