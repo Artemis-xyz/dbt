@@ -22,6 +22,20 @@ with date_spine as (
     from {{ ref('fact_convex_revenue') }}
     group by 1
 )
+, token_incentives as (
+    select
+        date,
+        sum(token_incentives) as token_incentives
+    from {{ ref('fact_convex_token_incentives') }}
+    group by 1
+)
+, tvl as (
+    select
+        date,
+        sum(tvl) as tvl
+    from {{ ref('fact_convex_combined_tvl') }}
+    group by 1
+)
 , treasury_value as (
     select
         date,
@@ -57,7 +71,13 @@ select
     date_spine.date,
     fees_and_revenue.fees,
     fees_and_revenue.revenue,
-    fees_and_revenue.primary_supply_side_fees,
+    fees_and_revenue.primary_supply_side_fees as primary_supply_side_revenue,
+    fees_and_revenue.primary_supply_side_fees as total_supply_side_revenue,
+    token_incentives.token_incentives,
+    token_incentives.token_incentives as expenses,
+    fees_and_revenue.revenue - token_incentives.token_incentives as earnings,
+    tvl.tvl,
+    tvl.tvl as net_deposits,
     treasury_value.treasury_value,
     net_treasury.net_treasury_value,
     treasury_native.treasury_native,
@@ -74,4 +94,6 @@ left join net_treasury using (date)
 left join treasury_native using (date)
 left join token_holders using (date)
 left join fees_and_revenue using (date)
+left join token_incentives using (date)
+left join tvl using (date)
 left join market_data using (date)

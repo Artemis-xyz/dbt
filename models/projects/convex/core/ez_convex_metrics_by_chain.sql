@@ -19,6 +19,14 @@ with
     from {{ ref('fact_convex_revenue') }}
     group by 1, 2
  )
+, tvl as (
+    select
+        date,
+        'ethereum' as chain,
+        sum(tvl) as tvl
+    from {{ ref('fact_convex_combined_tvl') }}
+    group by 1, 2
+)
 , treasury_value as (
     select
         date,
@@ -68,11 +76,13 @@ select
     fees_and_revenue.fees,
     fees_and_revenue.revenue,
     fees_and_revenue.primary_supply_side_fees,
+    tvl.tvl,
     treasury_value.treasury_value,
     net_treasury.net_treasury_value,
     treasury_native.treasury_native
 from date_chain_spine
 left join fees_and_revenue using (date, chain)
+left join tvl using (date, chain)
 left join treasury_value using (date, chain)
 left join net_treasury using (date, chain)
 left join treasury_native using (date, chain)
