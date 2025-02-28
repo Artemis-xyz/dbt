@@ -182,3 +182,5 @@ select
 from events
 left join prices on block_timestamp::date = prices.date and lower(events.symbol) = lower(prices.symbol)
 where events.block_timestamp < to_date(sysdate())
+
+{% endmacro %}
