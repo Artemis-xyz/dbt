@@ -19,6 +19,14 @@ with
     from {{ ref('fact_convex_revenue') }}
     group by 1, 2
  )
+, token_incentives as (
+    select
+        date,
+        'ethereum' as chain,
+        sum(token_incentives) as token_incentives
+    from {{ ref('fact_convex_token_incentives') }}
+    group by 1, 2
+)
 , tvl as (
     select
         date,
@@ -75,7 +83,11 @@ select
     date_chain_spine.chain,
     fees_and_revenue.fees,
     fees_and_revenue.revenue,
-    fees_and_revenue.primary_supply_side_fees,
+    fees_and_revenue.primary_supply_side_fees as primary_supply_side_revenue,
+    fees_and_revenue.primary_supply_side_fees as total_supply_side_revenue,
+    token_incentives.token_incentives,
+    token_incentives.token_incentives as expenses,
+    fees_and_revenue.revenue - token_incentives.token_incentives as earnings,
     tvl.tvl,
     treasury_value.treasury_value,
     net_treasury.net_treasury_value,
@@ -86,3 +98,4 @@ left join tvl using (date, chain)
 left join treasury_value using (date, chain)
 left join net_treasury using (date, chain)
 left join treasury_native using (date, chain)
+left join token_incentives using (date, chain)
