@@ -47,5 +47,8 @@ from
             ('FRXUSD', '0xcacd6fd266af91b8aed52accc382b4e165586e29', 18, 'frax-usd', 0),
             ('MIM', '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3', 18, 'magic-internet-money', 0),
             ('USN', '0xdA67B4284609d2d48e5d10cfAc411572727dc1eD', 18, 'noon-usn', 0),
-            ('USD3', '0x0d86883faf4ffd7aeb116390af37746f45b6f378', 18, 'web-3-dollar', 0)
+            ('USD3', '0x0d86883faf4ffd7aeb116390af37746f45b6f378', 18, 'web-3-dollar', 0),
+            ('USDG', '0xe343167631d89B6Ffc58B88d6b7fB0228795491D', 6, 'global-dollar', 0),
+            ('ANGLE_USD', '0x0000206329b97db379d5e1bf586bbdb969c63274', 18, 'angle-usd', 0),
+            ('fxUSD', '0x085780639cc2cacd35e474e71f4d000e2405d8f6', 18, 'f-x-protocol-fxusd', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
