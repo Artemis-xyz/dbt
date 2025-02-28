@@ -12,7 +12,10 @@ select
     , amount as amount_asset
     , inflow
     , transfer_volume
-    , ca.chain_agnostic_id || ':' || replace(replace(contract_address, '0x', ''), '0:', '') as asset_id as asset_id
+    , case 
+        when substr(ca.chain_agnostic_id, 0, 7) = 'eip155:' then lower(ca.chain_agnostic_id || ':' || replace(replace(contract_address, '0x', ''), '0:', '')) 
+        else ca.chain_agnostic_id || ':' || replace(replace(contract_address, '0x', ''), '0:', '') 
+    end as asset_id
     , symbol as asset_symbol
     , '{{chain}}' as chain_name
     , ca.chain_agnostic_id as chain_id
