@@ -16,5 +16,6 @@ from
             ('USDF', '0x5A110fC00474038f6c02E89C707D638602EA44B5', 18, 'astherus-usdf', 0),
             ('crvUSD', '0xe2fb3f127f5450dee44afe054385d74c392bdef4', 18, 'crvusd', 0),
             ('LISUSD', '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', 18, 'helio-protocol-hay', 0),
-            ('USDD', '0x392004BEe213F1FF580C867359C246924f21E6Ad', 18, 'usdd', 0)
+            ('USDD', '0x392004BEe213F1FF580C867359C246924f21E6Ad', 18, 'usdd', 0),
+            ('AEUR', '0xA40640458FBc27b6EefEdeA1E9C9E17d4ceE7a21', 18, 'anchored-coins-eur', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
