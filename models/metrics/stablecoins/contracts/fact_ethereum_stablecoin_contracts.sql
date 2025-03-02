@@ -51,5 +51,6 @@ from
             ('USDG', '0xe343167631d89B6Ffc58B88d6b7fB0228795491D', 6, 'global-dollar', 0),
             ('ANGLE_USD', '0x0000206329b97db379d5e1bf586bbdb969c63274', 18, 'angle-usd', 0),
             ('fxUSD', '0x085780639cc2cacd35e474e71f4d000e2405d8f6', 18, 'f-x-protocol-fxusd', 0),
-            ('EURT', '0xc581b735a1688071a1746c968e0798d642ede491', 6, 'tether-eurt', 0)
+            ('EURT', '0xc581b735a1688071a1746c968e0798d642ede491', 6, 'tether-eurt', 0),
+            ('AEUR', '0xa40640458fbc27b6eefedea1e9c9e17d4cee7a21', 18, 'anchored-coins-eur', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
