@@ -20,7 +20,7 @@ WITH contracts AS (
         metrics.gas_usd,
         metrics.friendly_name,
         metrics.category
-    FROM {{ ref('ez_injective_metrics_by_application') }} metrics
+    FROM {{ ref('ez_injective_metrics_by_application_v2') }} metrics
     LEFT join contracts 
         ON metrics.app = contracts.app
     where 
@@ -35,7 +35,7 @@ WITH contracts AS (
         metrics.dau,
         metrics.gas,
         metrics.gas_usd
-    FROM {{ ref('ez_injective_metrics_by_application') }} metrics
+    FROM {{ ref('ez_injective_metrics_by_application_v2') }} metrics
     LEFT join contracts 
         ON metrics.app = contracts.app
     WHERE
