@@ -26,6 +26,10 @@ with
     , defillama_data as ({{ get_defillama_metrics("gnosis") }})
     , price_data as ({{ get_coingecko_metrics("gnosis") }})
     , rolling_metrics as ({{ get_rolling_active_address_metrics("gnosis") }})
+    , gnosis_dex_volumes as (
+        select date, daily_volume as dex_volumes
+        from {{ ref("fact_gnosis_daily_dex_volumes") }}
+    )
 
 select
     fundamental_data.date
@@ -43,13 +47,15 @@ select
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
-    , dex_volumes
+    , dune_dex_volumes_gnosis.dex_volumes
     , price
     , market_cap
     , fdmc
+
 from fundamental_data
 left join github_data using (date)
 left join defillama_data using (date)
 left join price_data using (date)
 left join rolling_metrics using (date)
+left join gnosis_dex_volumes as dune_dex_volumes_gnosis on fundamental_data.date = dune_dex_volumes_gnosis.date
 where fundamental_data.date < to_date(sysdate())

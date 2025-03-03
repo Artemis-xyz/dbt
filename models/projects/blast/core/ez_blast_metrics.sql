@@ -20,7 +20,11 @@ with
         select date, chain, l1_data_cost_native, l1_data_cost
         from {{ ref("fact_blast_l1_data_cost") }}
     ),  -- supply side revenue and fees
-    rolling_metrics as ({{ get_rolling_active_address_metrics("blast") }})
+    rolling_metrics as ({{ get_rolling_active_address_metrics("blast") }}),
+    blast_dex_volumes as (
+        select date, daily_volume as dex_volumes
+        from {{ ref("fact_blast_daily_dex_volumes") }}
+    )
 select
     coalesce(
         fundamental_data.date,
@@ -47,7 +51,7 @@ select
     high_sleep_users,
     dau_over_100,
     tvl,
-    dex_volumes,
+    dune_dex_volumes_blast.dex_volumes as dex_volumes,
     weekly_contracts_deployed,
     weekly_contract_deployers
 from fundamental_data
@@ -55,4 +59,5 @@ left join defillama_data on fundamental_data.date = defillama_data.date
 left join contract_data on fundamental_data.date = contract_data.date
 left join expenses_data on fundamental_data.date = expenses_data.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
+left join blast_dex_volumes as dune_dex_volumes_blast on fundamental_data.date = dune_dex_volumes_blast.date
 where fundamental_data.date < to_date(sysdate())

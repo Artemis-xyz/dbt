@@ -18,7 +18,11 @@ with
     defillama_data as ({{ get_defillama_metrics("celo") }}),
     github_data as ({{ get_github_metrics("celo") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("celo") }}),
-    rolling_metrics as ({{ get_rolling_active_address_metrics("celo") }})
+    rolling_metrics as ({{ get_rolling_active_address_metrics("celo") }}),
+    celo_dex_volumes as (
+        select date, daily_volume as dex_volumes
+        from {{ ref("fact_celo_daily_dex_volumes") }}
+    )
 select
     fundamental_data.date,
     fundamental_data.chain,
@@ -33,7 +37,7 @@ select
     market_cap,
     fdmc,
     tvl,
-    dex_volumes,
+    --dex_volumes,
     weekly_commits_core_ecosystem,
     weekly_commits_sub_ecosystem,
     weekly_developers_core_ecosystem,
@@ -53,10 +57,12 @@ select
     p2p_stablecoin_dau,
     p2p_stablecoin_mau,
     p2p_stablecoin_transfer_volume,
+    celo_dex_volumes.dex_volumes
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join github_data on fundamental_data.date = github_data.date
 left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
+left join celo_dex_volumes on fundamental_data.date = celo_dex_volumes.date
 where fundamental_data.date < to_date(sysdate())

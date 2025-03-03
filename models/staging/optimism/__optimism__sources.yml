@@ -12,3 +12,8 @@ sources:
       - name: raw_optimism_genesis_usdce_stablecoin_balances
       - name: raw_optimism_genesis_usdt_stablecoin_balances
       - name: raw_optimism_genesis_s_usd_stablecoin_balances
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_optimism_dex_volumes_daily

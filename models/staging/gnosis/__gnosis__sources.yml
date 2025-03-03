@@ -3,6 +3,4 @@ sources:
     schema: PROD_LANDING
     database: LANDING_DATABASE
     tables:
-      - name: raw_polygon_zk_data
-      - name: raw_polygon_zk_dex_volumes_daily
-      
+      - name: raw_gnosis_dex_volumes_daily

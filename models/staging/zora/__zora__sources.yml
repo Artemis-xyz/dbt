@@ -4,3 +4,9 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_zora_receipt_transactions_parquet
+      
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_zora_dex_volumes_daily
