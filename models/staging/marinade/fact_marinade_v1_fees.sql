@@ -66,8 +66,8 @@ unstaking_fees_calculation as (
     select
         c.date
         , c.total_liquidity as amount_after
-        , 9 - (9 - 0.1) * (c.total_liquidity / 106000) AS unstake_fee
-        , uf.msol_native * (9 - (9 - 0.1) * (c.total_liquidity / 106000)) AS unstaking_fees
+        , 9 - (9 - 0.1) * (c.total_liquidity / 106000) AS unstake_fee_percentage
+        , uf.msol_native * unstake_fee_percentage AS unstaking_fees
     from all_dates c
     left join v1_unstake_fees uf using (date)
     order by c.date desc
