@@ -12,11 +12,12 @@ select
     , contract_address
     , symbol as asset_symbol
     , sum(stablecoin_supply) as supply_usd
-from {{ ref("agg_daily_stablecoin_breakdown_silver") }} agg
+from {{ ref("agg_daily_stablecoin_breakdown") }} agg
 left join {{ ref("chain_agnostic_ids") }} ca
     on agg.chain = ca.chain
+where symbol in ('USDT', 'USDC')-- TODO: Need to keep a list of assets to include not remove
 {% if is_incremental() %}
-    where date >= (select dateadd('day', -7, max(date)) from {{ this }})
+    and date >= (select dateadd('day', -7, max(date_day)) from {{ this }})
 {% endif %}
 group by date_day, chain_name, chain_id, asset_id, contract_address, asset_symbol
 
