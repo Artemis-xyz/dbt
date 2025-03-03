@@ -7,7 +7,15 @@
 
 -- Credit to @hildobby for the original version of this model: https://dune.com/queries/3430945
 
-WITH unaggregated AS (
+WITH date_spine AS (
+    {{
+        dbt_utils.date_spine(
+            datepart="day",
+            start_date="cast('2019-07-24' as date)",
+            end_date="to_date(sysdate())"
+        )
+    }}
+), unaggregated AS (
     SELECT 
         i.block_timestamp
         , a.issuer
@@ -57,11 +65,9 @@ WITH unaggregated AS (
         , et.ticker AS etf_ticker
         , NULL AS flow_type
         , NULL AS amount
-    FROM {{ ref('dim_date_spine') }} t
+    FROM date_spine t
     CROSS JOIN {{ ref('fact_bitcoin_etf_metadata') }} et
-    WHERE t.date between '2019-07-24' and to_date(sysdate())
-    )
-
+)
 , daily_aggregates AS (
     SELECT 
         f.block_timestamp::date AS date

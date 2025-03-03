@@ -35,15 +35,25 @@ with
         select t1.epoch, t2.first_day_in_epoch as date, t1.validators, t1.total_staked
         from sol_staked_by_epoch t1
         left join epoch_to_timestamp_data t2 on t1.epoch = t2.epoch
+    ), date_series as (
+        select dateadd(
+            day,
+            row_number() over (order by seq4()) - 1,
+            (select min(date) from block_data)
+        ) as date
+        from table(generator(rowcount => (
+            select datediff(day, min(date), to_date(sysdate())) + 1
+            from block_data
+        )))
     ),
-    date_series as (
-        select min(date) as date
-        from block_data
-        union all
-        select dateadd(day, 1, date)
-        from date_series
-        where date < to_date(sysdate())
-    ),
+    -- date_series as (
+    --     select min(date) as date
+    --     from block_data
+    --     union all
+    --     select dateadd(day, 1, date)
+    --     from date_series
+    --     where date < to_date(sysdate())
+    -- ),
     full_data as (
         select ds.date, t.validators, t.total_staked
         from date_series ds

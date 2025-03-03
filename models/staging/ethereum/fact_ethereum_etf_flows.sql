@@ -8,13 +8,23 @@
 -- Credit to @hildobby for the original version of this model: https://dune.com/queries/4208557/7083511
 
 WITH time_series AS (
-    SELECT 
-        date
-    FROM {{ ref('dim_date_spine') }}
-    WHERE date between '2017-12-11'::date and to_date(sysdate())
-    )
-
-, flows AS (
+    {{
+        dbt_utils.date_spine(
+            datepart="day",
+            start_date="cast('2017-12-11' as date)",
+            end_date="to_date(sysdate())"
+        )
+    }}
+)
+, full_date_spine AS (
+    {{
+        dbt_utils.date_spine(
+            datepart="day",
+            start_date="cast('2000-01-01' as date)",
+            end_date="to_date(sysdate())"
+        )
+    }}
+) , flows AS (
     SELECT 
         date_trunc('day', t.block_timestamp) AS date
         , a.issuer
@@ -69,8 +79,7 @@ WITH time_series AS (
         p.price
     FROM
         {{ source('ETHEREUM_FLIPSIDE_PRICE', 'ez_prices_hourly') }} p
-    JOIN
-        {{ ref('dim_date_spine') }} d on p.hour = d.date and p.is_native
+    JOIN full_date_spine d on p.hour = d.date and p.is_native
 )
 SELECT
     c.date,

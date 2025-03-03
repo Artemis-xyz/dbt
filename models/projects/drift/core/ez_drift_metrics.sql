@@ -25,7 +25,6 @@ WITH parsed_log_metrics AS (
 SELECT 
     coalesce(
         price_data.date,
-        fact_drift_prediction_markets.date,
         fact_drift_float_borrow_lending_revenue.date,
         defillama_data.date,
         parsed_log_metrics.date,
@@ -34,10 +33,6 @@ SELECT
     'drift' AS app,
     'DeFi' AS category,
     price,
-    trump_prediction_market_100k_buy_order_price,
-    kamala_prediction_market_100k_buy_order_price,
-    trump_prediction_market_100k_sell_order_price,
-    kamala_prediction_market_100k_sell_order_price,
     daily_avg_float_revenue as float_revenue,
     daily_avg_lending_revenue as lending_revenue,
     parsed_log_metrics.perp_fees,
@@ -64,8 +59,6 @@ SELECT
 FROM price_data 
 LEFT JOIN {{ ref("fact_drift_amm_revenue") }} as fact_drift_amm_revenue
     ON price_data.date = fact_drift_amm_revenue.date
-FULL JOIN {{ ref("fact_drift_prediction_markets") }} as fact_drift_prediction_markets
-    ON price_data.date = fact_drift_prediction_markets.date
 FULL JOIN {{ ref("fact_drift_float_borrow_lending_revenue") }} as fact_drift_float_borrow_lending_revenue
     ON price_data.date = fact_drift_float_borrow_lending_revenue.date
 FULL JOIN defillama_data

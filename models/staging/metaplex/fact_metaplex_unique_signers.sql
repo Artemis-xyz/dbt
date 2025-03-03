@@ -35,12 +35,15 @@ date_range AS (
 ),
 
 date_spine AS (
-    SELECT min_date AS day
-    FROM date_range
-    UNION ALL
-    SELECT DATEADD(day, 1, day) AS day
-    FROM date_spine
-    WHERE day < (SELECT max_date FROM date_range)
+    SELECT dateadd(
+        day,
+        row_number() over (order by seq4()) - 1,
+        (SELECT min_date FROM date_range)
+    ) AS day
+    FROM table(generator(rowcount => (
+        SELECT datediff(day, min_date, max_date) + 1
+        FROM date_range
+    )))
 ),
 
 daily_stats AS (
