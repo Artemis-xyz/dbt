@@ -8,7 +8,7 @@ WITH last_30_days AS (
         date,
         dau
     FROM {{ ref('all_chains_gas_dau_txns_by_contract_v2') }}
-    WHERE date >= DATEADD(DAY, -31, CURRENT_DATE)
+    WHERE date >= DATEADD(DAY, -30, CURRENT_DATE)
 ),
 last_30_days_name_augmented AS (
     SELECT
@@ -28,7 +28,7 @@ aggregated AS (
         'application' AS type,
         chain,
         date,
-        AVG(dau) AS dau
+        SUM(dau) AS dau
     FROM last_30_days_name_augmented
     WHERE namespace IS NOT NULL
     GROUP BY namespace, app_name, icon, chain, date
@@ -49,8 +49,8 @@ aggregated AS (
 ),
 date_range AS (
     SELECT 
-        DATEADD(DAY, -30 + (ROW_NUMBER() OVER (ORDER BY NULL) - 1), CURRENT_DATE - 1) AS date
-    FROM TABLE(GENERATOR(ROWCOUNT => 31))
+        DATEADD(DAY, -29 + (ROW_NUMBER() OVER (ORDER BY NULL) - 1), CURRENT_DATE - 1) AS date
+    FROM TABLE(GENERATOR(ROWCOUNT => 30))
 ),
 unique_ids AS (
     SELECT DISTINCT unique_id, app_or_address, app_name, icon, type, chain
@@ -113,7 +113,7 @@ clean_datahub AS (
         LAG(a.dau, 0) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS latest_dau,
         LAG(a.dau, 1) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS t_minus_one_dau,
         LAG(a.dau, 7) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS t_minus_seven_dau,
-        LAG(a.dau, 30) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS t_minus_thirty_dau,
+        LAG(a.dau, 29) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS t_minus_thirty_dau,
         f.chain_rank,
         f.global_rank
     FROM final_aggregated a
@@ -142,15 +142,15 @@ individual_stats AS (
         t_minus_seven_dau,
         t_minus_thirty_dau,
         CASE
-            WHEN t_minus_one_dau = 0 THEN (latest_dau - t_minus_one_dau)
+            WHEN t_minus_one_dau = 0 THEN NULL
             ELSE (latest_dau - t_minus_one_dau) / t_minus_one_dau
         END AS dau_1d_change,
         CASE
-            WHEN t_minus_seven_dau = 0 THEN (latest_dau - t_minus_seven_dau)
+            WHEN t_minus_seven_dau = 0 THEN NULL
             ELSE (latest_dau - t_minus_seven_dau) / t_minus_seven_dau
         END AS dau_7d_change,
         CASE
-            WHEN t_minus_thirty_dau = 0 THEN (latest_dau - t_minus_thirty_dau)
+            WHEN t_minus_thirty_dau = 0 THEN NULL
             ELSE (latest_dau - t_minus_thirty_dau) / t_minus_thirty_dau
         END AS dau_30d_change,
         chain_rank,
