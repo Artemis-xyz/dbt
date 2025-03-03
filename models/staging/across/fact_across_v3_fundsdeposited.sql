@@ -13,6 +13,8 @@ with funds_deposited_events as (
     union all
     ({{ across_v3_goldsky_decode_funds_deposited('ink', '0xeF684C38F94F48775959ECf2012D7E864ffb9dd4') }})
     union all
+    ({{ across_v3_goldsky_decode_funds_deposited('soneium', '0x3baD7AD0728f9917d1Bf08af5782dCbD516cDd96') }})
+    union all
     ({{ across_v3_goldsky_decode_funds_deposited('linea', '0x7E63A5f1a8F0B4d0934B2f2327DAED3F6bb2ee75') }})
     union all
     ({{ across_v3_goldsky_decode_funds_deposited('worldchain', '0x09aea4b2242abC8bb4BB78D537A67a245A7bEC64') }})
