@@ -42,7 +42,7 @@ with swap_metrics as (
 SELECT
     ds.date,
     sm.unique_traders,
-    sm.total_swaps,
+    sm.total_swaps as number_of_swaps,
     sm.daily_volume_usd as trading_volume,
     sm.daily_fees_usd as trading_fees,
     tm.tvl_usd as tvl
