@@ -49,6 +49,31 @@ WITH
         where balance_usd is not null
         group by date, chain
     )
+    , tvl_models as (
+        {{
+            dbt_utils.union_relations(
+                relations=[
+                    ref("fact_stargate_v2_arbitrum_tvl"),
+                    ref("fact_stargate_v2_avalanche_tvl"),
+                    ref("fact_stargate_v2_base_tvl"),
+                    ref("fact_stargate_v2_bsc_tvl"),
+                    ref("fact_stargate_v2_ethereum_tvl"),
+                    ref("fact_stargate_v2_optimism_tvl"),
+                    ref("fact_stargate_v2_polygon_tvl"),
+                    ref("fact_stargate_v2_mantle_tvl"),
+                    ref("fact_stargate_v2_sei_tvl"),
+                ],
+            )
+        }}
+    )
+    , tvl_metrics as (
+        select
+            date
+            , chain
+            , sum(balance_usd) as tvl
+        from tvl_models
+        group by date, chain
+    )
     , first_seen_global AS (
         SELECT src_address, MIN(first_seen) AS first_seen_date
         FROM aggregated_data
@@ -77,7 +102,9 @@ SELECT
     , inflow
     , outflow
     , treasury_usd
+    , tvl
 FROM chain_metrics
 left join flows using (date, chain)
 left join treasury_metrics using (date, chain)
+left join tvl_metrics using (date, chain)
 where date < to_date(sysdate())
