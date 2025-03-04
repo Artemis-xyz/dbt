@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="ORCA",
+        snowflake_warehouse="BLAST",
     )
 }}
 

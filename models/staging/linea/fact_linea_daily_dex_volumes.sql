@@ -1,7 +1,7 @@
--- Add your SQL model definition here similar to fact_gnosis_daily_dex_volumes.sql {{
+{{
     config(
         materialized="table",
-        snowflake_warehouse="ORCA",
+        snowflake_warehouse="LINEA",
     )
 }}
 
