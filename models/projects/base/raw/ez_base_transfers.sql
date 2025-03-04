@@ -122,7 +122,7 @@ token_transfers as (
         on lower(from_address) = lower(from_address_metadata.contract_address)
 )
 
-select 
+select distinct
     block_timestamp
     , block_number
     , tx_hash
