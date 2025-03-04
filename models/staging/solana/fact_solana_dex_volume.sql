@@ -1,11 +1,7 @@
 -- This query is used to calculate the daily volume of dex swaps on Solana.
 -- It excludes marginfi flash loans and is used to calculate the daily volume of dex swaps on Solana.
 
-config(
-    materialized = 'incremental',
-    unique_key = ['date']
-)
-{{ dex_volume("solana") }}
+{{ config(materialized="table", snowflake_warehouse="SOLANA") }}
 
 with all_marginfi_flash_loans as (
     select *
