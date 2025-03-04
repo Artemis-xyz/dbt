@@ -15,5 +15,8 @@ SELECT symbol, issuer_id, issuer_friendly_name, product_type FROM
             ('USYC', 'hashnote', 'Hashnote', 'Treasury'),
             ('FOBXX', 'franklin_templeton', 'Franklin Templeton', 'Treasury'),
             ('PAXG', 'paxos', 'Paxos', 'Gold'),
-            ('XAUT', 'tether', 'Tether', 'Gold')
+            ('XAUT', 'tether', 'Tether', 'Gold'),
+            ('WTGXX', 'wisdomtree', 'WisdomTree', 'Treasury'),
+            ('USTB', 'superstate', 'Superstate', 'Treasury'),
+            ('USTBL', 'spiko', 'Spiko', 'Treasury')
     ) as results(symbol, issuer_id, issuer_friendly_name, product_type)

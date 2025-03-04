@@ -21,7 +21,7 @@ WITH contracts AS (
         metrics.gas_usd,
         metrics.friendly_name,
         metrics.category
-    FROM {{ ref('ez_stellar_metrics_by_application') }} metrics
+    FROM {{ ref('ez_stellar_metrics_by_application_v2') }} metrics
     LEFT JOIN contracts
         ON metrics.app = contracts.app
     where 
@@ -38,7 +38,7 @@ WITH contracts AS (
         metrics.gas_usd,
         metrics.friendly_name,
         metrics.category
-    FROM {{ ref('ez_stellar_metrics_by_application') }} metrics
+    FROM {{ ref('ez_stellar_metrics_by_application_v2') }} metrics
     LEFT JOIN contracts
         ON metrics.app = contracts.app
     WHERE
@@ -74,7 +74,7 @@ WITH contracts AS (
         metrics.gas_usd,
         metrics.friendly_name,
         metrics.category
-    FROM {{ ref('ez_stellar_metrics_by_application') }} metrics
+    FROM {{ ref('ez_stellar_metrics_by_application_v2') }} metrics
     LEFT JOIN contracts
         ON metrics.app = contracts.app
     where 
@@ -91,7 +91,7 @@ WITH contracts AS (
         metrics.gas_usd,
         metrics.friendly_name,
         metrics.category
-    FROM {{ ref('ez_stellar_metrics_by_application') }} metrics
+    FROM {{ ref('ez_stellar_metrics_by_application_v2') }} metrics
     LEFT JOIN contracts
         ON metrics.app = contracts.app
     where 

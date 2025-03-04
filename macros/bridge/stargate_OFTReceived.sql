@@ -1,23 +1,77 @@
 {% macro stargate_OFTReceived(chain)%}
 
 with 
-{% if chain in ('berachain', 'mantle') %}
-    prices as (
-        select date, coingecko_id, shifted_token_price_usd as price
-        from {{ ref("fact_coingecko_token_date_adjusted_gold") }}
-        where date < dateadd(day, -1, to_date(sysdate()))
-        union
-        select 
-            dateadd('day', -1, to_date(sysdate())) as date,
-            token_id as coingecko_id,
-            token_current_price as price
-        from {{ ref("fact_coingecko_token_realtime_data") }}    
-    )
-{% else %}
-    prices as (
-        {{ get_multiple_coingecko_price_with_latest(chain) }}
-    )
-{% endif %}
+usdc_prices as (
+    select date as date, 'usdc' as symbol, shifted_token_price_usd as price
+    from pc_dbt_db.prod.fact_coingecko_token_date_adjusted_gold
+    where
+        coingecko_id = 'usd-coin'
+        and date < dateadd(day, -1, to_date(sysdate()))
+    union
+    select dateadd('day', -1, to_date(sysdate())) as date, 'usdc' as symbol, token_current_price as price
+    from pc_dbt_db.prod.fact_coingecko_token_realtime_data
+    where token_id = 'usd-coin'
+)
+, eth_prices as (
+    select date as date, 'eth' as symbol, shifted_token_price_usd as price
+    from pc_dbt_db.prod.fact_coingecko_token_date_adjusted_gold
+    where
+        coingecko_id = 'ethereum'
+        and date < dateadd(day, -1, to_date(sysdate()))
+    union
+    select dateadd('day', -1, to_date(sysdate())) as date, 'eth' as symbol, token_current_price as price
+    from pc_dbt_db.prod.fact_coingecko_token_realtime_data
+    where token_id = 'ethereum'
+)
+, meth_prices as (
+    select date as date, 'meth' as symbol, shifted_token_price_usd as price
+    from pc_dbt_db.prod.fact_coingecko_token_date_adjusted_gold
+    where
+        coingecko_id = 'mantle-staked-ether'
+        and date < dateadd(day, -1, to_date(sysdate()))
+    union
+    select dateadd('day', -1, to_date(sysdate())) as date, 'meth' as symbol, token_current_price as price
+    from pc_dbt_db.prod.fact_coingecko_token_realtime_data
+    where token_id = 'mantle-staked-ether'
+)
+, usdt_prices as (
+    select date as date, 'usdt' as symbol, shifted_token_price_usd as price
+    from pc_dbt_db.prod.fact_coingecko_token_date_adjusted_gold
+    where
+        coingecko_id = 'tether'
+        and date < dateadd(day, -1, to_date(sysdate()))
+    union
+    select dateadd('day', -1, to_date(sysdate())) as date, 'usdt' as symbol, token_current_price as price
+    from pc_dbt_db.prod.fact_coingecko_token_realtime_data
+    where token_id = 'tether'
+)
+, bsc_usd_prices as (
+    select date as date, 'bsc-usd' as symbol, shifted_token_price_usd as price
+    from pc_dbt_db.prod.fact_coingecko_token_date_adjusted_gold
+    where
+        coingecko_id = 'binance-peg-busd'
+        and date < dateadd(day, -1, to_date(sysdate()))
+    union
+    select dateadd('day', -1, to_date(sysdate())) as date, 'bsc-usd' as symbol, token_current_price as price
+    from pc_dbt_db.prod.fact_coingecko_token_realtime_data
+    where token_id = 'binance-peg-busd'
+)
+, prices as (
+    select date, symbol, price
+    from usdc_prices
+    union all
+    select date, symbol, price
+    from eth_prices
+    union all
+    select date, symbol, price
+    from usdt_prices
+    union all
+    select date, symbol, price
+    from bsc_usd_prices
+    union all
+    select date, symbol, price
+    from meth_prices
+)
 
 {% if chain == 'mantle' %}
     , events as (
@@ -53,8 +107,8 @@ with
             , event_index
             , 'OFTReceived' as event_name
             , '{{ chain }}' as dst_chain
-            , pc_dbt_db.prod.hex_to_int(substr(data, 67))::bigint as amount_received_ld
-            , pc_dbt_db.prod.hex_to_int(substr(data, 0, 66))::bigint as src_e_id
+            , pc_dbt_db.prod.hex_to_int(substr(data, 65))::bigint as amount_received_ld
+            , pc_dbt_db.prod.hex_to_int(substr(data, 0, 64))::bigint as src_e_id
             , '0x' || substr(topics[1]::string, 27, 40) as dst_address
             , topics[0]::string as guid
             , token_messaging_address
@@ -118,14 +172,16 @@ select
     , events.symbol
     , amount_received_ld as amount_received_native
     , amount_received_ld / pow(10, events.decimals) as amount_received_adjusted
-    , price * amount_received_ld / pow(10, events.decimals) as amount_received
+    , coalesce(
+        price, 
+        case when lower(token_address) in ('0x3894085ef7ff0f0aedf52e2a2704928d1ec074f1', '0xb75d0b03c06a926e488e2659df1a861f860bd3d1') then 1 end
+    ) * amount_received_ld / pow(10, events.decimals) as amount_received
     , events.tx_status
-    , prices.price
+    , coalesce(
+        price, 
+        case when lower(token_address) in ('0x3894085ef7ff0f0aedf52e2a2704928d1ec074f1', '0xb75d0b03c06a926e488e2659df1a861f860bd3d1') then 1 end
+    ) as price
 from events
-
-{% if chain in ('berachain', 'mantle') %}
-    left join prices on block_timestamp::date = prices.date and lower(events.coingecko_id) = lower(prices.coingecko_id)
-{% else %}
-    left join prices on block_timestamp::date = prices.date and lower(prices.contract_address) = lower(token_address)
-{% endif %}
+left join prices on block_timestamp::date = prices.date and lower(events.symbol) = lower(prices.symbol)
+where events.block_timestamp < to_date(sysdate())
 {% endmacro %}

@@ -7,11 +7,11 @@
 }}
 
 WITH combined_data AS (
-    SELECT address, name, namespace, chain, 
+    SELECT LOWER(address) AS address, name, namespace, chain, 
            1 AS table_priority
     FROM {{ ref('dim_usersubmittedcontracts') }} where chain is not null
     UNION
-    SELECT address, name, namespace, chain, 
+    SELECT LOWER(address) AS address, name, namespace, chain, 
            2 AS table_priority 
     FROM {{ ref('dim_scanner_contracts') }} where chain is not null
 ),

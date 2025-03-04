@@ -31,7 +31,7 @@ SELECT
     , null as dst_message
     , dst_chain
     , null as deposit_id
-    , fee_amount_native as protocol_fee
+    , fees_native as protocol_fee
     , 'OFT' as bridge_message_app
     , 2 as version
     , 'stargate' as app

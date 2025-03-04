@@ -39,12 +39,12 @@ labeled_automatic_table AS (
         COALESCE(dmla.last_updated, a.last_updated) AS last_updated,
     FROM mapped_addresses a
     FULL OUTER JOIN PC_DBT_DB.PROD.dim_manual_labeled_addresses dmla
-        ON LOWER(a.address) = LOWER(dmla.address)
+        ON LOWER(a.address) = LOWER(dmla.address) AND a.chain = dmla.chain
 )
-SELECT
+SELECT DISTINCT
     lat.address,
     lat.name,
-    INITCAP(REPLACE(lat.name, '_', ' ')) as friendly_name,
+    ag.app_name as friendly_name,
     lat.artemis_application_id,
     ag.artemis_category_id,
     ag.artemis_sub_category_id,

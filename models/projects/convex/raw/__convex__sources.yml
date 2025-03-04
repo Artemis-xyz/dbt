@@ -1,0 +1,7 @@
+sources:
+  - name: PROD_LANDING
+    schema: prod_landing
+    database: landing_database
+    tables:
+      - name: raw_convex_staker_cvxcrv
+      - name: raw_convex_staker_cvxfxs

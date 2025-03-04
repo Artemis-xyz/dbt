@@ -34,9 +34,14 @@ with
         select date, bridge_daa
         from {{ ref("fact_avalanche_bridge_bridge_daa") }}
     )
+    , date_spine as (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date between '2014-04-13' AND to_date(sysdate()) -- Dev data goes back to 2014
+    )
 
 select
-    coalesce(fundamental_data.date, staking_data.date) as date,
+    ds.date,
     coalesce(fundamental_data.chain, 'avalanche') as chain,
     txns,
     dau,
@@ -92,17 +97,18 @@ select
     coalesce(dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
     bridge_volume,
     bridge_daa
-from staking_data
-left join fundamental_data on staking_data.date = fundamental_data.date
-left join price_data on staking_data.date = price_data.date
-left join defillama_data on staking_data.date = defillama_data.date
-left join stablecoin_data on staking_data.date = stablecoin_data.date
-left join github_data on staking_data.date = github_data.date
-left join contract_data on staking_data.date = contract_data.date
-left join issuance_data on staking_data.date = issuance_data.date
-left join nft_metrics on staking_data.date = nft_metrics.date
-left join p2p_metrics on staking_data.date = p2p_metrics.date
-left join rolling_metrics on staking_data.date = rolling_metrics.date
-left join bridge_volume_metrics on staking_data.date = bridge_volume_metrics.date
-left join bridge_daa_metrics on staking_data.date = bridge_daa_metrics.date
-where coalesce(fundamental_data.date, staking_data.date) < to_date(sysdate())
+from date_spine ds
+left join staking_data on ds.date = staking_data.date
+left join fundamental_data on ds.date = fundamental_data.date
+left join price_data on ds.date = price_data.date
+left join defillama_data on ds.date = defillama_data.date
+left join stablecoin_data on ds.date = stablecoin_data.date
+left join github_data on ds.date = github_data.date
+left join contract_data on ds.date = contract_data.date
+left join issuance_data on ds.date = issuance_data.date
+left join nft_metrics on ds.date = nft_metrics.date
+left join p2p_metrics on ds.date = p2p_metrics.date
+left join rolling_metrics on ds.date = rolling_metrics.date
+left join bridge_volume_metrics on ds.date = bridge_volume_metrics.date
+left join bridge_daa_metrics on ds.date = bridge_daa_metrics.date
+where ds.date < to_date(sysdate())
