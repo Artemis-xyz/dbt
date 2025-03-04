@@ -82,6 +82,30 @@ first_seen AS (
     group by date
 )
 
+, tvl_models as (
+    {{
+        dbt_utils.union_relations(
+            relations=[
+                ref("fact_stargate_v2_arbitrum_tvl"),
+                ref("fact_stargate_v2_avalanche_tvl"),
+                ref("fact_stargate_v2_base_tvl"),
+                ref("fact_stargate_v2_bsc_tvl"),
+                ref("fact_stargate_v2_ethereum_tvl"),
+                ref("fact_stargate_v2_optimism_tvl"),
+                ref("fact_stargate_v2_polygon_tvl"),
+                ref("fact_stargate_v2_mantle_tvl"),
+                ref("fact_stargate_v2_sei_tvl"),
+            ],
+        )
+    }}
+)
+, tvl_metrics as (
+    select
+        date
+        , sum(balance_usd) as tvl
+    from tvl_models
+    group by date
+)
 -- Weekly metrics (directly from raw data)
 , weekly_metrics AS (
     SELECT 
@@ -156,7 +180,8 @@ SELECT
     COALESCE(b.count_1K_10K, 0) AS TXN_SIZE_1K_10K,
     COALESCE(b.count_10K_100K, 0) AS TXN_SIZE_10K_100K,
     COALESCE(b.count_100K_plus, 0) AS TXN_SIZE_100K_PLUS,
-    t.treasury_usd
+    t.treasury_usd,
+    tvl_metrics.tvl
 FROM daily_growth d
 LEFT JOIN new_addresses n ON d.transaction_date = n.transaction_date
 LEFT JOIN returning_addresses r ON d.transaction_date = r.transaction_date
@@ -164,5 +189,6 @@ LEFT JOIN weekly_metrics w ON d.transaction_date = DATE(w.week_start)
 LEFT JOIN monthly_metrics m ON d.transaction_date = DATE(m.month_start)
 LEFT JOIN transaction_bucket_counts b ON d.transaction_date = b.transaction_date
 LEFT JOIN treasury_metrics t ON d.transaction_date = t.date
+LEFT JOIN tvl_metrics ON d.transaction_date = tvl_metrics.date
 where d.transaction_date < to_date(sysdate())
 ORDER BY d.transaction_date DESC
