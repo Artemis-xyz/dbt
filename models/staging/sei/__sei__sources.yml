@@ -4,3 +4,8 @@ sources:
     database: SEI_FLIPSIDE
     tables:
       - name: fact_staking_rewards
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_sei_dex_volumes_daily
