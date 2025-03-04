@@ -87,19 +87,23 @@ token_transfers as (
 )
 , with_tags as (
     select 
-        block_timestamp
+        token_transfers.block_timestamp
         , block_number
         , tx_hash
         , origin_from_address
         , origin_to_address
+
         , from_address
         , from_labels.artemis_application_id as from_normalized_application_id
         , from_labels.artemis_category_id as from_normalized_category_id
+        , case when from_address_metadata.contract_address is null then 1 else 0 end as from_is_wallet 
+
         , to_address
         , to_labels.artemis_application_id as to_normalized_application_id
         , to_labels.artemis_category_id as to_normalized_category_id
+        , case when to_address_metadata.contract_address is null then 1 else 0 end as to_is_wallet
 
-        , contract_address
+        , token_transfers.contract_address
         , symbol
         , decimals
         , amount
@@ -112,6 +116,10 @@ token_transfers as (
     from token_transfers
     left join tags to_labels on lower(to_address) = lower(to_labels.address)
     left join tags from_labels on lower(from_address) = lower(from_labels.address)
+    left join {{ ref('dim_base_contract_addresses')}} to_address_metadata 
+        on lower(to_address) = lower(to_address_metadata.contract_address)
+    left join {{ ref('dim_base_contract_addresses')}} from_address_metadata 
+        on lower(from_address) = lower(from_address_metadata.contract_address)
 )
 
 select 
@@ -120,12 +128,17 @@ select
     , tx_hash
     , origin_from_address
     , origin_to_address
+
     , from_address
     , from_normalized_application_id
     , from_normalized_category_id
+    , from_is_wallet
+
     , to_address
     , to_normalized_application_id
     , to_normalized_category_id
+    , to_is_wallet
+
     , contract_address
     , symbol
     , decimals
