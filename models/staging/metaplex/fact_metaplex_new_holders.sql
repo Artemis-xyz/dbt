@@ -9,7 +9,7 @@ WITH metaplex_programs AS (
         program_name
     FROM (
         VALUES
-            ('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY', 'Bubblegum'),
+            -- ('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY', 'Bubblegum'),
             ('CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d', 'Core'),
             ('CndyV3LdqHUfDLmE5naZjVN8rBZz4tqhdefbAnjHG3JR', 'Candy Machine v3'),
             ('cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ', 'Candy Machine v2'),
@@ -24,6 +24,7 @@ metaplex_mints AS (
         m.program_id
     FROM 
         {{ ref('fact_filtered_metaplex_solana_nft_mints') }} AS m
+    WHERE LOWER(program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
 ),
 
 minter_activity AS (
@@ -32,6 +33,7 @@ minter_activity AS (
         m.purchaser AS wallet
     FROM 
         {{ ref('fact_filtered_metaplex_solana_nft_mints') }} AS m
+    WHERE LOWER(program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
 ),
 
 decoded_instruction_activity AS (
@@ -51,6 +53,7 @@ decoded_instruction_activity AS (
     WHERE 
         account.value:name::TEXT IN ('leafOwner', 'newLeafOwner')
         AND LOWER(event_type) IN ('mintv1', 'minttocollectionv1')
+        AND LOWER(program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
 ),
 
 filtered_decoded_instruction_activity AS (
