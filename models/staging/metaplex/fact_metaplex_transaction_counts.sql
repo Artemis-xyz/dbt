@@ -11,10 +11,11 @@ with all_metaplex_transactions AS (
         program_id
     FROM
         {{ ref('fact_filtered_metaplex_solana_events') }}
+        WHERE LOWER(program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
         {% if is_incremental() %}
-            WHERE block_timestamp > (SELECT MAX(date) FROM {{ this }})
+            and block_timestamp > (SELECT MAX(date) FROM {{ this }})
         {% else %}
-            WHERE block_timestamp >= date('2021-08-01')
+            and block_timestamp >= date('2021-08-01')
         {% endif %}
 
     UNION
@@ -28,6 +29,7 @@ with all_metaplex_transactions AS (
     WHERE
         program_id IN (SELECT program_id FROM {{ ref('fact_metaplex_programs') }})
         AND succeeded = TRUE
+        AND LOWER(program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
         {% if is_incremental() %}
             AND block_timestamp > (SELECT MAX(date) FROM {{ this }})
         {% else %}
@@ -48,6 +50,7 @@ program_day_grid AS (
         {{ ref('fact_metaplex_programs') }} mp
     CROSS JOIN 
         all_days ad
+    WHERE LOWER(mp.program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
 ),
 
 daily_transaction_counts AS (
@@ -73,6 +76,7 @@ daily_transaction_counts_full AS (
     LEFT JOIN
         daily_transaction_counts dtc
         ON pg.program_id = dtc.program_id AND pg.date = dtc.date
+    WHERE LOWER(pg.program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
 ),
 
 cumulative_transactions AS (
@@ -98,6 +102,6 @@ SELECT
     cumulative_signed_transactions
 FROM 
     cumulative_transactions
-WHERE date < to_date(sysdate())
+WHERE date < to_date(sysdate()) and LOWER(program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
 ORDER BY 
     date DESC
