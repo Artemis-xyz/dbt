@@ -7,18 +7,31 @@
 }}
 
 with
+    app_contracts as (
+        select distinct
+            address,
+            contract.name,
+            contract.chain,
+            contract.artemis_category_id as category,
+            contract.artemis_sub_category_id as sub_category,
+            contract.artemis_application_id as app,
+            contract.friendly_name
+        from {{ ref("dim_all_addresses_labeled_gold") }} as contract
+        where chain = 'solana'
+    ),
     solana_transfers as (
         select
             tx_id,
             min_by(value:"programId"::string, index) as program_id,
-            array_agg(value:"parsed":"info":"destination"::string) as destinations
+            array_agg(value:"parsed":"info":"destination"::string) as destinations,
         from solana_flipside.core.fact_transactions, lateral flatten(instructions)
         where
             value:"programId"::string in ('11111111111111111111111111111111', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') and ARRAY_SIZE(instructions) <= 3
         -- Chunking required here for backfills
         {% if is_incremental() %}
-            and block_timestamp
+            and (block_timestamp
             >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+            or EXISTS (SELECT 1 FROM app_contracts t2 WHERE lower(program_id) = lower(t2.address)))
         {% else %}
         -- Making code not compile on purpose. Full refresh of entire history
         -- takes too long, doing last month will wipe out backfill
@@ -45,8 +58,9 @@ with
             )
             -- Chunking required here for backfills
             {% if is_incremental() %}
-                and block_timestamp
+                and (block_timestamp
                 >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+                or EXISTS (SELECT 1 FROM app_contracts t2 WHERE lower(program_id) = lower(t2.address)))
             {% else %}
             -- Making code not compile on purpose. Full refresh of entire history
             -- takes too long, doing last month will wipe out backfill
@@ -66,13 +80,19 @@ with
             succeeded,
             coalesce(i.program_id, transfers.program_id) as program_id,
             t.post_token_balances,
-            destinations
+            destinations,
+            case
+                when program_id = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+                then post_token_balances[0]:"mint"::string
+                else coalesce(i.program_id, transfers.program_id)
+            end as filter_column,
         from solana_flipside.core.fact_transactions as t
         left join instruction_data as i on t.tx_id = i.tx_id
         left join solana_transfers as transfers on t.tx_id = transfers.tx_id
         {% if is_incremental() %}
             where block_timestamp
             >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+            or EXISTS (SELECT 1 FROM app_contracts t2 WHERE lower(t.filter_column) = lower(t2.address))
         {% else %}
         -- Making code not compile on purpose. Full refresh of entire history
         -- takes too long, doing last month will wipe out backfill
@@ -81,18 +101,6 @@ with
             block_timestamp
             >= (select dateadd('month', -1, max(block_timestamp)) from {{ this }})
         {% endif %}
-    ),
-    app_contracts as (
-        select distinct
-            address,
-            contract.name,
-            contract.chain,
-            contract.artemis_category_id as category,
-            contract.artemis_sub_category_id as sub_category,
-            contract.artemis_application_id as app,
-            contract.friendly_name
-        from {{ ref("dim_all_addresses_labeled_gold") }} as contract
-        where chain = 'solana'
     ),
     token_contracts as (
         select address, name, chain, category

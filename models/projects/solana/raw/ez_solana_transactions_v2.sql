@@ -36,8 +36,9 @@ from {{ ref("fact_solana_transactions_v2") }}
 where
     raw_date < to_date(sysdate())
     {% if is_incremental() %}
-        and block_timestamp
+        and (block_timestamp
         >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+        or app is not null)
 {% else %}
     -- Making code not compile on purpose. Full refresh of entire history takes too
     -- long, doing last month will wipe out backfill

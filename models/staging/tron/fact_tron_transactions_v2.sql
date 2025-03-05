@@ -74,4 +74,6 @@ left join balances as bal on t.from_address = bal.address and raw_date = bal.dat
     where
         block_timestamp
         >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+        or 
+            new_contracts.address is not null
 {% endif %}
