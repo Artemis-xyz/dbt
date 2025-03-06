@@ -14,7 +14,7 @@ WITH deduplicated AS (
             e.BLOCK_TIMESTAMP,
             e.TX_ID,
             e.INDEX,
-            e.INNER_INDEX, -- Usually null but there are some transactions with inner index
+            COALESCE(e.INNER_INDEX, -1) AS INNER_INDEX, -- Coalesce since inner_index is used as a unique key
             e.PROGRAM_ID,
             e.EVENT_TYPE AS instruction_name,
 
