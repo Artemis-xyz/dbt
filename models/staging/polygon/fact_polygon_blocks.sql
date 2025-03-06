@@ -2,7 +2,7 @@
 select
     block_number,
     block_timestamp,
-    block_header_json:"gasUsed" * block_header_json:"baseFeePerGas" as block_burn
+    gas_used * base_fee_per_gas as block_burn
 from polygon_flipside.core.fact_blocks
 {% if is_incremental() %}
     where block_timestamp >= (select max(block_timestamp) from {{ this }})
