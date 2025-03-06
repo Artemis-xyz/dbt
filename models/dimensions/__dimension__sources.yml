@@ -39,3 +39,9 @@ sources:
       - name: dim_sub_categories
       - name: dim_categories
       - name: all_categories_seed
+  - name: DECODING
+    schema: prod
+    database: pc_dbt_db
+    tables:
+        - name: dim_all_abis
+        - name: dim_all_contracts

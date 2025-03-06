@@ -1,4 +1,4 @@
--- depends_on: {{ ref('fact_base_transactions') }}
+-- depends_on: {{ ref('fact_base_transactions_v2') }}
 {{
     config(
         materialized="incremental",

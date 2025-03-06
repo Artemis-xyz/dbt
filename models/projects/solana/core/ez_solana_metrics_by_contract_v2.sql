@@ -1,3 +1,4 @@
+-- depends_on {{ ref("ez_solana_transactions_v2") }}
 {{
     config(
         materialized="incremental",

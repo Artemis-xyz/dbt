@@ -17,10 +17,11 @@ with filtered_transactions AS (
         AND e.succeeded = TRUE
         AND t.succeeded = TRUE
     , LATERAL FLATTEN(input => t.signers) AS unnested_signer
+    WHERE lower(e.program_id) <> lower('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
     {% if is_incremental() %}
-        WHERE t.block_timestamp > (SELECT DATEADD(day, -2, MAX(date)) FROM {{ this }})
+        and t.block_timestamp > (SELECT DATEADD(day, -2, MAX(date)) FROM {{ this }})
     {% else %}
-        WHERE t.block_timestamp > '2021-07-01'::date
+        and t.block_timestamp > '2021-07-01'::date
     {% endif %}
     GROUP BY 
         t.tx_id, day_date

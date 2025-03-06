@@ -4,3 +4,4 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: equities_metrics
+      - name: coinbase_q4_metrics

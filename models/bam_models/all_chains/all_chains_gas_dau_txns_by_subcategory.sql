@@ -9,6 +9,7 @@ with
                     ref("ez_base_metrics_by_subcategory"),
                     ref("ez_bsc_metrics_by_subcategory"),
                     ref("ez_ethereum_metrics_by_subcategory"),
+                    ref("ez_optimism_metrics_by_subcategory"),
                     ref("ez_polygon_metrics_by_subcategory"),
                     ref("ez_near_metrics_by_subcategory"),
                     ref("ez_sei_metrics_by_subcategory"),

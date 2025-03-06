@@ -41,7 +41,10 @@ with
             , ab.contract_address
             , block_timestamp
             , balance_native
-            , balance_native / pow(10, decimals) as balance_adjusted
+            , case
+                when right(ab.contract_address, 6) = 'native' then balance_native
+                else balance_native / pow(10, decimals) 
+            end as balance_adjusted
         from old_balances ab
         inner join tagged_addresses
             on lower(ab.address) = lower(tagged_addresses.address)

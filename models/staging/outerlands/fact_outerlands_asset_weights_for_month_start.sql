@@ -18,8 +18,8 @@
 {%- set stablecoin_assets = ['ethena']-%}
 {%- set bridge_assets =  ['wormhole', 'layerzero', 'axelar']-%}
 {%- set da_assets = ['celestia'] -%}
-{%- set dex_assets = ['trader_joe', 'raydium'] -%}
-{%- set perps_assets = ['jupiter'] -%}
+{%- set dex_assets = ['trader_joe', 'raydium', 'aerodrome'] -%}
+{%- set perps_assets = ['jupiter', 'hyperliquid'] -%}
 
 {%- set MINIMUM_MCAP = 30000000 -%}
 

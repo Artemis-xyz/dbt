@@ -50,7 +50,7 @@ select
     , stargate_implementation_pool
     , token_address
     , decimals
-    , symbol
+    , case when '{{chain}}' = 'sei' and lower(token_address) = lower('{{wrapped_native_token_address}}') then 'ETH' else symbol end as symbol
     , sysdate()::timestamp as last_modified_timestamp
 from pool_to_token_map
 left join contract_addr_table on lower(contract_address) = lower(token_address)
