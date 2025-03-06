@@ -29,4 +29,8 @@ WITH RECURSIVE path_builder AS (
     ON child.parent_metric = parent.metric_name AND child.adsh = parent.adsh AND child.time_period = parent.time_period
 )
 
-SELECT * FROM path_builder ORDER BY metric_name
+SELECT * FROM path_builder
+
+UNION ALL
+
+select * FROM {{ source("PROD_LANDING", "coinbase_q4_metrics")}}
