@@ -31,7 +31,6 @@ with all_transfers as(
     {% else %}
         and block_timestamp::date > '2022-10-14'
     {% endif %}
-    and p.price is not null
 )
 select
   date(a.block_timestamp) as date,
