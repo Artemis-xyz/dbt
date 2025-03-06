@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key="tx_hash",
-        snowflake_warehouse="BAM_TRANSACTION_XLG",
+        snowflake_warehouse="BAM_TRANSACTION_2XLG",
     )
 }}
 
@@ -31,7 +31,7 @@ with
         {% if is_incremental() %}
             and (block_timestamp
             >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
-            or EXISTS (SELECT 1 FROM app_contracts t2 WHERE lower(program_id) = lower(t2.address)))
+            or EXISTS (SELECT 1 FROM app_contracts t2 WHERE lower(value:"programId"::string) = lower(t2.address)))
         {% else %}
         -- Making code not compile on purpose. Full refresh of entire history
         -- takes too long, doing last month will wipe out backfill
@@ -60,7 +60,7 @@ with
             {% if is_incremental() %}
                 and (block_timestamp
                 >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
-                or EXISTS (SELECT 1 FROM app_contracts t2 WHERE lower(program_id) = lower(t2.address)))
+                or EXISTS (SELECT 1 FROM app_contracts t2 WHERE lower(value:"programId"::string) = lower(t2.address)))
             {% else %}
             -- Making code not compile on purpose. Full refresh of entire history
             -- takes too long, doing last month will wipe out backfill
@@ -82,17 +82,20 @@ with
             t.post_token_balances,
             destinations,
             case
-                when program_id = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+                when coalesce(i.program_id, transfers.program_id) = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
                 then post_token_balances[0]:"mint"::string
                 else coalesce(i.program_id, transfers.program_id)
-            end as filter_column,
+            end as filter_column
         from solana_flipside.core.fact_transactions as t
         left join instruction_data as i on t.tx_id = i.tx_id
         left join solana_transfers as transfers on t.tx_id = transfers.tx_id
+    ),
+    chain_transactions_incremental AS (
+        select * from chain_transactions
         {% if is_incremental() %}
             where block_timestamp
             >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
-            or EXISTS (SELECT 1 FROM app_contracts t2 WHERE lower(t.filter_column) = lower(t2.address))
+            or EXISTS (SELECT 1 FROM app_contracts t2 WHERE lower(filter_column) = lower(t2.address))
         {% else %}
         -- Making code not compile on purpose. Full refresh of entire history
         -- takes too long, doing last month will wipe out backfill
@@ -162,7 +165,7 @@ with
             null as balance_usd,
             null as native_token_balance,
             null as stablecoin_balance
-        from chain_transactions as t
+        from chain_transactions_incremental as t
         left join app_contracts on lower(t.program_id) = lower(app_contracts.address)
         left join app_contracts as token on lower(token_address) = lower(token.address)
         left join collapsed_prices on raw_date = collapsed_prices.date
