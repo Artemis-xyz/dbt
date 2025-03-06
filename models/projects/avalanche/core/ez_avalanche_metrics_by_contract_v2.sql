@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_avalanche_transactions") }}
+-- depends_on {{ ref("ez_avalanche_transactions_v2") }}
 {{
     config(
         materialized="table",
