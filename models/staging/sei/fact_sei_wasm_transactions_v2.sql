@@ -88,7 +88,7 @@ with
             transaction_contract_data t1
         LEFT JOIN 
             new_contracts as t3
-            ON t1.contract_address = t3.address
+            ON LOWER(t1.contract_address) = LOWER(t3.address)
         {% if is_incremental() %}
             WHERE inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
             or 
