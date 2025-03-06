@@ -1,0 +1,75 @@
+CIK,ADSH,COMPANY_NAME,METRIC_NAME,METRIC_VALUE,TIME_PERIOD,DATE,COL_PATH
+1679788,167978825000022,"COINBASE GLOBAL, INC.",blockchain_rewards,214874000,Q4 2024,2024-12-31,"[
+  ""revenue"",
+  ""net_revenue"",
+  ""subscription_and_services_revenue"",
+  ""blockchain_rewards""
+]"
+1679788,167978825000022,"COINBASE GLOBAL, INC.",consumer_net,1347077000,Q4 2024,2024-12-31,"[
+  ""revenue"",
+  ""net_revenue"",
+  ""transaction_revenue"",
+  ""consumer_net""
+]"
+1679788,167978825000022,"COINBASE GLOBAL, INC.",corporate_interest_and_other_income,74607000,Q4 2024,2024-12-31,"[
+  ""revenue"",
+  ""other_revenue"",
+  ""corporate_interest_and_other_income""
+]"
+1679788,167978825000022,"COINBASE GLOBAL, INC.",custodial_fee_revenue,43137000,Q4 2024,2024-12-31,"[
+  ""revenue"",
+  ""net_revenue"",
+  ""subscription_and_services_revenue"",
+  ""custodial_fee_revenue""
+]"
+1679788,167978825000022,"COINBASE GLOBAL, INC.",institutional_net,141289000,Q4 2024,2024-12-31,"[
+  ""revenue"",
+  ""net_revenue"",
+  ""transaction_revenue"",
+  ""institutional_net""
+]"
+1679788,167978825000022,"COINBASE GLOBAL, INC.",interest_and_finance_fee_income,65749000,Q4 2024,2024-12-31,"[
+  ""revenue"",
+  ""net_revenue"",
+  ""subscription_and_services_revenue"",
+  ""interest_and_finance_fee_income""
+]"
+1679788,167978825000022,"COINBASE GLOBAL, INC.",net_revenue,2197030000,Q4 2024,2024-12-31,"[
+  ""revenue"",
+  ""net_revenue""
+]"
+1679788,167978825000022,"COINBASE GLOBAL, INC.",other_revenue,74607000,Q4 2024,2024-12-31,"[
+  ""revenue"",
+  ""other_revenue""
+]"
+1679788,167978825000022,"COINBASE GLOBAL, INC.",other_subscription_and_services_revenue,91449000,Q4 2024,2024-12-31,"[
+  ""revenue"",
+  ""net_revenue"",
+  ""subscription_and_services_revenue"",
+  ""other_subscription_and_services_revenue""
+]"
+1679788,167978825000022,"COINBASE GLOBAL, INC.",other_transaction_revenue,67600000,Q4 2024,2024-12-31,"[
+  ""revenue"",
+  ""net_revenue"",
+  ""transaction_revenue"",
+  ""other_transaction_revenue""
+]"
+1679788,167978825000022,"COINBASE GLOBAL, INC.",revenue,2271637000,Q4 2024,2024-12-31,"[
+  ""revenue""
+]"
+1679788,167978825000022,"COINBASE GLOBAL, INC.",stablecoin_revenue,225855000,Q4 2024,2024-12-31,"[
+  ""revenue"",
+  ""net_revenue"",
+  ""subscription_and_services_revenue"",
+  ""stablecoin_revenue""
+]"
+1679788,167978825000022,"COINBASE GLOBAL, INC.",subscription_and_services_revenue,641064000,Q4 2024,2024-12-31,"[
+  ""revenue"",
+  ""net_revenue"",
+  ""subscription_and_services_revenue""
+]"
+1679788,167978825000022,"COINBASE GLOBAL, INC.",transaction_revenue,1555966000,Q4 2024,2024-12-31,"[
+  ""revenue"",
+  ""net_revenue"",
+  ""transaction_revenue""
+]"
