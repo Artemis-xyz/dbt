@@ -20,6 +20,6 @@ select
         end
     ) as daily_volume_usd
 from solana_flipside.defi.ez_dex_swaps
-where date_trunc('day', block_timestamp) > '2024-03-02' and date_trunc('day', block_timestamp) <> '2025-03-03' and tx_id not in (select tx_id from all_marginfi_flash_loans)
+where date_trunc('day', block_timestamp) <> current_date and tx_id not in (select tx_id from all_marginfi_flash_loans)
 group by date
 order by date asc

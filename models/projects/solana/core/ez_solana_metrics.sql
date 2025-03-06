@@ -134,7 +134,7 @@ with
     ), 
     dune_dex_volumes as (
         select date, daily_volume_usd as dex_volumes
-        from {{ ref("fact_solana_dex_volume") }}
+        from {{ ref("fact_solana_dex_volumes") }}
     )
 select
     fundamental_usage.date,
