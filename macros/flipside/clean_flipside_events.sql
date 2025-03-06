@@ -5,7 +5,6 @@
         , block_number
         , null as block_hash
         , block_timestamp
-        , tx_status
         , tx_succeeded
         , null as transaction_index 
         , tx_hash as transaction_hash       
