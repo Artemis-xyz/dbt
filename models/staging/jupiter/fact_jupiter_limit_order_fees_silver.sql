@@ -12,13 +12,19 @@ with all_transfers as(
       tr.tx_id,
       tr.amount,
       tr.mint,
-      p.price,
+      coalesce(p.price, sol.price) as price,
     FROM
       solana_flipside.core.fact_transfers tr
-    left join solana_flipside.price.ez_prices_hourly p -- missing PUPS data
-      on p.token_address = tr.mint
-      and p.hour = date_trunc('hour',tr.block_timestamp)
-    where tx_to = 'H3vkQqNVWySTD4c1Y91wtoT5iwxKSVtVLfC2rD8SgwTN'
+    left join solana_flipside.price.ez_prices_hourly p on (
+        p.token_address = tr.mint 
+        and p.hour = date_trunc('hour',tr.block_timestamp)
+    )
+    left join solana_flipside.price.ez_prices_hourly sol on (
+        sol.is_native 
+        and tr.mint = 'So11111111111111111111111111111111111111111' 
+        and sol.hour = date_trunc('hour',tr.block_timestamp)
+    )
+    where tx_to in ('H3vkQqNVWySTD4c1Y91wtoT5iwxKSVtVLfC2rD8SgwTN', 'GNSHYrJmjwYXnWLy3esF5VjWa1AKMhzAru1pTeQDY8w3')
     {% if is_incremental() %}
         -- this filter will only be applied on an incremental run 
         and block_timestamp::date >= (select dateadd('day', -7, max(date)) from {{ this }})
@@ -30,7 +36,7 @@ with all_transfers as(
 select
   date(a.block_timestamp) as date,
   sum(amount*price) as fees,
-  sum(amount*price) / 0.02 as volume, -- we can back into volume since Jupiter Limit Order do charge a platform fees of 0.2% on taker.
+  sum(amount*price) / 0.002 as volume, -- we can back into volume since Jupiter Limit Order do charge a platform fees of 0.2% on taker.
   count(distinct tx_id) as txns
 from all_transfers a
 WHERE
