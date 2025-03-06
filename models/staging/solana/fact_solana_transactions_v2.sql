@@ -23,7 +23,7 @@ with
         select
             tx_id,
             min_by(value:"programId"::string, index) as program_id,
-            array_agg(value:"parsed":"info":"destination"::string) as destinations,
+            array_agg(value:"parsed":"info":"destination"::string) as destinations
         from solana_flipside.core.fact_transactions, lateral flatten(instructions)
         where
             value:"programId"::string in ('11111111111111111111111111111111', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') and ARRAY_SIZE(instructions) <= 3
