@@ -21,7 +21,7 @@ with funds_deposited_events as (
     union all
     ({{ across_v3_goldsky_decode_funds_deposited('unichain', '0x09aea4b2242abC8bb4BB78D537A67a245A7bEC64') }})
 )
-select
+select distinct
     messaging_contract_address,
     block_timestamp,
     tx_hash,
