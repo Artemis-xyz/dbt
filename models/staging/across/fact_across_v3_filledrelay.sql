@@ -21,7 +21,7 @@ with filled_relay_events as (
     union all
     ({{ across_v3_goldsky_decode_filled_relay('unichain', '0x09aea4b2242abC8bb4BB78D537A67a245A7bEC64') }})
 )
-SELECT
+SELECT DISTINCT 
     messaging_contract_address,
     block_timestamp,
     tx_hash,

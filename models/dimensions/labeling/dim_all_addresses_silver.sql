@@ -100,6 +100,11 @@ distinct_all_chains AS (
         ROUND(AVG(dau), 2) AS average_dau
     FROM {{ ref("all_chains_gas_dau_txns_by_contract") }}
     GROUP BY contract_address, chain
+),
+deduped_manual_labeled_addresses AS (
+    SELECT *
+    FROM {{ source("PYTHON_LOGIC", "dim_manual_labeled_addresses") }}
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated DESC) = 1
 )
 
 SELECT 
@@ -126,6 +131,6 @@ LEFT JOIN pc_dbt_db.prod.dim_geo_labels geo
     ON LOWER(ra.address) = LOWER(geo.address) AND ra.chain = geo.chain
 LEFT JOIN deduped_labeled_name_metadata_with_types nm
     ON ra.address = nm.address AND ra.chain = nm.chain
-FULL OUTER JOIN {{ source("PYTHON_LOGIC", "dim_manual_labeled_addresses") }} ua
+FULL OUTER JOIN deduped_manual_labeled_addresses ua
     ON ra.address = ua.address AND ra.chain = ua.chain
 

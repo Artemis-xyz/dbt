@@ -4,7 +4,7 @@
         snowflake_warehouse="STARGATE",
         database="stargate",
         schema="core",
-        alias="ez_metrics_top100holders",
+        alias="ez_metrics_top100STGholders",
     )
 }}
 
