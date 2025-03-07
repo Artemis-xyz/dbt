@@ -45,8 +45,9 @@
     where
         raw_date < to_date(sysdate())
         {% if is_incremental() %}
-            and block_timestamp
+            and (block_timestamp
             >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+            or app is not null)
         {% endif %}
 
 {% endmacro %}

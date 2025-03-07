@@ -46,11 +46,6 @@ with
         from near_flipside.core.fact_transactions as t
         left join collapsed_prices on raw_date = collapsed_prices.price_date
         where raw_date < to_date(sysdate()) and inserted_timestamp < to_date(sysdate())
-        {% if is_incremental() %}
-            -- this filter will only be applied on an incremental run 
-            and block_timestamp
-            >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
-        {% endif %}
     )
 select
     tx_hash,
@@ -80,3 +75,11 @@ select
 from near_transactions as t
 left join new_contracts on lower(t.contract_address) = lower(new_contracts.address)
 left join {{ ref("dim_near_bots") }} as bots on t.from_address = bots.from_address
+{% if is_incremental() %}
+    -- this filter will only be applied on an incremental run 
+    where block_timestamp
+    >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+
+    or 
+    new_contracts.address is not null
+{% endif %}

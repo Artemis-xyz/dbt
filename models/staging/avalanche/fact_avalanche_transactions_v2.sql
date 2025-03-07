@@ -70,6 +70,9 @@ where
     raw_date < to_date(sysdate())
     {% if is_incremental() %}
         -- this filter will only be applied on an incremental run 
-        and block_timestamp
+        and (block_timestamp
         >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+
+        or 
+        new_contracts.address is not null)
     {% endif %}

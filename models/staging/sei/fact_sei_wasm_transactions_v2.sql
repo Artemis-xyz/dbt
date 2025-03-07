@@ -6,15 +6,6 @@
     )
 }}
 with
-    evm_txs AS (
-        select 
-            distinct tx_id from sei_flipside.core.fact_msg_attributes 
-        where 
-            msg_type ='message' and attribute_key = 'action' and ATTRIBUTE_VALUE = '/seiprotocol.seichain.evm.MsgEVMTransaction'
-        {% if is_incremental() %}
-            AND inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
-        {% endif %}
-    ),
     new_contracts as (
         select distinct
             address,
@@ -26,6 +17,12 @@ with
             contract.friendly_name
         from {{ ref("dim_all_addresses_labeled_gold") }} as contract
         where chain = 'sei'
+    ),
+    evm_txs AS (
+        select 
+            distinct tx_id from sei_flipside.core.fact_msg_attributes 
+        where 
+            msg_type ='message' and attribute_key = 'action' and ATTRIBUTE_VALUE = '/seiprotocol.seichain.evm.MsgEVMTransaction'
     ),
     prices as (
         select date as price_date, shifted_token_price_usd as price
@@ -66,9 +63,6 @@ with
             max(inserted_timestamp) as inserted_timestamp
         FROM
             sei_flipside.core.fact_msg_attributes
-            {% if is_incremental() %}
-            WHERE inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
-            {% endif %}
         GROUP BY tx_id
     ),
     transaction_contract_data as (
@@ -82,6 +76,25 @@ with
         FROM
             msg_atts_base
     ),
+    incremental_transaction_contract_data as (
+        SELECT 
+            t1.*
+            , t3.name
+            , t3.app
+            , t3.friendly_name
+            , t3.sub_category
+            , t3.category
+        FROM 
+            transaction_contract_data t1
+        LEFT JOIN 
+            new_contracts as t3
+            ON LOWER(t1.contract_address) = LOWER(t3.address)
+        {% if is_incremental() %}
+            WHERE inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
+            or 
+            t3.address is not null
+        {% endif %}
+    ),
     sei_transactions as (
         SELECT 
             t1.tx_hash
@@ -89,23 +102,20 @@ with
             , t1.raw_date
             , t1.tx_succeeded as success
             , t1.contract_address
-            , t3.name
-            , t3.app
-            , t3.friendly_name
-            , t3.sub_category
-            , t3.category
+            , t1.name
+            , t1.app
+            , t1.friendly_name
+            , t1.sub_category
+            , t1.category
             , t2.tx_from as signer
             , (split(t2.fee, 'usei')[0] / pow(10, 6)) as tx_fee
             , (split(t2.fee, 'usei')[0] / pow(10, 6)) * t4.price as gas_usd
             , t1.inserted_timestamp
         FROM 
-            transaction_contract_data as t1
+            incremental_transaction_contract_data as t1
         LEFT JOIN 
             sei_flipside.core.fact_transactions as t2
             ON t1.tx_hash = t2.tx_id
-        LEFT JOIN 
-            new_contracts as t3
-            ON t1.contract_address = t3.address
         LEFT JOIN 
             prices as t4
             ON t1.raw_date = t4.price_date
@@ -113,7 +123,9 @@ with
             t1.block_timestamp < date(sysdate())
             {% if is_incremental() %}
             AND 
-            t2.inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
+            (t2.inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
+                or 
+                t1.app is not null)
             {% endif %}
             AND tx_id NOT IN (
                 SELECT tx_id
