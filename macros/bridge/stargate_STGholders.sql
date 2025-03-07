@@ -1,126 +1,125 @@
 {% macro stargate_stg_holders(chain, token_contract_address, stake_contract_address) %} 
 with
-stg_balances AS (
-    SELECT 
-        ADDRESS,
-        BALANCE_TOKEN / 1e18 AS STG_BALANCE,
-        BLOCK_TIMESTAMP,
-        ROW_NUMBER() OVER (
-            PARTITION BY ADDRESS 
-            ORDER BY BLOCK_TIMESTAMP DESC
-        ) AS today
-    FROM {{ ref("fact_"~ chain ~"_address_balances_by_token")}}
-    WHERE lower(contract_address) = lower('{{token_contract_address}}')
+stg_balances as (
+    select 
+        address
+        , balance_token / 1e18 as stg_balance
+        , block_timestamp
+        , row_number() over (
+            partition by address 
+            order by block_timestamp desc
+        ) as today
+    from {{ ref("fact_"~ chain ~"_address_balances_by_token")}}
+    where lower(contract_address) = lower('{{token_contract_address}}')
 ),
-circulating_supply AS (
-    SELECT 
-        1e9 - COALESCE(
-            (SELECT MAX(STG_BALANCE) 
-             FROM stg_balances 
-             WHERE lower(ADDRESS) = lower('0x8A27E7e98f62295018611DD681Ec47C7d9FF633A')
-            ), 0
-        ) AS circulating_supply
+circulating_supply as (
+    select
+        date
+        , treasury_balance
+        , vesting_balance
+        , circulating_supply
+    from {{ ref("fact_stargate_circulating_supply")}}
+    order by date desc
+    limit 1
 ),
-top_holders AS (
-    SELECT 
-        e.ADDRESS, 
-        e.STG_BALANCE,
-        CASE 
+top_holders as (
+    select 
+        e.address
+        , e.stg_balance
+        , c.circulating_supply
+        , case 
             -- Vesting wallet that is still doing linear unlocks
-            WHEN lower(e.ADDRESS) = lower('0x8A27E7e98f62295018611DD681Ec47C7d9FF633A') 
-            THEN 'Locked' 
-            ELSE 'Unlocked' 
-        END AS status,  
-        (e.STG_BALANCE / c.circulating_supply) * 100 AS percentage_of_circulating_supply
-    FROM stg_balances e
-    CROSS JOIN circulating_supply c
-    WHERE e.today = 1
-    ORDER BY e.STG_BALANCE DESC
-    LIMIT 100
+            when lower(e.address) = lower('0x8A27E7e98f62295018611DD681Ec47C7d9FF633A') 
+            then 'Locked' 
+            else 'Unlocked' 
+        end as status
+        , (e.stg_balance / c.circulating_supply) * 100 AS percentage_of_circulating_supply
+    from stg_balances e
+    cross join circulating_supply c
+    where e.today = 1
+    order by e.stg_balance desc
+    limit 100
 ),
 {% if chain == "avalanche" %}
 net_staked_withdrawal AS (
-    SELECT 
-        LOWER(fded.decoded_log:from::STRING) AS staker_address,  
-        SUM(fded.decoded_log:value::NUMERIC / 1e18) AS value
-    FROM {{chain}}_flipside.core.fact_decoded_event_logs fded
-    WHERE 
-        LOWER(fded.contract_address) = lower('{{token_contract_address}}')
-        AND LOWER(fded.decoded_log:to::STRING) = lower('{{stake_contract_address}}')
-    GROUP BY LOWER(fded.decoded_log:from::STRING)
+    select 
+        lower(fded.decoded_log:from::STRING) as staker_address
+        , sum(fded.decoded_log:value::NUMERIC / 1e18) as value
+    from {{chain}}_flipside.core.fact_decoded_event_logs fded
+    where 
+        lower(fded.contract_address) = lower('{{token_contract_address}}')
+        and lower(fded.decoded_log:to::STRING) = lower('{{stake_contract_address}}')
+    group by lower(fded.decoded_log:from::STRING)
 
     UNION ALL
 
-     SELECT 
-        LOWER(fded.decoded_log:to::STRING) AS staker_address,  
-        SUM(fded.decoded_log:value::NUMERIC / 1e18) * -1 AS value
-    FROM {{chain}}_flipside.core.fact_decoded_event_logs fded
-    WHERE 
-        LOWER(fded.contract_address) = lower('{{token_contract_address}}')
-        AND LOWER(fded.decoded_log:from::STRING) = lower('{{stake_contract_address}}')
-    GROUP BY LOWER(fded.decoded_log:to::STRING)
+    select 
+        lower(fded.decoded_log:to::STRING) as staker_address
+        , sum(fded.decoded_log:value::NUMERIC / 1e18) * -1 as value
+    from {{chain}}_flipside.core.fact_decoded_event_logs fded
+    where 
+        lower(fded.contract_address) = lower('{{token_contract_address}}')
+        and lower(fded.decoded_log:from::STRING) = lower('{{stake_contract_address}}')
+    group by lower(fded.decoded_log:to::STRING)
 ),
 {% else %}
 net_staked_withdrawal AS (
-    SELECT 
-        LOWER(fded.decoded_log:provider::STRING) AS staker_address,  
-        SUM(fded.decoded_log:value::NUMERIC / 1e18) AS value
-    FROM {{chain}}_flipside.core.fact_decoded_event_logs fded
-    WHERE 
-        LOWER(fded.contract_address) = LOWER('{{stake_contract_address}}') 
-        AND fded.event_name = 'Deposit'
-    GROUP BY LOWER(fded.decoded_log:provider::STRING)
+    select 
+        lower(fded.decoded_log:provider::STRING) as staker_address
+        , sum(fded.decoded_log:value::NUMERIC / 1e18) as value
+    from {{chain}}_flipside.core.fact_decoded_event_logs fded
+    where 
+        lower(fded.contract_address) = lower('{{stake_contract_address}}') 
+        and fded.event_name = 'Deposit'
+    group by lower(fded.decoded_log:provider::STRING)
 
     UNION ALL
 
-    SELECT 
-        LOWER(fdew.decoded_log:provider::STRING) AS staker_address,  
-        SUM(fdew.decoded_log:value::NUMERIC / 1e18) * -1 AS value
-    FROM {{chain}}_flipside.core.fact_decoded_event_logs fdew
-    WHERE 
-        LOWER(fdew.contract_address) = LOWER('{{stake_contract_address}}')
-        AND fdew.event_name = 'Withdraw'
-    GROUP BY LOWER(fdew.decoded_log:provider::STRING)
+    select 
+        lower(fdew.decoded_log:provider::STRING) as staker_address
+        , sum(fdew.decoded_log:value::NUMERIC / 1e18) * -1 as value
+    from {{chain}}_flipside.core.fact_decoded_event_logs fdew
+    where 
+        lower(fdew.contract_address) = lower('{{stake_contract_address}}')
+        and fdew.event_name = 'Withdraw'
+    group by lower(fdew.decoded_log:provider::STRING)
 ),
 {% endif %}
 net_balances AS (
-    SELECT
-        staker_address,
-        CASE 
-            WHEN SUM(value) < 0 THEN 0 
-            ELSE SUM(value) 
-        END AS net_balance
-    FROM
-        net_staked_withdrawal
-    GROUP BY
+    select
         staker_address
-    ORDER BY
-        net_balance DESC
+        , case 
+            when sum(value) < 0 then 0 
+            else sum(value) 
+        end as net_balance
+    from net_staked_withdrawal
+    group by staker_address
+    order by net_balance desc
 ),
 holder_stake_status AS (
-    SELECT 
-        th.ADDRESS, 
-        th.STG_BALANCE, 
-        th.status, 
-        th.percentage_of_circulating_supply,
-        COALESCE(nb.net_balance, 0) AS staked_balance,
-        CASE 
+    select 
+        th.address
+        , th.stg_balance
+        , th.status
+        , th.percentage_of_circulating_supply
+        , coalesce(nb.net_balance, 0) as staked_balance
+        , case 
             WHEN nb.net_balance IS NOT NULL THEN TRUE 
             ELSE FALSE 
-        END AS stake_status,
-        COALESCE(nb.net_balance, 0) / NULLIF(th.STG_BALANCE, 0) * 100 AS stake_percentage
-    FROM top_holders th
-    LEFT JOIN net_balances nb ON LOWER(th.ADDRESS) = LOWER(nb.staker_address)
+        end as stake_status,
+        coalesce(nb.net_balance, 0) / nullif(th.stg_balance, 0) * 100 as stake_percentage
+    from top_holders th
+    left join net_balances nb on lower(th.address) = lower(nb.staker_address)
 )
-SELECT 
-    address,
-    stg_balance,
-    status,
-    percentage_of_circulating_supply,
-    staked_balance,
-    stake_status,
-    stake_percentage,
-    '{{chain}}' as chain
-FROM holder_stake_status
-ORDER BY stg_balance DESC
+select 
+    address
+    , stg_balance
+    , status
+    , percentage_of_circulating_supply
+    , staked_balance
+    , stake_status
+    , stake_percentage
+    , '{{chain}}' as chain
+from holder_stake_status
+order by stg_balance desc
 {% endmacro %}
