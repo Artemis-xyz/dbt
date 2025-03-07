@@ -32,6 +32,12 @@ WHERE 1=1
                 )
         )
     AND succeeded
-    AND token_out_address not in ('2TLDx5M7Z9pfUPbHAboYeTEq6ShzaGhnCwWkfvVyPFyD', 'v62Jv9pwMTREWV9f6TetZfMafV254vo99p7HSF25BPr') -- Filter JEET token and Ggs Solana
-    AND token_in_address not in ('6FupkbAC2UvnqFYZp69yJ2S3BYo1Va8V9jTho9wJpump', 'v62Jv9pwMTREWV9f6TetZfMafV254vo99p7HSF25BPr') -- Filter these tokens too
+    AND token_out_address not in ('2TLDx5M7Z9pfUPbHAboYeTEq6ShzaGhnCwWkfvVyPFyD', 'v62Jv9pwMTREWV9f6TetZfMafV254vo99p7HSF25BPr', '4h41QKUkQPd2pCAFXNNgZUyGUxQ6E7fMexaZZHziCvhh') -- Filter JEET token and Ggs Solana
+    AND token_in_address not in (
+        '2TLDx5M7Z9pfUPbHAboYeTEq6ShzaGhnCwWkfvVyPFyD', 
+        '6FupkbAC2UvnqFYZp69yJ2S3BYo1Va8V9jTho9wJpump',
+        'v62Jv9pwMTREWV9f6TetZfMafV254vo99p7HSF25BPr',
+        '4h41QKUkQPd2pCAFXNNgZUyGUxQ6E7fMexaZZHziCvhh'
+    ) -- Filter these tokens too
+    AND fee_amount_usd < 1e5
 GROUP BY 1, 2, 3
