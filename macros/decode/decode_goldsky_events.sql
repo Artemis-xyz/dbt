@@ -1,7 +1,9 @@
 {% macro decode_goldsky_events(chain) %}
     select
         block_number
-        , block_hash
+        {% if chain not in ('base', 'mantle', 'ethereum') %}
+            , block_hash
+        {% endif %}
         , block_timestamp
         , transaction_hash
         , transaction_index
