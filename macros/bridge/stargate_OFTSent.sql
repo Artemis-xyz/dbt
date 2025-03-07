@@ -89,7 +89,7 @@ usdc_prices as (
             , coingecko_id
             , decimals
             , symbol
-            , 'SUCCESS' as tx_status
+            , true as tx_succeeded
         from zksync_dune.{{chain}}.logs
         inner join {{ref("dim_stargate_v2_"~ chain~"_assets")}} on lower(contract_address_hex) = lower(stargate_implementation_pool)
         where topic0_hex = '0x85496b760a4b7f8d66384b9df21b381f5d1b1e79f229a47aaf4c232edc2fe59a' 
@@ -115,7 +115,7 @@ usdc_prices as (
             , decimals
             , coingecko_id
             , symbol
-            , 'SUCCESS' as tx_status
+            , true as tx_succeeded
         from {{ref("fact_" ~ chain ~ "_events")}}
         inner join {{ref("dim_stargate_v2_"~ chain~"_assets")}} on lower(contract_address) = lower(stargate_implementation_pool)
         where topic_zero = '0x85496b760a4b7f8d66384b9df21b381f5d1b1e79f229a47aaf4c232edc2fe59a' 
@@ -141,7 +141,7 @@ usdc_prices as (
         , token_address
         , decimals
         , symbol
-        , tx_status
+        , tx_succeeded
     {% if chain in ('sei') %}
         from {{chain}}_flipside.core_evm.fact_event_logs 
     {% else %}
@@ -174,7 +174,7 @@ select
         prices.price, 
         case when lower(events.token_address) in ('0x3894085ef7ff0f0aedf52e2a2704928d1ec074f1', '0xb75d0b03c06a926e488e2659df1a861f860bd3d1') then 1 end
     ) * amount_sent_ld / pow(10, events.decimals) as amount_sent
-    , events.tx_status
+    , events.tx_succeeded
     , coalesce(
         prices.price, 
         case when lower(events.token_address) in ('0x3894085ef7ff0f0aedf52e2a2704928d1ec074f1', '0xb75d0b03c06a926e488e2659df1a861f860bd3d1') then 1 end

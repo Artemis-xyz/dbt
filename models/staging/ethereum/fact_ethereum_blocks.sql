@@ -5,9 +5,7 @@ with
         select
             block_number,
             block_timestamp,
-            block_header_json:"gasUsed"
-            * block_header_json:"baseFeePerGas" as block_burn,
-            block_header_json,
+            gas_used * base_fee_per_gas as block_burn,
             hash,
             case when t2.name is null then 'Unknown' else t2.name end as builder_name,
             case
@@ -44,7 +42,6 @@ select
     block_number,
     block_timestamp,
     block_burn,
-    block_header_json,
     builder_name,
     'ethereum' as chain,
     censors,

@@ -7,7 +7,7 @@ WITH all_contracts AS (
         {{ chain }}_FLIPSIDE.CORE.FACT_TRACES
     WHERE
         TYPE = 'CREATE'
-        AND TX_STATUS = 'SUCCESS'
+        AND tx_succeeded
         AND (
             lower(FROM_ADDRESS) = lower('0x37aAb97476bA8dC785476611006fD5dDA4eed66B') 
             {% if chain == 'ethereum' %}
@@ -20,7 +20,7 @@ WITH all_contracts AS (
         )
 )
 SELECT
-    upper('{{ chain }}') as source,
+    source,
     to_address as contract_address,
 FROM
     all_contracts 

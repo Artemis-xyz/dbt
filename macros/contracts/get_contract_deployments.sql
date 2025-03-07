@@ -10,7 +10,7 @@ from {{chain}}_flipside.core_evm.fact_traces
 from {{chain}}_flipside.core.fact_traces
 {% endif %}
 where type in ('CREATE', 'CREATE2')
-and TRACE_STATUS = 'SUCCESS'
+and trace_succeeded
 {% if is_incremental() %}
     and block_timestamp >= (select max(date) from {{ this }})
 {% endif %}
