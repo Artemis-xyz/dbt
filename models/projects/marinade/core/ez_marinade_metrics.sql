@@ -71,7 +71,8 @@ select
     , unstaking_fees * 0.75 as supply_side_fee
     , case when 
         date < '2024-08-18' then unstaking_fees * 0.25 + fees
-        else unstaking_fees * 0.25 
+    -- when v2 fees are active, 100% goes to the protocol
+        else fees 
     end as revenue
     , circulating_supply
     , price
