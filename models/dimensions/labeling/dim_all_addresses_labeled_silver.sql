@@ -29,6 +29,11 @@ WITH addresses_with_namespace_and_category AS (
         ON a.namespace = n.namespace
     WHERE n.artemis_application_id IS NOT NULL
 ),
+deduped_manual_labeled_addresses AS (
+    SELECT *
+    FROM {{ source("PYTHON_LOGIC", "dim_manual_labeled_addresses") }}
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated DESC) = 1
+),
 labeled_automatic_table AS (
     SELECT
         COALESCE(LOWER(dmla.address), LOWER(a.address)) AS address,
@@ -41,7 +46,7 @@ labeled_automatic_table AS (
         COALESCE(dmla.type, NULL) AS type,
         COALESCE(dmla.last_updated, a.last_updated) AS last_updated,
     FROM mapped_addresses a
-    FULL OUTER JOIN PC_DBT_DB.PROD.dim_manual_labeled_addresses dmla
+    FULL OUTER JOIN deduped_manual_labeled_addresses dmla
         ON LOWER(a.address) = LOWER(dmla.address) AND a.chain = dmla.chain
 )
 SELECT DISTINCT
