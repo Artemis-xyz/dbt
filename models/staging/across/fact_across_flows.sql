@@ -6,7 +6,7 @@
 }}
 
 select
-    date_trunc('day', hour) as date,
+    date,
     'across' as app,
     source_chain,
     destination_chain,
@@ -16,4 +16,4 @@ select
 from
     {{ ref("fact_across_transfers_with_price") }}
 WHERE amount_usd < 100000000
-group by date_trunc('day', hour), source_chain, destination_chain, category
+group by date, source_chain, destination_chain, category
