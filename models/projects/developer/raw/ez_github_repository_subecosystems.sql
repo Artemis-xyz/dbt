@@ -9,6 +9,7 @@
 }}
 
 select 
-    ecosystem,
+    ecosystem_name,
     subecosystem_name
 from {{ source("STAGING", "core_subecosystems") }}
+left join {{ source("STAGING", "core_ecosystems") }} on core_subecosystems.ecosystem_id = core_ecosystems.id
