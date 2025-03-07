@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key="tx_hash",
-        snowflake_warehouse="SOLANA_XLG",
+        snowflake_warehouse="SOLANA",
         database="solana",
         schema="raw",
         alias="ez_transactions_v2",
@@ -36,9 +36,8 @@ from {{ ref("fact_solana_transactions_v2") }}
 where
     raw_date < to_date(sysdate())
     {% if is_incremental() %}
-        and (block_timestamp
+        and block_timestamp
         >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
-        or app is not null)
 {% else %}
     -- Making code not compile on purpose. Full refresh of entire history takes too
     -- long, doing last month will wipe out backfill

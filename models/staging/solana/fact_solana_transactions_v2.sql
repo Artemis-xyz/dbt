@@ -2,9 +2,10 @@
     config(
         materialized="incremental",
         unique_key="tx_hash",
-        snowflake_warehouse="BAM_TRANSACTION_2XLG",
+        snowflake_warehouse="BAM_TRANSACTION_XLG",
     )
 }}
+-- Does a 5-day refresh on a normal day, and does a 2 week refresh every Saturday (for labels)
 
 with
     app_contracts as (
@@ -17,14 +18,14 @@ with
             contract.artemis_application_id as app,
             contract.friendly_name
         from {{ ref("dim_all_addresses_labeled_gold") }} as contract
-        where chain = 'solana' and last_updated >= DATEADD(DAY, -5, (SELECT MAX(last_updated) FROM {{ ref('dim_all_addresses_labeled_gold') }}))
+        where chain = 'solana'
     ),
     incremental_solana_rows as (
         select * from solana_flipside.core.fact_transactions
         -- Chunking required here for backfills
         {% if is_incremental() %}
             where block_timestamp
-            >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+            >= (select dateadd('day', CASE WHEN DAYOFWEEK(CURRENT_DATE) = 7 THEN -14 ELSE -5 END, max(block_timestamp)) from {{ this }})
         {% else %}
         -- Making code not compile on purpose. Full refresh of entire history
         -- takes too long, doing last month will wipe out backfill
@@ -70,21 +71,9 @@ with
             coalesce(i.program_id, transfers.program_id) as program_id,
             t.post_token_balances,
             destinations
-        from solana_flipside.core.fact_transactions as t
+        from incremental_solana_rows as t
         left join instruction_data as i on t.tx_id = i.tx_id
         left join solana_transfers as transfers on t.tx_id = transfers.tx_id
-        {% if is_incremental() %}
-            where block_timestamp
-            >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
-            or EXISTS (SELECT 1 FROM app_contracts t2 WHERE lower(coalesce(i.program_id, transfers.program_id)) = lower(t2.address))
-        {% else %}
-        -- Making code not compile on purpose. Full refresh of entire history
-        -- takes too long, doing last month will wipe out backfill
-        -- TODO: Figure out a workaround.
-        and
-            block_timestamp
-            >= (select dateadd('month', -1, max(block_timestamp)) from {{ this }})
-        {% endif %}
     ),
     token_contracts as (
         select address, name, chain, category
