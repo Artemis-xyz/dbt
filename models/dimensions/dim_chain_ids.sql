@@ -30,7 +30,8 @@ from
             (1135, 'lisk'),
             (690, 'redstone'),
             (7777777, 'zora'),
-            (480, 'world_chain'),
+            (480, 'worldchain'),
             (57073, 'ink'),
-            (1868, 'soneium')
+            (1868, 'soneium'),
+            (130, 'unichain')
     ) as t(id, chain)

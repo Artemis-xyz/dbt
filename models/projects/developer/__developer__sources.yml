@@ -18,3 +18,4 @@ sources:
       - name: core_weeklydevscoreecosystemwithoutforks
       - name: core_weeklydevssubecosystems
       - name: core_weeklydevssubecosystemswithoutforks
+      - name: core_subecosystems
