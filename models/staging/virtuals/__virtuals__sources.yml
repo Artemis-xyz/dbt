@@ -1,0 +1,9 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_virtuals_volume
+      - name: raw_virtuals_dau
+      - name: raw_virtuals_daily_agents_created
+      - name: raw_virtuals_fees
