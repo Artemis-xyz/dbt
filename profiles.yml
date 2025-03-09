@@ -14,7 +14,6 @@ snowflake-dagster:
       database: PC_DBT_DB
       warehouse: ARTEMIS_DBT_PUBLIC_WAREHOUSE
       schema: PROD
-      threads: 1
+      threads: 4
       client_session_keep_alive: False
       query_tag: PROD
-      introspect: False
