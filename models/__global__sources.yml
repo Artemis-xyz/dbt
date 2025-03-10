@@ -26,6 +26,12 @@ sources:
     tables:
       - name: ez_prices_hourly
       - name: ez_asset_metadata
+    
+  - name: SOLANA_FLIPSIDE_DEFI
+    schema: DEFI
+    database: SOLANA_FLIPSIDE
+    tables:
+      - name: ez_dex_swaps
 
 # ETHEREUM
   - name: ETHEREUM_FLIPSIDE
