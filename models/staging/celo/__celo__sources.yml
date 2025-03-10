@@ -6,14 +6,9 @@ sources:
       - name: raw_celo_blocks_receipts
       - name: raw_celo_epoch_rewards
       - name: raw_celo_traces_parquet
+      - name: raw_celo_dex_volumes_daily
   - name: BALANCES
     schema: PROD
     database: PC_DBT_DB
     tables:
       - name: dim_celo_current_balances
-
-  - name: PROD_LANDING
-    schema: PROD_LANDING
-    database: LANDING_DATABASE
-    tables:
-      - name: raw_celo_dex_volumes_daily
