@@ -5,3 +5,4 @@ sources:
     tables:
       - name: raw_ink_transactions_parquet
       - name: raw_ink_logs_parquet
+      - name: raw_ink_dex_volumes_daily

@@ -28,6 +28,10 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle") }})
 , rolling_metrics as ({{ get_rolling_active_address_metrics("mantle") }})
 , defillama_data as ({{ get_defillama_metrics("mantle") }})
 , price_data as ({{ get_coingecko_metrics("mantle") }})
+, mantle_dex_volumes as (
+    select date, daily_volume as dex_volumes
+    from {{ ref("fact_mantle_daily_dex_volumes") }}
+)
 
 select
     fundamental_data.date
@@ -46,7 +50,7 @@ select
     , coalesce(fees, 0) - l1_data_cost as revenue
     , avg_txn_fee
     , tvl
-    , dex_volumes
+    --, dex_volumes
     , treasury_data.treasury_value_native
     , treasury_data.treasury_value_native_change
     , weekly_commits_core_ecosystem
@@ -56,6 +60,7 @@ select
     , price
     , market_cap
     , fdmc
+    , dune_dex_volumes_mantle.dex_volumes
 from fundamental_data
 left join github_data using (date)
 left join defillama_data using (date)
@@ -63,4 +68,5 @@ left join price_data using (date)
 left join expenses_data using (date)
 left join rolling_metrics using (date)
 left join treasury_data using (date)
+left join mantle_dex_volumes as dune_dex_volumes_mantle on fundamental_data.date = dune_dex_volumes_mantle.date
 where fundamental_data.date < to_date(sysdate())

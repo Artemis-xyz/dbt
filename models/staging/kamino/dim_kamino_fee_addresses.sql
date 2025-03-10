@@ -1,0 +1,36 @@
+SELECT
+    fee_vault as vault_name,
+    token_account_address
+FROM (
+    VALUES 
+        ('SOL', '3JNof8s453bwG5UqiXBLJc77NRQXezYYEBbk3fqnoKph'),
+        ('JitoSOL', 'C2PyjpFRtbQjFjHNB3HDcoQoLP7VJ9NQn6NFJZMueWfB'),
+        ('WETH', '7rGJZoL3FEFmH8YOyE329EN9Uq7a2q4gYHoEhVswofzg'),
+        ('WBTC', 'DvJsvTFiqYWJCzZAZGd1k4YwLDWcU7qxtg3MyrdLgwZ6'),
+        ('cbBTC', '7NSusA45pkEApHBVqS5CqnWW9WR98uEUT6d5hDPdgD8A'),
+        ('JupSOL', 'DPGb1ypG5nG1pnafyfv4Yg4gwMzvXn3bvVxPaPBgSyFw'),
+        ('mSOL', '7Pj3hWhPjhd3mYYGyutQPSkXrm2wPN3VQvVzG3YBMfue'),
+        ('USDC', 'BbDUrk1bVtSixgQsPLBJFZEF7mwGstnD5joA1WzYvYFX'),
+        ('hubSOL', 'HCummBYQBNyC5oSmejsvwK2jv8B3kBD4Uv2erkKKNCpJ'),
+        ('PYUSD', 'BcLJRx7GbyX2Jj8RFpYDnEE47Tm36wSskLnm7ALarEC1'),
+        ('USDS', '3PfZfx8cjfW8EADSSaDt7fsmBABKdTU4Zjrf4HWjJBwa'),
+        ('USDT', 'ARCZqsnUpvPffquPjZR3sxpvScLQdbfZ5BGf3SZvyji7'),
+        ('bSOL', '6EaD2XvC9MiWgrPXbA5iMJ1hdo1UsLQaXme6o4kjSA61'),
+        ('tBTC', '3dcwK7m1UQNfm9UnLMq7H2sdN1UXctQp5jucDUUE6M2K'),
+        ('bonkSOL', '52fePGjimKRxesryiVnVuFAmYmPNji2ENHVvbyQqwWXk'),
+        ('UXD', 'DQy24g7nJ54ekY4RmgxzRPeyURXQspdRi2XwTx2znJHm'),
+        ('bbSOL', '4tWdoYyTgaMFhHi6vVhVHLnZFuzJMnLCp6q7XZJPJajD'),
+        ('USDC', 'rywFxeqHfCWL5iGq9cDxutwijR2TabZgzv8aRM1Lceaq'),
+        ('USDT', 'BHZMw8GQFZGZMaEM6ZNtYCQHdSmaMXh2mEbohr2Lubzw'),
+        ('JLP', 'Cb9y9VPv2J4DPWK5LwjSx5rVRQh7khoreuG2c1N12hwy'),
+        ('PYUSD', '2eA6kDtWLaSAsD8FfNih3FdRWTZ4XtQzUWQ1X2v3YyHX'),
+        ('USDC', '9CvpyHx3FHJfrMcdCYMS5CaCucov5VSzJ3pyzs7RJ8r6'),
+        ('FWOG', '7vBfzy1JwqZPdkn6z2H41UQ3SSEsbaHyDQEFzwY8P6hH'),
+        ('WIF', '7cvL7n7vijnMsy7wK2AENi1NqaaCPrrnwXr8b6gcCgpP'),
+        ('Bonk', '39ocRfiS3Vd9udRF2inopyvcJQ4kt469YpFsysDv3i5P'),
+        ('PENGU', 'FgoD3Qma2P9uh5U6rhAjLxVk15UzefWkd8GtT6Cv4MWa'),
+        ('PYUSD', '9s8oKRFpq3QiuK1DbonCD1Hii9Dpms2SDoGVmNyZzrdX'),
+        ('JUP', '8E9KASABPpy81FBFKCSuqVzoZBXpZ2CuVZyXdwu4wmzn'),
+        ('TRUMP', '8J8QhEKXYbCK7t4tfYH38AfG6Y9mjsUE6cncPHt9GMLE'),
+        ('GRASS', 'EVTRSdajwqWfCRGam9MaK268UT9bVKdrrhDKBJh2pKDT')
+) as fee_addresses(fee_vault, token_account_address)

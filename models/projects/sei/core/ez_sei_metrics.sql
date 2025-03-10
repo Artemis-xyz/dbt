@@ -18,6 +18,10 @@ with
     , sei_evm_fundamental_metrics as (select * from {{ref("fact_sei_evm_fundamental_metrics_silver")}})
     , sei_evm_avg_block_time as (select * from {{ ref("fact_sei_evm_avg_block_time_silver") }})
     , sei_emissions as (select date, rewards_amount as mints_native from {{ ref("fact_sei_emissions") }})
+    , sei_dex_volumes as (
+        select date, daily_volume as dex_volumes
+        from {{ ref("fact_sei_daily_dex_volumes") }}
+    )
 select
     coalesce(combined.date, wasm.date, evm.date, sei_avg_block_time.date, price.date, defillama.date, contracts.date) as date
     , (wasm_avg_block_time + evm_avg_block_time) / 2 as avg_block_time
@@ -44,7 +48,7 @@ select
     , wasm_avg_tps as wasm_avg_tps
     , 0 as wasm_revenue
     , tvl
-    , dex_volumes
+    --, dex_volumes
     , price
     , market_cap
     , evm_new_users
@@ -59,6 +63,7 @@ select
     , sei_emissions.mints_native
     , weekly_contracts_deployed
     , weekly_contract_deployers
+    , dune_dex_volumes_sei.dex_volumes
 from sei_combined_fundamental_metrics as combined
 full join contract_data as contracts using (date)
 full join sei_fundamental_metrics as wasm using (date)
@@ -69,5 +74,6 @@ full join sei_evm_avg_block_time using (date)
 full join price_data as price using (date)
 full join defillama_data as defillama using (date)
 full join sei_emissions using (date)
+left join sei_dex_volumes as dune_dex_volumes_sei using (date)
 where 
 coalesce(combined.date, wasm.date, evm.date, sei_avg_block_time.date, price.date, defillama.date, contracts.date) < date(sysdate())

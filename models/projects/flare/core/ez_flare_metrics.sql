@@ -26,12 +26,20 @@ txns as (
         dau
     from {{ref("fact_flare_dau")}}
 )
+, dex_volumes as (
+    select
+        date,
+        daily_volume as dex_volumes
+    from {{ref("fact_flare_daily_dex_volumes")}}
+)
 
 select
     coalesce(fees.date, txns.date, daus.date) as date,
     dau,
     txns,
-    fees_usd as fees
+    fees_usd as fees,
+    dex_volumes
 from fees
 left join txns on fees.date = txns.date
 left join daus on fees.date = daus.date 
+left join dex_volumes on fees.date = dex_volumes.date

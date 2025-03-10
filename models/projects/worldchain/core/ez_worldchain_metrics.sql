@@ -10,6 +10,10 @@
 
 with 
      price_data as ({{ get_coingecko_metrics('worldcoin-wld') }})
+    , worldchain_dex_volumes as (
+        select date, daily_volume as dex_volumes
+        from {{ ref("fact_worldchain_daily_dex_volumes") }}
+    )
 select
     f.date
     , txns
@@ -26,7 +30,9 @@ select
     , fdmc
     , token_turnover_circulating
     , token_turnover_fdv
-    token_volume
+    , token_volume
+    , dex_volumes
 from {{ ref("fact_worldchain_fundamental_metrics") }} as f
 left join price_data on f.date = price_data.date
+left join worldchain_dex_volumes on f.date = worldchain_dex_volumes.date
 where f.date  < to_date(sysdate())

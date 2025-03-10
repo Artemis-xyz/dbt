@@ -30,6 +30,10 @@ with
     , contract_data as ({{ get_contract_metrics("scroll") }})
     , defillama_data as ({{ get_defillama_metrics("scroll") }})
     , rolling_metrics as ({{ get_rolling_active_address_metrics("scroll") }})
+    , scroll_dex_volumes as (
+        select date, daily_volume as dex_volumes
+        from {{ ref("fact_scroll_daily_dex_volumes") }}
+    )
 
 select
     fundamental_data.date
@@ -47,16 +51,18 @@ select
     , l1_data_cost
     , l1_data_cost_native
     , tvl
-    , dex_volumes
+    --, dex_volumes
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
+    , dune_dex_volumes_scroll.dex_volumes
 from fundamental_data
 left join github_data using (date)
 left join contract_data using (date)
 left join defillama_data using (date)
 left join rolling_metrics using (date)
+left join scroll_dex_volumes as dune_dex_volumes_scroll on fundamental_data.date = dune_dex_volumes_scroll.date
 where fundamental_data.date < to_date(sysdate())

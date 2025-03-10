@@ -46,6 +46,10 @@ with
             sum(cumulative_etf_flow) as cumulative_etf_flow
         FROM {{ ref("ez_ethereum_etf_metrics") }}
         GROUP BY 1
+    ),
+    ethereum_dex_volumes as (
+        select date, daily_volume as dex_volumes
+        from {{ ref("fact_ethereum_daily_dex_volumes") }}
     )
 
 select
@@ -76,7 +80,7 @@ select
     market_cap,
     fdmc,
     tvl,
-    dex_volumes,
+    --dex_volumes,
     weekly_commits_core_ecosystem,
     weekly_commits_sub_ecosystem,
     weekly_developers_core_ecosystem,
@@ -117,7 +121,7 @@ select
     p2p_token_transfer_volume,
     p2p_transfer_volume,
     coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume,
-    coalesce(dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
+    coalesce(dune_dex_volumes_ethereum.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
     blob_fees_native,
     blob_fees,
     blob_size_mib,
@@ -128,7 +132,8 @@ select
     net_etf_flow_native,
     net_etf_flow,
     cumulative_etf_flow_native,
-    cumulative_etf_flow
+    cumulative_etf_flow, 
+    dune_dex_volumes_ethereum.dex_volumes
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -144,4 +149,5 @@ left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join da_metrics on fundamental_data.date = da_metrics.date
 left join etf_metrics on fundamental_data.date = etf_metrics.date
+left join ethereum_dex_volumes as dune_dex_volumes_ethereum on fundamental_data.date = dune_dex_volumes_ethereum.date
 where fundamental_data.date < to_date(sysdate())
