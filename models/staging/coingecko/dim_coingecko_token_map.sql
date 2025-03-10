@@ -30,4 +30,4 @@ where extraction_date = (select max_date from max_extraction) and (
 )
 union all
 select null as json, coingecko_token_id, symbol, chain, contract_address, decimals
-from {{ ref("native_tokens_seed") }}
+from {{ ref("manually_added_tokens_seed") }}
