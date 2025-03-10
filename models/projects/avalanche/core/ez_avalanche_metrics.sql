@@ -33,6 +33,10 @@ with
     bridge_daa_metrics as (
         select date, bridge_daa
         from {{ ref("fact_avalanche_bridge_bridge_daa") }}
+    ), 
+    avalanche_c_dex_volumes as (
+        select date, daily_volume as dex_volumes
+        from {{ ref("fact_avalanche_c_daily_dex_volumes") }}
     )
     , date_spine as (
         SELECT date
@@ -64,7 +68,7 @@ select
     market_cap,
     fdmc,
     tvl,
-    dex_volumes,
+    --dex_volumes,
     weekly_commits_core_ecosystem,
     weekly_commits_sub_ecosystem,
     weekly_developers_core_ecosystem,
@@ -94,21 +98,22 @@ select
     p2p_token_transfer_volume,
     p2p_transfer_volume,
     coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume,
-    coalesce(dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
+    coalesce(dune_dex_volumes_avalanche_c.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
     bridge_volume,
-    bridge_daa
-from date_spine ds
-left join staking_data on ds.date = staking_data.date
-left join fundamental_data on ds.date = fundamental_data.date
-left join price_data on ds.date = price_data.date
-left join defillama_data on ds.date = defillama_data.date
-left join stablecoin_data on ds.date = stablecoin_data.date
-left join github_data on ds.date = github_data.date
-left join contract_data on ds.date = contract_data.date
-left join issuance_data on ds.date = issuance_data.date
-left join nft_metrics on ds.date = nft_metrics.date
-left join p2p_metrics on ds.date = p2p_metrics.date
-left join rolling_metrics on ds.date = rolling_metrics.date
-left join bridge_volume_metrics on ds.date = bridge_volume_metrics.date
-left join bridge_daa_metrics on ds.date = bridge_daa_metrics.date
+    bridge_daa,
+    dune_dex_volumes_avalanche_c.dex_volumes
+from staking_data
+left join fundamental_data on staking_data.date = fundamental_data.date
+left join price_data on staking_data.date = price_data.date
+left join defillama_data on staking_data.date = defillama_data.date
+left join stablecoin_data on staking_data.date = stablecoin_data.date
+left join github_data on staking_data.date = github_data.date
+left join contract_data on staking_data.date = contract_data.date
+left join issuance_data on staking_data.date = issuance_data.date
+left join nft_metrics on staking_data.date = nft_metrics.date
+left join p2p_metrics on staking_data.date = p2p_metrics.date
+left join rolling_metrics on staking_data.date = rolling_metrics.date
+left join bridge_volume_metrics on staking_data.date = bridge_volume_metrics.date
+left join bridge_daa_metrics on staking_data.date = bridge_daa_metrics.date
+left join avalanche_c_dex_volumes as dune_dex_volumes_avalanche_c on staking_data.date = dune_dex_volumes_avalanche_c.date
 where ds.date < to_date(sysdate())

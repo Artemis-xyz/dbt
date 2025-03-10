@@ -29,6 +29,10 @@ with
     bridge_daa_metrics as (
         select date, bridge_daa
         from {{ ref("fact_base_bridge_bridge_daa") }}
+    ),
+    base_dex_volumes as (
+        select date, daily_volume as dex_volumes
+        from {{ ref("fact_base_daily_dex_volumes") }}
     )
 
 select
@@ -54,7 +58,7 @@ select
     high_sleep_users,
     dau_over_100,
     tvl,
-    dex_volumes,
+    --dex_volumes,
     weekly_contracts_deployed,
     weekly_contract_deployers,
     stablecoin_total_supply,
@@ -77,9 +81,10 @@ select
     p2p_token_transfer_volume,
     p2p_transfer_volume,
     coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume,
-    coalesce(dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
+    coalesce(dune_dex_volumes_base.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
     bridge_volume,
-    bridge_daa
+    bridge_daa,
+    dune_dex_volumes_base.dex_volumes
 from fundamental_data
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join stablecoin_data on fundamental_data.date = stablecoin_data.date
@@ -90,4 +95,5 @@ left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
+left join base_dex_volumes as dune_dex_volumes_base on fundamental_data.date = dune_dex_volumes_base.date
 where fundamental_data.date < to_date(sysdate())

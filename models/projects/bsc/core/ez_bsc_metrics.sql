@@ -17,7 +17,11 @@ with
     github_data as ({{ get_github_metrics("Binance Smart Chain") }}),
     contract_data as ({{ get_contract_metrics("bsc") }}),
     nft_metrics as ({{ get_nft_metrics("bsc") }}),
-    rolling_metrics as ({{ get_rolling_active_address_metrics("bsc") }})
+    rolling_metrics as ({{ get_rolling_active_address_metrics("bsc") }}),
+    binance_dex_volumes as (
+        select date, daily_volume as dex_volumes
+        from {{ ref("fact_binance_daily_dex_volumes") }}
+    )
 select
     fundamental_data.date,
     fundamental_data.chain,
@@ -42,7 +46,7 @@ select
     market_cap,
     fdmc,
     tvl,
-    dex_volumes,
+    --dex_volumes,
     weekly_commits_core_ecosystem,
     weekly_commits_sub_ecosystem,
     weekly_developers_core_ecosystem,
@@ -64,7 +68,8 @@ select
     p2p_stablecoin_dau,
     p2p_stablecoin_mau,
     p2p_stablecoin_transfer_volume,
-    nft_trading_volume
+    nft_trading_volume,
+    dune_dex_volumes_binance.dex_volumes
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -73,4 +78,5 @@ left join github_data on fundamental_data.date = github_data.date
 left join contract_data on fundamental_data.date = contract_data.date
 left join nft_metrics on fundamental_data.date = nft_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
+left join binance_dex_volumes as dune_dex_volumes_binance on fundamental_data.date = dune_dex_volumes_binance.date
 where fundamental_data.date < to_date(sysdate())

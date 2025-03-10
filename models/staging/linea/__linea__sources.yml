@@ -7,3 +7,4 @@ sources:
       - name: raw_linea_traces_parquet
       - name: raw_linea_transactions_parquet
       - name: raw_linea_logs_parquet
+      - name: raw_linea_dex_volumes_daily
