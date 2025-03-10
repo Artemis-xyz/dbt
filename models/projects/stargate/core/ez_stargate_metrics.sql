@@ -99,6 +99,40 @@ first_seen AS (
         )
     }}
 )
+, total_stg_staked as (
+    select *
+    from {{ ref("fact_stargate_polygon_stg_balances") }}
+    where lower(address) = lower('0x3ab2da31bbd886a7edf68a6b60d3cde657d3a15d')
+    union all
+    select *
+    from {{ ref("fact_stargate_arbitrum_stg_balances") }}
+    where lower(address) = lower('0xfbd849e6007f9bc3cc2d6eb159c045b8dc660268')
+    union all
+    select *
+    from {{ ref("fact_stargate_avalanche_stg_balances") }}
+    where lower(address) = lower('0xca0f57d295bbce554da2c07b005b7d6565a58fce')
+    union all
+    select *
+    from {{ ref("fact_stargate_bsc_stg_balances") }}
+    where lower(address) = lower('0xD4888870C8686c748232719051b677791dBDa26D')
+    union all
+    select *
+    from {{ ref("fact_stargate_ethereum_stg_balances") }}
+    where lower(address) = lower('0x0e42acbd23faee03249daff896b78d7e79fbd58e')
+    union all
+    select *
+    from {{ ref("fact_stargate_optimism_stg_balances") }}
+    where lower(address) = lower('0x43d2761ed16c89a2c4342e2b16a3c61ccf88f05b')
+)
+, total_stg_staked_metrics as (
+    select
+        date
+        , sum(balance_native) as staked_native
+        , sum(balance_usd) as staked_usd
+    from total_stg_staked
+
+    group by date
+)
 , tvl_metrics as (
     select
         date
@@ -179,7 +213,9 @@ SELECT
     COALESCE(b.count_10K_100K, 0) AS TXN_SIZE_10K_100K,
     COALESCE(b.count_100K_plus, 0) AS TXN_SIZE_100K_PLUS,
     t.treasury_usd,
-    tvl_metrics.tvl
+    tvl_metrics.tvl,
+    ts.staked_native,
+    ts.staked_usd
 FROM daily_growth d
 LEFT JOIN new_addresses n ON d.transaction_date = n.transaction_date
 LEFT JOIN returning_addresses r ON d.transaction_date = r.transaction_date
@@ -188,5 +224,6 @@ LEFT JOIN monthly_metrics m ON d.transaction_date = DATE(m.month_start)
 LEFT JOIN transaction_bucket_counts b ON d.transaction_date = b.transaction_date
 LEFT JOIN treasury_metrics t ON d.transaction_date = t.date
 LEFT JOIN tvl_metrics ON d.transaction_date = tvl_metrics.date
+LEFT JOIN total_stg_staked_metrics ts ON d.transaction_date = ts.date
 where d.transaction_date < to_date(sysdate())
 ORDER BY d.transaction_date DESC

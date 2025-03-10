@@ -1,6 +1,0 @@
-coingecko_token_id,symbol,chain,contract_address,decimals
-ethereum,ETH,ethereum,eip155:1:native,18
-ethereum,ETH,arbitrum,eip155:42161:native,18
-ethereum,ETH,base,eip155:8453:native,18
-ethereum,ETH,optimism,eip155:10:native,18
-ethereum,ETH,sei,eip155:1329:native,18
