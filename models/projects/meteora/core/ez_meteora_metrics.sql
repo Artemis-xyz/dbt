@@ -25,14 +25,7 @@ with date_spine as (
         count(
             distinct concat(swap_to_symbol,'-',swap_from_symbol)
         ) as pairs_traded,
-        sum(coalesce(swap_to_amount_usd, swap_from_amount_usd)) as trading_volume --trading volume is calculated in usd
-
-        --First need to aggregate fee data to calculate fees: sum(fee_usd) as trading_fees,
-
-        --First need to aggregate fee data to calculate supply side (LP) fees: sum(supply_side_revenue_usd) as primary_supply_side_revenue,
-
-        --First need to aggregate fee data to calculate protocol fees (revenue): sum(revenue) as revenue
-
+        sum(coalesce(swap_to_amount_usd, swap_from_amount_usd)) as trading_volume 
     FROM {{ source('SOLANA_FLIPSIDE_DEFI', 'ez_dex_swaps') }}
     WHERE swap_program ilike '%meteora%'
     group by 1
@@ -43,7 +36,5 @@ select
     coalesce(swap_metrics.unique_traders, 0) as unique_swappers,
     coalesce(swap_metrics.number_of_swaps, 0) as number_of_swaps,
     coalesce(swap_metrics.trading_volume, 0) as trading_volume
-    --fees
-    --tvl
 from date_spine
 left join swap_metrics using(date)
