@@ -8,9 +8,9 @@ eip155:56,bsc
 eip155:8453,base
 eip155:42220,celo
 eip155:5000,mantle
-tron:mainnet,tron
+bip122:00000000000000001ebf88508a03865c,tron
 tvm:-239,ton
-solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp,solana
+solana:5eykt4usfv8p8njdtrepy1vzqkqzkvdp,solana
 sui:mainnet,sui
 eip155:1329,sei
 stellar:pubnet,stellar

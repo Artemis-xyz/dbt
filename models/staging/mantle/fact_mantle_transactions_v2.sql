@@ -17,7 +17,7 @@ with
             contract.artemis_application_id as app,
             contract.friendly_name
         from {{ ref("dim_all_addresses_labeled_gold") }} as contract
-        where chain = 'mantle' and is_token is null
+        where chain = 'mantle'
     ),
     prices as ({{ get_coingecko_price_with_latest("mantle") }})
 select
@@ -48,6 +48,8 @@ where
     lower(t.from_hex) <> lower('0xdeaddeaddeaddeaddeaddeaddeaddeaddead0001')
     {% if is_incremental() %}
         -- this filter will only be applied on an incremental run 
-        and block_time
+        and (block_time
         >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+        or 
+            new_contracts.address is not null)
     {% endif %}

@@ -11,8 +11,9 @@ WITH all_activity AS (
         m.purchaser AS wallet
     FROM 
         {{ ref('fact_filtered_metaplex_solana_nft_mints') }} AS m
+    WHERE LOWER(program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
     {% if is_incremental() %}
-        WHERE block_timestamp >= (SELECT MAX(date) FROM {{ this }})
+        and block_timestamp >= (SELECT MAX(date) FROM {{ this }})
     {% endif %}
 
     UNION ALL
@@ -23,8 +24,9 @@ WITH all_activity AS (
         seller AS wallet
     FROM 
         {{ ref('fact_metaplex_sales') }} AS s
+    WHERE LOWER(program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
     {% if is_incremental() %}
-        WHERE block_timestamp >= (SELECT MAX(date) FROM {{ this }})
+        and block_timestamp >= (SELECT MAX(date) FROM {{ this }})
     {% endif %}
     
     UNION ALL
@@ -35,8 +37,9 @@ WITH all_activity AS (
         purchaser AS wallet
     FROM 
         {{ ref('fact_metaplex_sales') }} AS s
+    WHERE LOWER(program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
     {% if is_incremental() %}
-        WHERE block_timestamp >= (SELECT MAX(date) FROM {{ this }})
+        and block_timestamp >= (SELECT MAX(date) FROM {{ this }})
     {% endif %}
 
     UNION ALL       
@@ -48,7 +51,7 @@ WITH all_activity AS (
     FROM 
         {{ source('SOLANA_FLIPSIDE', 'fact_transfers') }} AS t
     WHERE 
-        EXISTS (SELECT 1 FROM {{ ref('fact_metaplex_mints') }} AS m WHERE m.mint = t.mint)
+        EXISTS (SELECT 1 FROM {{ ref('fact_metaplex_mints') }} AS m WHERE m.mint = t.mint and LOWER(m.program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY'))
     {% if is_incremental() %}
         AND t.block_timestamp > (SELECT MAX(date) FROM {{ this }})
     {% endif %}
@@ -62,8 +65,9 @@ WITH all_activity AS (
     FROM 
         {{ ref('fact_filtered_metaplex_solana_events') }} AS fe,
         LATERAL FLATTEN(input => fe.signers) AS signer
+    WHERE LOWER(fe.program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
     {% if is_incremental() %}
-        WHERE fe.block_timestamp > (SELECT MAX(date) FROM {{ this }})
+        and fe.block_timestamp > (SELECT MAX(date) FROM {{ this }})
     {% endif %}
 
     UNION ALL
@@ -77,8 +81,9 @@ WITH all_activity AS (
     JOIN 
         {{ ref('fact_filtered_metaplex_solana_events') }} AS fe ON ft.tx_id = fe.tx_id,
         LATERAL FLATTEN(input => ft.signers) AS signer
+    WHERE LOWER(program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
     {% if is_incremental() %}
-        WHERE ft.block_timestamp > (SELECT MAX(date) FROM {{ this }})
+        and ft.block_timestamp > (SELECT MAX(date) FROM {{ this }})
     {% endif %}
 
     UNION ALL
@@ -92,6 +97,7 @@ WITH all_activity AS (
         LATERAL FLATTEN(input => di.decoded_instruction:accounts) AS account
     WHERE 
         account.value:name::TEXT IN ('leafOwner', 'payer', 'treeAuthority', 'leafDelegate', 'treeDelegate', 'collectionAuthority')
+        and LOWER(program_id) <> LOWER('BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY')
     {% if is_incremental() %}
         AND di.block_timestamp > (SELECT MAX(date) FROM {{ this }})
     {% endif %}

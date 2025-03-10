@@ -36,7 +36,7 @@ select
     , amount_received_native
     , amount_received_adjusted
     , amount_received
-    , tx_status
+    , tx_succeeded
 from combined_events
 left join {{ref("stargate_chain_ids")}} chain_ids on src_e_id = id
-where guid <> '0x0000000000000000000000000000000000000000000000000000000000000000' and tx_status = 'SUCCESS'
+where guid <> '0x0000000000000000000000000000000000000000000000000000000000000000' and tx_succeeded

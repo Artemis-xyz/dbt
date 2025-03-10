@@ -2,7 +2,7 @@
     config(
         materialized="table",
         unique_key=["tx_hash", "event_index"],
-        snowflake_warehouse="BRIDGE_MD",
+        snowflake_warehouse="ANALYTICS_XL",
     )
 }}
 
@@ -27,6 +27,7 @@ with
                 >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
 
             {% endif %}
+            and inserted_timestamp < to_date(sysdate())
     ),
 
     eth_withdraws as (
@@ -51,6 +52,7 @@ with
                 >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
 
             {% endif %}
+            and inserted_timestamp < to_date(sysdate())
     ),
 
     mainnet_gateways as (
@@ -60,6 +62,7 @@ with
         where
             contract_address = lower('0x72Ce9c846789fdB6fC1f34aC4AD25Dd9ef7031ef')
             and event_name = 'TransferRouted'
+            and inserted_timestamp < to_date(sysdate())
     ),
 
     erc20_deposits as (
@@ -103,6 +106,7 @@ with
                 >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
 
             {% endif %}
+            and inserted_timestamp < to_date(sysdate())
     ),
 
     arbitrum_one_gateways as (
@@ -112,6 +116,7 @@ with
         where
             contract_address = lower('0x5288c571fd7ad117bea99bf60fe0846c4e84f933')
             and event_name = 'TransferRouted'
+            and inserted_timestamp < to_date(sysdate())
     ),
 
     erc20_withdraws as (
@@ -155,6 +160,7 @@ with
                 >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
 
             {% endif %}
+            and inserted_timestamp < to_date(sysdate())
     )
 
 select *

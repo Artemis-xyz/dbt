@@ -38,9 +38,14 @@ with
         select date, daily_volume as dex_volumes
         from {{ ref("fact_avalanche_c_daily_dex_volumes") }}
     )
+    , date_spine as (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date between '2014-04-13' AND to_date(sysdate()) -- Dev data goes back to 2014
+    )
 
 select
-    coalesce(fundamental_data.date, staking_data.date) as date,
+    ds.date,
     coalesce(fundamental_data.chain, 'avalanche') as chain,
     txns,
     dau,
@@ -111,4 +116,4 @@ left join rolling_metrics on staking_data.date = rolling_metrics.date
 left join bridge_volume_metrics on staking_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on staking_data.date = bridge_daa_metrics.date
 left join avalanche_c_dex_volumes as dune_dex_volumes_avalanche_c on staking_data.date = dune_dex_volumes_avalanche_c.date
-where coalesce(fundamental_data.date, staking_data.date) < to_date(sysdate())
+where ds.date < to_date(sysdate())

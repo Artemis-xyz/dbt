@@ -12,7 +12,10 @@ select
     , amount as amount_asset
     , inflow
     , transfer_volume
-    , ca.chain_agnostic_id || ':' || replace(contract_address, '0x', '') as asset_id
+    , case 
+        when substr(ca.chain_agnostic_id, 0, 7) = 'eip155:' then lower(ca.chain_agnostic_id || ':' || replace(replace(contract_address, '0x', ''), '0:', '')) 
+        else ca.chain_agnostic_id || ':' || replace(replace(contract_address, '0x', ''), '0:', '') 
+    end as asset_id
     , symbol as asset_symbol
     , '{{chain}}' as chain_name
     , ca.chain_agnostic_id as chain_id
@@ -21,7 +24,7 @@ left join {{ ref("chain_agnostic_ids") }} ca
     on '{{chain}}' = ca.chain
 {% if is_incremental() %} 
     where block_timestamp >= (
-        select dateadd('day', -3, max(block_timestamp))
+        select dateadd('day', -3, max(transaction_timestamp))
         from {{ this }}
     )
 {% endif %}

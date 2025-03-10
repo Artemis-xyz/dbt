@@ -8,6 +8,7 @@ sources:
       - name: raw_gmx_unique_traders
       - name: raw_gmx_arbitrum_index_token_metadata
       - name: raw_gmx_avalanche_index_token_metadata
+      - name: raw_gmx_fees_and_volume
 
   - name: AVALANCHE_FLIPSIDE
     schema: core

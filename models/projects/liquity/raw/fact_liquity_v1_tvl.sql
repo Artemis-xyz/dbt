@@ -20,7 +20,7 @@ WITH traces AS (
     FROM
         ethereum_flipside.core.fact_traces
     WHERE 1=1
-        AND tx_status = 'SUCCESS'
+        AND tx_succeeded = true
         AND (
             to_address = lower('0xdf9eb223bafbe5c5271415c75aecd68c21fe3d7f')
             OR from_address = lower('0xdf9eb223bafbe5c5271415c75aecd68c21fe3d7f')

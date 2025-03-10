@@ -17,7 +17,7 @@ with
             contract.artemis_application_id as app,
             contract.friendly_name
         from {{ ref("dim_all_addresses_labeled_gold") }} as contract
-        where chain = 'polygon' and is_token is null
+        where chain = 'polygon'
     ),
     prices as (
         select date as date, shifted_token_price_usd as price
@@ -80,4 +80,7 @@ left join balances as bal on t.from_address = bal.address and raw_date = bal.dat
     where
         block_timestamp
         >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+
+        or 
+        new_contracts.address is not null
 {% endif %}

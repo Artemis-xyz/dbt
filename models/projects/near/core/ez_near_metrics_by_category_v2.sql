@@ -1,4 +1,4 @@
--- depends_on: {{ ref("ez_near_transactions") }}
+-- depends_on: {{ ref("ez_near_transactions_v2") }}
 {{
     config(
         materialized="table",

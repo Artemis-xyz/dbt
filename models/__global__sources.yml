@@ -33,12 +33,15 @@ sources:
     database: ethereum_flipside
     tables:
       - name: ez_native_transfers
+      - name: fact_token_transfers
       - name: ez_decoded_event_logs
       - name: fact_event_logs
       - name: fact_blocks
       - name: fact_decoded_event_logs
+      - name: fact_decoded_traces
       - name: ez_token_transfers
       - name: ez_decoded_traces
+      - name: dim_contracts
   
 
   - name: ETHEREUM_FLIPSIDE_PRICE
