@@ -53,5 +53,6 @@ from
             ('fxUSD', '0x085780639cc2cacd35e474e71f4d000e2405d8f6', 18, 'f-x-protocol-fxusd', 0),
             ('EURT', '0xc581b735a1688071a1746c968e0798d642ede491', 6, 'tether-eurt', 0),
             ('AEUR', '0xA40640458FBc27b6EefEdeA1E9C9E17d4ceE7a21', 18, 'anchored-coins-eur', 0),
-            ('LUSD', '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0', 18, 'liquity-usd', 0)
+            ('LUSD', '0x5f98805A4E8be255a32880FDeC7F6728C6568bA0', 18, 'liquity-usd', 0),
+            ('BOLD', '0xb01dd87B29d187F3E3a4Bf6cdAebfb97F3D9aB98', 18, 'liquity-bold', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
