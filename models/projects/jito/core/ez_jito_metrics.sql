@@ -27,7 +27,7 @@ with
     , jito_tvl as (
         SELECT
             date
-            , sum(amount_usd) as tvl
+            , sum(usd_balance) as tvl
         FROM {{ ref('fact_jitosol_tvl') }}
         GROUP BY 1
     )
