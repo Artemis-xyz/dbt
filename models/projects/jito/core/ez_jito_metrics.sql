@@ -10,7 +10,7 @@
 with 
     jito_mgmt_withdraw_fees as (
         SELECT 
-            day as date
+            date
             , withdraw_management_fees
         FROM {{ ref('fact_jito_mgmt_withdraw_fees') }}
     )

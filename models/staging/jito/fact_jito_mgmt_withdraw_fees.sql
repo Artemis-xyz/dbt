@@ -1,7 +1,8 @@
 {{
     config(
         materialized="incremental",
-        snowflake_warehouse="MEDIUM"
+        snowflake_warehouse="JITO",
+        unique_key=["date", "mint"]
     )
 }}
 
