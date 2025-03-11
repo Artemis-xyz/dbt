@@ -8,8 +8,8 @@
         , contract_address
         , topic_0 as topic_zero
         , topics
-        , concat(coalesce(substring(topic_1, 3), ''), coalesce(substring(topic_2, 3), ''), coalesce(substring(topic_3, 3),'')) as topic_data
-        , SUBSTRING(data, 3) as data
+        , nullif(concat(coalesce(substring(topic_1, 3), ''), coalesce(substring(topic_2, 3), ''), coalesce(substring(topic_3, 3),'')), '') as topic_data
+        , data
     from {{ chain }}_flipside.core.fact_event_logs 
     left join {{ chain }}_flipside.core.fact_transactions using (tx_hash)
     {% if is_incremental() %}
