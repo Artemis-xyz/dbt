@@ -18,3 +18,11 @@
 - [ ] Added clear asset and metric documentation to CAD
 - [ ] Added metric definitions to Terminal (if applicable)
 - [ ] Added references to metric sources to CAD
+
+## 📚 Testing Checklist
+
+- [ ] Add any relevant data screenshots below
+
+## Other
+
+- [ ] Any other relevant information that may be helpful
