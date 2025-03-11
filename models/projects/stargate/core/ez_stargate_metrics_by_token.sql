@@ -29,7 +29,7 @@ treasury_models as (
 , treasury_metrics as (
     select
         date
-        , case when lower(symbol) = 'weth' then 'ETH' else upper(symbol) end as symbol
+        , case when lower(symbol) = 'weth' then 'ETH' else upper(symbol) end as token
         , sum(balance_usd) as treasury_usd
     from treasury_models
     inner join {{ ref("dim_coingecko_token_map")}} using (contract_address, chain)
@@ -37,6 +37,9 @@ treasury_models as (
     group by date, symbol
 )
 
-select *
+select 
+    date
+    , token
+    , round(treasury_usd, 3) as treasury_usd
 from treasury_metrics
 where date < to_date(sysdate())
