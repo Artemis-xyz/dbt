@@ -15,4 +15,6 @@
 
 ## 📚 Documentation Checklist
 
-- [ ] Added clear asset and metric documentation to central asset depository and terminal
+- [ ] Added clear asset and metric documentation to CAD
+- [ ] Added metric definitions to Terminal (if applicable)
+- [ ] Added references to metric sources to CAD
