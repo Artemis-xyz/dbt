@@ -16,14 +16,24 @@ select
     , tx_hash
     , from_address
     , to_address
-    , lower(to_address) in (
-        select distinct (lower(premint_address))
-        from {{ ref("fact_sui_stablecoin_premint_addresses") }}
-    ) as is_burn
-    , lower(from_address) in (
-        select distinct (lower(premint_address))
-        from {{ ref("fact_sui_stablecoin_premint_addresses") }}
-    ) as is_mint
+    , case 
+        when lower(to_address) in (
+            select distinct (lower(premint_address))
+            from {{ ref("fact_sui_stablecoin_premint_addresses") }}
+        )
+        or from_address = '0x0000000000000000000000000000000000000000000000000000000000000000' 
+        then TRUE 
+        else FALSE 
+    end as is_burn
+    , case 
+        when lower(from_address) in (
+            select distinct (lower(premint_address))
+            from {{ ref("fact_sui_stablecoin_premint_addresses") }}
+        ) 
+        or to_address = '0x0000000000000000000000000000000000000000000000000000000000000000'
+        then TRUE 
+        else FALSE 
+    end as is_mint
     , coalesce(amount / pow(10, num_decimals), 0) as amount
     , case
         when is_mint then amount / pow(10, num_decimals) when is_burn then -1 * amount / pow(10, num_decimals) else 0
