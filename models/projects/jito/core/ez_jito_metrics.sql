@@ -40,14 +40,14 @@ with
 
 SELECT 
     date
-    , withdraw_management_fees
-    , tip_fees
-    , withdraw_management_fees + tip_fees as fees
-    , tip_revenue + tip_fees as revenue
-    , tip_supply_side_fees as supply_side_fees
-    , tip_txns as txns
-    , tip_dau as dau
-    , tvl
+    , coalesce(withdraw_management_fees, 0) as withdraw_management_fees
+    , coalesce(tip_fees, 0) as tip_fees
+    , coalesce(withdraw_management_fees, 0) + coalesce(tip_fees, 0) as fees
+    , coalesce(tip_revenue, 0) + coalesce(tip_fees, 0) as revenue
+    , coalesce(tip_supply_side_fees, 0) as supply_side_fees
+    , coalesce(tip_txns, 0) as txns
+    , coalesce(tip_dau, 0) as dau
+    , coalesce(tvl, 0) as tvl
 FROM date_spine ds
 LEFT JOIN jito_mgmt_withdraw_fees using (date)
 LEFT JOIN jito_dau_txns_fees using (date)
