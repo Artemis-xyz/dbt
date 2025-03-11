@@ -1,19 +1,16 @@
-{% macro get_treasury_balance(chain, addresses, earliest_date, blacklist=(''))%}
--- Returns the balance of a set of addresses (belonging to an entity such as a treasury) on a given chain aggregated by date and token
+-- Improved version of get_treasury_balance that takes a table name as input instead of a list of addresses
+-- This is useful for getting the historical balance of an entity, like a DAO Treasury, the TVL of a protocol, etc. where there are multiple
+-- addresses attributed to the entity.
 
-{% if addresses is iterable and not addresses is string %}
-    {% set addresses = addresses | map('lower') | list %}
-{% else %}
-    {% set addresses = addresses | lower %}
-{% endif %}
+{% macro get_entity_historical_balance(chain, table_name, address_column, earliest_date, blacklist=(''))%}
 
 WITH dates AS (
     SELECT
-        DISTINCT DATE(hour) AS date
+        date
     FROM
-        {{ chain }}_flipside.price.ez_prices_hourly
+        {{ref('dim_date_spine')}}
     WHERE
-        hour > date('{{earliest_date}}')
+        date between '{{earliest_date}}' and to_date(sysdate())
 )
 , sparse_balances AS (
     SELECT
@@ -34,11 +31,7 @@ WITH dates AS (
         {{ref('fact_' ~ chain ~ '_address_balances_by_token')}} b
         LEFT JOIN {{ chain }}_flipside.price.ez_asset_metadata t on t.token_address = b.contract_address
     WHERE 1=1
-        {% if addresses is string %}
-            AND LOWER(address) = '{{ addresses }}'
-        {% elif addresses | length > 1 %}
-            AND LOWER(address) IN ( '{{ addresses | join("', '") }}' )
-        {% endif %}
+        AND LOWER(address) IN (SELECT distinct lower({{address_column}}) FROM {{ref(table_name)}})
         {% if blacklist is string %} and lower(contract_address) != lower('{{ blacklist }}')
         {% elif blacklist | length > 1 %} and contract_address not in {{ blacklist }} --make sure you pass in lower
         {% endif %}
@@ -51,20 +44,12 @@ WITH dates AS (
 , full_balances AS (
     SELECT
         d.date,
-        {% if addresses is string %}
-        '{{ addresses }}' AS user_address,
-        {% else %}
-        ta.address AS user_address,
-        {% endif %}
+        ta.address as user_address,
         t.token_address AS contract_address,
         COALESCE(
             LAST_VALUE(sb.balance_daily) IGNORE NULLS OVER (
                 PARTITION BY 
-                {% if addresses is string %}
-                '{{ addresses }}'
-                {% else %}
-                ta.address
-                {% endif %},
+                ta.address,
                 t.token_address
                 ORDER BY
                     d.date ROWS BETWEEN UNBOUNDED PRECEDING
@@ -74,24 +59,10 @@ WITH dates AS (
         ) AS balance_daily
     FROM
         dates d
-        {% if addresses is string %}
-            CROSS JOIN (SELECT '{{ addresses }}' AS address) ta
-        {% else %}
-            CROSS JOIN (
-                SELECT '{{ addresses[0] }}' AS address
-                {% for addr in addresses[1:] %}
-                UNION ALL SELECT '{{ addr }}'
-                {% endfor %}
-            ) ta
-        {% endif %}
+        CROSS JOIN (SELECT distinct(lower({{address_column}})) as address FROM {{ref(table_name)}}) ta
         CROSS JOIN (SELECT distinct(contract_address) as token_address FROM sparse_balances) t
         LEFT JOIN sparse_balances sb ON d.date = sb.date
-        AND
-        {% if addresses is string %}
-            '{{ addresses }}' = sb.user_address
-        {% else %}
-            ta.address = sb.user_address
-        {% endif %}
+        AND ta.address = sb.user_address
         AND t.token_address = sb.contract_address
 )
 , full_table as (
