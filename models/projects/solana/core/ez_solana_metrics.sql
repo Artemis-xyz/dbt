@@ -159,7 +159,6 @@ select
     market_cap,
     fdmc,
     tvl,
-    --dex_volumes,
     -- NOTE: txns only contains non-votes, votes can only be referenced explicitly in
     -- fact_votes_agg_block
     txns,
