@@ -48,7 +48,6 @@ select
     , wasm_avg_tps as wasm_avg_tps
     , 0 as wasm_revenue
     , tvl
-    --, dex_volumes
     , price
     , market_cap
     , evm_new_users
