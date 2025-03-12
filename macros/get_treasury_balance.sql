@@ -27,7 +27,7 @@ WITH dates AS (
         case
             when contract_address = 'native_token' 
                 then 0
-            else b.decimals
+            else t.decimals
         end as decimals_adj,
         MAX_BY({%if chain == 'solana' %}amount{% else %}balance_token{% endif %} / pow(10, coalesce(decimals_adj,18)), block_timestamp) AS balance_daily
     FROM
