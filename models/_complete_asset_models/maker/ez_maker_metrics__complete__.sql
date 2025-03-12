@@ -1094,7 +1094,7 @@ FROM rwa_yield_preunioned
 with raw as (
 SELECT
     trace_index,
-    identifier,
+    trace_address,
     block_timestamp,
     tx_hash,
     SUBSTR(input, 11) as raw_input_data
@@ -1129,7 +1129,7 @@ FROM __dbt__cte__fact_dssvesttransferrable_create
 with raw as (
 SELECT
     trace_index,
-    identifier,
+    trace_address,
     block_timestamp,
     tx_hash,
     SUBSTR(input, 11) as raw_input_data

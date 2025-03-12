@@ -2,7 +2,7 @@
     config(
         materialized='incremental',
         unique_key='day',
-        snowflake_warehouse='jito'
+        snowflake_warehouse='JITO'
     )
 }}
 with prices as (
@@ -16,11 +16,11 @@ with prices as (
 
 SELECT 
     date_trunc('day', t.block_timestamp) as day
-    , sum(t.amount * p.price) as fees
-    , sum(t.amount * p.price) * 0.05 as revenue
-    , sum(t.amount * p.price) * 0.95 as supply_side_fees
-    , count(*) as txns
-    , count(distinct t.tx_from) as dau
+    , sum(t.amount * p.price) as tip_fees
+    , sum(t.amount * p.price) * 0.05 as tip_revenue
+    , sum(t.amount * p.price) * 0.95 as tip_supply_side_fees
+    , count(*) as tip_txns
+    , count(distinct t.tx_from) as tip_dau
 FROM {{ source('SOLANA_FLIPSIDE', 'fact_transfers') }} t
 LEFT JOIN prices p on p.date = date_trunc('day',t.block_timestamp)
 WHERE tx_to IN ('96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5' -- all the tip payment accounts from: https://jito-foundation.gitbook.io/mev/mev-payment-and-distribution/on-chain-addresses#mainnet

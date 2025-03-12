@@ -71,6 +71,10 @@ where
     and lower(to_address) <> lower('0x00000000000000000000000000000000000a4b05')
     {% if is_incremental() %}
         -- this filter will only be applied on an incremental run 
-        and block_timestamp
+        and 
+        (block_timestamp
         >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+
+        or 
+        new_contracts.address is not null)
     {% endif %}

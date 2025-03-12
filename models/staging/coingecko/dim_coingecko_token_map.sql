@@ -16,6 +16,7 @@ select
         when f.key::string = 'optimistic-ethereum' then 'optimism'
         when f.key::string = 'polygon-pos' then 'polygon'
         when f.key::string = 'sei-v2' then 'sei'
+        when f.key::string = 'world-chain' then 'worldchain'
         else f.key::string
     end AS chain,
     f.value:contract_address::string AS contract_address,
@@ -29,4 +30,4 @@ where extraction_date = (select max_date from max_extraction) and (
 )
 union all
 select null as json, coingecko_token_id, symbol, chain, contract_address, decimals
-from {{ ref("native_tokens_seed") }}
+from {{ ref("manually_added_tokens_seed") }}

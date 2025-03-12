@@ -96,7 +96,7 @@ with
             sum(
                 case when index = 0 then (array_size(signers) * (5000 / 1e9)) else 0 end
             ) as base_fee_native,
-            count_if(index = 0 and succeeded = 'TRUE') as txns,
+            count_if(index = 0) as txns,
             count(distinct(case when succeeded = 'TRUE' then value else null end)) dau
         from {{ ref("ez_solana_transactions") }}, lateral flatten(input => signers)
         {% if is_incremental() %}
@@ -149,8 +149,8 @@ select
     vote_tx_fee_usd + gas_usd as fees,
     gas_usd / txns as avg_txn_fee,
     median_txn_fee,
-    IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, base_fee_native) as revenue_native,
-    IFF(fundamental_usage.date < '2025-02-13', fees * .5, base_fee) as revenue,
+    IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as revenue_native,
+    IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee + vote_tx_fee_usd) * .5) as revenue,
     price,
     market_cap,
     fdmc,

@@ -39,4 +39,6 @@ where
     -- this filter will only be applied on an incremental run 
     inserted_timestamp
     >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
+    or 
+    app is not null
 {% endif %}

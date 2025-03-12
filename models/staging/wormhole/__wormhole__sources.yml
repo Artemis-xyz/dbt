@@ -1,6 +1,7 @@
 sources:
   - name: PROD_LANDING
-    schema: PROD_LANDING  
+    schema: PROD_LANDING
     database: LANDING_DATABASE
-    tables: 
-    - name: raw_wormhole_transactions
+    tables:
+      - name: raw_wormhole_transactions
+      - name: raw_wormhole_operations

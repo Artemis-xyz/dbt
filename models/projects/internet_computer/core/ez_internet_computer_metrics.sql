@@ -18,6 +18,7 @@ with
 select
     coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_total_canister_state.date, icp_neuron_funds.date, icp_blocks.date) as date
     , total_transactions
+    , update_txns
     , icp_txns
     , dau
     , txns

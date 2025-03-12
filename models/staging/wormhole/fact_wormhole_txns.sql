@@ -2,10 +2,10 @@
 
 
 select
-    date(timestamp) as date,
+    date(src_timestamp) as date,
     count(distinct(id)) as txns
 from
-    {{ ref("fact_wormhole_transfers") }}
+    {{ ref("fact_wormhole_operations_with_price") }}
 group by
     1
 order by

@@ -48,6 +48,8 @@ where
     lower(t.from_hex) <> lower('0xdeaddeaddeaddeaddeaddeaddeaddeaddead0001')
     {% if is_incremental() %}
         -- this filter will only be applied on an incremental run 
-        and block_time
+        and (block_time
         >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+        or 
+            new_contracts.address is not null)
     {% endif %}

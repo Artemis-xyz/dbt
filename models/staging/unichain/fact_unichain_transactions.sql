@@ -87,3 +87,4 @@ with
 )
 select *
 from raw_receipt_transactions
+qualify row_number() over (partition by transaction_hash order by block_timestamp desc) = 1

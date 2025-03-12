@@ -14,7 +14,6 @@ select
     block_number,
     block_timestamp,
     block_burn,
-    block_header_json,
     builder_name,
     'ethereum' as chain,
     censors,

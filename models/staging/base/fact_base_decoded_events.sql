@@ -1,3 +1,3 @@
 {{ config(snowflake_warehouse="ETHEREUM_LG", materialized="incremental") }}
 
-{{ decode_goldsky_events('base') }}
+{{ decode_artemis_events('base') }}

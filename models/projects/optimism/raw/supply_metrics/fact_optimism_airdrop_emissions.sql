@@ -1,0 +1,42 @@
+{{
+    config(
+        materialized="table",
+        snowflake_warehouse="OPTIMISM",
+        database="optimism",
+        schema="raw",
+        alias="fact_optimism_airdrop_emissions",
+    )
+}}
+
+SELECT * FROM (VALUES
+    (
+        '2022-05-31',
+        'Airdrop',
+        214748364,
+        'https://community.optimism.io/op-token/airdrops/airdrop-1'
+    ),
+    (
+        '2023-02-09',
+        'Airdrop',
+        11742277,
+        'https://community.optimism.io/op-token/airdrops/airdrop-2'
+    ),
+    (
+        '2023-09-18',
+        'Airdrop',
+        19411313,
+        'https://community.optimism.io/op-token/airdrops/airdrop-3'
+    ),
+    (
+        '2024-02-20',
+        'Airdrop',
+        10343758,
+        'https://community.optimism.io/op-token/airdrops/airdrop-4'
+    ),
+    (
+        '2024-10-09',
+        'Airdrop',
+        10400000,
+        'https://community.optimism.io/op-token/airdrops/airdrop-5'
+    )
+) AS t (date, event_type, amount, source)
