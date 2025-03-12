@@ -5,7 +5,7 @@ select
     from_address as address,
     contract_address,
     block_timestamp,
-    cast(amount * -1 as float) as debit,
+    cast(amount_native * -1 as float) as debit,
     null as debit_usd,
     tx_hash,
     null as trace_index,
