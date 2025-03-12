@@ -6,7 +6,8 @@ with
 select
     left(value:date, 10)::date as date,
     value:mint_address::string as mint_address,
-    value:accumulated_fees::number as accumulated_fees
+    value:accumulated_fees::number as accumulated_fees,
+    value:reserve_pubkey::string as reserve_pubkey
 from
     {{ source("PROD_LANDING", "raw_kamino_accumulated_fees") }},
     lateral flatten(input => parse_json(source_json))
