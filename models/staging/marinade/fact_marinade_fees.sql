@@ -1,6 +1,6 @@
 {{ config(
     materialized="table",
-    snowflake_warehouse="MEDIUM"
+    snowflake_warehouse="MARINADE"
 ) }}
 
 with claim_events as (

@@ -47,7 +47,7 @@ fees as (
 circulating_supply as (
     select
         date
-        , remaining_balance as circulating_supply
+        , circulating_supply
     from {{ ref("fact_marinade_circulating_supply") }}
 ),
 price as (
