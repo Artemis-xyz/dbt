@@ -15,5 +15,5 @@ select
     null as fee_usd
 from
     {{ ref("fact_across_transfers_with_price") }}
-WHERE amount_usd < 100000000
+WHERE amount_usd < 100000000 and amount_usd is not null
 group by date, source_chain, destination_chain, category

@@ -6,7 +6,7 @@ select
     to_address as address,
     contract_address,
     block_timestamp,
-    cast(amount as float) as credit,
+    cast(amount_native as float) as credit,
     null as credit_usd,
     transaction_hash as tx_hash,
     null as trace_index,
