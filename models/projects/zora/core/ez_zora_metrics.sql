@@ -50,7 +50,6 @@ select
     , l1_data_cost
     , l1_data_cost_native
     , tvl
-    --, dex_volumes
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
