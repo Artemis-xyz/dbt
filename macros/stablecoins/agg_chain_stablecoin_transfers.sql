@@ -259,12 +259,12 @@
                     from {{ ref("fact_"~chain~"_stablecoin_premint_addresses") }}
                 )
             as is_burn,
-            amount / pow(10, num_decimals) as amount,
+            amount_raw / pow(10, num_decimals) as amount,
             case
-                when is_mint then amount / pow(10, num_decimals) when is_burn then -1 * amount / pow(10, num_decimals) else 0
+                when is_mint then amount_raw / pow(10, num_decimals) when is_burn then -1 * amount_raw / pow(10, num_decimals) else 0
             end as inflow,
             case
-                when not is_mint and not is_burn then amount / pow(10, num_decimals) else 0
+                when not is_mint and not is_burn then amount_raw / pow(10, num_decimals) else 0
             end as transfer_volume,
             t1.contract_address,
             contracts.symbol
@@ -287,12 +287,12 @@
             , to_address
             , from_address = '0x0000000000000000000000000000000000000000' as is_mint
             , to_address = '0x0000000000000000000000000000000000000000' as is_burn
-            , amount / pow(10, num_decimals) as amount
+            , amount_raw / pow(10, num_decimals) as amount
             , case
-                when is_mint then amount / pow(10, num_decimals) when is_burn then -1 * amount / pow(10, num_decimals) else 0
+                when is_mint then amount_raw / pow(10, num_decimals) when is_burn then -1 * amount_raw / pow(10, num_decimals) else 0
             end as inflow
             , case
-                when not is_mint and not is_burn then amount / pow(10, num_decimals) else 0
+                when not is_mint and not is_burn then amount_raw / pow(10, num_decimals) else 0
             end as transfer_volume
             , t1.contract_address
             , contracts.symbol
