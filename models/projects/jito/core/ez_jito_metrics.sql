@@ -28,6 +28,7 @@ with
         SELECT
             date
             , sum(usd_balance) as tvl
+            , tvl - lag(tvl) over (order by date) as tvl_change
         FROM {{ ref('fact_jitosol_tvl') }}
         GROUP BY 1
     )
@@ -48,6 +49,8 @@ SELECT
     , coalesce(tip_txns, 0) as txns
     , coalesce(tip_dau, 0) as dau
     , coalesce(tvl, 0) as tvl
+    , coalesce(tvl, 0) as amount_staked_usd
+    , coalesce(tvl_change, 0) as amount_staked_usd_net_change
 FROM date_spine ds
 LEFT JOIN jito_mgmt_withdraw_fees using (date)
 LEFT JOIN jito_dau_txns_fees using (date)
