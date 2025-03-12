@@ -40,6 +40,6 @@ treasury_models as (
 select 
     date
     , token
-    , round(treasury_usd, 3) as treasury_usd
+    , treasury_usd
 from treasury_metrics
-where date < to_date(sysdate())
+where date < to_date(sysdate()) and treasury_usd > 1000
