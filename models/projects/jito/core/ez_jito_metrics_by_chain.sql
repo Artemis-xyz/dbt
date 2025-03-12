@@ -18,5 +18,7 @@ SELECT
     supply_side_fees,
     txns,
     dau,
-    tvl
+    tvl,
+    amount_staked_usd,
+    amount_staked_usd_net_change
 FROM {{ ref('ez_jito_metrics') }}
