@@ -50,7 +50,6 @@ select
     , coalesce(fees, 0) - l1_data_cost as revenue
     , avg_txn_fee
     , tvl
-    --, dex_volumes
     , treasury_data.treasury_value_native
     , treasury_data.treasury_value_native_change
     , weekly_commits_core_ecosystem
