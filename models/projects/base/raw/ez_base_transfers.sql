@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key=["tx_hash", "index"],
-        snowflake_warehouse="BASE",
+        snowflake_warehouse="ETHEREUM_LG",
         database="base",
         schema="raw",
         alias="ez_transfers",
@@ -67,7 +67,7 @@ token_transfers as (
             '-', CASE WHEN event_index = -1 THEN 'FFFFFFFF' ELSE LPAD(event_index::TEXT, 8, '0') END
         ) AS index
     from base_flipside.core.ez_token_transfers t
-    inner join {{ref('fact_base_stablecoin_contracts')}} c using(contract_address)
+    inner join {{ref('fact_base_stablecoin_contracts')}} c on lower(t.contract_address) = lower(c.contract_address)
     left join base_flipside.core.fact_transactions txn using(tx_hash)
     {% if is_incremental() %}
         where block_timestamp >= (

@@ -275,7 +275,6 @@
                 select lower(contract_address)
                 from {{ref("fact_" ~chain~ "_stablecoin_contracts")}}
             )
-            and tx_status = 1
     {% elif chain in ("mantle") %}
         select
             block_timestamp
