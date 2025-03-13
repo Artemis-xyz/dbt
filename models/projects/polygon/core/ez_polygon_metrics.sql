@@ -40,6 +40,10 @@ with
     bridge_daa_metrics as (
         select date, bridge_daa
         from {{ ref("fact_polygon_pos_bridge_bridge_daa") }}
+    ),
+    polygon_dex_volumes as (
+        select date, daily_volume as dex_volumes
+        from {{ ref("fact_polygon_daily_dex_volumes") }}
     )
 
 select
@@ -68,7 +72,6 @@ select
     market_cap,
     fdmc,
     tvl,
-    dex_volumes,
     weekly_commits_core_ecosystem,
     weekly_commits_sub_ecosystem,
     weekly_developers_core_ecosystem,
@@ -95,9 +98,10 @@ select
     p2p_token_transfer_volume,
     p2p_transfer_volume,
     coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume,
-    coalesce(dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
+    coalesce(dune_dex_volumes_polygon.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
     bridge_volume,
-    bridge_daa
+    bridge_daa,
+    dune_dex_volumes_polygon.dex_volumes
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -111,4 +115,5 @@ left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join l1_cost_data on fundamental_data.date = l1_cost_data.date
 left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
+left join polygon_dex_volumes as dune_dex_volumes_polygon on fundamental_data.date = dune_dex_volumes_polygon.date
 where fundamental_data.date < to_date(sysdate())

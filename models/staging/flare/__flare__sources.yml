@@ -8,3 +8,4 @@ sources:
       - name: raw_flare_gas_used
       - name: raw_flare_avg_gas_price
       - name: raw_flare_dau
+      - name: raw_flare_dex_volumes_daily

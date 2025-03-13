@@ -9,7 +9,11 @@
 }}
 
 with 
-     price_data as ({{ get_coingecko_metrics('berachain-bera') }})
+     price_data as ({{ get_coingecko_metrics('berachain-bera') }}),
+     dex_volumes as (
+        select date, daily_volume as dex_volumes
+        from {{ ref("fact_berachain_daily_dex_volumes") }}
+     )
 select
     f.date
     , txns
@@ -22,7 +26,9 @@ select
     , fdmc
     , token_turnover_circulating
     , token_turnover_fdv
-    token_volume
+    , token_volume
+    , dex_volumes
 from {{ ref("fact_berachain_fundamental_metrics") }} as f
 left join price_data on f.date = price_data.date
+left join dex_volumes on f.date = dex_volumes.date
 where f.date  < to_date(sysdate())
