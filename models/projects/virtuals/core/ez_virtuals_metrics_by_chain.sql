@@ -14,7 +14,7 @@ select
     daily_agents,
     dau,
     volume_native,
-    volume_usd,
+    volume_usd as trading_volume,
     fee_fun_native,
     fee_fun_usd,
     tax_usd,
