@@ -35,7 +35,9 @@ with all_transfers as(
 select
   date(a.block_timestamp) as date,
   sum(amount*price) as fees,
-  sum(amount*price) / 0.002 as volume, -- we can back into volume since Jupiter Limit Order do charge a platform fees of 0.2% on taker.
+  -- we can back into volume since Jupiter Limit Order do charge a platform fees of 0.1% on taker. 
+  -- https://station.jup.ag/guides/limit-order/limit-order
+  sum(amount*price) / 0.001 as volume,
   count(distinct tx_id) as txns
 from all_transfers a
 WHERE
