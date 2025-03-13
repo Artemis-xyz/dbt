@@ -8,15 +8,22 @@
     )
 }}
 
+with date_spine as (
+    select date
+    from {{ ref("dim_date_spine") }}
+    where date between '2024-09-10' and to_date(sysdate())
+),
+volume as (
+    select
+        date,
+        volume_native,
+        volume_usd as trading_volume
+    from {{ ref("fact_virtuals_volume") }}
+)
 select
-    date,
+    ds.date,
     'base' as chain,
-    daily_agents,
-    dau,
-    volume_native,
-    volume_usd as trading_volume,
-    fee_fun_native,
-    fee_fun_usd,
-    tax_usd,
-    fees
-from {{ ref('ez_virtuals_metrics') }}
+    v.volume_native,
+    v.trading_volume
+from volume v
+left join date_spine ds on v.date = ds.date
