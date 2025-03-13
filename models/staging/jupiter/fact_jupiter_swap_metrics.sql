@@ -19,7 +19,7 @@ SELECT
     sum(fee_amount_usd) as swap_fees, -- includes ultra and referral fees
     sum(coalesce(token_in_amount_usd, token_out_amount_usd)) as volume
 FROM
-    pc_dbt_db.prod.fact_jupiter_swap_txs
+    {{ ref('fact_jupiter_swap_txs') }}
 WHERE 1=1
     AND fee_amount_usd is not null
     AND ABS(COALESCE(log(10, nullif(token_in_amount_usd,0) / nullif(token_out_amount_usd,0)),0)) < 2 -- This filters a few key bad data points
