@@ -86,7 +86,7 @@ select
     || '-'
     || destination_chain
     || '-'
-    || category as unique_id
+    || coalesce(category, 'Not Categorized') unique_id
 from unioned
 where date < to_date(sysdate())
     and source_chain != destination_chain
