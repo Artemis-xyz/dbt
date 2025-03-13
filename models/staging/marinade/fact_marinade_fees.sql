@@ -1,6 +1,7 @@
 {{ config(
-    materialized="table",
-    snowflake_warehouse="MARINADE"
+    materialized="incremental",
+    snowflake_warehouse="MARINADE",
+    unique_key="date"
 ) }}
 
 with claim_events as (
