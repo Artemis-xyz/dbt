@@ -17,8 +17,14 @@ with prices as (
 SELECT 
     date_trunc('day', t.block_timestamp) as day
     , sum(t.amount * p.price) as tip_fees
-    , sum(t.amount * p.price) * 0.05 as tip_revenue
-    , sum(t.amount * p.price) * 0.95 as tip_supply_side_fees
+    , sum(CASE WHEN t.block_timestamp < '2025-03-07'
+        THEN t.amount * p.price * 0.05
+        ELSE t.amount * p.price * 0.057 -- 2.7% to DAO + 3% to Jito
+    END) as tip_revenue
+    , sum(CASE WHEN t.block_timestamp < '2025-03-07'
+        THEN t.amount * p.price
+        ELSE t.amount * p.price * 0.943 -- 94% to validators + 0.3% to SOL/JTO vault operators
+    END) as tip_supply_side_fees
     , count(*) as tip_txns
     , count(distinct t.tx_from) as tip_dau
 FROM {{ source('SOLANA_FLIPSIDE', 'fact_transfers') }} t
@@ -33,7 +39,7 @@ WHERE tx_to IN ('96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5' -- all the tip pa
                 ,'3AVi9Tg9Uo68tJfuvoKvqKNWKkC5wPdSSdeBnizKZ6jT')
 and t.mint = 'So11111111111111111111111111111111111111111'
 {% if is_incremental() %}
-    AND block_timestamp > (select dateadd('day', -1, max(day)) from {{ this }})
+    AND block_timestamp > (select dateadd('day', -6, max(day)) from {{ this }})
 {% endif %}
 group by 1
 order by 1 desc
