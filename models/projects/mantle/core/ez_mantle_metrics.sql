@@ -27,6 +27,7 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle") }})
 , github_data as ({{ get_github_metrics("mantle") }})
 , rolling_metrics as ({{ get_rolling_active_address_metrics("mantle") }})
 , defillama_data as ({{ get_defillama_metrics("mantle") }})
+, stablecoin_data as ({{ get_stablecoin_metrics("mantle") }})
 , price_data as ({{ get_coingecko_metrics("mantle") }})
 , mantle_dex_volumes as (
     select date, daily_volume as dex_volumes
@@ -56,6 +57,21 @@ select
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
+    , stablecoin_total_supply
+    , stablecoin_txns
+    , stablecoin_dau
+    , stablecoin_mau
+    , stablecoin_transfer_volume
+    , artemis_stablecoin_txns
+    , artemis_stablecoin_dau
+    , artemis_stablecoin_mau
+    , artemis_stablecoin_transfer_volume
+    , p2p_stablecoin_txns
+    , p2p_stablecoin_dau
+    , p2p_stablecoin_mau
+    , stablecoin_data.p2p_stablecoin_transfer_volume
+    , stablecoin_tokenholder_count
+    , p2p_stablecoin_tokenholder_count
     , price
     , market_cap
     , fdmc
@@ -63,6 +79,7 @@ select
 from fundamental_data
 left join github_data using (date)
 left join defillama_data using (date)
+left join stablecoin_data using (date)
 left join price_data using (date)
 left join expenses_data using (date)
 left join rolling_metrics using (date)
