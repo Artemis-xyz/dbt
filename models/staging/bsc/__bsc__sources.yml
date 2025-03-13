@@ -10,3 +10,4 @@ sources:
     tables:
       - name: raw_beth_staked_count_ethereum
       - name: raw_beth_staked_count_bsc
+      - name: raw_bnb_dex_volumes_daily

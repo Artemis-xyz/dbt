@@ -5,3 +5,4 @@ sources:
     tables:
       - name: raw_unichain_transactions_parquet
       - name: raw_unichain_logs_parquet
+      - name: raw_unichain_dex_volumes_daily

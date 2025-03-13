@@ -28,6 +28,11 @@ with
     , contract_data as ({{ get_contract_metrics("linea") }})
     , defillama_data as ({{ get_defillama_metrics("linea") }})
     , rolling_metrics as ({{ get_rolling_active_address_metrics("linea") }})
+    , linea_dex_volumes as (
+        select date, daily_volume as dex_volumes
+        from {{ ref("fact_linea_daily_dex_volumes") }}
+    )
+    
 select 
    fundamental_data.date
     , 'linea' as chain
@@ -43,16 +48,17 @@ select
     , l1_data_cost
     , l1_data_cost_native
     , tvl
-    , dex_volumes
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
+    , dune_dex_volumes_linea.dex_volumes
 from fundamental_data
 left join github_data using (date)
 left join contract_data using (date)
 left join defillama_data using (date)
 left join rolling_metrics using (date)
+left join linea_dex_volumes as dune_dex_volumes_linea on fundamental_data.date = dune_dex_volumes_linea.date
 where fundamental_data.date < to_date(sysdate())
