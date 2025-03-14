@@ -4,8 +4,3 @@ sources:
     database: PC_DBT_DB
     tables:
       - name: dim_blast_current_balances
-  - name: PROD_LANDING
-    schema: PROD_LANDING
-    database: LANDING_DATABASE
-    tables:
-      - name: raw_blast_dex_volumes_daily
