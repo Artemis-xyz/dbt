@@ -3,7 +3,7 @@
         materialized="table",
         snowflake_warehouse="BRIDGE_FLOWS",
         database="bridge_flows",
-        schema="raw",
+        schema="core",
         alias="ez_flows",
     )
 }}
