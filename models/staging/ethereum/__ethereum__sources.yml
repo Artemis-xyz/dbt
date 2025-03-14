@@ -6,4 +6,3 @@ sources:
       - name: raw_ethereum_etf_addresses
       - name: raw_ethereum_etf_metadata
       - name: raw_ethereum_fidelity_outflows
-      - name: raw_ethereum_dex_volumes_daily

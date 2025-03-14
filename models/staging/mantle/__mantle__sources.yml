@@ -4,7 +4,6 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_meth_staked_eth_count
-      - name: raw_mantle_dex_volumes_daily
   - name: BALANCES
     schema: PROD
     database: PC_DBT_DB

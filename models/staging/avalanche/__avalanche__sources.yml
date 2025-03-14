@@ -5,7 +5,6 @@ sources:
     tables:
       - name: raw_avalanche_staked
       - name: raw_avalanche_validator_rewards
-      - name: raw_avalanche_c_dex_volumes_daily
   - name: BALANCES
     schema: PROD
     database: PC_DBT_DB

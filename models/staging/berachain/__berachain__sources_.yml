@@ -5,4 +5,3 @@ sources:
     tables:
       - name: raw_berachain_logs_parquet
       - name: raw_berachain_transactions_parquet
-      - name: raw_berachain_dex_volumes_daily

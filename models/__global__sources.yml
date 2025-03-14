@@ -57,6 +57,13 @@ sources:
     tables:
       - name: fact_validators
   
+# DUNE
+  - name: DUNE_DEX_VOLUMES
+    schema: dex
+    database: zksync_dune
+    tables: 
+      - name: trades
+
 # ARBITRUM
 
   - name: ARBITRUM_FLIPSIDE_PRICE
