@@ -7,7 +7,7 @@ select
     block_timestamp,
     cast(amount_native * -1 as float) as debit,
     null as debit_usd,
-    tx_hash,
+    transaction_hash as tx_hash,
     null as trace_index,
     event_index
 from {{ ref("fact_" ~ chain ~ "_token_transfers")}}
