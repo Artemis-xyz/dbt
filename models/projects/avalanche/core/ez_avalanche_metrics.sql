@@ -45,7 +45,7 @@ with
     )
 
 select
-    ds.date,
+    staking_data.date,
     coalesce(fundamental_data.chain, 'avalanche') as chain,
     txns,
     dau,
@@ -116,4 +116,4 @@ left join rolling_metrics on staking_data.date = rolling_metrics.date
 left join bridge_volume_metrics on staking_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on staking_data.date = bridge_daa_metrics.date
 left join avalanche_c_dex_volumes as dune_dex_volumes_avalanche_c on staking_data.date = dune_dex_volumes_avalanche_c.date
-where ds.date < to_date(sysdate())
+where staking_data.date < to_date(sysdate())
