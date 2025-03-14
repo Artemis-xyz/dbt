@@ -1,0 +1,7 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_trader_joe_arbitrum_v2_0_metrics
+      - name: raw_trader_joe_avalanche_v2_0_metrics
