@@ -29,6 +29,7 @@ with date_spine as (
         sum(coalesce(swap_to_amount_usd, swap_from_amount_usd)) as trading_volume 
     FROM {{ source('SOLANA_FLIPSIDE_DEFI', 'ez_dex_swaps') }}
     WHERE swap_program ilike '%meteora%'
+    AND (swap_from_mint != '8twuNzMszqWeFbDErwtf4gw13E6MUS4Hsdx5mi3aqXAM' AND swap_to_mint != '8twuNzMszqWeFbDErwtf4gw13E6MUS4Hsdx5mi3aqXAM') --filter out SB token swaps, as Solana flipside source has bad pricing data for this token
     group by 1
 )
 
