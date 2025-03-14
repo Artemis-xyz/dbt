@@ -14,7 +14,7 @@ SELECT
     , src_block_timestamp
     , src_tx_hash
     , src_event_index
-    , amount_sent as src_amount
+    , amount_sent_native as src_amount
     , src_chain
     , src_ids.id as origin_chain_id
     , src_token_address as origin_token
@@ -22,7 +22,7 @@ SELECT
     , dst_block_timestamp
     , dst_tx_hash
     , dst_event_index
-    , amount_received as dst_amount
+    , amount_received_native as dst_amount
     , src_address as depositor
     , dst_address as recipient
     , dst_ids.id as destination_chain_id
