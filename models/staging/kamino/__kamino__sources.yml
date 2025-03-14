@@ -4,3 +4,4 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_kamino_accumulated_fees
+      - name: raw_kamino_borrowed_amounts
