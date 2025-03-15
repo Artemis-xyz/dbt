@@ -278,7 +278,7 @@
     {% elif chain in ("mantle") %}
         select
             block_timestamp
-            , raw_date as date
+            , block_timestamp::date as date
             , block_number
             , event_index as index
             , tx_hash
