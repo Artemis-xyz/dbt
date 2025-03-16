@@ -44,7 +44,7 @@
                 {% endif %}
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_balances")}}
-            {% if is_incremental() and new_stablecoin_address == '' %}
+            {% if (is_incremental() and new_stablecoin_address == '') or chain in ('tron') %}
                 where date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
             {% if backfill_date != '' %}
@@ -72,7 +72,7 @@
                 , stablecoin_daily_txns
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_metrics_all")}}
-            {% if is_incremental() and new_stablecoin_address == '' %}
+            {% if (is_incremental() and new_stablecoin_address == '') or chain in ('tron') %}
                 where date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
             {% if backfill_date != '' %}
@@ -100,7 +100,7 @@
                 , stablecoin_daily_txns as artemis_stablecoin_daily_txns
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_metrics_artemis")}}
-            {% if is_incremental() and new_stablecoin_address == '' %}
+            {% if (is_incremental() and new_stablecoin_address == '') or chain in ('tron') %}
                 where date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
             {% if backfill_date != '' %}
@@ -128,7 +128,7 @@
                 , stablecoin_daily_txns as p2p_stablecoin_daily_txns
                 , unique_id
             from {{ ref("fact_" ~ chain ~ "_stablecoin_metrics_p2p")}}
-            {% if is_incremental() and new_stablecoin_address == '' %}
+            {% if (is_incremental() and new_stablecoin_address == '') or chain in ('tron') %}
                 where date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
             {% if backfill_date != '' %}
