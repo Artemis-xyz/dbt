@@ -5,7 +5,7 @@
         snowflake_warehouse="BAM_TRANSACTION_XLG",
     )
 }}
--- Does a 5-day refresh on a normal day, and does a 2 week refresh every Saturday (for labels)
+-- Does a 30-day refresh on a normal day, and does a 90-day refresh every Saturday (for labels)
 
 with
     app_contracts as (
@@ -25,7 +25,7 @@ with
         -- Chunking required here for backfills
         {% if is_incremental() %}
             where block_timestamp
-            >= (select dateadd('day', CASE WHEN DAYOFWEEK(CURRENT_DATE) = 7 THEN -14 ELSE -5 END, max(block_timestamp)) from {{ this }})
+            >= (select dateadd('day', CASE WHEN DAYOFWEEK(CURRENT_DATE) = 7 THEN -90 ELSE -30 END, max(block_timestamp)) from {{ this }})
         {% else %}
         -- Making code not compile on purpose. Full refresh of entire history
         -- takes too long, doing last month will wipe out backfill

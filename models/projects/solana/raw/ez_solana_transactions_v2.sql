@@ -37,7 +37,7 @@ where
     raw_date < to_date(sysdate())
     {% if is_incremental() %}
         and block_timestamp
-        >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+        >= (select dateadd('day', CASE WHEN DAYOFWEEK(CURRENT_DATE) = 7 THEN -90 ELSE -30 END, max(block_timestamp)) from {{ this }})
 {% else %}
     -- Making code not compile on purpose. Full refresh of entire history takes too
     -- long, doing last month will wipe out backfill
