@@ -4,9 +4,3 @@ sources:
     database: PC_DBT_DB
     tables:
       - name: dim_arbitrum_current_balances
-
-  - name: PROD_LANDING
-    schema: PROD_LANDING
-    database: LANDING_DATABASE
-    tables:
-      - name: raw_arbitrum_dex_volumes_daily
