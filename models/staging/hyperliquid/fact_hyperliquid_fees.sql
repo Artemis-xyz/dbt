@@ -14,7 +14,6 @@ extracted_fees AS (
         'DeFi' AS category,
         value:time AS timestamp
     FROM latest_source_json, LATERAL FLATTEN(input => PARSE_JSON(source_json))
-    WHERE DATE(value:time) >= '2024-12-22' 
 ),
 
 max_fees AS (
@@ -30,16 +29,8 @@ max_fees AS (
 SELECT
     max_trading_fees,
     max_spot_fees,
-    CASE 
-        WHEN fee_date >= '2024-12-23' THEN 
-            max_trading_fees - COALESCE(LAG(max_trading_fees) OVER (PARTITION BY chain ORDER BY fee_date ASC), 0)
-        ELSE NULL
-    END AS trading_fees,
-    CASE 
-        WHEN fee_date >= '2024-12-23' THEN 
-            max_spot_fees - COALESCE(LAG(max_spot_fees) OVER (PARTITION BY chain ORDER BY fee_date ASC), 0)
-        ELSE NULL
-    END AS spot_fees,
+    max_trading_fees - COALESCE(LAG(max_trading_fees) OVER (PARTITION BY chain ORDER BY fee_date ASC), 0) AS trading_fees,
+    max_spot_fees - COALESCE(LAG(max_spot_fees) OVER (PARTITION BY chain ORDER BY fee_date ASC), 0) AS spot_fees,
     (trading_fees - spot_fees) AS perp_fees,
     fee_date AS timestamp,
     'hyperliquid' AS app,
