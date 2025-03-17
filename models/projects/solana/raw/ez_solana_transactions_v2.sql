@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key="tx_hash",
-        snowflake_warehouse="SOLANA",
+        snowflake_warehouse="BAM_TRANSACTION_XLG",
         database="solana",
         schema="raw",
         alias="ez_transactions_v2",
