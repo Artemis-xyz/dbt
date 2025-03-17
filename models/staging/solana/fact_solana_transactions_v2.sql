@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key="tx_hash",
-        snowflake_warehouse="BAM_TRANSACTION_XLG",
+        snowflake_warehouse="BAM_TRANSACTION_2XLG",
     )
 }}
 -- Does a 30-day refresh on a normal day, and does a 90-day refresh every Saturday (for labels)
