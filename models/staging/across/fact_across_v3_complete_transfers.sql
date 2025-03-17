@@ -69,7 +69,7 @@ combined_data as (
         , coalesce(dst.dst_amount, src.dst_amount) dst_amount
         , coalesce(src.depositor, dst.depositor) as depositor
         , coalesce(dst.recipient, src.recipient) as recipient
-        , coalesce(src.destination_chain_id, dst.destination_chain_id) as destination_chain_id
+        , coalesce(dst.destination_chain_id, src.destination_chain_id) as destination_chain_id
         , coalesce(dst.destination_token, src.destination_token) as destination_token
         , coalesce(src.origin_chain_id, dst.origin_chain_id) as origin_chain_id
         , src_realized_lp_fee_pct as realized_lp_fee_pct
