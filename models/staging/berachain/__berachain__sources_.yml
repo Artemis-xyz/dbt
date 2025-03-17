@@ -5,3 +5,8 @@ sources:
     tables:
       - name: raw_berachain_logs_parquet
       - name: raw_berachain_transactions_parquet
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: berachain_supply_data
