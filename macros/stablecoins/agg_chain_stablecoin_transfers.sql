@@ -281,7 +281,7 @@
             , block_timestamp::date as date
             , block_number
             , event_index as index
-            , tx_hash
+            , transaction_hash as tx_hash
             , from_address
             , to_address
             , from_address = '0x0000000000000000000000000000000000000000' as is_mint
