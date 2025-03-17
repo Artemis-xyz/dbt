@@ -137,7 +137,7 @@ with
                 {% endif %}
         )
     {% endif %}
-    select 
+    select distinct
         t1.block_timestamp,
         t1.block_number,
         t1.tx_hash,
