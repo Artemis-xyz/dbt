@@ -47,7 +47,7 @@ with
         left join collapsed_prices on raw_date = collapsed_prices.price_date
         where raw_date < to_date(sysdate()) and inserted_timestamp < to_date(sysdate())
     )
-select
+select distinct
     tx_hash,
     new_contracts.address as contract_address,
     block_timestamp,

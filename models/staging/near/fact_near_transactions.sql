@@ -52,7 +52,7 @@ with
             >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
         {% endif %}
     )
-select
+select distinct
     tx_hash,
     new_contracts.address as contract_address,
     block_timestamp,
