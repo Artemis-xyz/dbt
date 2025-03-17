@@ -1,17 +1,9 @@
 {% macro extract_dune_dex_volumes(chain) %}
-    with
-    max_extraction as (
-        select max(extraction_date) as max_date
-        from {{ source("PROD_LANDING", "raw_" ~ chain ~ "_dex_volumes_daily") }}
-        
-    ),
-    latest_data as (
-        select parse_json(source_json) as data
-        from {{ source("PROD_LANDING", "raw_" ~ chain ~ "_dex_volumes_daily") }}
-        where extraction_date = (select max_date from max_extraction)
-    )
-    select
-        left(f.value:block_date, 10)::date as date,
-        f.value:daily_volume::number as daily_volume,
-    from latest_data, lateral flatten(input => data) f
+    select 
+        date_trunc('day',block_date) as date, 
+        sum(amount_usd) as daily_volume
+    from zksync_dune.dex.trades
+    where blockchain = '{{chain}}'
+    group by date
+    order by date asc
 {% endmacro %}

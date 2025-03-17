@@ -4,4 +4,3 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_zora_receipt_transactions_parquet
-      - name: raw_zora_dex_volumes_daily
