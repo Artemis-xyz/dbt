@@ -4,7 +4,7 @@ with
         from {{ source("PROD_LANDING", "raw_kamino_revenue_and_fees") }}
     )
 select
-    left(value:date, 10)::date as date,
+    value:day::date as date,
     value:KlendRevenueUSD::number as klend_revenue_usd,
     value:KlendFeesUSD::number as klend_fees_usd
 from
