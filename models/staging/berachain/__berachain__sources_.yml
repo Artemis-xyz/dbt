@@ -9,4 +9,4 @@ sources:
     schema: prod
     database: pc_dbt_db
     tables:
-      - name: berachain_supply_data
+      - name: berachain_daily_supply_data

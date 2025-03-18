@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", snowflake_warehouse="berachain") }}
 
 with berachain_emissions as (
     select
@@ -43,13 +43,13 @@ daily_emissions as (
 select 
     d.date,
     d.emission_native,
-    s.total_supply as premine_unlocks_native,
+    s.premine_unlocks_supply as premine_unlocks_native,
     d.burns_native,
     d.net_supply_change_native,
-    sum(s.total_supply + d.net_supply_change_native)
+    sum(s.premine_unlocks_supply + d.net_supply_change_native)
         over (order by d.date asc rows between unbounded preceding and current row)
         as circulating_supply_native
 from daily_emissions d
-left join {{ source('MANUAL_STATIC_TABLES', 'berachain_supply_data') }} s
+left join {{ source('MANUAL_STATIC_TABLES', 'berachain_daily_supply_data') }} s
 on d.date = s.date
 order by d.date desc
