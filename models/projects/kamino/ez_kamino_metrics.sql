@@ -14,22 +14,32 @@ with
         from {{ ref("fact_kamino_total_value_locked") }}
     ),
 
-    kamino_fees as (
+    klend_fees as (
         select date, klend_fees_usd as fees
         from {{ ref("fact_kamino_fees_and_revenues") }}
     ),
 
-    kamino_revenue as (
+    klend_revenue as (
         select date, klend_revenue_usd as revenue
         from {{ ref("fact_kamino_fees_and_revenues") }}
-    )
+    ), 
 
+    market_data as (
+        {{ get_coingecko_metrics('kamino') }}
+    )
     select
         date,
         tvl,
         fees,
-        revenue
+        revenue,
+        coalesce(market_data.price, 0) as price,
+        coalesce(market_data.market_cap, 0) as market_cap,
+        coalesce(market_data.fdmc, 0) as fdmc,
+        coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating,
+        coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv,
+        coalesce(market_data.token_volume, 0) as token_volume,
     from kamino_tvl
-    left join kamino_fees using (date)
-    left join kamino_revenue using (date)
+    left join klend_fees using (date)
+    left join klend_revenue using (date)
+    left join market_data using (date)
     where date < to_date(sysdate())
