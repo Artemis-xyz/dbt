@@ -16,12 +16,12 @@ with
 
     kamino_fees as (
         select date, klend_fees_usd as fees
-        from {{ ref("fact_kamino_fees_revenues") }}
+        from {{ ref("fact_kamino_fees_and_revenues") }}
     ),
 
     kamino_revenue as (
         select date, klend_revenue_usd as revenue
-        from {{ ref("fact_kamino_fees_revenues") }}
+        from {{ ref("fact_kamino_fees_and_revenues") }}
     )
 
     select
