@@ -54,4 +54,6 @@ with
     left join klend_fees using (date)
     left join klend_revenue using (date)
     left join market_data using (date)
+    left join kamino_transactions using (date)
+    left join kamino_active_users using (date)
     where date < to_date(sysdate())
