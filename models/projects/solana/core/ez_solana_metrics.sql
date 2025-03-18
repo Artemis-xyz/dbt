@@ -34,7 +34,7 @@ with
                         when index = 0 then (array_size(signers) * (5000 / 1e9)) else 0
                     end
                 ) as base_fee_native,
-                count_if(index = 0 and succeeded = 'TRUE') as txns,
+                count_if(index = 0) as txns,
                 count(
                     distinct(case when succeeded = 'TRUE' then value else null end)
                 ) dau,
