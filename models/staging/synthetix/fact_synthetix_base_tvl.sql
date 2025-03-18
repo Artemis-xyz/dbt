@@ -10,15 +10,15 @@ with recursive
         partition by date_trunc('day', block_timestamp), contract_address
         order by block_timestamp desc
       ) as rn
-    from optimism.prod_raw.ez_address_balances_by_token
-    where address ILIKE '0xffffffaeff0b96ea8e4f94b2253f31abdd875847'
+    from base.prod_raw.ez_address_balances_by_token
+    where address ILIKE '0x32C222A9A159782aFD7529c87FA34b96CA72C696'
   ),
   daily_tvl as (
     select 
       date_trunc('day', hourly_timestamp) as date,
       sum(coalesce(balance_token/pow(10,coalesce(decimals,0)), 0) * eph.price) as tvl_usd
     from partitioned_transactions pt
-    inner join optimism_flipside.price.ez_prices_hourly eph
+    inner join base_flipside.price.ez_prices_hourly eph
       on pt.contract_address = eph.token_address
      and pt.hourly_timestamp = eph.hour
     where rn = 1

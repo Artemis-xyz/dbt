@@ -5,18 +5,18 @@ with recursive
     select 
       date_trunc('hour', block_timestamp) as hourly_timestamp,
       contract_address,
-      balance_token/1e18 as balance,
+      balance_token,
       row_number() over (
         partition by date_trunc('day', block_timestamp), contract_address
         order by block_timestamp desc
       ) as rn
     from ethereum.prod_raw.ez_address_balances_by_token
-    where address = '0xffffffaeff0b96ea8e4f94b2253f31abdd875847'
+    where address ILIKE '0xffffffaeff0b96ea8e4f94b2253f31abdd875847'
   ),
   daily_tvl as (
     select 
       date_trunc('day', hourly_timestamp) as date,
-      sum(coalesce(balance, 0) * eph.price) as tvl_usd
+      sum(coalesce(balance_token/pow(10,coalesce(decimals,0)), 0) * eph.price) as tvl_usd
     from partitioned_transactions pt
     inner join ethereum_flipside.price.ez_prices_hourly eph
       on pt.contract_address = eph.token_address
