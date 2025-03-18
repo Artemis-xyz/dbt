@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key="tx_hash",
-        snowflake_warehouse="BAM_TRANSACTION_XLG",
+        snowflake_warehouse="BAM_TRANSACTION_2XLG",
     )
 }}
 
@@ -15,14 +15,10 @@ with
             contract.artemis_category_id as category,
             contract.artemis_sub_category_id as sub_category,
             contract.artemis_application_id as app,
-            contract.friendly_name
+            contract.friendly_name,
+            contract.last_updated
         from {{ ref("dim_all_addresses_labeled_silver") }} as contract
         where chain = 'base'
-        {% if is_incremental() %}
-            -- this filter will only be applied on an incremental run 
-            and last_updated
-            >= (select dateadd('day', -5, max(last_updated_timestamp)) from {{ this }})
-        {% endif %}
     ),
     prices as ({{ get_coingecko_price_with_latest("ethereum") }}),
     balances as (
@@ -78,5 +74,6 @@ where
         and (block_timestamp
         >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
         or 
-        new_contracts.address is not null)
+        new_contracts.last_updated
+            >= (select dateadd('day', -5, max(last_updated_timestamp)) from {{ this }}))
     {% endif %}
