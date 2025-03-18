@@ -24,6 +24,16 @@ with
         from {{ ref("fact_kamino_fees_and_revenues") }}
     ), 
 
+    kamino_transactions as (    
+        select date, tx_count as daily_transactions
+        from {{ ref("fact_kamino_daily_transactions") }}
+    ),
+
+    kamino_active_users as (
+        select date, distinct_signers_count as daily_active_users
+        from {{ ref("fact_kamino_daily_active_users") }}
+    ),
+
     market_data as (
         {{ get_coingecko_metrics('kamino') }}
     )
@@ -32,6 +42,8 @@ with
         tvl,
         fees,
         revenue,
+        daily_transactions,
+        daily_active_users,
         coalesce(market_data.price, 0) as price,
         coalesce(market_data.market_cap, 0) as market_cap,
         coalesce(market_data.fdmc, 0) as fdmc,
