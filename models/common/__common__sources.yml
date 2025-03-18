@@ -4,3 +4,8 @@ sources:
     database: PC_DBT_DB
     tables:
       - name: dim_geo_labels
+  - name: STABLECOINS
+    schema: PROD
+    database: PC_DBT_DB
+    tables:
+      - name: stablecoin_metadata
