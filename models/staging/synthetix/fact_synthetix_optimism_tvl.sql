@@ -10,7 +10,7 @@ with recursive
         partition by date_trunc('day', block_timestamp), contract_address
         order by block_timestamp desc
       ) as rn
-    from ethereum.prod_raw.ez_address_balances_by_token
+    from optimism.prod_raw.ez_address_balances_by_token
     where address = '0xffffffaeff0b96ea8e4f94b2253f31abdd875847'
   ),
   daily_tvl as (
@@ -18,7 +18,7 @@ with recursive
       date_trunc('day', hourly_timestamp) as date,
       sum(coalesce(balance, 0) * eph.price) as tvl_usd
     from partitioned_transactions pt
-    inner join ethereum_flipside.price.ez_prices_hourly eph
+    inner join optimism_flipside.price.ez_prices_hourly eph
       on pt.contract_address = eph.token_address
      and pt.hourly_timestamp = eph.hour
     where rn = 1
