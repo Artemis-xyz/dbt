@@ -22,12 +22,13 @@ with
         from {{ ref("fact_hyperliquid_daily_transactions") }}
     ),
     fees_data as (
-        SELECT date(timestamp) AS date, chain, trading_fees, spot_fees, perp_fees
+        SELECT date, chain, trading_fees, spot_fees, perp_fees
         FROM {{ ref("fact_hyperliquid_fees") }}
     ),
     auction_fees_data as (
-        select date, auction_fees, chain
+        select date, chain, sum(auction_fees) as auction_fees
         from {{ ref("fact_hyperliquid_auction_fees") }}
+        group by 1, 2
     ),
     daily_burn_data as (
         select date, daily_burn, chain
