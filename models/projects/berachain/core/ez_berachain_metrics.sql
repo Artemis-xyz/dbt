@@ -17,13 +17,11 @@ with
      supply_data as (
         select 
             date
-            , total_supply
-            , initial_contributors_supply
-            , investors_supply
-            , airdrop_supply
-            , future_community_initiatives_supply
-            , ecosystem_research_and_development_supply
-            , current_circulating_supply
+            , premine_unlocks_native
+            , emission_native
+            , burns_native
+            , net_supply_change_native
+            , circulating_supply_native
         from {{ ref('fact_berachain_supply_data') }}
      )
 select
@@ -40,13 +38,11 @@ select
     , token_turnover_fdv
     , token_volume
     , dex_volumes
-    , coalesce(total_supply, 0) as total_supply
-    , coalesce(initial_contributors_supply, 0) as initial_contributors_supply
-    , coalesce(investors_supply, 0) as investors_supply
-    , coalesce(airdrop_supply, 0) as airdrop_supply
-    , coalesce(future_community_initiatives_supply, 0) as future_community_initiatives_supply
-    , coalesce(ecosystem_research_and_development_supply, 0) as ecosystem_research_and_development_supply
-    , current_circulating_supply
+    , premine_unlocks_native
+    , emission_native
+    , burns_native
+    , net_supply_change_native
+    , circulating_supply_native
 from {{ ref("fact_berachain_fundamental_metrics") }} as f
 left join price_data on f.date = price_data.date
 left join dex_volumes on f.date = dex_volumes.date
