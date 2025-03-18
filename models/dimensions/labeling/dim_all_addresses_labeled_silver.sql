@@ -18,7 +18,7 @@ WITH addresses_with_namespace_and_category AS (
     FROM {{ ref("dim_all_addresses_gold") }}
     WHERE namespace IS NOT NULL  
     {% if is_incremental() %}
-        AND last_updated > (SELECT MAX(last_updated) FROM {{ this }})
+        AND last_updated > (SELECT DATEADD('day', -5, MAX(last_updated)) FROM {{ this }})
     {% endif %}
 ), mapped_addresses AS (
     select 
@@ -39,7 +39,7 @@ deduped_bulk_manual_labeled_addresses AS (
     SELECT *
     FROM {{ source("PYTHON_LOGIC", "dim_manual_labeled_addresses") }}
     {% if is_incremental() %}
-        WHERE last_updated > (SELECT MAX(last_updated) FROM {{ this }})
+        WHERE last_updated > (SELECT DATEADD('day', -5, MAX(last_updated)) FROM {{ this }})
     {% endif %}
     QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated DESC) = 1
 ),
@@ -63,7 +63,7 @@ deduped_added_manual_labeled_addresses AS (
     FROM {{ source("PYTHON_LOGIC", "dim_frontend_manual_contracts") }}
     WHERE action = 'ADD'
     {% if is_incremental() %}
-        AND last_updated_timestamp > (SELECT MAX(last_updated) FROM {{ this }})
+        AND last_updated_timestamp > (SELECT DATEADD('day', -5, MAX(last_updated)) FROM {{ this }})
     {% endif %}
     QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated_timestamp DESC) = 1
 ),
@@ -72,7 +72,7 @@ deduped_deleted_manual_labeled_addresses AS (
     FROM {{ source("PYTHON_LOGIC", "dim_frontend_manual_contracts") }}
     WHERE action = 'DELETE'
     {% if is_incremental() %}
-        AND last_updated_timestamp > (SELECT MAX(last_updated) FROM {{ this }})
+        AND last_updated_timestamp > (SELECT DATEADD('day', -5, MAX(last_updated)) FROM {{ this }})
     {% endif %}
     QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated_timestamp DESC) = 1
 ),
