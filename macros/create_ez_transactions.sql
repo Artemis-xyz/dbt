@@ -41,14 +41,32 @@
         ) %}probability, engagement_type
         {% else %}null as probability, null as engagement_type
         {% endif %}
-        {% if model_version == 'v2' %}
+        {% if model_version == 'v2' and chain in (
+            "arbitrum",
+            "avalanche",
+            "base",
+            "bsc",
+            "ethereum",
+            "optimism",
+            "polygon",
+            "near"
+        ) %}
             ,last_updated_timestamp
         {% endif %}
     from pc_dbt_db.prod.fact_{{ chain }}_transactions{% if model_version == 'v2' %}_v2{% endif %}
     where
         raw_date < to_date(sysdate())
         {% if is_incremental() %}
-            {% if model_version == 'v2' %}
+            {% if model_version == 'v2' and chain in (
+            "arbitrum",
+            "avalanche",
+            "base",
+            "bsc",
+            "ethereum",
+            "optimism",
+            "polygon",
+            "near"
+        ) %}
                 and last_updated_timestamp > (select max(last_updated_timestamp) from {{ this }})
             {% else %}
                 and (block_timestamp
