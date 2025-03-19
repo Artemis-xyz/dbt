@@ -49,6 +49,13 @@ with
             daily_expenses as expenses
         from {{ ref('fact_synthetix_expenses') }}
     ),
+    token_incentives as (
+        select
+            date,
+            sum(token_incentives) as token_incentives
+        from {{ ref("fact_synthetix_token_incentives_by_chain") }}
+        group by 1
+    ),
     treasury_native as (
         SELECT
             date,
@@ -78,7 +85,8 @@ select
     coalesce(net_deposits, 0) as net_deposits,
     coalesce(fees, 0) as fees,
     coalesce(fees, 0) as revenue, 
-    coalesce(expenses, 0) as expenses,
+    coalesce(expenses + token_incentives, 0) as expenses,
+    coalesce(token_incentives, 0) as token_incentives,
     coalesce(treasury_native, 0) as treasury_native,
     coalesce(net_treasury_usd, 0) as net_treasury_usd,
     coalesce(market_data.price, 0) as price,
@@ -94,6 +102,7 @@ left join tvl using(date)
 left join net_deposits using(date)
 left join fees using(date)
 left join expenses using(date)
+left join token_incentives using(date)
 left join treasury_native using(date)
 left join net_treasury using(date)
 left join market_data using(date)

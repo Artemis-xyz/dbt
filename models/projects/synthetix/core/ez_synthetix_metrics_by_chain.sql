@@ -32,6 +32,14 @@ with
             sum(net_deposits) as net_deposits
         from {{ ref("fact_synthetix_net_deposits_by_chain") }}
         group by 1,2
+    ), 
+    token_incentives as (
+        select
+            date,
+            chain,
+            sum(token_incentives) as token_incentives
+        from {{ ref("fact_synthetix_token_incentives_by_chain") }}
+        group by 1,2
     )
 select
     date,
