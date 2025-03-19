@@ -40,6 +40,13 @@ with
             sum(token_incentives) as token_incentives
         from {{ ref("fact_synthetix_token_incentives_by_chain") }}
         group by 1,2
+    ),
+    token_holders as (
+        select
+            date,
+            chain,
+            token_holder_count
+        from {{ ref("fact_synthetix_token_holders") }}
     )
 select
     date,
@@ -50,10 +57,12 @@ select
     unique_traders,
     tvl,
     net_deposits,
-    token_incentives
+    token_incentives,
+    token_holder_count
 from unique_traders_data
 left join trading_volume_data using(date, chain)
 left join tvl using(date, chain)
 left join net_deposits using(date, chain)
 left join token_incentives using(date, chain)
+left join token_holders using(date, chain)
 where date < to_date(sysdate())
