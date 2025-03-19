@@ -51,4 +51,15 @@
                 '{{chain}}' {% if not loop.last %},{% endif %}
             {% endfor %}
         )
+    union
+    select to_date(sysdate()) as date, contract_address, decimals, symbol, token_current_price as price
+    from {{ ref("fact_coingecko_token_realtime_data") }}
+    inner join {{ ref('dim_coingecko_token_map')}}
+        on token_id = coingecko_token_id
+    where
+        chain in  (
+            {% for chain in chains %}
+                '{{chain}}' {% if not loop.last %},{% endif %}
+            {% endfor %}
+        )
 {% endmacro %}
