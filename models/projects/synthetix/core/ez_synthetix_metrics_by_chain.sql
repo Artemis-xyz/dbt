@@ -21,7 +21,6 @@ with
         select 
             date,
             chain,
-            token,
             sum(tvl_usd) as tvl_usd,
         from {{ ref("fact_synthetix_tvl_by_chain_and_token") }}
         group by 1,2 
