@@ -18,6 +18,7 @@ with all_tvl_by_chain_and_token as (
 
 select
     date,
+    chain,
     token,
     tvl_usd
 from all_tvl_by_chain_and_token

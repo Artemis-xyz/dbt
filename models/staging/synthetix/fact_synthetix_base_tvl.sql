@@ -45,6 +45,7 @@ daily_with_series as (
 )
 select 
     date,
+    'base' as chain,
     last_value(token ignore nulls) over (
         order by date rows between unbounded preceding and current row
     ) as token, 
