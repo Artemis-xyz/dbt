@@ -15,8 +15,9 @@ with
             contract.artemis_category_id as category,
             contract.artemis_sub_category_id as sub_category,
             contract.artemis_application_id as app,
-            contract.friendly_name
-        from {{ ref("dim_all_addresses_labeled_gold") }} as contract
+            contract.friendly_name,
+            contract.last_updated
+        from {{ ref("dim_all_addresses_labeled_silver") }} as contract
         where chain = 'near'
     ),
     prices as (
@@ -71,7 +72,8 @@ select distinct
     bots.address_life_span,
     bots.cur_total_txns,
     bots.cur_distinct_to_address_count,
-    tx_succeeded
+    tx_succeeded,
+    CAST(current_timestamp() AS TIMESTAMP_NTZ) AS last_updated_timestamp
 from near_transactions as t
 left join new_contracts on lower(t.contract_address) = lower(new_contracts.address)
 left join {{ ref("dim_near_bots") }} as bots on t.from_address = bots.from_address
@@ -79,7 +81,7 @@ left join {{ ref("dim_near_bots") }} as bots on t.from_address = bots.from_addre
     -- this filter will only be applied on an incremental run 
     where block_timestamp
     >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
-
     or 
-    new_contracts.address is not null
+    new_contracts.last_updated
+        >= (select dateadd('day', -7, max(last_updated_timestamp)) from {{ this }})
 {% endif %}
