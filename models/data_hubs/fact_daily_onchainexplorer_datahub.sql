@@ -234,12 +234,37 @@ final_result AS (
         s.global_rank
     FROM individual_stats s
     JOIN grouped_stats gs ON s.app_or_address = gs.app_or_address AND s.chain = gs.chain
-) 
-SELECT DISTINCT 
-    CONCAT(s.app_or_address, '|', s.chain) AS unique_id,
-    s.*,
-    ft.fees_total
-FROM final_result s
-LEFT JOIN fees_all_time ft 
-    ON s.app_or_address = ft.app_or_address 
-        AND s.chain = ft.chain
+),
+chain_latest_data AS (
+    SELECT 
+        chain,
+        MAX(date) AS latest_date
+    FROM {{ ref('all_chains_gas_dau_txns_by_contract_v2') }}
+    GROUP BY chain
+),
+outdated_chains AS (
+    SELECT 
+        chain
+    FROM chain_latest_data
+    WHERE latest_date < DATEADD(DAY, -1, CURRENT_DATE)
+),
+merged_results AS (
+    -- Use new data for chains with up-to-date information
+    SELECT 
+        CONCAT(s.app_or_address, '|', s.chain) AS unique_id,
+        s.*,
+        ft.fees_total
+    FROM final_result s
+    LEFT JOIN fees_all_time ft 
+        ON s.app_or_address = ft.app_or_address 
+            AND s.chain = ft.chain
+    WHERE s.chain NOT IN (SELECT chain FROM outdated_chains)
+    
+    UNION ALL
+    
+    -- Use existing data for chains with outdated information
+    SELECT *
+    FROM {{ this }}
+    WHERE chain IN (SELECT chain FROM outdated_chains)
+)
+SELECT DISTINCT * FROM merged_results
