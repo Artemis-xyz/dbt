@@ -26,5 +26,4 @@ select
 from optimism_fee_transfers as oft
 full outer join ethereum_fee_transfers as eft
     on oft.date = eft.date
-where oft.date > '2024-01-01'
 order by date desc

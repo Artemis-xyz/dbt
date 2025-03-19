@@ -37,6 +37,18 @@ with
             token_holder_count
         from {{ ref('fact_synthetix_token_holders') }}
     ),
+    fees as (
+        select
+            date,
+            daily_fees as fees
+        from {{ ref('fact_synthetix_fees') }}
+    ),
+    expenses as (
+        select
+            date,
+            daily_expenses as expenses
+        from {{ ref('fact_synthetix_expenses') }}
+    ),
     market_data as (
         {{ get_coingecko_metrics('synthetix') }}
     )
@@ -48,6 +60,9 @@ select
     unique_traders,
     tvl_usd,
     net_deposits,
+    fees,
+    fees as revenue, 
+    expenses,
     coalesce(market_data.price, 0) as price,
     coalesce(market_data.market_cap, 0) as market_cap,
     coalesce(market_data.fdmc, 0) as fdmc,
@@ -59,6 +74,8 @@ from unique_traders_data
 left join trading_volume_data using(date)
 left join tvl using(date)
 left join net_deposits using(date)
+left join fees using(date)
+left join expenses using(date)
 left join market_data using(date)
 left join token_holders using(date)
 where date < to_date(sysdate())
