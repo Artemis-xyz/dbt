@@ -1,6 +1,7 @@
 import yaml
 import re
 import os
+import subprocess
 
 def load_global_schema(global_schema_path):
     """ Load and flatten the global schema into a set of metric names. """
@@ -82,18 +83,20 @@ def load_existing_overrides(project_schema_path):
         existing_schema = yaml.safe_load(f)
     
     overrides = {}
-    # Extract existing column definitions that differ from global
-    for column in existing_schema.get('models', [{}])[0].get('columns', []):
-        if 'override' in column.get('tags', []):  # Check if column is marked as override
-            overrides[column['name']] = column
+    # Extract existing column definitions that are marked as overrides
+    column_defs = existing_schema.get('column_definitions', {})
+    for col_name, col_def in column_defs.items():
+        if 'tags' in col_def and 'override' in col_def['tags']:
+            overrides[col_name] = col_def
     
     return overrides
 
 def get_project_sql_files(project_name):
     """Get all SQL files in the project's core directory"""
     dbt_root = get_dbt_root()
-    project_core_dir = os.path.join(dbt_root, 'models', 'projects', project_name, 'core')
     
+    project_core_dir = os.path.join(dbt_root, 'target', 'compiled', 'artemis_dbt', 'models', 'projects', project_name, 'core')
+    # project_core_dir = os.path.join(dbt_root, 'models', 'projects', project_name, 'core')
     sql_files = []
     for file in os.listdir(project_core_dir):
         if file.endswith('.sql'):
@@ -121,43 +124,57 @@ def generate_project_schema(project_name, global_schema_path, sql_files):
             if isinstance(column, dict) and 'name' in column:
                 column_defs[column['name']] = column
 
-    # Create new schema structure
-    project_schema = {
-        'version': 2,
-        'models': []
-    }
-
-    # Process each SQL file
+    # First pass: collect all needed columns
+    needed_columns = set()
     for sql_file in sql_files:
-        model_name = os.path.basename(sql_file).replace('.sql', '')
-        
-        # Get columns from SQL file
         sql_columns = extract_sql_columns(sql_file)
         schema_columns = load_global_schema(global_schema_path)
-        matching_columns, missing_columns = compare_columns(sql_columns, schema_columns)
+        matching_columns, _ = compare_columns(sql_columns, schema_columns)
+        needed_columns.update(matching_columns)
 
-        if matching_columns:  # Only add model if it has matching columns
-            model_def = {
-                'name': model_name,
-                'description': f'This table stores metrics for the {project_name.upper()} protocol',
-                'columns': []
-            }
-
-            # Add matching columns with their definitions
-            for column_name in matching_columns:
-                if column_name in existing_overrides:
-                    # Use the override definition
-                    model_def['columns'].append(existing_overrides[column_name])
-                elif column_name in column_defs:
-                    # Use the global definition
-                    column_def = column_defs[column_name].copy()
-                    model_def['columns'].append(column_def)
-
-            project_schema['models'].append(model_def)
-
-    # Write the new schema file
+    # Write the new schema file with auto-generated comment and anchors
     with open(output_path, 'w') as f:
-        yaml.dump(project_schema, f, sort_keys=False, default_flow_style=False)
+        # Write header
+        f.write("# This file is auto-generated from the global schema definitions.\n")
+        f.write("# To override a column definition, add the 'override' tag to that column.\n\n")
+        
+        # Write version
+        f.write("version: 2\n\n")
+        
+        # Write column definitions with anchors
+        f.write("column_definitions:\n")
+        for col_name in sorted(needed_columns):
+            if col_name in existing_overrides:
+                col_def = existing_overrides[col_name]
+            elif col_name in column_defs:
+                col_def = column_defs[col_name]
+            else:
+                continue
+
+            f.write(f"  {col_name}: &{col_name}\n")
+            f.write(f"    name: {col_def['name']}\n")
+            f.write(f"    description: \"{col_def['description']}\"\n")
+            if 'tags' in col_def:
+                f.write("    tags:\n")
+                for tag in col_def['tags']:
+                    f.write(f"      - {tag}\n")
+            f.write("\n")
+        
+        # Write models section
+        f.write("models:\n")
+        for sql_file in sql_files:
+            model_name = os.path.basename(sql_file).replace('.sql', '')
+            sql_columns = extract_sql_columns(sql_file)
+            schema_columns = load_global_schema(global_schema_path)
+            matching_columns, _ = compare_columns(sql_columns, schema_columns)
+
+            if matching_columns:  # Only add model if it has matching columns
+                f.write(f"  - name: {model_name}\n")
+                f.write(f"    description: \"This table stores metrics for the {project_name.upper()} protocol\"\n")
+                f.write("    columns:\n")
+                for col_name in sorted(matching_columns):
+                    f.write(f"      - *{col_name}\n")
+                f.write("\n")
 
     print(f"Generated schema file: {output_path}")
     if existing_overrides:
@@ -172,20 +189,47 @@ def get_dbt_root():
         current_dir = os.path.dirname(current_dir)
     raise Exception("Could not find dbt project root (no dbt_project.yml found)")
 
-def get_project_paths(project_name):
+def get_project_path():
     """Generate standard paths relative to dbt project root"""
     dbt_root = get_dbt_root()
-    
+
     paths = {
         'global_schema': os.path.join(dbt_root, 'models', '__global__schema.yml'),
     }
     return paths
 
 if __name__ == "__main__":
+    try:
+        # Get dbt root directory
+        dbt_root = get_dbt_root()
+        
+        # Change to dbt root directory before running compile
+        print(f"Changing to dbt root directory: {dbt_root}")
+        original_dir = os.getcwd()
+        os.chdir(dbt_root)
+        
+        print("Compiling dbt project...")
+        result = subprocess.run(['dbt', 'compile'], capture_output=True, text=True)
+        
+        # Change back to original directory
+        os.chdir(original_dir)
+        
+        if result.returncode != 0:
+            print("❌ dbt compile failed:")
+            print(result.stderr)
+            exit(1)
+        print("✅ dbt compile successful")
+
+    except FileNotFoundError:
+        print("❌ dbt command not found. Make sure dbt is installed and in your PATH")
+        exit(1)
+
+    # Continue with rest of script...
+
     project_name = input("Enter project name: ")
     
     # Get paths
-    paths = get_project_paths(project_name)
+    paths = get_project_path()
     global_schema_path = paths['global_schema']
 
     # Get all SQL files in project
