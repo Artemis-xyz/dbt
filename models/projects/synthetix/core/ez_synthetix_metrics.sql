@@ -66,7 +66,7 @@ with
         group by 1
     ),
     market_data as (
-        {{ get_coingecko_metrics('synthetix') }}
+        {{ get_coingecko_metrics('havven') }}
     )
 select
     date,
