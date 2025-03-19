@@ -21,7 +21,7 @@ with
         select 
             date,
             chain,
-            sum(tvl_usd) as tvl_usd,
+            sum(tvl_usd) as tvl,
         from {{ ref("fact_synthetix_tvl_by_chain_and_token") }}
         group by 1,2 
     ),
@@ -48,10 +48,12 @@ select
     chain,
     trading_volume,
     unique_traders,
-    tvl_usd,
-    net_deposits
+    tvl,
+    net_deposits,
+    token_incentives
 from unique_traders_data
 left join trading_volume_data using(date, chain)
 left join tvl using(date, chain)
 left join net_deposits using(date, chain)
+left join token_incentives using(date, chain)
 where date < to_date(sysdate())
