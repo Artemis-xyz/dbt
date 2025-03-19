@@ -246,7 +246,7 @@ outdated_chains AS (
     SELECT 
         chain
     FROM chain_latest_data
-    WHERE latest_date < DATEADD(DAY, -1, CURRENT_DATE)
+    WHERE latest_date < DATEADD(DAY, -1, TO_DATE(SYSDATE()))
 ),
 merged_results AS (
     -- Use new data for chains with up-to-date information
