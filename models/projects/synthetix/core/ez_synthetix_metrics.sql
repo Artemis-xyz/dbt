@@ -20,7 +20,7 @@ with
     tvl as (
         select 
             date,
-            sum(tvl_usd) as tvl_usd,
+            sum(tvl_usd) as tvl,
         from {{ ref("fact_synthetix_tvl_by_chain_and_token") }}
         group by 1 
     ),
@@ -81,7 +81,7 @@ select
     'DeFi' as category,
     coalesce(trading_volume, 0) as trading_volume,
     coalesce(unique_traders, 0) as unique_traders,
-    coalesce(tvl_usd, 0) as tvl_usd,
+    coalesce(tvl, 0) as tvl,
     coalesce(net_deposits, 0) as net_deposits,
     coalesce(fees, 0) as fees,
     coalesce(fees, 0) as revenue, 
