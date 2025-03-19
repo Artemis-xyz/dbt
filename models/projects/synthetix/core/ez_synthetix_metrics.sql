@@ -30,6 +30,15 @@ with
             sum(net_deposits) as net_deposits
         from {{ ref("fact_synthetix_net_deposits_by_chain") }}
         group by 1
+    ), 
+    token_holders as (
+        select
+            date,
+            token_holder_count
+        from {{ ref('fact_synthetix_token_holders') }}
+    ),
+    market_data as (
+        {{ get_coingecko_metrics('synthetix') }}
     )
 select
     date,
@@ -38,9 +47,18 @@ select
     trading_volume,
     unique_traders,
     tvl_usd,
-    net_deposits
+    net_deposits,
+    coalesce(market_data.price, 0) as price,
+    coalesce(market_data.market_cap, 0) as market_cap,
+    coalesce(market_data.fdmc, 0) as fdmc,
+    coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating,
+    coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv,
+    coalesce(market_data.token_volume, 0) as token_volume,
+    coalesce(token_holders.token_holder_count, 0) as token_holder_count
 from unique_traders_data
 left join trading_volume_data using(date)
 left join tvl using(date)
 left join net_deposits using(date)
+left join market_data using(date)
+left join token_holders using(date)
 where date < to_date(sysdate())
