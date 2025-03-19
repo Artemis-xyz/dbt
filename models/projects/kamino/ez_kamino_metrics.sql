@@ -25,12 +25,12 @@ with
     ), 
 
     kamino_transactions as (    
-        select date, tx_count as daily_transactions
+        select date, tx_count as txn
         from {{ ref("fact_kamino_daily_transactions") }}
     ),
 
     kamino_active_users as (
-        select date, distinct_signers_count as daily_active_users
+        select date, distinct_signers_count as dau
         from {{ ref("fact_kamino_daily_active_users") }}
     ),
 
@@ -42,8 +42,8 @@ with
         tvl,
         fees,
         revenue,
-        daily_transactions,
-        daily_active_users,
+        txn,
+        dau,
         coalesce(market_data.price, 0) as price,
         coalesce(market_data.market_cap, 0) as market_cap,
         coalesce(market_data.fdmc, 0) as fdmc,
