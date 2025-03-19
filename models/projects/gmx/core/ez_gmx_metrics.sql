@@ -38,14 +38,20 @@ with
     )
 
 select 
-    date as date,
-    'gmx' as app,
-    'DeFi' as category,
-    trading_volume,
-    unique_traders,
-    fees,
-    revenue,
-    supply_side_revenue
+    date as date
+    , 'gmx' as app
+    , 'DeFi' as category
+    , trading_volume
+    , unique_traders
+    , fees
+    , revenue
+    , supply_side_revenue
+    --Standardized Metrics
+    , unique_traders as perp_unique_traders
+    , trading_volume as perp_trading_volume
+    , fees as net_revenue
+    , supply_side_revenue as cost_of_goods_sold
+    , revenue as gross_profit
 from combined_data
 left join fees_data using(date)
 where date < to_date(sysdate())
