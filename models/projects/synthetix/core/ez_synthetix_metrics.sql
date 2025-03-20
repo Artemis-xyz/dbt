@@ -34,8 +34,9 @@ with
     token_holders as (
         select
             date,
-            token_holder_count
+            sum(token_holder_count) as token_holder_count
         from {{ ref('fact_synthetix_token_holders') }}
+        group by 1
     ),
     fees as (
         select
