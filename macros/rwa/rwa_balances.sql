@@ -123,7 +123,7 @@ with
             , address
             , st.contract_address
             , st.symbol
-            , coalesce( d.price,
+            , coalesce( d.price, d2.price,
                     case 
                         when c.coingecko_id in (
                                 'blackrock-usd-institutional-digital-liquidity-fund', 
@@ -149,6 +149,12 @@ with
         ) d
             on lower(c.contract_address) = lower(d.contract_address)
             and st.date = d.date::date
+        left join (
+            {{get_multiple_coingecko_price_with_latest(chain)}}
+        ) d2
+            on lower(c.symbol) = lower(d2.symbol)
+            and lower(c.contract_address) != lower(d2.contract_address)
+            and st.date = d2.date::date
         left join {{ ref( "fact_hashnote_usyc_rate") }} h
             on st.date = h.date
             and st.symbol = 'USYC'
