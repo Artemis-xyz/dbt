@@ -13,8 +13,8 @@ with
     , extracted_data as (
         select
             date(left(value:"date_time"::string, 10)) as date,
-            value:unique_active_users as daa,
-            value:all_transactions as txns,
+            value:unique_active_users::number as daa,
+            value:all_transactions::number as txns,
             value:txn_fees::double as gas,
             value as source,
             'polygon_zk' as chain
