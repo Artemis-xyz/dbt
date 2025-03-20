@@ -86,7 +86,9 @@ SELECT
     , recipient
     , destination_chain_id
     , destination_token
+    , dst_message
     , dst_chain
+    , deposit_id
     , protocol_fee
     , bridge_message_app
     , version
