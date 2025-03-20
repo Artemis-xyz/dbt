@@ -16,7 +16,6 @@ with
                 , value_raw::float as value_raw
                 , value_raw / 1e18 as value_native
             from {{ ref("fact_ethereum_genesis_transactions") }}
-            where block_timestamp <= '2016-01-01'
             {% if is_incremental() %}
                 where block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
             {% endif %}
@@ -37,7 +36,6 @@ with
         where tx_succeeded
             and trace_succeeded
             and type not in ('DELEGATECALL', 'STATICCALL')
-            and block_timestamp <= '2016-01-01'
         {% if is_incremental() %}
             and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
@@ -55,7 +53,6 @@ with
             , gas_used * gas_price::float / 1e9 as value_native
         from {{ chain }}_flipside.core.fact_transactions
         left join {{ chain }}_flipside.core.fact_blocks using (block_number)
-        where block_timestamp <= '2016-01-01'
         {% if is_incremental() %}
             where block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
