@@ -3,6 +3,7 @@
         block_timestamp,
         block_number,
         transaction_hash,
+        transaction_index,
         event_index,
         contract_address,
         origin_from_address,
