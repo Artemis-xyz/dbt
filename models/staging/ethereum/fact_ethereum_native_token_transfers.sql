@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        unique_key=["transaction_hash", "index"],
+        unique_key=["transaction_hash", "trace_index"],
         snowflake_warehouse="ETHEREUM_LG"
     )
 }}

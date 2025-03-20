@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        unique_key=["transaction_hash", "index"],
+        unique_key=["transaction_hash", "trace_address"],
         snowflake_warehouse="BASE"
     )
 }}
