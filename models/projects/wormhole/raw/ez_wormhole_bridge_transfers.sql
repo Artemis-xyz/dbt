@@ -19,5 +19,5 @@ select
     , symbol as token_symbol
     , token_address
     , amount_native as amount
-    , amount_usd
+    , amount as amount_usd
 from {{ref('fact_wormhole_operations_with_price')}} t
