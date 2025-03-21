@@ -9,9 +9,7 @@ with scaled_down_volume as (
         sum(
             case
                 when swap_from_amount_usd is not null and swap_to_amount_usd is not null then greatest(swap_from_amount_usd, swap_to_amount_usd)
-                when swap_from_amount_usd is null then swap_to_amount_usd
-                when swap_to_amount_usd is null then swap_from_amount_usd
-                else 0
+                else coalesce(swap_from_amount_usd, swap_to_amount_usd)
             end
         ) as trading_volume
     from solana_flipside.defi.ez_dex_swaps
@@ -47,9 +45,7 @@ pump_fun_volume as (
         sum(
             case
                 when swap_from_amount_usd is not null and swap_to_amount_usd is not null then greatest(swap_from_amount_usd, swap_to_amount_usd)
-                when swap_from_amount_usd is null then swap_to_amount_usd
-                when swap_to_amount_usd is null then swap_from_amount_usd
-                else 0
+                else coalesce(swap_from_amount_usd, swap_to_amount_usd)
             end
         ) as trading_volume
     from solana_flipside.defi.ez_dex_swaps
