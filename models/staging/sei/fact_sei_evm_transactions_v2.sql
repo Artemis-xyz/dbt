@@ -15,8 +15,9 @@ with
             contract.artemis_category_id as category,
             contract.artemis_sub_category_id as sub_category,
             contract.artemis_application_id as app,
-            contract.friendly_name
-        from {{ ref("dim_all_addresses_labeled_gold") }} as contract
+            contract.friendly_name,
+            contract.last_updated
+        from {{ ref("dim_all_addresses_labeled_silver") }} as contract
         where chain = 'sei'
     ),
     prices as ({{ get_coingecko_price_with_latest("sei-network") }}),
@@ -41,7 +42,8 @@ with
                 when new_contracts.category is not null
                 then new_contracts.category
                 else null
-            end as category
+            end as category,
+            CAST(current_timestamp() AS TIMESTAMP_NTZ) AS last_updated_timestamp
         from sei_flipside.core_evm.fact_transactions as t
         left join new_contracts on lower(t.to_address) = lower(new_contracts.address)
         left join prices on raw_date = prices.date
@@ -52,7 +54,8 @@ with
             >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
 
             or 
-            new_contracts.address is not null
+            new_contracts.last_updated
+            >= (select dateadd('day', -5, max(last_updated_timestamp)) from {{ this }})
         {% endif %}
     )
     select 
@@ -79,6 +82,7 @@ with
         null as engagement_type,
         null as balance_usd,
         null as native_token_balance,
-        null as stablecoin_balance
+        null as stablecoin_balance,
+        max(last_updated_timestamp) as last_updated_timestamp
     from sei_transactions
     group by tx_hash
