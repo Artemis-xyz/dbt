@@ -37,6 +37,11 @@ select
     , fundamentals.dau
     , sonic_dex_volumes.dex_volumes
     , price_data.price
+    , price_data.market_cap
+    , price_data.fdmc
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
+    , price_data.token_volume
     , supply_data.emissions_native
     , supply_data.premine_unlocks_native
     , supply_data.circulating_supply_native

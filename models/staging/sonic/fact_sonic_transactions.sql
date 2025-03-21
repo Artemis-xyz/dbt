@@ -7,7 +7,25 @@
 }}
 
 with
-    prices as ({{ get_coingecko_price_with_latest("sonic-3") }})
+    prices as (
+        with sonic_price as (
+            {{ get_coingecko_price_with_latest("sonic-3") }}
+        ),
+        ftm_price as (
+            {{ get_coingecko_price_with_latest("fantom") }}
+        )
+        SELECT
+            date,
+            price
+        FROM sonic_price
+        WHERE date > '2025-01-02'
+        UNION ALL
+        SELECT
+            date,
+            price
+        FROM ftm_price
+        WHERE date between '2024-12-01' and '2025-01-03' -- sonic (S) price is not available for this period
+    )
 select
     hash_hex as tx_hash,
     coalesce(to_hex, t.from_hex) as contract_address,
