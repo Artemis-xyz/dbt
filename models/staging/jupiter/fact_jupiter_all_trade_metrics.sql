@@ -48,7 +48,7 @@ with
             CASE 
                     WHEN swap_type = 'Ultra' 
                         THEN swap_fees  -- Jup retains 100% of Ultra fees
-                    WHEN swap_type = 'Referral' -- 2.5% referral fee which has been around since launch
+                    WHEN swap_type = 'Referral' AND date < '2025-01-14' -- 2.5% referral fee which has been around since launch but stopped in early January 2025
                         THEN swap_fees * 0.025 -- Jup retains 2.5% of referral fees
                 END as revenue,
             0 as supply_side_revenue,
