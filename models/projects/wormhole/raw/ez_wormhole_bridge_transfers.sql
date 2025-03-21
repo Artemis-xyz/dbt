@@ -18,6 +18,6 @@ select
     , to_address as destiantion_address
     , symbol as token_symbol
     , token_address
-    , amount
-    , amount_usd
+    , amount_native as amount
+    , amount as amount_usd
 from {{ref('fact_wormhole_operations_with_price')}} t

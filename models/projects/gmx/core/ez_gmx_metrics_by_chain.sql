@@ -40,6 +40,9 @@ select
     'DeFi' as category,
     chain,
     trading_volume,
-    unique_traders
+    unique_traders,
+    --Standardized Metrics
+    trading_volume as perp_trading_volume,
+    unique_traders as perp_unique_traders
 from combined_data
 where date < to_date(sysdate())
