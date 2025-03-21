@@ -49,7 +49,9 @@
             "ethereum",
             "optimism",
             "polygon",
-            "near"
+            "near",
+            "tron",
+            "mantle"
         ) %}
             ,last_updated_timestamp
         {% endif %}
@@ -65,7 +67,9 @@
             "ethereum",
             "optimism",
             "polygon",
-            "near"
+            "near",
+            "tron",
+            "mantle"
         ) %}
                 and last_updated_timestamp > (select max(last_updated_timestamp) from {{ this }})
             {% else %}
