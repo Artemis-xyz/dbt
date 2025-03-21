@@ -14,8 +14,9 @@ with
             contract.artemis_category_id as category,
             contract.artemis_sub_category_id as sub_category,
             contract.artemis_application_id as app,
-            contract.friendly_name
-        from {{ ref("dim_all_addresses_labeled_gold") }} as contract
+            contract.friendly_name,
+            contract.last_updated
+        from {{ ref("dim_all_addresses_labeled_silver") }} as contract
         where chain = 'sei'
     ),
     evm_txs AS (
@@ -84,6 +85,7 @@ with
             , t3.friendly_name
             , t3.sub_category
             , t3.category
+            , t3.last_updated
         FROM 
             transaction_contract_data t1
         LEFT JOIN 
@@ -92,7 +94,8 @@ with
         {% if is_incremental() %}
             WHERE inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
             or 
-            t3.address is not null
+            t3.last_updated
+                >= (select dateadd('day', -5, max(last_updated_timestamp)) from {{ this }})
         {% endif %}
     ),
     sei_transactions as (
@@ -111,6 +114,7 @@ with
             , (split(t2.fee, 'usei')[0] / pow(10, 6)) as tx_fee
             , (split(t2.fee, 'usei')[0] / pow(10, 6)) * t4.price as gas_usd
             , t1.inserted_timestamp
+            , CAST(current_timestamp() AS TIMESTAMP_NTZ) AS last_updated_timestamp
         FROM 
             incremental_transaction_contract_data as t1
         LEFT JOIN 
@@ -125,7 +129,8 @@ with
             AND 
             (t2.inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
                 or 
-                t1.app is not null)
+                t1.last_updated
+                >= (select dateadd('day', -5, max(last_updated_timestamp)) from {{ this }}))
             {% endif %}
             AND tx_id NOT IN (
                 SELECT tx_id
@@ -157,5 +162,6 @@ with
         , null as balance_usd
         , null as native_token_balance
         , null as stablecoin_balance
+        , max(last_updated_timestamp) as last_updated_timestamp
     FROM sei_transactions
     group by tx_hash
