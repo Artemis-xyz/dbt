@@ -123,7 +123,7 @@ with
             , address
             , st.contract_address
             , st.symbol
-            , coalesce( d.price, d2.price,
+            , coalesce( d.price,
                     case 
                         when c.coingecko_id in (
                                 'blackrock-usd-institutional-digital-liquidity-fund', 
@@ -137,7 +137,12 @@ with
                             then o.price
                         when c.coingecko_id = 'openeden-tbill'
                             then tbill.price
-                    end
+                        when st.contract_address = '0xe86845788d6e3e5c2393ade1a051ae617d974c09'
+                            then d2.price
+                                        end,
+                    FIRST_VALUE(d.price IGNORE NULLS) OVER (PARTITION BY st.contract_address ORDER BY st.date ASC
+                    ROWS BETWEEN UNBOUNDED PRECEDING
+                    AND CURRENT ROW)
             ) as price_adj
             , rwa_supply_native
             , rwa_supply_native * price_adj as rwa_supply_usd
