@@ -49,9 +49,9 @@ select
     --Standardized Metrics
     , unique_traders as perp_unique_traders
     , trading_volume as perp_trading_volume
-    , fees as net_revenue
-    , supply_side_revenue as cost_of_goods_sold
-    , revenue as gross_profit
+    , fees as ecosystem_revenue
+    , supply_side_revenue as lp_revenue
+    , revenue as non_participating_token_revenue
 from combined_data
 left join fees_data using(date)
 where date < to_date(sysdate())
