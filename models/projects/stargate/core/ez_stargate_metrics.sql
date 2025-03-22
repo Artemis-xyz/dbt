@@ -167,9 +167,6 @@ first_seen AS (
         daily_volume,
         daily_active_addresses,
         cumulative_active_addresses,
-        LAG(daily_transactions) OVER (ORDER BY transaction_date) AS prev_day_transactions,
-        ROUND(100.0 * (daily_transactions - LAG(daily_transactions) OVER (ORDER BY transaction_date)) 
-              / NULLIF(LAG(daily_transactions) OVER (ORDER BY transaction_date), 0), 2) AS daily_growth_pct,
         revenue,
         supply_side_fee,
         fees,
@@ -201,31 +198,34 @@ first_seen AS (
 -- Final output with simplified GROUP BY
 SELECT 
     d.transaction_date as date,
-    d.daily_transactions as txns,
-    d.avg_daily_transaction_size as avg_txn_size,
-    d.daily_volume as bridge_volume,
-    d.daily_active_addresses as bridge_daa, 
-    COALESCE(n.new_addresses, 0) AS new_addresses,
-    COALESCE(r.returning_addresses, 0) AS returning_addresses,
-    d.cumulative_active_addresses as cumulative_addresses,
-    d.daily_growth_pct,
-    d.supply_side_fee,
-    d.revenue,
-    d.fees,
-    d.token_rewards,
-    w.weekly_active_addresses,
-    m.monthly_active_addresses,
     COALESCE(b.count_0_100, 0) AS TXN_SIZE_0_100,
     COALESCE(b.count_100_1K, 0) AS TXN_SIZE_100_1K,
     COALESCE(b.count_1K_10K, 0) AS TXN_SIZE_1K_10K,
     COALESCE(b.count_10K_100K, 0) AS TXN_SIZE_10K_100K,
     COALESCE(b.count_100K_plus, 0) AS TXN_SIZE_100K_PLUS,
-    t.treasury_usd,
+    d.avg_daily_transaction_size as avg_txn_size,
+    --Add to BAM
+    COALESCE(n.new_addresses, 0) AS new_addresses,
+    COALESCE(r.returning_addresses, 0) AS returning_addresses,
+    --Standardized Metrics
     tvl_metrics.tvl,
+    d.daily_transactions as bridge_txns,
+    d.daily_volume as bridge_volume,
+    d.daily_active_addresses as bridge_dau,
+    w.weekly_active_addresses as bridge_wau,
+    m.monthly_active_addresses as bridge_mau,
+    d.cumulative_active_addresses as bridge_cumulative_dau,
+
+    d.fees as ecosystem_revenue,
+    d.supply_side_fee as participating_token_revenue,
+    d.revenue as non_participating_token_revenue,
+    d.token_rewards as cost_of_goods_sold,
+
+    t.treasury_usd as treasury,
+    ts.staked_usd as staked,
     ts.staked_native,
-    ts.staked_usd,
-    cs.circulating_supply,
-    pd.price,
+    pd.price as price,
+    cs.circulating_supply as circulating_supply,
     pd.price * cs.circulating_supply as market_cap
 FROM daily_growth d
 LEFT JOIN new_addresses n ON d.transaction_date = n.transaction_date
