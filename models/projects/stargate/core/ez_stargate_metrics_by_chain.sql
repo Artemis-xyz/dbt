@@ -95,14 +95,15 @@ WITH
 SELECT 
     date
     , chain
-    , txns
-    , dau
     , new_addresses
     , returning_addresses
+    --Standardized Metrics
+    , txns as bridge_txns
+    , dau as bridge_dau
     , inflow
     , outflow
-    , treasury_usd
     , tvl
+    , treasury_usd as treasury
 FROM chain_metrics
 left join flows using (date, chain)
 left join treasury_metrics using (date, chain)
