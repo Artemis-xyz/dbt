@@ -204,6 +204,7 @@ SELECT
     COALESCE(b.count_10K_100K, 0) AS TXN_SIZE_10K_100K,
     COALESCE(b.count_100K_plus, 0) AS TXN_SIZE_100K_PLUS,
     d.avg_daily_transaction_size as avg_txn_size,
+    d.daily_active_addresses as bridge_daa,
     --Add to BAM
     COALESCE(n.new_addresses, 0) AS new_addresses,
     COALESCE(r.returning_addresses, 0) AS returning_addresses,
