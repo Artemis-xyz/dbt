@@ -26,6 +26,7 @@ with
             date,
             emissions_native,
             premine_unlocks_native,
+            net_supply_change_native,
             circulating_supply_native
         from {{ ref("fact_sonic_supply_data") }}
     )
@@ -44,6 +45,7 @@ select
     , price_data.token_volume
     , supply_data.emissions_native
     , supply_data.premine_unlocks_native
+    , supply_data.net_supply_change_native
     , supply_data.circulating_supply_native
 from fundamentals
 left join sonic_dex_volumes on fundamentals.date = sonic_dex_volumes.date
