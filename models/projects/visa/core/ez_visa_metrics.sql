@@ -33,7 +33,7 @@ with visa as (
           else 91
         end
     end as daily_avg_volume
-    from pc_dbt_db.prod.benchmark_seed
+    from {{ ref("benchmark_seed") }}
     where type = 'VISA'
 ),
 date_boundaries as (

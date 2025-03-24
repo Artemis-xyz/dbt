@@ -20,7 +20,7 @@ with remittance as (
       then 366
       else 365
     end as daily_transaction_volume
-    from pc_dbt_db.prod.benchmark_seed
+    from {{ ref("benchmark_seed") }}
     where type = 'REMITTANCE'
 ),
 date_boundaries as (

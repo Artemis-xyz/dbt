@@ -13,7 +13,7 @@ with fedwire as (
     date,
     type,
     transfer_volume * 1e6 as daily_transaction_volume
-    from pc_dbt_db.prod.benchmark_seed
+    from {{ ref("benchmark_seed") }}
     where type = 'FEDWIRE'
 ),
 date_boundaries as (
