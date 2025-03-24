@@ -113,5 +113,8 @@ combined_result as (
     select date, transfer_volume from extrapolated_result
 )
 -- Final output
-select * from combined_result
+select 
+    date, 
+    transfer_volume 
+from combined_result
 order by date
