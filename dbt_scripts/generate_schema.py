@@ -2,6 +2,7 @@ import yaml
 import re
 import os
 import subprocess
+import requests
 
 def load_global_schema(global_schema_path):
     """ Load and flatten the global schema into a set of metric names. """
@@ -207,9 +208,14 @@ if __name__ == "__main__":
         print(f"Changing to dbt root directory: {dbt_root}")
         original_dir = os.getcwd()
         os.chdir(dbt_root)
+
+        # Get project name from user
+        project_name = input("Enter project name: ")
         
-        print("Compiling dbt project...")
-        result = subprocess.run(['dbt', 'compile'], capture_output=True, text=True)
+        print(f"Compiling models for project: {project_name}...")
+        dbt_compile_command = ['dbt', 'compile', '-s', f'models/projects/{project_name}']
+
+        result = subprocess.run(dbt_compile_command, capture_output=True, text=True)
         
         # Change back to original directory
         os.chdir(original_dir)
@@ -225,8 +231,6 @@ if __name__ == "__main__":
         exit(1)
 
     # Continue with rest of script...
-
-    project_name = input("Enter project name: ")
     
     # Get paths
     paths = get_project_path()
