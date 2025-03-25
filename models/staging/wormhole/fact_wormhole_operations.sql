@@ -1,7 +1,7 @@
 {{ config(snowflake_warehouse="WORMHOLE", materialized="table") }}
 
 with
-decoded_wromhole_data as (
+decoded_wormhole_data as (
     select 
         value:"id"::string as id,
         value:"sourceChain":"timestamp"::timestamp as src_timestamp,
@@ -70,5 +70,5 @@ select
     max_by(dst_status, extraction_date) as dst_status,
     max_by(payload, extraction_date) as payload,
     extraction_date
-from decoded_wromhole_data t1
+from decoded_wormhole_data t1
 GROUP BY id, extraction_date
