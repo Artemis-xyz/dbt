@@ -14,10 +14,6 @@ with date_spine as (
     where date_spine.date between '2023-10-01' and (to_date(sysdate()) - 1)
 ),
 
---daily_revenue as (
---    select *
---    from {{ ref('fact_pumpfun_dailyrevenues') }}
---),
 
 trades as (
     select *
@@ -41,10 +37,7 @@ select
     'solana' as chain,
     coalesce(swap_metrics.unique_traders, 0) as unique_traders,
     coalesce(swap_metrics.number_of_swaps, 0) as number_of_swaps,
-    coalesce(swap_metrics.trading_volume, 0) as trading_volume,
-    --coalesce(daily_revenue.Revenue_USD, 0) as revenue_usd,
-    --coalesce(daily_revenue.Revenue_SOL, 0) as revenue_sol
+    coalesce(swap_metrics.trading_volume, 0) as trading_volume
 from date_spine
 left join swap_metrics using(date)
---left join daily_revenue using(date)
 order by date desc
