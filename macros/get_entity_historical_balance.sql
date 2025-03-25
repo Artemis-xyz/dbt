@@ -63,7 +63,7 @@ WITH dates AS (
         CROSS JOIN (SELECT distinct(contract_address) as token_address FROM sparse_balances) t
         LEFT JOIN sparse_balances sb ON d.date = sb.date
         AND ta.address = sb.user_address
-        AND t.token_address = sb.contract_address
+        AND lower(t.token_address) = lower(sb.contract_address)
 )
 , full_table as (
     SELECT
@@ -91,7 +91,7 @@ WITH dates AS (
         LEFT JOIN {{ chain }}_flipside.price.ez_prices_hourly p ON 
                 (
                     p.hour = fb.date
-                    AND fb.contract_address = p.token_address
+                    AND lower(fb.contract_address) = lower(p.token_address)
                 )
         -- left join native token price
         LEFT JOIN {{ chain }}_flipside.price.ez_prices_hourly native_token ON

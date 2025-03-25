@@ -11,27 +11,17 @@
 with 
     kamino_tvl as (
         select date, total_value_locked as tvl
-        from {{ ref("fact_kamino_total_value_locked") }}
+        from {{ ref("fact_kamino_tvl") }}
     ),
 
-    klend_fees as (
-        select date, klend_fees_usd as fees
+    klend_fees_and_revenue as (
+        select date, klend_fees_usd as fees, klend_revenue_usd as revenue
         from {{ ref("fact_kamino_fees_and_revenues") }}
     ),
-
-    klend_revenue as (
-        select date, klend_revenue_usd as revenue
-        from {{ ref("fact_kamino_fees_and_revenues") }}
-    ), 
 
     kamino_transactions as (    
-        select date, tx_count as txn
-        from {{ ref("fact_kamino_daily_transactions") }}
-    ),
-
-    kamino_active_users as (
-        select date, distinct_signers_count as dau
-        from {{ ref("fact_kamino_daily_active_users") }}
+        select date, tx_count as txn, dau
+        from {{ ref("dim_kamino_transactions") }}
     ),
 
     market_data as (
@@ -51,9 +41,7 @@ with
         coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv,
         coalesce(market_data.token_volume, 0) as token_volume,
     from kamino_tvl
-    left join klend_fees using (date)
-    left join klend_revenue using (date)
+    left join klend_fees_and_revenue using (date)
     left join market_data using (date)
     left join kamino_transactions using (date)
-    left join kamino_active_users using (date)
     where date < to_date(sysdate())
