@@ -33,11 +33,15 @@ WITH addresses_with_namespace_and_category AS (
     FROM addresses_with_namespace_and_category a
     LEFT JOIN PC_DBT_DB.PROD.dim_namespace_to_application n
         ON a.namespace = n.namespace
+    LEFT JOIN {{ this }} existing
+        ON existing.address = a.address
+        AND existing.chain = a.chain
     WHERE n.artemis_application_id IS NOT NULL
+        AND existing.address IS NULL
 ),
 deduped_bulk_manual_labeled_addresses AS (
     SELECT *
-    FROM {{ source("PYTHON_LOGIC", "dim_manual_labeled_addresses") }}
+    FROM {{ ref("dim_manual_labeled_addresses") }}
     {% if is_incremental() %}
         WHERE last_updated > (SELECT DATEADD('day', -5, MAX(last_updated)) FROM {{ this }})
     {% endif %}
