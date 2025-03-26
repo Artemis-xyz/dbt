@@ -33,7 +33,11 @@ WITH addresses_with_namespace_and_category AS (
     FROM addresses_with_namespace_and_category a
     LEFT JOIN PC_DBT_DB.PROD.dim_namespace_to_application n
         ON a.namespace = n.namespace
+    LEFT JOIN {{ this }} existing
+        ON existing.address = a.address
+        AND existing.chain = a.chain
     WHERE n.artemis_application_id IS NOT NULL
+        AND existing.address IS NULL
 ),
 deduped_bulk_manual_labeled_addresses AS (
     SELECT *
