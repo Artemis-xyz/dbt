@@ -1,6 +1,7 @@
 -- Improved version of get_treasury_balance that takes a table name as input instead of a list of addresses
 -- This is useful for getting the historical balance of an entity, like a DAO Treasury, the TVL of a protocol, etc. where there are multiple
 -- addresses attributed to the entity.
+-- If you're looking to get balances of a Solana entity, first get the account addresses from fact_solana_token_account_to_mint with entity address as owner
 
 {% macro get_entity_historical_balance(chain, table_name, address_column, earliest_date, blacklist=(''))%}
 
@@ -19,17 +20,21 @@ WITH dates AS (
         case 
             when contract_address = lower('0x4da27a545c0c5B758a6BA100e3a049001de870f5') -- no pricing data for stkAAVE, so default to AAVE
                 then lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9')
-                else contract_address
+                else lower(contract_address)
             end as contract_address,      
         case
             when contract_address = 'native_token' 
                 then 0
-            else b.decimals
+            else t.decimals
         end as decimals_adj,
-        MAX_BY({%if chain == 'solana' %}amount{% else %}balance_token{% endif %} / pow(10, coalesce(decimals_adj,18)), block_timestamp) AS balance_daily
+        {%if chain == 'solana' %} -- note Solana balances are already decimals adjusted
+            MAX_BY(amount, block_timestamp) AS balance_daily
+        {% else %}
+            MAX_BY(balance_token / pow(10, coalesce(decimals_adj,18)), block_timestamp) AS balance_daily
+        {% endif %}
     FROM
         {{ref('fact_' ~ chain ~ '_address_balances_by_token')}} b
-        LEFT JOIN {{ chain }}_flipside.price.ez_asset_metadata t on t.token_address = b.contract_address
+        LEFT JOIN {{ chain }}_flipside.price.ez_asset_metadata t on lower(t.token_address) = lower(b.contract_address)
     WHERE 1=1
         AND LOWER(address) IN (SELECT distinct lower({{address_column}}) FROM {{ref(table_name)}})
         {% if blacklist is string %} and lower(contract_address) != lower('{{ blacklist }}')
@@ -41,29 +46,32 @@ WITH dates AS (
         3,
         4
 )
+, address_token_pairs AS (
+    -- Only create pairs that actually exist in the data
+    SELECT DISTINCT 
+        user_address,
+        contract_address
+    FROM sparse_balances
+)
 , full_balances AS (
     SELECT
         d.date,
-        ta.address as user_address,
-        t.token_address AS contract_address,
+        atp.user_address,
+        atp.contract_address,
         COALESCE(
             LAST_VALUE(sb.balance_daily) IGNORE NULLS OVER (
-                PARTITION BY 
-                ta.address,
-                t.token_address
-                ORDER BY
-                    d.date ROWS BETWEEN UNBOUNDED PRECEDING
-                    AND CURRENT ROW
+                PARTITION BY atp.user_address, atp.contract_address
+                ORDER BY d.date 
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
             ),
             0
         ) AS balance_daily
     FROM
         dates d
-        CROSS JOIN (SELECT distinct(lower({{address_column}})) as address FROM {{ref(table_name)}}) ta
-        CROSS JOIN (SELECT distinct(contract_address) as token_address FROM sparse_balances) t
+        CROSS JOIN address_token_pairs atp
         LEFT JOIN sparse_balances sb ON d.date = sb.date
-        AND ta.address = sb.user_address
-        AND lower(t.token_address) = lower(sb.contract_address)
+            AND atp.user_address = sb.user_address
+            AND atp.contract_address = sb.contract_address
 )
 , full_table as (
     SELECT
