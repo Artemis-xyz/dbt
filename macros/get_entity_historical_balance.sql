@@ -1,6 +1,7 @@
 -- Improved version of get_treasury_balance that takes a table name as input instead of a list of addresses
 -- This is useful for getting the historical balance of an entity, like a DAO Treasury, the TVL of a protocol, etc. where there are multiple
 -- addresses attributed to the entity.
+-- If you're looking to get balances of a Solana entity, first get the account addresses from fact_solana_token_account_to_mint with entity address as owner
 
 {% macro get_entity_historical_balance(chain, table_name, address_column, earliest_date, blacklist=(''))%}
 
