@@ -70,8 +70,8 @@ WITH dates AS (
         dates d
         CROSS JOIN address_token_pairs atp
         LEFT JOIN sparse_balances sb ON d.date = sb.date
-        AND ta.address = sb.user_address
-        AND lower(t.token_address) = lower(sb.contract_address)
+            AND atp.user_address = sb.user_address
+            AND atp.contract_address = sb.contract_address
 )
 , full_table as (
     SELECT
