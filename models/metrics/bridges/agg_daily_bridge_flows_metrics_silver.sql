@@ -17,6 +17,7 @@ with
                     ref("fact_zksync_era_bridge_flows"),
                     ref("fact_rainbow_bridge_flows"),
                     ref("fact_stargate_flows"),
+                    ref("fact_debridge_flows"),
                 ]
             )
         }}
