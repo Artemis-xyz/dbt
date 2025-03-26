@@ -37,7 +37,7 @@ WITH addresses_with_namespace_and_category AS (
 ),
 deduped_bulk_manual_labeled_addresses AS (
     SELECT *
-    FROM {{ source("PYTHON_LOGIC", "dim_manual_labeled_addresses") }}
+    FROM {{ ref("dim_manual_labeled_addresses") }}
     {% if is_incremental() %}
         WHERE last_updated > (SELECT DATEADD('day', -5, MAX(last_updated)) FROM {{ this }})
     {% endif %}
