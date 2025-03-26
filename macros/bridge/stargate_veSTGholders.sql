@@ -10,48 +10,48 @@ with stg_holders as (
         lower(to_address) = lower('{{veSTG_contract_address}}') -- veSTG contract
         and lower(contract_address) = lower('{{token_contract_address}}') -- STG token
 ),
-veSTG_deposits as (
-    select
+veSTG_deposits AS (
+    select distinct
         ezd.tx_hash,
         ezd.block_timestamp,
         decoded_log:"provider"::STRING as from_address,
         try_cast(decoded_log:"locktime"::STRING as NUMBER) as locktime,
         try_cast(decoded_log:"ts"::STRING as NUMBER) as ts,
         try_cast(decoded_log:"value"::STRING as NUMERIC)/1e18 as value,
-        case when 
-            locktime is not null 
-            then TO_TIMESTAMP(locktime) else null 
+        case 
+            when locktime is not null then to_timestamp(locktime)
+            else null 
         end as locktime_ts,
-        case when 
-            ts is not null 
-            then TO_TIMESTAMP(ts) else null 
+        case 
+            when ts is not null then to_timestamp(ts)
+            else null 
         end as deposit_ts,
         case 
             when locktime is not null then greatest(0, datediff(day, current_timestamp(), TO_TIMESTAMP(locktime)))
             else 0
-        end AS remaining_days,
-        case
+        end as remaining_days,
+        case 
             when locktime is not null then
-                concat(
-                    floor(greatest(0, datediff(day, current_timestamp(), TO_TIMESTAMP(locktime))) / 365), ' years, ',
-                    floor(mod(greatest(0, datediff(day, current_timestamp(), TO_TIMESTAMP(locktime))), 365) / 30), ' months, ',
-                    mod(greatest(0, datediff(day, current_timestamp(), TO_TIMESTAMP(locktime))), 30), ' days'
-                )
+            concat(
+              floor(greatest(0, datediff(day, current_timestamp(), TO_TIMESTAMP(locktime))) / 365), ' years, ',
+              floor(mod(greatest(0, datediff(day, current_timestamp(), TO_TIMESTAMP(locktime))), 365) / 30), ' months, ',
+              mod(greatest(0, datediff(day, current_timestamp(), TO_TIMESTAMP(locktime))), 30), ' days'
+            )
             else '0 days'
         end as remaining_stake_readable,
-        stg.stg_balance,
-        case
-            when stg.stg_balance is null or locktime is null or ts is null then 0
-            when (locktime - ts) <= 0 then 0  
-            when (locktime - ts) > 94608000 then 0
-            else (stg.stg_balance * (locktime - ts)/24/3600/3/365)
-        end AS veSTG_balance
+        case 
+          when value is null or locktime is null then 0
+          when (locktime - extract(epoch from current_timestamp())) <= 0 then 0
+          when (locktime - extract(epoch from current_timestamp())) > 94608000 then 0
+          else (value * (locktime - extract(epoch from current_timestamp())) / 94608000)
+        end as veSTG_balance
     from {{chain}}_flipside.core.ez_decoded_event_logs ezd
-    inner join stg_holders stg on stg.tx_hash = ezd.tx_hash
+    left join stg_holders s on ezd.tx_hash = s.tx_hash
     where topic_0 = '0xbe9cf0e939c614fad640a623a53ba0a807c8cb503c4c4c8dacabe27b86ff2dd5'
         and tx_succeeded = true 
         and event_name = 'Deposit'
-        and stg.stg_balance is not null
+        and try_cast(decoded_log:"value"::STRING as NUMERIC) > 0
+        and contract_name = 'veSTG'
 ),
 veSTG_withdraws as (
     select
@@ -95,13 +95,38 @@ last_stake_changes as (
     from ranked_stake_changes
     where rn = 1
 ),
-voting_data as (
+-- voting_data as (
+--     select 
+--         lower(ADDRESS) as from_address,
+--         count(*) as number_of_votes,
+--         max(TO_TIMESTAMP(TIMESTAMP)) as last_voted_timestamp
+--     from landing_database.prod_landing.raw_stargate_proposals_snapshot
+--     group by lower(ADDRESS)
+-- ),
+snapshot_data as (
     select 
-        lower(ADDRESS) as from_address,
+        parse_json(source_json) as data,
+        regexp_substr(source_url, '/proposal/([a-f0-9x]+)', 1, 1, 'e', 1) as proposal_id
+    from landing_database.prod_landing.raw_stargate_proposals_snapshot
+),
+voting_extraction as (
+    select
+        proposal_id,
+        f.value:id::string as voter_id,
+        f.value:voter::string as from_address,
+        f.value:choice::number as choice,
+        to_timestamp(f.value:created::number) as timestamp,
+        to_date(to_timestamp(f.value:created::number)) as date, 
+        f.value:vp::double as voting_power
+    from snapshot_data, lateral flatten(input => data) f
+),
+voting_data as (
+    select
+        lower(from_address) as from_address,
         count(*) as number_of_votes,
-        max(TO_TIMESTAMP(TIMESTAMP)) as last_voted_timestamp
-    from landing_database.prod_landing.raw_stargate_proposals_csv
-    group by lower(ADDRESS)
+        max(timestamp) as last_voted_timestamp
+    from voting_extraction
+    group by lower(from_address)
 ),
 circulating_supply AS (
     select
@@ -114,28 +139,39 @@ circulating_supply AS (
     order by block_timestamp desc
     limit 1
 ),
+-- net_positions AS (
+--     select 
+--         d.from_address,
+--         d.veSTG_balance,
+--         d.remaining_days,
+--         d.remaining_stake_readable,
+--         coalesce(w.total_withdrawn, 0) as total_withdrawn,
+--         case 
+--             when d.remaining_days = 0 then 0 -- Expired positions have 0 value
+--             else greatest(0, d.veSTG_balance - coalesce(w.total_withdrawn, 0))
+--         end as net_veSTG_balance
+--     from veSTG_deposits d
+--     left join (
+--         select 
+--             from_address, 
+--             sum(withdrawn_value) as total_withdrawn
+--         from veSTG_withdraws
+--         where withdrawn_value is not null
+--         group by from_address
+--     ) w on d.from_address = w.from_address
+--     where d.veSTG_balance > 0
+--         and d.remaining_days > 0
+-- ),
 net_positions AS (
     select 
         d.from_address,
         d.veSTG_balance,
         d.remaining_days,
         d.remaining_stake_readable,
-        coalesce(w.total_withdrawn, 0) as total_withdrawn,
-        case 
-            when d.remaining_days = 0 then 0 -- Expired positions have 0 value
-            else greatest(0, d.veSTG_balance - coalesce(w.total_withdrawn, 0))
-        end as net_veSTG_balance
+        d.veSTG_balance as net_veSTG_balance
     from veSTG_deposits d
-    left join (
-        select 
-            from_address, 
-            sum(withdrawn_value) as total_withdrawn
-        from veSTG_withdraws
-        where withdrawn_value is not null
-        group by from_address
-    ) w on d.from_address = w.from_address
     where d.veSTG_balance > 0
-        and d.remaining_days > 0
+      and d.remaining_days > 0
 ),
 all_holders AS (
     select 
