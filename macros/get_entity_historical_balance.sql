@@ -100,7 +100,6 @@ WITH dates AS (
                 (
                     p.hour = fb.date
                     AND lower(fb.contract_address) = lower(p.token_address)
-                    AND lower(fb.contract_address) = lower(p.token_address)
                 )
         -- left join native token price
         LEFT JOIN {{ chain }}_flipside.price.ez_prices_hourly native_token ON
