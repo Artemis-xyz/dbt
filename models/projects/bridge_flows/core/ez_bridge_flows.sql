@@ -135,3 +135,44 @@ WHERE
     (src_block_timestamp <= to_date(sysdate()) or src_block_timestamp is null)
     and (dst_block_timestamp <= to_date(sysdate()) or dst_block_timestamp is null)
     and (source_chain is not null and destination_chain is not null)
+union all
+SELECT
+    null as src_messaging_contract_address
+    , src_timestamp as src_block_timestamp
+    , source_tx_hash as src_tx_hash
+    , null as src_event_index
+    , amount_sent_native as src_amount
+    , amount_sent_native
+    , amount_sent_adjusted
+    , amount_sent
+    , source_token_decimals as src_decimals
+    , source_token_symbol as src_symbol
+    , source_chain as src_chain
+    , null as origin_chain_id
+    , source_token_address as origin_token
+    , null as dst_messaging_contract_address
+    , null as dst_block_timestamp
+    , null as dst_tx_hash
+    , null as dst_event_index
+    , amount_received_native as dst_amount
+    , amount_received_native
+    , amount_received_adjusted
+    , amount_received
+    , destination_token_decimals as dst_decimals
+    , destination_token_symbol as dst_symbol
+    , null as depositor
+    , null as recipient
+    , null as destination_chain_id
+    , destination_token_address as destination_token
+    , destination_chain as dst_chain
+    , null as token_address
+    , null as token_chain
+    , null as protocol_fee
+    , null as bridge_message_app
+    , null as version
+    , 'debridge' as app
+FROM 
+    {{ref('fact_debridge_transfers_with_prices')}}
+WHERE
+    src_timestamp <= to_date(sysdate())
+    and (source_chain is not null and destination_chain is not null)
