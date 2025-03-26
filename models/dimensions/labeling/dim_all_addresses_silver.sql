@@ -103,7 +103,7 @@ distinct_all_chains AS (
 ),
 deduped_manual_labeled_addresses AS (
     SELECT *
-    FROM {{ source("PYTHON_LOGIC", "dim_manual_labeled_addresses") }}
+    FROM {{ ref("dim_manual_labeled_addresses") }}
     QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated DESC) = 1
 )
 
