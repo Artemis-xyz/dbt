@@ -19,6 +19,11 @@ trades as (
     from {{ ref('fact_pumpfun_trades') }}
 ),
 
+daily_revenues as (
+    select *
+    from {{ ref('fact_pumpfun_dailyrevenues') }}
+),
+
 swap_metrics AS (
     SELECT 
         date, 
@@ -28,7 +33,6 @@ swap_metrics AS (
         SUM(amount_usd) AS trading_volume_usd, 
         AVG(amount_usd) AS average_traded_volume_usd 
     FROM trades
-    WHERE date < CURRENT_DATE() --exclude today's data to account for data lag
     GROUP BY 1
 )
 
@@ -38,6 +42,9 @@ select
     coalesce(swap_metrics.number_of_swaps, 0) as number_of_swaps,
     coalesce(swap_metrics.trading_volume_sol, 0) as trading_volume_sol,
     coalesce(swap_metrics.trading_volume_usd, 0) as trading_volume_usd,
+    coalesce(daily_revenues.Revenue_SOL, 0) as Revenue_SOL,
+    coalesce(daily_revenues.Revenue_USD, 0) as Revenue_USD
 from date_spine
 left join swap_metrics using(date)
+left join daily_revenues using(date)
 order by date desc

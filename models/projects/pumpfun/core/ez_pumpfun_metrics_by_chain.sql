@@ -20,6 +20,11 @@ trades as (
     from {{ ref('fact_pumpfun_trades') }}
 ),
 
+daily_revenues as (
+    select *
+    from {{ ref('fact_pumpfun_dailyrevenues') }}
+),
+
 swap_metrics AS (
     SELECT 
         date, 
@@ -28,7 +33,6 @@ swap_metrics AS (
         SUM(amount) AS trading_volume, 
         AVG(amount) AS average_traded_volume 
     FROM trades 
-    WHERE date < CURRENT_DATE() --exclude today's data to account for data lag
     GROUP BY 1
 )
 
@@ -37,7 +41,10 @@ select
     'solana' as chain,
     coalesce(swap_metrics.unique_traders, 0) as unique_traders,
     coalesce(swap_metrics.number_of_swaps, 0) as number_of_swaps,
-    coalesce(swap_metrics.trading_volume, 0) as trading_volume
+    coalesce(swap_metrics.trading_volume, 0) as trading_volume,
+    coalesce(daily_revenues.Revenue_SOL, 0) as Revenue_SOL,
+    coalesce(daily_revenues.Revenue_USD, 0) as Revenue_USD
 from date_spine
 left join swap_metrics using(date)
+left join daily_revenues using(date)
 order by date desc
