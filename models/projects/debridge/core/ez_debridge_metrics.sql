@@ -14,6 +14,8 @@ with bridge_volume_fees as (
         , bridge_volume
         , ecosystem_revenue
         , bridge_txns
+        , bridge_txns as txns
+        , ecosystem_revenue as fees
     from {{ ref("fact_debridge_fundamental_metrics") }}
 )
 
@@ -22,5 +24,7 @@ select
     , bridge_volume
     , ecosystem_revenue
     , bridge_txns
+    , txns
+    , fees
 from bridge_volume_fees
 where date < to_date(sysdate())

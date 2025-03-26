@@ -19,8 +19,9 @@ decoded_debridge_data as (
         , value:"takeOfferWithMetadata":"tokenAddress":"stringValue"::string as destination_token_address
         , value:"fixFee":"bigIntegerValue"::number as fix_fee_native -- this is in the chain native token 
         , value:"finalPercentFee":"bigIntegerValue"::number as percentage_fee_native -- this is in the input token amount
+        , value:"state"::string as state
         , extraction_date
-    from LANDING_DATABASE.PROD_LANDING.raw_debridge_orders t1,
+    from {{ source('PROD_LANDING', 'raw_debridge_orders') }} as t1,
     lateral flatten(input => parse_json(source_json)) as flat_json
 ), 
 latest_data as (
@@ -40,6 +41,7 @@ latest_data as (
         max_by(destination_token_address, extraction_date) as destination_token_address,
         max_by(fix_fee_native, extraction_date) as fix_fee_native,
         max_by(percentage_fee_native, extraction_date) as percentage_fee_native,
+        max_by(state, extraction_date) as state,
         extraction_date
     from decoded_debridge_data t1
     GROUP BY order_id, extraction_date
@@ -61,9 +63,11 @@ select
     fix_fee_native,
     src_chain.coingecko_id as fee_chain_coingecko_id,
     src_chain.decimals as fee_token_decimals,
-    percentage_fee_native
+    percentage_fee_native,
+    state
 from latest_data
 left join {{ ref('fact_debridge_chain_id') }} as src_chain
     on latest_data.source_chain_id = src_chain.id
 left join {{ ref('fact_debridge_chain_id') }} as dst_chain
     on latest_data.destination_chain_id = dst_chain.id
+where state in ('SentUnlock', 'Fulfilled', 'ClaimedUnlock')
