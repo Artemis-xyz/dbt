@@ -10,8 +10,9 @@
 
 with 
     kamino_tvl as (
-        select date, total_value_locked as tvl
+        select date, sum(usd_balance) as tvl
         from {{ ref("fact_kamino_tvl") }}
+        group by date
     ),
 
     klend_fees_and_revenue as (
