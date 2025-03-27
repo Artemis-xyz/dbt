@@ -17,7 +17,7 @@ latest_data AS (
 , flattened_data AS (
     SELECT
         f.value:date::date AS date,
-        f.value:dailyDataCollected::number AS data_collected_tb
+        f.value:dailyDataCollected::number/1e3 AS data_collected_tb
     FROM latest_data,
     LATERAL FLATTEN(input => latest_data.data_array) AS f
     )
