@@ -60,7 +60,7 @@ column_definitions:
       description: "The net change in the total value locked in a protocol in the native currency of the protocol"
 
   chain_metrics:
-    - name: dex_volumes
+    - name: dex_volume
       description: "Total spot dex volume on a chain"
     - name: chain_dau
       description: "Daily unique users on a chain"
@@ -82,9 +82,9 @@ column_definitions:
       description: "The total amount of native tokens staked in the protocol"
 
   perpetual_metrics:
-    - name: perp_unique_traders
+    - name: perp_dau
       description: "The number of unique traders on a perpetuals exchange"
-    - name: perp_trading_volume
+    - name: perp_volume
       description: "The total trading volume on a perpetuals exchange"
 
   spot_dex_metrics:
@@ -94,6 +94,8 @@ column_definitions:
       description: "The number of daily trades on a spot dex"
     - name: spot_volume
       description: "The total volume on a spot dex"
+    - name: spot_revenue
+      description: "The total revenue on a spot dex"
 
   bridge_metrics:
     - name: bridge_txns

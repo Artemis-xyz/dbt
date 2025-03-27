@@ -52,6 +52,7 @@ SELECT
     sm.unique_traders as spot_dau,
     sm.total_swaps as spot_txns,
     sm.daily_volume_usd as spot_volume,
+    sm.daily_fees_usd as spot_revenue,
     sm.daily_fees_usd as ecosystem_revenue,
     sm.daily_fees_usd as participating_token_revenue
 FROM date_spine ds

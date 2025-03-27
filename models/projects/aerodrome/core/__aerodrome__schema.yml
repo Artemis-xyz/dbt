@@ -38,6 +38,10 @@ column_definitions:
     name: spot_dau
     description: "The number of daily active traders on a spot dex"
 
+  spot_revenue: &spot_revenue
+    name: spot_revenue
+    description: "The total revenue on a spot dex"
+
   spot_txns: &spot_txns
     name: spot_txns
     description: "The number of daily trades on a spot dex"
@@ -78,6 +82,7 @@ models:
       - *participating_token_revenue
       - *price
       - *spot_dau
+      - *spot_revenue
       - *spot_txns
       - *spot_volume
       - *token_turnover_circulating
@@ -91,6 +96,7 @@ models:
       - *ecosystem_revenue
       - *participating_token_revenue
       - *spot_dau
+      - *spot_revenue
       - *spot_txns
       - *spot_volume
       - *tvl
