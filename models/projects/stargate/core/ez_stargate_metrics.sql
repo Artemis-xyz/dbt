@@ -78,7 +78,7 @@ first_seen AS (
         date
         , sum(balance) as treasury_usd
     from treasury_models
-    where balance is not null
+    where balance > 2 and balance is not null
     group by date
 )
 
@@ -138,6 +138,7 @@ first_seen AS (
         date
         , sum(balance) as tvl
     from tvl_models
+    where balance > 2 and balance is not null
     group by date
 )
 -- Weekly metrics (directly from raw data)
@@ -234,7 +235,7 @@ LEFT JOIN returning_addresses r ON d.transaction_date = r.transaction_date
 LEFT JOIN weekly_metrics w ON d.transaction_date = DATE(w.week_start)
 LEFT JOIN monthly_metrics m ON d.transaction_date = DATE(m.month_start)
 LEFT JOIN transaction_bucket_counts b ON d.transaction_date = b.transaction_date
-LEFT JOIN treasury_metrics t ON d.transaction_date = t.date
+full outer join treasury_metrics t ON d.transaction_date = t.date
 LEFT JOIN tvl_metrics ON d.transaction_date = tvl_metrics.date
 LEFT JOIN total_stg_staked_metrics ts ON d.transaction_date = ts.date
 LEFT JOIN circulating_supply_metrics cs ON d.transaction_date = cs.date
