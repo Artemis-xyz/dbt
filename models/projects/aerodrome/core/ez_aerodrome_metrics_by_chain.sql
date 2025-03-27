@@ -54,7 +54,7 @@ SELECT
     sm.daily_volume_usd as spot_volume,
     sm.daily_fees_usd as spot_revenue,
     sm.daily_fees_usd as ecosystem_revenue,
-    sm.daily_fees_usd as participating_token_revenue
+    sm.daily_fees_usd as ve_token_revenue
 FROM date_spine ds
 LEFT JOIN swap_metrics sm using (date)
 LEFT JOIN tvl_metrics tm using (date)
