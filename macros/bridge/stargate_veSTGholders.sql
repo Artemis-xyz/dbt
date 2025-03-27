@@ -126,7 +126,7 @@ summary as (
         vi.last_voted_timestamp,
         la.last_change_timestamp,
         la.last_action_type,
-        v.veSTG_balance / nullif(cs.total_supply, 0) * 100 as percentage_of_circulating_supply,
+        v.veSTG_balance / nullif(cs.total_supply, 0) * 100 as percentage_of_total_supply,
         fr.total_fees * (1.0/6.0) * (v.veSTG_balance / nullif(vt.total_veSTG, 0)) as fees_received
     from veSTG_balances v
     join (select sum(veSTG_balance) as total_veSTG from veSTG_balances where veSTG_balance > 0 and remaining_days > 0) vt on true
@@ -143,7 +143,7 @@ select
     veSTG_balance,
     remaining_days,
     remaining_period_readable as remaining_staking_period,
-    percentage_of_circulating_supply,
+    percentage_of_total_supply,
     number_of_votes_cast,
     last_voted_timestamp,
     last_change_timestamp,

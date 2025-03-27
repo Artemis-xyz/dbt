@@ -34,7 +34,7 @@ top_holders as (
             then 'Locked' 
             else 'Unlocked' 
         end as status
-        , (e.stg_balance / c.total_supply) * 100 AS percentage_of_circulating_supply
+        , (e.stg_balance / c.total_supply) * 100 AS percentage_of_total_supply
     from stg_balances e
     cross join circulating_supply c
     where e.today = 1
@@ -102,7 +102,7 @@ holder_stake_status AS (
         th.address
         , th.stg_balance
         , th.status
-        , th.percentage_of_circulating_supply
+        , th.percentage_of_total_supply
         , coalesce(nb.net_balance, 0) as staked_balance
         , case 
             WHEN nb.net_balance IS NOT NULL THEN TRUE 
@@ -116,7 +116,7 @@ select
     address
     , stg_balance
     , status
-    , percentage_of_circulating_supply
+    , percentage_of_total_supply
     , staked_balance
     , stake_status
     , stake_percentage

@@ -19,7 +19,7 @@ select
     address,
     stg_balance,
     status,
-    percentage_of_circulating_supply,
+    percentage_of_total_supply,
     staked_balance,
     stake_status as has_staked,
     stake_percentage,
