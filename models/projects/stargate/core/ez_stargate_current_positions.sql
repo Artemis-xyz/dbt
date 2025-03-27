@@ -5,7 +5,7 @@
         snowflake_warehouse="STARGATE",
         database="stargate",
         schema="core",
-        alias="ez_metrics_by_token",
+        alias="ez_current_positions",
     )
 }}
 
@@ -26,24 +26,14 @@ treasury_models as (
         )
     }}
 )
-, treasury_metrics as (
-    select
-        date
-        , case when lower(symbol) = 'weth' then 'ETH' else upper(symbol) end as token
-        , sum(balance_native) as treasury_native
-        , sum(balance) as treasury
-    from treasury_models
-    left join {{ ref("dim_coingecko_token_map")}} using (contract_address, chain)
-    where balance > 2 and balance is not null
-    group by date, token
-)
+
 
 select 
-    date
-    , token
-    --Standardized Metrics
-    , treasury_native
-    , treasury
-from treasury_metrics
-where treasury > 1000
-and date < to_date(sysdate())
+    protocol
+    , upper(symbol) as symbol
+    , sum(balance_native) as balance_native
+    , sum(balance) as balance
+from treasury_models
+where date = (select max(date) from treasury_models)
+    and balance > 2 and balance is not null
+group by protocol, upper(symbol)
