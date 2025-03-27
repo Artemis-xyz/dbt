@@ -44,9 +44,9 @@ WITH
         select
             date
             , chain
-            , sum(balance_usd) as treasury_usd
+            , sum(balance) as treasury
         from treasury_models
-        where balance_usd is not null
+        where balance is not null
         group by date, chain
     )
     , tvl_models as (
@@ -70,7 +70,7 @@ WITH
         select
             date
             , chain
-            , sum(balance_usd) as tvl
+            , sum(balance) as tvl
         from tvl_models
         group by date, chain
     )
@@ -103,7 +103,7 @@ SELECT
     , inflow
     , outflow
     , tvl
-    , treasury_usd as treasury
+    , treasury
 FROM chain_metrics
 left join flows using (date, chain)
 left join treasury_metrics using (date, chain)

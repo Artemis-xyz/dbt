@@ -76,9 +76,9 @@ first_seen AS (
 , treasury_metrics as (
     select
         date
-        , sum(balance_usd) as treasury_usd
+        , sum(balance) as treasury_usd
     from treasury_models
-    where balance_usd is not null
+    where balance is not null
     group by date
 )
 
@@ -128,7 +128,7 @@ first_seen AS (
     select
         date
         , sum(balance_native) as staked_native
-        , sum(balance_usd) as staked_usd
+        , sum(balance) as staked_usd
     from total_stg_staked
 
     group by date
@@ -136,7 +136,7 @@ first_seen AS (
 , tvl_metrics as (
     select
         date
-        , sum(balance_usd) as tvl
+        , sum(balance) as tvl
     from tvl_models
     group by date
 )

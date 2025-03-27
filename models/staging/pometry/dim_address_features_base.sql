@@ -1,0 +1,32 @@
+{{ config(materialized = 'table') }}
+select 
+    parquet_raw:address::string as address,
+    parquet_raw:application_id::string as application_id,
+    parquet_raw:category_id::string as category_id,
+    parquet_raw:in_int_avg::float as in_int_avg,
+    parquet_raw:in_int_max::float as in_int_max,
+    parquet_raw:in_int_min::float as in_int_min,
+    parquet_raw:in_int_std_dev::float as in_int_std_dev,
+    parquet_raw:in_trans_avg::float as in_trans_avg,
+    parquet_raw:in_trans_count::float as in_trans_count,
+    parquet_raw:in_trans_max::float as in_trans_max,
+    parquet_raw:in_trans_min::float as in_trans_min,
+    parquet_raw:in_trans_std_dev::float as in_trans_std_dev,
+    parquet_raw:in_trans_sum::float as in_trans_sum,
+    parquet_raw:lifetime_dur::float as lifetime_dur,
+    parquet_raw:num_in_nbors::float as num_in_nbors,
+    parquet_raw:num_layers::float as num_layers,
+    parquet_raw:num_out_nbors::float as num_out_nbors,
+    parquet_raw:out_int_avg::float as out_int_avg,
+    parquet_raw:out_int_max::float as out_int_max,
+    parquet_raw:out_int_min::float as out_int_min,
+    parquet_raw:out_int_std_dev::float as out_int_std_dev,
+    parquet_raw:out_trans_avg::float as out_trans_avg,
+    parquet_raw:out_trans_count::float as out_trans_count,
+    parquet_raw:out_trans_max::float as out_trans_max,
+    parquet_raw:out_trans_min::float as out_trans_min,
+    parquet_raw:out_trans_std_dev::float as out_trans_std_dev,
+    parquet_raw:out_trans_sum::float as out_trans_sum,
+    parquet_raw:primary_asset::integer as primary_asset
+from {{ source("PROD_LANDING", "raw_base_pometry_features_parquet") }}
+where inserted_at = (select max(inserted_at) from {{ source("PROD_LANDING", "raw_base_pometry_features_parquet") }})

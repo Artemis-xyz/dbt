@@ -1,25 +1,14 @@
-{% macro forward_filled_address_balances(chain, artemis_application_id, type) %}
+--Used to get the balance for an address for every token
+{% macro forward_filled_balance_for_address(chain, address) %}
 
 with
-    tagged_addresses as (
-        select
-            address
-            , artemis_application_id
-            , type
-        from {{ ref("dim_all_addresses_labeled_gold") }}
-        where artemis_application_id = '{{ artemis_application_id }}'
-            and type = '{{ type }}'
-            and chain = '{{ chain }}'
-    )
-    , token_metadata as (
+    token_metadata as (
         select
             contract_address
             , decimals
         from {{ ref("dim_coingecko_token_map") }}
         where chain = '{{ chain }}'
-
     )
-    -- TODO: Remove once we have updated balances data
     , old_balances as (
         select
             address
@@ -33,7 +22,7 @@ with
             , block_timestamp
             , balance_token as balance_raw
         from {{ ref("fact_" ~ chain ~ "_address_balances_by_token") }}
-        where lower(address) in (select lower(address) from tagged_addresses)
+        where lower(address) = lower('{{ address }}')
     )
     , address_balances as (
         select
@@ -46,8 +35,6 @@ with
                 else balance_raw / pow(10, decimals) 
             end as balance_native
         from old_balances ab
-        inner join tagged_addresses
-            on lower(ab.address) = lower(tagged_addresses.address)
         left join token_metadata
             on lower(ab.contract_address) = lower(token_metadata.contract_address)
         where block_timestamp < to_date(sysdate())
@@ -154,14 +141,12 @@ with
     , address_balances_with_prices as (
         select
             date
-            , contract_address
+            , contract_address      
             , address
             , price
             , balance_raw
             , balance_native
             , balance_native * price as balance
-            , '{{ artemis_application_id }}' as artemis_application_id
-            , '{{ type }}' as type
             , '{{ chain }}' as chain
             , date || '-' || address || '-' || contract_address as unique_id
         from historical_supply_by_address_balances
@@ -175,8 +160,6 @@ select
     , balance_native
     , price
     , balance
-    , artemis_application_id
-    , type
     , chain
     , unique_id
 from address_balances_with_prices
