@@ -5,7 +5,7 @@ decoded_debridge_data as (
     -- https://docs.debridge.finance/dln-the-debridge-liquidity-network-protocol/fees-and-supported-chains
     select 
         value:"orderId":"stringValue"::string as order_id
-        , value:"creationTimestamp"::timestamp_ntz as src_timestamp
+        , value:"creationTimestamp"::timestamp as src_timestamp
         , value:"giveOfferWithMetadata":"amount":"bigIntegerValue"::number as amount_sent_native
         , value:"giveOfferWithMetadata":"chainId":"bigIntegerValue"::number as source_chain_id
         , value:"giveOfferWithMetadata":"decimals"::number as source_token_decimals
