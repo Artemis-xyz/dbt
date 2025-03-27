@@ -52,6 +52,18 @@ treasury_data as (
     where dex_pool.contract_address in ('0x2791bca1f2de4661ed88a30c99a7a9449aa84174', '0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590')
 )
 
-select * from treasury_balances
-union all
-select * from dex_balance
+, balances as (
+    select * from treasury_balances
+    union all
+    select * from dex_balance
+)
+
+select 
+    date
+    , protocol
+    , 'polygon' as chain
+    , contract_address
+    , symbol
+    , balance_native
+    , balance
+from balances

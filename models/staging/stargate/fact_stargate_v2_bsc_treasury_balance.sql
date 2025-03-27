@@ -80,8 +80,20 @@ treasury_data as (
     where cake_price.date > '2023-12-06'
 )
 
-select * from pancakeswap_balance
-union all
-select * from treasury_balances
-union all
-select * from forward_fill_staked_cake
+, balances as (
+    select * from pancakeswap_balance
+    union all
+    select * from treasury_balances
+    union all
+    select * from forward_fill_staked_cake
+)
+
+select 
+    date
+    , protocol
+    , 'bsc' as chain
+    , contract_address
+    , symbol
+    , balance_native
+    , balance
+from balances

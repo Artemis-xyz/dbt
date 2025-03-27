@@ -78,7 +78,7 @@ first_seen AS (
         date
         , sum(balance) as treasury_usd
     from treasury_models
-    where balance is not null
+    where balance > 2 and balance is not null
     group by date
 )
 
@@ -138,6 +138,7 @@ first_seen AS (
         date
         , sum(balance) as tvl
     from tvl_models
+    where balance > 2 and balance is not null
     group by date
 )
 -- Weekly metrics (directly from raw data)
@@ -197,7 +198,7 @@ first_seen AS (
 
 -- Final output with simplified GROUP BY
 SELECT 
-    d.transaction_date as date,
+    t.date as date,
     COALESCE(b.count_0_100, 0) AS TXN_SIZE_0_100,
     COALESCE(b.count_100_1K, 0) AS TXN_SIZE_100_1K,
     COALESCE(b.count_1K_10K, 0) AS TXN_SIZE_1K_10K,
@@ -228,16 +229,16 @@ SELECT
     pd.price as price,
     cs.circulating_supply as circulating_supply,
     pd.price * cs.circulating_supply as market_cap
-FROM daily_growth d
-LEFT JOIN new_addresses n ON d.transaction_date = n.transaction_date
-LEFT JOIN returning_addresses r ON d.transaction_date = r.transaction_date
-LEFT JOIN weekly_metrics w ON d.transaction_date = DATE(w.week_start)
-LEFT JOIN monthly_metrics m ON d.transaction_date = DATE(m.month_start)
-LEFT JOIN transaction_bucket_counts b ON d.transaction_date = b.transaction_date
-LEFT JOIN treasury_metrics t ON d.transaction_date = t.date
-LEFT JOIN tvl_metrics ON d.transaction_date = tvl_metrics.date
-LEFT JOIN total_stg_staked_metrics ts ON d.transaction_date = ts.date
-LEFT JOIN circulating_supply_metrics cs ON d.transaction_date = cs.date
-LEFT JOIN price_data pd ON d.transaction_date = pd.date
-where d.transaction_date < to_date(sysdate())
-ORDER BY d.transaction_date DESC
+FROM treasury_metrics t
+full outer join daily_growth d ON d.transaction_date = t.date
+LEFT JOIN new_addresses n ON t.date = n.transaction_date
+LEFT JOIN returning_addresses r ON t.date = r.transaction_date
+LEFT JOIN weekly_metrics w ON t.date = DATE(w.week_start)
+LEFT JOIN monthly_metrics m ON t.date = DATE(m.month_start)
+LEFT JOIN transaction_bucket_counts b ON t.date = b.transaction_date
+LEFT JOIN tvl_metrics ON t.date = tvl_metrics.date
+LEFT JOIN total_stg_staked_metrics ts ON t.date = ts.date
+LEFT JOIN circulating_supply_metrics cs ON t.date = cs.date
+LEFT JOIN price_data pd ON t.date = pd.date
+where t.date < to_date(sysdate())
+ORDER BY t.date DESC
