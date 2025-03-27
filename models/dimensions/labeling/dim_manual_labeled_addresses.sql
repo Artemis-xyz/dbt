@@ -12,5 +12,5 @@ select
     , type
     , last_updated
 from {{ source("PROD_LANDING", "raw_manually_labeled_addresses_csv") }}
-where address is not null and chain in (select distinct chain from pc_dbt_db.prod.all_chains_gas_dau_txns_by_contract_v2)
+where address is not null and chain in (select distinct chain_name from {{ ref("dim_chain_id_mapping")}})
 qualify row_number() over (partition by lower(address), chain order by last_updated desc) = 1
