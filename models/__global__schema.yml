@@ -33,6 +33,18 @@ column_definitions:
     - name: market_cap
       description: "The market cap of a token in USD"
       tags: [artemis_gaap]
+    - name: fdmc
+      description: "The fully diluted market cap of a token in USD"
+      tags: [artemis_gaap]
+    - name: token_volume
+      description: "The volume of a token in USD"
+      tags: [artemis_gaap]
+    - name: token_turnover_circulating
+      description: "The turnover of a token in USD"
+      tags: [artemis_gaap]
+    - name: token_turnover_fdv
+      description: "The turnover of a token in USD"
+      tags: [artemis_gaap]
     - name: circulating_supply
       description: "The circulating supply of a token in native tokens"
       tags: [artemis_gaap]
@@ -50,12 +62,14 @@ column_definitions:
   chain_metrics:
     - name: dex_volumes
       description: "Total spot dex volume on a chain"
-    - name: dau
+    - name: chain_dau
       description: "Daily unique users on a chain"
-    - name: wau
+    - name: chain_wau
       description: "Weekly unique users on a chain"
-    - name: mau
+    - name: chain_mau
       description: "Monthly unique users on a chain"
+    - name: chain_txns
+      description: "Daily transactions on a chain"
 
   protocol_metrics:
     - name: treasury
@@ -72,6 +86,14 @@ column_definitions:
       description: "The number of unique traders on a perpetuals exchange"
     - name: perp_trading_volume
       description: "The total trading volume on a perpetuals exchange"
+
+  spot_dex_metrics:
+    - name: spot_dau
+      description: "The number of daily active traders on a spot dex"
+    - name: spot_txns
+      description: "The number of daily trades on a spot dex"
+    - name: spot_volume
+      description: "The total volume on a spot dex"
 
   bridge_metrics:
     - name: bridge_txns
