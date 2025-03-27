@@ -64,6 +64,16 @@ SELECT
     , coalesce(revenue.revenue, 0) AS revenue
     , coalesce(burns.total_burned_native, 0) AS total_burned_native
     , coalesce(mints.mints, 0) AS mints
+
+    -- Standardized Metrics
+    , (coalesce(compute_fees_total_usd.compute_fees_total_usd, 0))/ 1e6 AS compute_fees
+    , coalesce(validator_fees.validator_fees, 0) AS gas_fees
+    , service_fees + validator_fees AS ecosystem_revenue
+    , validator_fees AS validator_revenue
+    , revenue.revenue AS treasury_revenue
+    , service_fees - treasury_revenue AS service_revenue
+    , coalesce(burns.total_burned_native, 0) AS burns_native
+    , coalesce(mints.mints, 0) AS mints_native
 FROM mints
 LEFT JOIN active_providers ON mints.date = active_providers.date
 LEFT JOIN new_leases ON mints.date = new_leases.date
