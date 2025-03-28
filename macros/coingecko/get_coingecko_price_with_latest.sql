@@ -10,6 +10,35 @@
     where token_id = '{{ coingecko_id }}'
 {% endmacro %}
 
+{% macro get_multiple_coingecko_price_with_latest_by_ids(coingecko_ids) %}
+    select date as date, shifted_token_price_usd as price, coingecko_id
+    from {{ ref("fact_coingecko_token_date_adjusted_gold") }}
+    where
+        coingecko_id in  (
+            {% for coingecko_id in coingecko_ids %}
+                '{{coingecko_id}}' {% if not loop.last %},{% endif %}
+            {% endfor %}
+        )
+        and date < dateadd(day, -1, to_date(sysdate()))
+    union
+    select dateadd('day', -1, to_date(sysdate())) as date, token_current_price as price, token_id as coingecko_id
+    from {{ ref("fact_coingecko_token_realtime_data") }}
+    where
+        token_id in  (
+            {% for coingecko_id in coingecko_ids %}
+                '{{coingecko_id}}' {% if not loop.last %},{% endif %}
+            {% endfor %}
+        )
+    union
+    select to_date(sysdate()) as date, token_current_price as price, token_id as coingecko_id
+    from {{ ref("fact_coingecko_token_realtime_data") }}
+    where
+        token_id in  (
+            {% for coingecko_id in coingecko_ids %}
+                '{{coingecko_id}}' {% if not loop.last %},{% endif %}
+            {% endfor %}
+        )
+{% endmacro %}
 
 
 {% macro get_multiple_coingecko_price_with_latest(chain) %}

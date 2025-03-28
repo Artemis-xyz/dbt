@@ -14,7 +14,7 @@ with
     )
 select
     date,
-    'Wormhole' as app,
+    'wormhole' as app,
     'Bridge' as category,
     chain,
     inflow,

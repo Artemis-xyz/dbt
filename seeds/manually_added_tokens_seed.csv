@@ -49,3 +49,7 @@ tether,S*USDT,polygon,0x29e38769f23701a2e4a8ef0492e19da4604be62c,6
 mimatic,S*miMATIC,polygon,0x8736f92646b2542b3e5f3c63590ca7fe313e283b,6
 dai,S*DAI,polygon,0x1c272232df0bb6225da87f4decd9d37c32f63eea,18
 usd-coin,S*USDC,polygon,0x1205f31718499dbf1fca446663b532ef87481fe1,6
+usd-coin,variableDebtEthUSDC,ethereum,0x72E95b8931767C79bA4EeE721354d6E99a61D004,6
+tether,variableDebtEthUSDT,ethereum,0x6df1C1E379bC5a00a7b4C6e67A203333772f45A8,6
+ethereum,variableDebtEthWETH,ethereum,0xeA51d7853EEFb32b6ee06b1C12E6dcCA88Be0fFE,18
+
