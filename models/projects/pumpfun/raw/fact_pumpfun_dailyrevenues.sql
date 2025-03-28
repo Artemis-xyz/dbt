@@ -28,7 +28,7 @@ price AS (
         date_trunc(day, hour) AS date,
         AVG(price) AS avg_price
     FROM solana_flipside.price.ez_prices_hourly
-    WHERE token_address = 'So11111111111111111111111111111111111111112'
+    WHERE is_native
     GROUP BY 1
 )
 SELECT 
