@@ -4,3 +4,4 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_stargate_proposals_csv
+      - name: raw_stargate_aerodrome_base_balance

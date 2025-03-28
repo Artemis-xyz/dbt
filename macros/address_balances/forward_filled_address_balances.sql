@@ -31,7 +31,7 @@ with
                 else contract_address 
             end as contract_address
             , block_timestamp
-            , balance_token as balance_native
+            , balance_token as balance_raw
         from {{ ref("fact_" ~ chain ~ "_address_balances_by_token") }}
         where lower(address) in (select lower(address) from tagged_addresses)
     )
@@ -40,11 +40,11 @@ with
             ab.address
             , ab.contract_address
             , block_timestamp
-            , balance_native
+            , balance_raw
             , case
-                when right(ab.contract_address, 6) = 'native' then balance_native
-                else balance_native / pow(10, decimals) 
-            end as balance_adjusted
+                when right(ab.contract_address, 6) = 'native' then balance_raw
+                else balance_raw / pow(10, decimals) 
+            end as balance_native
         from old_balances ab
         inner join tagged_addresses
             on lower(ab.address) = lower(tagged_addresses.address)
@@ -62,8 +62,8 @@ with
                 date as block_timestamp
                 , t.contract_address
                 , t.address
+                , t.balance_raw
                 , t.balance_native
-                , t.balance_adjusted
             from {{ this }} t
             where date = (select dateadd('day', -3, max(date)) from {{ this }})
         )
@@ -76,8 +76,8 @@ with
             block_timestamp
             , contract_address
             , address
+            , balance_raw
             , balance_native
-            , balance_adjusted
         from address_balances
         {% if is_incremental() %}
             union
@@ -85,8 +85,8 @@ with
                 block_timestamp
                 , contract_address
                 , address
+                , balance_raw
                 , balance_native
-                , balance_adjusted
             from stale_balances
         {% endif %}
     ) 
@@ -95,15 +95,15 @@ with
             block_timestamp::date as date
             , contract_address
             , address
+            , balance_raw
             , balance_native
-            , balance_adjusted
         from (
             select 
                 block_timestamp
                 , contract_address
                 , address
+                , balance_raw
                 , balance_native
-                , balance_adjusted
                 , row_number() over (partition by block_timestamp::date, contract_address, address order by block_timestamp desc) AS rn
             from heal_balance_table
         )
@@ -132,6 +132,14 @@ with
             , address
             , contract_address
             , coalesce(
+                balance_raw, 
+                LAST_VALUE(balances.balance_raw ignore nulls) over (
+                    partition by contract_address, address
+                    order by date
+                    rows between unbounded preceding and current row
+                ) 
+            )  as balance_raw
+            , coalesce(
                 balance_native, 
                 LAST_VALUE(balances.balance_native ignore nulls) over (
                     partition by contract_address, address
@@ -139,14 +147,6 @@ with
                     rows between unbounded preceding and current row
                 ) 
             )  as balance_native
-            , coalesce(
-                balance_adjusted, 
-                LAST_VALUE(balances.balance_adjusted ignore nulls) over (
-                    partition by contract_address, address
-                    order by date
-                    rows between unbounded preceding and current row
-                ) 
-            )  as balance_adjusted
         from date_range
         left join balances using (date, contract_address, address)
     )
@@ -157,9 +157,9 @@ with
             , contract_address
             , address
             , price
+            , balance_raw
             , balance_native
-            , balance_adjusted
-            , balance_adjusted * price as balance_usd
+            , balance_native * price as balance
             , '{{ artemis_application_id }}' as artemis_application_id
             , '{{ type }}' as type
             , '{{ chain }}' as chain
@@ -171,10 +171,10 @@ select
     date
     , contract_address
     , address
+    , balance_raw
     , balance_native
-    , balance_adjusted
     , price
-    , balance_usd
+    , balance
     , artemis_application_id
     , type
     , chain
