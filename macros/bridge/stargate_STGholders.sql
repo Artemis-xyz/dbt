@@ -18,7 +18,7 @@ circulating_supply as (
         , treasury_balance
         , vesting_balance
         , circulating_supply
-        , treasury_balance + vesting_balance as total_supply
+        , treasury_balance + vesting_balance + circulating_supply as total_supply
     from {{ ref("fact_stargate_circulating_supply")}}
     order by date desc
     limit 1
