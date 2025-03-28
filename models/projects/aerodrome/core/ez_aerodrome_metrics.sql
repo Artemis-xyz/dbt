@@ -45,12 +45,13 @@ with swap_metrics as (
         and to_date(sysdate())
 )
 SELECT
-    ds.date,
-    sm.unique_traders,
-    sm.total_swaps as number_of_swaps,
-    sm.daily_volume_usd as trading_volume,
-    sm.daily_fees_usd as trading_fees,
-    tm.tvl_usd as tvl
+    ds.date
+
+    -- Old metrics needed for compatibility
+    , sm.unique_traders
+    , sm.total_swaps as number_of_swaps
+    , sm.daily_volume_usd as trading_volume
+    , sm.daily_fees_usd as trading_fees
 
     -- Standardized Metrics
     , sm.unique_traders as spot_dau
@@ -59,6 +60,7 @@ SELECT
     , sm.daily_fees_usd as spot_revenue
     , sm.daily_fees_usd as ecosystem_revenue
     , sm.daily_fees_usd as fee_sharing_token_revenue
+    , tm.tvl_usd as tvl
 
     -- Market Metrics
     , mm.price as price

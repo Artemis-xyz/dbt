@@ -42,11 +42,12 @@ with swap_metrics as (
 SELECT
     ds.date,
     'base' as chain,
+
+    -- Old metrics needed for compatibility
     sm.unique_traders,
     sm.total_swaps,
     sm.daily_volume_usd as trading_volume,
     sm.daily_fees_usd as trading_fees,
-    tm.tvl_usd as tvl
 
     -- Standardized Metrics
     sm.unique_traders as spot_dau,
@@ -55,6 +56,8 @@ SELECT
     sm.daily_fees_usd as spot_revenue,
     sm.daily_fees_usd as ecosystem_revenue,
     sm.daily_fees_usd as fee_sharing_token_revenue
+    tm.tvl_usd as tvl
+
 FROM date_spine ds
 LEFT JOIN swap_metrics sm using (date)
 LEFT JOIN tvl_metrics tm using (date)
