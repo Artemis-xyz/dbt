@@ -69,10 +69,10 @@ SELECT
     -- Standardized Metrics
     , (coalesce(compute_fees_total_usd.compute_fees_total_usd, 0))/ 1e6 AS compute_fees
     , coalesce(validator_fees.validator_fees, 0) AS gas_fees
-    , service_fees + validator_fees AS ecosystem_revenue
+    , compute_fees + gas_fees AS ecosystem_revenue
     , validator_fees AS validator_revenue
     , revenue.revenue AS treasury_revenue
-    , service_fees - treasury_revenue AS service_revenue
+    , compute_fees - treasury_revenue AS service_revenue
     , coalesce(burns.total_burned_native, 0) AS burns_native
     , coalesce(mints.mints, 0) AS mints_native
 
