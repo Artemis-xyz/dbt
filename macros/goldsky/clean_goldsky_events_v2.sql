@@ -25,9 +25,9 @@ SELECT
     , transaction_index
     , event_index
     , contract_address
+    , topic_zero
+    , topics
     , concat(coalesce(substring(topics[1], 3), ''), coalesce(substring(topics[2], 3), ''), coalesce(substring(topics[3], 3),'')) as topic_data
     , data
-    , topics
-    , topic_zero
 FROM data
 {% endmacro %}
