@@ -13,9 +13,9 @@ data as (
         , SPLIT(parquet_raw:topics::string, ',')[0]::string as topic_zero
     from {{ source("PROD_LANDING", "raw_" ~ chain  ~ "_logs_parquet") }}
     {% if is_incremental() %}
-    where
-        parquet_raw:block_timestamp::timestamp_ntz
-        >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+        where
+            parquet_raw:block_timestamp::timestamp_ntz
+            >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}
 )
 SELECT
@@ -30,4 +30,5 @@ SELECT
     , concat(coalesce(substring(topics[1], 3), ''), coalesce(substring(topics[2], 3), ''), coalesce(substring(topics[3], 3),'')) as topic_data
     , data
 FROM data
+qualify row_number() over (partition by transaction_hash, event_index order by block_timestamp desc) = 1
 {% endmacro %}
