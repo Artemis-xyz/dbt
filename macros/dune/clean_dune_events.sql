@@ -12,6 +12,6 @@
         , data_hex as data
     from zksync_dune.{{chain}}.logs
     {% if is_incremental() %}
-        where block_timestamp >= (select dateadd('day', -3, max(block_time)) from {{ this }})
+        where block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}
 {% endmacro %}
