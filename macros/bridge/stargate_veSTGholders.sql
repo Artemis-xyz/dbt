@@ -154,7 +154,7 @@ circulating_supply as (
 fees_received as (
     select 
         sum(fees) as total_fees
-    from {{ source("PROD", "fact_stargate_v2_transfers") }}
+    from {{ ref("fact_stargate_v2_transfers") }}
     where src_chain = '{{chain}}'
 ),
 summary as (
