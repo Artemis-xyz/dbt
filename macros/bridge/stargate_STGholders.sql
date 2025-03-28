@@ -18,6 +18,7 @@ circulating_supply as (
         , treasury_balance
         , vesting_balance
         , circulating_supply
+        , treasury_balance + vesting_balance + circulating_supply as total_supply
     from {{ ref("fact_stargate_circulating_supply")}}
     order by date desc
     limit 1
@@ -33,7 +34,7 @@ top_holders as (
             then 'Locked' 
             else 'Unlocked' 
         end as status
-        , (e.stg_balance / c.circulating_supply) * 100 AS percentage_of_circulating_supply
+        , (e.stg_balance / c.total_supply) * 100 AS percentage_of_total_supply
     from stg_balances e
     cross join circulating_supply c
     where e.today = 1
@@ -101,7 +102,7 @@ holder_stake_status AS (
         th.address
         , th.stg_balance
         , th.status
-        , th.percentage_of_circulating_supply
+        , th.percentage_of_total_supply
         , coalesce(nb.net_balance, 0) as staked_balance
         , case 
             WHEN nb.net_balance IS NOT NULL THEN TRUE 
@@ -115,11 +116,12 @@ select
     address
     , stg_balance
     , status
-    , percentage_of_circulating_supply
+    , percentage_of_total_supply
     , staked_balance
     , stake_status
     , stake_percentage
     , '{{chain}}' as chain
 from holder_stake_status
 order by stg_balance desc
+
 {% endmacro %}

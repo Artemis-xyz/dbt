@@ -21,7 +21,7 @@ select
     veSTG_balance,
     remaining_days,
     remaining_staking_period,
-    percentage_of_circulating_supply,
+    percentage_of_total_supply,
     number_of_votes_cast,
     last_voted_timestamp,
     last_change_timestamp,
