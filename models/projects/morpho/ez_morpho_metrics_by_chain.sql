@@ -20,7 +20,7 @@ with deposits as (
 fees as (
     select
         date
-        , interest_usd
+        , interest_usd as fees
         , chain
     from {{ ref("fact_morpho_fees") }}
 ),
@@ -30,7 +30,8 @@ cumulative_metrics as (
         sum(d.borrow_amount_usd) over (partition by d.chain order by d.date rows between unbounded preceding and current row) as borrows,
         sum(d.supply_amount_usd) over (partition by d.chain order by d.date rows between unbounded preceding and current row) as supplies,
         sum(d.deposit_amount_usd) over (partition by d.chain order by d.date rows between unbounded preceding and current row) as deposits,
-        sum(f.interest_usd) over (partition by d.chain order by d.date rows between unbounded preceding and current row) as fees,
+        f.fees,
+        sum(f.fees) over (partition by d.chain order by d.date rows between unbounded preceding and current row) as fees_cumulative,
         sum(d.deposit_amount_usd - d.borrow_amount_usd) over (partition by d.chain order by d.date rows between unbounded preceding and current row) as tvl,
         d.chain
     from deposits d

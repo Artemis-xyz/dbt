@@ -20,7 +20,7 @@
  fees as (
      select
          date
-         , sum(interest_usd) as interest_usd
+         , sum(interest_usd) as fees
      from {{ ref("fact_morpho_fees") }}
      group by 1
  ),
@@ -30,7 +30,8 @@
          , sum(d.borrow_amount_usd) over (order by d.date rows between unbounded preceding and current row) as borrows
          , sum(d.supply_amount_usd) over (order by d.date rows between unbounded preceding and current row) as supplies
          , sum(d.deposit_amount_usd) over (order by d.date rows between unbounded preceding and current row) as deposits
-         , sum(f.interest_usd) over (order by d.date rows between unbounded preceding and current row) as fees
+         , fees
+         , sum(f.fees) over (order by d.date rows between unbounded preceding and current row) as fees_cumulative
          , deposits - borrows as tvl
      from deposits d
      left join fees f on d.date = f.date
