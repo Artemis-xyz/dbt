@@ -92,6 +92,24 @@ WITH
         LEFT JOIN first_seen_global f ON a.src_address = f.src_address
         GROUP BY a.date, a.chain
     )
+    , hydra_models as (
+        {{
+            dbt_utils.union_relations(
+                relations=[
+                    ref("fact_stargate_v2_berachain_hydra_assets"),
+                    ref("fact_stargate_v2_sei_hydra_assets"),
+                ],
+            )
+        }}
+    )
+    , hydra_metrics as (
+        select
+            date
+            , chain
+            , sum(amount) as hydra_tvl
+        from hydra_models
+        group by date, chain
+    )
 
 SELECT 
     date
@@ -105,8 +123,10 @@ SELECT
     , outflow
     , tvl
     , treasury
+    , hydra_tvl
 FROM chain_metrics
 left join flows using (date, chain)
 full outer join treasury_metrics using (date, chain)
 left join tvl_metrics using (date, chain)
+left join hydra_metrics using (date, chain)
 where date < to_date(sysdate())

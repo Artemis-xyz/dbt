@@ -1,4 +1,4 @@
-{{config(materialized="table", snowflake_warehouse='STARGATE')}}
+{{config(materialized="table", snowflake_warehouse='STARGATE_MD')}}
 {{
     stargate_stg_holders(
         'bsc'

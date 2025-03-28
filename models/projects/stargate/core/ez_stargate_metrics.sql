@@ -195,7 +195,23 @@ first_seen AS (
     group by date
 )
 , price_data as ({{ get_coingecko_metrics("stargate-finance") }})
-
+, hydra_models as (
+    {{
+        dbt_utils.union_relations(
+            relations=[
+                ref("fact_stargate_v2_berachain_hydra_assets"),
+                ref("fact_stargate_v2_sei_hydra_assets"),
+            ],
+        )
+    }}
+)
+, hydra_metrics as (
+    select
+        date
+        , sum(amount) as hydra_locked_assets
+    from hydra_models
+    group by date
+)
 -- Final output with simplified GROUP BY
 SELECT 
     t.date as date,
@@ -228,7 +244,8 @@ SELECT
     ts.staked_native,
     pd.price as price,
     cs.circulating_supply as circulating_supply,
-    pd.price * cs.circulating_supply as market_cap
+    pd.price * cs.circulating_supply as market_cap,
+    h.hydra_locked_assets as hydra_tvl
 FROM treasury_metrics t
 full outer join daily_growth d ON d.transaction_date = t.date
 LEFT JOIN new_addresses n ON t.date = n.transaction_date
@@ -240,5 +257,6 @@ LEFT JOIN tvl_metrics ON t.date = tvl_metrics.date
 LEFT JOIN total_stg_staked_metrics ts ON t.date = ts.date
 LEFT JOIN circulating_supply_metrics cs ON t.date = cs.date
 LEFT JOIN price_data pd ON t.date = pd.date
+LEFT JOIN hydra_metrics h ON t.date = h.date
 where t.date < to_date(sysdate())
 ORDER BY t.date DESC
