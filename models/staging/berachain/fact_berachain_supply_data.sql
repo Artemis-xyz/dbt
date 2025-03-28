@@ -11,44 +11,44 @@ with berachain_emissions as (
     from pc_dbt_db.prod.fact_berachain_decoded_events
     where
         event_name = 'Transfer'
-        and contract_address = '0x6969696969696969696969696969696969696969'
+        and contract_address = '0x656b95e550c07a9ffe548bd4085c72418ceb1dba'
 ),
-bera_mint as (
+minted as (
     select
         date(block_timestamp) as date,
-        sum(value) as bera_mint
+        sum(value) as minted_amount
     from berachain_emissions
-    where to_address = '0x0000000000000000000000000000000000000000'
+    where from_address = '0x0000000000000000000000000000000000000000'
     group by 1
 ),
-bera_burnt as (
+burned as (
     select
-        date(t.block_timestamp) as date,
-        sum((parquet_raw:"base_fee_per_gas"::numeric * t.gas) / 1e18) as bera_burnt
-    from landing_database.prod_landing.raw_berachain_blocks_parquet rbbp
-    left join {{ref("fact_berachain_transactions")}} t on rbbp.parquet_raw:"block_number" = t.block_number;
+        date(block_timestamp) as date,
+        sum(value) as burnt_amount
+    from berachain_emissions
+    where to_address = '0x0000000000000000000000000000000000000000'
     group by 1
 ),
 daily_emissions as (
     select
         m.date,
-        coalesce(m.bera_mint, 0) as emission_native,
-        bera_burnt as burns_native,
-        sum(emission_native)
-            over (order by m.date asc rows between unbounded preceding and current row) as total_emission
-    from bera_mint m
-    left join bera_burnt bb on bb.date = m.date
+        coalesce(m.minted_amount, 0) as emission_native,
+        coalesce(b.burnt_amount, 0) as burns_native,
+        coalesce(s.premine_unlocks_supply, 0) as premine_unlocks_native,
+        coalesce(premine_unlocks_native, 0) + coalesce(m.minted_amount, 0) - coalesce(b.burnt_amount, 0) as net_supply_change_native,
+        sum(net_supply_change_native)
+            over (order by m.date asc rows between unbounded preceding and current row) as circulating_supply_native
+    from minted m
+    left join burned b using (date)
+    left join {{ source('MANUAL_STATIC_TABLES', 'berachain_daily_supply_data') }} s
+        on m.date = s.date
 )
 select 
-    d.date,
-    d.emission_native,
-    s.premine_unlocks_supply as premine_unlocks_native,
-    d.burns_native,
-    d.emission_native - d.burns_native as net_supply_change_native,
-    sum(s.premine_unlocks_supply + net_supply_change_native)
-        over (order by d.date asc rows between unbounded preceding and current row)
-        as circulating_supply_native
-from daily_emissions d
-left join {{ source('MANUAL_STATIC_TABLES', 'berachain_daily_supply_data') }} s
-on d.date = s.date
-order by d.date desc
+    date,
+    emission_native,
+    premine_unlocks_native,
+    burns_native,
+    net_supply_change_native,
+    circulating_supply_native
+from daily_emissions
+order by date desc
