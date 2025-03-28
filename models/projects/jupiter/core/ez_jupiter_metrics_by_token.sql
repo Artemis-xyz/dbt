@@ -8,6 +8,8 @@
     )
 }}
 
+-- TODO: add aggregator metrics, dca metrics, limit order metrics
+
 SELECT
     block_timestamp::date as date,
     chain,
