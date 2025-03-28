@@ -58,7 +58,7 @@ SELECT
     , sm.daily_volume_usd as spot_volume
     , sm.daily_fees_usd as spot_revenue
     , sm.daily_fees_usd as ecosystem_revenue
-    , sm.daily_fees_usd as ve_token_revenue
+    , sm.daily_fees_usd as fee_sharing_token_revenue
 
     -- Market Metrics
     , mm.price as price

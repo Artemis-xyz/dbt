@@ -17,8 +17,8 @@ column_definitions:
     - name: token_revenue
       description: "The share of ecosystem revenue accrued to token holders of the protocol"
       tags: [artemis_gaap]
-    - name: ve_token_revenue
-      description: "The share of ecosystem revenue accrued to vote escrowed token holders"
+    - name: fee_sharing_token_revenue
+      description: "The share of ecosystem revenue accrued to users who commit tokens - via locking, or vote escrowing - into mechanisms that entitle them to revenue distribution"
       tags: [artemis_gaap]
     - name: treasury_revenue
       description: "The share of ecosystem revenue accrued to the treasury of the protocol"
@@ -26,6 +26,8 @@ column_definitions:
     - name: validator_revenue
       description: "The share of ecosystem revenue accrued to validators of the protocol"
       tags: [artemis_gaap]
+    - name: buyback
+      description: "The amount tokens bought back by the protocol (USD)"
 
   cost_metrics:
     - name: cost_of_goods_sold

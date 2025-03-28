@@ -51,7 +51,7 @@ select
     , trading_volume as perp_trading_volume
     , fees as ecosystem_revenue
     , supply_side_revenue as service_revenue
-    , revenue as non_participating_token_revenue
+    , revenue as fee_sharing_token_revenue
 from combined_data
 left join fees_data using(date)
 where date < to_date(sysdate())

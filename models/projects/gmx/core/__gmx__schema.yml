@@ -10,16 +10,24 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  fee_sharing_token_revenue: &fee_sharing_token_revenue
+    name: fee_sharing_token_revenue
+    description: "The share of ecosystem revenue accrued to users who commit tokens - via locking, or vote escrowing - into mechanisms that entitle them to revenue distribution"
+    tags:
+      - artemis_gaap
+
   service_revenue: &service_revenue
     name: service_revenue
     description: "The share of ecosystem revenue accrued to LPs of the protocol"
     tags:
       - artemis_gaap
       - override
+
 models:
   - name: ez_gmx_metrics
     description: "This table stores metrics for the GMX protocol"
     columns:
       - *ecosystem_revenue
+      - *fee_sharing_token_revenue
       - *service_revenue
 
