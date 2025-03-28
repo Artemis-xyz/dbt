@@ -81,6 +81,13 @@ select
     all_trade_metrics.primary_supply_side_revenue,
     all_trade_metrics.total_supply_side_revenue,
 
+    -- Volume
+    , all_trade_metrics.aggregator_volume
+    , all_trade_metrics.trading_volume
+    , all_trade_metrics.dca_volume
+    , all_trade_metrics.limit_order_volume
+    , all_trade_metrics.volume
+
     -- Txns
     all_trade_metrics.aggregator_txns,
     all_trade_metrics.perp_txns,
@@ -102,21 +109,52 @@ select
     token_volume
 
     -- Standardized Metrics
+
+    -- Fees
+    all_trade_metrics.perp_fees,
+    all_trade_metrics.aggregator_fees,
+    all_trade_metrics.dca_fees,
+    all_trade_metrics.limit_order_fees,
+    all_trade_metrics.fees,
+
+    -- Revenue
     , all_trade_metrics.fees as ecosystem_revenue
+    , all_trade_metrics.aggregator_fees - all_trade_metrics.aggregator_revenue as cogs
     , perp_supply_side_revenue as service_revenue
     , all_trade_metrics.revenue as treasury_revenue
-    
+
     , all_trade_metrics.perp_revenue as perp_treasury_revenue
     , all_trade_metrics.aggregator_revenue as aggregator_treasury_revenue
     , all_trade_metrics.dca_revenue as dca_treasury_revenue
     , all_trade_metrics.limit_order_revenue as limit_order_treasury_revenue
     , all_trade_metrics.buyback as buyback
 
+    -- Volume
     , all_trade_metrics.aggregator_volume
     , all_trade_metrics.trading_volume
     , all_trade_metrics.dca_volume
     , all_trade_metrics.limit_order_volume
     , all_trade_metrics.volume
+
+    -- Txns
+    all_trade_metrics.aggregator_txns,
+    all_trade_metrics.perp_txns,
+    all_trade_metrics.dca_txns,
+    all_trade_metrics.limit_order_txns,
+    all_trade_metrics.txns,
+
+    -- DAU
+    all_trade_metrics.unique_traders as perp_dau, -- perps specific metric
+    all_trade_metrics.aggregator_unique_traders as aggregator_dau, -- aggregator specific metric
+    all_trade_metrics.dau,
+
+    -- Market Data
+    price,
+    market_cap,
+    fdmc,
+    token_turnover_circulating,
+    token_turnover_fdv,
+    token_volume
 
 from all_trade_metrics
 left join price_data using (date)
