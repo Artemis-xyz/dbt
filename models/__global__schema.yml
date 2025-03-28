@@ -27,7 +27,7 @@ column_definitions:
       description: "Portion of revenue allocated to validators, sequencers, or provers who secure or operate the protocol."
       tags: [artemis_gaap]
     - name: buyback
-      description: "The amount tokens bought back by the protocol (USD)"
+      description: "The amount tokens bought back by the protocol (USD)."
 
   cost_metrics:
     - name: cost_of_goods_sold
