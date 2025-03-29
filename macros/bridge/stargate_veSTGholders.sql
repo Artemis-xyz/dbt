@@ -141,21 +141,10 @@ last_actions as (
     ) 
     where rn = 1
 ),
-circulating_supply as (
-    select 
-        try_cast(decoded_log:"supply"::STRING AS numeric) / 1e18 as total_supply
-    from {{chain}}_flipside.core.ez_decoded_event_logs
-    where lower(contract_address) = lower('0x0e42acbd23faee03249daff896b78d7e79fbd58e')
-      and tx_succeeded = true 
-      and event_name = 'Supply'
-    order by block_timestamp desc
-    limit 1
-),
 fees_received as (
     select 
         sum(fees) as total_fees
     from {{ ref("fact_stargate_v2_transfers") }}
-    where src_chain = '{{chain}}'
 ),
 summary as (
     select
@@ -169,13 +158,11 @@ summary as (
         vi.last_voted_timestamp,
         la.last_change_timestamp,
         la.last_action_type,
-        (v.veSTG_balance / nullif(cs.total_supply, 0)) * 100 AS percentage_of_total_supply,
         coalesce(fr.total_fees, 0) * (1.0 / nullif(vt.total_veSTG, 0)) * (v.veSTG_balance / nullif(vt.total_veSTG, 0)) AS fees_received
     from veSTG_balances v
     left join current_stg s on v.from_address = s.from_address
     left join voting_data vi on lower(v.from_address) = vi.from_address
     left join last_actions la on v.from_address = la.from_address
-    left join circulating_supply cs on true
     left join fees_received fr on true
     left join (select sum(veSTG_balance) as total_veSTG from veSTG_balances where veSTG_balance > 0 and remaining_days > 0) vt on true
 )
@@ -186,7 +173,6 @@ select
     veSTG_balance,
     remaining_days,
     remaining_period_readable as remaining_staking_period,
-    percentage_of_total_supply,
     number_of_votes_cast,
     last_voted_timestamp,
     last_change_timestamp,
@@ -195,6 +181,5 @@ select
     '{{chain}}' as chain
 from summary
 order by veSTG_balance desc
-limit 100
 
 {% endmacro %}
