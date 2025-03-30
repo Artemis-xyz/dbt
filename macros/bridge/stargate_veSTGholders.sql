@@ -48,26 +48,50 @@ STG_final_locked_sum_prev_locked as (
     select 
         s.from_address,
         s.locktime,
-        s.array_agg_value
+        s.array_agg_value,
     from STG_locked_sum_prev_locked s
     left join STG_locked_flatten_prev_locked f
         on lower(s.from_address) = lower(f.from_address) 
         and s.locktime >= f.max_locktime
-    where s.locktime >= f.max_locktime 
+    where s.locktime >= f.max_locktime
+),
+STG_min_ts as (
+    select 
+        locktime,
+        from_address,
+        min(ts) as min_ts
+    from veSTG_txns
+    group by locktime, from_address
+),
+STG_min_ts_values as (
+    select 
+        s.from_address,
+        s.locktime,
+        s.array_agg_value,
+        case 
+            when v.locktime is not null and lower(s.from_address) = lower(v.from_address) 
+            then v.min_ts
+            else null
+        end as ts
+    from STG_final_locked_sum_prev_locked s
+    left join STG_min_ts v
+        on s.locktime = v.locktime and lower(s.from_address) = lower(v.from_address)
 ),
 STG_lateral_flatten as (
     select
         from_address,
+        ts,
         value,
         locktime
-    from STG_final_locked_sum_prev_locked,
+    from STG_min_ts_values,
     lateral flatten(input => array_agg_value)
 ),
 STG_maxlocktime as (
     select 
         from_address, 
         sum(value) AS value, 
-        max(locktime) AS maxlocktime
+        max(locktime) AS maxlocktime,
+        min(ts) as minTS
     from STG_lateral_flatten
     group by from_address
     order by value desc
@@ -76,7 +100,8 @@ STG_locked_current_balance as (
     select
         from_address,
         maxlocktime AS locktime,
-        value AS stg_locked
+        value AS stg_locked,
+        floor((extract(epoch from current_timestamp()) - minTS) / 86400) as num_days_staked
     from STG_maxlocktime
     where to_timestamp(maxlocktime) > current_timestamp()
 ),
@@ -88,6 +113,7 @@ veSTG_balances as (
         v.from_address,
         sum(case when v.locktime > n.now_ts then v.stg_locked else 0 end) as stg_locked,
         sum(case when v.locktime > n.now_ts then v.stg_locked * (v.locktime - n.now_ts) / 94608000 else 0 end) as veSTG_balance,
+        min(v.num_days_staked) as num_days_staked,
         max(floor(greatest(0, (v.locktime - n.now_ts) / 86400))) as remaining_days,
         max(
             concat(
@@ -141,10 +167,17 @@ last_actions as (
     ) 
     where rn = 1
 ),
-fees_received as (
+avg_fees_per_day_cte as (
     select 
-        sum(fees) as total_fees
-    from {{ ref("fact_stargate_v2_transfers") }}
+        avg(daily_fees) as avg_fees_per_day,
+        sum(daily_fees) as total_fees
+    from (
+        select 
+            date(dst_block_timestamp) as fee_date,
+            sum(fees) as daily_fees
+        from {{ ref("fact_stargate_v2_transfers") }}
+        group by date(dst_block_timestamp)
+    ) daily
 ),
 summary as (
     select
@@ -158,12 +191,13 @@ summary as (
         vi.last_voted_timestamp,
         la.last_change_timestamp,
         la.last_action_type,
-        coalesce(fr.total_fees, 0) * (1.0 / nullif(vt.total_veSTG, 0)) * (v.veSTG_balance / nullif(vt.total_veSTG, 0)) AS fees_received
+        v.num_days_staked,
+        fr.avg_fees_per_day
     from veSTG_balances v
     left join current_stg s on v.from_address = s.from_address
     left join voting_data vi on lower(v.from_address) = vi.from_address
     left join last_actions la on v.from_address = la.from_address
-    left join fees_received fr on true
+    left join avg_fees_per_day_cte fr on true
     left join (select sum(veSTG_balance) as total_veSTG from veSTG_balances where veSTG_balance > 0 and remaining_days > 0) vt on true
 )
 select 
@@ -177,7 +211,8 @@ select
     last_voted_timestamp,
     last_change_timestamp,
     last_action_type,
-    fees_received,
+    num_days_staked,
+    avg_fees_per_day,
     '{{chain}}' as chain
 from summary
 order by veSTG_balance desc

@@ -33,7 +33,9 @@ select
     last_voted_timestamp,
     last_change_timestamp,
     last_action_type,
-    fees_received,
+    num_days_staked,
+    avg_fees_per_day,
+    avg_fees_per_day * (1.0 / 6.0) * num_days_staked * (percentage_of_total_supply / 100.0) as fees_received,
     chain
 from combined_events
 left join total_supply_veSTG on true
