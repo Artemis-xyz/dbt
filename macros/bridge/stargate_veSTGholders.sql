@@ -15,6 +15,13 @@ with veSTG_txns as (
         and event_name = 'Deposit'
         and contract_name = 'veSTG'
 ),
+num_days_staked_cte as (
+    select
+        from_address,
+            floor((extract(epoch from current_timestamp()) - min(ts)) / 86400) as num_days_staked
+        from veSTG_txns
+    group by from_address
+),
 STG_locked_array_agg_values as (
     select 
         locktime,
@@ -141,10 +148,17 @@ last_actions as (
     ) 
     where rn = 1
 ),
-fees_received as (
+avg_fees_per_day_cte as (
     select 
-        sum(fees) as total_fees
-    from {{ ref("fact_stargate_v2_transfers") }}
+        avg(daily_fees) as avg_fees_per_day,
+        sum(daily_fees) as total_fees
+    from (
+        select 
+            date(dst_block_timestamp) as fee_date,
+            sum(fees) as daily_fees
+        from {{ ref("fact_stargate_v2_transfers") }}
+        group by date(dst_block_timestamp)
+    ) daily
 ),
 summary as (
     select
@@ -158,13 +172,15 @@ summary as (
         vi.last_voted_timestamp,
         la.last_change_timestamp,
         la.last_action_type,
-        coalesce(fr.total_fees, 0) * (1.0 / nullif(vt.total_veSTG, 0)) * (v.veSTG_balance / nullif(vt.total_veSTG, 0)) AS fees_received
+        n.num_days_staked,
+        fr.avg_fees_per_day
     from veSTG_balances v
     left join current_stg s on v.from_address = s.from_address
     left join voting_data vi on lower(v.from_address) = vi.from_address
     left join last_actions la on v.from_address = la.from_address
-    left join fees_received fr on true
+    left join avg_fees_per_day_cte fr on true
     left join (select sum(veSTG_balance) as total_veSTG from veSTG_balances where veSTG_balance > 0 and remaining_days > 0) vt on true
+    left join num_days_staked_cte n on v.from_address = n.from_address
 )
 select 
     from_address,
@@ -177,7 +193,8 @@ select
     last_voted_timestamp,
     last_change_timestamp,
     last_action_type,
-    fees_received,
+    num_days_staked,
+    avg_fees_per_day,
     '{{chain}}' as chain
 from summary
 order by veSTG_balance desc
