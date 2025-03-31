@@ -1,4 +1,4 @@
-{% macro stargate_veSTGholders(chain) %} 
+{% macro stargate_veSTGholders(chain, token_contract_address) %} 
 
 with veSTG_txns as (
     select
@@ -131,8 +131,8 @@ stg_balances as (
         address as from_address, 
         balance_token / 1e18 as stg_balance,
         row_number() over (partition by address order by block_timestamp desc) as rn
-    from pc_dbt_db.prod.fact_ethereum_address_balances_by_token
-    where lower(contract_address) = lower('0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6')
+    from {{ ref("fact_" ~ chain ~ "_address_balances_by_token") }}
+    where lower(contract_address) = lower('{{token_contract_address}}')
 ),
 current_stg as (
     select 
@@ -167,18 +167,6 @@ last_actions as (
     ) 
     where rn = 1
 ),
-avg_fees_per_day_cte as (
-    select 
-        avg(daily_fees) as avg_fees_per_day,
-        sum(daily_fees) as total_fees
-    from (
-        select 
-            date(dst_block_timestamp) as fee_date,
-            sum(fees) as daily_fees
-        from {{ ref("fact_stargate_v2_transfers") }}
-        group by date(dst_block_timestamp)
-    ) daily
-),
 summary as (
     select
         v.from_address,
@@ -192,13 +180,10 @@ summary as (
         la.last_change_timestamp,
         la.last_action_type,
         v.num_days_staked,
-        fr.avg_fees_per_day
     from veSTG_balances v
     left join current_stg s on v.from_address = s.from_address
     left join voting_data vi on lower(v.from_address) = vi.from_address
     left join last_actions la on v.from_address = la.from_address
-    left join avg_fees_per_day_cte fr on true
-    left join (select sum(veSTG_balance) as total_veSTG from veSTG_balances where veSTG_balance > 0 and remaining_days > 0) vt on true
 )
 select 
     from_address,
@@ -212,7 +197,6 @@ select
     last_change_timestamp,
     last_action_type,
     num_days_staked,
-    avg_fees_per_day,
     '{{chain}}' as chain
 from summary
 order by veSTG_balance desc
