@@ -34,7 +34,6 @@ combined_events as (
         ce.last_change_timestamp,
         ce.last_action_type,
         ce.num_days_staked,
-        ce.avg_fees_per_day,
         ce.chain,
         ce.num_days_staked * (percentage_of_total_supply) as weighted_stake_days
     from combined_events ce
