@@ -1,7 +1,0 @@
-sources:
-  - name: PROD_LANDING
-    schema: PROD_LANDING
-    database: LANDING_DATABASE
-    tables:
-      - name: raw_jupiter_aggregator_metrics
-      - name: raw_jupiter_aggregator_unique_traders
