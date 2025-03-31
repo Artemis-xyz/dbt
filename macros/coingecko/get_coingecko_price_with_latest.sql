@@ -55,6 +55,12 @@
     inner join {{ ref('dim_coingecko_token_map')}}
         on token_id = coingecko_token_id
     where chain = '{{ chain }}'
+    union
+    select to_date(sysdate()) as date, contract_address, decimals, symbol, token_current_price as price
+    from {{ ref("fact_coingecko_token_realtime_data") }}
+    inner join {{ ref('dim_coingecko_token_map')}}
+        on token_id = coingecko_token_id
+    where chain = '{{ chain }}'
 {% endmacro %}
 
 {% macro get_coingecko_prices_on_chains(chains) %}
