@@ -1,8 +1,8 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="SONIC",
-
+        unique_key=['tx_hash', 'event_index'],
     )
 }}
 
@@ -19,6 +19,7 @@ select
     , case when event_name = 'Claim' then 'ethereum' else 'sonic' end as destination_chain
     , decimals
     , symbol
+    , case when contains(lower(symbol), 'usd') then 'Stablecoin' else 'Token' end as category
     , decoded_log:"token"::string as token_address
     , decoded_log:"amount"::number as amount_native
     , decoded_log:"amount"::number / POW(10, decimals) as amount_adjusted
