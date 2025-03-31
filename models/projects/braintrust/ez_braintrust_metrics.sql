@@ -8,23 +8,20 @@
     )
 }}
 
-with market_data as (
-    {{ get_coingecko_metrics("braintrust") }}
-)
-, revenue as (
+with revenue as (
     SELECT
         date,
         burns
     FROM {{ ref("fact_braintrust_revenue") }}
 )
+, date_spine as (
+    select date
+    from {{ ref("dim_date_spine") }}
+    where date between (SELECT min(date) from revenue) and to_date(sysdate())
+)
+
 SELECT
-    market_data.date,
-    revenue.burns,
-    market_data.price,
-    market_data.market_cap,
-    market_data.fdmc,
-    market_data.token_turnover_circulating,
-    market_data.token_turnover_fdv,
-    market_data.token_volume
-FROM market_data
+    date_spine.date,
+    revenue.burns
+FROM date_spine
 LEFT JOIN revenue USING(date)
