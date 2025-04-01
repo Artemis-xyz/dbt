@@ -39,9 +39,9 @@ cumulative_metrics as (
 )
 select
     date
-    , borrows
-    , supplies
-    , deposits
+    , borrows as daily_borrows_usd
+    , supplies as total_available_supply
+    , deposits as daily_supply_usd
     , tvl
     , fees
     , chain
