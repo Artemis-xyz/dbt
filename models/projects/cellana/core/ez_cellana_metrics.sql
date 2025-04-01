@@ -23,12 +23,12 @@ select
     , cellana_tvl.tvl
 
     -- Market Metrics
-    , cmm.price
-    , cmm.market_cap
-    , cmm.fdmc
-    , cmm.token_turnover_circulating
-    , cmm.token_turnover_fdv
-    , cmm.token_volume
+    , cmd.price
+    , cmd.market_cap
+    , cmd.fdmc
+    , cmd.token_turnover_circulating
+    , cmd.token_turnover_fdv
+    , cmd.token_volume
 from cellana_tvl
-left join cellana_market_data cmm using (date)
+left join cellana_market_data cmd using (date)
 where cellana_tvl.date < to_date(sysdate())
