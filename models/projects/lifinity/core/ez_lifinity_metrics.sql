@@ -18,7 +18,8 @@ with lifinity_dex_volumes as (
 
 select
     date
-
+    , dex_volumes
+    
     -- Standardized Metrics
     , dex_volumes as spot_volume
 
@@ -29,6 +30,7 @@ select
     , lmd.token_turnover_circulating
     , lmd.token_turnover_fdv
     , lmd.token_volume
+
 from lifinity_dex_volumes   
 left join lifinity_market_data lmd using (date)
 where date < to_date(sysdate())
