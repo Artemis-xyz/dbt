@@ -2,7 +2,7 @@
 {{
     config(
         materialized='table',
-        snowflake_warehouse='METEORA',
+        snowflake_warehouse='MEDIUM',
         database='METEORA',
         schema='core',
         alias='ez_metrics_by_chain',
