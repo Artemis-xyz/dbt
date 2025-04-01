@@ -51,6 +51,7 @@ select
     , swap_metrics.revenue
     , swap_metrics.primary_supply_side_revenue
     , swap_metrics.primary_supply_side_revenue as total_supply_side_revenue
+    , coalesce(tvl.tvl_usd, 0) as net_deposits
 
     -- Standardized Metrics
     , coalesce(swap_metrics.unique_traders, 0) as spot_dau
@@ -62,7 +63,6 @@ select
     , coalesce(swap_metrics.treasury_cash_flow, 0) as treasury_cash_flow
     , coalesce(swap_metrics.fee_sharing_token_cash_flow, 0) as fee_sharing_token_cash_flow
     , coalesce(tvl.tvl_usd, 0) as tvl
-    , coalesce(tvl.tvl_usd, 0) as net_deposits
 from date_pool_spine
 left join swap_metrics using (date, pool_address)
 left join tvl using (date, pool_address)
