@@ -39,6 +39,7 @@ with date_spine as (
 
 select
     ds.date
+    , fees_and_volume.trading_fees
     , fees_and_volume.climate_fund_fees
     , fees_and_volume.dao_treasury_fees as revenue
     , fees_and_volume.lp_fees as total_supply_side_revenue
@@ -52,7 +53,7 @@ select
     , coalesce(dau_txns.num_swaps, 0) as spot_txns
     , coalesce(fees_and_volume.volume, 0) as spot_volume
 
-    , coalesce(fees_and_volume.total_fees, 0) as trading_fees
+    , coalesce(fees_and_volume.total_fees, 0) as spot_fees
     , coalesce(fees_and_volume.total_fees, 0) as gross_protocol_revenue
     , coalesce(fees_and_volume.lp_fees, 0) as service_cash_flow
     , coalesce(fees_and_volume.dao_treasury_fees, 0) as treasury_cash_flow

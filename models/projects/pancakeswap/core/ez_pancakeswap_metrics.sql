@@ -4,7 +4,7 @@
         snowflake_warehouse="PANCAKESWAP_SM",
         database="pancakeswap",
         schema="core",
-        alias="ez_metrics_by_pool",
+        alias="ez_metrics",
     )
 }}
 
@@ -25,6 +25,17 @@ with
             )
         }}
     ),
+    trading_volume as (
+        select
+            trading_volume_pool.date
+            , sum(trading_volume_pool.trading_volume) as trading_volume
+            , sum(trading_volume_pool.trading_fees) as trading_fees
+            , sum(trading_volume_pool.unique_traders) as unique_traders
+            , sum(trading_volume_pool.gas_cost_native) as gas_cost_native
+            , sum(trading_volume_pool.gas_cost_usd) as gas_cost_usd
+        from trading_volume_pool
+        group by trading_volume_pool.date
+    ),
     tvl_by_pool as (
        {{
             dbt_utils.union_relations(
@@ -41,34 +52,33 @@ with
             )
         }}
     )
+    , tvl as (
+        select
+            tvl_by_pool.date
+            , sum(tvl_by_pool.tvl) as tvl
+        from tvl_by_pool
+        group by tvl_by_pool.date
+    )
 select
-    tvl_by_pool.date
+    tvl.date
     , 'pancakeswap' as app
     , 'DeFi' as category
-    , tvl_by_pool.chain
-    , tvl_by_pool.version
-    , tvl_by_pool.pool
-    , tvl_by_pool.token_0
-    , tvl_by_pool.token_0_symbol
-    , tvl_by_pool.token_1
-    , tvl_by_pool.token_1_symbol
-    , trading_volume_pool.trading_volume
-    , trading_volume_pool.trading_fees
-    , trading_volume_pool.unique_traders
-    , trading_volume_pool.gas_cost_usd
-
-    -- Standardized Metrics
-    , tvl_by_pool.tvl
-    , trading_volume_pool.unique_traders as spot_dau
-    , trading_volume_pool.trading_volume as spot_volume
-    , trading_volume_pool.trading_fees as spot_fees
-    , trading_volume_pool.trading_fees as gross_protocol_revenue
-    , trading_volume_pool.trading_fees * .68 as service_cash_flow
-    -- TODO: see comment in ez_pancakeswap_metrics re: remaining fees
-
-    , trading_volume_pool.gas_cost_native
-    , trading_volume_pool.gas_cost_usd as gas_cost
-
-from tvl_by_pool
-left join trading_volume_pool using(date, chain, version, pool)
-where tvl_by_pool.date < to_date(sysdate())
+    , tvl.tvl
+    
+    , trading_volume.trading_volume as spot_volume
+    , trading_volume.unique_traders as spot_dau
+    
+    , trading_volume.trading_fees as spot_fees
+    , trading_volume.trading_fees as gross_protocol_revenue
+    -- About 68% of fees go to LPs
+    , trading_volume.trading_fees * .68 as service_cash_flow
+    -- TODO: the remaining 32% of fees are distributed differently depending on the fee tier of the pool. We currently have the fee tier in
+    -- pancakeswap's ez_dex_swap. This needs to be pulled forward to the correct tables.
+    -- The remaining fees are distributed among CAKE burns, Treasury, and Fixed Term CAKE Stakers
+    -- https://docs.pancakeswap.finance/products/pancakeswap-exchange/pancakeswap-pools
+    
+    , trading_volume.gas_cost_native as gas_cost_native
+    , trading_volume.gas_cost_usd as gas_cost
+from tvl
+left join trading_volume using(date)
+where tvl.date < to_date(sysdate())
