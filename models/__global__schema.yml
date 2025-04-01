@@ -97,6 +97,8 @@ column_definitions:
       description: "The total volume on a spot dex"
     - name: spot_revenue
       description: "The total revenue on a spot dex"
+    - name: spot_unique_traders
+      description: "The number of unique traders on a spot dex"
 
   bridge_metrics:
     - name: bridge_txns
