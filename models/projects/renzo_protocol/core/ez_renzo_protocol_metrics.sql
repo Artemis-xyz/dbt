@@ -4,7 +4,7 @@
         snowflake_warehouse="RENZO_PROTOCOL",
         database="renzo_protocol",
         schema="core",
-        alias="ez_metrics_by_chain",
+        alias="ez_metrics",
     )
 }}
 
@@ -73,6 +73,9 @@ with
             amount_restaked_usd_net_change
         from {{ ref('fact_renzo_protocol_mode_restaked_eth_count_with_usd_and_change') }}
     ),
+    market_metrics as (
+        {{get_coingecko_metrics('renzo_protocol')}}
+    ),
     date_spine as (
         select
             ds.date
@@ -81,7 +84,6 @@ with
     )
 select
     date_spine.date,
-    restaked_eth_metrics_by_chain.chain,
     'renzo_protocol' as app,
     'DeFi' as category,
 
@@ -96,6 +98,15 @@ select
     , restaked_eth_metrics_by_chain.amount_restaked_usd as tvl
     , restaked_eth_metrics_by_chain.num_restaked_eth_net_change as tvl_native_net_change
     , restaked_eth_metrics_by_chain.amount_restaked_usd_net_change as tvl_net_change
+
+    --Market Metrics
+    , market_metrics.price as price
+    , market_metrics.token_volume as token_volume
+    , market_metrics.market_cap as market_cap
+    , market_metrics.fdmc as fdmc
+    , market_metrics.token_turnover_circulating as token_turnover_circulating
+    , market_metrics.token_turnover_fdv as token_turnover_fdv
 from date_spine
 left join restaked_eth_metrics_by_chain using(date)
+left join market_metrics using(date)
 where date_spine.date < to_date(sysdate())
