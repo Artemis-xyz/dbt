@@ -104,19 +104,16 @@ select
     , all_trade_metrics.trading_volume as perp_volume
     , all_trade_metrics.dca_volume
     , all_trade_metrics.limit_order_volume
-    , all_trade_metrics.volume as protocol_volume
 
     -- Txns
     , all_trade_metrics.aggregator_txns
     , all_trade_metrics.perp_txns
     , all_trade_metrics.dca_txns
     , all_trade_metrics.limit_order_txns
-    , all_trade_metrics.txns as protocol_txns
 
     -- DAU
     , all_trade_metrics.unique_traders as perp_dau -- perps specific metric
     , all_trade_metrics.aggregator_unique_traders as aggregator_dau -- aggregator specific metric
-    , all_trade_metrics.dau as protocol_dau
 
     -- Market Data
     , price
