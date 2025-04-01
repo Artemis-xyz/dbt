@@ -26,6 +26,9 @@ column_definitions:
     - name: validator_cash_flow
       description: "Portion of revenue allocated to validators, sequencers, or provers who secure or operate the protocol."
       tags: [artemis_gaap]
+    - name: other_cash_flow
+      description: "Revenue distributed to other parties of the protocol."
+      tags: [artemis_gaap]
     - name: buybacks
       description: "The amount tokens bought back by the protocol (USD)."
       tags: [artemis_gaap]
