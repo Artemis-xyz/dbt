@@ -74,6 +74,10 @@ column_definitions:
       description: "Monthly unique users on a chain"
     - name: chain_txns
       description: "Daily transactions on a chain"
+    - name: chain_avg_txn_fee
+      description: "The average transaction fee on a chain"
+    - name: chain_median_txn_fee
+      description: "The median transaction fee on a chain"
     - name: l1_cash_flow_native
       description: "The total native value of L1 cash flow on a chain"
       tags: [artemis_gaap]
@@ -86,28 +90,80 @@ column_definitions:
     - name: priority_fee
       description: "The total USD value of priority fees on a chain"
       tags: [artemis_gaap]
-
     - name: returning_users
       description: "The number of returning users on a chain"
-      tags: [artemis_gaap]
     - name: new_users
       description: "The number of new users on a chain"
-      tags: [artemis_gaap]
     - name: low_sleep_users
       description: "The number of low sleep users on a chain"
-      tags: [artemis_gaap]
     - name: high_sleep_users
       description: "The number of high sleep users on a chain"
-      tags: [artemis_gaap]
     - name: chain_sybil_users
       description: "The number of sybil users on a chain"
-      tags: [artemis_gaap]
     - name: non_sybil_users
       description: "The number of non-sybil users on a chain"
-      tags: [artemis_gaap]
     - name: dau_over_100
       description: "The number of users on a chain who have made over 100 transactions"
-      tags: [artemis_gaap]
+    - name: censored_blocks
+      description: "The number of censored blocks on a chain"
+    - name: semi_censored_blocks
+      description: "The number of semi-censored blocks on a chain"
+    - name: non_censored_blocks
+      description: "The number of non-censored blocks on a chain"
+    - name: total_blocks_produced
+      description: "The total number of blocks produced on a chain"
+    - name: percent_censored
+      description: "The percentage of blocks that are censored on a chain"
+    - name: percent_semi_censored
+      description: "The percentage of blocks that are semi-censored on a chain"
+    - name: percent_non_censored
+      description: "The percentage of blocks that are non-censored on a chain"
+    - name: total_staked_native
+      description: "The total amount of native tokens staked on a chain"
+    - name: total_staked
+      description: "The total amount of USD value staked on a chain"
+    - name: queue_entry_amount
+      description: "The amount of tokens added to the queue on a chain"
+    - name: queue_exit_amount
+      description: "The amount of tokens removed from the queue on a chain"
+    - name: queue_active_amount
+      description: "The amount of tokens in the queue on a chain"
+    - name: nft_trading_volume
+      description: "The total volume of NFT trading on a chain"
+    - name: p2p_native_transfer_volume
+      description: "The total volume of P2P native transfers on a chain"
+    - name: p2p_token_transfer_volume
+      description: "The total volume of P2P token transfers on a chain" 
+    - name: p2p_transfer_volume
+      description: "The total volume of P2P transfers on a chain"
+    - name: non_p2p_stablecoin_transfer_volume
+      description: "The total volume of non-P2P stablecoin transfers on a chain"
+    - name: settlement_volume
+      description: "The total volume of settlements on a chain"
+    - name: blob_fees_native
+      description: "The total amount of native blob fees on a chain"
+    - name: blob_fees
+      description: "The total amount of USD value of blob fees on a chain"
+    - name: blob_size_mib
+      description: "The total amount of data stored in blobs on a chain"
+    - name: avg_mib_per_second
+      description: "The average amount of data stored in blobs per second on a chain"
+    - name: avg_cost_per_mib_gwei
+      description: "The average cost per MiB of data stored in blobs on a chain in gwei"
+    - name: avg_cost_per_mib
+      description: "The average cost per MiB of data stored in blobs on a chain in USD"
+    - name: submitters
+      description: "The number of submitters on a chain"
+    - name: net_etf_flow_native
+      description: "The net flow of ETFs on a chain"
+    - name: net_etf_flow
+      description: "The net flow of ETFs on a chain"
+    - name: cumulative_etf_flow_native
+      description: "The cumulative flow of ETFs on a chain"
+    - name: cumulative_etf_flow
+      description: "The cumulative flow of ETFs on a chain"
+    - name: dex_volumes
+      description: "The total volume of DEXes on a chain"
 
   developer_metrics:
     - name: weekly_commits_core_ecosystem
