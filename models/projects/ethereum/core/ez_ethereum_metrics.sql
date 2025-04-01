@@ -74,7 +74,7 @@ select
     , percent_semi_censored
     , percent_non_censored
     -- Standardized Metrics
-    -- Chain metrics
+    -- Chain and cashflow metrics
     , txns AS chain_txns
     , dau AS chain_dau
     , wau AS chain_wau
