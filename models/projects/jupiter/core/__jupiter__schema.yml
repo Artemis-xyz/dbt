@@ -38,9 +38,10 @@ column_definitions:
 
   service_cash_flow: &service_cash_flow
     name: service_cash_flow
-    description: "The share of ecosystem revenue accrued to service providers of the protocol."
+    description: "The share of protocol revenue accrued to the JLP pool."
     tags:
       - artemis_gaap
+      - override
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
