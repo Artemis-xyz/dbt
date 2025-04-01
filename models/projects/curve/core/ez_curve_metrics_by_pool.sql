@@ -35,18 +35,30 @@ with
             )
         }}
     )
+
 select
-    tvl_by_pool.date,
-    'curve' as app,
-    'DeFi' as category,
-    tvl_by_pool.chain,
-    tvl_by_pool.pool,
-    tvl_by_pool.tvl,
-    trading_volume_pool.trading_volume,
-    trading_volume_pool.trading_fees,
-    trading_volume_pool.unique_traders,
-    trading_volume_pool.gas_cost_native,
-    trading_volume_pool.gas_cost_usd
+    tvl_by_pool.date
+    , 'curve' as app
+    , 'DeFi' as category
+    , tvl_by_pool.chain
+    , tvl_by_pool.pool
+    , trading_volume_pool.trading_volume
+    , trading_volume_pool.trading_fees
+    , trading_volume_pool.unique_traders
+    , trading_volume_pool.gas_cost_usd
+
+    -- Standardized Metrics
+    , tvl_by_pool.tvl
+    , trading_volume_pool.trading_volume as spot_volume
+    , trading_volume_pool.unique_traders as spot_dau
+
+    , trading_volume_pool.trading_fees as spot_fees
+    , trading_volume_pool.trading_fees as gross_protocol_revenue
+    , trading_volume_pool.trading_fees * 0.5 as fee_sharing_token_cash_flow
+    , trading_volume_pool.trading_fees * 0.5 as service_cash_flow
+    
+    , trading_volume_pool.gas_cost_native
+    , trading_volume_pool.gas_cost_usd as gas_cost
 from tvl_by_pool
 left join trading_volume_pool using(date, chain, pool)
 where tvl_by_pool.date < to_date(sysdate())
