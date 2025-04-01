@@ -53,7 +53,7 @@ with
     )
 
 select
-    fundamental_data.date,
+    fundamental_data.date
     , fundamental_data.chain
     , fundamental_data.txns
     , dau
@@ -67,7 +67,7 @@ select
     , revenue
     , case
         when fees is null then (fees_native * price) - revenue else fees - revenue
-    , end as priority_fee_usd
+    end as priority_fee_usd
     , nft_trading_volume
     , dau_over_100
     , percent_censored
@@ -92,21 +92,22 @@ select
     , low_sleep_users
     , high_sleep_users
     , sybil_users
-    , dau_over_100_balance
+    , non_sybil_users
+    , dau_over_100 AS dau_over_100_balance
     , censored_blocks
     , semi_censored_blocks
     , non_censored_blocks
     , total_blocks_produced
-    , percent_censored_blocks
-    , percent_semi_censored_blocks
-    , percent_non_censored_blocks
+    , percent_censored AS percent_censored_blocks
+    , percent_semi_censored AS percent_semi_censored_blocks
+    , percent_non_censored AS percent_non_censored_blocks
     , total_staked_native
     , total_staked_usd
     , total_staked_usd AS total_staked
     , queue_entry_amount
     , queue_exit_amount
     , queue_active_amount
-    , chain_nft_trading_volume
+    , nft_trading_volume AS chain_nft_trading_volume
     , p2p_native_transfer_volume
     , p2p_token_transfer_volume
     , p2p_transfer_volume
@@ -130,6 +131,7 @@ select
     , fdmc
     , tvl
     -- Developer metrics
+    , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
