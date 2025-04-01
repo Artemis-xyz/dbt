@@ -77,6 +77,7 @@ select
     -- DAU
     , all_trade_metrics.unique_traders -- perps specific metric
     , all_trade_metrics.aggregator_unique_traders -- aggregator specific metric
+    , all_trade_metrics.txns
 
     -- Standardized Metrics
 
@@ -87,15 +88,15 @@ select
     , all_trade_metrics.limit_order_fees
 
     -- Revenue
-    , all_trade_metrics.fees as ecosystem_revenue
-    , all_trade_metrics.aggregator_fees - all_trade_metrics.aggregator_revenue as cogs
-    , perp_supply_side_revenue as service_revenue
-    , all_trade_metrics.revenue as treasury_revenue
+    , all_trade_metrics.fees as gross_protocol_revenue
+    , all_trade_metrics.aggregator_fees - all_trade_metrics.aggregator_revenue as integrator_cash_flow
+    , perp_supply_side_revenue as service_cash_flow
+    , all_trade_metrics.revenue as treasury_cash_flow
 
-    , all_trade_metrics.perp_revenue as perp_treasury_revenue
-    , all_trade_metrics.aggregator_revenue as aggregator_treasury_revenue
-    , all_trade_metrics.dca_revenue as dca_treasury_revenue
-    , all_trade_metrics.limit_order_revenue as limit_order_treasury_revenue
+    , all_trade_metrics.perp_revenue as perp_treasury_cash_flow
+    , all_trade_metrics.aggregator_revenue as aggregator_treasury_cash_flow
+    , all_trade_metrics.dca_revenue as dca_treasury_cash_flow
+    , all_trade_metrics.limit_order_revenue as limit_order_treasury_cash_flow
     , all_trade_metrics.buyback as buyback
 
     -- Volume
@@ -103,19 +104,17 @@ select
     , all_trade_metrics.trading_volume as perp_volume
     , all_trade_metrics.dca_volume
     , all_trade_metrics.limit_order_volume
-    , all_trade_metrics.volume
 
     -- Txns
     , all_trade_metrics.aggregator_txns
     , all_trade_metrics.perp_txns
     , all_trade_metrics.dca_txns
     , all_trade_metrics.limit_order_txns
-    , all_trade_metrics.txns
 
     -- DAU
     , all_trade_metrics.unique_traders as perp_dau -- perps specific metric
     , all_trade_metrics.aggregator_unique_traders as aggregator_dau -- aggregator specific metric
-    , all_trade_metrics.dau
+    , aggregator_dau + perp_dau as dau -- necessary for OL index pipeline
 
     -- Market Data
     , price

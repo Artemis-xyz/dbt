@@ -48,11 +48,11 @@ select
     , revenue
     , supply_side_revenue
     --Standardized Metrics
-    , unique_traders as perp_unique_traders
-    , trading_volume as perp_trading_volume
-    , fees as ecosystem_revenue
-    , supply_side_revenue as service_revenue
-    , revenue as fee_sharing_token_revenue
+    , unique_traders as perp_dau
+    , trading_volume as perp_volume
+    , fees as gross_protocol_revenue
+    , supply_side_revenue as service_cash_flow
+    , revenue as fee_sharing_token_cash_flow
     
     -- Market Data
     , price
