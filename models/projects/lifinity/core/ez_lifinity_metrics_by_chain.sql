@@ -16,6 +16,7 @@ with
 select
     date
     , 'solana' as chain
+    , dex_volumes
 
     -- Standardized Metrics
     , dex_volumes as spot_volume

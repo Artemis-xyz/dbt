@@ -19,7 +19,7 @@ with lifinity_dex_volumes as (
 select
     date
     , dex_volumes
-    
+
     -- Standardized Metrics
     , dex_volumes as spot_volume
 
