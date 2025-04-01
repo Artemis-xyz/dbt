@@ -48,15 +48,16 @@ SELECT
     sm.total_swaps,
     sm.daily_volume_usd as trading_volume,
     sm.daily_fees_usd as trading_fees,
+    tm.tvl_usd as tvl
 
     -- Standardized Metrics
     sm.unique_traders as spot_dau,
     sm.total_swaps as spot_txns,
     sm.daily_volume_usd as spot_volume,
-    sm.daily_fees_usd as spot_revenue,
-    sm.daily_fees_usd as ecosystem_revenue,
-    sm.daily_fees_usd as fee_sharing_token_revenue
-    tm.tvl_usd as tvl
+    sm.daily_fees_usd as spot_fees,
+    sm.daily_fees_usd as gross_protocol_revenue,
+    sm.daily_fees_usd as fee_sharing_token_cash_flow,
+    tm.tvl_usd as spot_tvl
 
 FROM date_spine ds
 LEFT JOIN swap_metrics sm using (date)
