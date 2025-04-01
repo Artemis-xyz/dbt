@@ -61,6 +61,8 @@ select
     tvl.date
     , 'curve' as app
     , 'DeFi' as category
+
+    -- Standardized Metrics
     , tvl.tvl
     , trading_volume.trading_volume as spot_volume
     , trading_volume.unique_traders as spot_dau

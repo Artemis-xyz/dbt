@@ -33,9 +33,15 @@ with date_spine as (
 )
 
 select
-    date_spine.date,
-    coalesce(swap_metrics.unique_traders, 0) as unique_traders,
-    coalesce(swap_metrics.number_of_swaps, 0) as number_of_swaps,
-    coalesce(swap_metrics.trading_volume, 0) as trading_volume
+    date_spine.date
+    , coalesce(swap_metrics.unique_traders, 0) as unique_traders
+    , coalesce(swap_metrics.number_of_swaps, 0) as number_of_swaps
+    , coalesce(swap_metrics.trading_volume, 0) as trading_volume
+
+    -- Standardized Metrics
+    , coalesce(swap_metrics.unique_traders, 0) as spot_dau
+    , coalesce(swap_metrics.number_of_swaps, 0) as spot_txns
+    , coalesce(swap_metrics.trading_volume, 0) as spot_volume
+
 from date_spine
 left join swap_metrics using(date)
