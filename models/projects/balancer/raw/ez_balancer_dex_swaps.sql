@@ -16,7 +16,12 @@ with all_swaps as (
                 ref('fact_balancer_v2_swaps')
             ],
             column_override = {
-                "REVENUE": "float"
+                "TREASURY_CASH_FLOW": "float",
+                "TREASURY_CASH_FLOW_NATIVE": "float",
+                "VEBAL_CASH_FLOW": "float",
+                "VEBAL_CASH_FLOW_NATIVE": "float",
+                "SERVICE_CASH_FLOW": "float",
+                "SERVICE_CASH_FLOW_NATIVE": "float"
             }
         )
     }}
@@ -66,23 +71,33 @@ select
         else NULL
     end as fee_native,
     case 
-        when revenue < 1e5
-            then revenue
+        when treasury_cash_flow < 1e5
+            then treasury_cash_flow
         else NULL
-    end as revenue,
+    end as treasury_cash_flow,
     case 
-        when revenue < 1e5
-            then revenue_native
+        when treasury_cash_flow < 1e5
+            then treasury_cash_flow_native
         else NULL
-    end as revenue_native,
+    end as treasury_cash_flow_native,
     case 
-        when supply_side_revenue_usd < 1e5
-            then supply_side_revenue_usd
+        when vebal_cash_flow < 1e5
+            then vebal_cash_flow
         else NULL
-    end as supply_side_revenue_usd,
+    end as vebal_cash_flow,
     case 
-        when supply_side_revenue_usd < 1e5
-            then supply_side_revenue_native
+        when vebal_cash_flow < 1e5
+            then vebal_cash_flow_native
         else NULL
-    end as supply_side_revenue_native
+    end as vebal_cash_flow_native,
+    case 
+        when service_cash_flow < 1e5
+            then service_cash_flow
+        else NULL
+    end as service_cash_flow,
+    case 
+        when service_cash_flow < 1e5
+            then service_cash_flow_native
+        else NULL
+    end as service_cash_flow_native
 from all_swaps
