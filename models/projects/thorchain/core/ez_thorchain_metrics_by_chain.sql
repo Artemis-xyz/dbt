@@ -22,4 +22,4 @@ select
 
 from thorchain_tvl tt
 where tt.date < to_date(sysdate())
-and tt.name = 'Thorchain' -- macro above returns data for 'Thorchain Lending' too, so we filter by name
+and tt.name = 'thorchain' -- macro above returns data for 'Thorchain Lending' too, so we filter by name
