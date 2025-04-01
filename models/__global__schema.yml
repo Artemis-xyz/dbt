@@ -293,7 +293,6 @@ column_definitions:
   
 
   supply_metrics:
-      description: "The amount burned in USD"
     - name: mints_native
       description: "The amount of native tokens minted"
     - name: emissions_native
