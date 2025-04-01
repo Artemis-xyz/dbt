@@ -13,7 +13,7 @@ WITH
 eigenlayer_aggregated AS (
 SELECT 
     date,
-    protocol,
+    protocol as app,
     category,
     SUM(num_restaked_eth) AS num_restaked_eth,
     SUM(amount_restaked_usd) AS amount_restaked_usd
@@ -32,7 +32,7 @@ FROM {{ ref('fact_eigenlayer_supply_data') }}
 
 SELECT 
     a.date,
-    protocol,
+    app,
     category,
     num_restaked_eth as tvl_native,
     amount_restaked_usd as tvl,
