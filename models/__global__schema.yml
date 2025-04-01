@@ -66,7 +66,7 @@ column_definitions:
       description: "The net change in the total value locked in a protocol in the native currency of the protocol"
 
   chain_metrics:
-    - name: chain_dex_volume
+    - name: chain_spot_volume
       description: "Total spot dex volume on a chain"
     - name: chain_dau
       description: "Daily unique users on a chain"

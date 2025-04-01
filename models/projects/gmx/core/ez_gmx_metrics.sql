@@ -50,7 +50,6 @@ select
     --Standardized Metrics
     , unique_traders as perp_dau
     , trading_volume as perp_volume
-    , perp_volume as protocol_volume
     , fees as gross_protocol_revenue
     , supply_side_revenue as service_cash_flow
     , revenue as fee_sharing_token_cash_flow
