@@ -226,7 +226,7 @@ SELECT
     COALESCE(n.new_addresses, 0) AS new_addresses,
     COALESCE(r.returning_addresses, 0) AS returning_addresses,
     --Standardized Metrics
-    tvl_metrics.tvl,
+    tvl_metrics.tvl as bridge_tvl,
     d.daily_transactions as bridge_txns,
     d.daily_volume as bridge_volume,
     d.daily_active_addresses as bridge_dau,
@@ -234,10 +234,10 @@ SELECT
     m.monthly_active_addresses as bridge_mau,
     d.cumulative_active_addresses as bridge_cumulative_dau,
 
-    d.fees as ecosystem_revenue,
-    d.supply_side_fee as participating_token_revenue,
-    d.revenue as non_participating_token_revenue,
-    d.token_rewards as cost_of_goods_sold,
+    d.fees as gross_protocol_revenue,
+    d.supply_side_fee as fee_sharing_token_cash_flow,
+    d.revenue as token_cash_flow,
+    d.token_rewards as third_party_token_incentives,
 
     t.treasury_usd as treasury,
     ts.staked_usd as staked,
