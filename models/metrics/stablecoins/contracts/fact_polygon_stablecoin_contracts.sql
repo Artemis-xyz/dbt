@@ -12,5 +12,8 @@ from
             ('AUSD', '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a', 6, 'agora-dollar', 0),
             ('DOLA', '0xbC2b48BC930Ddc4E5cFb2e87a45c379Aab3aac5C', 18, 'dola-usd', 0),
             ('crvUSD', '0xc4ce1d6f5d98d65ee25cf85e9f2e9dcfee6cb5d6', 18, 'crvusd', 0),
-            ('MIM', '0x49a0400587a7f65072c87c4910449fdcc5c47242', 18, 'magic-internet-money-polygon', 0)
+            ('MIM', '0x49a0400587a7f65072c87c4910449fdcc5c47242', 18, 'magic-internet-money-polygon', 0),
+            ('IDRT', '0x554cd6bdD03214b10AafA3e0D4D42De0C5D2937b', 2, 'rupiah-token', 0),
+            ('IDRX', '0x649a2DA7B28E0D54c13D5eFf95d3A660652742cC', 0, 'idrx', 0),
+            ('BRLA', '0xE6A537a407488807F0bbeb0038B79004f19DDDFb', 18, 'brla-digital-brla', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
