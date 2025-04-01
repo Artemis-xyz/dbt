@@ -32,7 +32,12 @@ column_definitions:
     - name: buybacks
       description: "The amount tokens bought back by the protocol (USD)."
       tags: [artemis_gaap]
-
+    - name: burned_cash_flow_native
+      description: "The amount of native tokens burned"
+      tags: [artemis_gaap]
+    - name: burned_cash_flow
+      description: "The amount of USD value burned"
+      tags: [artemis_gaap]
   token_metrics:
     - name: price
       description: "The price of a token in USD"
@@ -102,7 +107,7 @@ column_definitions:
       description: "The number of sybil users on a chain"
     - name: non_sybil_users
       description: "The number of non-sybil users on a chain"
-    - name: dau_over_100
+    - name: dau_over_100_balance
       description: "The number of users on a chain who have made over 100 transactions"
     - name: censored_blocks
       description: "The number of censored blocks on a chain"
@@ -112,11 +117,11 @@ column_definitions:
       description: "The number of non-censored blocks on a chain"
     - name: total_blocks_produced
       description: "The total number of blocks produced on a chain"
-    - name: percent_censored
+    - name: percent_censored_blocks
       description: "The percentage of blocks that are censored on a chain"
-    - name: percent_semi_censored
+    - name: percent_semi_censored_blocks
       description: "The percentage of blocks that are semi-censored on a chain"
-    - name: percent_non_censored
+    - name: percent_non_censored_blocks
       description: "The percentage of blocks that are non-censored on a chain"
     - name: total_staked_native
       description: "The total amount of native tokens staked on a chain"
@@ -128,7 +133,7 @@ column_definitions:
       description: "The amount of tokens removed from the queue on a chain"
     - name: queue_active_amount
       description: "The amount of tokens in the queue on a chain"
-    - name: nft_trading_volume
+    - name: chain_nft_trading_volume
       description: "The total volume of NFT trading on a chain"
     - name: p2p_native_transfer_volume
       description: "The total volume of P2P native transfers on a chain"
@@ -288,9 +293,6 @@ column_definitions:
   
 
   supply_metrics:
-    - name: burns_native
-      description: "The amount of native tokens burned"
-    - name: burns
       description: "The amount burned in USD"
     - name: mints_native
       description: "The amount of native tokens minted"

@@ -68,6 +68,11 @@ select
     , case
         when fees is null then (fees_native * price) - revenue else fees - revenue
     , end as priority_fee_usd
+    , nft_trading_volume
+    , dau_over_100
+    , percent_censored
+    , percent_semi_censored
+    , percent_non_censored
     -- Standardized Metrics
     -- Chain metrics
     , txns AS chain_txns
@@ -78,8 +83,8 @@ select
     , fees AS gross_protocol_revenue
     , avg_txn_fee AS chain_avg_txn_fee
     , median_txn_fee AS chain_median_txn_fee
-    , revenue_native AS burns_native
-    , revenue AS burns
+    , revenue_native AS burned_cash_flow_native
+    , revenue AS burned_cash_flow
     , fees_native - revenue_native as priority_fee_native
     , priority_fee_usd AS priority_fee
     , returning_users
@@ -87,21 +92,21 @@ select
     , low_sleep_users
     , high_sleep_users
     , sybil_users
-    , dau_over_100
+    , dau_over_100_balance
     , censored_blocks
     , semi_censored_blocks
     , non_censored_blocks
     , total_blocks_produced
-    , percent_censored
-    , percent_semi_censored
-    , percent_non_censored
+    , percent_censored_blocks
+    , percent_semi_censored_blocks
+    , percent_non_censored_blocks
     , total_staked_native
     , total_staked_usd
     , total_staked_usd AS total_staked
     , queue_entry_amount
     , queue_exit_amount
     , queue_active_amount
-    , nft_trading_volume
+    , chain_nft_trading_volume
     , p2p_native_transfer_volume
     , p2p_token_transfer_volume
     , p2p_transfer_volume
