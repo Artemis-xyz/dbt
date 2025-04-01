@@ -26,11 +26,11 @@ select
     , daa as chain_dau
 
     -- Cash Flow Metrics
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
-    , cost as cogs
-    , cost_native as cogs_native
-    , revenue as foundation_revenue
-    , revenue_native as foundation_revenue_native
+    , fees as gross_protocol_revenue
+    , fees_native as gross_protocol_revenue_native
+    , cost as l1_cash_flow
+    , cost_native as l1_cash_flow_native
+    , revenue as foundation_cash_flow
+    , revenue_native as foundation_cash_flow_native
 from {{ ref("fact_abstract_fundamental_metrics") }} as f
 where f.date  < to_date(sysdate())
