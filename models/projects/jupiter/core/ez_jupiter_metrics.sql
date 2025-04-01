@@ -114,6 +114,7 @@ select
     -- DAU
     , all_trade_metrics.unique_traders as perp_dau -- perps specific metric
     , all_trade_metrics.aggregator_unique_traders as aggregator_dau -- aggregator specific metric
+    , aggregator_dau + perp_dau as dau -- necessary for OL index pipeline
 
     -- Market Data
     , price
