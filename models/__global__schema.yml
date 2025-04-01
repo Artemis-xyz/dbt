@@ -115,6 +115,14 @@ column_definitions:
       description: "The amount (in USD) flowing into a chain"
     - name: outflow
       description: "The amount (in USD) flowing out of a chain"
+
+  lending_metrics:
+    - name: lending_borrows
+      description: "The total outstanding borrows (in USD) on a lending protocol"
+    - name: lending_deposits
+      description: "The total amount of tokens deposited (in USD) on a lending protocol"
+    - name: lending_total_available_borrows
+      description: "The total amount of borrows available (in USD) on a lending protocol"
     
   aggregator_metrics:
     - name: aggregator_dau
