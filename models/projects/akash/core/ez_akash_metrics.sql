@@ -48,7 +48,6 @@ active_providers AS (
 
 SELECT
     mints.date
-    , 'akash' AS chain
     , coalesce(active_leases.active_leases, 0) AS active_leases
     , coalesce(active_providers.active_providers, 0) AS active_providers
     , coalesce(new_leases.new_leases, 0) AS new_leases
@@ -69,10 +68,10 @@ SELECT
     -- Standardized Metrics
     , (coalesce(compute_fees_total_usd.compute_fees_total_usd, 0))/ 1e6 AS compute_fees
     , coalesce(validator_fees.validator_fees, 0) AS gas_fees
-    , compute_fees + gas_fees AS ecosystem_revenue
-    , validator_fees AS validator_revenue
-    , revenue.revenue AS treasury_revenue
-    , compute_fees - treasury_revenue AS service_revenue
+    , compute_fees + gas_fees AS gross_protocol_revenue
+    , validator_fees AS validator_cash_flow
+    , revenue.revenue AS treasury_cash_flow
+    , compute_fees - treasury_cash_flow AS service_cash_flow
     , coalesce(burns.total_burned_native, 0) AS burns_native
     , coalesce(mints.mints, 0) AS mints_native
 
@@ -81,7 +80,7 @@ SELECT
     , market_cap
     , fdmc
     , token_turnover_circulating
-    ,token_turnover_fdv
+    , token_turnover_fdv
     , token_volume    
 FROM mints
 LEFT JOIN active_providers ON mints.date = active_providers.date
