@@ -10,13 +10,25 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  spot_unique_traders: &spot_unique_traders
-    name: spot_unique_traders
-    description: "The number of unique traders on a spot dex"
+  service_cash_flow: &service_cash_flow
+    name: service_cash_flow
+    description: "The share of protocol revenue accrued to service providers of the protocol."
+    tags:
+      - artemis_gaap
+
+  spot_dau: &spot_dau
+    name: spot_dau
+    description: "The number of daily active traders on a spot dex"
 
   spot_volume: &spot_volume
     name: spot_volume
     description: "The total volume on a spot dex"
+
+  token_cash_flow: &token_cash_flow
+    name: token_cash_flow
+    description: "The share of protocol revenue accrued to token holders of the protocol."
+    tags:
+      - artemis_gaap
 
   tvl: &tvl
     name: tvl
@@ -27,23 +39,29 @@ models:
     description: "This table stores metrics for the SUSHISWAP protocol"
     columns:
       - *gross_protocol_revenue
-      - *spot_unique_traders
+      - *service_cash_flow
+      - *spot_dau
       - *spot_volume
+      - *token_cash_flow
       - *tvl
 
   - name: ez_sushiswap_metrics_by_pool
     description: "This table stores metrics for the SUSHISWAP protocol"
     columns:
       - *gross_protocol_revenue
-      - *spot_unique_traders
+      - *service_cash_flow
+      - *spot_dau
       - *spot_volume
+      - *token_cash_flow
       - *tvl
 
   - name: ez_sushiswap_metrics
     description: "This table stores metrics for the SUSHISWAP protocol"
     columns:
       - *gross_protocol_revenue
-      - *spot_unique_traders
+      - *service_cash_flow
+      - *spot_dau
       - *spot_volume
+      - *token_cash_flow
       - *tvl
 

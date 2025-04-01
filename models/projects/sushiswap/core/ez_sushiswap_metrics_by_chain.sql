@@ -71,7 +71,9 @@ select
     , tvl_by_chain.tvl
     , trading_volume_by_chain.trading_volume as spot_volume
     , trading_volume_by_chain.trading_fees as gross_protocol_revenue
-    , trading_volume_by_chain.unique_traders as spot_unique_traders
+    , trading_volume_by_chain.unique_traders as spot_dau
+    , trading_volume_by_chain.trading_fees * 0.25 / 0.30 as service_cash_flow
+    , trading_volume_by_chain.trading_fees * 0.05 / 0.30 as token_cash_flow
 from tvl_by_chain
 left join trading_volume_by_chain using(date, chain)
 where tvl_by_chain.date < to_date(sysdate())
