@@ -79,6 +79,7 @@ select
     , coalesce(c.pool_creation_fees_native, 0) as pool_creation_fees_native
     , v.unique_traders
     , v.number_of_swaps
+    , b.buyback_native * pb.price as buyback
 
     -- Standardized Metrics
     , price_data.price 
