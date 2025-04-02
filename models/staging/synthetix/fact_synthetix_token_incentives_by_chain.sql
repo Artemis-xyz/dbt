@@ -10,8 +10,6 @@
 
 with all_token_incentives_by_chain as (
     SELECT * FROM {{ ref('fact_synthetix_ethereum_token_incentives') }}
-    UNION ALL
-    SELECT * FROM {{ ref('fact_synthetix_optimism_token_incentives') }}
 )
 
 select
