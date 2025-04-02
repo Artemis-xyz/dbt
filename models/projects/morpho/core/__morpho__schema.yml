@@ -16,6 +16,10 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  lending_dau: &lending_dau
+    name: lending_dau
+    description: "The number of daily active traders on a lending protocol"
+
   lending_deposits: &lending_deposits
     name: lending_deposits
     description: "The total amount of tokens deposited (in USD) on a lending protocol"
@@ -28,6 +32,10 @@ column_definitions:
     name: lending_loans
     description: "The total outstanding loans (in USD) on a lending protocol"
 
+  lending_txns: &lending_txns
+    name: lending_txns
+    description: "The number of daily transactions on a lending protocol"
+
   market_cap: &market_cap
     name: market_cap
     description: "The market cap of a token in USD"
@@ -37,6 +45,12 @@ column_definitions:
   price: &price
     name: price
     description: "The price of a token in USD"
+    tags:
+      - artemis_gaap
+
+  service_cash_flow: &service_cash_flow
+    name: service_cash_flow
+    description: "The share of protocol revenue accrued to service providers of the protocol."
     tags:
       - artemis_gaap
 
@@ -68,11 +82,14 @@ models:
     columns:
       - *fdmc
       - *gross_protocol_revenue
+      - *lending_dau
       - *lending_deposits
       - *lending_loan_capacity
       - *lending_loans
+      - *lending_txns
       - *market_cap
       - *price
+      - *service_cash_flow
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
@@ -85,5 +102,6 @@ models:
       - *lending_deposits
       - *lending_loan_capacity
       - *lending_loans
+      - *service_cash_flow
       - *tvl
 
