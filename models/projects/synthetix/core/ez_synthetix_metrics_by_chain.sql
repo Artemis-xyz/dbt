@@ -24,7 +24,7 @@ with
             sum(tvl_usd) as tvl,
         from {{ ref("fact_synthetix_tvl_by_chain_and_token") }}
         group by 1,2 
-    )
+    ), 
     token_incentives as (
         select
             date,
