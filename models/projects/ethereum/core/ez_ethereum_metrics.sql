@@ -145,16 +145,16 @@ select
     , stablecoin_dau
     , stablecoin_mau
     , stablecoin_transfer_volume
+    , stablecoin_tokenholder_count
     , artemis_stablecoin_txns
     , artemis_stablecoin_dau
     , artemis_stablecoin_mau
     , artemis_stablecoin_transfer_volume
+    , p2p_stablecoin_tokenholder_count
     , p2p_stablecoin_txns
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
-    , stablecoin_tokenholder_count
-    , p2p_stablecoin_tokenholder_count
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
