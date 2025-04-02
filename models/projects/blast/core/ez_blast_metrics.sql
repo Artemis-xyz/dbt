@@ -31,29 +31,51 @@ select
         defillama_data.date,
         contract_data.date,
         expenses_data.date
-    ) as date,
-    'blast' as chain,
-    txns,
-    dau,
-    wau,
-    mau,
-    fees_native, 
-    fees,
-    fees / txns as avg_txn_fee,
-    median_txn_fee,
-    l1_data_cost_native,  
-    l1_data_cost,
-    coalesce(fees_native, 0) - l1_data_cost_native as revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    coalesce(fees, 0) - l1_data_cost as revenue,
-    returning_users,
-    new_users,
-    low_sleep_users,
-    high_sleep_users,
-    dau_over_100,
-    tvl,
-    dune_dex_volumes_blast.dex_volumes as dex_volumes,
-    weekly_contracts_deployed,
-    weekly_contract_deployers
+    ) as date
+    , 'blast' as chain
+    , txns
+    , dau
+    , wau
+    , mau
+    , fees_native
+    , fees
+    , fees / txns as avg_txn_fee
+    , median_txn_fee
+    , l1_data_cost_native
+    , l1_data_cost
+    , coalesce(fees_native, 0) - l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(fees, 0) - l1_data_cost as revenue
+    , dau_over_100
+    , dune_dex_volumes_blast.dex_volumes as dex_volumes
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , tvl
+    -- Usage metrics
+    , txns as chain_txns
+    , dau AS chain_dau
+    , wau AS chain_wau
+    , mau AS chain_mau
+    -- Cashflow metrics
+    , fees_native AS gross_protocol_revenue_native
+    , fees AS gross_protocol_revenue
+    , avg_txn_fee AS chain_avg_txn_fee
+    , median_txn_fee AS chain_median_txn_fee
+    , revenue_native AS burned_cash_flow_native
+    , revenue AS burned_cash_flow
+    , l1_data_cost_native AS l1_cash_flow_native
+    , l1_data_cost AS l1_cash_flow
+    , revenue_native AS foundation_cash_flow_native
+    , revenue AS foundation_cash_flow
+    -- Chain metrics
+    , returning_users
+    , new_users
+    , low_sleep_users
+    , high_sleep_users
+    , dau_over_100 AS dau_over_100_balance
+    , dune_dex_volumes_blast.dex_volumes as dex_volumes
+    -- Developer metrics
+    , weekly_contracts_deployed
+    , weekly_contract_deployers
 from fundamental_data
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join contract_data on fundamental_data.date = contract_data.date
