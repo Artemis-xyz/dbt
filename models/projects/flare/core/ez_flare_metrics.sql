@@ -31,13 +31,18 @@ txns as (
         date,
         daily_volume as dex_volumes
     from {{ref("fact_flare_daily_dex_volumes")}}
-)
+),
+price_data as ({{ get_coingecko_metrics("flare-networks") }})
 select
     coalesce(fees.date, txns.date, daus.date) as date
     , dau
     , txns
     , fees_usd as fees
     -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
     -- Usage Metrics
     , txns AS chain_txns
     , dau AS chain_dau
@@ -49,3 +54,4 @@ from fees
 left join txns on fees.date = txns.date
 left join daus on fees.date = daus.date 
 left join dex_volumes on fees.date = dex_volumes.date
+left join price_data on fees.date = price_data.date

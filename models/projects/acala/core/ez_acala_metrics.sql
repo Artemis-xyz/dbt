@@ -15,7 +15,8 @@ with
             date, chain, daa, txns, fees_native, fees_usd as fees, fees_native * .2 as revenue_native, fees_usd * .2 as revenue
         from {{ ref("fact_acala_fundamental_metrics") }}
     ),
-    rolling_metrics as ({{ get_rolling_active_address_metrics("acala") }})
+    rolling_metrics as ({{ get_rolling_active_address_metrics("acala") }}),
+    price_data as ({{ get_coingecko_metrics("acala") }})
 select
     fundamental_data.date
     , fundamental_data.chain
@@ -28,6 +29,10 @@ select
     , wau
     , mau
     -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
     -- Usage Metrics
     , dau AS chain_dau
     , wau AS chain_wau
@@ -41,4 +46,5 @@ select
     , revenue AS burned_cash_flow
 from fundamental_data
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
+left join price_data on fundamental_data.date = price_data.date
 where fundamental_data.date < to_date(sysdate())

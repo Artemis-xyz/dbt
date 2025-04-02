@@ -12,6 +12,7 @@
 with
     fundamental_data as ({{ get_fundamental_data_for_chain("blast") }}),
     defillama_data as ({{ get_defillama_metrics("blast") }}),
+    price_data as ({{ get_coingecko_metrics("blast") }}),
     contract_data as ({{ get_contract_metrics("blast") }}),
     -- NOTE, this says l1 data cost, but that's inaccurate
     -- its both data and execution cost, but I'm following convention for now and we don't publish 
@@ -49,6 +50,9 @@ select
     , dune_dex_volumes_blast.dex_volumes as dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
     , tvl
     -- Usage metrics
     , txns as chain_txns
@@ -82,4 +86,5 @@ left join contract_data on fundamental_data.date = contract_data.date
 left join expenses_data on fundamental_data.date = expenses_data.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join blast_dex_volumes as dune_dex_volumes_blast on fundamental_data.date = dune_dex_volumes_blast.date
+left join price_data on fundamental_data.date = price_data.date
 where fundamental_data.date < to_date(sysdate())
