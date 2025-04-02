@@ -24,13 +24,6 @@ with
         from {{ ref("fact_synthetix_tvl_by_chain_and_token") }}
         group by 1 
     ),
-    net_deposits as (
-        select
-            date,
-            sum(net_deposits) as net_deposits
-        from {{ ref("fact_synthetix_net_deposits_by_chain") }}
-        group by 1
-    ), 
     token_holders as (
         select
             date,
@@ -41,7 +34,7 @@ with
     fees as (
         select
             date,
-            daily_fees as fees
+            fees as fees
         from {{ ref('fact_synthetix_fees') }}
     ),
     expenses as (
@@ -83,7 +76,7 @@ select
     coalesce(trading_volume, 0) as trading_volume,
     coalesce(unique_traders, 0) as unique_traders,
     coalesce(tvl, 0) as tvl,
-    coalesce(net_deposits, 0) as net_deposits,
+    coalesce(tvl, 0) as net_deposits,
     coalesce(fees, 0) as fees,
     coalesce(fees, 0) as revenue, 
     coalesce(expenses + token_incentives, 0) as expenses,
@@ -100,7 +93,6 @@ select
 from unique_traders_data
 left join trading_volume_data using(date)
 left join tvl using(date)
-left join net_deposits using(date)
 left join fees using(date)
 left join expenses using(date)
 left join token_incentives using(date)
