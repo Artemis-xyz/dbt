@@ -74,11 +74,17 @@ select
     , percent_semi_censored
     , percent_non_censored
     -- Standardized Metrics
-    -- Chain and cashflow metrics
-    , txns AS chain_txns
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Usage Metrics
     , dau AS chain_dau
     , wau AS chain_wau
     , mau AS chain_mau
+    , txns AS chain_txns
+    -- Cashflow metrics
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
     , avg_txn_fee AS chain_avg_txn_fee
@@ -87,6 +93,7 @@ select
     , revenue AS burned_cash_flow
     , fees_native - revenue_native as priority_fee_native
     , priority_fee_usd AS priority_fee
+    -- Chain Metrics
     , returning_users
     , new_users
     , low_sleep_users
@@ -125,11 +132,6 @@ select
     , cumulative_etf_flow_native
     , cumulative_etf_flow
     , dune_dex_volumes_ethereum.dex_volumes
-    -- Token Metrics
-    , price
-    , market_cap
-    , fdmc
-    , tvl
     -- Developer metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

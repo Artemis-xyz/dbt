@@ -28,11 +28,12 @@ select
     , wau
     , mau
     -- Standardized Metrics
-    -- Chain and cashflow metrics
-    , txns AS chain_txns
+    -- Usage Metrics
     , dau AS chain_dau
     , wau AS chain_wau
     , mau AS chain_mau
+    , txns AS chain_txns
+    -- Cashflow metrics
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
     , avg_txn_fee AS chain_avg_txn_fee
