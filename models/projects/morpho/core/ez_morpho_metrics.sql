@@ -39,6 +39,15 @@ with morpho_data as (
     {{ get_coingecko_metrics('morpho') }}
 )
 
+, morpho_supply_data as (
+    select
+        date
+        , premine_unlocks_native
+        , net_supply_change_native
+        , circulating_supply_native
+    from {{ ref("fact_morpho_supply_data") }}
+)
+
 select
     date
     , dau
@@ -59,6 +68,11 @@ select
     -- Cash Flow Metrics (Interest goes to Liquidity Suppliers (Lenders))
     , fees as service_cash_flow
 
+    -- Supply Metrics
+    , msd.premine_unlocks_native
+    , msd.net_supply_change_native
+    , msd.circulating_supply_native
+
     -- Market Metrics
     , mdd.price
     , mdd.market_cap
@@ -68,3 +82,4 @@ select
     , mdd.token_volume
 from cumulative_metrics
 left join morpho_market_data mdd using (date)
+left join morpho_supply_data msd using (date)
