@@ -4,7 +4,7 @@
         snowflake_warehouse="UNICHAIN",
         database="unichain",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
     )
 }}
 
@@ -16,23 +16,11 @@ with
     )
 select
     f.date
-    , dune_dex_volumes_unichain.dex_volumes
-    -- Old Metrics Needed For Compatibility
-    , txns
-    , daa as dau
-    , fees
-    , fees_native
-    , cost
-    , cost_native
-    , revenue
-    , revenue_native
+    , 'unichain' as chain
 
     -- Standardized Metrics
-    -- Chain Metrics
     , txns as chain_txns
     , daa as chain_dau
-
-    -- Cash Flow Metrics
     , fees as gross_protocol_revenue
     , fees_native as gross_protocol_revenue_native
     , cost as l1_cash_flow
@@ -47,6 +35,7 @@ select
     , token_turnover_circulating
     , token_turnover_fdv
     , token_volume
+    , dune_dex_volumes_unichain.dex_volumes
 from {{ ref("fact_unichain_fundamental_metrics") }} as f
 left join price_data on f.date = price_data.date
 left join unichain_dex_volumes as dune_dex_volumes_unichain on f.date = dune_dex_volumes_unichain.date
