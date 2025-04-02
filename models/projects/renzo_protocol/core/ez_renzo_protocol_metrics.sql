@@ -74,7 +74,7 @@ with
         from {{ ref('fact_renzo_protocol_mode_restaked_eth_count_with_usd_and_change') }}
     ),
     market_metrics as (
-        {{get_coingecko_metrics('renzo_protocol')}}
+        {{get_coingecko_metrics('renzo')}}
     ),
     date_spine as (
         select

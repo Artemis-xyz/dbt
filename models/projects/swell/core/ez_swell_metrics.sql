@@ -29,7 +29,7 @@ staked_eth_metrics as (
     from {{ ref('fact_sweth_staked_eth_count_with_usd_and_change') }}
 ),
 market_metrics as (
-    {{get_coingecko_metrics('swell')}}
+    {{get_coingecko_metrics('swell-network')}}
 ),
 date_spine as (
     select

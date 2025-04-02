@@ -25,7 +25,7 @@ with restaked_eth_metrics as (
     where ds.date between (select min(date) from restaked_eth_metrics) and to_date(sysdate())
 )
 , market_metrics as (
-    {{get_coingecko_metrics('puffer_finance')}}
+    {{get_coingecko_metrics('puffer-finance')}}
 )
 
 select
