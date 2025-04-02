@@ -11,7 +11,7 @@ with flipside_near_dex_volumes as (
                 else 0
             end
         ) as volume_usd
-    from near_flipside.defi.ez_dex_swaps
+    from {{ source("NEAR_FLIPSIDE", "ez_dex_swaps") }}
     where platform <> 'ref-finance.near' and platform <> 'v2.ref-finance.near'
     group by date
     order by date asc
@@ -21,7 +21,7 @@ rhea_near_dex_volumes as (
     select 
         date as date,
         volume as volume_usd
-    from pc_dbt_db.prod.fact_near_rhea_finance_volumes
+    from {{ ref('fact_near_rhea_finance_volumes') }}
 )
 
 select 

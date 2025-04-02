@@ -4,3 +4,4 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_near_rhea_volumes
+      
