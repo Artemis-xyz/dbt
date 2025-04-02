@@ -8,8 +8,18 @@
     )
 }}
 
-SELECT *
-FROM {{ ref('fact_bananagun_all_metrics') }}
+with metrics as (
+    SELECT *
+    FROM {{ ref('fact_bananagun_all_metrics') }}
+)
 
+SELECT
+    date
+    , chain
 
+    -- Chain Metrics
+    , trading_volume as chain_spot_volume
+    , dau as chain_dau
+    , daily_txns as chain_txns
+FROM metrics
 ORDER BY date DESC
