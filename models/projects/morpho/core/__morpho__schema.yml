@@ -16,17 +16,17 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  lending_borrows: &lending_borrows
-    name: lending_borrows
-    description: "The total outstanding borrows (in USD) on a lending protocol"
-
   lending_deposits: &lending_deposits
     name: lending_deposits
     description: "The total amount of tokens deposited (in USD) on a lending protocol"
 
-  lending_total_available_borrows: &lending_total_available_borrows
-    name: lending_total_available_borrows
-    description: "The total amount of borrows available (in USD) on a lending protocol"
+  lending_loan_capacity: &lending_loan_capacity
+    name: lending_loan_capacity
+    description: "The total amount of loans available (in USD) on a lending protocol, including outstanding loans"
+
+  lending_loans: &lending_loans
+    name: lending_loans
+    description: "The total outstanding loans (in USD) on a lending protocol"
 
   market_cap: &market_cap
     name: market_cap
@@ -68,9 +68,9 @@ models:
     columns:
       - *fdmc
       - *gross_protocol_revenue
-      - *lending_borrows
       - *lending_deposits
-      - *lending_total_available_borrows
+      - *lending_loan_capacity
+      - *lending_loans
       - *market_cap
       - *price
       - *token_turnover_circulating
@@ -82,8 +82,8 @@ models:
     description: "This table stores metrics for the MORPHO protocol"
     columns:
       - *gross_protocol_revenue
-      - *lending_borrows
       - *lending_deposits
-      - *lending_total_available_borrows
+      - *lending_loan_capacity
+      - *lending_loans
       - *tvl
 

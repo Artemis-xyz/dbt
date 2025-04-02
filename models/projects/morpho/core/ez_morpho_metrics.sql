@@ -45,8 +45,8 @@ select
     -- Standardized metrics
     , tvl
     , fees as gross_protocol_revenue
-    , borrows as lending_borrows
-    , supplies as lending_total_available_borrows
+    , borrows as lending_loans
+    , supplies as lending_loan_capacity
     , deposits as lending_deposits
 
     -- Market Metrics

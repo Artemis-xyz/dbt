@@ -32,16 +32,18 @@ cumulative_metrics as (
 )
 select
     date
+    , chain
     , borrows as daily_borrows_usd
     , supplies as total_available_supply
     , deposits as daily_supply_usd
     , fees
-    , chain
 
     -- Standardized metrics
-    , tvl
-    , fees as gross_protocol_revenue
-    , borrows as lending_borrows
-    , supplies as lending_total_available_borrows
+    , borrows as lending_loans
+    , supplies as lending_loan_capacity
     , deposits as lending_deposits
+    , tvl
+    
+    , fees as gross_protocol_revenue
+    
 from cumulative_metrics 
