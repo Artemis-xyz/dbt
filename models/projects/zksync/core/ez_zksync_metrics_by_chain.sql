@@ -13,13 +13,29 @@ with
         select date, chain, inflow, outflow
         from {{ ref("fact_zksync_era_bridge_bridge_volume") }}
         where chain is not null
+    ),
+    price_data as (
+        {{ get_coingecko_metrics('zksync') }}
     )
 select
-    date,
-    'zksync' as app,
-    'Bridge' as category,
-    chain,
-    inflow,
-    outflow
-from bridge_volume_metrics
-where date < to_date(sysdate())
+    b.date
+    , 'zksync' as app
+    , 'Bridge' as category
+    , b.chain
+    -- Old metrics needed for compatibility
+
+    -- Standardized Metrics
+    -- Bridge Metrics
+    , inflow
+    , outflow
+
+    -- Market Data
+    , price
+    , market_cap
+    , fdmc
+    , token_turnover_circulating
+    , token_turnover_fdv
+    , token_volume
+from bridge_volume_metrics as b
+left join price_data on b.date = price_data.date
+where b.date < to_date(sysdate())
