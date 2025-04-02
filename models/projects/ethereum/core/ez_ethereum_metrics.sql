@@ -79,21 +79,11 @@ select
     , market_cap
     , fdmc
     , tvl
-    -- Usage Metrics
+    -- Chain Usage Metrics
     , dau AS chain_dau
     , wau AS chain_wau
     , mau AS chain_mau
     , txns AS chain_txns
-    -- Cashflow metrics
-    , fees_native AS gross_protocol_revenue_native
-    , fees AS gross_protocol_revenue
-    , avg_txn_fee AS chain_avg_txn_fee
-    , median_txn_fee AS chain_median_txn_fee
-    , revenue_native AS burned_cash_flow_native
-    , revenue AS burned_cash_flow
-    , fees_native - revenue_native as priority_fee_native
-    , priority_fee_usd AS priority_fee
-    -- Chain Metrics
     , returning_users
     , new_users
     , low_sleep_users
@@ -127,11 +117,16 @@ select
     , avg_cost_per_mib_gwei
     , avg_cost_per_mib
     , submitters
-    , net_etf_flow_native
-    , net_etf_flow
-    , cumulative_etf_flow_native
-    , cumulative_etf_flow
     , dune_dex_volumes_ethereum.dex_volumes
+    -- Cashflow metrics
+    , fees_native AS gross_protocol_revenue_native
+    , fees AS gross_protocol_revenue
+    , avg_txn_fee AS chain_avg_txn_fee
+    , median_txn_fee AS chain_median_txn_fee
+    , revenue_native AS burned_cash_flow_native
+    , revenue AS burned_cash_flow
+    , fees_native - revenue_native as priority_fee_native
+    , priority_fee_usd AS priority_fee
     -- Developer metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -155,6 +150,11 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
+    -- ETF Metrics
+    , net_etf_flow_native
+    , net_etf_flow
+    , cumulative_etf_flow_native
+    , cumulative_etf_flow
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date

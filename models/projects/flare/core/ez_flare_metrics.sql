@@ -43,13 +43,12 @@ select
     , price
     , market_cap
     , fdmc
-    -- Usage Metrics
+    -- Chain Usage Metrics
     , txns AS chain_txns
     , dau AS chain_dau
+    , dex_volumes
     -- Cashflow metrics
     , fees_usd AS gross_protocol_revenue
-    -- Chain Metrics
-    , dex_volumes
 from fees
 left join txns on fees.date = txns.date
 left join daus on fees.date = daus.date 

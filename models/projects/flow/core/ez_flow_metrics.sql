@@ -35,16 +35,15 @@ select
     , market_cap
     , fdmc
     , tvl
-    -- Usage Metrics
+    -- Chain Usage Metrics
     , txns AS chain_txns
     , dau AS chain_dau
-    -- Cashflow metrics
-    , fees AS gross_protocol_revenue
-    , revenue AS burned_cash_flow
-    -- Chain Metrics
     , fees / txns AS chain_avg_txn_fee
     , dex_volumes
     , nft_trading_volume
+    -- Cashflow metrics
+    , fees AS gross_protocol_revenue
+    , revenue AS burned_cash_flow
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

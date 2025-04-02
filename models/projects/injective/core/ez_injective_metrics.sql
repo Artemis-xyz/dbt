@@ -35,11 +35,18 @@ select
     , price
     , market_cap
     , fdmc
-    -- Usage Metrics
+    -- Chain Usage Metrics
     , txns AS chain_txns
     , dau AS chain_dau
     , mau AS chain_mau
     , wau AS chain_wau
+    , fundamental_data.returning_users
+    , fundamental_data.new_users
+    , fees / txns AS chain_avg_txn_fee
+    , null AS low_sleep_users
+    , null AS high_sleep_users
+    , null AS sybil_users
+    , null AS non_sybil_users
     -- Cashflow Metrics
     , fees AS gross_protocol_revenue
     , fees_native AS gross_protocol_revenue_native
@@ -48,14 +55,6 @@ select
     -- Supply Metrics
     , unlocks.outflows AS emissions_native
     , mints.mints AS mints_native
-    -- Chain Metrics
-    , fundamental_data.returning_users
-    , fundamental_data.new_users
-    , fees / txns AS chain_avg_txn_fee
-    , null AS low_sleep_users
-    , null AS high_sleep_users
-    , null AS sybil_users
-    , null AS non_sybil_users
 from fundamental_data
 left join revenue using (date)
 left join mints using (date)
