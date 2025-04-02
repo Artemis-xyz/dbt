@@ -14,28 +14,50 @@ with
     daily_txns as (select * from {{ ref("fact_injective_daily_txns_silver") }}),
     revenue as (select * from {{ ref("fact_injective_revenue_silver") }}),
     mints as (select * from {{ ref("fact_injective_mints_silver") }}),
-    unlocks as (select * from {{ ref("fact_injective_unlocks") }})
+    unlocks as (select * from {{ ref("fact_injective_unlocks") }}),
+    price_data as ({{ get_coingecko_metrics("injective-protocol") }})
 select
-    fundamental_data.date,
-    'injective' as chain,
-    fundamental_data.dau,
-    fundamental_data.wau,
-    fundamental_data.mau,
-    fundamental_data.txns,
-    fundamental_data.fees,
-    fundamental_data.fees_native,
-    fundamental_data.avg_txn_fee,
-    fundamental_data.returning_users,
-    fundamental_data.new_users,
-    unlocks.outflows as unlocks,
-    coalesce(revenue.revenue, 0) as revenue,
-    coalesce(revenue.revenue_native, 0) as burns_native,
-    mints.mints,
-    null as low_sleep_users,
-    null as high_sleep_users,
-    null as sybil_users,
-    null as non_sybil_users
+    fundamental_data.date
+    , 'injective' as chain
+    , fundamental_data.dau
+    , fundamental_data.wau
+    , fundamental_data.mau
+    , fundamental_data.txns
+    , fundamental_data.fees
+    , fundamental_data.fees_native
+    , fundamental_data.avg_txn_fee
+    , unlocks.outflows AS unlocks
+    , mints.mints AS mints
+    , COALESCE(revenue.revenue, 0) AS revenue
+    , COALESCE(revenue.revenue_native, 0) AS burns_native
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    -- Usage Metrics
+    , txns AS chain_txns
+    , dau AS chain_dau
+    , mau AS chain_mau
+    , wau AS chain_wau
+    -- Cashflow Metrics
+    , fees AS gross_protocol_revenue
+    , fees_native AS gross_protocol_revenue_native
+    , coalesce(revenue.revenue, 0) AS burned_cash_flow
+    , coalesce(revenue.revenue_native, 0) AS burned_cash_flow_native
+    -- Supply Metrics
+    , unlocks.outflows AS emissions_native
+    , mints.mints AS mints_native
+    -- Chain Metrics
+    , fundamental_data.returning_users
+    , fundamental_data.new_users
+    , fees / txns AS chain_avg_txn_fee
+    , null AS low_sleep_users
+    , null AS high_sleep_users
+    , null AS sybil_users
+    , null AS non_sybil_users
 from fundamental_data
-left join revenue on fundamental_data.date = revenue.date
-left join mints on fundamental_data.date = mints.date
-left join unlocks on fundamental_data.date = unlocks.date
+left join revenue using (date)
+left join mints using (date)
+left join unlocks using (date)
+left join price_data using (date)
