@@ -159,14 +159,6 @@ column_definitions:
       description: "The average cost per MiB of data stored in blobs on a chain in USD"
     - name: submitters
       description: "The number of submitters on a chain"
-    - name: net_etf_flow_native
-      description: "The net flow of ETFs on a chain"
-    - name: net_etf_flow
-      description: "The net flow of ETFs on a chain"
-    - name: cumulative_etf_flow_native
-      description: "The cumulative flow of ETFs on a chain"
-    - name: cumulative_etf_flow
-      description: "The cumulative flow of ETFs on a chain"
     - name: dex_volumes
       description: "The total volume of DEXes on a chain"
 
@@ -293,7 +285,6 @@ column_definitions:
     - name: aggregator_revenue
       description: "The total revenue on an aggregator"
   
-
   supply_metrics:
     - name: mints_native
       description: "The amount of native tokens minted"
@@ -305,3 +296,13 @@ column_definitions:
       description: "The net change in the circulating supply of a token in native tokens"
     - name: circulating_supply_native
       description: "The circulating supply of a token in native tokens"
+
+  etf_metrics:
+    - name: net_etf_flow_native
+      description: "The net flow of ETFs on a chain"
+    - name: net_etf_flow
+      description: "The net flow of ETFs on a chain"
+    - name: cumulative_etf_flow_native
+      description: "The cumulative flow of ETFs on a chain"
+    - name: cumulative_etf_flow
+      description: "The cumulative flow of ETFs on a chain"
