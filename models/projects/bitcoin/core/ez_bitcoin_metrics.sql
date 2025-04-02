@@ -63,6 +63,9 @@ select
     , avg_txn_fee
     , revenue
     , issuance
+    , dex_volumes
+    , circulating_supply
+    , nft_trading_volume
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -78,7 +81,6 @@ select
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
     , avg_txn_fee AS chain_avg_txn_fee
-    , revenue_native AS burned_cash_flow_native
     -- Supply Metrics
     , issuance AS emissions_native
     , circulating_supply AS circulating_supply_native
@@ -94,8 +96,6 @@ select
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
-    , weekly_contracts_deployed
-    , weekly_contract_deployers
 from fundamental_data
 left join issuance_data on fundamental_data.date = issuance_data.date
 left join price_data on fundamental_data.date = price_data.date
