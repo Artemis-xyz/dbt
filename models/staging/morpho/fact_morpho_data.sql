@@ -22,6 +22,7 @@ select
     f.value:borrow_amount_usd::number as borrow_amount_usd,
     f.value:collat_amount_usd::number as collat_amount_usd,
     f.value:supply_amount_usd::number as supply_amount_usd,
+    f.value:interest::number as fees_usd,
     f.value:blockchain::string as chain,
     'morpho' as app,
     'DeFi' as category
