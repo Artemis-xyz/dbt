@@ -79,6 +79,8 @@ select
     , 'lido' as app
     , 'DeFi' as category
     , 'ethereum' as chain
+
+    --Old metrics needed for compatibility
     , COALESCE(s.num_staked_eth, 0) as num_staked_eth
     , COALESCE(s.amount_staked_usd, 0) as amount_staked_usd
     , COALESCE(s.num_staked_eth_net_change, 0) as num_staked_eth_net_change
@@ -100,12 +102,27 @@ select
     , COALESCE(s.amount_staked_usd, 0) as net_deposits
     , COALESCE(s.num_staked_eth, 0) as outstanding_supply
     , COALESCE(s.amount_staked_usd, 0) as tvl
-    , COALESCE(p.fdmc, 0) as fdmc
-    , COALESCE(p.market_cap, 0) as market_cap
-    , COALESCE(p.token_volume, 0) as token_volume
-    , COALESCE(p.token_turnover_fdv, 0) as token_turnover_fdv
-    , COALESCE(p.token_turnover_circulating, 0) as token_turnover_circulating
-    , COALESCE(th.token_holder_count, 0) as token_holder_count
+
+    --Standardized Metrics
+    , COALESCE(f.mev_priority_fees, 0) as mev_priority_ecosystem_fees
+    , COALESCE(f.block_rewards, 0) as block_rewards_ecosystem_fees
+    , COALESCE(f.fees, 0) as gross_protocol_revenue
+    , COALESCE(f.primary_supply_side_revenue, 0) as block_rewards_ecosystem_revenue
+    , COALESCE(f.secondary_supply_side_revenue, 0) as mev_priority_ecosystem_revenue
+    , COALESCE(f.total_supply_side_revenue, 0) as total_ecosystem_revenue
+    , COALESCE(f.protocol_revenue, 0) as ecosystem_revenue
+    , COALESCE(f.operating_expenses, 0) as operating_expenses
+    , COALESCE(ti.token_incentives, 0) as token_incentives
+    , token_incentives + operating_expenses as total_expenses
+    , ecosystem_revenue - total_expenses as protocol_earnings
+    , COALESCE(t.treasury_value, 0) as treasury
+    , COALESCE(tn.treasury_native, 0) as treasury_native
+    , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
+    , COALESCE(s.amount_staked_usd, 0) as net_deposits
+    , COALESCE(s.num_staked_eth, 0) as outstanding_supply
+    , COALESCE(s.amount_staked_usd, 0) as tvl
+    , COALESCE(s.amount_staked_usd, 0) as tvl_native
+    , COALESCE(s.num_staked_eth, 0) as tvl_native_net_change
 from staked_eth_metrics s
 left join fees_revenue_expenses f using(date)
 left join treasury_cte t using(date)
