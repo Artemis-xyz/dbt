@@ -33,8 +33,8 @@ price AS (
 )
 SELECT 
     date,
-    daily_change AS Revenue_SOL,
-    daily_change * avg_price AS Revenue_USD
+    daily_change AS fees_native,
+    daily_change * avg_price AS fees
 FROM change
 JOIN price Using(date)
 WHERE date < CURRENT_DATE()

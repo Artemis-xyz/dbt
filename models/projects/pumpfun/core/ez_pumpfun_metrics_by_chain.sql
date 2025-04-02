@@ -43,7 +43,7 @@ pumpswap_metrics as (
         spot_dau as unique_traders,
         spot_txns as number_of_swaps,
         trading_volume_usd as trading_volume,
-        daily_lp_fees_usd + daily_protocol_fees_usd as revenue_usd
+        daily_lp_fees_usd + daily_protocol_fees_usd as spot_fees
     from {{ ref('fact_pumpswap_metrics') }}
     where date >= '2025-03-20'
 )
@@ -51,16 +51,15 @@ pumpswap_metrics as (
 select
     date_spine.date,
     'solana' as chain,
-    -- Pump.fun (launchpad) metrics
+    --Standardized Metrics
     coalesce(swap_metrics.unique_traders, 0) as launchpad_dau,
-    coalesce(swap_metrics.number_of_swaps, 0) as launchpad_txns,
-    coalesce(swap_metrics.trading_volume, 0) as launchpad_volume,
-    coalesce(daily_revenues.Revenue_USD, 0) as launchpad_revenue,
-    -- Pumpswap (spot) metrics
     coalesce(pumpswap_metrics.unique_traders, 0) as spot_dau,
+    coalesce(swap_metrics.number_of_swaps, 0) as launchpad_txns,
     coalesce(pumpswap_metrics.number_of_swaps, 0) as spot_txns,
+    coalesce(swap_metrics.trading_volume, 0) as launchpad_volume,
     coalesce(pumpswap_metrics.trading_volume, 0) as spot_volume,
-    coalesce(pumpswap_metrics.revenue_usd, 0) as spot_revenue
+    coalesce(daily_revenues.fees, 0) as launchpad_fees,
+    coalesce(pumpswap_metrics.spot_fees, 0) as spot_fees
 from date_spine
 left join swap_metrics using(date)
 left join daily_revenues using(date)
