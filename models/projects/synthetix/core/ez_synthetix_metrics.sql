@@ -50,10 +50,17 @@ with
         from {{ ref("fact_synthetix_token_incentives_by_chain") }}
         group by 1
     ),
+    treasury_value as (
+        select
+            date,
+            sum(usd_balance) as treasury_value
+        from {{ ref('fact_synthetix_treasury_by_token') }}
+        group by 1
+    ),
     treasury_native as (
         SELECT
             date,
-            sum(native_balance) as treasury_native
+            sum(native_balance) as treasury_value_native
         FROM {{ ref('fact_synthetix_treasury_by_token') }}
         where token = 'SNX'
         group by 1
@@ -61,7 +68,7 @@ with
     net_treasury as (
         SELECT
             date,
-            sum(usd_balance) as net_treasury_usd
+            sum(usd_balance) as net_treasury_value
         FROM {{ ref('fact_synthetix_treasury_by_token') }}
         where token <> 'SNX'
         group by 1
@@ -79,10 +86,13 @@ select
     coalesce(tvl, 0) as net_deposits,
     coalesce(fees, 0) as fees,
     coalesce(fees, 0) as revenue, 
+    coalesce(expenses, 0) as operating_expenses,
     coalesce(expenses + token_incentives, 0) as expenses,
+    coalesce(revenue, 0) - coalesce(expenses,0) - coalesce(token_incentives, 0) as earnings,
     coalesce(token_incentives, 0) as token_incentives,
-    coalesce(treasury_native, 0) as treasury_native,
-    coalesce(net_treasury_usd, 0) as net_treasury_usd,
+    coalesce(treasury_value, 0) as treasury_value,
+    coalesce(treasury_value_native, 0) as treasury_value_native,
+    coalesce(net_treasury_value, 0) as net_treasury_value,
     coalesce(market_data.price, 0) as price,
     coalesce(market_data.market_cap, 0) as market_cap,
     coalesce(market_data.fdmc, 0) as fdmc,
@@ -96,6 +106,7 @@ left join tvl using(date)
 left join fees using(date)
 left join expenses using(date)
 left join token_incentives using(date)
+left join treasury_value using(date)
 left join treasury_native using(date)
 left join net_treasury using(date)
 left join market_data using(date)
