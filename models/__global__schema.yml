@@ -20,6 +20,9 @@ column_definitions:
     - name: token_cash_flow
       description: "The share of protocol revenue accrued to token holders of the protocol."
       tags: [artemis_gaap]
+    - name: token_cash_flow_native
+      description: "The share of protocol revenue accrued to token holders of the protocol in native tokens."
+      tags: [artemis_gaap]
     - name: fee_sharing_token_cash_flow
       description: "Revenue distributed to users who commit tokens (e.g., stake, lock, vote-escrow) to receive a share of protocol fees."
       tags: [artemis_gaap]
