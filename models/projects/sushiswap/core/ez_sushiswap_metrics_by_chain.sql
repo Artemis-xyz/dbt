@@ -76,15 +76,15 @@ select
     , tvbc.trading_fees as gross_protocol_revenue
     , case
         when tvbc.date between '2023-01-23' and '2024-01-23' THEN
-            tvbc.trading_fees * 0.30
+            tvbc.trading_fees * 0.0030
         else
-            tvbc.trading_fees * 0.25 / 0.30
+            tvbc.trading_fees * 0.0025 / 0.0030
     end as service_cash_flow
     , case
         when tvbc.date between '2023-01-23' and '2024-01-23' THEN
             0
         else
-            tvbc.trading_fees * 0.05 / 0.30
+            tvbc.trading_fees * 0.0005 / 0.0030
     end as fee_sharing_token_cash_flow
 from tvl_by_chain
 left join trading_volume_by_chain tvbc using(date, chain)

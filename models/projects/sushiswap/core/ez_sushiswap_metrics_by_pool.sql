@@ -62,15 +62,15 @@ select
     , tvp.trading_fees as gross_protocol_revenue
     , case
         when tvp.date between '2023-01-23' and '2024-01-23' THEN
-            tvp.trading_fees * 0.30
+            tvp.trading_fees * 0.0030
         else
-            tvp.trading_fees * 0.25 / 0.30
+            tvp.trading_fees * 0.0025 / 0.0030
     end as service_cash_flow
     , case
         when tvp.date between '2023-01-23' and '2024-01-23' THEN
             0
         else
-            tvp.trading_fees * 0.05 / 0.30
+            tvp.trading_fees * 0.0005 / 0.0030
     end as fee_sharing_token_cash_flow
 from tvl_by_pool
 left join trading_volume_pool tvp using(date, chain, version, pool)
