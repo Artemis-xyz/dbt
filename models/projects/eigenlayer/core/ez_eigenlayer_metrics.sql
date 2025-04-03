@@ -40,6 +40,12 @@ SELECT
 
     -- Standarized Metrics
 
+    -- Token Metrics
+    , coalesce(market_data.price, 0) as price
+    , coalesce(market_data.market_cap, 0) as market_cap
+    , coalesce(market_data.fdmc, 0) as fdmc
+    , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
+
     -- Crypto Metrics
     , amount_restaked_usd as tvl
     , amount_restaked_usd - LAG(amount_restaked_usd) 
@@ -49,16 +55,12 @@ SELECT
         OVER (ORDER BY date) AS tvl_native_net_change
 
     -- Supply Metrics
-    , emissions_native as emissions_native
-    , premine_unlocks_native as premine_unlocks_native
-    , net_supply_change_native
     , circulating_supply
+    , emissions_native as emissions_native
+    , net_supply_change_native
+    , premine_unlocks_native as premine_unlocks_native
 
-    -- Token Metrics
-    , coalesce(market_data.price, 0) as price
-    , coalesce(market_data.market_cap, 0) as market_cap
-    , coalesce(market_data.fdmc, 0) as fdmc
-    , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
+    -- Turnover Metrics
     , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
     , coalesce(market_data.token_volume, 0) as token_volume
 FROM eigenlayer_aggregated
