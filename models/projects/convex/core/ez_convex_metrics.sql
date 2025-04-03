@@ -68,26 +68,42 @@ with date_spine as (
 )
 
 select
-    date_spine.date,
-    fees_and_revenue.fees,
-    fees_and_revenue.revenue,
-    fees_and_revenue.primary_supply_side_fees as primary_supply_side_revenue,
-    fees_and_revenue.primary_supply_side_fees as total_supply_side_revenue,
-    token_incentives.token_incentives,
-    token_incentives.token_incentives as expenses,
-    fees_and_revenue.revenue - token_incentives.token_incentives as earnings,
-    tvl.tvl,
-    tvl.tvl as net_deposits,
-    treasury_value.treasury_value,
-    net_treasury.net_treasury_value,
-    treasury_native.treasury_native,
-    market_data.price,
-    market_data.market_cap,
-    market_data.fdmc,
-    market_data.token_turnover_circulating,
-    market_data.token_turnover_fdv,
-    market_data.token_volume,
-    token_holders.token_holder_count
+    date_spine.date
+    , fees_and_revenue.fees
+    , fees_and_revenue.revenue
+    , token_incentives.token_incentives
+    , token_incentives.token_incentives as expenses
+    , fees_and_revenue.revenue - token_incentives.token_incentives as earnings
+    , token_holders.token_holder_count
+
+    -- Standardized Metrics
+
+    -- Lending Metrics
+    , tvl.tvl as lending_deposits
+
+    -- Crypto Metrics
+    , tvl.tvl
+    , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
+
+    -- Cash Flow Metrics
+    , (fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as gross_protocol_revenue
+    , fees_and_revenue.primary_supply_side_fees + (0.005 * (fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees)) as service_cash_flow
+    , 0.02*(fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as treasury_cash_flow
+    , 0.10*(fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as fee_sharing_token_cash_flow
+    , 0.045*(fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as token_cash_flow
+
+    -- Protocol Metrics
+    , treasury_value.treasury_value as treasury
+    , treasury_native.treasury_native as treasury_native
+    , treasury_native.treasury_native - lag(treasury_native.treasury_native) over (order by date) as treasury_native_change
+
+    -- Token Metrics
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
+    , market_data.token_volume
 from date_spine
 left join treasury_value using (date)
 left join net_treasury using (date)
