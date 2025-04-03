@@ -32,9 +32,11 @@ select
     , md.price
     , md.market_cap
     , md.fdmc
+    , md.token_volume
+
+    -- Turnover Metrics
     , md.token_turnover_circulating
     , md.token_turnover_fdv
-    , md.token_volume
 from dim_date_spine ds
 left join token_holders th using (date)
 left join market_data md using (date)
