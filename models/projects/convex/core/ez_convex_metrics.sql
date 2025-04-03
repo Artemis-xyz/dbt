@@ -71,13 +71,13 @@ select
     date_spine.date
     , fees_and_revenue.fees
     , fees_and_revenue.revenue
+    , fees_and_revenue.primary_supply_side_fees as primary_supply_side_revenue
+    , fees_and_revenue.primary_supply_side_fees as total_supply_side_revenue
     , token_incentives.token_incentives
     , token_incentives.token_incentives as expenses
     , fees_and_revenue.revenue - token_incentives.token_incentives as earnings
+    , net_treasury.net_treasury_value
     , token_holders.token_holder_count
-    , fees_and_revenue.primary_supply_side_fees as primary_supply_side_revenue
-    , fees_and_revenue.revenue as secondary_supply_side_revenue
-    , 
 
     -- Standardized Metrics
 
