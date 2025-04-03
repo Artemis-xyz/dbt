@@ -71,22 +71,43 @@ SELECT
     , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) as revenue
     , coalesce(ti.token_incentives,0) as token_incentives
     , 0 as operating_expenses
-    , token_incentives + operating_expenses as total_expenses
-    , revenue - total_expenses as protocol_earnings
+    , coalesce(ti.token_incentives,0) + coalesce(operating_expenses,0) as total_expenses
+    , coalesce(revenue,0) - coalesce(total_expenses,0) as protocol_earnings
     , m.net_deposits as net_deposits
     , 0 as outstanding_supply
     , t.treasury_value as treasury_value
     , tn.treasury_native_value as treasury_value_native
     , nt.net_treasury_value as net_treasury_value
-    , m.tvl as tvl
     , {{ daily_pct_change('m.tvl') }} as tvl_growth
+    , th.token_holder_count
+
+    -- Lending Metrics
+    , m.net_deposits as lending_deposits
+    , m.tvl as lending_loan_capacity
+
+    -- Crypto Metrics
+    , m.tvl as tvl
+    , {{ daily_pct_change('m.tvl') }} as tvl_net_change
+
+    -- Cash Flow
+    , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) as gross_protocol_revenue
+    , m.supply_side_fees as service_cash_flow
+    , coalesce(ti.token_incentives,0) as token_cash_flow
+    , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) - coalesce(ti.token_incentives,0) as foundation_cash_flow
+    
+    -- Protocol Metrics
+    , t.treasury_value as treasury
+    , tn.treasury_native_value as treasury_native
+    , tn.treasury_native_value - LAG(tn.treasury_native_value) 
+        OVER (ORDER BY date) AS treasury_native_net_change
+
+    -- Token Metrics
     , pd.price
     , pd.market_cap
     , pd.fdmc
     , pd.token_turnover_circulating
     , pd.token_turnover_fdv
     , pd.token_volume
-    , th.token_holder_count
 FROM fees_tvl_metrics m
 LEFT JOIN token_incentives_cte ti using (date)
 LEFT JOIN treasury_value_cte t using (date)
