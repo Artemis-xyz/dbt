@@ -35,6 +35,14 @@ WITH metrics AS (
 
 SELECT
     metrics.date
+    , metrics.trading_volume
+    , metrics.dau
+    , metrics.daily_txns
+    , metrics.fees_usd AS fees
+    , metrics.fees_usd * 0.6 AS supply_side_fees
+    , metrics.fees_usd * 0.4 + coin_metrics.burns_usd AS revenue
+    
+    --Standardized Metrics
 
     -- Cash Flow Metrics
     , metrics.fees_usd * 0.4 + coin_metrics.burns_usd AS gross_protocol_revenue
