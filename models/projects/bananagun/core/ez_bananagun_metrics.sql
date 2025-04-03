@@ -44,11 +44,6 @@ SELECT
     
     --Standardized Metrics
 
-    -- Cash Flow Metrics
-    , metrics.fees_usd * 0.4 + coin_metrics.burns_usd AS gross_protocol_revenue
-    , coin_metrics.gross_emissions AS token_cash_flow
-    , metrics.fees_usd * 0.6 AS fee_sharing_token_cash_flow
-
     -- Token Metrics
     , coalesce(market_data.price, 0) AS price
     , coalesce(market_data.market_cap, 0) AS market_cap
@@ -60,16 +55,21 @@ SELECT
     -- Aggregator Metrics
     , metrics.dau AS aggregator_dau
     , metrics.daily_txns AS aggregator_txns
+    , metrics.fees_usd * 0.4 AS aggregator_revenue
     , metrics.trading_volume AS aggregator_volume
-    , metrics.fees_usd * 0.4 + coin_metrics.burns_usd AS aggregator_revenue
+
+    -- Cash Flow Metrics
+    , metrics.fees_usd * 0.4 AS gross_protocol_revenue
+    , coin_metrics.gross_emissions AS token_cash_flow
+    , metrics.fees_usd * 0.6 AS fee_sharing_token_cash_flow
 
     -- Supply Metrics
     , coin_metrics.burns AS burns_native
-    , coin_metrics.gross_emissions as mints_native
-    , coin_metrics.gross_emissions AS emissions_native
-    , coin_metrics.pre_mine_unlocks AS premine_unlocks_native
-    , coin_metrics.net_supply_change AS net_supply_change_native
     , coin_metrics.circulating_supply AS circulating_supply_native
+    , coin_metrics.gross_emissions AS emissions_native
+    , coin_metrics.gross_emissions as mints_native
+    , coin_metrics.net_supply_change AS net_supply_change_native
+    , coin_metrics.pre_mine_unlocks AS premine_unlocks_native
 
 FROM metrics
 LEFT JOIN coin_metrics using (date)

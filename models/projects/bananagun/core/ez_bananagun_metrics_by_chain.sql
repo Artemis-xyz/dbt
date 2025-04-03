@@ -17,9 +17,9 @@ SELECT
     date
     , chain
 
-    -- Chain Metrics
-    , trading_volume as chain_spot_volume
-    , dau as chain_dau
-    , daily_txns as chain_txns
+    -- Aggregator Metrics
+    , dau AS aggregator_dau
+    , daily_txns AS aggregator_txns
+    , trading_volume AS aggregator_volume
 FROM metrics
 ORDER BY date DESC
