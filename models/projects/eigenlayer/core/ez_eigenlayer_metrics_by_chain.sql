@@ -26,12 +26,12 @@ SELECT
     protocol,
     category,
     chain,
-    num_restaked_eth,
-    amount_restaked_usd,
+    num_restaked_eth as tvl_native,
+    amount_restaked_usd as tvl,
     -- Calculate net daily change using LAG()
     num_restaked_eth - LAG(num_restaked_eth) 
-        OVER (ORDER BY date) AS num_restaked_eth_net_change,
+        OVER (ORDER BY date) AS tvl_native_net_change,
     amount_restaked_usd - LAG(amount_restaked_usd) 
-        OVER (ORDER BY date) AS amount_restaked_usd_net_change
+        OVER (ORDER BY date) AS tvl_net_change
 FROM chain_aggregates
 ORDER BY date
