@@ -1,0 +1,21 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  net_supply_change_native: &net_supply_change_native
+    name: net_supply_change_native
+    description: "The net change in the circulating supply of a token in native tokens"
+
+  premine_unlocks_native: &premine_unlocks_native
+    name: premine_unlocks_native
+    description: "The amount of native tokens unlocked from premine"
+
+models:
+  - name: ez_blur_metrics
+    description: "This table stores metrics for the BLUR protocol"
+    columns:
+      - *net_supply_change_native
+      - *premine_unlocks_native
+
