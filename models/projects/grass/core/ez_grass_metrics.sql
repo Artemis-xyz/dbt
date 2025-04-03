@@ -20,13 +20,17 @@ with
 )
 
 select
-    market_data.date,
-    data_collected.data_collected_tb,
-    market_data.price,
-    market_data.market_cap,
-    market_data.fdmc,
-    market_data.token_turnover_circulating,
-    market_data.token_turnover_fdv,
-    market_data.token_volume
+    market_data.date
+    , data_collected.data_collected_tb
+
+    -- Token Metrics
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
+
+    -- Turnover Metrics
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
 from market_data
 left join data_collected on market_data.date = data_collected.date
