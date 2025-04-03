@@ -4,13 +4,13 @@
         snowflake_warehouse="SUSHISWAP_SM",
         database="sushiswap",
         schema="core",
-        alias="ez_metrics_by_pool",
+        alias="ez_metrics",
     )
 }}
 
 with
-    trading_volume_pool as (
-        {{
+    trading_volume_by_pool as (
+       {{
             dbt_utils.union_relations(
                 relations=[
                     ref("fact_sushiswap_v2_arbitrum_trading_vol_fees_traders_by_pool"),
@@ -21,6 +21,17 @@ with
                 ],
             )
         }}
+    ),
+    trading_volume as (
+        select
+            trading_volume_by_pool.date,
+            sum(trading_volume_by_pool.trading_volume) as trading_volume,
+            sum(trading_volume_by_pool.trading_fees) as trading_fees,
+            sum(trading_volume_by_pool.unique_traders) as unique_traders,
+            sum(trading_volume_by_pool.gas_cost_native) as gas_cost_native,
+            sum(trading_volume_by_pool.gas_cost_usd) as gas_cost_usd
+        from trading_volume_by_pool
+        group by trading_volume_by_pool.date
     ),
     tvl_by_pool as (
        {{
@@ -35,43 +46,43 @@ with
                 ],
             )
         }}
+    ),
+    tvl as (
+        select
+            tvl_by_pool.date,
+            sum(tvl_by_pool.tvl) as tvl
+        from tvl_by_pool
+        group by tvl_by_pool.date
     )
 select
-    tvl_by_pool.date
+    tvl.date
     , 'sushiswap' as app
     , 'DeFi' as category
-    , tvl_by_pool.chain
-    , tvl_by_pool.version
-    , tvl_by_pool.pool
-    , tvl_by_pool.token_0
-    , tvl_by_pool.token_0_symbol
-    , tvl_by_pool.token_1
-    , tvl_by_pool.token_1_symbol
-    , tvp.trading_volume
-    , tvp.trading_fees
-    , tvp.unique_traders
-    , tvp.gas_cost_native
-    , tvp.gas_cost_usd
+    , tv.gas_cost_native
+    , tv.gas_cost_usd
+    , tv.trading_volume
+    , tv.trading_fees
+    , tv.unique_traders
 
     -- Standardized Metrics
-    , tvp.unique_traders as spot_dau
-    , tvp.trading_volume as spot_volume
-    , tvl_by_pool.tvl
+    , tv.unique_traders as spot_dau
+    , tv.trading_volume as spot_volume
+    , tvl.tvl
 
     -- Revenue Metrics
-    , tvp.trading_fees as gross_protocol_revenue
+    , tv.trading_fees as gross_protocol_revenue
     , case
-        when tvp.date between '2023-01-23' and '2024-01-23' THEN
-            tvp.trading_fees * 0.0030
+        when tv.date between '2023-01-23' and '2024-01-23' THEN
+            tv.trading_fees * 0.0030
         else
-            tvp.trading_fees * 0.0025 / 0.0030
+            tv.trading_fees * 0.0025 / 0.0030
     end as service_cash_flow
     , case
-        when tvp.date between '2023-01-23' and '2024-01-23' THEN
+        when tv.date between '2023-01-23' and '2024-01-23' THEN
             0
         else
-            tvp.trading_fees * 0.0005 / 0.0030
+            tv.trading_fees * 0.0005 / 0.0030
     end as fee_sharing_token_cash_flow
-from tvl_by_pool
-left join trading_volume_pool tvp using(date, chain, version, pool)
-where tvl_by_pool.date < to_date(sysdate())
+from tvl
+left join trading_volume tv using(date)
+where tvl.date < to_date(sysdate())

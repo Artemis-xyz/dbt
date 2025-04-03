@@ -31,8 +31,8 @@
         , token_current_price as price
         , token_market_cap as market_cap
         , coalesce(token_max_supply, token_total_supply) * price as fdmc
-        , token_total_volume / market_cap as token_turnover_circulating
-        , token_total_volume / fdmc as token_turnover_fdv
+        , token_total_volume / nullif(market_cap, 0) as token_turnover_circulating
+        , token_total_volume / nullif(fdmc, 0) as token_turnover_fdv
         , token_total_volume as token_volume
     from {{ ref("fact_coingecko_token_realtime_data") }}
     where token_id = '{{ coingecko_id }}'

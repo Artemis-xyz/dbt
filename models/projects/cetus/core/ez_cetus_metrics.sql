@@ -18,13 +18,17 @@ with cetus_tvl as (
 select
     cetus_tvl.date,
     'Defillama' as source,
-    cetus_tvl.tvl,
-    cetus_market_data.price,
-    cetus_market_data.market_cap,
-    cetus_market_data.fdmc,
-    cetus_market_data.token_turnover_circulating,
-    cetus_market_data.token_turnover_fdv,
-    cetus_market_data.token_volume
+
+    -- Standardized Metrics
+    , cetus_tvl.tvl
+
+    -- Market Metrics
+    , cmd.price
+    , cmd.market_cap
+    , cmd.fdmc
+    , cmd.token_turnover_circulating
+    , cmd.token_turnover_fdv
+    , cmd.token_volume
 from cetus_tvl
-left join cetus_market_data using (date)
+left join cetus_market_data cmd using (date)
 where cetus_tvl.date < to_date(sysdate())

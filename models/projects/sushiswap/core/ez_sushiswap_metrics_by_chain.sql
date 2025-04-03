@@ -57,16 +57,35 @@ with
         group by tvl_by_pool.date, tvl_by_pool.chain
     )
 select
-    tvl_by_chain.date,
-    'sushiswap' as app,
-    'DeFi' as category,
-    tvl_by_chain.chain,
-    tvl_by_chain.tvl,
-    trading_volume_by_chain.trading_volume,
-    trading_volume_by_chain.trading_fees,
-    trading_volume_by_chain.unique_traders,
-    trading_volume_by_chain.gas_cost_native,
-    trading_volume_by_chain.gas_cost_usd
+    tvl_by_chain.date
+    , 'sushiswap' as app
+    , 'DeFi' as category
+    , tvl_by_chain.chain
+    , tvbc.trading_volume
+    , tvbc.trading_fees
+    , tvbc.unique_traders
+    , tvbc.gas_cost_native
+    , tvbc.gas_cost_usd
+
+    -- Standardized Metrics
+    , tvbc.unique_traders as spot_dau
+    , tvbc.trading_volume as spot_volume
+    , tvl_by_chain.tvl
+
+    -- Revenue Metrics
+    , tvbc.trading_fees as gross_protocol_revenue
+    , case
+        when tvbc.date between '2023-01-23' and '2024-01-23' THEN
+            tvbc.trading_fees * 0.0030
+        else
+            tvbc.trading_fees * 0.0025 / 0.0030
+    end as service_cash_flow
+    , case
+        when tvbc.date between '2023-01-23' and '2024-01-23' THEN
+            0
+        else
+            tvbc.trading_fees * 0.0005 / 0.0030
+    end as fee_sharing_token_cash_flow
 from tvl_by_chain
-left join trading_volume_by_chain using(date, chain)
+left join trading_volume_by_chain tvbc using(date, chain)
 where tvl_by_chain.date < to_date(sysdate())

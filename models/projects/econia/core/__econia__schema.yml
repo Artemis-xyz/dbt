@@ -1,0 +1,21 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  tvl: &tvl
+    name: tvl
+    description: "The total value locked in a protocol"
+
+models:
+  - name: ez_econia_metrics
+    description: "This table stores metrics for the ECONIA protocol"
+    columns:
+      - *tvl
+
+  - name: ez_econia_metrics_by_chain
+    description: "This table stores metrics for the ECONIA protocol"
+    columns:
+      - *tvl
+

@@ -4,7 +4,7 @@
         snowflake_warehouse="LIFINITY",
         database="lifinity",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics_by_chain"
     )
 }}
 
@@ -14,7 +14,11 @@ with
         from {{ ref("fact_lifinity_dex_volumes") }}
     )
 select
-    date,
-    dex_volumes
+    date
+    , 'solana' as chain
+    , dex_volumes
+
+    -- Standardized Metrics
+    , dex_volumes as spot_volume
 from lifinity_dex_volumes   
 where date < to_date(sysdate())
