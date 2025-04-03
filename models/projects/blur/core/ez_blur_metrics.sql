@@ -24,6 +24,9 @@ with
     , market_data as (
         {{ get_coingecko_metrics("blur") }}
     )
+    , market_data as (
+        {{ get_coingecko_metrics("blur") }}
+    )
 
 select
     blur_daus.date
