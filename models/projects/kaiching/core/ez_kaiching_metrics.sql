@@ -23,6 +23,14 @@ SELECT
     , fd.returning_users
     , rwa.mau
     , rwa.wau
+
+    -- Standardized Metrics
+
+    -- Stablecoin Metrics
+    , fd.txns as stablecoin_txns
+    , fd.daa as stablecoin_dau
+    , rwa.mau as stablecoin_mau
+
 FROM 
     fundamental_data as fd
 left join rolling_wau_mau as rwa on fd.date = rwa.date
