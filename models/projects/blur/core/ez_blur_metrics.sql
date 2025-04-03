@@ -30,6 +30,9 @@ with
 
 select
     blur_daus.date
+    , blur_daus.dau
+    , blur_daily_txns.daily_txns as txns
+    , blur_fees.fees
 
     -- Cash Flow Metrics
     , blur_fees.fees as gross_protocol_revenue
