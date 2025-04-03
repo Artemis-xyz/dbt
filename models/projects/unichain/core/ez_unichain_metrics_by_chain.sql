@@ -4,7 +4,7 @@
         snowflake_warehouse="UNICHAIN",
         database="unichain",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
     )
 }}
 
@@ -16,17 +16,8 @@ with
     )
 select
     f.date
+    , 'unichain' as chain
     , dune_dex_volumes_unichain.dex_volumes
-    -- Old Metrics Needed For Compatibility
-    , txns
-    , daa as dau
-    , fees
-    , fees_native
-    , cost
-    , cost_native
-    , revenue
-    , revenue_native
-
     -- Standardized Metrics
     -- Market Data
     , price
@@ -45,7 +36,6 @@ select
     , cost_native as l1_cash_flow_native
     , revenue as foundation_cash_flow
     , revenue_native as foundation_cash_flow_native
-
 from {{ ref("fact_unichain_fundamental_metrics") }} as f
 left join price_data on f.date = price_data.date
 left join unichain_dex_volumes as dune_dex_volumes_unichain on f.date = dune_dex_volumes_unichain.date

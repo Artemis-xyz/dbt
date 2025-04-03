@@ -4,7 +4,7 @@
         snowflake_warehouse="ZCASH",
         database="zcash",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics_by_chain"
     )
 }}
 
@@ -22,7 +22,7 @@ with
 
 select 
     f.date
-
+    , 'zcash' as chain
     -- Standardized Metrics
     -- Market Data
     , price
