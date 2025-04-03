@@ -52,32 +52,50 @@ with
         GROUP BY 1
     )
 select
-    fundamental_data.date,
-    fundamental_data.chain,
-    txns,
-    dau,
-    wau,
-    mau,
-    fees_native,
-    fees,
-    avg_txn_fee,
-    revenue,
-    issuance,
-    circulating_supply,
-    price,
-    market_cap,
-    fdmc,
-    tvl,
-    dex_volumes,
-    weekly_commits_core_ecosystem,
-    weekly_commits_sub_ecosystem,
-    weekly_developers_core_ecosystem,
-    weekly_developers_sub_ecosystem,
-    nft_trading_volume,
-    net_etf_flow_native,
-    net_etf_flow,
-    cumulative_etf_flow_native,
-    cumulative_etf_flow
+    fundamental_data.date
+    , fundamental_data.chain
+    , txns
+    , dau
+    , wau
+    , mau
+    , fees_native
+    , fees
+    , avg_txn_fee
+    , revenue
+    , issuance
+    , dex_volumes
+    , circulating_supply
+    , nft_trading_volume
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Chain Usage Metrics
+    , dau AS chain_dau
+    , wau AS chain_wau
+    , mau AS chain_mau
+    , txns AS chain_txns
+    , nft_trading_volume AS chain_nft_trading_volume
+    , dex_volumes AS chain_dex_volumes
+    -- Cashflow metrics
+    , fees_native AS gross_protocol_revenue_native
+    , fees AS gross_protocol_revenue
+    , avg_txn_fee AS chain_avg_txn_fee
+    -- Supply Metrics
+    , issuance AS emissions_native
+    , circulating_supply AS circulating_supply_native
+    -- Developer metrics
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
+    -- ETF Metrics
+    , net_etf_flow_native
+    , net_etf_flow
+    , cumulative_etf_flow_native
+    , cumulative_etf_flow
 from fundamental_data
 left join issuance_data on fundamental_data.date = issuance_data.date
 left join price_data on fundamental_data.date = price_data.date

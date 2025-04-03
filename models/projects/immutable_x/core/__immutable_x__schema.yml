@@ -1,0 +1,37 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  chain_nft_trading_volume: &chain_nft_trading_volume
+    name: chain_nft_trading_volume
+    description: "The total volume of NFT trading on a chain"
+
+  fdmc: &fdmc
+    name: fdmc
+    description: "The fully diluted market cap of a token in USD"
+    tags:
+      - artemis_gaap
+
+  market_cap: &market_cap
+    name: market_cap
+    description: "The market cap of a token in USD"
+    tags:
+      - artemis_gaap
+
+  price: &price
+    name: price
+    description: "The price of a token in USD"
+    tags:
+      - artemis_gaap
+
+models:
+  - name: ez_immutable_x_metrics
+    description: "This table stores metrics for the IMMUTABLE_X protocol"
+    columns:
+      - *chain_nft_trading_volume
+      - *fdmc
+      - *market_cap
+      - *price
+
