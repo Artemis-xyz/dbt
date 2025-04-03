@@ -66,26 +66,40 @@ with fees_tvl_metrics as(
 SELECT
     coalesce(m.date, ti.date, t.date, tn.date, nt.date, th.date) as date
     , coalesce(m.token, ti.token, t.token, tn.token, nt.token, th.token) as token
-    , m.interest_fees
-    , m.withdrawal_revenue as withdrawal_fees
+    , coalesce(m.interest_fees,0) as interest_fees
+    , coalesce(m.withdrawal_revenue,0) as withdrawal_revenue
     , coalesce(m.interest_fees,0) + coalesce(m.withdrawal_revenue,0) as fees
-    , m.supply_side_fees as primary_supply_side_revenue
+    , coalesce(m.supply_side_fees,0) as primary_supply_side_revenue
     , 0 as secondary_supply_side_revenue
-    , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
-    , m.interest_revenue
-    , m.withdrawal_revenue
+    , coalesce(m.supply_side_fees,0) + secondary_supply_side_revenue as total_supply_side_revenue
+    , coalesce(m.interest_revenue,0) as interest_revenue
     , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) as revenue
     , coalesce(ti.token_incentives,0) as token_incentives
     , 0 as operating_expenses
-    , token_incentives + operating_expenses as total_expenses
-    , revenue - total_expenses as protocol_earnings
-    , m.net_deposits as net_deposits
+    , coalesce(ti.token_incentives,0) + operating_expenses as total_expenses
+    , coalesce(revenue,0) - coalesce(total_expenses,0) as protocol_earnings
+    , coalesce(m.net_deposits,0) as net_deposits
     , 0 as outstanding_supply
-    , t.treasury_value as treasury_value
-    , tn.treasury_native_value as treasury_value_native
-    , nt.net_treasury_value as net_treasury_value
-    , m.tvl as tvl
-    , token_holder_count
+   -- , t.treasury_value as treasury_value
+   -- , tn.treasury_native_value as treasury_value_native
+    , coalesce(nt.net_treasury_value,0) as net_treasury_value
+    , coalesce(th.token_holder_count,0) as token_holder_count
+
+    -- Crypto Metrics
+    , coalesce(m.tvl,0) as tvl
+    , coalesce(m.tvl,0) - LAG(coalesce(m.tvl,0)) OVER (ORDER BY date) as tvl_net_change
+
+    -- Cash Flow
+    , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) as gross_protocol_revenue
+    , coalesce(m.supply_side_fees,0) as service_cash_flow
+    , coalesce(ti.token_incentives,0) as token_cash_flow
+    , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) - coalesce(ti.token_incentives,0) as foundation_cash_flow
+    
+    -- Protocol Metrics
+    , coalesce(t.treasury_value,0) as treasury
+    , coalesce(tn.treasury_native_value,0) as treasury_native
+    , coalesce(tn.treasury_native_value,0) - LAG(coalesce(tn.treasury_native_value,0)) 
+        OVER (ORDER BY date) AS treasury_native_net_change
 FROM fees_tvl_metrics m
 FULL JOIN token_incentives_cte ti using (date, token)
 FULL JOIN treasury_value_cte t using (date, token)
