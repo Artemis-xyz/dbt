@@ -66,13 +66,13 @@ select
     , new_users
     , avg_txn_fee AS chain_avg_txn_fee
     , dune_dex_volumes_mantle.dex_volumes
-    , l1_data_cost_native AS l1_cash_flow_native
-    , l1_data_cost AS l1_cash_flow
     -- Cashflow Metrics
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
     , coalesce(fees_native, 0) - l1_data_cost_native as validator_cash_flow_native -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     , coalesce(fees, 0) - l1_data_cost as validator_cash_flow
+    , l1_data_cost_native AS l1_cash_flow_native
+    , l1_data_cost AS l1_cash_flow
     -- Protocol Metrics 
     , treasury_data.treasury_value_native AS treasury_native
     , treasury_data.treasury_value_native_change AS treasury_native_change

@@ -30,32 +30,51 @@ with
     )
 
 select
-    fundamental_data.date,
-    fundamental_data.chain,
-    txns,
-    dau,
-    wau,
-    mau,
-    fees,
-    l1_data_cost_native,  -- fees paid to l1 by sequencer (L1 Fees)
-    l1_data_cost,
-    coalesce(fees_native, 0) -  l1_data_cost_native as revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    coalesce(fees, 0) -  l1_data_cost as revenue,
-    avg_txn_fee,
-    median_txn_fee,
-    returning_users,
-    new_users,
-    price,
-    market_cap,
-    fdmc,
-    tvl,
-    dex_volumes,
-    weekly_commits_core_ecosystem,
-    weekly_commits_sub_ecosystem,
-    weekly_developers_core_ecosystem,
-    weekly_developers_sub_ecosystem,
-    bridge_volume,
-    bridge_daa
+    fundamental_data.date
+    , fundamental_data.chain
+    , txns
+    , dau
+    , wau
+    , mau
+    , fees
+    , fees_native
+    , l1_data_cost_native
+    , l1_data_cost
+    , coalesce(fees_native, 0) -  l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(fees, 0) -  l1_data_cost as revenue
+    , avg_txn_fee
+    , median_txn_fee
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Chain Usage Metrics
+    , dau AS chain_dau
+    , wau AS chain_wau
+    , mau AS chain_mau
+    , txns AS chain_txns
+    , dex_volumes AS dex_volumes
+    , returning_users
+    , new_users
+    -- Cashflow Metrics
+    , fees AS gross_protocol_revenue
+    , fees_native AS gross_protocol_revenue_native
+    , avg_txn_fee AS chain_avg_txn_fee
+    , median_txn_fee AS chain_median_txn_fee
+    , coalesce(fees_native, 0) -  l1_data_cost_native as validator_cash_flow_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(fees, 0) -  l1_data_cost as validator_cash_flow
+    , l1_data_cost_native AS l1_cash_flow_native
+    , l1_data_cost AS l1_cash_flow
+    -- Bridge Metrics,
+    , bridge_volume
+    , bridge_daa
+    -- Developer Metrics
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date

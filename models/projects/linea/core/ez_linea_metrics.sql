@@ -57,13 +57,13 @@ select
     , mau AS chain_mau
     , dune_dex_volumes_linea.dex_volumes
     , fees / txns as chain_avg_txn_fee
-    , l1_data_cost_native AS l1_cash_flow_native
-    , l1_data_cost AS l1_cash_flow
     -- Cashflow Metrics
     , fees AS gross_protocol_revenue
     , fees_native AS gross_protocol_revenue_native
     , revenue AS burned_cash_flow
     , revenue_native AS burned_cash_flow_native
+    , l1_data_cost_native AS l1_cash_flow_native
+    , l1_data_cost AS l1_cash_flow
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
