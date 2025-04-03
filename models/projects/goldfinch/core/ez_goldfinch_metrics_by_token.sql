@@ -71,14 +71,22 @@ SELECT
     , coalesce(m.token, ti.token, t.token, tn.token, nt.token, th.token) as token
     , coalesce(m.interest_fees,0) as interest_fees
     , coalesce(m.withdrawal_revenue,0) as withdrawal_revenue
+    , coalesce(m.interest_fees,0) as interest_fees
+    , coalesce(m.withdrawal_revenue,0) as withdrawal_revenue
     , coalesce(m.interest_fees,0) + coalesce(m.withdrawal_revenue,0) as fees
     , coalesce(m.supply_side_fees,0) as primary_supply_side_revenue
+    , coalesce(m.supply_side_fees,0) as primary_supply_side_revenue
     , 0 as secondary_supply_side_revenue
+    , coalesce(m.supply_side_fees,0) + secondary_supply_side_revenue as total_supply_side_revenue
+    , coalesce(m.interest_revenue,0) as interest_revenue
     , coalesce(m.supply_side_fees,0) + secondary_supply_side_revenue as total_supply_side_revenue
     , coalesce(m.interest_revenue,0) as interest_revenue
     , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) as revenue
     , coalesce(ti.token_incentives,0) as token_incentives
     , 0 as operating_expenses
+    , coalesce(ti.token_incentives,0) + operating_expenses as total_expenses
+    , coalesce(revenue,0) - coalesce(total_expenses,0) as protocol_earnings
+    , coalesce(m.net_deposits,0) as net_deposits
     , coalesce(ti.token_incentives,0) + operating_expenses as total_expenses
     , coalesce(revenue,0) - coalesce(total_expenses,0) as protocol_earnings
     , coalesce(m.net_deposits,0) as net_deposits

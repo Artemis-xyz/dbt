@@ -76,7 +76,7 @@ SELECT
 
     -- Crypto Metrics
     , m.tvl as tvl
-    , {{ daily_pct_change('m.tvl') }} as tvl_net_change
+    , m.tvl - LAG(m.tvl) OVER (ORDER BY date) as tvl_net_change
 
     -- Cash Flow
     , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) as gross_protocol_revenue
