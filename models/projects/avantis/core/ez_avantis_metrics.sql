@@ -4,30 +4,28 @@
         snowflake_warehouse="AVANTIS",
         database="avantis",
         schema="core",
-        alias="ez_metrics_by_chain",
+        alias="ez_metrics",
     )
 }}
 
-
 with
     trading_volume_data as (
-        select date, trading_volume, chain
+        select date, sum(trading_volume) as trading_volume
         from {{ ref("fact_avantis_trading_volume_silver") }}
-    ),
-    unique_traders_data as (
-        select date, unique_traders, chain
+        group by date
+    )
+    , unique_traders_data as (
+        select date, sum(unique_traders) as unique_traders
         from {{ ref("fact_avantis_unique_traders_silver") }}
+        group by date
     )
 select
     date
     , 'avantis' as app
     , 'DeFi' as category
-    , chain
-    , trading_volume
-    , unique_traders
     -- standardize metrics
     , trading_volume as perp_volume
     , unique_traders as perp_dau
-from unique_traders_data
-left join trading_volume_data using(date, chain)
+from trading_volume_data
+left join unique_traders_data using(date)
 where date < to_date(sysdate())

@@ -59,7 +59,7 @@ select
     , market_cap
     , fdmc
     , token_turnover_circulating
-    ,token_turnover_fdv
+    , token_turnover_fdv
     , token_volume
 from combined_data
 left join fees_data using(date)
