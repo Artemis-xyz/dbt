@@ -28,10 +28,16 @@ select
     , revenue_native
 
     -- Standardized Metrics
+    -- Market Data
+    , price
+    , market_cap
+    , fdmc
+    , token_turnover_circulating
+    , token_turnover_fdv
+    , token_volume
     -- Chain Metrics
     , txns as chain_txns
     , daa as chain_dau
-
     -- Cash Flow Metrics
     , fees as gross_protocol_revenue
     , fees_native as gross_protocol_revenue_native
@@ -40,13 +46,6 @@ select
     , revenue as foundation_cash_flow
     , revenue_native as foundation_cash_flow_native
 
-    -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
-    , token_volume
 from {{ ref("fact_unichain_fundamental_metrics") }} as f
 left join price_data on f.date = price_data.date
 left join unichain_dex_volumes as dune_dex_volumes_unichain on f.date = dune_dex_volumes_unichain.date

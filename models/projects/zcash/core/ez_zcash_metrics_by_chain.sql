@@ -22,19 +22,8 @@ with
 
 select 
     f.date
-    'zcash' as chain
+    , 'zcash' as chain
     -- Standardized Metrics
-    --chain metrics
-    , txns as chain_txns
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
-
-    -- Developer Metrics
-    , weekly_commits_core_ecosystem
-    , weekly_commits_sub_ecosystem
-    , weekly_developers_core_ecosystem
-    , weekly_developers_sub_ecosystem
-
     -- Market Data
     , price
     , market_cap
@@ -42,6 +31,16 @@ select
     , token_turnover_circulating
     , token_turnover_fdv
     , token_volume
+    --chain metrics
+    , txns as chain_txns
+    , fees as gross_protocol_revenue
+    , fees_native as gross_protocol_revenue_native
+    -- Developer Metrics
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
+
 from fundamental_data f
 left join github_data using (date)
 left join price_data on f.date = price_data.date

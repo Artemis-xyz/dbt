@@ -45,7 +45,6 @@ with
 select
     f.date
     , dune_dex_volumes_zksync.dex_volumes
-
     -- Old metrics needed for compatibility
     , f.chain
     , dau
@@ -63,24 +62,6 @@ select
     , bridge_daa_metrics.bridge_daa
 
     -- Standardized Metrics
-    -- chain metrics
-    , dau as chain_dau
-    , wau as chain_wau
-    , mau as chain_mau
-    , txns as chain_txns
-
-    -- Cash Flow Metrics
-    , gas_usd as gross_protocol_revenue
-    , gas as gross_protocol_revenue_native
-    , l1_data_cost as l1_cash_flow
-    , l1_data_cost_native as l1_cash_flow_native
-    , revenue as foundation_cash_flow
-    , revenue_native as foundation_cash_flow_native
-
-    -- Bridge Metrics
-    , bridge_volume_metrics.bridge_volume as bridge_volume
-    , bridge_daa_metrics.bridge_daa as bridge_dau
-
     -- Market Data
     , price
     , market_cap
@@ -88,7 +69,21 @@ select
     , token_turnover_circulating
     , token_turnover_fdv
     , token_volume
-
+    -- chain metrics
+    , dau as chain_dau
+    , wau as chain_wau
+    , mau as chain_mau
+    , txns as chain_txns
+    -- Cash Flow Metrics
+    , gas_usd as gross_protocol_revenue
+    , gas as gross_protocol_revenue_native
+    , l1_data_cost as l1_cash_flow
+    , l1_data_cost_native as l1_cash_flow_native
+    , revenue as foundation_cash_flow
+    , revenue_native as foundation_cash_flow_native
+    -- Bridge Metrics
+    , bridge_volume_metrics.bridge_volume as bridge_volume
+    , bridge_daa_metrics.bridge_daa as bridge_dau
 from fundamental_data f
 left join rolling_metrics on f.date = rolling_metrics.date
 left join revenue_data on f.date = revenue_data.date

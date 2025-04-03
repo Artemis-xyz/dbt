@@ -19,16 +19,11 @@ with
     )
 select
     b.date
+    -- Old metrics needed for compatibility
     , 'zksync' as app
     , 'Bridge' as category
     , b.chain
-    -- Old metrics needed for compatibility
-
     -- Standardized Metrics
-    -- Bridge Metrics
-    , inflow
-    , outflow
-
     -- Market Data
     , price
     , market_cap
@@ -36,6 +31,9 @@ select
     , token_turnover_circulating
     , token_turnover_fdv
     , token_volume
+    -- Bridge Metrics
+    , inflow
+    , outflow
 from bridge_volume_metrics as b
 left join price_data on b.date = price_data.date
 where b.date < to_date(sysdate())

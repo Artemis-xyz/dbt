@@ -17,17 +17,8 @@ with
 select
     f.date
     , 'unichain' as chain
-
+    , dune_dex_volumes_unichain.dex_volumes
     -- Standardized Metrics
-    , txns as chain_txns
-    , daa as chain_dau
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
-    , cost as l1_cash_flow
-    , cost_native as l1_cash_flow_native
-    , revenue as foundation_cash_flow
-    , revenue_native as foundation_cash_flow_native
-
     -- Market Data
     , price
     , market_cap
@@ -35,7 +26,16 @@ select
     , token_turnover_circulating
     , token_turnover_fdv
     , token_volume
-    , dune_dex_volumes_unichain.dex_volumes
+    -- Chain Metrics
+    , txns as chain_txns
+    , daa as chain_dau
+    -- Cash Flow Metrics
+    , fees as gross_protocol_revenue
+    , fees_native as gross_protocol_revenue_native
+    , cost as l1_cash_flow
+    , cost_native as l1_cash_flow_native
+    , revenue as foundation_cash_flow
+    , revenue_native as foundation_cash_flow_native
 from {{ ref("fact_unichain_fundamental_metrics") }} as f
 left join price_data on f.date = price_data.date
 left join unichain_dex_volumes as dune_dex_volumes_unichain on f.date = dune_dex_volumes_unichain.date
