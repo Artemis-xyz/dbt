@@ -48,8 +48,6 @@ SELECT
     , coalesce(market_data.price, 0) AS price
     , coalesce(market_data.market_cap, 0) AS market_cap
     , coalesce(market_data.fdmc, 0) AS fdmc
-    , coalesce(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
-    , coalesce(market_data.token_turnover_fdv, 0) AS token_turnover_fdv
     , coalesce(market_data.token_volume, 0) AS token_volume
 
     -- Aggregator Metrics
@@ -70,6 +68,10 @@ SELECT
     , coin_metrics.gross_emissions as mints_native
     , coin_metrics.net_supply_change AS net_supply_change_native
     , coin_metrics.pre_mine_unlocks AS premine_unlocks_native
+
+    -- Turnover Metrics
+    , coalesce(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
+    , coalesce(market_data.token_turnover_fdv, 0) AS token_turnover_fdv
 
 FROM metrics
 LEFT JOIN coin_metrics using (date)
