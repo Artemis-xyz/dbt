@@ -80,8 +80,6 @@ SELECT
     , coalesce(revenue,0) - coalesce(total_expenses,0) as protocol_earnings
     , coalesce(m.net_deposits,0) as net_deposits
     , 0 as outstanding_supply
-   -- , t.treasury_value as treasury_value
-   -- , tn.treasury_native_value as treasury_value_native
     , coalesce(nt.net_treasury_value,0) as net_treasury_value
     , coalesce(th.token_holder_count,0) as token_holder_count
 
