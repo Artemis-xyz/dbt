@@ -52,6 +52,7 @@ SELECT
 
     -- Aggregator Metrics
     , metrics.dau AS aggregator_dau
+    , metrics.fees_usd as aggregator_fees
     , metrics.daily_txns AS aggregator_txns
     , metrics.fees_usd * 0.4 AS aggregator_revenue
     , metrics.trading_volume AS aggregator_volume
