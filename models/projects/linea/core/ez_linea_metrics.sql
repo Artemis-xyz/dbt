@@ -47,7 +47,6 @@ select
     , revenue_native
     , l1_data_cost
     , l1_data_cost_native
-    , dune_dex_volumes_linea.dex_volumes AS dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , tvl
@@ -56,7 +55,7 @@ select
     , dau AS chain_dau
     , wau AS chain_wau
     , mau AS chain_mau
-    , dune_dex_volumes_linea.dex_volumes AS chain_dex_volumes
+    , dune_dex_volumes_linea.dex_volumes
     , fees / txns as chain_avg_txn_fee
     , l1_data_cost_native AS l1_cash_flow_native
     , l1_data_cost AS l1_cash_flow
