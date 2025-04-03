@@ -54,10 +54,12 @@ select
     , trading_volume_pool.gas_cost_usd
 
     -- Standardized Metrics
-    , tvl_by_pool.tvl
-    , trading_volume_pool.trading_volume as spot_volume
-    , trading_volume_pool.trading_fees as gross_protocol_revenue
     , trading_volume_pool.unique_traders as spot_dau
+    , trading_volume_pool.trading_volume as spot_volume
+    , tvl_by_pool.tvl
+
+    -- Revenue Metrics
+    , trading_volume_pool.trading_fees as gross_protocol_revenue
     , trading_volume_pool.trading_fees * 0.25 / 0.30 as service_cash_flow
     , trading_volume_pool.trading_fees * 0.05 / 0.30 as token_cash_flow
 from tvl_by_pool
