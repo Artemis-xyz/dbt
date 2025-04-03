@@ -79,19 +79,34 @@ with
 )
 
 select
-    date_chain_spine.date,
-    date_chain_spine.chain,
-    fees_and_revenue.fees,
-    fees_and_revenue.revenue,
-    fees_and_revenue.primary_supply_side_fees as primary_supply_side_revenue,
-    fees_and_revenue.primary_supply_side_fees as total_supply_side_revenue,
-    token_incentives.token_incentives,
-    token_incentives.token_incentives as expenses,
-    fees_and_revenue.revenue - token_incentives.token_incentives as earnings,
-    tvl.tvl,
-    treasury_value.treasury_value,
-    net_treasury.net_treasury_value,
-    treasury_native.treasury_native
+    date_chain_spine.date
+    , date_chain_spine.chain
+    , fees_and_revenue.fees
+    , fees_and_revenue.revenue
+    , token_incentives.token_incentives
+    , token_incentives.token_incentives as expenses
+    , fees_and_revenue.revenue - token_incentives.token_incentives as earnings
+
+    -- Standardized Metrics
+
+    -- Lending Metrics
+    , tvl.tvl as lending_deposits
+
+    -- Crypto Metrics
+    , tvl.tvl
+    , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
+
+    -- Cash Flow Metrics
+    , (fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as gross_protocol_revenue
+    , fees_and_revenue.primary_supply_side_fees + (0.005 * (fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees)) as service_cash_flow
+    , 0.02*(fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as treasury_cash_flow
+    , 0.10*(fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as fee_sharing_token_cash_flow
+    , 0.045*(fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as token_cash_flow
+
+    -- Protocol Metrics
+    , treasury_value.treasury_value as treasury
+    , treasury_native.treasury_native as treasury_native
+    , treasury_native.treasury_native - lag(treasury_native.treasury_native) over (order by date) as treasury_native_change
 from date_chain_spine
 left join fees_and_revenue using (date, chain)
 left join tvl using (date, chain)
