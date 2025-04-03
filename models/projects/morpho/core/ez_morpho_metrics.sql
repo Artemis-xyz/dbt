@@ -64,10 +64,11 @@ select
     , supplies as lending_loan_capacity
     , deposits as lending_deposits
     , tvl
-    , fees as gross_protocol_revenue
-    -- Cash Flow Metrics (Interest goes to Liquidity Suppliers (Lenders))
-    , fees as service_cash_flow
-
+    
+    -- Cash Flow Metrics (Interest goes to Liquidity Suppliers (Lenders) + Vaults Performance Fees)
+    , fees as lending_interest_fees
+    , lending_interest_fees as gross_protocol_revenue
+    
     -- Supply Metrics
     , msd.premine_unlocks_native
     , msd.net_supply_change_native

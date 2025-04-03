@@ -50,7 +50,6 @@ with date_spine as (
     from backfilled_wrapper
 )
 
-
 select 
     date
     , user_address

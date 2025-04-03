@@ -28,6 +28,10 @@ column_definitions:
     name: lending_deposits
     description: "The total amount of tokens deposited (in USD) on a lending protocol"
 
+  lending_interest_fees: &lending_interest_fees
+    name: lending_interest_fees
+    description: "The total amount of interest fees generated on a lending protocol"
+
   lending_loan_capacity: &lending_loan_capacity
     name: lending_loan_capacity
     description: "The total amount of loans available (in USD) on a lending protocol, including outstanding loans"
@@ -97,6 +101,7 @@ models:
       - *gross_protocol_revenue
       - *lending_dau
       - *lending_deposits
+      - *lending_interest_fees
       - *lending_loan_capacity
       - *lending_loans
       - *lending_txns

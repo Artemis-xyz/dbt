@@ -57,18 +57,6 @@ with morpho_dao_reserve as (
         
     from morpho_daily_net_change
 )
--- , morpho_tokenomics as (
---     select
---         mdsd.date,
---         mdsd.emissions_native,
---         mdsd.premine_unlocks_native,
---         mdsd.burns_native,
---         (mdsd.net_supply_change_native + mdsd.emissions_native - mdsd.burns_native) + drc.dao_reserve_change as net_supply_change_native,
---         sum(net_supply_change_native) 
---             over (order by mdsd.date asc rows between unbounded preceding and current row) as circulating_supply_native
---     from {{ source('MANUAL_STATIC_TABLES', 'morpho_daily_supply_data') }} mdsd
---     left join dao_reserve_change drc on drc.date = mdsd.date
--- )
 
 select
     date
