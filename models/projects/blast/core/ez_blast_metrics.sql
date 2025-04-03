@@ -47,7 +47,6 @@ select
     , coalesce(fees_native, 0) - l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     , coalesce(fees, 0) - l1_data_cost as revenue
     , dau_over_100
-    , dune_dex_volumes_blast.dex_volumes as dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
