@@ -12,21 +12,21 @@
 WITH 
     eigenlayer_aggregated AS (
         SELECT 
-            date,
-            protocol as app,
-            category,
-            SUM(num_restaked_eth) AS num_restaked_eth,
-            SUM(amount_restaked_usd) AS amount_restaked_usd
+            date
+            , protocol as app
+            , category
+            , SUM(num_restaked_eth) AS num_restaked_eth
+            , SUM(amount_restaked_usd) AS amount_restaked_usd
         FROM {{ref('fact_eigenlayer_restaked_assets')}}
         GROUP BY date, protocol, category
     )
     , eigenlayer_supply_data AS (
         SELECT
-            date,
-            emissions_native,
-            premine_unlocks_native,
-            net_supply_change_native,
-            circulating_supply
+            date
+            , emissions_native
+            , premine_unlocks_native
+            , net_supply_change_native
+            , circulating_supply
         FROM {{ ref('fact_eigenlayer_supply_data') }}
     )
     , market_data as (
