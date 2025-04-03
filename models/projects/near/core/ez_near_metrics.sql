@@ -24,8 +24,8 @@ with
         select date, blob_fees_native, blob_fees, blob_size_mib, avg_mib_per_second, avg_cost_per_mib_native, avg_cost_per_mib, submitters
         from {{ ref("fact_near_da_metrics") }}
     ), 
-    flipside_dex_volumes as (
-        select date, daily_volume_usd as dex_volumes
+    near_dex_volumes as (
+        select date, volume_usd as dex_volumes
         from {{ ref("fact_near_dex_volumes") }}
     )
 
@@ -50,7 +50,7 @@ select
     market_cap,
     fdmc,
     tvl,
-    coalesce(flipside_dex_volumes.dex_volumes, 0) as dex_volumes,
+    coalesce(near_dex_volumes.dex_volumes, 0) as dex_volumes,
     weekly_commits_core_ecosystem,
     weekly_commits_sub_ecosystem,
     weekly_developers_core_ecosystem,
@@ -77,5 +77,5 @@ left join contract_data on fundamental_data.date = contract_data.date
 left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join da_metrics on fundamental_data.date = da_metrics.date
-left join flipside_dex_volumes on fundamental_data.date = flipside_dex_volumes.date
+left join near_dex_volumes on fundamental_data.date = near_dex_volumes.date
 where fundamental_data.date < to_date(sysdate())
