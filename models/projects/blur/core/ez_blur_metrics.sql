@@ -28,7 +28,7 @@ with
 select
     blur_daus.date
     , blur_daus.dau
-    , blur_daily_txns.daily_txns
+    , blur_daily_txns.daily_txns as txns
     , blur_fees.fees
 
     -- Standardized Metrics
