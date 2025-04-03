@@ -53,87 +53,108 @@ with
     )
 
 select
-    fundamental_data.date,
-    fundamental_data.chain,
-    txns,
-    dau,
-    wau,
-    mau,
-    fees_native,
-    case when fees is null then fees_native * price else fees end as fees,
-    avg_txn_fee,
-    median_txn_fee,
-    revenue_native,
-    revenue,
-    fees_native - revenue_native as priority_fee_native,
-    case
+    fundamental_data.date
+    , fundamental_data.chain
+    , fundamental_data.txns
+    , dau
+    , wau
+    , mau
+    , fees_native
+    , case when fees is null then fees_native * price else fees end as fees
+    , avg_txn_fee
+    , median_txn_fee
+    , revenue_native
+    , revenue
+    , case
         when fees is null then (fees_native * price) - revenue else fees - revenue
-    end as priority_fee_usd,
-    returning_users,
-    new_users,
-    low_sleep_users,
-    high_sleep_users,
-    sybil_users,
-    non_sybil_users,
-    dau_over_100,
-    price,
-    market_cap,
-    fdmc,
-    tvl,
-    --dex_volumes,
-    weekly_commits_core_ecosystem,
-    weekly_commits_sub_ecosystem,
-    weekly_developers_core_ecosystem,
-    weekly_developers_sub_ecosystem,
-    weekly_contracts_deployed,
-    weekly_contract_deployers,
-
-    stablecoin_total_supply,
-    stablecoin_txns,
-    stablecoin_dau,
-    stablecoin_mau,
-    stablecoin_transfer_volume,
-    artemis_stablecoin_txns,
-    artemis_stablecoin_dau,
-    artemis_stablecoin_mau,
-    artemis_stablecoin_transfer_volume,
-    p2p_stablecoin_txns,
-    p2p_stablecoin_dau,
-    p2p_stablecoin_mau,
-    stablecoin_data.p2p_stablecoin_transfer_volume,
-    stablecoin_tokenholder_count,
-    p2p_stablecoin_tokenholder_count,
-    
-    censored_blocks,
-    semi_censored_blocks,
-    non_censored_blocks,
-    total_blocks_produced,
-    percent_censored,
-    percent_semi_censored,
-    percent_non_censored,
-    total_staked_native,
-    total_staked_usd,
-    queue_entry_amount,
-    queue_exit_amount,
-    queue_active_amount,
-    nft_trading_volume,
-    p2p_native_transfer_volume,
-    p2p_token_transfer_volume,
-    p2p_transfer_volume,
-    coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume,
-    coalesce(dune_dex_volumes_ethereum.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
-    blob_fees_native,
-    blob_fees,
-    blob_size_mib,
-    avg_mib_per_second,
-    avg_cost_per_mib_gwei,
-    avg_cost_per_mib,
-    submitters,
-    net_etf_flow_native,
-    net_etf_flow,
-    cumulative_etf_flow_native,
-    cumulative_etf_flow, 
-    dune_dex_volumes_ethereum.dex_volumes
+    end as priority_fee_usd
+    , nft_trading_volume
+    , dau_over_100
+    , percent_censored
+    , percent_semi_censored
+    , percent_non_censored
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Chain Usage Metrics
+    , dau AS chain_dau
+    , wau AS chain_wau
+    , mau AS chain_mau
+    , txns AS chain_txns
+    , returning_users
+    , new_users
+    , low_sleep_users
+    , high_sleep_users
+    , sybil_users
+    , non_sybil_users
+    , dau_over_100 AS dau_over_100_balance
+    , censored_blocks
+    , semi_censored_blocks
+    , non_censored_blocks
+    , total_blocks_produced
+    , percent_censored AS percent_censored_blocks
+    , percent_semi_censored AS percent_semi_censored_blocks
+    , percent_non_censored AS percent_non_censored_blocks
+    , total_staked_native
+    , total_staked_usd
+    , total_staked_usd AS total_staked
+    , queue_entry_amount
+    , queue_exit_amount
+    , queue_active_amount
+    , nft_trading_volume AS chain_nft_trading_volume
+    , p2p_native_transfer_volume
+    , p2p_token_transfer_volume
+    , p2p_transfer_volume
+    , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
+    , coalesce(dune_dex_volumes_ethereum.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
+    , blob_fees_native
+    , blob_fees
+    , blob_size_mib
+    , avg_mib_per_second
+    , avg_cost_per_mib_gwei
+    , avg_cost_per_mib
+    , submitters
+    , dune_dex_volumes_ethereum.dex_volumes
+    -- Cashflow metrics
+    , fees_native AS gross_protocol_revenue_native
+    , fees AS gross_protocol_revenue
+    , avg_txn_fee AS chain_avg_txn_fee
+    , median_txn_fee AS chain_median_txn_fee
+    , revenue_native AS burned_cash_flow_native
+    , revenue AS burned_cash_flow
+    , fees_native - revenue_native as priority_fee_native
+    , priority_fee_usd AS priority_fee
+    -- Developer metrics
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
+    , weekly_contracts_deployed
+    , weekly_contract_deployers
+    -- Stablecoin metrics
+    , stablecoin_total_supply
+    , stablecoin_txns
+    , stablecoin_dau
+    , stablecoin_mau
+    , stablecoin_transfer_volume
+    , stablecoin_tokenholder_count
+    , artemis_stablecoin_txns
+    , artemis_stablecoin_dau
+    , artemis_stablecoin_mau
+    , artemis_stablecoin_transfer_volume
+    , p2p_stablecoin_tokenholder_count
+    , p2p_stablecoin_txns
+    , p2p_stablecoin_dau
+    , p2p_stablecoin_mau
+    , stablecoin_data.p2p_stablecoin_transfer_volume
+    -- ETF Metrics
+    , net_etf_flow_native
+    , net_etf_flow
+    , cumulative_etf_flow_native
+    , cumulative_etf_flow
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
