@@ -89,17 +89,17 @@ with
 )
 
 select
-    date_token_spine.date,
-    token,
-    fees_and_revenue.fees,
-    fees_and_revenue.revenue,
-    fees_and_revenue.primary_supply_side_fees,
-    net_treasury.net_treasury_value,
-    treasury_by_token.treasury_value_native,
-    net_treasury.net_treasury_native,
-    treasury_native.treasury_native_value,
-    token_incentives.token_incentives,
-    token_incentives.token_incentives_native,
+    date_token_spine.date
+    , token
+    , fees_and_revenue.fees
+    , fees_and_revenue.revenue
+    , fees_and_revenue.primary_supply_side_fees
+    , net_treasury.net_treasury_value
+    , treasury_by_token.treasury_value_native
+    , net_treasury.net_treasury_native
+    , treasury_native.treasury_native_value
+    , token_incentives.token_incentives
+    , token_incentives.token_incentives_native
 
     -- Standardized Metrics
 
@@ -108,7 +108,6 @@ select
 
     -- Crypto Metrics
     , tvl.tvl
-    , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
     , tvl.tvl_native
     , tvl.tvl_native - lag(tvl.tvl_native) over (order by date) as tvl_native_net_change
 
@@ -120,7 +119,7 @@ select
     , 0.045*(fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as token_cash_flow
 
     -- Protocol Metrics
-    , treasury_value.treasury_value as treasury
+    , treasury_by_token.treasury_value as treasury
     , treasury_native.treasury_native as treasury_native
     , treasury_native.treasury_native - lag(treasury_native.treasury_native) over (order by date) as treasury_native_change
 from date_token_spine
