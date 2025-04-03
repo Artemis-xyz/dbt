@@ -27,20 +27,15 @@ with
 
 select
     blur_daus.date
-    , blur_daus.dau
-    , blur_daily_txns.daily_txns as txns
-    , blur_fees.fees
 
-    -- Standardized Metrics
+    -- Cash Flow Metrics
+    , blur_fees.fees as gross_protocol_revenue
+    , blur_fees.fees as foundation_cash_flow
 
     -- Spot Dex Metrics
     , blur_daus.dau as spot_dau
     , blur_daily_txns.daily_txns as spot_txns
     , blur_fees.fees as spot_revenue
-
-     -- Cash Flow Metrics
-    , blur_fees.fees as gross_protocol_revenue
-    , blur_fees.fees as foundation_cash_flow
 
     -- Token Metrics
     , coalesce(market_data.price, 0) as price
