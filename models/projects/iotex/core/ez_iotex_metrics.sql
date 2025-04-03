@@ -57,25 +57,43 @@ with
             dex_volumes
         FROM pc_dbt_db.prod.fact_defillama_chain_dex_volumes
         where defillama_chain_name ILIKE 'iotex'
-    )
+    ), price_data as ({{ get_coingecko_metrics("iotex") }})
 select
     metrics.date,
-    'iotex' as chain,
-    metrics.dau,
-    metrics.txns,
-    metrics.fees,
-    metrics.total_supply_side_revenue,
-    metrics.primary_supply_side_revenue,
-    metrics.secondary_supply_side_revenue,
-    supply.burn_usd as revenue,
-    tvl.tvl,
-    dex_volume.dex_volumes,
-    supply.burn as burns_native,
-    supply.mints as mints_native,
-    supply.mints_usd,
-    supply.circulating_supply
+    'iotex' AS chain
+    , metrics.dau
+    , metrics.txns
+    , metrics.fees
+    , metrics.total_supply_side_revenue
+    , metrics.primary_supply_side_revenue
+    , metrics.secondary_supply_side_revenue
+    , supply.burn_usd AS revenue
+    , supply.burn AS burns_native
+    , supply.mints_usd AS mints_usd
+    , supply.mints AS mints_native
+    , supply.circulating_supply AS circulating_supply
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Chain Usage Metrics
+    , metrics.dau as chain_dau
+    , metrics.txns as chain_txns
+    , dex_volume.dex_volumes as dex_volumes
+    -- Cashflow Metrics
+    , metrics.fees AS gross_protocol_revenue
+    , metrics.primary_supply_side_revenue AS validator_cash_flow
+    , metrics.secondary_supply_side_revenue AS service_cash_flow
+    , supply.burn AS burned_cash_flow_native
+    , supply.burn_usd AS burned_cash_flow
+    -- Supply Metrics
+    , supply.mints_usd as mints
+    , supply.circulating_supply AS circulating_supply_native
 from metrics
 left join supply using (date)
 left join tvl using (date)
 left join dex_volume using (date)
+left join price_data using (date)
 where metrics.date < to_date(sysdate())
