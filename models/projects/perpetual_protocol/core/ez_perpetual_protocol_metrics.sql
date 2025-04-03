@@ -43,16 +43,16 @@ SELECT
     , unique_traders
     , fees
     , revenue
-    , tvl
     , tvl_growth
     -- standardize metrics
     , perp_volume
     , perp_dau
-    , gross_protocol_revenue
+    , tvl
     , tvl_pct_change
+    , gross_protocol_revenue
     , fee_sharing_token_cash_flow
-    , treasury_cash_flow
     , service_cash_flow
+    , treasury_cash_flow
     -- Market Data
     , price
     , market_cap

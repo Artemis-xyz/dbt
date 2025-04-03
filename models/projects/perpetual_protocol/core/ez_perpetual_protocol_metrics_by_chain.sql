@@ -39,15 +39,15 @@ select
     , unique_traders
     , fees
     , fees * 0.2 as revenue -- https://support.perp.com/general/legacy-reward-programs#how-it-works search '20%'
-    , tvl
     , {{ daily_pct_change('tvl') }} as tvl_growth
     -- standardize metrics
     , trading_volume as perp_volume
     , unique_traders as perp_dau
-    , fees as gross_protocol_revenue
+    , tvl
     , {{ daily_pct_change('tvl') }} as tvl_pct_change
-    , fees * .8 as service_cash_flow
+    , fees as gross_protocol_revenue
     , fees * .2 * .8 as fee_sharing_token_cash_flow
+    , fees * .8 as service_cash_flow
     , fees * .2 * .2 as treasury_cash_flow
 from unique_traders_data
 left join trading_volume_data using(date, chain)

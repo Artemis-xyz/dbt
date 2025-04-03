@@ -56,14 +56,14 @@ select
     -- standardize metrics
     , gd.trading_volume as perp_volume
     , gd.unique_traders as perp_dau
-    , gf.fees as gross_protocol_revenue
-    , gf.treasury_cash_flow
-    , gf.service_cash_flow
-    , gf.foundation_cash_flow
-    , gf.fee_sharing_token_cash_flow
-    , gf.buybacks
     , gf.referral_fees
     , gf.nft_bot_fees
+    , gf.fees as gross_protocol_revenue
+    , gf.buybacks
+    , gf.foundation_cash_flow
+    , gf.fee_sharing_token_cash_flow
+    , gf.service_cash_flow
+    , gf.treasury_cash_flow
 from date_spine ds
 left join gains_data gd using (date)
 left join gains_fees gf using (date)

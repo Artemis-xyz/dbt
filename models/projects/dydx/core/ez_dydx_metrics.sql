@@ -24,7 +24,7 @@ WITH
         from {{ ref("fact_dydx_v4_fees") }}
     ),
     chain_data_v4 as (
-        select date, txn_fees
+        select date, txn_fees, 
         from {{ ref("fact_dydx_v4_txn_and_trading_fees") }}
     ),
     unique_traders_data_v4 as (
@@ -52,9 +52,9 @@ select
     , trading_volume_data.trading_volume + trading_volume_data_v4.trading_volume as perp_volume
     , unique_traders_data.unique_traders + unique_traders_data_v4.unique_traders as perp_dau
     , txn_fees + fees as gross_protocol_revenue
+    , case when date_spine.date >= '2022-03-25' then gross_protocol_revenue * 0.25 else 0 end as buybacks
     , fees as trading_fees
     , txn_fees as txn_fees
-    , case when date_spine.date >= '2022-03-25' then gross_protocol_revenue * 0.25 else 0 end as buybacks
 from date_spine
 left join trading_volume_data on date_spine.date = trading_volume_data.date
 left join unique_traders_data on date_spine.date = unique_traders_data.date
