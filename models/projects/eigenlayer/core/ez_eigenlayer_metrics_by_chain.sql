@@ -26,6 +26,12 @@ SELECT
     , protocol
     , category
     , chain
+    , num_restaked_eth
+    , amount_restaked_usd
+    , num_restaked_eth - LAG(num_restaked_eth) 
+        OVER (ORDER BY date) AS num_restaked_eth_net_change
+    , amount_restaked_usd - LAG(amount_restaked_usd) 
+        OVER (ORDER BY date) AS amount_restaked_usd_net_change
 
     -- Crypto Metrics
     , amount_restaked_usd as tvl
