@@ -30,7 +30,7 @@ WITH metrics AS (
     FROM {{ ref('fact_bananagun_coin_metrics') }}
 )
 , market_data as (
-    {{ get_coingecko_metrics('bananagun') }}
+    {{ get_coingecko_metrics('banana-gun') }}
 )
 
 SELECT
