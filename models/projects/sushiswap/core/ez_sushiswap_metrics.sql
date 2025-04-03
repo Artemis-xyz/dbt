@@ -58,21 +58,31 @@ select
     tvl.date
     , 'sushiswap' as app
     , 'DeFi' as category
-    , trading_volume.gas_cost_native
-    , trading_volume.gas_cost_usd
-    , trading_volume.trading_volume
-    , trading_volume.trading_fees
-    , trading_volume.unique_traders
+    , tv.gas_cost_native
+    , tv.gas_cost_usd
+    , tv.trading_volume
+    , tv.trading_fees
+    , tv.unique_traders
 
     -- Standardized Metrics
-    , trading_volume.unique_traders as spot_dau
-    , trading_volume.trading_volume as spot_volume
+    , tv.unique_traders as spot_dau
+    , tv.trading_volume as spot_volume
     , tvl.tvl
 
     -- Revenue Metrics
-    , trading_volume.trading_fees as gross_protocol_revenue
-    , trading_volume.trading_fees * 0.25 / 0.30 as service_cash_flow
-    , trading_volume.trading_fees * 0.05 / 0.30 as token_cash_flow
+    , tv.trading_fees as gross_protocol_revenue
+    , case
+        when tv.date between '2023-01-23' and '2024-01-23' THEN
+            tv.trading_fees * 0.30
+        else
+            tv.trading_fees * 0.25 / 0.30
+    end as service_cash_flow
+    , case
+        when tv.date between '2023-01-23' and '2024-01-23' THEN
+            0
+        else
+            tv.trading_fees * 0.05 / 0.30
+    end as fee_sharing_token_cash_flow
 from tvl
-left join trading_volume using(date)
+left join trading_volume tv using(date)
 where tvl.date < to_date(sysdate())
