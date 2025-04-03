@@ -63,7 +63,7 @@ select
     , price
     , market_cap
     , fdmc
-    -- Usage Metrics
+    -- Chain Usage Metrics
     , txns AS chain_txns
     , dau AS chain_dau
     -- Cashflow metrics

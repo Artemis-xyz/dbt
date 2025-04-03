@@ -43,19 +43,11 @@ select
     , market_cap
     , fdmc
     , tvl
-    -- Usage Metrics
+    -- Chain Usage Metrics
     , dau AS chain_dau
     , wau AS chain_wau
     , mau AS chain_mau
     , txns AS chain_txns
-    -- Cashflow metrics
-    , fees_native AS gross_protocol_revenue_native
-    , fees AS gross_protocol_revenue
-    , avg_txn_fee AS chain_avg_txn_fee
-    , median_txn_fee AS chain_median_txn_fee
-    , fees_native * .1 AS burned_cash_flow_native
-    , fees * .1 AS burned_cash_flow
-    -- Chain Metrics
     , returning_users
     , new_users
     , low_sleep_users
@@ -65,6 +57,13 @@ select
     , dau_over_100 AS dau_over_100_balance
     , nft_trading_volume AS chain_nft_trading_volume
     , dune_dex_volumes_binance.dex_volumes
+    -- Cashflow metrics
+    , fees_native AS gross_protocol_revenue_native
+    , fees AS gross_protocol_revenue
+    , avg_txn_fee AS chain_avg_txn_fee
+    , median_txn_fee AS chain_median_txn_fee
+    , fees_native * .1 AS burned_cash_flow_native
+    , fees * .1 AS burned_cash_flow
     -- Developer metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

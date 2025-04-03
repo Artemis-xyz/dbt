@@ -33,7 +33,7 @@ select
     , price
     , market_cap
     , fdmc
-    -- Usage Metrics
+    -- Chain Usage Metrics
     , dau AS chain_dau
     , wau AS chain_wau
     , mau AS chain_mau

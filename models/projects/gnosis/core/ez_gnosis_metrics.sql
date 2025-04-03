@@ -48,19 +48,18 @@ select
     , price
     , market_cap
     , fdmc
-    -- Usage Metrics
+    -- Chain Usage Metrics
     , txns AS chain_txns
     , dau AS chain_dau
     , mau AS chain_mau
     , wau AS chain_wau
+    , fees / txns AS chain_avg_txn_fee
+    , dune_dex_volumes_gnosis.dex_volumes
     -- Cashflow metrics
     , fees AS gross_protocol_revenue
     , fees_native AS gross_protocol_revenue_native
     , revenue AS burned_cash_flow
     , revenue_native AS burned_cash_flow_native
-    -- Chain Metrics
-    , fees / txns AS chain_avg_txn_fee
-    , dune_dex_volumes_gnosis.dex_volumes
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

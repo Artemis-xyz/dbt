@@ -39,17 +39,16 @@ select
     , market_cap
     , fdmc
     , tvl
-    -- Usage Metrics
+    -- Chain Usage Metrics
     , txns AS chain_txns
     , dau AS chain_dau
     , wau AS chain_wau
     , mau AS chain_mau
+    , celo_dex_volumes.dex_volumes
     -- Cashflow metrics
     , fees AS gross_protocol_revenue
     , revenue AS burned_cash_flow
     , avg_txn_fee AS chain_avg_txn_fee
-    -- Chain Metrics
-    , celo_dex_volumes.dex_volumes
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
