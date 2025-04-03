@@ -16,14 +16,13 @@ with
     price_data as ({{ get_coingecko_metrics("kaia") }})
 select
     date
-    , dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
     , market_cap
     , fdmc
     -- Chain Metrics
-    , kaia_dex_volumes.dex_volumes AS chain_dex_volumes
+    , kaia_dex_volumes.dex_volumes
 from kaia_dex_volumes   
 left join price_data using (date)
 where date < to_date(sysdate())

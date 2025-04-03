@@ -36,17 +36,26 @@ select
     , fundamentals.fees
     , fundamentals.txns
     , fundamentals.dau
-    , sonic_dex_volumes.dex_volumes
+    -- Standardized Metrics
+    -- Market Data Metrics
     , price_data.price
     , price_data.market_cap
     , price_data.fdmc
-    , price_data.token_turnover_circulating
-    , price_data.token_turnover_fdv
-    , price_data.token_volume
+    -- Chain Usage Metrics
+    , fundamentals.dau AS chain_dau
+    , fundamentals.txns AS chain_txns
+    , sonic_dex_volumes.dex_volumes AS dex_volumes
+    -- Cashflow metrics
+    , fundamentals.fees AS gross_protocol_revenue
+    -- Supply Metrics
     , supply_data.emissions_native
     , supply_data.premine_unlocks_native
     , supply_data.net_supply_change_native
     , supply_data.circulating_supply_native
+    -- Token Metrics
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
+    , price_data.token_volume
 from fundamentals
 left join sonic_dex_volumes on fundamentals.date = sonic_dex_volumes.date
 left join price_data on fundamentals.date = price_data.date
