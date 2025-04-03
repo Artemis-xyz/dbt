@@ -1,0 +1,6 @@
+sources:
+  - name: PROD_LANDING
+    database: LANDING_DATABASE
+    schema: PROD_LANDING
+    tables:
+      - name: raw_pumpswap_metrics
