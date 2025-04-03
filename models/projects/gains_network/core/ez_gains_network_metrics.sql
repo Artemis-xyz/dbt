@@ -8,6 +8,11 @@
     )
 }}
 
+-- https://gains-network.gitbook.io/docs-home/liquidity-farming-pools/gns-staking
+-- 55% of revenue to stakers before
+-- Post Jul 12, 2024 this shifted to 60% and of that 60% 90% goes to buyback and burn. 10% to treasury
+-- rest of the fees goes to 
+
 with date_spine as (
     select date
     from {{ ref("dim_date_spine") }}
@@ -20,7 +25,17 @@ with date_spine as (
         group by date
     )
     , gains_fees as (
-        select date, fees, revenue
+        select 
+            date
+            , fees
+            , revenue
+            , treasury_cash_flow
+            , case when date <= '2024-07-12' then (gns_stakers + dai_stakers) else dai_stakers end as fee_sharing_token_cash_flow
+            , case when date > '2024-07-12' then gns_stakers else 0 end as buybacks
+            , foundation_cash_flow
+            , service_cash_flow
+            , referral_fees
+            , nft_bot_fees
         from {{ ref("fact_gains_fees") }}
     )
     , gains_tvl as (
@@ -30,14 +45,25 @@ with date_spine as (
     )
 
 select
-    ds.date,
-    'gains-network' as app,
-    'DeFi' as category,
-    gd.trading_volume,
-    gd.unique_traders,
-    gf.fees,
-    gf.revenue,
-    gt.tvl
+    ds.date
+    , 'gains-network' as app
+    , 'DeFi' as category
+    , gd.trading_volume
+    , gd.unique_traders
+    , gf.fees
+    , gf.revenue
+    , gt.tvl
+    -- standardize metrics
+    , gd.trading_volume as perp_volume
+    , gd.unique_traders as perp_dau
+    , gf.referral_fees
+    , gf.nft_bot_fees
+    , gf.fees as gross_protocol_revenue
+    , gf.buybacks
+    , gf.foundation_cash_flow
+    , gf.fee_sharing_token_cash_flow
+    , gf.service_cash_flow
+    , gf.treasury_cash_flow
 from date_spine ds
 left join gains_data gd using (date)
 left join gains_fees gf using (date)

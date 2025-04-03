@@ -39,21 +39,27 @@ with
     )
    
 select 
-    date,
-    'gmx' as app,
-    'DeFi' as category,
-    version,
-    trading_volume,
-    unique_traders
+    date 
+    , 'gmx' as app
+    , 'DeFi' as category
+    , version
+    , trading_volume
+    , unique_traders
+    --Standardized Metrics
+    , trading_volume as perp_volume
+    , unique_traders as perp_dau
 from v2_data
 where date < to_date(sysdate())
 union all
 select 
-    date ,
-    'gmx' as app,
-    'DeFi' as category,
-    version,
-    trading_volume,
-    unique_traders  
+    date 
+    , 'gmx' as app
+    , 'DeFi' as category
+    , version
+    , trading_volume
+    , unique_traders
+    --Standardized Metrics
+    , trading_volume as perp_volume
+    , unique_traders as perp_dau
 from v1_data
 where date < to_date(sysdate())

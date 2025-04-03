@@ -16,11 +16,14 @@ with
     )
 
 select
-    date,
-    'gains-network' as app,
-    'DeFi' as category,
-    chain,
-    trading_volume,
-    unique_traders
+    date
+    , 'gains-network' as app
+    , 'DeFi' as category
+    , chain
+    , trading_volume
+    , unique_traders
+    -- standardize metrics
+    , trading_volume as perp_volume
+    , unique_traders as perp_dau
 from gains_data
 where date < to_date(sysdate())

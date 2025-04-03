@@ -27,17 +27,22 @@ with
     )
 
 select 
-    unique_traders_data.date as date,
-    'dydx_v4' as app,
-    'DeFi' as category,
-    'dydx_v4' as chain,
-    trading_volume,
-    unique_traders,
-    maker_fees,
-    taker_fees,
-    fees,
-    trading_fees,
-    txn_fees
+    unique_traders_data.date as date
+    , 'dydx_v4' as app
+    , 'DeFi' as category
+    , 'dydx_v4' as chain
+    , trading_volume
+    , unique_traders
+    , maker_fees
+    , taker_fees
+    , fees
+    , trading_fees -- Trading fees is maker_fees+taker_fees
+    , txn_fees -- chain transaction fees (not really significant)
+    -- standardize metrics
+    , trading_volume as perp_volume
+    , unique_traders as perp_dau
+    , trading_fees + txn_fees as gross_protocol_revenue
+    , case when date > '2025-03-25' then gross_protocol_revenue * 0.25 else 0 end as buybacks
 from trading_volume_data
 left join fees_data on trading_volume_data.date = fees_data.date
 left join chain_data on trading_volume_data.date = chain_data.date
