@@ -41,6 +41,7 @@ column_definitions:
     - name: burned_cash_flow
       description: "The amount of USD value burned"
       tags: [artemis_gaap]
+    
   token_metrics:
     - name: price
       description: "The price of a token in USD"

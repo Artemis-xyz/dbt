@@ -72,7 +72,7 @@ net_balance AS (
         , ibc.balance
         , cs.daily_supply
         , cs.cumulative_supply
-        , cs.cumulative_supply - ibc.balance as current_circulating_supply_native
+        , cs.cumulative_supply - ibc.balance as circulating_supply_native
     from investors_balances ibc
     left join cumulative_supply cs on ibc.date = cs.date
 )
@@ -85,7 +85,7 @@ SELECT
     a.cumulative_treasury,
     a.daily_burned,
     a.cumulative_burned,
-    c.current_circulating_supply_native,
+    c.circulating_supply_native,
     c.cumulative_supply
 FROM current_usual_balance c
 LEFT JOIN agg_data a ON c.date = a.date

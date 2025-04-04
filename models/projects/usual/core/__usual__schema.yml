@@ -16,9 +16,19 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
+
   fdmc: &fdmc
     name: fdmc
     description: "The fully diluted market cap of a token in USD"
+    tags:
+      - artemis_gaap
+
+  fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
+    name: fee_sharing_token_cash_flow
+    description: "Revenue distributed to users who commit tokens (e.g., stake, lock, vote-escrow) to receive a share of protocol fees."
     tags:
       - artemis_gaap
 
@@ -37,6 +47,12 @@ column_definitions:
   price: &price
     name: price
     description: "The price of a token in USD"
+    tags:
+      - artemis_gaap
+
+  service_cash_flow: &service_cash_flow
+    name: service_cash_flow
+    description: "The share of protocol revenue accrued to service providers of the protocol."
     tags:
       - artemis_gaap
 
@@ -76,29 +92,42 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  tvl: &tvl
+    name: tvl
+    description: "The total value locked in a protocol"
+
 models:
   - name: ez_usual_metrics_by_chain
     description: "This table stores metrics for the USUAL protocol"
     columns:
       - *burned_cash_flow
       - *burned_cash_flow_native
+      - *circulating_supply_native
+      - *fee_sharing_token_cash_flow
       - *gross_protocol_revenue
+      - *service_cash_flow
       - *stablecoin_dau
       - *stablecoin_txns
       - *treasury_cash_flow
+      - *tvl
 
   - name: ez_usual_metrics
     description: "This table stores metrics for the USUAL protocol"
     columns:
+      - *burned_cash_flow
       - *burned_cash_flow_native
+      - *circulating_supply_native
       - *fdmc
+      - *fee_sharing_token_cash_flow
       - *gross_protocol_revenue
       - *market_cap
       - *price
+      - *service_cash_flow
       - *stablecoin_dau
       - *stablecoin_txns
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
       - *treasury_cash_flow
+      - *tvl
 

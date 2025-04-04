@@ -27,8 +27,8 @@ with usd0_metrics as (
 , usual_fees as (
     select 
         date,
-        daily_treasury_revenue,
-        cumulative_treasury_revenue,
+        daily_treasury_revenue as collateral_yield,
+        cumulative_treasury_revenue as cumulative_collateral_yield,
         fees, 
         cumulative_fees 
     from {{ ref('fact_usual_fees') }}
@@ -43,45 +43,48 @@ with usd0_metrics as (
         cumulative_treasury, 
         daily_burned, 
         cumulative_burned,
-        current_circulating_supply_native,
+        circulating_supply_native,
         cumulative_supply
     from {{ ref('fact_usual_burn_mint') }}
 )
 
-, price as (
-    select * from ({{ get_coingecko_price_with_latest("usual") }}) 
+, market_metrics as (
+    ({{ get_coingecko_metrics("usual") }}) 
 )
 
 select 
     usd0.date
-    , usd0.stablecoin_txns
-    , usd0.stablecoin_dau
     , usd0.usd0_tvl
     , usd0pp.usd0pp_tvl
     , usual.fees
-    , usual.daily_treasury_revenue as treasury_revenue
+    , usual.collateral_yield
     , ubm.daily_supply
     , ubm.daily_treasury
     , ubm.daily_burned
     -- revenue is the sum of treasury revenue, daily burned, and fees
-    , usual.fees + (usual.daily_treasury_revenue * p.price) + (ubm.daily_burned * p.price) as revenue
+    , usual.fees + (usual.collateral_yield * mm.price) + (ubm.daily_burned * mm.price) as revenue
 
     -- Standardized Metrics
+    , usd0.usd0_tvl + usd0pp.usd0pp_tvl as tvl
     , usd0.stablecoin_txns
     , usd0.stablecoin_dau
 
     -- Revenue Metrics
-    , usual.fees + (usual.daily_treasury_revenue * p.price) + (ubm.daily_burned * p.price) as gross_protocol_revenue
-    , usual.daily_treasury * p.price as treasury_cash_flow
+    , (usual.collateral_yield * mm.price) + ubm.daily_treasury as treasury_cash_flow
     , ubm.daily_burned as burned_cash_flow_native
-    , ubm.daily_burned * p.price as burned_cash_flow
+    , ubm.daily_burned * mm.price as burned_cash_flow
+    , usual.fees + ubm.daily_treasury + (usual.collateral_yield * mm.price) + (ubm.daily_burned * mm.price) as gross_protocol_revenue
+    , usual.fees + (ubm.daily_burned * mm.price) as usual_issuance_module
+    -- 10% of issuance module goes to USUAL* holders
+    , usual_issuance_module * 0.1 as fee_sharing_token_cash_flow
+    -- 90% of issuance module goes to protocol's operations, stakers, LPs and ecosystem
+    , usual_issuance_module * 0.9 as service_cash_flow
 
-    , ubm.current_circulating_supply_native
-
+    , ubm.circulating_supply_native
     , 'ethereum' as chain
 
 from usd0_metrics usd0 
 left join usd0pp_metrics usd0pp on usd0.date = usd0pp.date
 left join usual_fees usual on usd0.date = usual.date
 left join usual_burn_mint ubm on usd0.date = ubm.date
-left join price p on usd0.date = p.date
+left join market_metrics mm on usd0.date = mm.date
