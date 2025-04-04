@@ -4,9 +4,10 @@
         snowflake_warehouse="CHAINLINK",
         database="chainlink",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics_by_chain"
     )
 }}
+--Right now this model only suppoers ethereum
 with
     ocr_models as(
         {{
@@ -26,10 +27,10 @@ with
     , orc_fees_data as (
         select
             date_start as date
-            , sum(token_amount) as ocr_fees_native
+            , chain
             , sum(usd_amount) as ocr_fees
         from ocr_models
-        group by 1
+        group by 1, 2
     )
     , fm_models as(
         {{
@@ -49,9 +50,10 @@ with
     , fm_fees_data as (
         select
             date_start as date
+            , chain
             , sum(usd_amount) as fm_fees
         from fm_models
-        group by 1
+        group by 1, 2
     )
     , automation_models as(
         {{
@@ -68,10 +70,10 @@ with
     , automation_fees_data as (
         select
             date_start as date
-            , sum(token_amount) as automation_fees_native
+            , chain
             , sum(usd_amount) as automation_fees
         from automation_models
-        group by 1
+        group by 1, 2
     )
     , ccip_models as(
         {{
@@ -91,10 +93,11 @@ with
     , ccip_fees_data as (
         select
             date_start as date
+            , chain
             -- different tokens are paid out in ccip fees
             , sum(usd_amount) as ccip_fees
         from ccip_models
-        group by 1
+        group by 1, 2
     )
     , vrf_models as (
         {{
@@ -114,9 +117,10 @@ with
     , vrf_fees_data as (
         select
             date
+            , blockchain as chain
             , sum(usd_amount) as vrf_fees
         from vrf_models
-        group by 1
+        group by 1, 2
     )
     , direct_models as (
         {{
@@ -136,9 +140,10 @@ with
     , direct_fees_data as (
         select
             date
+            , chain
             , sum(usd_amount) as direct_fees
         from direct_models
-        group by 1
+        group by 1, 2
     )
     , staking_incentive_models as (
         {{
@@ -152,55 +157,17 @@ with
     , staking_incentives_data as (
         select
             date
+            , chain
             , sum(staking_rewards) as token_incentives
         from staking_incentive_models
-        group by 1
+        group by 1, 2
     )
-    , treasury_data as (
-        select
-            date
-            , treasury_usd
-            , treasury_link
-        from {{ ref("fact_chainlink_treasury_native_usd")}}
-    )
-    , tvl_metrics as (
-        select
-            date
-            , balance_usd as tvl
-            , balance_link as tvl_link
-        from {{ ref("fact_chainlink_tvl_native_usd")}}
-    )
-    , token_turnover_metrics as (
-        select
-            date
-            , token_turnover_circulating
-            , token_turnover_fdv
-            , token_volume
-        from {{ ref("fact_chainlink_fdv_and_turnover")}}
-    )
-    , price_data as ({{ get_coingecko_metrics("chainlink") }})
-    , token_holder_data as (
-        select
-            date
-            , tokenholder_count
-        from {{ ref("fact_chainlink_tokenholder_count")}}
-    )
-    , daily_txns_data as (
-        select
-            date
-            , daily_txns
-        from {{ ref("fact_chainlink_daily_txns")}}
-    ),
-    dau_data as (
-        select
-            date
-            , dau
-        from {{ ref("fact_chainlink_dau")}}
-    )
-
 
 select
     date
+    , chain
+
+    --Old Metrics needed for compatibility
     , coalesce(automation_fees, 0) as automation_fees
     , coalesce(ccip_fees, 0) as ccip_fees
     , coalesce(vrf_fees, 0) as vrf_fees
@@ -213,34 +180,32 @@ select
     , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
     , 0 as protocol_revenue
     , primary_supply_side_revenue as operating_expenses
-    , token_incentives
+    , coalesce(token_incentives, 0) as token_incentives
     , coalesce(operating_expenses, 0) + coalesce(token_incentives, 0) as total_expenses
     , protocol_revenue - total_expenses as earnings
-    , treasury_usd
-    , treasury_link
-    , coalesce(tvl,0) as tvl
-    , coalesce(tvl_link, 0) as tvl_link
-    , price
-    , market_cap
-    , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
-    , token_volume
-    , tokenholder_count
-    , daily_txns as txns
-    , dau
+
+    --Standardization Metrics
+    , coalesce(automation_fees, 0) as automation_fees_standard
+    , coalesce(ccip_fees, 0) as ccip_fees_standard
+    , coalesce(vrf_fees, 0) as vrf_fees_standard
+    , coalesce(direct_fees, 0) as direct_fees_standard
+    , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as total_protocol_fees_standard
+    , coalesce(ocr_fees, 0) as ocr_fees_standard
+    , coalesce(fm_fees, 0) as fm_fees_standard
+    , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as total_supply_side_fees_standard
+    , total_protocol_fees_standard + total_supply_side_fees_standard as gross_protocol_revenue_standard
+    , 0 as protocol_revenue_standard
+    , total_supply_side_fees_standard as supply_side_revenue_standard
+    , total_protocol_fees_standard as operating_expenses_standard
+    , token_incentives as token_incentives_standard
+    , coalesce(operating_expenses_standard, 0) + coalesce(token_incentives_standard, 0) as total_expenses_standard
+    , protocol_revenue_standard - total_expenses_standard as protocol_earnings_standard
+    
 from fm_fees_data
-left join orc_fees_data using (date)
-left join automation_fees_data using (date)
-left join ccip_fees_data using (date)
-left join vrf_fees_data using (date)
-left join direct_fees_data using (date)
-left join staking_incentives_data using (date)
-left join treasury_data using (date)
-left join tvl_metrics using (date)
-left join token_turnover_metrics using (date)
-left join price_data using (date)
-left join token_holder_data using (date)
-left join daily_txns_data using (date)
-left join dau_data using (date)
+left join orc_fees_data using(date, chain)
+left join automation_fees_data using(date, chain)
+left join ccip_fees_data using(date, chain)
+left join vrf_fees_data using(date, chain)
+left join staking_incentives_data using(date, chain)
+left join direct_fees_data using(date, chain)
 where date < to_date(sysdate())

@@ -4,20 +4,19 @@
         snowflake_warehouse="STRIDE",
         database="stride",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
     )
 }}
 
 with
     -- Alternative fundamental source from BigQuery, preferred when possible over Snowflake data
-    fundamental_data as (select * EXCLUDE date, TO_TIMESTAMP_NTZ(date) AS date from {{ source('PROD_LANDING', 'ez_stride_metrics') }}),
-
-    market_data as ({{ get_coin_metrics("stride") }}),
+    fundamental_data as (select * EXCLUDE date, TO_TIMESTAMP_NTZ(date) AS date from {{ source('PROD_LANDING', 'ez_stride_metrics') }})
 
 select
     fundamental_data.date,
     'stride' as app,
     'DeFi' as category,
+    fundamental_data.chain,
     
     --Old metrics needed for compatibility
     fundamental_data.txns,
@@ -43,26 +42,19 @@ select
     fundamental_data.protocol_earnings_usd
 
     --Standardized Metrics
-
-    --Market Data Metrics
-    , market_data.price
-    , market_data.market_cap
-    , market_data.fdmc
-    , fundamental_data.tvl as tvl
-    , fundamental_data.tvl_net_change as tvl_net_change
-
+    
     --Chain Usage Metrics
     , fundamental_data.dau as chain_dau
     , fundamental_data.wau as chain_wau
     , fundamental_data.mau as chain_mau
     , fundamental_data.txns as chain_txns
-    , fundamental_data.returning_users as returning_users
-    , fundamental_data.new_users as new_users
-    , fundamental_data.low_sleep_users as low_sleep_users
-    , fundamental_data.high_sleep_users as high_sleep_users
-    , fundamental_data.sybil_users as sybil_users
-    , fundamental_data.non_sybil_users as non_sybil_users
-
+    , fundamental_data.returning_users as chain_returning_users
+    , fundamental_data.new_users as chain_new_users
+    , fundamental_data.low_sleep_users as chain_low_sleep_users
+    , fundamental_data.high_sleep_users as chain_high_sleep_users
+    , fundamental_data.sybil_users as chain_sybil_users
+    , fundamental_data.non_sybil_users as chain_non_sybil_users
+    
     --Cashflow Metrics
     , fundamental_data.fees_native as chain_fees_native
     , fundamental_data.fees_usd as chain_fees
@@ -75,6 +67,5 @@ select
     , fundamental_data.total_supply_side_revenue_usd as supply_side_staking_revenue
     , fundamental_data.operating_expenses_usd as operating_expenses
     , fundamental_data.protocol_earnings_usd as protocol_earnings
+    
 from fundamental_data
-left join market_data on fundamental_data.date = market_data.date
-where fundamental_data.date < to_date(sysdate())
