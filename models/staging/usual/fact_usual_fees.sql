@@ -18,8 +18,8 @@ eod_balances_filled AS (
     SELECT 
         ds.date,
         COALESCE(bl.eod_balance, 
-                 LAST_VALUE(bl.eod_balance IGNORE NULLS) 
-                     OVER (PARTITION BY 1 ORDER BY ds.date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+                LAST_VALUE(bl.eod_balance IGNORE NULLS) 
+                    OVER (PARTITION BY 1 ORDER BY ds.date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
         ) AS eod_balance
     FROM date_spine ds
     LEFT JOIN eod_balances_raw bl ON ds.date = bl.date
