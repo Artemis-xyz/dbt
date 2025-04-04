@@ -77,12 +77,12 @@ select
     , wau AS chain_wau
     , mau AS chain_mau
     , txns AS chain_txns
+    , avg_txn_fee AS chain_avg_txn_fee
     , nft_trading_volume AS chain_nft_trading_volume
     , dex_volumes AS chain_dex_volumes
     -- Cashflow metrics
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
-    , avg_txn_fee AS chain_avg_txn_fee
     -- Supply Metrics
     , issuance AS emissions_native
     , circulating_supply AS circulating_supply_native
