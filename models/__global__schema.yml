@@ -44,18 +44,6 @@ column_definitions:
     - name: burned_cash_flow
       description: "The amount of USD value burned"
       tags: [artemis_gaap]
-    - name: l1_cash_flow_native
-      description: "The total native value of L1 cash flow on a chain"
-      tags: [artemis_gaap]
-    - name: l1_cash_flow
-      description: "The total USD value of L1 cash flow on a chain"
-      tags: [artemis_gaap]
-    - name: burned_cash_flow_native
-      description: "The amount of native tokens burned"
-      tags: [artemis_gaap]
-    - name: burned_cash_flow
-      description: "The amount of USD value burned"
-      tags: [artemis_gaap]
 
   token_metrics:
     - name: price
