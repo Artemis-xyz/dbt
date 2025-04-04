@@ -43,6 +43,10 @@ select
     , fdmc
     , tvl
     -- Chain Usage Metrics
+    , dau AS chain_dau
+    , wau AS chain_wau
+    , mau AS chain_mau
+    , txns AS chain_txns
     , avg_txn_fee AS chain_avg_txn_fee
     , median_txn_fee AS chain_median_txn_fee
     , returning_users
