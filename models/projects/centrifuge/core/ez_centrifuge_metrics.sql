@@ -40,7 +40,7 @@ select
     , txns as chain_txns
     , coalesce(fees_native, 0) as l1_cash_flow_native
     , coalesce(fees_usd, 0) as l1_cash_flow
-    , coalesce(fees_usd, 0)/txns as chain_avg_txn_fee
+    , coalesce(fees_usd, 0)/coalesce(txns, 1) as chain_avg_txn_fee
 
     -- Cash Flow Metrics
     , coalesce(fees_usd, 0) as gross_protocol_revenue
