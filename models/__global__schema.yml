@@ -165,7 +165,7 @@ column_definitions:
       description: "The average cost per MiB of data stored in blobs on a chain in USD"
     - name: submitters
       description: "The number of submitters on a chain"
-    - name: dex_volumes
+    - name: chain_dex_volumes
       description: "The total volume of DEXes on a chain"
 
   developer_metrics:

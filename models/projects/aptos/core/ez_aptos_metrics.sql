@@ -38,6 +38,7 @@ select
     , avg_txn_fee
     , revenue_native
     , revenue
+    , dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -49,7 +50,7 @@ select
     , dau AS chain_dau
     , wau AS chain_wau
     , mau AS chain_mau
-    , dex_volumes
+    , dex_volumes AS chain_dex_volumes
     , avg_txn_fee AS chain_avg_txn_fee
     -- Cashflow Metrics
     , fees AS gross_protocol_revenue
