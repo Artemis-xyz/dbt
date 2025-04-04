@@ -35,11 +35,12 @@ with
     from {{ ref('fact_convex_combined_tvl') }}
     group by 1, 2
 )
-, treasury_value as (
+, treasury as (
     select
         date,
         chain,
-        sum(usd_balance) as treasury_value
+        sum(usd_balance) as treasury,
+        sum(native_balance) as treasury_native
     from {{ ref('fact_convex_treasury_balance') }}
     group by 1, 2
 )
@@ -47,7 +48,8 @@ with
     select
         date,
         chain,
-        sum(usd_balance) as net_treasury_value
+        sum(usd_balance) as net_treasury,
+        sum(native_balance) as net_treasury_native
     from {{ ref('fact_convex_treasury_balance') }}
     where token != 'CVX'
     group by 1, 2
@@ -56,11 +58,12 @@ with
     select
         date,
         chain,
-        sum(native_balance) as treasury_native
+        sum(usd_balance) as own_token_treasury,
+        sum(native_balance) as own_token_treasury_native
     from {{ ref('fact_convex_treasury_balance') }}
     where token = 'CVX'
     group by 1, 2
-)
+)  
 , date_chain_spine as (
     SELECT
         distinct
@@ -69,7 +72,7 @@ with
     FROM {{ ref('dim_date_spine') }}
     CROSS JOIN (SELECT distinct chain from fees_and_revenue
                 UNION
-                SELECT distinct chain from treasury_value
+                SELECT distinct chain from treasury
                 UNION
                 SELECT distinct chain from net_treasury
                 UNION
@@ -88,8 +91,8 @@ select
     , token_incentives.token_incentives
     , token_incentives.token_incentives as expenses
     , fees_and_revenue.revenue - token_incentives.token_incentives as earnings
-    , treasury_value.treasury_value
-    , net_treasury.net_treasury_value
+    , treasury.treasury as treasury_value
+    , net_treasury.net_treasury as net_treasury_value
 
     -- Standardized Metrics
 
@@ -104,13 +107,16 @@ select
     , 0.02 * (coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0)) as treasury_cash_flow
 
     -- Protocol Metrics
-    , coalesce(treasury_value.treasury_value, 0) as treasury
-    , coalesce(net_treasury.net_treasury_value, 0) as net_treasury
-    , coalesce(treasury_native.treasury_native, 0) as own_token_treasury_native
+    , coalesce(treasury.treasury, 0) as treasury
+    , coalesce(treasury.treasury_native, 0) as treasury_native
+    , coalesce(net_treasury.net_treasury, 0) as net_treasury
+    , coalesce(net_treasury.net_treasury_native, 0) as net_treasury_native
+    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
+    , coalesce(treasury_native.own_token_treasury_native, 0) as own_token_treasury_native
 from date_chain_spine
 left join fees_and_revenue using (date, chain)
 left join tvl using (date, chain)
-left join treasury_value using (date, chain)
+left join treasury using (date, chain)
 left join net_treasury using (date, chain)
 left join treasury_native using (date, chain)
 left join token_incentives using (date, chain)
