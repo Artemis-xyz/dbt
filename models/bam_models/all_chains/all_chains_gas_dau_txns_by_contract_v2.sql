@@ -127,7 +127,7 @@ select
 from {{ ref("ez_polygon_metrics_by_contract_v2") }}
 union
 select
-    LOWER(contract_address) AS contract_address,
+    contract_address,
     date,
     name,
     null as symbol,
@@ -145,7 +145,7 @@ select
 from {{ ref("ez_near_metrics_by_contract_v2") }}
 union
 select
-    LOWER(contract_address) AS contract_address,
+    contract_address,
     date,
     name,
     null as symbol,
@@ -163,7 +163,7 @@ select
 from {{ ref("ez_sei_metrics_by_contract_v2") }}
 union
 select
-    LOWER(contract_address) AS contract_address,
+    contract_address,
     date,
     name,
     null as symbol,
@@ -199,7 +199,7 @@ select
 from {{ ref("ez_mantle_metrics_by_contract_v2") }}
 union
 select
-    LOWER(contract_address) AS contract_address,
+    contract_address,
     date,
     name::string as name,
     null as symbol,
@@ -217,7 +217,7 @@ select
 from {{ ref("ez_sui_metrics_by_contract_v2") }}
 union
 select
-    LOWER(contract_address) AS contract_address,
+    contract_address,
     date,
     name::string as name,
     null as symbol,
@@ -235,7 +235,7 @@ select
 from {{ ref("ez_injective_metrics_by_contract_v2") }}
 union
 select
-    LOWER(contract_address) AS contract_address,
+    contract_address,
     date,
     name::string as name,
     null as symbol,
@@ -253,7 +253,7 @@ select
 from {{ ref("ez_stellar_metrics_by_contract_v2") }}
 union
 select
-    LOWER(contract_address) AS contract_address,
+    contract_address,
     date,
     name,
     null as symbol,
