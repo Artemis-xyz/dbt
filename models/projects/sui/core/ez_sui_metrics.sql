@@ -26,6 +26,7 @@ select
     , fees
     , revenue_native
     , revenue
+    , dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -37,7 +38,7 @@ select
     , wau AS chain_wau
     , mau AS chain_mau
     , txns AS chain_txns
-    , dex_volumes
+    , dex_volumes AS chain_dex_volumes
     , returning_users
     , new_users
     -- Cashflow Metrics
