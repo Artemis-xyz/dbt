@@ -32,6 +32,9 @@ column_definitions:
     - name: validator_cash_flow_native
       description: "Portion of revenue allocated to validators, sequencers, or provers who secure or operate the protocol in native tokens."
       tags: [artemis_gaap]
+    - name: strategy_cash_flow
+      description: "Revenue distributed to entities that manage or execute capital deployment strategies, such as vault operators, liquidity managers, leverage account managers and structured product creators."
+      tags: [artemis_gaap]
     - name: buybacks
       description: "The amount tokens bought back by the protocol (USD)."
       tags: [artemis_gaap]
@@ -41,12 +44,7 @@ column_definitions:
     - name: burned_cash_flow
       description: "The amount of USD value burned"
       tags: [artemis_gaap]
-    - name: l1_cash_flow_native
-      description: "The total native value of L1 cash flow on a chain"
-      tags: [artemis_gaap]
-    - name: l1_cash_flow
-      description: "The total USD value of L1 cash flow on a chain"
-      tags: [artemis_gaap]
+
   token_metrics:
     - name: price
       description: "The price of a token in USD"
@@ -279,12 +277,18 @@ column_definitions:
       description: "The amount (in USD) flowing out of a chain"
 
   lending_metrics:
+    - name: lending_txns
+      description: "The number of interactions with a lending protocol such as deposits (supply), withdrawal (redeem), borrow, repay, and liquidation transactions."
+    - name: lending_dau
+      description: "The number of unique wallet addresses that interact with a lending protocol daily through depositing (supplying assets), withdrawing, borrowing, repaying, or participating in liquidations"
     - name: lending_loans
       description: "The total outstanding loans (in USD) on a lending protocol"
     - name: lending_deposits
       description: "The total amount of tokens deposited (in USD) on a lending protocol"
     - name: lending_loan_capacity
       description: "The total amount of loans available (in USD) on a lending protocol, including outstanding loans"
+    - name: lending_interest_fees
+      description: "The daily amount of interest fees (in USD) paid by borrowers on a lending protocol"
     
   aggregator_metrics:
     - name: aggregator_dau
