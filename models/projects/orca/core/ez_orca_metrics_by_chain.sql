@@ -17,13 +17,17 @@ select
     , total_supply_side_revenue
     , number_of_swaps
     , unique_traders
+
     -- Standardized Metrics
+    -- Usage/Sector Metrics
     , spot_dau
     , spot_txns
     , spot_volume
+    , tvl
+
+    -- Money Metrics
     , treasury_cash_flow
     , gross_protocol_revenue
     , service_cash_flow
     , other_cash_flow
-    , tvl
 from {{ ref("ez_orca_metrics") }}

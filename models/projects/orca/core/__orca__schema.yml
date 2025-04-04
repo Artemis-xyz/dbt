@@ -6,21 +6,21 @@ version: 2
 column_definitions:
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
-    description: "Fees generated on Orca Whirpool."
+    description: "Equivalent to total trading fees generated on Orca Whirpool."
     tags:
       - artemis_gaap
       - override
 
   other_cash_flow: &other_cash_flow
     name: other_cash_flow
-    description: "Revenue distributed to Orca's climate fund, equal to 1% of gross protocol revenue."
+    description: "Revenue distributed to Orca's climate fund, equal to 1% of total trading fees."
     tags:
       - artemis_gaap
       - override
 
   service_cash_flow: &service_cash_flow
     name: service_cash_flow
-    description: "The share of protocol revenue accrued to LPs of the protocol. Equal to 87% of gross protocol revenue."
+    description: "The share of gross protocol revenue accrued to LPs of the protocol. Equal to 87% of gross protocol revenue."
     tags:
       - artemis_gaap
       - override
