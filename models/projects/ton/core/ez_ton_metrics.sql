@@ -53,11 +53,11 @@ select
     , dau AS chain_dau
     , wau AS chain_wau
     , mau AS chain_mau
-    , avg_txn_fee_native * price AS chain_avg_txn_fee
     , txns AS chain_txns
+    , avg_txn_fee_native * price AS chain_avg_txn_fee
     -- Cash Flow Metrics
-    , fees_native AS protocol_revenue_native
-    , fees * price AS protocol_revenue
+    , fees_native AS gross_protocol_revenue_native
+    , fees * price AS gross_protocol_revenue
     , fees_native / 2 AS burned_cash_flow_native
     , (fees_native / 2) * price AS burned_cash_flow
     -- Developer Metrics
