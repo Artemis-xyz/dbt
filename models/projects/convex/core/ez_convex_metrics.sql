@@ -36,25 +36,13 @@ with date_spine as (
     from {{ ref('fact_convex_combined_tvl') }}
     group by 1
 )
-, treasury_value as (
-    select
-        date,
-        sum(usd_balance) as treasury_value
-    from {{ ref('fact_convex_treasury_balance') }}
-    group by 1
-)
-, net_treasury as (
-    select
-        date,
-        sum(usd_balance) as net_treasury_value
-    from {{ ref('fact_convex_treasury_balance') }}
-    group by 1
-)
-, treasury_native as (
-    select
-        date,
-        sum(native_balance) as treasury_native
-    from {{ ref('fact_convex_treasury_balance') }}
+, treasury as (
+    select 
+        date
+        , sum(coalesce(treasury, 0)) as treasury
+        , sum(coalesce(net_treasury, 0)) as net_treasury
+        , sum(coalesce(own_token_treasury, 0)) as own_token_treasury
+    from {{ ref('ez_convex_metrics_by_token') }}
     group by 1
 )
 , token_holders as (
@@ -77,42 +65,37 @@ select
     , token_incentives.token_incentives as expenses
     , fees_and_revenue.revenue - token_incentives.token_incentives as earnings
     , tvl.tvl as net_deposits
-    , treasury_value.treasury_value
-    , net_treasury.net_treasury_value
+    , treasury.treasury as treasury_value
     , token_holders.token_holder_count
 
     -- Standardized Metrics
 
-    -- Lending Metrics
-    , tvl.tvl as lending_deposits
+    -- Token Metrics
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
 
     -- Crypto Metrics
     , tvl.tvl
     , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
 
     -- Cash Flow Metrics
-    , (fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as gross_protocol_revenue
-    , fees_and_revenue.primary_supply_side_fees + (0.005 * (fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees)) as service_cash_flow
-    , 0.02*(fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as treasury_cash_flow
-    , 0.10*(fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as fee_sharing_token_cash_flow
-    , 0.045*(fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as token_cash_flow
+    , coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0) as gross_protocol_revenue
+    , coalesce(fees_and_revenue.primary_supply_side_fees, 0) + 0.005 * (coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0)) as service_cash_flow
+    , 0.145 * (coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0)) as fee_sharing_token_cash_flow
+    , 0.02 * (coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0)) as treasury_cash_flow
 
     -- Protocol Metrics
-    , treasury_value.treasury_value as treasury
-    , treasury_native.treasury_native as treasury_native
-    , treasury_native.treasury_native - lag(treasury_native.treasury_native) over (order by date) as treasury_native_change
+    , treasury.treasury
+    , treasury.net_treasury
+    , treasury.own_token_treasury  
 
-    -- Token Metrics
-    , market_data.price
-    , market_data.market_cap
-    , market_data.fdmc
+    -- Turnover Metrics
     , market_data.token_turnover_circulating
     , market_data.token_turnover_fdv
-    , market_data.token_volume
 from date_spine
-left join treasury_value using (date)
-left join net_treasury using (date)
-left join treasury_native using (date)
+left join treasury using (date)
 left join token_holders using (date)
 left join fees_and_revenue using (date)
 left join token_incentives using (date)

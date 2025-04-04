@@ -93,24 +93,20 @@ select
 
     -- Standardized Metrics
 
-    -- Lending Metrics
-    , tvl.tvl as lending_deposits
-
     -- Crypto Metrics
     , tvl.tvl
     , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
 
     -- Cash Flow Metrics
-    , (fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as gross_protocol_revenue
-    , fees_and_revenue.primary_supply_side_fees + (0.005 * (fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees)) as service_cash_flow
-    , 0.02*(fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as treasury_cash_flow
-    , 0.10*(fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as fee_sharing_token_cash_flow
-    , 0.045*(fees_and_revenue.revenue + fees_and_revenue.primary_supply_side_fees) as token_cash_flow
+    , coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0) as gross_protocol_revenue
+    , coalesce(fees_and_revenue.primary_supply_side_fees, 0) + 0.005 * (coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0)) as service_cash_flow
+    , 0.145 * (coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0)) as fee_sharing_token_cash_flow
+    , 0.02 * (coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0)) as treasury_cash_flow
 
     -- Protocol Metrics
-    , treasury_value.treasury_value as treasury
-    , treasury_native.treasury_native as treasury_native
-    , treasury_native.treasury_native - lag(treasury_native.treasury_native) over (order by date) as treasury_native_change
+    , coalesce(treasury_value.treasury_value, 0) as treasury
+    , coalesce(net_treasury.net_treasury_value, 0) as net_treasury
+    , coalesce(treasury_native.treasury_native, 0) as own_token_treasury_native
 from date_chain_spine
 left join fees_and_revenue using (date, chain)
 left join tvl using (date, chain)
