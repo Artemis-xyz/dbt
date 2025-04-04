@@ -82,30 +82,30 @@ select
     , b.buyback_native * pb.price as buyback
 
     -- Standardized Metrics
+    -- Market Metrics
     , price_data.price 
     , price_data.market_cap
     , price_data.fdmc
     , price_data.token_volume
 
+    -- Usage/Sector Metrics
     , v.unique_traders as spot_dau
     , v.number_of_swaps as spot_txns
     , v.trading_volume as spot_volume
-
     , coalesce(tvl.tvl,
             LAST_VALUE(tvl.tvl IGNORE NULLS) OVER (ORDER BY v.date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)) as tvl 
 
+    -- Money Metrics
     , bfp.buyback_native / 0.12 as trading_fees -- total_trading_fee = buyback (12%) + treasury (4%) + LP(84%); using buyback from token pair as it's more frequent than actual deposit of RAY
     , coalesce(c.pool_creation_fees_native * pc.price, 0) as pool_creation_fees -- pool creation
-
     , trading_fees + coalesce(c.pool_creation_fees_native * pc.price, 0) as gross_protocol_revenue
-
     , trading_fees * 0.12 as buyback_cash_flow
     , trading_fees * 0.04 as treasury_cash_flow
     , trading_fees * 0.84 as service_cash_flow
-
     , b.buyback_native * pb.price as buybacks
     , b.buyback_native   as buyback_native
 
+    -- Other Metrics
     , price_data.token_turnover_circulating
     , price_data.token_turnover_fdv 
 from date_spine ds

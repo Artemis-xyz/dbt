@@ -24,15 +24,21 @@ column_definitions:
 
   spot_dau: &spot_dau
     name: spot_dau
-    description: "The number of daily active traders on a spot dex"
+    description: "The number of daily active traders on Raydium's CPMM, AMM v4, and CLMM"
+    tags:
+      - override
 
   spot_txns: &spot_txns
     name: spot_txns
-    description: "The number of daily trades on a spot dex"
+    description: "The number of daily trades on Raydium's CPMM, AMM v4, and CLMM"
+    tags:
+      - override
 
   spot_volume: &spot_volume
     name: spot_volume
-    description: "The total volume on a spot dex"
+    description: "The total volume on Raydium's CPMM, AMM v4, and CLMM"
+    tags:
+      - override
 
   token_volume: &token_volume
     name: token_volume
