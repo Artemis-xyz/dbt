@@ -85,8 +85,26 @@ SELECT
     -- , tvl.tvl_native
     -- , tvl.tvl_native as net_deposits_native
     , treasury.treasury_value_native
-    , treasury_native.treasury_native
     , net_treasury.net_treasury_value
+
+    -- Standardized Metrics
+
+    -- Lending Metrics
+    , coalesce(fees.fees_native, 0) as lending_fees_native
+
+    -- Cash Flow Metrics
+    , coalesce(revenues.revenue_native, 0) as gross_protocol_revenue_native
+    , coalesce(interest_fees_native, 0) - coalesce(platform_fees_native, 0) - coalesce(delegate_fees_native, 0) as fee_sharing_token_cash_flow_native 
+        -- If delegate fees = 1/3 * platform fees, then this should be reflected.
+    , coalesce(delegate_fees_native, 0) as service_cash_flow_native
+    , 2/3 * coalesce(platform_fees_native, 0) as treasury_cash_flow_native
+    , coalesce(token_incentives.token_incentives_native, 0) as token_cash_flow_native
+
+
+    -- Protocol Metrics
+    , coalesce(treasury_native.treasury_native, 0) as treasury_native
+    , coalesce(treasury_native.treasury_native, 0)
+        - lag(treasury_native.treasury_native, 0) over (order by date) as treasury_native_net_change
 FROM
     fees
 full join revenues using(date, token)
