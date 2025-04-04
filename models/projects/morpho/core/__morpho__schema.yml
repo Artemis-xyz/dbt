@@ -4,6 +4,10 @@
 version: 2
 
 column_definitions:
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
+
   fdmc: &fdmc
     name: fdmc
     description: "The fully diluted market cap of a token in USD"
@@ -16,9 +20,17 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  lending_dau: &lending_dau
+    name: lending_dau
+    description: "The number of daily active traders on a lending protocol"
+
   lending_deposits: &lending_deposits
     name: lending_deposits
     description: "The total amount of tokens deposited (in USD) on a lending protocol"
+
+  lending_interest_fees: &lending_interest_fees
+    name: lending_interest_fees
+    description: "The total amount of interest fees generated on a lending protocol"
 
   lending_loan_capacity: &lending_loan_capacity
     name: lending_loan_capacity
@@ -28,15 +40,33 @@ column_definitions:
     name: lending_loans
     description: "The total outstanding loans (in USD) on a lending protocol"
 
+  lending_txns: &lending_txns
+    name: lending_txns
+    description: "The number of daily transactions on a lending protocol"
+
   market_cap: &market_cap
     name: market_cap
     description: "The market cap of a token in USD"
     tags:
       - artemis_gaap
 
+  net_supply_change_native: &net_supply_change_native
+    name: net_supply_change_native
+    description: "The net change in the circulating supply of a token in native tokens"
+
+  premine_unlocks_native: &premine_unlocks_native
+    name: premine_unlocks_native
+    description: "The amount of native tokens unlocked from premine"
+
   price: &price
     name: price
     description: "The price of a token in USD"
+    tags:
+      - artemis_gaap
+
+  service_cash_flow: &service_cash_flow
+    name: service_cash_flow
+    description: "The share of protocol revenue accrued to service providers of the protocol."
     tags:
       - artemis_gaap
 
@@ -66,13 +96,20 @@ models:
   - name: ez_morpho_metrics
     description: "This table stores metrics for the MORPHO protocol"
     columns:
+      - *circulating_supply_native
       - *fdmc
       - *gross_protocol_revenue
+      - *lending_dau
       - *lending_deposits
+      - *lending_interest_fees
       - *lending_loan_capacity
       - *lending_loans
+      - *lending_txns
       - *market_cap
+      - *net_supply_change_native
+      - *premine_unlocks_native
       - *price
+      - *service_cash_flow
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
@@ -85,5 +122,6 @@ models:
       - *lending_deposits
       - *lending_loan_capacity
       - *lending_loans
+      - *service_cash_flow
       - *tvl
 

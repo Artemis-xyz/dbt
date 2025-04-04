@@ -1,7 +1,12 @@
 sources:
-   - name: PROD_LANDING
-     schema: PROD_LANDING
-     database: LANDING_DATABASE
-     tables:
-       - name: raw_morpho_data
-       - name: raw_morpho_fees
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_morpho_data
+      - name: raw_morpho_fees
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: morpho_daily_supply_data

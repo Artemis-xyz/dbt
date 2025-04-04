@@ -11,6 +11,8 @@
 with deposits as (
     select
         date
+        , dau
+        , txns
         , borrow_amount_usd
         , supply_amount_usd
         , supply_amount_usd + collat_amount_usd as deposit_amount_usd
@@ -21,6 +23,8 @@ with deposits as (
 cumulative_metrics as (
     select
         d.date
+        , d.dau
+        , d.txns
         , sum(d.borrow_amount_usd) over (partition by d.chain order by d.date rows between unbounded preceding and current row) as borrows
         , sum(d.supply_amount_usd) over (partition by d.chain order by d.date rows between unbounded preceding and current row) as supplies
         , sum(d.deposit_amount_usd) over (partition by d.chain order by d.date rows between unbounded preceding and current row) as deposits
@@ -33,6 +37,8 @@ cumulative_metrics as (
 select
     date
     , chain
+    , dau
+    , txns
     , borrows as daily_borrows_usd
     , supplies as total_available_supply
     , deposits as daily_supply_usd
@@ -44,6 +50,8 @@ select
     , deposits as lending_deposits
     , tvl
     
-    , fees as gross_protocol_revenue
+    -- Cash Flow Metrics (Interest goes to Liquidity Suppliers (Lenders) + Vaults Performance Fees)
+    , fees as lending_interest_fees
+    , lending_interest_fees as gross_protocol_revenue
     
 from cumulative_metrics 
