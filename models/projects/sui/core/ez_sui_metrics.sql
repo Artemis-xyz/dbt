@@ -33,10 +33,10 @@ select
     , fdmc
     , tvl
     -- Chain Usage Metrics
-    , txns AS chain_txns
     , dau AS chain_dau
     , wau AS chain_wau
     , mau AS chain_mau
+    , txns AS chain_txns
     , dex_volumes
     , returning_users
     , new_users
