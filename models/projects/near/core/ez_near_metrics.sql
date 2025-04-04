@@ -42,6 +42,7 @@ select
     , median_txn_fee
     , revenue_native
     , revenue
+    , coalesce(near_dex_volumes.dex_volumes, 0) as dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -75,7 +76,7 @@ select
     , avg_cost_per_mib_native
     , avg_cost_per_mib
     , submitters
-    , coalesce(near_dex_volumes.dex_volumes, 0) as dex_volumes
+    , coalesce(near_dex_volumes.dex_volumes, 0) as chain_dex_volumes
     -- Cashflow Metrics
     , fees_native as gross_protocol_revenue_native
     , case when fees is null then fees_native * price else fees end as gross_protocol_revenue

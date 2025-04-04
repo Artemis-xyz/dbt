@@ -33,6 +33,7 @@ select
     , fees
     , revenue
     , avg_txn_fee
+    , celo_dex_volumes.dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -44,7 +45,7 @@ select
     , dau AS chain_dau
     , wau AS chain_wau
     , mau AS chain_mau
-    , celo_dex_volumes.dex_volumes
+    , celo_dex_volumes.dex_volumes AS chain_dex_volumes
     -- Cashflow metrics
     , fees AS gross_protocol_revenue
     , revenue AS burned_cash_flow
