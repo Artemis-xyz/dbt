@@ -72,24 +72,44 @@ with fees_and_revs as (
 )
 
 select
-    dcs.date,
-    dcs.chain,
+    dcs.date
+    , dcs.chain
     
     -- Fees and revenue
-    fr.revenue_usd as fees,
-    fr.revenue_usd as revenue,
-    ti.token_incentives,
-    ti.token_incentives as expenses,
-    fr.revenue_usd - ti.token_incentives as protocol_earnings,
+    , fr.revenue_usd as fees
+    , fr.revenue_usd as revenue
+    , ti.token_incentives
+    , ti.token_incentives as expenses
+    , fr.revenue_usd - ti.token_incentives as protocol_earnings
 
     -- Treasury
-    treasury.treasury_value,
-    treasury.treasury_value_native,
-    treasury.net_treasury_value,
+    , treasury.treasury_value
+    , treasury.treasury_value_native
+    , treasury.net_treasury_value
 
     -- TVL
-    tvl.tvl,
-    os.outstanding_supply
+    , os.outstanding_supply
+
+    -- Standardized Metrics
+
+    -- Lending Metrics
+    , tvl.tvl as lending_deposits
+    , fr.revenue_usd as lending_fees
+    , os.outstanding_supply as lending_loans
+
+    -- Crypto Metrics
+    , tvl.tvl
+    , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
+
+    -- Cash Flow Metrics
+    , fr.revenue_usd as gross_protocol_revenue
+    , ti.token_incentives as fee_sharing_token_cash_flow
+    , fr.revenue_usd - ti.token_incentives as foundation_cash_flow
+
+    -- Protocol Metrics
+    , treasury.treasury_value as treasury
+    , treasury.treasury_value_native as treasury_native
+    , treasury.treasury_value_native - lag(treasury.treasury_value_native) over (order by date) as treasury_native_net_change
 from date_chain_spine dcs
 left join tvl using (date, chain)
 left join outstanding_supply os using (date, chain)
