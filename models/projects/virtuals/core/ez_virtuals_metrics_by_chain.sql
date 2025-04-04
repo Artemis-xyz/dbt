@@ -15,15 +15,20 @@ with date_spine as (
 ),
 volume as (
     select
-        date,
-        volume_native,
-        volume_usd as trading_volume
+        date
+        , volume_native
+        , volume_usd as trading_volume
     from {{ ref("fact_virtuals_volume") }}
 )
 select
-    ds.date,
-    'base' as chain,
-    v.volume_native,
-    v.trading_volume
+    ds.date
+    , 'base' as chain
+    , coalesce(v.volume_native, 0) as volume_native
+    , coalesce(v.trading_volume, 0) as trading_volume
+
+    -- Standardized Metrics
+
+    -- AI Metrics
+    , coalesce(v.trading_volume, 0) as ai_volume
 from volume v
 left join date_spine ds on v.date = ds.date
