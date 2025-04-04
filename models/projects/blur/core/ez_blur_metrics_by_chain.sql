@@ -31,10 +31,10 @@ select
 
     -- Standardized Metrics
 
-    -- Spot Dex Metrics
-    , blur_daus.dau as spot_dau
-    , blur_daily_txns.daily_txns as spot_txns
-    , blur_fees.fees as spot_revenue
+    -- NFT Metrics
+    , blur_daus.dau as nft_dau
+    , blur_daily_txns.daily_txns as nft_txns
+    , blur_fees.fees as nft_fees
 
 from blur_fees
 left join blur_daus using (date, chain)
