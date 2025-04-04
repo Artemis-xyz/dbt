@@ -314,3 +314,15 @@ column_definitions:
       description: "The cumulative flow of ETFs on a chain"
     - name: cumulative_etf_flow
       description: "The cumulative flow of ETFs on a chain"
+
+  ai_metrics:
+    - name: ai_dau
+      description: "The number of daily active users on an AI protocol"
+    - name: ai_txns
+      description: "The number of daily transactions on an AI protocol"
+    - name: ai_volume
+      description: "The total volume on an AI protocol"
+    - name: ai_daily_agents
+      description: "The number of daily active agents on an AI protocol"
+    - name: ai_fees
+      description: "The total amount of fees (in USD) on an AI protocol"
