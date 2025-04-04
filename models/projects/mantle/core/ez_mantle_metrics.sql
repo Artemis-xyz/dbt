@@ -50,7 +50,7 @@ select
     , avg_txn_fee
     , treasury_data.treasury_value_native
     , treasury_data.treasury_value_native_change
-
+    , dune_dex_volumes_mantle.dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -65,7 +65,7 @@ select
     , returning_users
     , new_users
     , avg_txn_fee AS chain_avg_txn_fee
-    , dune_dex_volumes_mantle.dex_volumes
+    , dune_dex_volumes_mantle.dex_volumes AS chain_dex_volumes
     -- Cashflow Metrics
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue

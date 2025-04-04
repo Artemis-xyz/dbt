@@ -44,6 +44,7 @@ select
     , coalesce(fees, 0) -  l1_data_cost as revenue
     , avg_txn_fee
     , median_txn_fee
+    , dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -55,7 +56,7 @@ select
     , wau AS chain_wau
     , mau AS chain_mau
     , txns AS chain_txns
-    , dex_volumes AS dex_volumes
+    , dex_volumes AS chain_dex_volumes
     , returning_users
     , new_users
     -- Cashflow Metrics
