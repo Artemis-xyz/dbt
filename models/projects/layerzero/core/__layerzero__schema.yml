@@ -6,55 +6,69 @@ version: 2
 column_definitions:
   bridge_dau: &bridge_dau
     name: bridge_dau
-    description: "The number of daily active addresses on a bridge"
+    description: "The number of daily active addresses on LayerZero"
+    tags:
+      - override
 
   bridge_fees: &bridge_fees
     name: bridge_fees
-    description: "The total fees on a bridge"
+    description: "The total fees on LayerZero"
+    tags:
+      - override
 
   bridge_txns: &bridge_txns
     name: bridge_txns
-    description: "The number of transactions on a bridge"
+    description: "The number of transactions on LayerZero"
+    tags:
+      - override
 
   bridge_volume: &bridge_volume
     name: bridge_volume
-    description: "The total volume on a bridge"
+    description: "The total volume on LayerZero"
+    tags:
+      - override
 
   fdmc: &fdmc
     name: fdmc
-    description: "The fully diluted market cap of a token in USD"
+    description: "The fully diluted market cap of $ZRO in USD"
     tags:
       - artemis_gaap
+      - override
 
   market_cap: &market_cap
     name: market_cap
-    description: "The market cap of a token in USD"
+    description: "The market cap of $ZRO in USD"
     tags:
       - artemis_gaap
+      - override
 
   price: &price
     name: price
-    description: "The price of a token in USD"
+    description: "The price of $ZRO in USD"
     tags:
       - artemis_gaap
+      - override
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
-    description: "The turnover of a token in USD"
+    description: "The turnover of $ZRO token in USD, calculated as the circulating market cap divided by the average token trading volume"
     tags:
       - artemis_gaap
+      - override
 
   token_turnover_fdv: &token_turnover_fdv
     name: token_turnover_fdv
-    description: "The turnover of a token in USD"
+    description: "The turnover of $ZRO token in USD, calculated as the fully diluted market cap divided by the average token trading volume"
     tags:
       - artemis_gaap
+      - override
 
   token_volume: &token_volume
     name: token_volume
-    description: "The volume of a token in USD"
+    description: "The volume of $ZRO token in USD"
     tags:
       - artemis_gaap
+      - override
 
 models:
   - name: ez_layerzero_metrics_by_chain
