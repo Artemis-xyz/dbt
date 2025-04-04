@@ -247,6 +247,8 @@ column_definitions:
       description: "The number of unique traders on a perpetuals exchange"
     - name: perp_volume
       description: "The total trading volume on a perpetuals exchange"
+    - name: perp_txns
+      description: "The total number of trades on a perpetuals exchange"
 
   spot_dex_metrics:
     - name: spot_dau
