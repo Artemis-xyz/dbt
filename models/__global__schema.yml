@@ -282,6 +282,8 @@ column_definitions:
       description: "The total amount of tokens deposited (in USD) on a lending protocol"
     - name: lending_loan_capacity
       description: "The total amount of loans available (in USD) on a lending protocol, including outstanding loans"
+    - name: lending_fees
+      description: "The total amount of fees (in USD) on a lending protocol"
     
   aggregator_metrics:
     - name: aggregator_dau

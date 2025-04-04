@@ -73,24 +73,40 @@ with  fees_and_revs as (
 )
 
 select
-    dts.date,
-    dts.token,
+    dts.date
+    , dts.token
+    , fr.revenue_usd as fees
+    , fr.revenue_native as fees_native
+    , fr.revenue_usd as revenue
+    , fr.revenue_native as revenue_native
+    , ti.token_incentives_native as token_incentives_native
+    , ti.token_incentives_native as expenses_native
+    , treasury.treasury_value
+    , treasury.treasury_native_value
+    , treasury.net_treasury_value
+    , os.outstanding_supply
 
-    -- Fees and revenue
-    fr.revenue_usd as fees,
-    fr.revenue_native as fees_native,
-    fr.revenue_usd as revenue,
-    fr.revenue_native as revenue_native,
-    ti.token_incentives_native as token_incentives_native,
-    ti.token_incentives_native as expenses_native,
-    -- Treasury
-    treasury.treasury_value,
-    treasury.treasury_native_value,
-    treasury.net_treasury_value,
+    -- Standardized Metrics
 
-    -- TVL
-    tvl.tvl,
-    os.outstanding_supply,
+    -- Lending Metrics
+    , tvl.tvl as lending_deposits
+    , fr.revenue_usd as lending_fees
+    , os.outstanding_supply as lending_loans
+
+    -- Crypto Metrics
+    , tvl.tvl
+    , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
+
+    -- Cash Flow Metrics
+    , fr.revenue_usd as gross_protocol_revenue
+    , fr.revenue_native as gross_protocol_revenue_native
+    , ti.token_incentives_native as fee_sharing_token_cash_flow_native
+    , fr.revenue_native - ti.token_incentives_native as foundation_cash_flow_native
+
+    -- Protocol Metrics
+    , treasury.treasury_value as treasury
+    , treasury.treasury_native_value as treasury_native
+    , treasury.treasury_native_value - lag(treasury.treasury_native_value) over (order by date) as treasury_native_net_change
 from date_token_spine dts
 left join tvl using (date, token)
 left join outstanding_supply os using (date, token)
