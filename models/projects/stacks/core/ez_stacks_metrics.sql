@@ -66,7 +66,7 @@ select
     , fees_native as gross_protocol_revenue_native
     , fees as gross_protocol_revenue
     , avg_txn_fee as chain_avg_txn_fee
-    , gross_protocol_revenue as service_cash_flow
+    , gross_protocol_revenue as validator_cash_flow
     
     -- Developer Metrics
     , weekly_commits_core_ecosystem
