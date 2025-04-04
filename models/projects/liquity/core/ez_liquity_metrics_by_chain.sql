@@ -25,23 +25,34 @@ with fees_and_revs as (
     group by 1, 2
 )
 , treasury as (
-    SELECT
+    select
         date,
         chain,
-        sum(native_balance) as treasury_value,
-        SUM(
-            CASE WHEN token = 'LQTY'
-                THEN native_balance
-            END
-        ) AS treasury_value_native,
-        SUM(
-            CASE WHEN token <> 'LQTY'
-                THEN native_balance
-            END
-        ) AS net_treasury_value
-    FROM {{ ref('fact_liquity_treasury') }}
-    GROUP BY 1, 2
+        sum(usd_balance) as treasury,
+        sum(native_balance) as treasury_native
+    from {{ ref('fact_liquity_treasury') }}
+    group by 1, 2
 )
+, net_treasury as (
+    select
+        date,
+        chain,
+        sum(usd_balance) as net_treasury,
+        sum(native_balance) as net_treasury_native
+    from {{ ref('fact_liquity_treasury') }}
+    where token != 'LQTY'
+    group by 1, 2
+)
+, treasury_native as (
+    select
+        date,
+        chain,
+        sum(usd_balance) as own_token_treasury,
+        sum(native_balance) as own_token_treasury_native
+    from {{ ref('fact_liquity_treasury') }}
+    where token = 'LQTY'
+    group by 1, 2
+)  
 , tvl as (
     select
         date,
@@ -83,9 +94,9 @@ select
     , fr.revenue_usd - ti.token_incentives as protocol_earnings
 
     -- Treasury
-    , treasury.treasury_value
-    , treasury.treasury_value_native
-    , treasury.net_treasury_value
+    , treasury.treasury as treasury_value
+    , treasury.treasury_native as treasury_value_native
+    , net_treasury.net_treasury as net_treasury_value
 
     -- TVL
     , os.outstanding_supply
@@ -104,15 +115,19 @@ select
     -- Cash Flow Metrics
     , fr.revenue_usd as gross_protocol_revenue
     , ti.token_incentives as fee_sharing_token_cash_flow
-    , fr.revenue_usd - ti.token_incentives as foundation_cash_flow
 
     -- Protocol Metrics
-    , treasury.treasury_value as treasury
-    , treasury.treasury_value_native as treasury_native
-    , treasury.treasury_value_native - lag(treasury.treasury_value_native) over (order by date) as treasury_native_net_change
+    , treasury.treasury 
+    , treasury.treasury_native
+    , net_treasury.net_treasury
+    , net_treasury.net_treasury_native
+    , treasury_native.own_token_treasury
+    , treasury_native.own_token_treasury_native
 from date_chain_spine dcs
 left join tvl using (date, chain)
 left join outstanding_supply os using (date, chain)
 left join fees_and_revs fr using (date, chain)  
 left join treasury using (date, chain)
+left join net_treasury using (date, chain)
+left join treasury_native using (date, chain)
 left join token_incentives ti using (date, chain)

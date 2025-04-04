@@ -36,21 +36,16 @@ with tvl as (
     group by 1
 )
 , treasury as (
-    SELECT
-        date,
-        sum(native_balance) as treasury_value,
-        SUM(
-            CASE WHEN token = 'LQTY'
-                THEN native_balance
-            END
-        ) AS treasury_value_native,
-        SUM(
-            CASE WHEN token <> 'LQTY'
-                THEN native_balance
-            END
-        ) AS net_treasury_value
-    FROM {{ ref('fact_liquity_treasury') }}
-    GROUP BY 1
+    select 
+        date
+        , sum(treasury) as treasury
+        , sum(treasury_native) as treasury_native
+        , sum(net_treasury) as net_treasury
+        , sum(net_treasury_native) as net_treasury_native
+        , sum(own_token_treasury) as own_token_treasury
+        , sum(own_token_treasury_native) as own_token_treasury_native
+    from {{ ref('ez_liquity_metrics_by_token') }}
+    group by 1
 )
 , token_holders as (
     select
@@ -78,9 +73,9 @@ select
     , ti.token_incentives
     , ti.token_incentives as expenses
     , fr.revenue_usd - ti.token_incentives as protocol_earnings
-    , t.treasury_value
-    , t.treasury_value_native
-    , t.net_treasury_value
+    , t.treasury as treasury_value
+    , t.own_token_treasury as treasury_value_native
+    , t.net_treasury as net_treasury_value
 
 
     -- Standardized Metrics
@@ -103,12 +98,14 @@ select
     -- Cash Flow Metrics
     , fr.revenue_usd as gross_protocol_revenue
     , ti.token_incentives as fee_sharing_token_cash_flow
-    , fr.revenue_usd - ti.token_incentives as foundation_cash_flow
 
     -- Protocol Metrics
-    , t.treasury_value as treasury
-    , t.treasury_value_native as treasury_native
-    , t.treasury_value_native - lag(t.treasury_value_native) over (order by date) as treasury_native_net_change
+    , coalesce(t.treasury, 0) as treasury
+    , coalesce(t.treasury_native, 0) as treasury_native
+    , coalesce(t.net_treasury, 0) as net_treasury
+    , coalesce(t.net_treasury_native, 0) as net_treasury_native
+    , coalesce(t.own_token_treasury, 0) as own_token_treasury  
+    , coalesce(t.own_token_treasury_native, 0) as own_token_treasury_native
 
     -- Turnover Metrics
     , md.token_turnover_circulating
