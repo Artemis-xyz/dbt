@@ -11,6 +11,8 @@
 with morpho_data as (
     select
         date
+        , sum(dau) as dau
+        , sum(txns) as txns
         , sum(borrow_amount_usd) as borrow_amount_usd
         , sum(supply_amount_usd) as supply_amount_usd
         , sum(supply_amount_usd) + sum(collat_amount_usd) as deposit_amount_usd
@@ -22,6 +24,8 @@ with morpho_data as (
 , cumulative_metrics as (
     select
         d.date
+        , d.dau
+        , d.txns
         , sum(d.borrow_amount_usd) over (order by d.date rows between unbounded preceding and current row) as borrows
         , sum(d.supply_amount_usd) over (order by d.date rows between unbounded preceding and current row) as supplies
         , sum(d.deposit_amount_usd) over (order by d.date rows between unbounded preceding and current row) as deposits
@@ -35,19 +39,40 @@ with morpho_data as (
     {{ get_coingecko_metrics('morpho') }}
 )
 
+, morpho_supply_data as (
+    select
+        date
+        , premine_unlocks_native
+        , net_supply_change_native
+        , circulating_supply_native
+    from {{ ref("fact_morpho_supply_data") }}
+)
+
 select
     date
+    , dau
+    , txns
     , borrows as daily_borrows_usd
     , supplies as total_available_supply
     , deposits as daily_supply_usd
     , fees
 
     -- Standardized metrics
-    , tvl
-    , fees as gross_protocol_revenue
+    , dau as lending_dau
+    , txns as lending_txns
     , borrows as lending_loans
     , supplies as lending_loan_capacity
     , deposits as lending_deposits
+    , tvl
+    
+    -- Cash Flow Metrics (Interest goes to Liquidity Suppliers (Lenders) + Vaults Performance Fees)
+    , fees as lending_interest_fees
+    , lending_interest_fees as gross_protocol_revenue
+    
+    -- Supply Metrics
+    , msd.premine_unlocks_native
+    , msd.net_supply_change_native
+    , msd.circulating_supply_native
 
     -- Market Metrics
     , mdd.price
@@ -58,3 +83,4 @@ select
     , mdd.token_volume
 from cumulative_metrics
 left join morpho_market_data mdd using (date)
+left join morpho_supply_data msd using (date)
