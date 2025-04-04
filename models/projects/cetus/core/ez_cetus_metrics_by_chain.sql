@@ -13,9 +13,11 @@ with cetus_tvl as (
 )
 
 select
-    cetus_tvl.date,
-    'Defillama' as source,
-    'sui' as chain,
-    cetus_tvl.tvl
+    cetus_tvl.date
+    , 'Defillama' as source
+    , 'sui' as chain
+
+    -- Standardized Metrics
+    , cetus_tvl.tvl
 from cetus_tvl
 where cetus_tvl.date < to_date(sysdate())

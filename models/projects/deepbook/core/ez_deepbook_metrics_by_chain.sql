@@ -13,9 +13,11 @@ with deepbook_tvl as (
 )
 
 select
-    deepbook_tvl.date,
-    'Defillama' as source,
-    'sui' as chain,
-    deepbook_tvl.tvl
+    deepbook_tvl.date
+    , 'Defillama' as source
+    , 'sui' as chain
+
+    -- Standardized Metrics
+    , deepbook_tvl.tvl
 from deepbook_tvl
 where deepbook_tvl.date < to_date(sysdate())
