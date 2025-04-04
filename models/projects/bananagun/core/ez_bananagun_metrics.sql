@@ -39,8 +39,8 @@ SELECT
     , metrics.dau
     , metrics.daily_txns
     , metrics.fees_usd AS fees
-    , metrics.fees_usd * 0.6 AS supply_side_fees
-    , metrics.fees_usd * 0.4 + coin_metrics.burns_usd AS revenue
+    , metrics.fees_usd * 0.4 AS supply_side_fees
+    , metrics.fees_usd * 0.6 + coin_metrics.burns_usd AS revenue
     
     --Standardized Metrics
 
@@ -52,15 +52,15 @@ SELECT
 
     -- Aggregator Metrics
     , metrics.dau AS aggregator_dau
-    , metrics.fees_usd as aggregator_fees
     , metrics.daily_txns AS aggregator_txns
-    , metrics.fees_usd * 0.4 AS aggregator_revenue
+    , metrics.fees_usd as aggregator_fees
+    , metrics.fees_usd * 0.66 AS aggregator_revenue
     , metrics.trading_volume AS aggregator_volume
 
     -- Cash Flow Metrics
-    , metrics.fees_usd * 0.4 AS gross_protocol_revenue
-    , coin_metrics.gross_emissions AS token_cash_flow
-    , metrics.fees_usd * 0.6 AS fee_sharing_token_cash_flow
+    , metrics.fees_usd * 0.6 AS gross_protocol_revenue
+    , metrics.fees_usd * 0.6 AS treasury_cash_flow
+    , metrics.fees_usd * 0.4 AS token_cash_flow
 
     -- Supply Metrics
     , coin_metrics.burns AS burns_native
