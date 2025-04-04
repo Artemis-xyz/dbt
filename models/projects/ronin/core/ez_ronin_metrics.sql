@@ -16,6 +16,7 @@ with
     price_data as ({{ get_coingecko_metrics("ronin") }})
 select
     ronin_dex_volumes.date
+    , dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -24,7 +25,7 @@ select
     , token_volume
     , token_turnover_circulating
     -- Chain Usage Metrics
-    , dex_volumes
+    , dex_volumes AS chain_dex_volumes
 from ronin_dex_volumes   
 left join price_data on ronin_dex_volumes.date = price_data.date
 where ronin_dex_volumes.date < to_date(sysdate())

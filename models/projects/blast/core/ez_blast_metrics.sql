@@ -47,6 +47,7 @@ select
     , coalesce(fees_native, 0) - l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     , coalesce(fees, 0) - l1_data_cost as revenue
     , dau_over_100
+    , dune_dex_volumes_blast.dex_volumes as dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -75,7 +76,7 @@ select
     , low_sleep_users
     , high_sleep_users
     , dau_over_100 AS dau_over_100_balance
-    , dune_dex_volumes_blast.dex_volumes as dex_volumes
+    , dune_dex_volumes_blast.dex_volumes as chain_dex_volumes
     -- Developer metrics
     , weekly_contracts_deployed
     , weekly_contract_deployers

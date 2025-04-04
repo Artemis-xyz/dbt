@@ -18,13 +18,13 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
+  chain_dex_volumes: &chain_dex_volumes
+    name: chain_dex_volumes
+    description: "The total volume of DEXes on a chain"
+
   chain_txns: &chain_txns
     name: chain_txns
     description: "Daily transactions on a chain"
-
-  dex_volumes: &dex_volumes
-    name: dex_volumes
-    description: "The total volume of DEXes on a chain"
 
   fdmc: &fdmc
     name: fdmc
@@ -85,8 +85,8 @@ models:
       - *burned_cash_flow
       - *chain_avg_txn_fee
       - *chain_dau
+      - *chain_dex_volumes
       - *chain_txns
-      - *dex_volumes
       - *fdmc
       - *gross_protocol_revenue
       - *market_cap

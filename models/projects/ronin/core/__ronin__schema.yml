@@ -4,8 +4,8 @@
 version: 2
 
 column_definitions:
-  dex_volumes: &dex_volumes
-    name: dex_volumes
+  chain_dex_volumes: &chain_dex_volumes
+    name: chain_dex_volumes
     description: "The total volume of DEXes on a chain"
 
   fdmc: &fdmc
@@ -42,7 +42,7 @@ models:
   - name: ez_ronin_metrics
     description: "This table stores metrics for the RONIN protocol"
     columns:
-      - *dex_volumes
+      - *chain_dex_volumes
       - *fdmc
       - *market_cap
       - *price

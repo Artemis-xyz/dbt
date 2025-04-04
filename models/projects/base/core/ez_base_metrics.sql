@@ -52,6 +52,7 @@ select
     , median_txn_fee
     , dau_over_100
     , nft_trading_volume
+    , dune_dex_volumes_base.dex_volumes AS dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , tvl
@@ -71,7 +72,7 @@ select
     , p2p_native_transfer_volume
     , p2p_token_transfer_volume
     , p2p_transfer_volume
-    , dune_dex_volumes_base.dex_volumes
+    , dune_dex_volumes_base.dex_volumes AS chain_dex_volumes
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_base.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     -- Developer Metrics

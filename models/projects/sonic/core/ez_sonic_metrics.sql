@@ -36,6 +36,7 @@ select
     , fundamentals.fees
     , fundamentals.txns
     , fundamentals.dau
+    , sonic_dex_volumes.dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price_data.price
@@ -44,7 +45,7 @@ select
     -- Chain Usage Metrics
     , fundamentals.dau AS chain_dau
     , fundamentals.txns AS chain_txns
-    , sonic_dex_volumes.dex_volumes AS dex_volumes
+    , sonic_dex_volumes.dex_volumes AS chain_dex_volumes
     -- Cashflow metrics
     , fundamentals.fees AS gross_protocol_revenue
     -- Supply Metrics

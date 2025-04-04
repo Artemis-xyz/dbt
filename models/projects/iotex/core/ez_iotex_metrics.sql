@@ -72,6 +72,7 @@ select
     , supply.mints_usd AS mints_usd
     , supply.mints AS mints_native
     , supply.circulating_supply AS circulating_supply
+    , dex_volume.dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -81,7 +82,7 @@ select
     -- Chain Usage Metrics
     , metrics.dau as chain_dau
     , metrics.txns as chain_txns
-    , dex_volume.dex_volumes as dex_volumes
+    , dex_volume.dex_volumes as chain_dex_volumes
     -- Cashflow Metrics
     , metrics.fees AS gross_protocol_revenue
     , metrics.primary_supply_side_revenue AS validator_cash_flow
