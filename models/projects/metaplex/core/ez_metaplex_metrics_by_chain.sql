@@ -4,7 +4,7 @@
         snowflake_warehouse="metaplex",
         database="metaplex",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
     )
 }}
 -- 2020-10-25
@@ -68,6 +68,7 @@ with date_spine as (
 
 SELECT
     ds.date
+    , 'solana' as chain
     , coalesce(revenue.revenue_usd, 0) as fees
     , coalesce(revenue.revenue_usd, 0) as revenue -- Fees + Revenue are same - 50% fees go to buybacks | the other 50% goes to dao treasury.
     , coalesce(buybacks.buyback, 0) as buyback -- 50% of fees (ie all of revenue) go to buybacks but buybacks are done in batches, at the time of the buyback
