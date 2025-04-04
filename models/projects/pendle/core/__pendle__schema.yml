@@ -15,6 +15,7 @@ column_definitions:
     description: "Revenue distributed to vePENDLE voters."
     tags:
       - artemis_gaap
+      - override
 
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
@@ -55,10 +56,14 @@ column_definitions:
   spot_dau: &spot_dau
     name: spot_dau
     description: "The number of daily active traders on Pendle's AMM"
+    tags:
+      - override
 
   spot_txns: &spot_txns
     name: spot_txns
     description: "The number of daily trades on Pendle's AMM"
+    tags:
+      - override
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
