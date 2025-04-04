@@ -92,29 +92,34 @@ select
     coalesce(treasury_native.treasury_native, 0) as treasury_value_native
 
     -- Standardized Metrics
+    -- Market Metrics
+    , coalesce(market_data.price, 0) as price
+    , coalesce(market_data.market_cap, 0) as market_cap
+    , coalesce(market_data.fdmc, 0) as fdmc
+    , coalesce(market_data.token_volume, 0) as token_volume
+
+    -- Usage/Sector Metrics
     , coalesce(swap_metrics.unique_traders, 0) as spot_dau
     , coalesce(swap_metrics.number_of_swaps, 0) as spot_txns
     , coalesce(swap_metrics.trading_volume, 0) as spot_volume
+    , coalesce(all_tvl.tvl_usd, 0) as tvl
 
+    -- Money Metrics
     , coalesce(swap_metrics.trading_fees, 0) as spot_fees
     , coalesce(swap_metrics.trading_fees, 0) as gross_protocol_revenue
     , coalesce(swap_metrics.service_cash_flow, 0) as service_cash_flow
     , coalesce(swap_metrics.treasury_cash_flow, 0) as treasury_cash_flow
     , coalesce(swap_metrics.vebal_cash_flow, 0) as fee_sharing_token_cash_flow
-
     , coalesce(token_incentives.token_incentives_usd, 0) as token_incentives
-    , coalesce(all_tvl.tvl_usd, 0) as tvl
 
+    -- Treasury Metrics
     , coalesce(treasury.net_treasury_usd, 0) as treasury
     , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
     , coalesce(net_treasury.net_treasury_usd, 0) as net_treasury
 
-    , coalesce(market_data.price, 0) as price
-    , coalesce(market_data.market_cap, 0) as market_cap
-    , coalesce(market_data.fdmc, 0) as fdmc
+    -- Other Metrics
     , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
-    , coalesce(market_data.token_volume, 0) as token_volume
     , coalesce(token_holders.token_holder_count, 0) as tokenholder_count
 
 from date_spine

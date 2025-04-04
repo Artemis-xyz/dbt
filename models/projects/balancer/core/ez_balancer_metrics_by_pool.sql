@@ -54,15 +54,18 @@ select
     , coalesce(tvl.tvl_usd, 0) as net_deposits
 
     -- Standardized Metrics
+    -- Usage/Sector Metrics
     , coalesce(swap_metrics.unique_traders, 0) as spot_dau
     , coalesce(swap_metrics.number_of_swaps, 0) as spot_txns
     , coalesce(swap_metrics.trading_volume, 0) as spot_volume
     , coalesce(swap_metrics.trading_fees, 0) as spot_fees
+    , coalesce(tvl.tvl_usd, 0) as tvl
+
+    -- Money Metrics
     , coalesce(swap_metrics.trading_fees, 0) as gross_protocol_revenue
     , coalesce(swap_metrics.service_cash_flow, 0) as service_cash_flow
     , coalesce(swap_metrics.treasury_cash_flow, 0) as treasury_cash_flow
     , coalesce(swap_metrics.fee_sharing_token_cash_flow, 0) as fee_sharing_token_cash_flow
-    , coalesce(tvl.tvl_usd, 0) as tvl
 from date_pool_spine
 left join swap_metrics using (date, pool_address)
 left join tvl using (date, pool_address)

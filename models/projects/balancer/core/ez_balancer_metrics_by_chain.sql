@@ -103,10 +103,13 @@ select
     , net_treasury.net_treasury_usd as net_treasury_value
 
     -- Standardized Metrics
+    -- Usage/Sector Metrics
     , coalesce(swap_metrics.unique_traders, 0) as spot_dau
     , coalesce(swap_metrics.number_of_swaps, 0) as spot_txns
     , coalesce(swap_metrics.trading_volume, 0) as spot_volume
+    , coalesce(tvl.tvl_usd, 0) as tvl
 
+    -- Money Metrics
     , coalesce(swap_metrics.trading_fees, 0) as spot_fees
     , coalesce(swap_metrics.trading_fees, 0) as gross_protocol_revenue
     , coalesce(swap_metrics.service_cash_flow, 0) as service_cash_flow
@@ -114,7 +117,7 @@ select
     , coalesce(swap_metrics.vebal_cash_flow, 0) as fee_sharing_token_cash_flow
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
 
-    , coalesce(tvl.tvl_usd, 0) as tvl
+    -- Treasury Metrics
     , coalesce(net_treasury.net_treasury_usd, 0) as treasury
     , coalesce(net_treasury.net_treasury_usd, 0) as net_treasury
     , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury

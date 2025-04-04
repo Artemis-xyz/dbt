@@ -12,14 +12,14 @@ column_definitions:
 
   fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
     name: fee_sharing_token_cash_flow
-    description: "Revenue distributed to veBAL holders. Beginning in February 2022, this is 37.5% of fees."
+    description: "Revenue distributed to veBAL holders. Beginning in February 2022, this calculated as 37.5% of trading fees."
     tags:
       - artemis_gaap
       - override
 
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
-    description: "The total value generated through trading fees."
+    description: "The total value generated through trading fees on Balancer v1 and v2."
     tags:
       - artemis_gaap
       - override
@@ -54,7 +54,7 @@ column_definitions:
 
   service_cash_flow: &service_cash_flow
     name: service_cash_flow
-    description: "The share of protocol revenue accrued to LPs of the protocol. Before February 2022, this was 90% of fees, after this date, it is 50% of fees."
+    description: "The share of protocol revenue accrued to LPs of the protocol. Before February 2022, this was 90% of trading fees, after this date, it is 50% of trading fees."
     tags:
       - artemis_gaap
       - override
