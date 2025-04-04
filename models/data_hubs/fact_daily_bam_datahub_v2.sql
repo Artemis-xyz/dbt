@@ -65,6 +65,10 @@ with
         left join
             {{ ref("dim_coingecko_tokens") }} as coingecko_tokens
             on apps.coingecko_id = coingecko_tokens.coingecko_token_id
+    ),
+    distinct_category_map AS (
+        select distinct artemis_category_id, category_display_name
+        from {{ ref("dim_category_datahub") }}
     )
 -- Link Symbols with BAM Data
 select
@@ -81,8 +85,8 @@ select
     bam.app,
     bam.friendly_name,
     app_coingecko.token_symbol as app_symbol,
-    bam.category,
-    lower(replace(bam.category, ' ', '_')) as category_symbol,
+    categories.category_display_name as category,
+    bam.category as category_symbol,
     chain,
     coalesce(chains.symbol, 'all') as chain_symbol,
     bam.gas,
@@ -108,3 +112,4 @@ select
 from bam_data as bam
 left join app_coingecko on bam.app = app_coingecko.app
 left join {{ ref("dim_chain") }} as chains on bam.chain = chains.artemis_id
+left join distinct_category_map as categories on bam.category = categories.artemis_category_id
