@@ -262,6 +262,8 @@ column_definitions:
       description: "The number of transactions on a bridge"
     - name: bridge_volume
       description: "The total volume on a bridge"
+    - name: bridge_fees
+      description: "The total fees on a bridge"
     - name: bridge_dau
       description: "The number of daily active addresses on a bridge"
     - name: bridge_wau
