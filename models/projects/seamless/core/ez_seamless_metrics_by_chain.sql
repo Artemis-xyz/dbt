@@ -19,11 +19,14 @@ with
         }}
     )
 select
-    seamless_by_chain.date,
-    'seamless' as app,
-    'DeFi' as category,
-    seamless_by_chain.chain,
-    seamless_by_chain.daily_borrows_usd,
-    seamless_by_chain.daily_supply_usd
+    seamless_by_chain.date
+    , 'seamless' as app
+    , 'DeFi' as category
+    , seamless_by_chain.chain
+    , seamless_by_chain.daily_borrows_usd
+    , seamless_by_chain.daily_supply_usd
+    -- Standardized metrics
+    , seamless_by_chain.daily_borrows_usd as lending_loans
+    , seamless_by_chain.daily_supply_usd as lending_deposits
 from seamless_by_chain
 where seamless_by_chain.date < to_date(sysdate())

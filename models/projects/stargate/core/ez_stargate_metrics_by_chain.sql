@@ -122,7 +122,6 @@ SELECT
     , inflow
     , outflow
     , tvl
-    , tvl as bridge_tvl
     , treasury
     , hydra_tvl
 FROM chain_metrics

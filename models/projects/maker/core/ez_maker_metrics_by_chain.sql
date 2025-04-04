@@ -16,6 +16,8 @@ WITH
             trading_fees,
             fees,
             primary_revenue,
+            liquidation_revenue,
+            trading_revenue,
             other_revenue,
             protocol_revenue,
             token_incentives,
@@ -59,8 +61,6 @@ WITH
 select
     date
     , 'ethereum' as chain
-    , COALESCE(stability_fees,0) as stability_fees
-    , COALESCE(trading_fees, 0) AS trading_fees
     , COALESCE(fees, 0) AS fees
     , COALESCE(primary_revenue, 0) AS primary_revenue
     , COALESCE(other_revenue, 0) AS other_revenue
@@ -70,11 +70,33 @@ select
     , COALESCE(direct_expenses, 0) AS direct_expenses
     , COALESCE(total_expenses, 0) AS total_expenses
     , COALESCE(protocol_revenue - total_expenses, 0) AS earnings
+    
     , COALESCE(treasury_usd, 0) AS treasury_usd
-    , COALESCE(treasury_native, 0) AS treasury_native
     , COALESCE(net_treasury_usd, 0) AS net_treasury_usd
     , COALESCE(net_deposit, 0) AS net_deposits
     , COALESCE(outstanding_supply, 0) AS outstanding_supply
+    , COALESCE(tokenholder_count, 0) AS tokenholder_count
+
+    -- Standardized metrics
+    , 'Maker' as app
+    , 'DeFi' as category
+    , COALESCE(stability_fees,0) as stability_fees
+    , COALESCE(trading_fees, 0) AS trading_fees
+    , COALESCE(fees, 0) AS gross_protocol_revenue
+
+    , COALESCE(primary_revenue, 0) AS interest_rate_cash_flow
+    , COALESCE(liquidation_revenue, 0) AS liquidation_cash_flow
+    , COALESCE(trading_revenue, 0) AS trading_cash_flow
+    -- token_cash_flow = trading_revenue + liquidation_revenue + interest_rate_cash_flow
+    , COALESCE(protocol_revenue, 0) AS token_cash_flow
+    
+
+    , COALESCE(treasury_usd, 0) AS treasury
+    , COALESCE(treasury_native, 0) AS treasury_native
+
+    , COALESCE(net_deposit, 0) AS lending_deposits
+    , COALESCE(outstanding_supply, 0) AS lending_loans
+
     , COALESCE(tvl, 0) AS tvl
     , COALESCE(price, 0) AS price
     , COALESCE(fdmc, 0) AS fdmc
@@ -82,12 +104,12 @@ select
     , COALESCE(token_volume, 0) AS token_volume
     , COALESCE(token_turnover_fdv, 0) AS token_turnover_fdv
     , COALESCE(token_turnover_circulating, 0) AS token_turnover_circulating
-    , COALESCE(tokenholder_count, 0) AS tokenholder_count
+
+   
 FROM token_holder_data
 left join treasury_usd using (date)
 left join treasury_native using (date)
 left join net_treasury using (date)
-left join tvl_metrics using (date)
 left join outstanding_supply using (date)
 left join token_turnover_metrics using (date)
 left join price_data using (date)

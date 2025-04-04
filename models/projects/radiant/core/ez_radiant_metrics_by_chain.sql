@@ -21,11 +21,14 @@ with
         }}
     )
 select
-    radiant_by_chain.date,
-    'radiant' as app,
-    'DeFi' as category,
-    radiant_by_chain.chain,
-    radiant_by_chain.daily_borrows_usd,
-    radiant_by_chain.daily_supply_usd
+    radiant_by_chain.date
+    , 'radiant' as app
+    , 'DeFi' as category
+    , radiant_by_chain.chain
+    , radiant_by_chain.daily_borrows_usd
+    , radiant_by_chain.daily_supply_usd
+    -- Standardized metrics
+    , radiant_by_chain.daily_borrows_usd as lending_loans
+    , radiant_by_chain.daily_supply_usd as lending_deposits
 from radiant_by_chain
 where radiant_by_chain.date < to_date(sysdate())

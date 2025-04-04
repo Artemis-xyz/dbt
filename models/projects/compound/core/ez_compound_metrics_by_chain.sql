@@ -22,11 +22,14 @@ with
         }}
     )
 select
-    compound_by_chain.date,
-    'compound' as app,
-    'DeFi' as category,
-    compound_by_chain.chain,
-    compound_by_chain.daily_borrows_usd,
-    compound_by_chain.daily_supply_usd
+    compound_by_chain.date
+    , 'compound' as app
+    , 'DeFi' as category
+    , compound_by_chain.chain
+    , compound_by_chain.daily_borrows_usd
+    , compound_by_chain.daily_supply_usd
+    -- Standardized metrics
+    , compound_by_chain.daily_borrows_usd as lending_loans
+    , compound_by_chain.daily_supply_usd as lending_deposits
 from compound_by_chain
 where compound_by_chain.date < to_date(sysdate())
