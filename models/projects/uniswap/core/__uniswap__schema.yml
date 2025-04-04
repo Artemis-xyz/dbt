@@ -12,14 +12,14 @@ column_definitions:
 
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
-    description: "The total USD value generated through trading fees across Uniswap v2 and v3. Calculated as a variable percent on each trade, depending on the pool, and protocol version."
+    description: "The total USD value generated through trading fees across Uniswap v2 and v3. Calculated as a variable take on each trade, depending on the pool, and protocol version."
     tags:
       - artemis_gaap
       - override
 
   gross_protocol_revenue_native: &gross_protocol_revenue_native
     name: gross_protocol_revenue_native
-    description: "The total native token value generated through trading fees across Uniswap v2 and v3."
+    description: "The total native token value generated through trading fees across Uniswap v2 and v3. Calculated as a variable take on each trade, depending on the pool, and protocol version."
     tags:
       - artemis_gaap
       - override
