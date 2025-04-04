@@ -9,40 +9,77 @@
 }}
 
 with
-    trading_volume_data_v1 as (
-        select date, trading_volume, unique_traders, chain
-        from {{ ref("fact_gmx_trading_volume") }}
-        left join {{ ref("fact_gmx_unique_traders") }} using(date, chain)
-        where chain is not null
-    ),
-    v2_data as (
-        select date, trading_volume, unique_traders, chain
-        from {{ ref("fact_gmx_v2_trading_volume_unique_traders") }}
-        where chain is not null
-    ),
-    combined_data as (
+    gmx_dex_swaps_v1 as (
         select 
             date,
             chain,
-            sum(trading_volume) as trading_volume,
-            sum(unique_traders) as unique_traders
-        from (
-            select * from trading_volume_data_v1
-            union all
-            select * from v2_data
-        )
+            count(distinct sender) as spot_dau,
+            sum(amountOut_usd) as spot_volume,
+            sum(amount_fees_usd) as spot_fees,
+            sum(amount_fees_usd) as spot_revenue
+        from {{ ref("fact_gmx_v1_dex_swaps") }}
         group by 1, 2
+    ),
+    gmx_dex_swaps_v2 as (
+        select 
+            date,
+            chain,
+            count(distinct sender) as spot_dau,
+            sum(amountOut_usd) as spot_volume,
+            sum(amount_fees_usd) as spot_fees,
+            sum(amount_fees_usd) as spot_revenue
+        from {{ ref("fact_gmx_v2_dex_swaps") }}
+        group by 1, 2
+    ),
+    tvl_metrics as (
+        select
+            date,
+            chain,
+            sum(tvl_token_adjusted) as tvl
+        from {{ ref("fact_gmx_all_versions_tvl") }}
+        where version = 'v2'
+        group by 1, 2
+
+        union all   
+
+        select
+            date,
+            chain,
+            sum(tvl_token_adjusted) as tvl
+        from {{ ref("fact_gmx_all_versions_tvl") }}
+        where version = 'v1'
+        group by 1, 2
+    ),
+    tvl_metrics_grouped as (
+        select
+            date,
+            chain,
+            sum(tvl) as tvl
+        from tvl_metrics
+        group by 1, 2
+    ),
+    date_spine as (
+        select date, chain
+        from {{ ref("dim_date_spine") }}
+        cross join (select distinct chain from tvl_metrics )
+        where date between '2020-03-01' and to_date(sysdate())
     )
 
 select 
-    date as date,
-    'gmx' as app,
-    'DeFi' as category,
-    chain,
-    trading_volume,
-    unique_traders,
+    date_spine.date as date
+    , date_spine.chain
+    , 'gmx' as app
+    , 'DeFi' as category
+
     --Standardized Metrics
-    trading_volume as perp_volume,
-    unique_traders as perp_dau
-from combined_data
+    , coalesce(gmx_dex_swaps_v1.spot_dau, 0) + coalesce(gmx_dex_swaps_v2.spot_dau, 0) as spot_dau
+    , coalesce(gmx_dex_swaps_v1.spot_volume, 0) + coalesce(gmx_dex_swaps_v2.spot_volume, 0) as spot_volume
+    , coalesce(gmx_dex_swaps_v1.spot_fees, 0) + coalesce(gmx_dex_swaps_v2.spot_fees, 0) as spot_fees
+    , coalesce(gmx_dex_swaps_v1.spot_revenue, 0) + coalesce(gmx_dex_swaps_v2.spot_revenue, 0) as spot_revenue
+    , coalesce(tvl_metrics_grouped.tvl, 0) as tvl
+
+from date_spine
+left join tvl_metrics_grouped using(date, chain)
+left join gmx_dex_swaps_v1 using(date, chain)
+left join gmx_dex_swaps_v2 using(date, chain)
 where date < to_date(sysdate())
