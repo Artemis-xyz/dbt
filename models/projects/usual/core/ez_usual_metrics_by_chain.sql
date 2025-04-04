@@ -47,9 +47,7 @@ with usd0_metrics as (
 )
 select 
     usd0.date
-    , chain as 'base'
-    , usd0.stablecoin_txns as stablecoin_txns
-    , usd0.stablecoin_dau as stablecoin_dau
+    , 'base' as chain
     , usd0.usd0_tvl as usd0_tvl
     , usd0pp.usd0pp_tvl as usd0pp_tvl
     , usual.fees as fees
@@ -63,10 +61,9 @@ select
     -- Standardized Metrics
 
     -- Stablecoin Metrics
-    , coalesce(market_data.stablecoin_dau, 0) as stablecoin_dau
-    , coalesce(market_data.stablecoin_txns, 0) as stablecoin_txns
+    , coalesce(usd0.stablecoin_dau, 0) as stablecoin_dau
+    , coalesce(usd0.stablecoin_txns, 0) as stablecoin_txns
     , coalesce(usd0.usd0_tvl, 0) as stablecoin_total_supply
-    , coalesce(market_data.stablecoin_volume, 0) as stablecoin_volume
 
     -- Crypto metrics
     , coalesce(usd0pp.usd0pp_tvl, 0) as tvl
