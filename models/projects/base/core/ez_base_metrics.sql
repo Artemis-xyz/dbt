@@ -2,7 +2,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="BASE",
         database="base",
         schema="core",
         alias="ez_metrics",
