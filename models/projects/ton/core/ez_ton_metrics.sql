@@ -60,6 +60,8 @@ select
     , fees * price AS gross_protocol_revenue
     , fees_native / 2 AS burned_cash_flow_native
     , (fees_native / 2) * price AS burned_cash_flow
+    , fees_native / 2 AS validator_cash_flow_native
+    , (fees_native / 2) * price AS validator_cash_flow
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
