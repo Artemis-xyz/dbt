@@ -65,6 +65,7 @@ select
     , issuance
     , circulating_supply
     , nft_trading_volume
+    , dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -77,7 +78,7 @@ select
     , mau AS chain_mau
     , txns AS chain_txns
     , nft_trading_volume AS chain_nft_trading_volume
-    , dex_volumes
+    , dex_volumes AS chain_dex_volumes
     -- Cashflow metrics
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
