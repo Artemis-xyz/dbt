@@ -27,28 +27,17 @@ with fees_tvl_metrics as(
     FROM {{ ref('fact_goldfinch_token_incentives') }}
     GROUP BY date
 )
-, treasury_value_cte as (
-    SELECT
-        date,
-        SUM(usd_balance) as treasury_value
-    FROM {{ ref('fact_goldfinch_treasury') }}
-    GROUP BY date
-)
-, treasury_native_value_cte as (
-    SELECT
-        date,
-        SUM(native_balance) as treasury_native_value
-    FROM {{ ref('fact_goldfinch_treasury') }}
-    WHERE token = 'GFI'
-    GROUP BY date
-)
-, net_treasury_value_cte as (
-    SELECT
-        date,
-        SUM(usd_balance) as net_treasury_value
-    FROM {{ ref('fact_goldfinch_treasury') }}
-    WHERE token <> 'GFI'
-    GROUP BY date
+, treasury as (
+    select 
+        date
+        , sum(treasury) as treasury
+        , sum(treasury_native) as treasury_native
+        , sum(net_treasury) as net_treasury
+        , sum(net_treasury_native) as net_treasury_native
+        , sum(own_token_treasury) as own_token_treasury
+        , sum(own_token_treasury_native) as own_token_treasury_native
+    from {{ ref('ez_goldfinch_metrics_by_token') }}
+    group by 1
 )
 , price_data as ({{ get_coingecko_metrics("goldfinch") }})
 , token_holder_data as (
@@ -75,43 +64,49 @@ SELECT
     , coalesce(revenue,0) - coalesce(total_expenses,0) as protocol_earnings
     , m.net_deposits as net_deposits
     , 0 as outstanding_supply
-    , t.treasury_value as treasury_value
-    , tn.treasury_native_value as treasury_value_native
-    , nt.net_treasury_value as net_treasury_value
+    , t.treasury as treasury_value
+    , t.treasury_native as treasury_value_native
+    , t.net_treasury as net_treasury_value
     , {{ daily_pct_change('m.tvl') }} as tvl_growth
     , th.token_holder_count
 
+    -- Standardized Metrics
+
+    -- Token Metrics
+    , pd.price
+    , pd.market_cap
+    , pd.fdmc
+    , pd.token_volume
+
     -- Lending Metrics
-    , m.net_deposits as lending_deposits
-    , m.tvl as lending_loan_capacity
+    , coalesce(outstanding_supply,0) as lending_loans
+    , coalesce(m.net_deposits,0) as lending_deposits
+    , coalesce(m.tvl,0) + coalesce(outstanding_supply,0) as lending_loan_capacity
+    , coalesce(m.interest_fees,0) as lending_interest_fees
 
     -- Crypto Metrics
     , m.tvl as tvl
     , m.tvl - LAG(m.tvl) OVER (ORDER BY date) as tvl_net_change
 
     -- Cash Flow
-    , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) as gross_protocol_revenue
-    , m.supply_side_fees as service_cash_flow
-    , coalesce(ti.token_incentives,0) as token_cash_flow
-    , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) - coalesce(ti.token_incentives,0) as foundation_cash_flow
+    , coalesce(m.interest_fees,0) + coalesce(m.withdrawal_revenue,0) as gross_protocol_revenue
+    , coalesce(m.supply_side_fees,0) as service_cash_flow
+    , coalesce(ti.token_incentives,0) as fee_sharing_token_cash_flow
+    , 0.1*coalesce(m.interest_fees,0) + coalesce(m.withdrawal_revenue,0) as treasury_cash_flow
     
     -- Protocol Metrics
-    , t.treasury_value as treasury
-    , tn.treasury_native_value as treasury_native
-    , tn.treasury_native_value - LAG(tn.treasury_native_value) 
-        OVER (ORDER BY date) AS treasury_native_net_change
+    , t.treasury
+    , t.treasury_native
+    , t.net_treasury
+    , t.net_treasury_native
+    , t.own_token_treasury
+    , t.own_token_treasury_native
 
-    -- Token Metrics
-    , pd.price
-    , pd.market_cap
-    , pd.fdmc
+    -- Turnover Metrics
     , pd.token_turnover_circulating
     , pd.token_turnover_fdv
-    , pd.token_volume
 FROM fees_tvl_metrics m
 LEFT JOIN token_incentives_cte ti using (date)
-LEFT JOIN treasury_value_cte t using (date)
-LEFT JOIN treasury_native_value_cte tn using (date)
-LEFT JOIN net_treasury_value_cte nt using (date)
+LEFT JOIN treasury t using (date)
 LEFT JOIN token_holder_data th using (date)
 LEFT JOIN price_data pd using (date)

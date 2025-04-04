@@ -30,9 +30,13 @@ select
     , tvl_growth
     , token_holder_count
 
+    -- Standardized Metrics
+
     -- Lending Metrics
+    , lending_loans
     , lending_deposits
     , lending_loan_capacity
+    , lending_interest_fees
 
     -- Crypto Metrics
     , tvl
@@ -41,12 +45,15 @@ select
     -- Cash Flow
     , gross_protocol_revenue
     , service_cash_flow
-    , token_cash_flow
-    , foundation_cash_flow
+    , fee_sharing_token_cash_flow
+    , treasury_cash_flow
     
     -- Protocol Metrics
     , treasury
     , treasury_native
-    , treasury_native_net_change
+    , net_treasury
+    , net_treasury_native
+    , own_token_treasury
+    , own_token_treasury_native
 
 from {{ ref('ez_goldfinch_metrics') }}

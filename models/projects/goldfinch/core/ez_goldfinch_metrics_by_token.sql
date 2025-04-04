@@ -29,32 +29,35 @@ with fees_tvl_metrics as(
     FROM {{ ref('fact_goldfinch_token_incentives') }}
     GROUP BY date, token
 )
-, treasury_value_cte as (
-    SELECT
-        date,
-        token,
-        SUM(native_balance) as treasury_value
-    FROM {{ ref('fact_goldfinch_treasury') }}
-    GROUP BY date, token
-)
-, treasury_native_value_cte as (
-    SELECT
-        date,
-        token,
-        SUM(native_balance) as treasury_native_value
-    FROM {{ ref('fact_goldfinch_treasury') }}
-    WHERE token = 'GFI'
-    GROUP BY date, token
-)
-, net_treasury_value_cte as (
-    SELECT
-        date,
-        token,
-        SUM(native_balance) as net_treasury_value
-    FROM {{ ref('fact_goldfinch_treasury') }}
-    WHERE token <> 'GFI'
-    GROUP BY date, token
-)
+    , treasury_by_token as (
+        select
+            date,
+            token,
+            sum(usd_balance) as treasury,
+            sum(native_balance) as treasury_native
+        from {{ ref('fact_goldfinch_treasury') }}
+        group by 1, 2
+    )
+    , net_treasury as (
+        select
+            date,
+            token,
+            sum(usd_balance) as net_treasury,
+            sum(native_balance) as net_treasury_native
+        from {{ ref('fact_goldfinch_treasury') }}
+        where token != 'GFI'
+        group by 1, 2
+    )
+    , treasury_native as (
+        select
+            date,
+            token,
+            sum(usd_balance) as own_token_treasury,
+            sum(native_balance) as own_token_treasury_native
+        from {{ ref('fact_goldfinch_treasury') }}
+        where token = 'GFI'
+        group by 1, 2
+    ) 
 , token_holder_data as (
     select
         date
@@ -80,28 +83,38 @@ SELECT
     , coalesce(revenue,0) - coalesce(total_expenses,0) as protocol_earnings
     , coalesce(m.net_deposits,0) as net_deposits
     , 0 as outstanding_supply
-    , coalesce(nt.net_treasury_value,0) as net_treasury_value
+    , coalesce(nt.net_treasury,0) as net_treasury_value
     , coalesce(th.token_holder_count,0) as token_holder_count
+
+    -- Standardized Metrics
+
+    -- Lending Metrics
+    , coalesce(outstanding_supply,0) as lending_loans
+    , coalesce(m.net_deposits,0) as lending_deposits
+    , coalesce(m.tvl,0) + coalesce(outstanding_supply,0) as lending_loan_capacity
+    , coalesce(m.interest_fees,0) as lending_interest_fees
 
     -- Crypto Metrics
     , coalesce(m.tvl,0) as tvl
     , coalesce(m.tvl,0) - LAG(coalesce(m.tvl,0)) OVER (ORDER BY date) as tvl_net_change
 
     -- Cash Flow
-    , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) as gross_protocol_revenue
+    , coalesce(m.interest_fees,0) + coalesce(m.withdrawal_revenue,0) as gross_protocol_revenue
     , coalesce(m.supply_side_fees,0) as service_cash_flow
-    , coalesce(ti.token_incentives,0) as token_cash_flow
-    , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) - coalesce(ti.token_incentives,0) as foundation_cash_flow
+    , coalesce(ti.token_incentives,0) as fee_sharing_token_cash_flow
+    , 0.1*coalesce(m.interest_fees,0) + coalesce(m.withdrawal_revenue,0) as treasury_cash_flow
     
     -- Protocol Metrics
-    , coalesce(t.treasury_value,0) as treasury
-    , coalesce(tn.treasury_native_value,0) as treasury_native
-    , coalesce(tn.treasury_native_value,0) - LAG(coalesce(tn.treasury_native_value,0)) 
-        OVER (ORDER BY date) AS treasury_native_net_change
+    , coalesce(t.treasury, 0) as treasury
+    , coalesce(t.treasury_native, 0) as treasury_native
+    , coalesce(nt.net_treasury, 0) as net_treasury
+    , coalesce(nt.net_treasury_native, 0) as net_treasury_native
+    , coalesce(tn.own_token_treasury, 0) as own_token_treasury
+    , coalesce(tn.own_token_treasury_native, 0) as own_token_treasury_native
 FROM fees_tvl_metrics m
 FULL JOIN token_incentives_cte ti using (date, token)
-FULL JOIN treasury_value_cte t using (date, token)
-FULL JOIN treasury_native_value_cte tn using (date, token)
-FULL JOIN net_treasury_value_cte nt using (date, token)
+FULL JOIN treasury_by_token t using (date, token)
+FULL JOIN treasury_native tn using (date, token)
+FULL JOIN net_treasury nt using (date, token)
 FULL JOIN token_holder_data th using (date, token)
 WHERE coalesce(m.date, ti.date, t.date, tn.date, nt.date, th.date) < to_date(sysdate())
