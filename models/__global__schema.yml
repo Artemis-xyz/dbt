@@ -47,6 +47,12 @@ column_definitions:
     - name: burned_cash_flow
       description: "The amount of USD value burned"
       tags: [artemis_gaap]
+    - name: l1_cash_flow_native
+      description: "The total native value of L1 cash flow on a chain"
+      tags: [artemis_gaap]
+    - name: l1_cash_flow
+      description: "The total USD value of L1 cash flow on a chain"
+      tags: [artemis_gaap]
   token_metrics:
     - name: price
       description: "The price of a token in USD"
@@ -92,12 +98,6 @@ column_definitions:
       description: "The average transaction fee on a chain"
     - name: chain_median_txn_fee
       description: "The median transaction fee on a chain"
-    - name: l1_cash_flow_native
-      description: "The total native value of L1 cash flow on a chain"
-      tags: [artemis_gaap]
-    - name: l1_cash_flow
-      description: "The total USD value of L1 cash flow on a chain"
-      tags: [artemis_gaap]
     - name: priority_fee_native
       description: "The total native value of priority fees on a chain"
       tags: [artemis_gaap]
