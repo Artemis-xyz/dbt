@@ -6,15 +6,21 @@ version: 2
 column_definitions:
   spot_dau: &spot_dau
     name: spot_dau
-    description: "The number of daily active traders on a spot dex"
+    description: "The number of daily active traders on Meteora's DLMM"
+    tags:
+      - override
 
   spot_txns: &spot_txns
     name: spot_txns
-    description: "The number of daily trades on a spot dex"
+    description: "The number of daily trades on Meteora's DLMM"
+    tags:
+      - override
 
   spot_volume: &spot_volume
     name: spot_volume
     description: "The total volume on a spot dex"
+    tags:
+      - override
 
 models:
   - name: ez_meteora_metrics_by_chain
