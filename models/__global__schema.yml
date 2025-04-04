@@ -67,10 +67,10 @@ column_definitions:
       description: "The volume of a token in USD"
       tags: [artemis_gaap]
     - name: token_turnover_circulating
-      description: "The turnover of a token in USD"
+      description: "The turnover of a token in USD, based on the token's circulating supply."
       tags: [artemis_gaap]
     - name: token_turnover_fdv
-      description: "The turnover of a token in USD"
+      description: "The turnover of a token in USD, based on the token's fully diluted supply."
       tags: [artemis_gaap]
 
   crypto_metrics:
