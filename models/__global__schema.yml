@@ -257,6 +257,20 @@ column_definitions:
     - name: spot_revenue
       description: "The total revenue on a spot dex"
 
+  nft_metrics: 
+    - name: nft_dau
+      description: "The number of daily active NFT traders on an NFT marketplace"
+    - name: nft_txns
+      description: "The number of NFT transactions on an NFT marketplace"
+    - name: nft_fees
+      description: "The total amount of fees (in USD) on an NFT marketplace"
+    - name: nft_volume
+      description: "The total volume of NFTs traded on an NFT marketplace"
+    - name: nft_collections_transacted
+      description: "The number of NFT collections transacted on an NFT marketplace"
+    - name: nft_royalties
+      description: "The total amount of royalties (in USD) distributed to creators on an NFT marketplace"
+  
   bridge_metrics:
     - name: bridge_txns
       description: "The number of transactions on a bridge"
