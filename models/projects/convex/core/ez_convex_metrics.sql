@@ -39,9 +39,12 @@ with date_spine as (
 , treasury as (
     select 
         date
-        , sum(coalesce(treasury, 0)) as treasury
-        , sum(coalesce(net_treasury, 0)) as net_treasury
-        , sum(coalesce(own_token_treasury, 0)) as own_token_treasury
+        , sum(treasury) as treasury
+        , sum(treasury_native) as treasury_native
+        , sum(net_treasury) as net_treasury
+        , sum(net_treasury_native) as net_treasury_native
+        , sum(own_token_treasury) as own_token_treasury
+        , sum(own_token_treasury_native) as own_token_treasury_native
     from {{ ref('ez_convex_metrics_by_token') }}
     group by 1
 )
@@ -88,8 +91,11 @@ select
 
     -- Protocol Metrics
     , treasury.treasury
+    , treasury.treasury_native
     , treasury.net_treasury
-    , treasury.own_token_treasury  
+    , treasury.net_treasury_native
+    , treasury.own_token_treasury
+    , treasury.own_token_treasury_native
 
     -- Turnover Metrics
     , market_data.token_turnover_circulating
