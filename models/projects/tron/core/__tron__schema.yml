@@ -44,9 +44,25 @@ column_definitions:
     name: chain_avg_txn_fee
     description: "The average transaction fee on a chain"
 
+  chain_dau: &chain_dau
+    name: chain_dau
+    description: "Daily unique users on a chain"
+
+  chain_mau: &chain_mau
+    name: chain_mau
+    description: "Monthly unique users on a chain"
+
   chain_median_txn_fee: &chain_median_txn_fee
     name: chain_median_txn_fee
     description: "The median transaction fee on a chain"
+
+  chain_txns: &chain_txns
+    name: chain_txns
+    description: "Daily transactions on a chain"
+
+  chain_wau: &chain_wau
+    name: chain_wau
+    description: "Weekly unique users on a chain"
 
   dau_over_100_balance: &dau_over_100_balance
     name: dau_over_100_balance
@@ -265,7 +281,11 @@ models:
       - *burned_cash_flow
       - *burned_cash_flow_native
       - *chain_avg_txn_fee
+      - *chain_dau
+      - *chain_mau
       - *chain_median_txn_fee
+      - *chain_txns
+      - *chain_wau
       - *dau_over_100_balance
       - *dex_volumes
       - *fdmc
