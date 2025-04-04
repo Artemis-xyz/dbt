@@ -66,15 +66,16 @@ select
     , trading_volume_by_chain.unique_traders
 
     -- Standardized Metrics
-    , tvl_by_chain.tvl
+    -- Usage/Sector Metrics
     , trading_volume_by_chain.trading_volume as spot_volume
     , trading_volume_by_chain.unique_traders as spot_dau
+    , tvl_by_chain.tvl
 
+    -- Money Metrics
     , trading_volume_by_chain.trading_fees as spot_fees
     , trading_volume_by_chain.trading_fees as gross_protocol_revenue
     , trading_volume_by_chain.trading_fees * 0.5 as fee_sharing_token_cash_flow
     , trading_volume_by_chain.trading_fees * 0.5 as service_cash_flow
-
     , trading_volume_by_chain.gas_cost_native
     , trading_volume_by_chain.gas_cost_usd as gas_cost
 from tvl_by_chain

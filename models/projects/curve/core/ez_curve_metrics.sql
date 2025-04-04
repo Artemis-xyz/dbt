@@ -28,13 +28,21 @@ with
             sum(trading_volume_by_pool.trading_volume) as trading_volume,
             sum(trading_volume_by_pool.trading_fees) as trading_fees,
             sum(trading_volume_by_pool.trading_revenue) as trading_revenue,
-            sum(trading_volume_by_pool.unique_traders) as unique_traders,
             sum(trading_volume_by_pool.gas_cost_native) as gas_cost_native,
             sum(trading_volume_by_pool.gas_cost_usd) as gas_cost_usd
         from trading_volume_by_pool
         group by trading_volume_by_pool.date
     ),
-    tvl_by_pool as (
+    , ez_dex_swaps as (
+        SELECT
+            block_timestamp::date as date,
+            count(distinct sender) as unique_traders,
+            count(*) as spot_txns
+        FROM
+            {{ ref('ez_curve_dex_swaps') }}
+        group by 1
+    )
+    , tvl_by_pool as (
        {{
             dbt_utils.union_relations(
                 relations=[
@@ -63,22 +71,32 @@ select
     , 'DeFi' as category
 
     -- Standardized Metrics
-    , tvl.tvl
+    -- Market Metrics
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
+
+    -- Usage/Sector Metrics
+    , ez_dex_swaps.unique_traders as spot_dau
+    , ez_dex_swaps.spot_txns
     , trading_volume.trading_volume as spot_volume
-    , trading_volume.unique_traders as spot_dau
+    , tvl.tvl
+
+    -- Money Metrics
     , trading_volume.trading_fees as spot_fees
     , trading_volume.trading_fees as gross_protocol_revenue
     , trading_volume.trading_fees * 0.5 as fee_sharing_token_cash_flow
     , trading_volume.trading_fees * 0.5 as service_cash_flow
     , trading_volume.gas_cost_native
     , trading_volume.gas_cost_usd as gas_cost
-    , market_metrics.price
-    , market_metrics.market_cap
-    , market_metrics.fdmc
+
+
+    -- Other Metrics
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
-    , market_metrics.token_volume
 from tvl
 left join trading_volume using(date)
 left join market_metrics using(date)
+left join ez_dex_swaps using(date)
 where tvl.date < to_date(sysdate())
