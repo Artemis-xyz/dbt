@@ -62,6 +62,8 @@ with
 SELECT
     f.date
     , f.chain
+    , COALESCE(d.daus, 0) as dau
+    , COALESCE(d.daily_txns, 0) as daily_txns
     , COALESCE(f.swap_fees, 0) as swap_fees
     , COALESCE(yf.yield_revenue, 0) as yield_fees
     , COALESCE(swap_fees,0) + COALESCE(yield_fees,0) as fees
@@ -72,15 +74,28 @@ SELECT
     , COALESCE(yf.yield_revenue, 0) as yield_revenue_vependle
     , swap_revenue_vependle + yield_revenue_vependle as total_revenue_vependle
     , 0 as protocol_revenue
-    , COALESCE(ti.token_incentives, 0) as token_incentives
     , 0 as operating_expenses
     , COALESCE(ti.token_incentives, 0) as total_expenses
-    , COALESCE(ti.token_incentives_native, 0) as mints_native
     , protocol_revenue - total_expenses as protocol_earnings
-    , COALESCE(d.daus, 0) as dau
-    , COALESCE(d.daily_txns, 0) as daily_txns
-    , COALESCE(t.tvl, 0) as tvl
     , COALESCE(t.tvl, 0) as net_deposits
+
+    -- Standardized Metrics
+    -- Usage/Sector Metrics
+    , COALESCE(d.daus, 0) as spot_dau
+    , COALESCE(d.daily_txns, 0) as spot_txns
+    , COALESCE(t.tvl, 0) as tvl
+
+    -- Money Metrics
+    , COALESCE(yf.yield_revenue, 0) as yield_generated
+    , COALESCE(f.swap_fees, 0) as spot_fees
+    , COALESCE(f.swap_fees, 0) + COALESCE(yf.yield_revenue, 0) as gross_protocol_revenue
+    , COALESCE(f.swap_revenue, 0) + COALESCE(yf.yield_revenue, 0) as fee_sharing_token_cash_flow
+    , COALESCE(f.swap_revenue, 0) as spot_fee_sharing_token_cash_flow
+    , COALESCE(yf.yield_revenue, 0) as yield_fee_sharing_token_cash_flow
+    , COALESCE(f.supply_side_fees, 0) as service_cash_flow
+    , COALESCE(ti.token_incentives, 0) as token_incentives
+    , COALESCE(ti.token_incentives_native, 0) as mints_native
+    
 FROM swap_fees f
 LEFT JOIN yield_fees yf USING (date, chain)
 LEFT JOIN daus_txns d USING (date, chain)

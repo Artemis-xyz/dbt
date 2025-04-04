@@ -61,11 +61,24 @@ SELECT
     , COALESCE(yf.yield_revenue, 0) as yield_revenue_vependle
     , swap_revenue_vependle + yield_revenue_vependle as total_revenue_vependle
     , 0 as protocol_revenue
-    , COALESCE(ti.token_incentives, 0) as token_incentives
     , 0 as operating_expenses
     , COALESCE(ti.token_incentives, 0) as total_expenses
     , protocol_revenue - total_expenses as protocol_earnings
+
+    -- Standardized Metrics
+    
+    -- Usage/Sector Metrics
     , COALESCE(t.tvl, 0) as tvl
+
+    , f.swap_fees as spot_fees
+    , COALESCE(yf.yield_revenue, 0) as yield_generated
+    , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as gross_protocol_revenue
+    , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as fee_sharing_token_cash_flow
+    , coalesce(f.swap_revenue, 0) as spot_fee_sharing_token_cash_flow
+    , coalesce(yf.yield_revenue, 0) as yield_fee_sharing_token_cash_flow
+    , f.supply_side_fees as service_cash_flow -- LPs get 20% of explicit swap fees https://docs.pendle.finance/ProtocolMechanics/PendleMarketAPYCalculation#swapfeeapy--voterapr
+    , COALESCE(ti.token_incentives, 0) as token_incentives
+
 FROM swap_fees f
 FULL JOIN yield_fees yf USING (date, token)
 FULL JOIN token_incentives_cte ti USING (date, token)
