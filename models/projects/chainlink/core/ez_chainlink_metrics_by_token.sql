@@ -181,6 +181,8 @@ select
     date
     , chain
     , token
+
+    --Old Metrics needed for compatibility
     , coalesce(automation_fees, 0) as automation_fees
     , coalesce(automation_fees_native, 0) as automation_fees_native
     , coalesce(ccip_fees, 0) as ccip_fees
@@ -210,6 +212,23 @@ select
     , coalesce(operating_expenses_native, 0) + coalesce(token_incentives_native, 0) as total_expenses_native
     , protocol_revenue - total_expenses as earnings
     , protocol_revenue - total_expenses_native as earnings_native
+
+    --Standardization Metrics
+    , coalesce(automation_fees, 0) as automation_fees_standard
+    , coalesce(ccip_fees, 0) as ccip_fees_standard
+    , coalesce(vrf_fees, 0) as vrf_fees_standard
+    , coalesce(direct_fees, 0) as direct_fees_standard
+    , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as total_protocol_fees_standard
+    , coalesce(ocr_fees, 0) as ocr_fees_standard
+    , coalesce(fm_fees, 0) as fm_fees_standard
+    , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as total_supply_side_fees_standard
+    , total_protocol_fees_standard + total_supply_side_fees_standard as gross_protocol_revenue_standard
+    , 0 as protocol_revenue_standard
+    , total_supply_side_fees_standard as supply_side_revenue_standard
+    , total_protocol_fees_standard as operating_expenses_standard
+    , token_incentives as token_incentives_standard
+    , coalesce(operating_expenses, 0) + coalesce(token_incentives, 0) as total_expenses_standard
+    , protocol_revenue - total_expenses as protocol_earnings_standard
 from fm_fees_data
 left join orc_fees_data using(date, chain, token)
 left join automation_fees_data using(date, chain, token)

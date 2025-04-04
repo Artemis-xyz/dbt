@@ -82,9 +82,11 @@ with
     )
 select
     p.date
+
+    --Old metrics needed for compatibility
     , COALESCE(f.cl_rewards_usd, 0) as cl_rewards_usd
     , COALESCE(f.el_rewards_usd, 0) as el_rewards_usd
-    , COALESCE(f.deposit_fees, 0) as deposit_fees
+    , COALESCE(f.deposit_fees, 0) as lst_deposit_fees
     , COALESCE(f.fees, 0) as fees
     , COALESCE(f.primary_supply_side_revenue, 0) as primary_supply_side_revenue
     , COALESCE(f.secondary_supply_side_revenue, 0) as secondary_supply_side_revenue
@@ -100,6 +102,28 @@ select
     , COALESCE(t.treasury_value, 0) as treasury_value
     , COALESCE(tn.treasury_native, 0) as treasury_value_native
     , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
+    , COALESCE(th.token_holder_count, 0) as token_holder_count
+
+    --Standardized Metrics
+    , COALESCE(f.cl_rewards_usd, 0) as mev_priority_ecosystem_fees
+    , COALESCE(f.el_rewards_usd, 0) as block_rewards_ecosystem_fees
+    , COALESCE(f.deposit_fees, 0) as deposit_fees
+    , COALESCE(f.fees, 0) as gross_protocol_revenue
+    , gross_protocol_revenue * 0.14 as ecosystem_revenue
+    , gross_protocol_revenue - ecosystem_revenue as lp_revenue
+    , COALESCE(f.operating_expenses, 0) as operating_expenses
+    , COALESCE(ti.token_incentives, 0) as token_incentives
+    , token_incentives + operating_expenses as total_expenses
+    , COALESCE(t.treasury_value, 0) as treasury_value
+    , COALESCE(tn.treasury_native, 0) as treasury_value_native
+    , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
+    , os.reth_supply as outstanding_supply
+    , staked_eth_metrics.num_staked_eth as tvl_native
+    , staked_eth_metrics.amount_staked_usd as tvl
+    , staked_eth_metrics.num_staked_eth_net_change as tvl_native_net_change
+    , staked_eth_metrics.amount_staked_usd_net_change as tvl_net_change
+    
+    --Market Metrics
     , COALESCE(p.fdmc, 0) as fdmc
     , COALESCE(p.market_cap, 0) as market_cap
     , COALESCE(p.token_volume, 0) as token_volume

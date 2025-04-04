@@ -4,7 +4,7 @@
         snowflake_warehouse="marinade",
         database="marinade",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
     )
 }}
 
@@ -59,6 +59,7 @@ market_metrics as (
 
 select
     date
+    , 'solana' as chain
 
     --Old metrics needed for compatibility
     , liquid
@@ -87,9 +88,9 @@ select
     , fees_native as total_protocol_fees_native
     , total_protocol_fees_native * price as total_protocol_fees
     , case when 
-        date < '2024-08-18' then unstaking_fees * 0.25 + total_protocol_fees
+        date < '2024-08-18' then unstaking_fees * 0.25 + fees
     -- when v2 fees are active, 100% goes to the protocol
-        else total_protocol_fees 
+        else fees 
     end as gross_protocol_revenue
     , unstaking_fees * 0.75 as supply_side_revenue
     , dau as lst_dau

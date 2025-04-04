@@ -6,19 +6,27 @@ version: 2
 column_definitions:
   tvl: &tvl
     name: tvl
-    description: "The total value locked in a protocol"
+    description: "The total value in usd restaked using etherfi restaking protocol"
+    tags:
+      - override
 
   tvl_native: &tvl_native
     name: tvl_native
-    description: "The total value locked in a protocol in the native currency of the protocol"
+    description: "The total value restaked using etherfi restaking protocol in the native currency of the protocol"
+    tags:
+      - override
 
   tvl_native_net_change: &tvl_native_net_change
     name: tvl_native_net_change
-    description: "The net change in the total value locked in a protocol in the native currency of the protocol"
+    description: "The net change in the total value restaked using etherfi restaking protocol in the native currency of the protocol"
+    tags:
+      - override
 
   tvl_net_change: &tvl_net_change
     name: tvl_net_change
-    description: "The net change in the total value locked in a protocol"
+    description: "The net change in the total value restaked using etherfi restaking protocol"
+    tags:
+      - override
 
 models:
   - name: ez_etherfi_metrics_by_chain
