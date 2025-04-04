@@ -1,0 +1,64 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  gross_protocol_revenue: &gross_protocol_revenue
+    name: gross_protocol_revenue
+    description: "Total trading fees paid on PancakeSwap"
+    tags:
+      - artemis_gaap
+      - override
+
+  service_cash_flow: &service_cash_flow
+    name: service_cash_flow
+    description: "About ~68% of gross protocol revenue is distributed to LPs of PancakeSwap."
+    tags:
+      - artemis_gaap
+      - override
+
+  spot_dau: &spot_dau
+    name: spot_dau
+    description: "The number of daily active traders on PancakeSwap"
+    tags:
+      - override
+
+  spot_volume: &spot_volume
+    name: spot_volume
+    description: "The total volume on PancakeSwap"
+    tags:
+      - override
+
+  tvl: &tvl
+    name: tvl
+    description: "The total value locked in a protocol"
+
+models:
+  - name: ez_pancakeswap_metrics_by_pool
+    description: "This table stores metrics for the PANCAKESWAP protocol"
+    columns:
+      - *gross_protocol_revenue
+      - *service_cash_flow
+      - *spot_dau
+      - *spot_volume
+      - *tvl
+
+  - name: ez_pancakeswap_metrics_by_chain
+    description: "This table stores metrics for the PANCAKESWAP protocol"
+    columns:
+      - *gross_protocol_revenue
+      - *service_cash_flow
+      - *spot_dau
+      - *spot_volume
+      - *tvl
+
+  - name: ez_pancakeswap_metrics
+    description: "This table stores metrics for the PANCAKESWAP protocol"
+    columns:
+      - *gross_protocol_revenue
+      - *service_cash_flow
+      - *spot_dau
+      - *spot_volume
+      - *tvl
+

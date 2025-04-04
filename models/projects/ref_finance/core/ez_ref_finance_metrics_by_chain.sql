@@ -12,12 +12,15 @@
 select
     date,
     'near' as chain,
-    trading_fees,
-    revenue,
-    tvl,
     daily_swaps,
     unique_traders,
     trading_volume,
+
+    -- Standardized Metrics
+    unique_traders as spot_dau,
+    daily_swaps as spot_txns,
+    trading_volume as spot_volume,
+
     price,
     market_cap,
     fdmc,

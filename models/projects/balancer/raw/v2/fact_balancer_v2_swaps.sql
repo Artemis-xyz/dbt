@@ -57,8 +57,14 @@ select
     when block_timestamp::date > '2021-12-13'
         then 0.1
     end as protocol_fee_pct,
-    fee_usd * protocol_fee_pct as revenue,
-    fee_native * protocol_fee_pct as revenue_native,
-    fee_usd * (1 - protocol_fee_pct) as supply_side_revenue_usd,
-    fee_native * (1 - protocol_fee_pct) as supply_side_revenue_native
+    CASE WHEN block_timestamp::date > '2022-02-16'
+        then 0.125
+        else 0
+    end as vebal_fee_pct,
+    fee_usd * protocol_fee_pct as treasury_cash_flow,
+    fee_native * protocol_fee_pct as treasury_cash_flow_native,
+    fee_usd * vebal_fee_pct as vebal_cash_flow,
+    fee_native * vebal_fee_pct as vebal_cash_flow_native,
+    fee_usd * (1 - (protocol_fee_pct + vebal_fee_pct)) as service_cash_flow,
+    fee_native * (1 - (protocol_fee_pct + vebal_fee_pct)) as service_cash_flow_native
 from unioned_swaps

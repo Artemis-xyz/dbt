@@ -115,7 +115,10 @@ SELECT
     swapFee AS swap_fee_pct,
     swapFeeUSD AS fee_usd,
     swapFeeNative as fee_native,
-    0 as revenue,
-    swapFeeUSD as supply_side_revenue_usd,
-    swapFeeNative as supply_side_revenue_native
+    0 as treasury_cash_flow,
+    0 as treasury_cash_flow_native,
+    0 as vebal_cash_flow,
+    0 as vebal_cash_flow_native,
+    swapFeeUSD as service_cash_flow,
+    swapFeeNative as service_cash_flow_native
 FROM SWAPS_USD
