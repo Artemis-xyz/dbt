@@ -129,10 +129,13 @@ models:
       - *fee_sharing_token_cash_flow
       - *gross_protocol_revenue
       - *net_treasury
+      - *net_treasury_native
+      - *own_token_treasury
       - *own_token_treasury_native
       - *service_cash_flow
       - *treasury
       - *treasury_cash_flow
+      - *treasury_native
       - *tvl
       - *tvl_net_change
 
@@ -160,7 +163,9 @@ models:
       - *gross_protocol_revenue
       - *market_cap
       - *net_treasury
+      - *net_treasury_native
       - *own_token_treasury
+      - *own_token_treasury_native
       - *price
       - *service_cash_flow
       - *token_turnover_circulating
@@ -168,6 +173,7 @@ models:
       - *token_volume
       - *treasury
       - *treasury_cash_flow
+      - *treasury_native
       - *tvl
       - *tvl_net_change
 
