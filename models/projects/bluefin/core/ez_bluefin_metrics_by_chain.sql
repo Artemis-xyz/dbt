@@ -15,10 +15,12 @@ with
         from {{ ref("fact_bluefin_trading_volume_silver") }}
     )
 select
-    date,
-    'bluefin' as app,
-    'DeFi' as category,
-    chain,
-    trading_volume
+    date
+    , 'bluefin' as app
+    , 'DeFi' as category
+    , chain
+    , trading_volume
+    -- standardize metrics
+    , trading_volume as perp_volume
 from trading_volume_data
 where date < to_date(sysdate())

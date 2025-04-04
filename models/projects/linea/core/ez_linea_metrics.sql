@@ -47,14 +47,30 @@ select
     , revenue_native
     , l1_data_cost
     , l1_data_cost_native
+    -- Standardized Metrics
+    -- Market Data Metrics
     , tvl
+    -- Chain Usage Metrics
+    , txns AS chain_txns
+    , dau AS chain_dau
+    , wau AS chain_wau
+    , mau AS chain_mau
+    , dune_dex_volumes_linea.dex_volumes
+    , fees / txns as chain_avg_txn_fee
+    -- Cashflow Metrics
+    , fees AS gross_protocol_revenue
+    , fees_native AS gross_protocol_revenue_native
+    , revenue AS burned_cash_flow
+    , revenue_native AS burned_cash_flow_native
+    , l1_data_cost_native AS l1_cash_flow_native
+    , l1_data_cost AS l1_cash_flow
+    -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
-    , dune_dex_volumes_linea.dex_volumes
 from fundamental_data
 left join github_data using (date)
 left join contract_data using (date)
