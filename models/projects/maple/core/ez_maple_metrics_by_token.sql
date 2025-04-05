@@ -43,32 +43,35 @@ with fees as (
 --     FROM {{ ref('fact_maple_agg_tvl') }}
 --     GROUP BY 1, 2
 -- )
-, treasury as (
-    SELECT
+, treasury_by_token as (
+    select
         date,
         token,
-        SUM(native_balance) AS treasury_value_native
-    FROM {{ ref('fact_maple_treasury') }}
-    GROUP BY 1, 2
-)
-, treasury_native as (
-    SELECT
-        date,
-        token,
-        SUM(native_balance) AS treasury_native
-    FROM {{ ref('fact_maple_treasury') }}
-    WHERE token = 'MPL'
-    GROUP BY 1, 2
+        sum(usd_balance) as treasury,
+        sum(native_balance) as treasury_native
+    from {{ ref('fact_maple_treasury') }}
+    group by 1, 2
 )
 , net_treasury as (
-    SELECT
+    select
         date,
         token,
-        SUM(native_balance) AS net_treasury_value
-    FROM {{ ref('fact_maple_treasury') }}
-    WHERE token <> 'MPL'
-    GROUP BY 1, 2
+        sum(usd_balance) as net_treasury,
+        sum(native_balance) as net_treasury_native
+    from {{ ref('fact_maple_treasury') }}
+    where token != 'MPL'
+    group by 1, 2
 )
+, treasury_native as (
+    select
+        date,
+        token,
+        sum(usd_balance) as own_token_treasury,
+        sum(native_balance) as own_token_treasury_native
+    from {{ ref('fact_maple_treasury') }}
+    where token = 'MPL'
+    group by 1, 2
+)  
 
 SELECT
     coalesce(fees.date, revenues.date, token_incentives.date, treasury.date) as date,
@@ -84,8 +87,8 @@ SELECT
     revenues.revenue_native - token_incentives.token_incentives_native as protocol_earnings_native
     -- , tvl.tvl_native
     -- , tvl.tvl_native as net_deposits_native
-    , treasury.treasury_value_native
-    , net_treasury.net_treasury_value
+    , treasury_native.own_token_treasury as treasury_value_native
+    , net_treasury.net_treasury as net_treasury_value
 
     -- Standardized Metrics
 
@@ -94,23 +97,25 @@ SELECT
 
     -- Cash Flow Metrics
     , coalesce(revenues.revenue_native, 0) as gross_protocol_revenue_native
-    , coalesce(interest_fees_native, 0) - coalesce(platform_fees_native, 0) - coalesce(delegate_fees_native, 0) as fee_sharing_token_cash_flow_native 
+    , coalesce(interest_fees_native, 0) - coalesce(platform_fees_native, 0) as fee_sharing_token_cash_flow_native 
         -- If delegate fees = 1/3 * platform fees, then this should be reflected.
     , coalesce(delegate_fees_native, 0) as service_cash_flow_native
     , 2/3 * coalesce(platform_fees_native, 0) as treasury_cash_flow_native
     , coalesce(token_incentives.token_incentives_native, 0) as token_cash_flow_native
 
-
     -- Protocol Metrics
-    , coalesce(treasury_native.treasury_native, 0) as treasury_native
-    , coalesce(treasury_native.treasury_native, 0)
-        - lag(treasury_native.treasury_native, 0) over (order by date) as treasury_native_net_change
+    , coalesce(treasury_by_token.treasury, 0) as treasury
+    , coalesce(treasury_by_token.treasury_native, 0) as treasury_native
+    , coalesce(net_treasury.net_treasury, 0) as net_treasury
+    , coalesce(net_treasury.net_treasury_native, 0) as net_treasury_native
+    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
+    , coalesce(treasury_native.own_token_treasury_native, 0) as own_token_treasury_native
 FROM
     fees
 full join revenues using(date, token)
 full join token_incentives using(date, token)
 -- full join tvl using(date, token)
-full join treasury using(date, token)
-full join treasury_native using(date, token)
+full join treasury_by_token using(date, token)
 full join net_treasury using(date, token)
+full join treasury_native using(date, token)
 WHERE coalesce(fees.date, revenues.date, token_incentives.date, treasury.date) < to_date(sysdate())
