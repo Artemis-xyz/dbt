@@ -28,7 +28,11 @@ select
                 lower('0xaaaebe6fe48e54f431b0c390cfaf0b017d09d42d'),
                 lower('0x476c5e26a75bd202a9683ffd34359c0cc15be0ff'),
                 lower('0xdac17f958d2ee523a2206206994597c13d831ec7')
-            ) then 8 else prices.decimals end
+            ) then 8 
+            when lower(token_address) in (
+                lower('So11111111111111111111111111111111111111112')
+            ) then 9
+            else prices.decimals end
         )
     end as amount_adjusted,
     coalesce(ops.amount_adjusted * price, (amount * coalesce(price, 0)) / pow(10, 
@@ -39,11 +43,20 @@ select
             lower('0xaaaebe6fe48e54f431b0c390cfaf0b017d09d42d'),
             lower('0x476c5e26a75bd202a9683ffd34359c0cc15be0ff'),
             lower('0xdac17f958d2ee523a2206206994597c13d831ec7')
-        ) then 8 else prices.decimals end
-    ), ops.amount_usd) as amount,
+        ) then 8
+        when lower(token_address) in (
+            lower('So11111111111111111111111111111111111111112')
+        ) then 9
+        else prices.decimals end
+    ),  ops.amount_usd) as amount,
     coalesce(prices.symbol, lower(ops.symbol)) as symbol,
     case 
-        when amount_adjusted > 0 and amount is not null then ROUND(LOG(10, amount/amount_adjusted),0)
+        when amount_adjusted > 0 and amount is not null and ROUND((amount/amount_adjusted) / POW(10,9)) = 1  
+        then 9
+        when amount_adjusted > 0 and amount is not null and ROUND((amount/amount_adjusted) / POW(10,18)) = 1 
+        then 18
+        when amount_adjusted > 0 and amount is not null and ROUND((amount/amount_adjusted) / POW(10,6)) = 1 
+        then 6
         when lower(token_address) in (
             lower('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'),
             lower('0xb8e2e2101ed11e9138803cd3e06e16dd19910647'),
@@ -51,7 +64,10 @@ select
             lower('0x476c5e26a75bd202a9683ffd34359c0cc15be0ff'),
             lower('0xdac17f958d2ee523a2206206994597c13d831ec7')
         ) then 8 
-        else prices.decimals end as decimals,
+        when lower(token_address) in (
+            lower('So11111111111111111111111111111111111111112')
+        ) then 9
+    else prices.decimals end as decimals,
     app_ids,
     fee,
     fee_address,
