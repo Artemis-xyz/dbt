@@ -44,27 +44,16 @@ with fees as (
     GROUP BY 1
 )
 , treasury as (
-    SELECT
+    select 
         date
-        , SUM(usd_balance) AS treasury_value
-    FROM {{ ref('fact_maple_treasury') }}
-    GROUP BY 1
-)
-, net_treasury as (
-    SELECT
-        date
-        , SUM(usd_balance) AS net_treasury_value
-    FROM {{ ref('fact_maple_treasury') }}
-    WHERE token <> 'MPL'
-    GROUP BY 1
-)
-, treasury_native as (
-    SELECT
-        date
-        , SUM(native_balance) AS treasury_value_native
-    FROM {{ ref('fact_maple_treasury') }}
-    WHERE token = 'MPL'
-    GROUP BY 1
+        , sum(treasury) as treasury
+        , sum(treasury_native) as treasury_native
+        , sum(net_treasury) as net_treasury
+        , sum(net_treasury_native) as net_treasury_native
+        , sum(own_token_treasury) as own_token_treasury
+        , sum(own_token_treasury_native) as own_token_treasury_native
+    from {{ ref('ez_maple_metrics_by_token') }}
+    group by 1
 )
 , price as(
     {{ get_coingecko_metrics('maple')}}
@@ -85,9 +74,9 @@ SELECT
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
     , coalesce(token_incentives.token_incentives, 0) as total_expenses
     , coalesce(revenue, 0) - coalesce(total_expenses, 0) as protocol_earnings
-    , coalesce(treasury.treasury_value, 0) as treasury_value
-    , coalesce(treasury_native.treasury_value_native, 0) as treasury_value_native
-    , coalesce(net_treasury.net_treasury_value, 0) as net_treasury_value
+    , coalesce(treasury.treasury, 0) as treasury_value
+    , coalesce(treasury.own_token_treasury, 0) as treasury_value_native
+    , coalesce(treasury.net_treasury, 0) as net_treasury_value
     , coalesce(tvl.tvl, 0) as net_deposits
     , coalesce(tvl.outstanding_supply, 0) as outstanding_supply
     , tokenholders.token_holder_count
@@ -120,10 +109,12 @@ SELECT
 
 
     -- Protocol Metrics
-    , coalesce(treasury.treasury_value, 0) as treasury
-    , coalesce(treasury_native.treasury_value_native, 0) as treasury_native
-    , coalesce(treasury_native.treasury_value_native, 0)
-        - lag(treasury_native.treasury_value_native, 0) over (order by date) as treasury_native_net_change
+    , treasury.treasury
+    , treasury.treasury_native
+    , treasury.net_treasury
+    , treasury.net_treasury_native
+    , treasury.own_token_treasury
+    , treasury.own_token_treasury_native
 
     -- Turnover Metrics
     , coalesce(price.token_turnover_circulating, 0) as token_turnover_circulating
@@ -135,6 +126,4 @@ LEFT JOIN revenues USING(date)
 LEFT JOIN token_incentives USING(date)
 LEFT JOIN tvl USING(date)
 LEFT JOIN treasury USING(date)
-LEFT JOIN treasury_native USING(date)
-LEFT JOIN net_treasury USING(date)
 LEFT JOIN tokenholders USING(date)

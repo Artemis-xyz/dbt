@@ -74,8 +74,8 @@ with fees as (
 )  
 
 SELECT
-    coalesce(fees.date, revenues.date, token_incentives.date, treasury.date) as date,
-    coalesce(fees.token, revenues.token, token_incentives.token, treasury.token) as token,
+    coalesce(fees.date, revenues.date, token_incentives.date, treasury_by_token.date, net_treasury.date, treasury_native.date) as date,
+    coalesce(fees.token, revenues.token, token_incentives.token, treasury_by_token.token, net_treasury.token, treasury_native.token) as token,
     fees.fees_native as interest_fees_native,
     fees.platform_fees_native as platform_fees_native,
     fees.delegate_fees_native as delegate_fees_native,
@@ -118,4 +118,4 @@ full join token_incentives using(date, token)
 full join treasury_by_token using(date, token)
 full join net_treasury using(date, token)
 full join treasury_native using(date, token)
-WHERE coalesce(fees.date, revenues.date, token_incentives.date, treasury.date) < to_date(sysdate())
+WHERE coalesce(fees.date, revenues.date, token_incentives.date, treasury_by_token.date, net_treasury.date, treasury_native.date) < to_date(sysdate())

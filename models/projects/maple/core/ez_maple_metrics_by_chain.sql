@@ -53,7 +53,10 @@ SELECT
     -- Protocol Metrics
     , treasury
     , treasury_native
-    , treasury_native_net_change
+    , net_treasury
+    , net_treasury_native
+    , own_token_treasury
+    , own_token_treasury_native
 
     -- Turnover Metrics
     , token_turnover_circulating
