@@ -92,6 +92,12 @@ column_definitions:
     name: inflow
     description: "The amount (in USD) flowing into a chain"
 
+  l1_cash_flow: &l1_cash_flow
+    name: l1_cash_flow
+    description: "The total USD value of L1 cash flow on a chain"
+    tags:
+      - artemis_gaap
+
   low_sleep_users: &low_sleep_users
     name: low_sleep_users
     description: "The number of low sleep users on a chain"
@@ -292,6 +298,7 @@ models:
       - *fdmc
       - *gross_protocol_revenue
       - *high_sleep_users
+      - *l1_cash_flow
       - *low_sleep_users
       - *market_cap
       - *new_users
