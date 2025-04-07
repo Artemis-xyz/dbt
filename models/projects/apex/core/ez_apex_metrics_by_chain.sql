@@ -15,10 +15,12 @@ with
         from {{ ref("fact_apex_trading_volume") }}
     )
 select
-    date,
-    'apex' as app,
-    'DeFi' as category,
-    chain,
-    trading_volume
+    date
+    , 'apex' as app
+    , 'DeFi' as category
+    , chain
+    , trading_volume
+    -- standardize metrics
+    , trading_volume as perp_volume
 from trading_volume_data
 where date < to_date(sysdate())
