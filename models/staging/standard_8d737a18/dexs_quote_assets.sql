@@ -14,7 +14,8 @@ SELECT
       WHEN symbol_in IN ('USDC') THEN 'USDC'
       WHEN symbol_in IN ('WBTC', 'BTC') then 'WBTC'
       WHEN symbol_in IN ('WETH', 'ETH') then 'WETH'
-      WHEN symbol_in IN ('SOL') then 'WETH'
+      WHEN symbol_in IN ('SOL') then 'SOL'
+      when symbol_in in ('USDe', 'USDS', 'DAI', 'FDUSD', 'BUIDL', 'USDTB', 'USD0', 'PYUSD', 'sUSD', 'USDY') then 'Other Stablecoins'
       ELSE 'Other crypto'
     END as quote_asset,
     sum(amount_out_usd) as volume,
@@ -39,7 +40,8 @@ SELECT
       WHEN symbol_in IN ('USDC') THEN 'USDC'
       WHEN symbol_in IN ('WBTC', 'BTC') then 'WBTC'
       WHEN symbol_in IN ('WETH', 'ETH') then 'WETH'
-      WHEN symbol_in IN ('SOL') then 'WETH'
+      WHEN symbol_in IN ('SOL') then 'SOL'
+      when symbol_in in ('USDe', 'USDS', 'DAI', 'FDUSD', 'BUIDL', 'USDTB', 'USD0', 'PYUSD', 'sUSD', 'USDY') then 'Other Stablecoins'
       ELSE 'Other crypto'
     END as quote_asset,
     sum(amount_out_usd) as volume,
@@ -64,7 +66,8 @@ SELECT
       WHEN symbol_in IN ('USDC') THEN 'USDC'
       WHEN symbol_in IN ('WBTC', 'BTC') then 'WBTC'
       WHEN symbol_in IN ('WETH', 'ETH') then 'WETH'
-      WHEN symbol_in IN ('SOL') then 'WETH'
+      WHEN symbol_in IN ('SOL') then 'SOL'
+      when symbol_in in ('USDe', 'USDS', 'DAI', 'FDUSD', 'BUIDL', 'USDTB', 'USD0', 'PYUSD', 'sUSD', 'USDY') then 'Other Stablecoins'
       ELSE 'Other crypto'
     END as quote_asset,
     sum(amount_out_usd) as volume,
@@ -91,7 +94,8 @@ SELECT
       WHEN symbol_in IN ('USDC') THEN 'USDC'
       WHEN symbol_in IN ('WBTC', 'BTC') then 'WBTC'
       WHEN symbol_in IN ('WETH', 'ETH') then 'WETH'
-      WHEN symbol_in IN ('SOL') then 'WETH'
+      WHEN symbol_in IN ('SOL') then 'SOL'
+      when symbol_in in ('USDe', 'USDS', 'DAI', 'FDUSD', 'BUIDL', 'USDTB', 'USD0', 'PYUSD', 'sUSD', 'USDY') then 'Other Stablecoins'
       ELSE 'Other crypto'
     END as quote_asset,
     sum(amount_out_usd) as volume,
@@ -117,6 +121,7 @@ SELECT
       WHEN swap_from_symbol IN ('WBTC', 'BTC') then 'WBTC'
       WHEN swap_from_symbol IN ('WETH', 'ETH') then 'WETH'
       WHEN swap_from_symbol IN ('SOL') then 'SOL'
+      when swap_from_symbol in ('USDe', 'USDS', 'DAI', 'FDUSD', 'BUIDL', 'USDTB', 'USD0', 'PYUSD', 'sUSD', 'USDY') then 'Other Stablecoins'
       ELSE 'Other crypto'
     END as quote_asset,
     sum(swap_from_amount_usd) as volume,

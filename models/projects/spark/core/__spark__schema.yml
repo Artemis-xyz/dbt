@@ -1,0 +1,27 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  lending_deposits: &lending_deposits
+    name: lending_deposits
+    description: "The total amount of tokens deposited (in USD) on a lending protocol"
+
+  lending_loans: &lending_loans
+    name: lending_loans
+    description: "The total outstanding loans (in USD) on a lending protocol"
+
+models:
+  - name: ez_spark_metrics
+    description: "This table stores metrics for the SPARK protocol"
+    columns:
+      - *lending_deposits
+      - *lending_loans
+
+  - name: ez_spark_metrics_by_chain
+    description: "This table stores metrics for the SPARK protocol"
+    columns:
+      - *lending_deposits
+      - *lending_loans
+
