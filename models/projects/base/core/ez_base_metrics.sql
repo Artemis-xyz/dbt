@@ -75,6 +75,13 @@ select
     , dune_dex_volumes_base.dex_volumes AS chain_dex_volumes
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_base.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
+    -- Cashflow Metrics
+    , fees_native as gross_protocol_revenue_native
+    , fees as gross_protocol_revenue
+    , l1_data_cost_native AS l1_cash_flow_native  -- fees paid to l1 by sequencer (L1 Fees)
+    , l1_data_cost AS l1_cash_flow
+    , coalesce(fees_native, 0) - coalesce(l1_data_cost_native, 0) as treasury_cash_flow_native
+    , coalesce(fees, 0) - coalesce(l1_data_cost, 0) as treasury_cash_flow
     -- Developer Metrics
     , weekly_contracts_deployed
     , weekly_contract_deployers
@@ -94,13 +101,6 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
-    -- Cashflow Metrics
-    , fees_native as gross_protocol_revenue_native
-    , fees as gross_protocol_revenue
-    , l1_data_cost_native AS l1_cash_flow_native  -- fees paid to l1 by sequencer (L1 Fees)
-    , l1_data_cost AS l1_cash_flow
-    , coalesce(fees_native, 0) - coalesce(l1_data_cost_native, 0) as treasury_cash_flow_native
-    , coalesce(fees, 0) - coalesce(l1_data_cost, 0) as treasury_cash_flow
     -- Bridge Metrics
     , bridge_volume
     , bridge_daa

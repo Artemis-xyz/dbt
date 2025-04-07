@@ -47,6 +47,12 @@ column_definitions:
     - name: liquidator_cash_flow
       description: "The amount of revenue allocated to liquidators of the protocol"
       tags: [artemis_gaap]
+    - name: l1_cash_flow_native
+      description: "The total native value of L1 cash flow on a chain"
+      tags: [artemis_gaap]
+    - name: l1_cash_flow
+      description: "The total USD value of L1 cash flow on a chain"
+      tags: [artemis_gaap]
 
   token_metrics:
     - name: price
