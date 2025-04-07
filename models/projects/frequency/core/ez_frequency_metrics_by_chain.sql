@@ -4,7 +4,7 @@
         snowflake_warehouse="FREQUENCY",
         database="frequency",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
     )
 }}
 with
@@ -18,14 +18,12 @@ with
     )
 select
     date
-    , txns
-    , daa as dau
-    , coalesce(fees_native, 0) as fees_native
+    , 'frequency' as chain
     -- Standardized Metrics
     -- Chain Metrics
     , txns as chain_txns
-    , dau as chain_dau
+    , daa as chain_dau
     -- Cash Flow Metrics
-    , fees_native as gross_protocol_revenue_native
+    , coalesce(fees_native, 0) as gross_protocol_revenue_native
 from fundamental_data
 where fundamental_data.date < to_date(sysdate())

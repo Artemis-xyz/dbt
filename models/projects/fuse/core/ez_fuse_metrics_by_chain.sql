@@ -4,7 +4,7 @@
         snowflake_warehouse="FUSE",
         database="fuse",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
     )
 }}
 
@@ -24,12 +24,6 @@ with
 select
     fundamental_data.date
     , 'fuse' as chain
-    , txns
-    , dau
-    , fees
-    , case when txns > 0 then fees / txns end as avg_txn_fee
-    , fees_native
-    , dex_volumes
     -- Standardized Metrics
     -- Market Data
     , price
@@ -41,7 +35,7 @@ select
     -- Chain Metrics
     , txns as chain_txns
     , dau as chain_dau
-    , avg_txn_fee as chain_avg_txn_fee
+    , case when txns > 0 then fees / txns end as chain_avg_txn_fee
     , dex_volumes as chain_dex_volumes
     -- Cash Flow Metrics
     , fees as gross_protocol_revenue
