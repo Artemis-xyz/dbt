@@ -4,8 +4,28 @@ models:
   - name: fact_litecoin_transfers
     description: Fact table containing Litecoin transaction transfers with inputs and outputs
     columns:
-      - name: tx_hash
-        description: Unique transaction hash
+      - name: hash
+        description: Transaction hash
+        tests:
+          - not_null
+      - name: size
+        description: Transaction size in bytes
+        tests:
+          - not_null
+      - name: virtual_size
+        description: Virtual transaction size
+        tests:
+          - not_null
+      - name: version
+        description: Transaction version
+        tests:
+          - not_null
+      - name: lock_time
+        description: Lock time of the transaction
+        tests:
+          - not_null
+      - name: block_hash
+        description: Hash of the block containing this transaction
         tests:
           - not_null
       - name: block_number
@@ -16,20 +36,38 @@ models:
         description: Timestamp of the block
         tests:
           - not_null
-      - name: from_address
-        description: Source address for the transfer
-      - name: to_address
-        description: Destination address for the transfer
-      - name: input_amount
-        description: Amount of Litecoin in the input
-      - name: output_amount
-        description: Amount of Litecoin in the output
-      - name: transfer_type
-        description: Type of transfer (input/output)
+      - name: block_timestamp_month
+        description: Month of the block timestamp
         tests:
           - not_null
-          - accepted_values:
-              values: ['input', 'output']
+      - name: input_count
+        description: Number of inputs in the transaction
+        tests:
+          - not_null
+      - name: output_count
+        description: Number of outputs in the transaction
+        tests:
+          - not_null
+      - name: input_value
+        description: Total value of inputs
+        tests:
+          - not_null
+      - name: output_value
+        description: Total value of outputs
+        tests:
+          - not_null
+      - name: is_coinbase
+        description: Whether this is a coinbase transaction
+        tests:
+          - not_null
+      - name: fee
+        description: Transaction fee
+        tests:
+          - not_null
+      - name: inputs
+        description: JSON array of input details
+      - name: outputs
+        description: JSON array of output details
       - name: unique_id
         description: Unique identifier for the transaction
         tests:

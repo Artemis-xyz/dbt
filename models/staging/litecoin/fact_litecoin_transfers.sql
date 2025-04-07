@@ -6,56 +6,28 @@
 
 with raw_transfers as (
     select
-        parquet_raw:txid::string as tx_hash,
-        parquet_raw:block_height::bigint as block_number,
-        parquet_raw:block_time::timestamp as block_timestamp,
+        parquet_raw:hash::string as hash,
+        parquet_raw:size::bigint as size,
+        parquet_raw:virtual_size::bigint as virtual_size,
+        parquet_raw:version::bigint as version,
+        parquet_raw:lock_time::bigint as lock_time,
+        parquet_raw:block_hash::string as block_hash,
+        parquet_raw:block_number::bigint as block_number,
+        parquet_raw:block_timestamp::timestamp as block_timestamp,
+        parquet_raw:block_timestamp_month::date as block_timestamp_month,
+        parquet_raw:input_count::bigint as input_count,
+        parquet_raw:output_count::bigint as output_count,
+        parquet_raw:input_value::bigint as input_value,
+        parquet_raw:output_value::bigint as output_value,
+        parquet_raw:is_coinbase::boolean as is_coinbase,
+        parquet_raw:fee::bigint as fee,
         parquet_raw:inputs as inputs,
         parquet_raw:outputs as outputs,
         -- Generate a unique ID for each transaction
-        md5(tx_hash) as unique_id
+        md5(hash) as unique_id
     from {{ source('PROD_LANDING', 'raw_litecoin_transfers_parquet') }}
-),
-
--- Flatten inputs
-inputs_flattened as (
-    select
-        tx_hash,
-        block_number,
-        block_timestamp,
-        value:address::string as from_address,
-        value:value::bigint as input_amount,
-        'input' as transfer_type
-    from raw_transfers,
-    lateral flatten(input => inputs)
-),
-
--- Flatten outputs
-outputs_flattened as (
-    select
-        tx_hash,
-        block_number,
-        block_timestamp,
-        value:address::string as to_address,
-        value:value::bigint as output_amount,
-        'output' as transfer_type
-    from raw_transfers,
-    lateral flatten(input => outputs)
 )
 
--- Combine inputs and outputs
-select
-    tx_hash,
-    block_number,
-    block_timestamp,
-    from_address,
-    to_address,
-    input_amount,
-    output_amount,
-    transfer_type,
-    unique_id
-from (
-    select * from inputs_flattened
-    union all
-    select * from outputs_flattened
-)
-qualify row_number() over (partition by unique_id, transfer_type order by block_timestamp desc) = 1 
+select *
+from raw_transfers
+qualify row_number() over (partition by unique_id order by block_timestamp desc) = 1 
