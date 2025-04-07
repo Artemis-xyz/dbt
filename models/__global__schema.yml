@@ -44,13 +44,16 @@ column_definitions:
     - name: burned_cash_flow
       description: "The amount of USD value burned"
       tags: [artemis_gaap]
+    - name: liquidator_cash_flow
+      description: "The amount of revenue allocated to liquidators of the protocol"
+      tags: [artemis_gaap]
     - name: l1_cash_flow_native
       description: "The total native value of L1 cash flow on a chain"
       tags: [artemis_gaap]
     - name: l1_cash_flow
       description: "The total USD value of L1 cash flow on a chain"
       tags: [artemis_gaap]
-      
+
   token_metrics:
     - name: price
       description: "The price of a token in USD"
@@ -145,7 +148,7 @@ column_definitions:
     - name: p2p_native_transfer_volume
       description: "The total volume of P2P native transfers on a chain"
     - name: p2p_token_transfer_volume
-      description: "The total volume of P2P token transfers on a chain" 
+      description: "The total volume of P2P token transfers on a chain"
     - name: p2p_transfer_volume
       description: "The total volume of P2P transfers on a chain"
     - name: non_p2p_stablecoin_transfer_volume
@@ -293,9 +296,6 @@ column_definitions:
       description: "The total amount of tokens deposited (in USD) on a lending protocol"
     - name: lending_loan_capacity
       description: "The total amount of loans available (in USD) on a lending protocol, including outstanding loans"
-    - name: lending_interest_fees
-      description: "The daily amount of interest fees (in USD) paid by borrowers on a lending protocol"
-    
   aggregator_metrics:
     - name: aggregator_dau
       description: "The number of daily active traders on an aggregator"
@@ -305,7 +305,7 @@ column_definitions:
       description: "The total volume on an aggregator"
     - name: aggregator_revenue
       description: "The total revenue on an aggregator"
-  
+
   supply_metrics:
     - name: mints_native
       description: "The amount of native tokens minted"
