@@ -4,10 +4,9 @@
         , snowflake_warehouse="ZORA"
         , database="zora"
         , schema="core"
-        , alias="ez_metrics"
+        , alias="ez_metrics_by_chain"
     )
 }}
-
 
 with
     fundamental_data as (
@@ -38,18 +37,6 @@ select
     fundamental_data.date
     , dune_dex_volumes_zora.dex_volumes
     , 'zora' as chain
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees
-    , fees_native
-    , median_txn_fee
-    , fees / txns as avg_txn_fee
-    , revenue
-    , revenue_native
-    , l1_data_cost
-    , l1_data_cost_native
     -- Standardized Metrics
     -- Chain Metrics
     , txns as chain_txns
@@ -64,7 +51,7 @@ select
     , revenue as foundation_cash_flow
     , revenue_native as foundation_cash_flow_native
     , median_txn_fee as chain_median_txn_fee
-    , avg_txn_fee as chain_avg_txn_fee
+    , fees / txns as chain_avg_txn_fee
     -- Crypto Metrics
     , tvl
     -- Developer Metrics
