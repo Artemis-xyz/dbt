@@ -60,13 +60,14 @@ select
     , trading_volume as perp_volume
     , trades as perp_txns
 
-    -- Revenue Metrics (trading fees includes spot and perp fees + auction fees)
-    , trading_fees as gross_protocol_revenue
-    -- (allegedly) protocol’s revenue split between Hyperliquid Liquidity Provider and Assistance Fund (buybacks) at a ratio of 46%:54%
+    -- Revenue Metrics
+    , trading_fees + (daily_burn * mm.price) as gross_protocol_revenue
+    , perp_fees as perp_revenue
+    , spot_fees as spot_revenue
     , trading_fees * 0.46 as service_cash_flow
-    , trading_fees * 0.54 as buybacks
-    , daily_burn as burned_cash_flow_native
-    , daily_burn * mm.price as burned_cash_flow
+    , trading_fees * 0.54 as buybacks_cash_flow
+    , daily_burn as l1_cash_flow_native
+    , daily_burn * mm.price as l1_cash_flow
 
     -- Market metrics
     , mm.price as price
