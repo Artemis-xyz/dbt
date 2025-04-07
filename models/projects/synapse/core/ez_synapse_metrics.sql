@@ -35,4 +35,5 @@ select
     , price_data.token_volume as token_volume
 from bridge_volume_metrics
 left join bridge_daa_metrics on bridge_volume_metrics.date = bridge_daa_metrics.date
+left join price_data on bridge_volume_metrics.date = price_data.date
 where bridge_daa_metrics.date < to_date(sysdate())
