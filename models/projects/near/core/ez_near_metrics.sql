@@ -42,6 +42,7 @@ select
     , median_txn_fee
     , revenue_native
     , revenue
+    , coalesce(near_dex_volumes.dex_volumes, 0) as dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -53,10 +54,17 @@ select
     , wau as chain_wau
     , mau as chain_mau
     , txns as chain_txns
+    , avg_txn_fee AS chain_avg_txn_fee
     , returning_users
     , new_users
     , low_sleep_users
     , high_sleep_users
+    -- Cashflow Metrics
+    , fees_native as gross_protocol_revenue_native
+    , case when fees is null then fees_native * price else fees end as gross_protocol_revenue
+    , median_txn_fee AS chain_median_txn_fee
+    , revenue_native AS burned_cash_flow_native
+    , revenue AS burned_cash_flow
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -75,14 +83,7 @@ select
     , avg_cost_per_mib_native
     , avg_cost_per_mib
     , submitters
-    , coalesce(near_dex_volumes.dex_volumes, 0) as dex_volumes
-    -- Cashflow Metrics
-    , fees_native as gross_protocol_revenue_native
-    , case when fees is null then fees_native * price else fees end as gross_protocol_revenue
-    , avg_txn_fee AS chain_avg_txn_fee
-    , median_txn_fee AS chain_median_txn_fee
-    , revenue_native AS burned_cash_flow_native
-    , revenue AS burned_cash_flow
+    , coalesce(near_dex_volumes.dex_volumes, 0) as chain_dex_volumes
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date

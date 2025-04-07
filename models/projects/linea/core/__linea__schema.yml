@@ -4,18 +4,6 @@
 version: 2
 
 column_definitions:
-  burned_cash_flow: &burned_cash_flow
-    name: burned_cash_flow
-    description: "The amount of USD value burned"
-    tags:
-      - artemis_gaap
-
-  burned_cash_flow_native: &burned_cash_flow_native
-    name: burned_cash_flow_native
-    description: "The amount of native tokens burned"
-    tags:
-      - artemis_gaap
-
   chain_avg_txn_fee: &chain_avg_txn_fee
     name: chain_avg_txn_fee
     description: "The average transaction fee on a chain"
@@ -23,6 +11,10 @@ column_definitions:
   chain_dau: &chain_dau
     name: chain_dau
     description: "Daily unique users on a chain"
+
+  chain_dex_volumes: &chain_dex_volumes
+    name: chain_dex_volumes
+    description: "The total volume of DEXes on a chain"
 
   chain_mau: &chain_mau
     name: chain_mau
@@ -35,10 +27,6 @@ column_definitions:
   chain_wau: &chain_wau
     name: chain_wau
     description: "Weekly unique users on a chain"
-
-  dex_volumes: &dex_volumes
-    name: dex_volumes
-    description: "The total volume of DEXes on a chain"
 
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
@@ -61,6 +49,12 @@ column_definitions:
   l1_cash_flow_native: &l1_cash_flow_native
     name: l1_cash_flow_native
     description: "The total native value of L1 cash flow on a chain"
+    tags:
+      - artemis_gaap
+
+  treasury_cash_flow: &treasury_cash_flow
+    name: treasury_cash_flow
+    description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
     tags:
       - artemis_gaap
 
@@ -108,18 +102,17 @@ models:
   - name: ez_linea_metrics
     description: "This table stores metrics for the LINEA protocol"
     columns:
-      - *burned_cash_flow
-      - *burned_cash_flow_native
       - *chain_avg_txn_fee
       - *chain_dau
+      - *chain_dex_volumes
       - *chain_mau
       - *chain_txns
       - *chain_wau
-      - *dex_volumes
       - *gross_protocol_revenue
       - *gross_protocol_revenue_native
       - *l1_cash_flow
       - *l1_cash_flow_native
+      - *treasury_cash_flow
       - *tvl
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem

@@ -226,7 +226,7 @@ SELECT
     COALESCE(n.new_addresses, 0) AS new_addresses,
     COALESCE(r.returning_addresses, 0) AS returning_addresses,
     --Standardized Metrics
-    tvl_metrics.tvl as bridge_tvl,
+    tvl_metrics.tvl,
     d.daily_transactions as bridge_txns,
     d.daily_volume as bridge_volume,
     d.daily_active_addresses as bridge_dau,

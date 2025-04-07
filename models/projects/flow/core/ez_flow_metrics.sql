@@ -29,6 +29,7 @@ select
     , fees / txns as avg_txn_fee
     , revenue
     , dau_txn_data.chain
+    , dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -39,7 +40,7 @@ select
     , txns AS chain_txns
     , dau AS chain_dau
     , fees / txns AS chain_avg_txn_fee
-    , dex_volumes
+    , dex_volumes AS chain_dex_volumes
     , nft_trading_volume
     -- Cashflow metrics
     , fees AS gross_protocol_revenue

@@ -44,6 +44,7 @@ select
     , coalesce(fees, 0) -  l1_data_cost as revenue
     , avg_txn_fee
     , median_txn_fee
+    , dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -55,13 +56,13 @@ select
     , wau AS chain_wau
     , mau AS chain_mau
     , txns AS chain_txns
-    , dex_volumes AS dex_volumes
+    , avg_txn_fee AS chain_avg_txn_fee
+    , dex_volumes AS chain_dex_volumes
     , returning_users
     , new_users
     -- Cashflow Metrics
     , fees AS gross_protocol_revenue
     , fees_native AS gross_protocol_revenue_native
-    , avg_txn_fee AS chain_avg_txn_fee
     , median_txn_fee AS chain_median_txn_fee
     , coalesce(fees_native, 0) -  l1_data_cost_native as validator_cash_flow_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     , coalesce(fees, 0) -  l1_data_cost as validator_cash_flow
