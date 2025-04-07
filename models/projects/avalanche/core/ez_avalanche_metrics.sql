@@ -45,63 +45,85 @@ with
     )
 
 select
-    staking_data.date,
-    coalesce(fundamental_data.chain, 'avalanche') as chain,
-    txns,
-    dau,
-    wau,
-    mau,
-    fees_native,
-    case when fees is null then fees_native * price else fees end as fees,
-    avg_txn_fee,
-    median_txn_fee,
-    fees_native as revenue_native,
-    fees as revenue,
-    sybil_users,
-    non_sybil_users,
-    returning_users,
-    new_users,
-    low_sleep_users,
-    high_sleep_users,
-    dau_over_100,
-    price,
-    market_cap,
-    fdmc,
-    tvl,
-    --dex_volumes,
-    weekly_commits_core_ecosystem,
-    weekly_commits_sub_ecosystem,
-    weekly_developers_core_ecosystem,
-    weekly_developers_sub_ecosystem,
-    weekly_contracts_deployed,
-    weekly_contract_deployers,
-    stablecoin_total_supply,
-    stablecoin_txns,
-    stablecoin_dau,
-    stablecoin_mau,
-    stablecoin_transfer_volume,
-    artemis_stablecoin_txns,
-    artemis_stablecoin_dau,
-    artemis_stablecoin_mau,
-    artemis_stablecoin_transfer_volume,
-    p2p_stablecoin_txns,
-    p2p_stablecoin_dau,
-    p2p_stablecoin_mau,
-    stablecoin_data.p2p_stablecoin_transfer_volume,
-    stablecoin_tokenholder_count,
-    p2p_stablecoin_tokenholder_count,
-    total_staked_native,
-    total_staked_usd,
-    issuance,
-    nft_trading_volume,
-    p2p_native_transfer_volume,
-    p2p_token_transfer_volume,
-    p2p_transfer_volume,
-    coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume,
-    coalesce(dune_dex_volumes_avalanche_c.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
-    bridge_volume,
-    bridge_daa,
-    dune_dex_volumes_avalanche_c.dex_volumes
+    staking_data.date
+    , coalesce(fundamental_data.chain, 'avalanche') as chain
+    , txns
+    , dau
+    , wau
+    , mau
+    , fees_native
+    , case when fees is null then fees_native * price else fees end as fees
+    , avg_txn_fee
+    , median_txn_fee
+    , fees_native as revenue_native
+    , fees as revenue
+    , dau_over_100
+    , dune_dex_volumes_avalanche_c.dex_volumes
+    , nft_trading_volume
+    , total_staked_usd
+    , issuance
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Chain Usage Metrics
+    , dau AS chain_dau
+    , wau AS chain_wau
+    , mau AS chain_mau
+    , txns AS chain_txns
+    , avg_txn_fee AS chain_avg_txn_fee
+    , median_txn_fee AS chain_median_txn_fee
+    , returning_users
+    , new_users
+    , sybil_users
+    , non_sybil_users
+    , low_sleep_users
+    , high_sleep_users
+    , dau_over_100 AS dau_over_100_balance
+    , total_staked_native AS total_staked_native
+    , total_staked_usd AS total_staked
+    , dune_dex_volumes_avalanche_c.dex_volumes AS chain_dex_volumes
+    , nft_trading_volume AS chain_nft_trading_volume
+    , p2p_native_transfer_volume
+    , p2p_token_transfer_volume
+    , p2p_transfer_volume
+    , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
+    , coalesce(dune_dex_volumes_avalanche_c.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
+    -- Cashflow Metrics
+    , fees_native AS gross_protocol_revenue_native
+    , case when fees is null then fees_native * price else fees end as gross_protocol_revenue
+    , fees_native AS foundation_cash_flow_native
+    , case when fees is null then fees_native * price else fees end as foundation_cash_flow
+    -- Supply Metrics
+    , issuance AS emissions_native
+    -- Developer Metrics
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
+    , weekly_contracts_deployed
+    , weekly_contract_deployers
+    -- Stablecoin Metrics
+    , stablecoin_total_supply
+    , stablecoin_txns
+    , stablecoin_dau
+    , stablecoin_mau
+    , stablecoin_transfer_volume
+    , stablecoin_tokenholder_count
+    , artemis_stablecoin_txns
+    , artemis_stablecoin_dau
+    , artemis_stablecoin_mau
+    , artemis_stablecoin_transfer_volume
+    , p2p_stablecoin_tokenholder_count
+    , p2p_stablecoin_txns
+    , p2p_stablecoin_dau
+    , p2p_stablecoin_mau
+    , stablecoin_data.p2p_stablecoin_transfer_volume
+    -- Bridge Metrics
+    , bridge_volume
+    , bridge_daa
 from staking_data
 left join fundamental_data on staking_data.date = fundamental_data.date
 left join price_data on staking_data.date = price_data.date
