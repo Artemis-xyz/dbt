@@ -4,18 +4,20 @@
         snowflake_warehouse="GEODNET",
         database="geodnet",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
     )
 }}
 
 with
     revenue_data as (
-        select date, fees, revenue, protocol
+        select date, fees, revenue, chain, protocol
         from {{ ref("fact_geodnet_fees_revenue") }}
     ),
     price_data as ({{ get_coingecko_metrics("geodnet") }})
 select
     revenue_data.date
+    , revenue_data.chain
+    , revenue_data.protocol
     , coalesce(fees, 0) as fees
     , coalesce(revenue, 0) as revenue
 
