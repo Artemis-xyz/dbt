@@ -56,6 +56,18 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  l1_cash_flow: &l1_cash_flow
+    name: l1_cash_flow
+    description: "The total USD value of L1 cash flow on a chain"
+    tags:
+      - artemis_gaap
+
+  l1_cash_flow_native: &l1_cash_flow_native
+    name: l1_cash_flow_native
+    description: "The total native value of L1 cash flow on a chain"
+    tags:
+      - artemis_gaap
+
   market_cap: &market_cap
     name: market_cap
     description: "The market cap of a token in USD"
@@ -131,6 +143,8 @@ models:
       - *fdmc
       - *gross_protocol_revenue
       - *gross_protocol_revenue_native
+      - *l1_cash_flow
+      - *l1_cash_flow_native
       - *market_cap
       - *price
       - *token_turnover_circulating

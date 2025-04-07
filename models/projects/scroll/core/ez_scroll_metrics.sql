@@ -70,8 +70,8 @@ select
     , fd.fees_native as gross_protocol_revenue_native
     , avg_txn_fee as chain_avg_txn_fee
     , fd.median_txn_fee as chain_median_txn_fee
-    , fd.l1_data_cost as l1_data_cost
-    , fd.l1_data_cost_native as l1_data_cost_native
+    , fd.l1_data_cost as l1_cash_flow
+    , fd.l1_data_cost_native as l1_cash_flow_native
     -- All the fees goes into (L2ScrollFeeVault - L1 Data Cost) = Scroll Labs (Equity Cash Flow)
     , coalesce(fd.fees, 0) - coalesce(fd.l1_data_cost, 0) as equity_cash_flow
     
