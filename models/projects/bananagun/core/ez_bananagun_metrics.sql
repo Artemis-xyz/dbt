@@ -58,7 +58,7 @@ SELECT
     , metrics.trading_volume AS aggregator_volume
 
     -- Cash Flow Metrics
-    , metrics.fees_usd * 0.6 AS gross_protocol_revenue
+    , metrics.fees_usd AS gross_protocol_revenue
     , metrics.fees_usd * 0.6 AS treasury_cash_flow
     , metrics.fees_usd * 0.4 AS token_cash_flow
 
