@@ -30,6 +30,10 @@ select
     , daa as dau
     , fees_native
     , fees
+    , dex_volumes
+    , emission_native
+    , burns_native
+    -- Standardized Metrics
     -- Market Data
     , price
     , market_cap
@@ -37,12 +41,19 @@ select
     , token_turnover_circulating
     , token_turnover_fdv
     , token_volume
-    , dex_volumes
+    -- Chain Metrics
+    , txns as chain_txns
+    , daa as chain_dau
+    -- Cash Flow Metrics
+    , fees as gross_protocol_revenue
+    , fees_native as gross_protocol_revenue_native
+    , burns_native as burned_cash_flow_native
+    -- Supply Metrics
     , premine_unlocks_native
-    , emission_native
-    , burns_native
+    , emission_native as emissions_native
     , net_supply_change_native
     , circulating_supply_native
+
 from {{ ref("fact_berachain_fundamental_metrics") }} as f
 left join price_data on f.date = price_data.date
 left join dex_volumes on f.date = dex_volumes.date
