@@ -35,6 +35,12 @@ column_definitions:
     - name: strategy_cash_flow
       description: "Revenue distributed to entities that manage or execute capital deployment strategies, such as vault operators, liquidity managers, leverage account managers and structured product creators."
       tags: [artemis_gaap]
+    - name: aggregator_cash_flow
+      description: "Revenue distributed to entities that aggregate transactions on the protocol."
+      tags: [artemis_gaap]
+    - name: aggregator_cash_flow_native
+      description: "Revenue distributed to entities that aggregate transactions on the protocol in native tokens."
+      tags: [artemis_gaap]
     - name: buybacks
       description: "The amount tokens bought back by the protocol (USD)."
       tags: [artemis_gaap]
