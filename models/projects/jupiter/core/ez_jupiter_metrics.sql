@@ -121,7 +121,7 @@ select
     , market_cap
     , fdmc
     , token_turnover_circulating
-    ,token_turnover_fdv
+    , token_turnover_fdv
     , token_volume
 
 from all_trade_metrics

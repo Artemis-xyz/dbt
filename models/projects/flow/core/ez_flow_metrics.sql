@@ -22,23 +22,34 @@ with
     github_data as ({{ get_github_metrics("flow") }}),
     nft_metrics as ({{ get_nft_metrics("flow") }})
 select
-    dau_txn_data.date,
-    dau_txn_data.chain,
-    txns,
-    dau,
-    fees,
-    fees / txns as avg_txn_fee,
-    revenue,
-    price,
-    market_cap,
-    fdmc,
-    tvl,
-    dex_volumes,
-    weekly_commits_core_ecosystem,
-    weekly_commits_sub_ecosystem,
-    weekly_developers_core_ecosystem,
-    weekly_developers_sub_ecosystem,
-    nft_trading_volume
+    dau_txn_data.date
+    , txns
+    , dau
+    , fees
+    , fees / txns as avg_txn_fee
+    , revenue
+    , dau_txn_data.chain
+    , dex_volumes
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Chain Usage Metrics
+    , txns AS chain_txns
+    , dau AS chain_dau
+    , fees / txns AS chain_avg_txn_fee
+    , dex_volumes AS chain_dex_volumes
+    , nft_trading_volume
+    -- Cashflow metrics
+    , fees AS gross_protocol_revenue
+    , revenue AS burned_cash_flow
+    -- Developer Metrics
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
 from dau_txn_data
 left join fees_revenue_data on dau_txn_data.date = fees_revenue_data.date
 left join price_data on dau_txn_data.date = price_data.date

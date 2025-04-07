@@ -20,6 +20,14 @@ select
     , fees_native
     , fees
     , ink_dex_volumes.dex_volumes
+    -- Standardized Metrics
+    -- Chain Usage Metrics
+    , txns AS chain_txns
+    , daa AS chain_dau
+    , ink_dex_volumes.dex_volumes AS chain_dex_volumes
+    -- Cashflow Metrics
+    , fees AS gross_protocol_revenue
+    , fees_native AS gross_protocol_revenue_native
 from {{ ref("fact_ink_fundamental_metrics") }}
 left join ink_dex_volumes using (date)
 where date < to_date(sysdate())

@@ -26,7 +26,7 @@ combined_events as (
         ce.from_address,
         ce.stg_balance,
         ce.veSTG_balance,
-        ce.veSTG_balance / ts.total_supply as percentage_of_total_supply,
+        (ce.veSTG_balance / ts.total_supply) * 100 as percentage_of_total_supply,
         ce.remaining_days,
         ce.remaining_staking_period,
         ce.number_of_votes_cast,
@@ -35,7 +35,7 @@ combined_events as (
         ce.last_action_type,
         ce.num_days_staked,
         ce.chain,
-        ce.num_days_staked * (percentage_of_total_supply) as weighted_stake_days
+        ce.num_days_staked * (percentage_of_total_supply / 100.0) as weighted_stake_days
     from combined_events ce
     join total_supply_veSTG ts
 )

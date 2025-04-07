@@ -52,7 +52,6 @@ SELECT
     , sm.total_swaps as number_of_swaps
     , sm.daily_volume_usd as trading_volume
     , sm.daily_fees_usd as trading_fees
-    , tm.tvl_usd as tvl
 
     -- Standardized Metrics
     , sm.unique_traders as spot_dau

@@ -311,10 +311,15 @@
             -- basic IERC20 interface does not require them to be implemented
             coalesce(
                 decoded_log:from,
+                decoded_log:_from,
                 -- DAI on ETH Mainnet does not follow the IERC20 interface
                 decoded_log:src
             ) as from_address,
-            coalesce(decoded_log:to, decoded_log:dst) as to_address,
+            coalesce(
+                decoded_log:to,
+                decoded_log:_to,
+                decoded_log:dst
+            ) as to_address,
             from_address = '0x0000000000000000000000000000000000000000'
                 or event_name = 'Issue' 
                 {% if chain in ("ethereum") %}
@@ -345,6 +350,7 @@
             {% endif %}
             coalesce(
                 decoded_log:value::float / pow(10, num_decimals),
+                decoded_log:_value::float / pow(10, num_decimals),
                 decoded_log:wad::float / pow(10, num_decimals),
                 -- USDT on ETH does not follow the IERC20 interface
                 decoded_log:amount::float / pow(10, num_decimals),
