@@ -14,7 +14,7 @@ with
             date
             , chain
             , txns
-            , dau
+            , daa as dau
             , gas as fees_native
             , gas_usd as fees
             , fees / txns as avg_txn_fee
@@ -60,7 +60,7 @@ select
     , coalesce(mau, 0) as chain_mau
     , coalesce(txns, 0) as chain_txns
     , coalesce(avg_txn_fee, 0) as chain_avg_txn_fee
-    , coalesce(dex_volumes, 0) as chain_spot_volume
+    , coalesce(aptos_dex_volumes.dex_volumes, 0) as chain_spot_volume
 
     -- Crypto Metrics
     , coalesce(tvl, 0) as tvl
