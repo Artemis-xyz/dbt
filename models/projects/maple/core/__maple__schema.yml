@@ -6,9 +6,10 @@ version: 2
 column_definitions:
   fdmc: &fdmc
     name: fdmc
-    description: "The fully diluted market cap of a token in USD"
+    description: "The fully diluted market cap of $MPL in USD"
     tags:
       - artemis_gaap
+      - override
 
   fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
     name: fee_sharing_token_cash_flow
@@ -51,6 +52,22 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  net_treasury: &net_treasury
+    name: net_treasury
+    description: "The USD value in the protocol's treasury excluding the protocol's own tokens"
+
+  net_treasury_native: &net_treasury_native
+    name: net_treasury_native
+    description: "The native value of tokens in the protocol's treasury excluding the protocol's own tokens"
+
+  own_token_treasury: &own_token_treasury
+    name: own_token_treasury
+    description: "The USD value of the protocol's own tokens in the protocol treasury"
+
+  own_token_treasury_native: &own_token_treasury_native
+    name: own_token_treasury_native
+    description: "The native value of the protocol's own tokens in the protocol treasury"
+
   price: &price
     name: price
     description: "The price of a token in USD"
@@ -89,7 +106,7 @@ column_definitions:
 
   treasury: &treasury
     name: treasury
-    description: "The total amount of USD value in the protocol treasury"
+    description: "The USD value in the protocol treasury"
 
   treasury_cash_flow: &treasury_cash_flow
     name: treasury_cash_flow
@@ -99,7 +116,7 @@ column_definitions:
 
   treasury_native: &treasury_native
     name: treasury_native
-    description: "The total amount of native tokens in the protocol treasury"
+    description: "The native value of tokens in the protocol treasury"
 
   tvl: &tvl
     name: tvl
@@ -121,6 +138,10 @@ models:
       - *lending_loan_capacity
       - *lending_loans
       - *market_cap
+      - *net_treasury
+      - *net_treasury_native
+      - *own_token_treasury
+      - *own_token_treasury_native
       - *price
       - *service_cash_flow
       - *token_cash_flow
@@ -137,6 +158,11 @@ models:
     description: "This table stores metrics for the MAPLE protocol"
     columns:
       - *gross_protocol_revenue_native
+      - *net_treasury
+      - *net_treasury_native
+      - *own_token_treasury
+      - *own_token_treasury_native
+      - *treasury
       - *treasury_native
 
   - name: ez_maple_metrics_by_pool
@@ -164,6 +190,10 @@ models:
       - *lending_loan_capacity
       - *lending_loans
       - *market_cap
+      - *net_treasury
+      - *net_treasury_native
+      - *own_token_treasury
+      - *own_token_treasury_native
       - *price
       - *service_cash_flow
       - *token_cash_flow
