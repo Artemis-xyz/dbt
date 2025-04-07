@@ -4,7 +4,7 @@
         snowflake_warehouse="HELIUM",
         database="helium",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
     )
 }}
 
@@ -15,28 +15,30 @@ with
         where date between '2020-04-17' and to_date(sysdate())
     ),
     revenue_data as (
-        select date, hnt_burned, revenue
+        select date, hnt_burned, revenue, chain, protocol
         from {{ ref("fact_helium_revenue_silver") }}
     ),
     fees_data as(
-        select date, fees
+        select date, fees, chain, protocol
         from {{ ref("fact_helium_fees_silver") }}
     ),
     new_mobile_subscribers_data as (
-        select date, new_subscribers
+        select date, new_subscribers, 'solana' as chain, 'helium' as protocol
         from {{ ref("fact_helium_new_mobile_subscribers") }}
     ),
     new_hotspot_onboards_data as (
-        select date, device_onboards
+        select date, device_onboards, 'solana' as chain, 'helium' as protocol
         from {{ ref("fact_helium_new_hotspot_onboards") }}
     ),
     mints_data as (
-        select date, mints_native
+        select date, mints_native, 'solana' as chain, 'helium' as protocol
         from {{ ref("fact_helium_mints") }}
     ),
     price_data as ({{ get_coingecko_metrics("helium") }})
 select
     date_spine.date
+    , revenue_data.chain
+    , revenue_data.protocol
     , coalesce(revenue_data.revenue, 0) as revenue
     , coalesce(revenue_data.hnt_burned, 0) as burns_native
     , coalesce(new_mobile_subscribers_data.new_subscribers, 0) as new_subscribers
