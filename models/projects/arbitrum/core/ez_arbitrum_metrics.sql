@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_arbitrum_transactions") }}
+-- depends_on {{ ref("ez_arbitrum_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -10,7 +10,7 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("arbitrum") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("arbitrum", "v2") }}),
     price_data as ({{ get_coingecko_metrics("arbitrum") }}),
     defillama_data as ({{ get_defillama_metrics("arbitrum") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("arbitrum") }}),
