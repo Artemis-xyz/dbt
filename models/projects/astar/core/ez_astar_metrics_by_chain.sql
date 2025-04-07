@@ -4,7 +4,7 @@
         snowflake_warehouse="ASTAR",
         database="astar",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
     )
 }}
 with
@@ -20,10 +20,7 @@ with
     price_data as ({{ get_coingecko_metrics("astar") }})
 select
     f.date
-    , txns
-    , daa as dau
-    , coalesce(fees_native, 0) as fees_native
-    , coalesce(fees_usd, 0) as fees
+    , 'astar' as chain
     -- Standardized Metrics
     -- Market Data
     , price_data.price
@@ -34,10 +31,10 @@ select
     , price_data.token_volume
     -- Chain Metrics
     , txns as chain_txns
-    , dau as chain_dau
+    , daa as chain_dau
     -- Cash Flow Metrics
-    , fees_native as gross_protocol_revenue_native
-    , fees as gross_protocol_revenue
+    , coalesce(fees_native, 0) as gross_protocol_revenue_native
+    , coalesce(fees_usd, 0) as gross_protocol_revenue
 from fundamental_data f
 left join price_data using(f.date)
 where f.date < to_date(sysdate())
