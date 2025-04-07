@@ -4,7 +4,7 @@
         snowflake_warehouse="WORLDCHAIN",
         database="worldchain",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
     )
 }}
 
@@ -16,15 +16,7 @@ with
     )
 select
     f.date
-    , txns
-    , daa as dau
-    , fees_native
-    , fees
-    , cost
-    , cost_native
-    , revenue
-    , revenue_native
-
+    , 'worldchain' as chain
     -- Standardized Metrics
     -- Market Data
     , price
@@ -35,7 +27,7 @@ select
     , token_volume
     , dex_volumes
     -- Chain Metrics
-    , dau as chain_dau
+    , daa as chain_dau
     , txns as chain_txns
     -- Cash Flow Metrics
     , fees as gross_protocol_revenue
