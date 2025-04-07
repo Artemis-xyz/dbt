@@ -119,8 +119,6 @@ column_definitions:
   aggregator_metrics:
     - name: aggregator_dau
       description: "The number of daily active traders on an aggregator"
-    - name: aggregator_fees
-      description: "The total fees collected by an aggregator"
     - name: aggregator_txns
       description: "The number of daily trades on an aggregator"
     - name: aggregator_volume

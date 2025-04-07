@@ -35,12 +35,12 @@ WITH metrics AS (
 
 SELECT
     metrics.date
-    , metrics.trading_volume
-    , metrics.dau
-    , metrics.daily_txns
-    , metrics.fees_usd AS fees
-    , metrics.fees_usd * 0.4 AS supply_side_fees
-    , metrics.fees_usd * 0.6 + coin_metrics.burns_usd AS revenue
+    , coalesce(metrics.trading_volume, 0) as trading_volume
+    , coalesce(metrics.dau, 0) as dau
+    , coalesce(metrics.daily_txns, 0) as daily_txns
+    , coalesce(metrics.fees_usd, 0) as fees
+    , coalesce(metrics.fees_usd, 0) * 0.4 AS supply_side_fees
+    , coalesce(metrics.fees_usd, 0) * 0.6 + coalesce(coin_metrics.burns_usd, 0) AS revenue
     
     --Standardized Metrics
 
@@ -51,24 +51,23 @@ SELECT
     , coalesce(market_data.token_volume, 0) AS token_volume
 
     -- Aggregator Metrics
-    , metrics.dau AS aggregator_dau
-    , metrics.daily_txns AS aggregator_txns
-    , metrics.fees_usd as aggregator_fees
-    , metrics.fees_usd * 0.66 AS aggregator_revenue
-    , metrics.trading_volume AS aggregator_volume
+    , coalesce(metrics.dau, 0) AS aggregator_dau
+    , coalesce(metrics.daily_txns, 0) AS aggregator_txns
+    , coalesce(metrics.fees_usd, 0) AS aggregator_revenue
+    , coalesce(metrics.trading_volume, 0) AS aggregator_volume
 
     -- Cash Flow Metrics
-    , metrics.fees_usd AS gross_protocol_revenue
-    , metrics.fees_usd * 0.6 AS treasury_cash_flow
-    , metrics.fees_usd * 0.4 AS token_cash_flow
+    , coalesce(metrics.fees_usd, 0) AS gross_protocol_revenue
+    , coalesce(metrics.fees_usd, 0) * 0.6 AS treasury_cash_flow
+    , coalesce(metrics.fees_usd, 0) * 0.4 AS token_cash_flow
 
     -- Supply Metrics
-    , coin_metrics.burns AS burns_native
-    , coin_metrics.circulating_supply AS circulating_supply_native
-    , coin_metrics.gross_emissions AS emissions_native
-    , coin_metrics.gross_emissions as mints_native
-    , coin_metrics.net_supply_change AS net_supply_change_native
-    , coin_metrics.pre_mine_unlocks AS premine_unlocks_native
+    , coalesce(coin_metrics.burns, 0) AS burns_native
+    , coalesce(coin_metrics.circulating_supply, 0) AS circulating_supply_native
+    , coalesce(coin_metrics.gross_emissions, 0) AS emissions_native
+    , coalesce(coin_metrics.gross_emissions, 0) as mints_native
+    , coalesce(coin_metrics.net_supply_change, 0) AS net_supply_change_native
+    , coalesce(coin_metrics.pre_mine_unlocks, 0) AS premine_unlocks_native
 
     -- Turnover Metrics
     , coalesce(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
