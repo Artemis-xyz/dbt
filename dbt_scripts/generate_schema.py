@@ -48,10 +48,11 @@ def extract_sql_columns(sql_file_path):
             continue
             
         # Pattern 2: simple column name
-        if re.match(r"^\w+(?:\s*--.*)?$", line):
-            column_names.add(line)
+        match = re.match(r"^\s*,?\s*(\w+)(?:\s*--.*)?$", line)
+        if match:
+            column_names.add(match.group(1))  # Extract the captured column name
             continue
-            
+
         # Pattern 3: table.column as alias
         match = re.search(r"[\w.]+\.(\w+)(?:\s*,)?(?:\s*--.*)?$", line)
         if match:
