@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: fact_litecoin_transfers
+    description: Fact table containing Litecoin transaction transfers with inputs and outputs
+    columns:
+      - name: tx_hash
+        description: Unique transaction hash
+        tests:
+          - not_null
+      - name: block_number
+        description: Block number in which the transaction was included
+        tests:
+          - not_null
+      - name: block_timestamp
+        description: Timestamp of the block
+        tests:
+          - not_null
+      - name: from_address
+        description: Source address for the transfer
+      - name: to_address
+        description: Destination address for the transfer
+      - name: input_amount
+        description: Amount of Litecoin in the input
+      - name: output_amount
+        description: Amount of Litecoin in the output
+      - name: transfer_type
+        description: Type of transfer (input/output)
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['input', 'output']
+      - name: unique_id
+        description: Unique identifier for the transaction
+        tests:
+          - not_null
+          - unique 
