@@ -42,24 +42,24 @@ def extract_sql_columns(sql_file_path):
             
         # Handle different alias patterns
         # Pattern 1: column as alias
-        match = re.search(r"(?:.*\s)?as\s+(\w+)(?:\s*,)?$", line, re.IGNORECASE)
+        match = re.search(r"(?:.*\s)?as\s+(\w+)(?:\s*,)?(?:\s*--.*)?$", line, re.IGNORECASE)
         if match:
             column_names.add(match.group(1))
             continue
             
         # Pattern 2: simple column name
-        if re.match(r"^\w+$", line):
+        if re.match(r"^\w+(?:\s*--.*)?$", line):
             column_names.add(line)
             continue
             
         # Pattern 3: table.column as alias
-        match = re.search(r"[\w.]+\.(\w+)(?:\s*,)?$", line)
+        match = re.search(r"[\w.]+\.(\w+)(?:\s*,)?(?:\s*--.*)?$", line)
         if match:
             column_names.add(match.group(1))
             continue
             
         # Pattern 4: complex expression with final alias
-        match = re.search(r"\w+$", line)
+        match = re.search(r"\w+(?:\s*--.*)?$", line)
         if match:
             column_names.add(match.group(0))
 
