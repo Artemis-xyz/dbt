@@ -4,7 +4,7 @@
         snowflake_warehouse="BOBA",
         database="boba",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
     )
 }}
 
@@ -17,6 +17,7 @@ with
 select
     d.date
     , dex_volumes
+    , 'boba' as chain
     -- Standardized Metrics
     -- Market Data
     , price
