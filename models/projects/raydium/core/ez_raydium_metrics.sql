@@ -116,6 +116,10 @@ with buyback_from_pair as (
     select date as day
         , price
         , market_cap 
+        , fdmc
+        , token_turnover_circulating
+        , token_turnover_fdv
+        , token_volume
     from ({{ get_coingecko_metrics("raydium") }})
     where 1=1
     {% if is_incremental() %}
@@ -141,6 +145,10 @@ select
     , coalesce(c.amount_raw, 0) as pool_creation_fees_native
     , price_data.price 
     , price_data.market_cap
+    , price_data.fdmc
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
+    , price_data.token_volume
     , coalesce(tvl.tvl,
             LAST_VALUE(tvl.tvl IGNORE NULLS) OVER (ORDER BY v.day ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)) as tvl 
     , v.unique_traders -- not just direct, include aggregator routed
