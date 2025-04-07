@@ -241,15 +241,17 @@ column_definitions:
 
   protocol_metrics:
     - name: treasury
-      description: "The total amount of USD value in the protocol treasury"
+      description: "The USD value in the protocol treasury"
     - name: treasury_native
-      description: "The total amount of native tokens in the protocol treasury"
-    - name: treasury_native_change
-      description: "The net change in the total amount of native tokens in the protocol treasury"
-    - name: staked
-      description: "The total amount of USD value of tokens staked in the protocol"
-    - name: staked_native
-      description: "The total amount of native tokens staked in the protocol"
+      description: "The native value of tokens in the protocol treasury"
+    - name: net_treasury
+      description: "The USD value in the protocol's treasury excluding the protocol's own tokens"
+    - name: net_treasury_native
+      description: "The native value of tokens in the protocol's treasury excluding the protocol's own tokens"
+    - name: own_token_treasury
+      description: "The USD value of the protocol's own tokens in the protocol treasury"
+    - name: own_token_treasury_native
+      description: "The native value of the protocol's own tokens in the protocol treasury"
 
   perpetual_metrics:
     - name: perp_dau
