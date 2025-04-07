@@ -4,7 +4,7 @@
         snowflake_warehouse="LITECOIN",
         database="litecoin",
         schema="core",
-        alias="ez_transactions",
+        alias="ez_transfers",
     )
 }}
 
