@@ -85,9 +85,9 @@ select
     extraction_date,
     case when contains(coalesce(lower(prices.symbol), lower(ops.symbol)), 'usd') then 'Stablecoin' else 'Token' end as category
 from {{ref('fact_wormhole_operations')}} as ops
-left join prices on lower(ops.token_address) = lower(contract_address) and date = date_trunc('day', ops.src_timestamp)
 left join chain_ids as f_chain on f_chain.id = ops.from_chain
 left join chain_ids as t_chain on t_chain.id = ops.to_chain
 left join chain_ids as token_chain on token_chain.id = ops.token_chain
+left join prices on lower(ops.token_address) = lower(contract_address) and date = date_trunc('day', ops.src_timestamp) and prices.chain = token_chain.chain
 where token_address is not null and lower(ops.token_address) <> lower('0xcc8fa225d80b9c7d42f96e9570156c65d6caaa25')
 and (amount is not null or amount_adjusted is not null)
