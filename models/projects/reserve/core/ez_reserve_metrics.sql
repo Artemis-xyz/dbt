@@ -40,8 +40,8 @@ select
     , coalesce(fdmc, 0) as fdmc
     , coalesce(token_volume, 0) as token_volume
 
-    -- Usage Metrics
-    , coalesce(dau, 0) as dau
+    -- Stablecoin Metrics
+    , coalesce(dau, 0) as stablecoin_dau
 
     -- Crypto Metrics
     , coalesce(tvl, 0) as tvl
