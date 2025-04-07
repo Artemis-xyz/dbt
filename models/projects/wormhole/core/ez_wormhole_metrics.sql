@@ -23,14 +23,26 @@ with txns as (
     from {{ ref("fact_wormhole_bridge_volume_gold") }}
     group by 1
 )
+, price_data as ({{ get_coingecko_metrics("wormhole") }})
 
 select
-    coalesce(txns.date, daa.date) as date,
-    coalesce(txns.txns, 0) as bridge_txns,
-    coalesce(daa.bridge_daa, 0) as bridge_daa,
-    coalesce(bridge_volume.fees, 0) as fees,
-    coalesce(bridge_volume.bridge_volume, 0) as bridge_volume
+    coalesce(txns.date, daa.date) as date
+    , coalesce(daa.bridge_daa, 0) as bridge_daa
+    , coalesce(bridge_volume.fees, 0) as fees
+
+    -- Standardized Metrics
+    , coalesce(txns.txns, 0) as bridge_txns
+    , coalesce(bridge_volume.bridge_volume, 0) as bridge_volume
+    , coalesce(bridge_volume.fees, 0) as gross_protocol_revenue
+    , coalesce(daa.bridge_daa, 0) as bridge_dau,
+    , price_data.price as price
+    , price_data.market_cap as market_cap
+    , price_data.fdmc as fdmc
+    , price_data.token_turnover_circulating as token_turnover_circulating
+    , price_data.token_turnover_fdv as token_turnover_fdv
+    , price_data.token_volume as token_volume
 from txns
 left join daa on txns.date = daa.date
 left join bridge_volume on txns.date = bridge_volume.date
+left join price_data on txns.date = price_data.date
 where coalesce(txns.date, daa.date) < to_date(sysdate())

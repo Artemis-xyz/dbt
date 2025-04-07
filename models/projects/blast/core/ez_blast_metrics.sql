@@ -54,15 +54,21 @@ select
     , market_cap
     , fdmc
     , tvl
-    -- Usage metrics
+    -- Chain Usage metrics
     , txns as chain_txns
     , dau AS chain_dau
     , wau AS chain_wau
     , mau AS chain_mau
+    , avg_txn_fee AS chain_avg_txn_fee
+    , returning_users
+    , new_users
+    , low_sleep_users
+    , high_sleep_users
+    , dau_over_100 AS dau_over_100_balance
+    , dune_dex_volumes_blast.dex_volumes as chain_dex_volumes
     -- Cashflow metrics
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
-    , avg_txn_fee AS chain_avg_txn_fee
     , median_txn_fee AS chain_median_txn_fee
     , revenue_native AS burned_cash_flow_native
     , revenue AS burned_cash_flow
@@ -70,13 +76,6 @@ select
     , l1_data_cost AS l1_cash_flow
     , revenue_native AS foundation_cash_flow_native
     , revenue AS foundation_cash_flow
-    -- Chain metrics
-    , returning_users
-    , new_users
-    , low_sleep_users
-    , high_sleep_users
-    , dau_over_100 AS dau_over_100_balance
-    , dune_dex_volumes_blast.dex_volumes as chain_dex_volumes
     -- Developer metrics
     , weekly_contracts_deployed
     , weekly_contract_deployers

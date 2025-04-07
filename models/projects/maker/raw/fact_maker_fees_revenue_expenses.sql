@@ -45,6 +45,18 @@ select
     sum(
         case
             when account_id like '312%'  -- Liquidation Revenues
+            then sum_value
+        end
+    ) as liquidation_revenue,
+    sum(
+        case
+            when account_id like '313%'  -- Trading Revenues
+            then sum_value
+        end
+    ) as trading_revenue,
+    sum(
+        case
+            when account_id like '312%'  -- Liquidation Revenues
                 or account_id like '313%'  -- Trading Revenues
                 or account_id like '311%'  -- Gross Interest Revenues
             then sum_value

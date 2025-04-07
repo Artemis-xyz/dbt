@@ -92,6 +92,7 @@ select
     , v.unique_traders as spot_dau
     , v.number_of_swaps as spot_txns
     , v.trading_volume as spot_volume
+
     , coalesce(tvl.tvl,
             LAST_VALUE(tvl.tvl IGNORE NULLS) OVER (ORDER BY v.date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)) as tvl 
 
