@@ -314,3 +314,20 @@ column_definitions:
       description: "The cumulative flow of ETFs on a chain"
     - name: cumulative_etf_flow
       description: "The cumulative flow of ETFs on a chain"
+
+  nft_toolkit_metrics: 
+    - name: nft_toolkit_dau
+      description: "Number of daily active developers on the toolkit."
+    - name: nft_toolkit_txns
+      description: "Number of transactions on the toolkit."
+    - name: nft_toolkit_projects_created
+      description: "Total number of NFT projects or applications created using the toolkit."
+    - name: nft_toolkit_contracts_deployed
+      description: "Number of smart contracts successfully deployed through the toolkit."
+    - name: nft_toolkit_nfts_minted
+      description: "Total NFTs minted using the toolkit across all projects."
+    - name: nft_toolkit_platform_fees
+      description: "Total fees generated through subscriptions or services."
+    - name: nft_toolkit_royalties_generated
+      description: "Amount of royalties earned by users or the platform via secondary NFT sales."
+

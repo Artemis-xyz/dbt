@@ -76,18 +76,21 @@ SELECT
     , coalesce(mints.cumulative_mints, 0) as cumulative_mints
     , coalesce(unique_signers.unique_signers, 0) as unique_signers
     , coalesce(new_holders.daily_new_holders, 0) as daily_new_holders
+    , coalesce(active_wallets.dau, 0) as dau
+    , coalesce(transactions.txns, 0) as txns
 
     --Standardized Metrics
 
     -- Token Metrics
     , coalesce(price.price, 0) as price
     , coalesce(price.market_cap, 0) as market_cap
-    , price.fdmc
-    , price.token_volume
+    , coalesce(price.fdmc, 0) as fdmc
+    , coalesce(price.token_volume, 0) as token_volume
 
     -- Usage Metrics
-    , coalesce(active_wallets.dau, 0) as dau
-    , coalesce(transactions.txns, 0) as txns
+    , coalesce(active_wallets.dau, 0) as nft_toolkit_dau
+    , coalesce(transactions.txns, 0) as nft_toolkit_txns
+    , coalesce(revenue.revenue_usd, 0) as nft_toolkit_platform_fees
 
     -- Cash Flow Metrics
     , coalesce(revenue.revenue_usd, 0) as gross_protocol_revenue
@@ -99,8 +102,8 @@ SELECT
     , coalesce(mints.daily_mints, 0) - coalesce(buybacks.buyback, 0) as net_supply_change_native
 
     -- Turnover Metrics
-    , price.token_turnover_circulating
-    , price.token_turnover_fdv
+    , coalesce(price.token_turnover_circulating, 0) as token_turnover_circulating
+    , coalesce(price.token_turnover_fdv, 0) as token_turnover_fdv
 FROM date_spine ds
 LEFT JOIN price USING (date)
 LEFT JOIN revenue USING (date)

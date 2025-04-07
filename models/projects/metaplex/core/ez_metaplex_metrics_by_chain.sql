@@ -62,9 +62,6 @@ with date_spine as (
         , cumulative_mints
     from {{ ref("fact_metaplex_assets_minted") }}
 )
-, price as (
-    {{get_coingecko_metrics('metaplex')}}
-)
 
 SELECT
     ds.date
@@ -80,15 +77,10 @@ SELECT
 
     --Standardized Metrics
 
-    -- Token Metrics
-    , coalesce(price.price, 0) as price
-    , coalesce(price.market_cap, 0) as market_cap
-    , price.fdmc
-    , price.token_volume
-
     -- Usage Metrics
-    , coalesce(active_wallets.dau, 0) as dau
-    , coalesce(transactions.txns, 0) as txns
+    , coalesce(active_wallets.dau, 0) as nft_toolkit_dau
+    , coalesce(transactions.txns, 0) as nft_toolkit_txns
+    , coalesce(revenue.revenue_usd, 0) as nft_toolkit_platform_fees
 
     -- Cash Flow Metrics
     , coalesce(revenue.revenue_usd, 0) as gross_protocol_revenue
@@ -98,12 +90,7 @@ SELECT
     -- Supply Metrics
     , coalesce(mints.daily_mints, 0) as mints_native
     , coalesce(mints.daily_mints, 0) - coalesce(buybacks.buyback, 0) as net_supply_change_native
-
-    -- Turnover Metrics
-    , price.token_turnover_circulating
-    , price.token_turnover_fdv
 FROM date_spine ds
-LEFT JOIN price USING (date)
 LEFT JOIN revenue USING (date)
 LEFT JOIN buybacks USING (date)
 LEFT JOIN mints USING (date)
