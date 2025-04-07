@@ -24,7 +24,7 @@ select
     , cost_native
     , revenue
     , revenue_native
-
+    , dex_volumes
     -- Standardized Metrics
     -- Market Data
     , price
@@ -33,10 +33,10 @@ select
     , token_turnover_circulating
     , token_turnover_fdv
     , token_volume
-    , dex_volumes
     -- Chain Metrics
     , dau as chain_dau
     , txns as chain_txns
+    , dex_volumes as chain_dex_volumes
     -- Cash Flow Metrics
     , fees as gross_protocol_revenue
     , fees_native as gross_protocol_revenue_native

@@ -17,6 +17,7 @@ with
 select
     f.date
     , 'worldchain' as chain
+    , dex_volumes
     -- Standardized Metrics
     -- Market Data
     , price
@@ -25,7 +26,6 @@ select
     , token_turnover_circulating
     , token_turnover_fdv
     , token_volume
-    , dex_volumes
     -- Chain Metrics
     , daa as chain_dau
     , txns as chain_txns

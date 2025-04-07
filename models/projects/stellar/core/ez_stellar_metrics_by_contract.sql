@@ -13,19 +13,35 @@ WITH fundamental_data AS (
         TO_TIMESTAMP_NTZ(date) AS date
     FROM {{ source('PROD_LANDING', 'ez_stellar_metrics_by_contract') }}
 ), prices as ({{ get_coingecko_price_with_latest("stellar") }})
+, price_data as ({{ get_coingecko_metrics("stellar") }})
 SELECT
-    fundamental_data.date,
-    fundamental_data.chain,
-    fundamental_data.app,
-    fundamental_data.category,
-    fundamental_data.name,
-    fundamental_data.friendly_name,
-    fundamental_data.contract_address,
-    fundamental_data.classic_txns AS txns,
-    fundamental_data.soroban_txns AS soroban_txns,
-    fundamental_data.daily_fees as gas,
-    fundamental_data.daily_fees * price as gas_usd,
-    fundamental_data.operations as operations,
-    fundamental_data.dau as dau
+    fundamental_data.date
+    , fundamental_data.chain
+    , fundamental_data.app
+    , fundamental_data.category
+    , fundamental_data.name
+    , fundamental_data.friendly_name
+    , fundamental_data.contract_address
+    , fundamental_data.classic_txns AS txns
+    , fundamental_data.soroban_txns AS soroban_txns
+    , fundamental_data.daily_fees as gas
+    , fundamental_data.daily_fees * price as gas_usd
+    , fundamental_data.operations as operations
+    , fundamental_data.dau as dau
+    -- Standardized Metrics
+    -- Market Data
+    , price_data.price
+    , price_data.market_cap
+    , price_data.fdmc
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
+    , price_data.token_volume
+    -- Chain Metrics
+    , txns as chain_txns
+    , dau as chain_dau
+    -- Cash Flow Metrics
+    , gas as gross_protocol_revenue_native
+    , gas_usd as gross_protocol_revenue
 FROM fundamental_data
 LEFT JOIN prices USING(date)
+LEFT JOIN price_data USING(date)
