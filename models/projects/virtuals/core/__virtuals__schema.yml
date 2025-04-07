@@ -4,30 +4,6 @@
 version: 2
 
 column_definitions:
-  ai_daily_agents: &ai_daily_agents
-    name: ai_daily_agents
-    description: "The number of daily active agents on Virtuals protocol"
-    tags:
-      - override
-
-  ai_dau: &ai_dau
-    name: ai_dau
-    description: "The number of daily active users on Virtuals protocol"
-    tags:
-      - override
-
-  ai_fees: &ai_fees
-    name: ai_fees
-    description: "The sum of all taxes, 1% fee on all trades, and agent fees(in USD) paid on Virtuals protocol"
-    tags:
-      - override
-
-  ai_volume: &ai_volume
-    name: ai_volume
-    description: "The total volume on Virtuals protocol"
-    tags:
-      - override
-
   fdmc: &fdmc
     name: fdmc
     description: "The fully diluted market cap of $VIRTUALS in USD"
@@ -63,6 +39,24 @@ column_definitions:
       - artemis_gaap
       - override
 
+  spot_dau: &spot_dau
+    name: spot_dau
+    description: "The number of daily active traders on Virtuals protocol"
+    tags:
+      - override
+
+  spot_revenue: &spot_revenue
+    name: spot_revenue
+    description: "The sum of all taxes, 1% fee on all trades, and agent fees(in USD) paid on Virtuals protocol"
+    tags:
+      - override
+
+  spot_volume: &spot_volume
+    name: spot_volume
+    description: "The total volume on Virtuals protocol"
+    tags:
+      - override
+
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
     description: "The turnover of $VIRTUALS in USD"
@@ -95,22 +89,16 @@ models:
   - name: ez_virtuals_metrics
     description: "This table stores metrics for the VIRTUALS protocol"
     columns:
-      - *ai_daily_agents
-      - *ai_dau
-      - *ai_fees
-      - *ai_volume
       - *fdmc
       - *gross_protocol_revenue
       - *market_cap
       - *price
       - *service_cash_flow
+      - *spot_dau
+      - *spot_revenue
+      - *spot_volume
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
       - *treasury_cash_flow
-
-  - name: ez_virtuals_metrics_by_chain
-    description: "This table stores metrics for the VIRTUALS protocol"
-    columns:
-      - *ai_volume
 

@@ -63,11 +63,10 @@ select
     , coalesce(fdmc, 0) as fdmc
     , coalesce(token_volume, 0) as token_volume
 
-    -- AI Metrics
-    , coalesce(dau, 0) as ai_dau
-    , coalesce(fees, 0) as ai_fees
-    , coalesce(volume_usd, 0) as ai_volume
-    , coalesce(daily_agents, 0) as ai_daily_agents
+    -- Spot DEX Metrics
+    , coalesce(dau, 0) as spot_dau
+    , coalesce(volume_usd, 0) as spot_volume
+    , coalesce(fee_fun_usd,0)  + coalesce(tax_usd,0) as spot_revenue
 
     -- Cash Flow Metrics
     , coalesce(fee_fun_usd,0)  + coalesce(tax_usd,0) as gross_protocol_revenue
