@@ -22,7 +22,7 @@ with bridge_volume_fees as (
 , price_data as ({{ get_coingecko_metrics("debridge") }})
 
 select
-    date
+    bridge_volume_fees.date
     , ecosystem_revenue
     , txns
     , fees

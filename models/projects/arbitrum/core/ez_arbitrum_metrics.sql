@@ -68,7 +68,6 @@ select
     , txns AS chain_txns
     , avg_txn_fee AS chain_avg_txn_fee  
     , median_txn_fee AS chain_median_txn_fee
-    , nft_trading_volume AS chain_nft_trading_volume
     , dune_dex_volumes_arbitrum.dex_volumes AS chain_dex_volumes
     , returning_users
     , new_users
