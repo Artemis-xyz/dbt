@@ -17,6 +17,7 @@ WITH
             trading_fees,
             fees,
             primary_revenue,
+            liquidation_revenue,
             other_revenue,
             protocol_revenue,
             token_incentives,
@@ -103,7 +104,7 @@ select
 
     , COALESCE(primary_revenue, 0) AS interest_rate_cash_flow
     , COALESCE(liquidation_revenue, 0) AS liquidation_cash_flow
-    , COALESCE(trading_revenue, 0) AS trading_cash_flow
+    , COALESCE(trading_fees, 0) AS trading_cash_flow
     -- token_cash_flow = trading_revenue + liquidation_revenue + interest_rate_cash_flow
     , COALESCE(protocol_revenue, 0) AS token_cash_flow 
     
