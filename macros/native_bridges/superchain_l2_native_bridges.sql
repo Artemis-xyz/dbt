@@ -3,8 +3,8 @@
         block_timestamp
         , tx_hash
         , event_index
-        , coalesce(decoded_log:"from", decoded_log:"_from")::string as depositor
-        , coalesce(decoded_log:"to", decoded_log:"_to")::string as recipient
+        , coalesce(decoded_log:"from"::string, decoded_log:"_from"::string) as depositor
+        , coalesce(decoded_log:"to"::string, decoded_log:"_to"::string) as recipient
         , TO_NUMERIC(coalesce(decoded_log:"amount", decoded_log:"_amount")) as amount_native
         , null as fee
         , case 
@@ -32,6 +32,10 @@
         , decoded_log
         , event_name
         , contract_address
+        , case 
+            when event_name = 'WithdrawalInitiated' then 'withdrawal'
+            when event_name = 'DepositFinalized' then 'deposit' 
+        end as action
     from {{chain}}_flipside.core.fact_decoded_event_logs
     where
         contract_address = lower('0x4200000000000000000000000000000000000010')
