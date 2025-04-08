@@ -98,6 +98,10 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  tokenized_market_cap: &tokenized_market_cap
+    name: tokenized_market_cap
+    description: "The market cap of a tokenized asset in USD."
+
 models:
   - name: ez_stellar_metrics_by_application
     description: "This table stores metrics for the STELLAR protocol"
@@ -136,6 +140,7 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
+      - *tokenized_market_cap
 
   - name: ez_stellar_metrics_by_category
     description: "This table stores metrics for the STELLAR protocol"
