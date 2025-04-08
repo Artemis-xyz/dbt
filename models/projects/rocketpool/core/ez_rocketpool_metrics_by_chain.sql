@@ -44,25 +44,16 @@ select
     , outstanding_supply
     , tvl
     , treasury_value
-    , treasury_value_native
-    , net_treasury_value
 
     --Standardized Metrics
-    , COALESCE(f.cl_rewards_usd, 0) as lst_cl_rewards
-    , COALESCE(f.el_rewards_usd, 0) as lst_el_rewards
-    , COALESCE(f.deposit_fees, 0) as lst_deposit_fees
-    , COALESCE(f.fees, 0) as gross_protocol_revenue
+    , COALESCE(cl_rewards_usd, 0) as block_rewards
+    , COALESCE(el_rewards_usd, 0) as mev_priority_fees
+    , COALESCE(deposit_fees, 0) as lst_deposit_fees
+    , COALESCE(fees, 0) as yield_generated
+    , COALESCE(fees, 0) as gross_protocol_revenue
     , gross_protocol_revenue * 0.14 as ecosystem_revenue
     , gross_protocol_revenue - ecosystem_revenue as lp_revenue
-    , COALESCE(f.operating_expenses, 0) as operating_expenses
-    , COALESCE(ti.token_incentives, 0) as token_incentives
-    , token_incentives + operating_expenses as total_expenses
-    , staked_eth_metrics.num_staked_eth as tvl_native
-    , staked_eth_metrics.amount_staked_usd as tvl
-    , os.reth_supply as outstanding_supply
-    , COALESCE(t.treasury_value, 0) as treasury_value
-    , COALESCE(tn.treasury_native, 0) as treasury_value_native
-    , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
-
+    , s.num_staked_eth as tvl_native
+    , s.amount_staked_usd as tvl
 from staked_eth_metrics s
 left join {{ ref('ez_rocketpool_metrics') }} using(date)
