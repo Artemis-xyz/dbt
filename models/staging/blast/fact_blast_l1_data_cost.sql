@@ -2,7 +2,7 @@
 with
     blast_data as (
         select raw_date as date, sum(tx_fee) as fees_native, sum(gas_usd) as fees
-        from {{ ref("ez_ethereum_transactions") }}
+        from {{ ref("ez_ethereum_transactions_v2") }}
         where
             lower(contract_address) in (
                 lower('0xFf00000000000000000000000000000000081457')
