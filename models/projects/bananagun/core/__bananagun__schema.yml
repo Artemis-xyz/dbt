@@ -10,12 +10,6 @@ column_definitions:
     tags:
       - override
 
-  aggregator_fees: &aggregator_fees
-    name: aggregator_fees
-    description: "A 1% fee applied to all successful trades executed by the aggregator bot. This fee is calculated by adding the total USD value received into designated fee wallets on Solana, along with the value of specific transactions on Ethereum and Base related to the fee event."
-    tags:
-      - override
-
   aggregator_revenue: &aggregator_revenue
     name: aggregator_revenue
     description: "60% of the total fees collected by the aggregator"
@@ -34,10 +28,18 @@ column_definitions:
     tags:
       - override
 
-  burns_native: &burns_native
-    name: burns_native
-    description: "The amount of $BANANA native tokens burned"
+  burned_cash_flow: &burned_cash_flow
+    name: burned_cash_flow
+    description: "The amount of USD value of $BANANA burned"
     tags:
+      - artemis_gaap
+      - override
+
+  burned_cash_flow_native: &burned_cash_flow_native
+    name: burned_cash_flow_native
+    description: "The amount of native tokens of $BANANA burned"
+    tags:
+      - artemis_gaap
       - override
 
   circulating_supply_native: &circulating_supply_native
@@ -138,11 +140,11 @@ models:
     description: "This table stores metrics for the BANANAGUN protocol"
     columns:
       - *aggregator_dau
-      - *aggregator_fees
       - *aggregator_revenue
       - *aggregator_txns
       - *aggregator_volume
-      - *burns_native
+      - *burned_cash_flow
+      - *burned_cash_flow_native
       - *circulating_supply_native
       - *emissions_native
       - *fdmc
@@ -162,6 +164,10 @@ models:
     description: "This table stores metrics for the BANANAGUN protocol"
     columns:
       - *aggregator_dau
+      - *aggregator_revenue
       - *aggregator_txns
       - *aggregator_volume
+      - *gross_protocol_revenue
+      - *token_cash_flow
+      - *treasury_cash_flow
 
