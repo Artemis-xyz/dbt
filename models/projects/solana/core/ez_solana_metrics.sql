@@ -34,7 +34,7 @@ with
                         when index = 0 then (array_size(signers) * (5000 / 1e9)) else 0
                     end
                 ) as base_fee_native,
-                count_if(index = 0 and succeeded = 'TRUE') as txns,
+                count_if(index = 0) as txns,
                 count(
                     distinct(case when succeeded = 'TRUE' then value else null end)
                 ) dau,
@@ -132,7 +132,7 @@ with
             from unrefreshed_data_with_price
         {% endif %}
     ), 
-    dune_dex_volumes as (
+    solana_dex_volumes as (
         select date, daily_volume_usd as dex_volumes
         from {{ ref("fact_solana_dex_volumes") }}
     )
@@ -195,8 +195,8 @@ select
     p2p_native_transfer_volume,
     p2p_token_transfer_volume,
     p2p_transfer_volume,
-    coalesce(dune_dex_volumes.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume, 
-    dune_dex_volumes.dex_volumes as dex_volumes
+    coalesce(solana_dex_volumes.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume, 
+    solana_dex_volumes.dex_volumes as dex_volumes
 from fundamental_usage
 left join defillama_data on fundamental_usage.date = defillama_data.date
 left join stablecoin_data on fundamental_usage.date = stablecoin_data.date
@@ -209,5 +209,5 @@ left join issuance_data on fundamental_usage.date = issuance_data.date
 left join nft_metrics on fundamental_usage.date = nft_metrics.date
 left join p2p_metrics on fundamental_usage.date = p2p_metrics.date
 left join rolling_metrics on fundamental_usage.date = rolling_metrics.date
-left join dune_dex_volumes on fundamental_usage.date = dune_dex_volumes.date
+left join solana_dex_volumes on fundamental_usage.date = solana_dex_volumes.date
 where fundamental_usage.date < to_date(sysdate())

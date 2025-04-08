@@ -1,7 +1,7 @@
 {{ config(snowflake_warehouse="WORMHOLE", materialized="table") }}
 
 with
-decoded_wromhole_data as (
+decoded_wormhole_data as (
     select 
         value:"id"::string as id,
         value:"sourceChain":"timestamp"::timestamp as src_timestamp,
@@ -12,10 +12,11 @@ decoded_wromhole_data as (
         value:"targetChain":"transaction":"txHash"::string as dst_tx_hash,
         value:"targetChain":"from"::string as dst_from_address,
         value:"targetChain":"to"::string as dst_to_address,
-        coalesce(TRY_TO_NUMERIC(value:"data":"tokenAmount"::string), TRY_TO_NUMERIC(value:"content":"standarizedProperties":"amount"::string)) as amount,
-        TRY_TO_NUMERIC(value:"data":"usdAmount"::string) as amount_usd,
+        TRY_TO_DOUBLE(value:"content":"standarizedProperties":"amount"::string) as amount,
+        TRY_TO_DOUBLE(value:"data":"tokenAmount"::string) as amount_adjusted,
+        TRY_TO_DOUBLE(value:"data":"usdAmount"::string) as amount_usd,
         value:"content":"standarizedProperties":"appIds" as app_ids,
-        TRY_TO_NUMERIC(value:"content":"standarizedProperties":"fee"::string) as fee,
+        TRY_TO_DOUBLE(value:"content":"standarizedProperties":"fee"::string) as fee,
         value:"content":"standarizedProperties":"feeAddress"::string as fee_address,
         value:"content":"standarizedProperties":"feeChain"::string as fee_chain,
         case 
@@ -51,6 +52,7 @@ select
     max_by(dst_from_address, extraction_date) as dst_from_address,
     max_by(dst_to_address, extraction_date) as dst_to_address,
     max_by(amount, extraction_date) as amount,
+    max_by(amount_adjusted, extraction_date) as amount_adjusted,
     max_by(amount_usd, extraction_date) as amount_usd,
     max_by(app_ids, extraction_date) as app_ids,
     max_by(fee, extraction_date) as fee,
@@ -67,6 +69,6 @@ select
     max_by(src_status, extraction_date) as src_status,
     max_by(dst_status, extraction_date) as dst_status,
     max_by(payload, extraction_date) as payload,
-    extraction_date
-from decoded_wromhole_data t1
-GROUP BY id, extraction_date
+    max(extraction_date) as extraction_date
+from decoded_wormhole_data t1
+GROUP BY id

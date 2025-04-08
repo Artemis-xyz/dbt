@@ -105,10 +105,10 @@ usdc_prices as (
             , event_index
             , 'OFTSent' as event_name
             , '{{ chain }}' as src_chain
-            , pc_dbt_db.prod.hex_to_int(substr(data, 65, 64))::bigint as amount_sent_ld
-            , pc_dbt_db.prod.hex_to_int(substr(data, 0, 64))::bigint as dst_e_id
-            , '0x' || substr(topics[1]::string, 27, 40) as src_address
-            , topics[0]::string as guid
+            , pc_dbt_db.prod.hex_to_int(substr(data, 67, 64))::bigint as amount_sent_ld
+            , pc_dbt_db.prod.hex_to_int(substr(data, 0, 66))::bigint as dst_e_id
+            , '0x' || substr(topics[2]::string, 27, 40) as src_address
+            , topics[1]::string as guid
             , token_messaging_address
             , stargate_implementation_pool
             , token_address

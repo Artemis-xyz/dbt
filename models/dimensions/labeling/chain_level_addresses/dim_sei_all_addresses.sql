@@ -7,10 +7,10 @@
 }}
 
 WITH source_data AS (
-    SELECT from_address, contract_address, inserted_timestamp as last_updated
+    SELECT from_address, contract_address, block_timestamp as last_updated
     FROM sei.prod_raw.ez_transactions
     {% if is_incremental() %}
-        WHERE inserted_timestamp > (SELECT MAX(last_updated) FROM {{ this }})
+        WHERE block_timestamp > (SELECT MAX(last_updated) FROM {{ this }})
     {% endif %}
 ),
 union_data AS (

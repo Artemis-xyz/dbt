@@ -15,8 +15,9 @@ with
             contract.artemis_category_id as category,
             contract.artemis_sub_category_id as sub_category,
             contract.artemis_application_id as app,
-            contract.friendly_name
-        from {{ ref("dim_all_addresses_labeled_gold") }} as contract
+            contract.friendly_name,
+            contract.last_updated
+        from {{ ref("dim_all_addresses_labeled_silver") }} as contract
         where chain = 'bsc'
     ),
     prices as (
@@ -67,7 +68,8 @@ select
     sybil.engagement_type,
     bal.balance_usd,
     bal.native_token_balance,
-    bal.stablecoin_balance
+    bal.stablecoin_balance,
+    CAST(current_timestamp() AS TIMESTAMP_NTZ) AS last_updated_timestamp
 from bsc_flipside.core.fact_transactions as t
 left join new_contracts on lower(t.to_address) = lower(new_contracts.address)
 left join collapsed_prices on raw_date = collapsed_prices.date
@@ -79,7 +81,7 @@ left join balances as bal on t.from_address = bal.address and raw_date = bal.dat
     where
         block_timestamp
         >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
-
         or 
-        new_contracts.address is not null
+        new_contracts.last_updated
+            >= (select dateadd('day', -5, max(last_updated_timestamp)) from {{ this }})
 {% endif %}

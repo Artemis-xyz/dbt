@@ -38,7 +38,7 @@ with
         select
             coingecko_nft_id,
             date(to_timestamp(value[0]::number / 1000)) as date,
-            avg(value[1]::float) as h24_volume_usd
+            avg(CASE WHEN value[1] = '' THEN 0 ELSE value[1]::FLOAT END) AS h24_volume_usd
         from nft_data, lateral flatten(input => data:h24_volume_usd)
         group by coingecko_nft_id, date
     ),

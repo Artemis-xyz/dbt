@@ -8,6 +8,8 @@
     )
 }}
 
+-- TODO: add aggregator metrics, dca metrics, limit order metrics
+
 SELECT
     block_timestamp::date as date,
     chain,
@@ -17,6 +19,12 @@ SELECT
     sum(fee_usd) as trading_fees,
     sum(size_usd) as trading_volume,
     count(distinct owner) as unique_traders
+
+    -- Standardized Metrics
+    , trading_fees as perp_fees
+    , trading_volume as perp_volume
+    , unique_traders as perp_dau
+    
 FROM {{ ref('fact_jupiter_perps_txs') }} t
 LEFT JOIN {{ source('SOLANA_FLIPSIDE_PRICE', 'ez_asset_metadata') }} m ON m.token_address = t.mint
 GROUP BY 1,2,3,4,5

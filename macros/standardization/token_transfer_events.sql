@@ -6,6 +6,7 @@ with
             block_timestamp,
             block_number,
             transaction_hash,
+            transaction_index,
             event_index,
             contract_address,
             decoded_log:"from"::string as from_address,
@@ -24,6 +25,7 @@ with
                 t1.block_timestamp,
                 t1.block_number,
                 t1.transaction_hash,
+                t1.transaction_index,
                 -1 as event_index,
                 t1.fee_currency as contract_address,
                 t1.from_address,
@@ -42,6 +44,7 @@ select
     block_timestamp
     , block_number
     , transaction_hash
+    , transaction_index
     , event_index
     , token_transfers.contract_address
     , from_address

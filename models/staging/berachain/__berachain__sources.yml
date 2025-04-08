@@ -1,0 +1,12 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_berachain_logs_parquet
+      - name: raw_berachain_transactions_parquet
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: berachain_daily_supply_data

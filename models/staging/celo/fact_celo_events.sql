@@ -10,6 +10,7 @@
         "celo",
         log_column_map=[
             ("transactionHash", to_string, "transaction_hash"),
+            ("transactionIndex", hex_to_number, "transaction_index"),
             ("logIndex", hex_to_number, "event_index"),
             ("address", to_address, "contract_address"),
             ("topics", to_json, "topics"),
@@ -26,6 +27,7 @@ select
     origin_from_address,
     origin_to_address,
     transaction_hash,
+    -1 as transaction_index,
     event_index,
     contract_address,
     topics,

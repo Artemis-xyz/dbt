@@ -15,6 +15,11 @@ SELECT
     , src_tx_hash
     , src_event_index
     , amount_sent_native as src_amount
+    , amount_sent_native
+    , amount_sent_adjusted
+    , amount_sent
+    , src_decimals
+    , src_symbol
     , src_chain
     , src_ids.id as origin_chain_id
     , src_token_address as origin_token
@@ -23,13 +28,18 @@ SELECT
     , dst_tx_hash
     , dst_event_index
     , amount_received_native as dst_amount
+    , amount_received_native
+    , amount_received_adjusted
+    , amount_received
+    , dst_decimals
+    , dst_symbol
     , src_address as depositor
     , dst_address as recipient
     , dst_ids.id as destination_chain_id
     , dst_token_address as destination_token
-    , null as dst_message
     , dst_chain
-    , null as deposit_id
+    , null as token_address
+    , null as token_chain
     , fees_native as protocol_fee
     , 'OFT' as bridge_message_app
     , 2 as version
@@ -46,7 +56,12 @@ SELECT
     , src_block_timestamp
     , src_tx_hash
     , src_event_index
-    , src_amount
+    , amount_sent_native as src_amount
+    , amount_sent_native
+    , amount_sent_adjusted
+    , amount_sent
+    , src_decimals
+    , src_symbol
     , src_chain
     , origin_chain_id
     , origin_token
@@ -54,14 +69,19 @@ SELECT
     , dst_block_timestamp
     , dst_tx_hash
     , dst_event_index
-    , dst_amount
+    , amount_received_native as dst_amount
+    , amount_received_native
+    , amount_received_adjusted
+    , amount_received
+    , dst_decimals
+    , dst_symbol
     , depositor
     , recipient
     , destination_chain_id
     , destination_token
-    , dst_message
     , dst_chain
-    , deposit_id
+    , null as token_address
+    , null as token_chain
     , protocol_fee
     , bridge_message_app
     , version
@@ -79,7 +99,12 @@ SELECT
     , src_timestamp as src_block_timestamp
     , src_tx_hash
     , null as src_event_index
-    , amount as src_amount
+    , amount_native as src_amount
+    , amount_native as amount_sent_native
+    , amount_adjusted as amount_sent_adjusted
+    , amount as amount_sent
+    , decimals as src_decimals
+    , symbol as src_symbol
     , source_chain as src_chain
     , null as origin_chain_id
     , null as origin_token
@@ -87,14 +112,19 @@ SELECT
     , dst_timestamp as dst_block_timestamp
     , dst_tx_hash
     , null as dst_event_index
-    , amount as dst_amount
+    , amount_native as dst_amount
+    , amount_native as amount_received_native
+    , amount_adjusted as amount_received_adjusted
+    , amount as amount_received
+    , decimals as dst_decimals
+    , symbol as dst_symbol
     , from_address as depositor
     , to_address as recipient
     , null as destination_chain_id
-    , token_address as destination_token
-    , null as dst_message
+    , null as destination_token
     , destination_chain as dst_chain
-    , null as deposit_id
+    , token_address
+    , token_chain
     , fee as protocol_fee
     , null as bridge_message_app
     , null as version
@@ -104,4 +134,45 @@ FROM
 WHERE 
     (src_block_timestamp <= to_date(sysdate()) or src_block_timestamp is null)
     and (dst_block_timestamp <= to_date(sysdate()) or dst_block_timestamp is null)
+    and (source_chain is not null and destination_chain is not null)
+union all
+SELECT
+    null as src_messaging_contract_address
+    , src_timestamp as src_block_timestamp
+    , source_tx_hash as src_tx_hash
+    , null as src_event_index
+    , amount_sent_native as src_amount
+    , amount_sent_native
+    , amount_sent_adjusted
+    , amount_sent
+    , source_token_decimals as src_decimals
+    , source_token_symbol as src_symbol
+    , source_chain as src_chain
+    , null as origin_chain_id
+    , source_token_address as origin_token
+    , null as dst_messaging_contract_address
+    , null as dst_block_timestamp
+    , null as dst_tx_hash
+    , null as dst_event_index
+    , amount_received_native as dst_amount
+    , amount_received_native
+    , amount_received_adjusted
+    , amount_received
+    , destination_token_decimals as dst_decimals
+    , destination_token_symbol as dst_symbol
+    , null as depositor
+    , null as recipient
+    , null as destination_chain_id
+    , destination_token_address as destination_token
+    , destination_chain as dst_chain
+    , null as token_address
+    , null as token_chain
+    , null as protocol_fee
+    , null as bridge_message_app
+    , null as version
+    , 'debridge' as app
+FROM 
+    {{ref('fact_debridge_transfers_with_prices')}}
+WHERE
+    src_timestamp <= to_date(sysdate())
     and (source_chain is not null and destination_chain is not null)

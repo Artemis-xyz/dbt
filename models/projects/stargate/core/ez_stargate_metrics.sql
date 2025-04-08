@@ -76,9 +76,9 @@ first_seen AS (
 , treasury_metrics as (
     select
         date
-        , sum(balance_usd) as treasury_usd
+        , sum(balance) as treasury_usd
     from treasury_models
-    where balance_usd is not null
+    where balance > 2 and balance is not null
     group by date
 )
 
@@ -128,7 +128,7 @@ first_seen AS (
     select
         date
         , sum(balance_native) as staked_native
-        , sum(balance_usd) as staked_usd
+        , sum(balance) as staked_usd
     from total_stg_staked
 
     group by date
@@ -136,8 +136,9 @@ first_seen AS (
 , tvl_metrics as (
     select
         date
-        , sum(balance_usd) as tvl
+        , sum(balance) as tvl
     from tvl_models
+    where balance > 2 and balance is not null
     group by date
 )
 -- Weekly metrics (directly from raw data)
@@ -167,9 +168,6 @@ first_seen AS (
         daily_volume,
         daily_active_addresses,
         cumulative_active_addresses,
-        LAG(daily_transactions) OVER (ORDER BY transaction_date) AS prev_day_transactions,
-        ROUND(100.0 * (daily_transactions - LAG(daily_transactions) OVER (ORDER BY transaction_date)) 
-              / NULLIF(LAG(daily_transactions) OVER (ORDER BY transaction_date), 0), 2) AS daily_growth_pct,
         revenue,
         supply_side_fee,
         fees,
@@ -197,46 +195,68 @@ first_seen AS (
     group by date
 )
 , price_data as ({{ get_coingecko_metrics("stargate-finance") }})
-
+, hydra_models as (
+    {{
+        dbt_utils.union_relations(
+            relations=[
+                ref("fact_stargate_v2_berachain_hydra_assets"),
+                ref("fact_stargate_v2_sei_hydra_assets"),
+            ],
+        )
+    }}
+)
+, hydra_metrics as (
+    select
+        date
+        , sum(amount) as hydra_locked_assets
+    from hydra_models
+    group by date
+)
 -- Final output with simplified GROUP BY
 SELECT 
-    d.transaction_date as date,
-    d.daily_transactions as txns,
-    d.avg_daily_transaction_size as avg_txn_size,
-    d.daily_volume as bridge_volume,
-    d.daily_active_addresses as bridge_daa, 
-    COALESCE(n.new_addresses, 0) AS new_addresses,
-    COALESCE(r.returning_addresses, 0) AS returning_addresses,
-    d.cumulative_active_addresses as cumulative_addresses,
-    d.daily_growth_pct,
-    d.supply_side_fee,
-    d.revenue,
-    d.fees,
-    d.token_rewards,
-    w.weekly_active_addresses,
-    m.monthly_active_addresses,
+    t.date as date,
     COALESCE(b.count_0_100, 0) AS TXN_SIZE_0_100,
     COALESCE(b.count_100_1K, 0) AS TXN_SIZE_100_1K,
     COALESCE(b.count_1K_10K, 0) AS TXN_SIZE_1K_10K,
     COALESCE(b.count_10K_100K, 0) AS TXN_SIZE_10K_100K,
     COALESCE(b.count_100K_plus, 0) AS TXN_SIZE_100K_PLUS,
-    t.treasury_usd,
+    d.avg_daily_transaction_size as avg_txn_size,
+    d.daily_active_addresses as bridge_daa,
+    --Add to BAM
+    COALESCE(n.new_addresses, 0) AS new_addresses,
+    COALESCE(r.returning_addresses, 0) AS returning_addresses,
+    --Standardized Metrics
     tvl_metrics.tvl,
+    d.daily_transactions as bridge_txns,
+    d.daily_volume as bridge_volume,
+    d.daily_active_addresses as bridge_dau,
+    w.weekly_active_addresses as bridge_wau,
+    m.monthly_active_addresses as bridge_mau,
+    d.cumulative_active_addresses as bridge_cumulative_dau,
+
+    d.fees as gross_protocol_revenue,
+    d.supply_side_fee as fee_sharing_token_cash_flow,
+    d.revenue as token_cash_flow,
+    d.token_rewards as third_party_token_incentives,
+
+    t.treasury_usd as treasury,
+    ts.staked_usd as staked,
     ts.staked_native,
-    ts.staked_usd,
-    cs.circulating_supply,
-    pd.price,
-    pd.price * cs.circulating_supply as market_cap
-FROM daily_growth d
-LEFT JOIN new_addresses n ON d.transaction_date = n.transaction_date
-LEFT JOIN returning_addresses r ON d.transaction_date = r.transaction_date
-LEFT JOIN weekly_metrics w ON d.transaction_date = DATE(w.week_start)
-LEFT JOIN monthly_metrics m ON d.transaction_date = DATE(m.month_start)
-LEFT JOIN transaction_bucket_counts b ON d.transaction_date = b.transaction_date
-LEFT JOIN treasury_metrics t ON d.transaction_date = t.date
-LEFT JOIN tvl_metrics ON d.transaction_date = tvl_metrics.date
-LEFT JOIN total_stg_staked_metrics ts ON d.transaction_date = ts.date
-LEFT JOIN circulating_supply_metrics cs ON d.transaction_date = cs.date
-LEFT JOIN price_data pd ON d.transaction_date = pd.date
-where d.transaction_date < to_date(sysdate())
-ORDER BY d.transaction_date DESC
+    pd.price as price,
+    cs.circulating_supply as circulating_supply,
+    pd.price * cs.circulating_supply as market_cap,
+    h.hydra_locked_assets as hydra_tvl
+FROM treasury_metrics t
+full outer join daily_growth d ON d.transaction_date = t.date
+LEFT JOIN new_addresses n ON t.date = n.transaction_date
+LEFT JOIN returning_addresses r ON t.date = r.transaction_date
+LEFT JOIN weekly_metrics w ON t.date = DATE(w.week_start)
+LEFT JOIN monthly_metrics m ON t.date = DATE(m.month_start)
+LEFT JOIN transaction_bucket_counts b ON t.date = b.transaction_date
+LEFT JOIN tvl_metrics ON t.date = tvl_metrics.date
+LEFT JOIN total_stg_staked_metrics ts ON t.date = ts.date
+LEFT JOIN circulating_supply_metrics cs ON t.date = cs.date
+LEFT JOIN price_data pd ON t.date = pd.date
+LEFT JOIN hydra_metrics h ON t.date = h.date
+where t.date < to_date(sysdate())
+ORDER BY t.date DESC

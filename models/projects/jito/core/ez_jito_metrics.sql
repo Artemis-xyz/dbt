@@ -44,7 +44,7 @@ SELECT
     , coalesce(withdraw_management_fees, 0) as withdraw_management_fees
     , coalesce(tip_fees, 0) as tip_fees
     , coalesce(withdraw_management_fees, 0) + coalesce(tip_fees, 0) as fees
-    , coalesce(tip_revenue, 0) + coalesce(tip_fees, 0) as revenue
+    , coalesce(tip_revenue, 0) + coalesce(withdraw_management_fees, 0) as revenue
     , coalesce(tip_supply_side_fees, 0) as supply_side_fees
     , coalesce(tip_txns, 0) as txns
     , coalesce(tip_dau, 0) as dau

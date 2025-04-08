@@ -14,8 +14,8 @@ select
     , checkpoint as block_number
     , epoch
     , tx_hash
-    , from_address
-    , to_address
+    , coalesce(from_address, to_address) as from_address
+    , coalesce(to_address, from_address) as to_address
     , case 
         when lower(to_address) in (
             select distinct (lower(premint_address))

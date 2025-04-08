@@ -30,19 +30,20 @@ treasury_models as (
     select
         date
         , case when lower(symbol) = 'weth' then 'ETH' else upper(symbol) end as token
-        , sum(balance_adjusted) as treasury_native
-        , sum(balance_usd) as treasury_usd
+        , sum(balance_native) as treasury_native
+        , sum(balance) as treasury
     from treasury_models
-    inner join {{ ref("dim_coingecko_token_map")}} using (contract_address, chain)
-    where round(balance_usd, 2) > 0
-    group by date, symbol
+    left join {{ ref("dim_coingecko_token_map")}} using (contract_address, chain)
+    where balance > 2 and balance is not null
+    group by date, token
 )
 
 select 
     date
     , token
-    --TODO the endpoint StargateTreasuryTokensView relies on the treasury_usd column we will need to change the endpoint once we port of snowflake
-    , treasury_usd
+    --Standardized Metrics
     , treasury_native
+    , treasury
 from treasury_metrics
-where date < to_date(sysdate()) and treasury_usd > 1000
+where treasury > 1000
+and date < to_date(sysdate())

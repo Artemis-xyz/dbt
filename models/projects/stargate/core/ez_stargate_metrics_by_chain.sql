@@ -44,9 +44,9 @@ WITH
         select
             date
             , chain
-            , sum(balance_usd) as treasury_usd
+            , sum(balance) as treasury
         from treasury_models
-        where balance_usd is not null
+        where balance > 2 and balance is not null
         group by date, chain
     )
     , tvl_models as (
@@ -70,8 +70,9 @@ WITH
         select
             date
             , chain
-            , sum(balance_usd) as tvl
+            , sum(balance) as tvl
         from tvl_models
+        where balance > 2 and balance is not null
         group by date, chain
     )
     , first_seen_global AS (
@@ -91,20 +92,41 @@ WITH
         LEFT JOIN first_seen_global f ON a.src_address = f.src_address
         GROUP BY a.date, a.chain
     )
+    , hydra_models as (
+        {{
+            dbt_utils.union_relations(
+                relations=[
+                    ref("fact_stargate_v2_berachain_hydra_assets"),
+                    ref("fact_stargate_v2_sei_hydra_assets"),
+                ],
+            )
+        }}
+    )
+    , hydra_metrics as (
+        select
+            date
+            , chain
+            , sum(amount) as hydra_tvl
+        from hydra_models
+        group by date, chain
+    )
 
 SELECT 
     date
     , chain
-    , txns
-    , dau
     , new_addresses
     , returning_addresses
+    --Standardized Metrics
+    , txns as bridge_txns
+    , dau as bridge_dau
     , inflow
     , outflow
-    , treasury_usd
     , tvl
+    , treasury
+    , hydra_tvl
 FROM chain_metrics
 left join flows using (date, chain)
-left join treasury_metrics using (date, chain)
+full outer join treasury_metrics using (date, chain)
 left join tvl_metrics using (date, chain)
+left join hydra_metrics using (date, chain)
 where date < to_date(sysdate())

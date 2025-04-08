@@ -44,10 +44,10 @@ active_providers AS (
 
 , burns AS (SELECT * FROM {{ ref("fact_akash_burns_native_silver") }})
 
+, price as ({{ get_coingecko_metrics("akash-network") }})
 
 SELECT
     mints.date
-    , 'akash' AS chain
     , coalesce(active_leases.active_leases, 0) AS active_leases
     , coalesce(active_providers.active_providers, 0) AS active_providers
     , coalesce(new_leases.new_leases, 0) AS new_leases
@@ -64,6 +64,24 @@ SELECT
     , coalesce(revenue.revenue, 0) AS revenue
     , coalesce(burns.total_burned_native, 0) AS total_burned_native
     , coalesce(mints.mints, 0) AS mints
+
+    -- Standardized Metrics
+    , (coalesce(compute_fees_total_usd.compute_fees_total_usd, 0))/ 1e6 AS compute_fees
+    , coalesce(validator_fees.validator_fees, 0) AS gas_fees
+    , compute_fees + gas_fees AS gross_protocol_revenue
+    , validator_fees AS validator_cash_flow
+    , revenue.revenue AS treasury_cash_flow
+    , compute_fees - treasury_cash_flow AS service_cash_flow
+    , coalesce(burns.total_burned_native, 0) AS burns_native
+    , coalesce(mints.mints, 0) AS mints_native
+
+    -- Market Data
+    , price
+    , market_cap
+    , fdmc
+    , token_turnover_circulating
+    , token_turnover_fdv
+    , token_volume    
 FROM mints
 LEFT JOIN active_providers ON mints.date = active_providers.date
 LEFT JOIN new_leases ON mints.date = new_leases.date
@@ -76,5 +94,6 @@ LEFT JOIN total_fees ON mints.date = total_fees.date
 LEFT JOIN revenue ON mints.date = revenue.date
 LEFT JOIN burns ON mints.date = burns.date
 LEFT JOIN active_leases ON mints.date = active_leases.date
+LEFT JOIN price ON mints.date = price.date
 WHERE mints.date < to_date(sysdate())
 ORDER BY date DESC

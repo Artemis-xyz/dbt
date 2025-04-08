@@ -34,7 +34,7 @@ with date_spine as (
 
 select
     date_spine.date,
-    coalesce(swap_metrics.unique_traders, 0) as unique_swappers,
+    coalesce(swap_metrics.unique_traders, 0) as unique_traders,
     coalesce(swap_metrics.number_of_swaps, 0) as number_of_swaps,
     coalesce(swap_metrics.trading_volume, 0) as trading_volume
 from date_spine

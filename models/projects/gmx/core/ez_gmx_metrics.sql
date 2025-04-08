@@ -36,16 +36,32 @@ with
         select date, fees, revenue, supply_side_revenue
         from {{ ref("fact_gmx_all_versions_fees") }}
     )
+    , price as ({{ get_coingecko_metrics("gmx") }})
 
 select 
-    date as date,
-    'gmx' as app,
-    'DeFi' as category,
-    trading_volume,
-    unique_traders,
-    fees,
-    revenue,
-    supply_side_revenue
+    date as date
+    , 'gmx' as app
+    , 'DeFi' as category
+    , trading_volume
+    , unique_traders
+    , fees
+    , revenue
+    , supply_side_revenue
+    --Standardized Metrics
+    , unique_traders as perp_dau
+    , trading_volume as perp_volume
+    , fees as gross_protocol_revenue
+    , supply_side_revenue as service_cash_flow
+    , revenue as fee_sharing_token_cash_flow
+    
+    -- Market Data
+    , price
+    , market_cap
+    , fdmc
+    , token_turnover_circulating
+    , token_turnover_fdv
+    , token_volume
 from combined_data
 left join fees_data using(date)
+left join price using(date)
 where date < to_date(sysdate())

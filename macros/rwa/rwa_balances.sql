@@ -137,7 +137,12 @@ with
                             then o.price
                         when c.coingecko_id = 'openeden-tbill'
                             then tbill.price
-                    end
+                        when st.contract_address = '0xe86845788d6e3e5c2393ade1a051ae617d974c09'
+                            then d2.price
+                                        end,
+                    FIRST_VALUE(d.price IGNORE NULLS) OVER (PARTITION BY st.contract_address ORDER BY st.date ASC
+                    ROWS BETWEEN UNBOUNDED PRECEDING
+                    AND CURRENT ROW)
             ) as price_adj
             , rwa_supply_native
             , rwa_supply_native * price_adj as rwa_supply_usd
@@ -149,6 +154,12 @@ with
         ) d
             on lower(c.contract_address) = lower(d.contract_address)
             and st.date = d.date::date
+        left join (
+            {{get_multiple_coingecko_price_with_latest(chain)}}
+        ) d2
+            on lower(c.symbol) = lower(d2.symbol)
+            and lower(c.contract_address) != lower(d2.contract_address)
+            and st.date = d2.date::date
         left join {{ ref( "fact_hashnote_usyc_rate") }} h
             on st.date = h.date
             and st.symbol = 'USYC'

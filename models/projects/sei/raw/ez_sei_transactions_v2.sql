@@ -32,7 +32,8 @@ SELECT
     engagement_type,
     balance_usd,
     native_token_balance,
-    stablecoin_balance
+    stablecoin_balance,
+    last_updated_timestamp
 FROM {{ ref("fact_sei_transactions_v2") }}
 {% if is_incremental() %}
 where
@@ -40,5 +41,5 @@ where
     inserted_timestamp
     >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
     or 
-    app is not null
+    last_updated_timestamp > (select max(last_updated_timestamp) from {{ this }})
 {% endif %}

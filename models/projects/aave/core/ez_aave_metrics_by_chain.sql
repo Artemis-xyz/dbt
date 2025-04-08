@@ -195,10 +195,7 @@ with
 select
     aave_outstanding_supply_net_deposits_deposit_revenue.date
     , chain
-    , coalesce(interest_rate_fees, 0) as interest_rate_fees
-    , flashloan_fees
-    , gho_revenue as gho_fees
-    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as fees
+    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_revenue, 0) as fees
     , supply_side_deposit_revenue
     , coalesce(supply_side_deposit_revenue, 0) as primary_supply_side_revenue
     , flashloan_fees as flashloan_supply_side_revenue
@@ -217,10 +214,31 @@ select
     , coalesce(protocol_revenue, 0) - coalesce(total_expenses, 0) as protocol_earnings
     , outstanding_supply
     , net_deposits
-    , tvl
     , treasury_value
     , net_treasury_value
     , treasury_value_native
+
+
+    -- Standardized metrics
+    , interest_rate_fees as interest_rate_fees
+    , flashloan_fees
+    , gho_revenue as gho_fees
+    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as gross_protocol_revenue
+
+    , supply_side_deposit_revenue + flashloan_fees as service_cash_flow
+    , liquidation_revenue as liquidator_cash_flow
+    , reserve_factor_revenue as reserve_factor_treasury_cash_flow
+    , dao_trading_revenue as dao_treasury_cash_flow
+    , gho_revenue as gho_treasury_cash_flow
+    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as treasury_cash_flow
+    
+    , outstanding_supply as lending_loans
+    , net_deposits as lending_deposits
+    , tvl
+
+    , treasury_value as treasury
+    , treasury_value_native as treasury_native
+    , net_treasury_value as net_treasury
 from aave_outstanding_supply_net_deposits_deposit_revenue
 left join aave_flashloan_fees using (date, chain)
 left join aave_liquidation_supply_side_revenue using (date, chain)

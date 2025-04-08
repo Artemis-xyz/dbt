@@ -29,7 +29,8 @@ WITH transaction_data as (
         engagement_type,
         balance_usd,
         native_token_balance,
-        stablecoin_balance
+        stablecoin_balance,
+        last_updated_timestamp
     FROM {{ ref("fact_sei_evm_transactions_v2") }}
     {% if is_incremental() %}
     where
@@ -37,7 +38,8 @@ WITH transaction_data as (
         inserted_timestamp
         >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
         or 
-        app is not null
+        last_updated_timestamp
+        >= (select dateadd('day', -5, max(last_updated_timestamp)) from {{ this }})
     {% endif %}
     UNION ALL
     SELECT
@@ -63,7 +65,8 @@ WITH transaction_data as (
         engagement_type,
         balance_usd,
         native_token_balance,
-        stablecoin_balance
+        stablecoin_balance,
+        last_updated_timestamp
     FROM {{ ref("fact_sei_wasm_transactions_v2") }}
     {% if is_incremental() %}
     where
@@ -71,7 +74,8 @@ WITH transaction_data as (
         inserted_timestamp
         >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
         or 
-        app is not null
+        last_updated_timestamp
+        >= (select dateadd('day', -5, max(last_updated_timestamp)) from {{ this }})
     {% endif %}
 )
 SELECT
@@ -98,7 +102,8 @@ SELECT
     max(engagement_type) as engagement_type,
     max(balance_usd) as balance_usd,
     max(native_token_balance) as native_token_balance,
-    max(stablecoin_balance) as stablecoin_balance
+    max(stablecoin_balance) as stablecoin_balance,
+    max(last_updated_timestamp) as last_updated_timestamp
 FROM transaction_data
 WHERE block_timestamp <= date_trunc('day', sysdate())
 GROUP BY tx_hash
