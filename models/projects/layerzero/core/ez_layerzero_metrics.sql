@@ -47,6 +47,9 @@ SELECT
     , coalesce(bridge_txns, 0) as bridge_txns
     , coalesce(bridge_volume, 0) as bridge_volume
 
+    -- Cash Flow Metrics
+    , coalesce(fees, 0) as gross_protocol_revenue
+
     -- Turnover Metrics
     , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv

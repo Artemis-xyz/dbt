@@ -30,6 +30,11 @@ SELECT
     , coalesce(d.dau, 0) as bridge_daa
     , coalesce(f.fees, 0) as fees
 
+    -- Standardized Metrics
+
+    -- Cash Flow Metrics
+    , coalesce(fees, 0) as gross_protocol_revenue
+    
     -- Bridge Metrics
     , coalesce(d.dau, 0) as bridge_dau
     , coalesce(f.fees, 0) as bridge_fees
