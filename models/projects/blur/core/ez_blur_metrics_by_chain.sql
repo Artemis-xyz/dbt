@@ -36,6 +36,10 @@ select
     , blur_daily_txns.daily_txns as nft_txns
     , blur_fees.fees as nft_fees
 
+    -- Cash Flow Metrics
+    , blur_fees.fees as gross_protocol_revenue
+    , blur_fees.fees as service_cash_flow
+
 from blur_fees
 left join blur_daus using (date, chain)
 left join blur_daily_txns using (date, chain)
