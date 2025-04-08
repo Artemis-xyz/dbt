@@ -58,7 +58,7 @@ SELECT
     , COALESCE(m.daily_trading_volume, 0) AS nft_volume
 
     -- Cash Flow Metrics
-    , COALESCE(m.fees, 0) AS gross_protocol_revenue
+    , COALESCE(m.fees + m.supply_side_fees, 0) AS gross_protocol_revenue
     , COALESCE(m.supply_side_fees, 0) AS service_cash_flow
 
     -- Turnover Metrics
