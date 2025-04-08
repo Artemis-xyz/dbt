@@ -16,7 +16,7 @@ with
     price_data as ({{ get_coingecko_metrics("kaia") }})
 select
     date
-    , dex_volumes
+    , kaia_dex_volumes.dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price

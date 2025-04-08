@@ -2,6 +2,7 @@
 coalesce(
         {{price_feed_name}}.shifted_token_price_usd, 
         case 
+            when {{token_data_name}}.coingecko_id = 'flex-usd' then ({{ avg_l7d_coingecko_price('flex-usd') }}) 
             when {{token_data_name}}.coingecko_id = 'tether-eurt' then ({{ avg_l7d_coingecko_price('tether-eurt') }})
             when {{token_data_name}}.coingecko_id = 'stasis-eurs' then ({{ avg_l7d_coingecko_price('stasis-eurs') }})
             when {{token_data_name}}.coingecko_id = 'ageur' then ({{ avg_l7d_coingecko_price('ageur') }})

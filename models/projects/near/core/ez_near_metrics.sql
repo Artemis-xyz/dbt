@@ -2,7 +2,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="NEAR",
+        snowflake_warehouse="ANALYTICS_XL",
         database="near",
         schema="core",
         alias="ez_metrics",
@@ -30,44 +30,60 @@ with
     )
 
 select
-    fundamental_data.date,
-    fundamental_data.chain,
-    txns,
-    dau,
-    wau,
-    mau,
-    fees_native,
-    case when fees is null then fees_native * price else fees end as fees,
-    avg_txn_fee,
-    median_txn_fee,
-    revenue_native,
-    revenue,
-    returning_users,
-    new_users,
-    low_sleep_users,
-    high_sleep_users,
-    price,
-    market_cap,
-    fdmc,
-    tvl,
-    coalesce(near_dex_volumes.dex_volumes, 0) as dex_volumes,
-    weekly_commits_core_ecosystem,
-    weekly_commits_sub_ecosystem,
-    weekly_developers_core_ecosystem,
-    weekly_developers_sub_ecosystem,
-    weekly_contracts_deployed,
-    weekly_contract_deployers,
-    p2p_native_transfer_volume,
-    p2p_token_transfer_volume,
-    p2p_stablecoin_transfer_volume,
-    p2p_transfer_volume,
-    blob_fees_native,
-    blob_fees,
-    blob_size_mib,
-    avg_mib_per_second,
-    avg_cost_per_mib_native,
-    avg_cost_per_mib,
-    submitters
+    fundamental_data.date
+    , fundamental_data.chain
+    , txns
+    , dau
+    , wau
+    , mau
+    , fees_native
+    , fees
+    , avg_txn_fee
+    , median_txn_fee
+    , revenue_native
+    , revenue
+    , coalesce(near_dex_volumes.dex_volumes, 0) as dex_volumes
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Chain Usage Metrics
+    , dau as chain_dau
+    , wau as chain_wau
+    , mau as chain_mau
+    , txns as chain_txns
+    , avg_txn_fee AS chain_avg_txn_fee
+    , returning_users
+    , new_users
+    , low_sleep_users
+    , high_sleep_users
+    -- Cashflow Metrics
+    , fees_native as gross_protocol_revenue_native
+    , case when fees is null then fees_native * price else fees end as gross_protocol_revenue
+    , median_txn_fee AS chain_median_txn_fee
+    , revenue_native AS burned_cash_flow_native
+    , revenue AS burned_cash_flow
+    -- Developer Metrics
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
+    , weekly_contracts_deployed
+    , weekly_contract_deployers
+    , p2p_native_transfer_volume
+    , p2p_token_transfer_volume
+    , p2p_stablecoin_transfer_volume
+    , p2p_transfer_volume
+    , blob_fees_native
+    , blob_fees
+    , blob_size_mib
+    , avg_mib_per_second
+    , avg_cost_per_mib_native
+    , avg_cost_per_mib
+    , submitters
+    , coalesce(near_dex_volumes.dex_volumes, 0) as chain_dex_volumes
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date

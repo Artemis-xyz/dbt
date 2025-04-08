@@ -14,9 +14,12 @@ with alex_tvl as (
 
 
 select
-    alex_tvl.date,
-    'Defillama' as source,
-    'stacks' as chain,
-    alex_tvl.tvl
+    alex_tvl.date
+    , 'Defillama' as source
+    , 'stacks' as chain
+
+    -- Standardized Metrics
+    , alex_tvl.tvl
+
 from alex_tvl
 where alex_tvl.date < to_date(sysdate())

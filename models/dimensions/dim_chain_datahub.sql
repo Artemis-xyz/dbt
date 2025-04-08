@@ -1,12 +1,10 @@
 {{ config(materialized="table") }}
 
-with chains AS (
-    select distinct chain from {{ ref("dim_all_addresses_labeled_gold") }}
-)
 select 
-    c.chain as chain_name,
-    dc.symbol as chain_symbol,
-    dc.name as chain_display_name
-from chains c
-left join {{ ref("dim_chain") }} dc
-on c.chain = dc.artemis_id
+    artemis_id as chain_name,
+    symbol as chain_symbol,
+    name as chain_display_name,
+    coingecko_id,
+    defillama_chain_name,
+    ecosystem_id
+from {{ ref("dim_chain") }}
