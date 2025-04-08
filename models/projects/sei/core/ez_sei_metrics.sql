@@ -1,3 +1,4 @@
+-- depends_on {{ ref("ez_sei_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -8,7 +9,7 @@
     )
 }}
 with
-    sei_combined_fundamental_metrics as ( {{ get_fundamental_data_for_chain("sei") }} )
+    sei_combined_fundamental_metrics as ( {{ get_fundamental_data_for_chain("sei", "v2") }} )
     , sei_fundamental_metrics as (select * from {{ ref("fact_sei_daa_txns_gas_gas_usd_revenue") }})
     , rolling_metrics as ({{ get_rolling_active_address_metrics("sei") }})
     , contract_data as ({{ get_contract_metrics("sei") }})
