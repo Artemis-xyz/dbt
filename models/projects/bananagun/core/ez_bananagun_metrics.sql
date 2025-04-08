@@ -41,6 +41,7 @@ SELECT
     , coalesce(metrics.fees_usd, 0) as fees
     , coalesce(metrics.fees_usd, 0) * 0.4 AS supply_side_fees
     , coalesce(metrics.fees_usd, 0) * 0.6 + coalesce(coin_metrics.burns_usd, 0) AS revenue
+    , coalesce(coin_metrics.burns, 0) AS burns_native
     
     --Standardized Metrics
 
@@ -60,9 +61,10 @@ SELECT
     , coalesce(metrics.fees_usd, 0) AS gross_protocol_revenue
     , coalesce(metrics.fees_usd, 0) * 0.6 AS treasury_cash_flow
     , coalesce(metrics.fees_usd, 0) * 0.4 AS token_cash_flow
+    , coalesce(coin_metrics.burns, 0) AS burned_cash_flow_native
+    , coalesce(coin_metrics.burns_usd, 0) AS burned_cash_flow
 
     -- Supply Metrics
-    , coalesce(coin_metrics.burns, 0) AS burns_native
     , coalesce(coin_metrics.circulating_supply, 0) AS circulating_supply_native
     , coalesce(coin_metrics.gross_emissions, 0) AS emissions_native
     , coalesce(coin_metrics.gross_emissions, 0) as mints_native
