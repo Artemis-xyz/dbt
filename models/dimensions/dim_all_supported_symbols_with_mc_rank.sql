@@ -67,7 +67,7 @@ select
     coingecko_data.token_name,
     token_image_small,
     token_market_cap_rank,
-    coalesce(lower(sigma.category), coingecko_data.category) as category,
+    coalesce(lower(sigma.category), lower(coingecko_data.category)) as category,
     lower(subcategory) as subcategory,
     lower(tag_1) as tag_1,
     lower(tag_2) as tag_2
