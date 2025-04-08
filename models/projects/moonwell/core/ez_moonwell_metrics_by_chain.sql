@@ -19,11 +19,14 @@ with
         }}
     )
 select
-    moonwell_by_chain.date,
-    'moonwell' as app,
-    'DeFi' as category,
-    moonwell_by_chain.chain,
-    moonwell_by_chain.daily_borrows_usd,
-    moonwell_by_chain.daily_supply_usd
+    moonwell_by_chain.date
+    , 'moonwell' as app
+    , 'DeFi' as category
+    , moonwell_by_chain.chain
+    , moonwell_by_chain.daily_borrows_usd
+    , moonwell_by_chain.daily_supply_usd
+    -- Standardized metrics
+    , moonwell_by_chain.daily_borrows_usd as lending_loans
+    , moonwell_by_chain.daily_supply_usd as lending_deposits
 from moonwell_by_chain
 where moonwell_by_chain.date < to_date(sysdate())

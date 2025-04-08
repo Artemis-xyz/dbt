@@ -13,9 +13,11 @@ with econia_tvl as (
 )
 
 select
-    econia_tvl.date,
-    'Defillama' as source,
-    'aptos' as chain,
-    econia_tvl.tvl
+    econia_tvl.date
+    , 'Defillama' as source
+    , 'aptos' as chain
+
+    -- Standardized Metrics
+    , econia_tvl.tvl
 from econia_tvl
 where econia_tvl.date < to_date(sysdate())

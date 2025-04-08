@@ -64,7 +64,7 @@
 {% endmacro %}
 
 {% macro get_coingecko_prices_on_chains(chains) %}
-    select date as date, contract_address, decimals, symbol, shifted_token_price_usd as price
+    select date as date, chain, contract_address, decimals, symbol, shifted_token_price_usd as price
     from {{ ref("fact_coingecko_token_date_adjusted_gold") }}
     inner join {{ ref('dim_coingecko_token_map')}}
         on coingecko_id = coingecko_token_id
@@ -76,7 +76,7 @@
         )
         and date < dateadd(day, -1, to_date(sysdate()))
     union
-    select dateadd('day', -1, to_date(sysdate())) as date, contract_address, decimals, symbol, token_current_price as price
+    select dateadd('day', -1, to_date(sysdate())) as date, chain, contract_address, decimals, symbol, token_current_price as price
     from {{ ref("fact_coingecko_token_realtime_data") }}
     inner join {{ ref('dim_coingecko_token_map')}}
         on token_id = coingecko_token_id
@@ -87,7 +87,7 @@
             {% endfor %}
         )
     union
-    select to_date(sysdate()) as date, contract_address, decimals, symbol, token_current_price as price
+    select to_date(sysdate()) as date, chain, contract_address, decimals, symbol, token_current_price as price
     from {{ ref("fact_coingecko_token_realtime_data") }}
     inner join {{ ref('dim_coingecko_token_map')}}
         on token_id = coingecko_token_id

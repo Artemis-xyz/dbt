@@ -61,14 +61,43 @@ with
     GROUP BY
         1
 )
+
+, price_data as ({{ get_coingecko_metrics("hivemapper") }})
 SELECT
-    date_spine.date,
-    COALESCE(stats.fees, 0) as fees,
-    COALESCE(stats.supply_side_fees, 0) as primary_supply_side_revenue,
-    COALESCE(stats.revenue, 0) as revenue,
-    COALESCE(stats.mints_native, 0) as mints_native,
-    COALESCE(stats.burn_native, 0) as burns_native,
-    COALESCE(stats.contributors, 0) as dau
+    date_spine.date
+    , coalesce(stats.fees, 0) as fees
+    , coalesce(stats.supply_side_fees, 0) as primary_supply_side_revenue
+    , coalesce(stats.revenue, 0) as revenue
+    , coalesce(stats.burn_native, 0) as burns_native
+    , coalesce(stats.contributors, 0) as dau
+
+    -- Standardized Metrics
+
+    -- Token Metrics
+    , coalesce(price_data.price, 0) as price
+    , coalesce(price_data.market_cap, 0) as market_cap
+    , coalesce(price_data.fdmc, 0) as fdmc
+    , coalesce(price_data.token_volume, 0) as token_volume
+
+    -- Chain Metrics
+    , coalesce(stats.contributors, 0) as chain_dau
+    
+    -- Cash Flow Metrics
+    , coalesce(stats.fees, 0) as gross_protocol_revenue
+    , coalesce(stats.supply_side_fees, 0) as service_cash_flow
+    , coalesce(stats.fees, 0) as burned_cash_flow
+    , coalesce(stats.burn_native, 0) as burned_cash_flow_native
+
+    -- Supply Metrics
+    , coalesce(stats.mints_native, 0) as mints_native
+    , coalesce(stats.mints_native, 0) * coalesce(price_data.price, 0) as mints
+    , coalesce(stats.mints_native, 0) - coalesce(stats.burn_native, 0) as net_supply_change_native
+
+    -- Turnover Metrics
+    , coalesce(price_data.token_turnover_circulating, 0) as token_turnover_circulating
+    , coalesce(price_data.token_turnover_fdv, 0) as token_turnover_fdv
+
 FROM date_spine
 LEFT JOIN stats ON date_spine.date = stats.date
+LEFT JOIN price_data ON date_spine.date = price_data.date
 WHERE date_spine.date < to_date(sysdate())

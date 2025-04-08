@@ -29,6 +29,12 @@ column_definitions:
     - name: validator_cash_flow
       description: "Portion of revenue allocated to validators, sequencers, or provers who secure or operate the protocol."
       tags: [artemis_gaap]
+    - name: validator_cash_flow_native
+      description: "Portion of revenue allocated to validators, sequencers, or provers who secure or operate the protocol in native tokens."
+      tags: [artemis_gaap]
+    - name: strategy_cash_flow
+      description: "Revenue distributed to entities that manage or execute capital deployment strategies, such as vault operators, liquidity managers, leverage account managers and structured product creators."
+      tags: [artemis_gaap]
     - name: buybacks
       description: "The amount tokens bought back by the protocol (USD)."
       tags: [artemis_gaap]
@@ -38,6 +44,16 @@ column_definitions:
     - name: burned_cash_flow
       description: "The amount of USD value burned"
       tags: [artemis_gaap]
+    - name: liquidator_cash_flow
+      description: "The amount of revenue allocated to liquidators of the protocol"
+      tags: [artemis_gaap]
+    - name: l1_cash_flow_native
+      description: "The total native value of L1 cash flow on a chain"
+      tags: [artemis_gaap]
+    - name: l1_cash_flow
+      description: "The total USD value of L1 cash flow on a chain"
+      tags: [artemis_gaap]
+
   token_metrics:
     - name: price
       description: "The price of a token in USD"
@@ -83,12 +99,6 @@ column_definitions:
       description: "The average transaction fee on a chain"
     - name: chain_median_txn_fee
       description: "The median transaction fee on a chain"
-    - name: l1_cash_flow_native
-      description: "The total native value of L1 cash flow on a chain"
-      tags: [artemis_gaap]
-    - name: l1_cash_flow
-      description: "The total USD value of L1 cash flow on a chain"
-      tags: [artemis_gaap]
     - name: priority_fee_native
       description: "The total native value of priority fees on a chain"
       tags: [artemis_gaap]
@@ -138,7 +148,7 @@ column_definitions:
     - name: p2p_native_transfer_volume
       description: "The total volume of P2P native transfers on a chain"
     - name: p2p_token_transfer_volume
-      description: "The total volume of P2P token transfers on a chain" 
+      description: "The total volume of P2P token transfers on a chain"
     - name: p2p_transfer_volume
       description: "The total volume of P2P transfers on a chain"
     - name: non_p2p_stablecoin_transfer_volume
@@ -159,7 +169,7 @@ column_definitions:
       description: "The average cost per MiB of data stored in blobs on a chain in USD"
     - name: submitters
       description: "The number of submitters on a chain"
-    - name: dex_volumes
+    - name: chain_dex_volumes
       description: "The total volume of DEXes on a chain"
 
   developer_metrics:
@@ -231,15 +241,17 @@ column_definitions:
 
   protocol_metrics:
     - name: treasury
-      description: "The total amount of USD value in the protocol treasury"
+      description: "The USD value in the protocol treasury"
     - name: treasury_native
-      description: "The total amount of native tokens in the protocol treasury"
-    - name: treasury_native_change
-      description: "The net change in the total amount of native tokens in the protocol treasury"
-    - name: staked
-      description: "The total amount of USD value of tokens staked in the protocol"
-    - name: staked_native
-      description: "The total amount of native tokens staked in the protocol"
+      description: "The native value of tokens in the protocol treasury"
+    - name: net_treasury
+      description: "The USD value in the protocol's treasury excluding the protocol's own tokens"
+    - name: net_treasury_native
+      description: "The native value of tokens in the protocol's treasury excluding the protocol's own tokens"
+    - name: own_token_treasury
+      description: "The USD value of the protocol's own tokens in the protocol treasury"
+    - name: own_token_treasury_native
+      description: "The native value of the protocol's own tokens in the protocol treasury"
 
   perpetual_metrics:
     - name: perp_dau
@@ -276,13 +288,16 @@ column_definitions:
       description: "The amount (in USD) flowing out of a chain"
 
   lending_metrics:
+    - name: lending_txns
+      description: "The number of interactions with a lending protocol such as deposits (supply), withdrawal (redeem), borrow, repay, and liquidation transactions."
+    - name: lending_dau
+      description: "The number of unique wallet addresses that interact with a lending protocol daily through depositing (supplying assets), withdrawing, borrowing, repaying, or participating in liquidations"
     - name: lending_loans
       description: "The total outstanding loans (in USD) on a lending protocol"
     - name: lending_deposits
       description: "The total amount of tokens deposited (in USD) on a lending protocol"
     - name: lending_loan_capacity
       description: "The total amount of loans available (in USD) on a lending protocol, including outstanding loans"
-    
   aggregator_metrics:
     - name: aggregator_dau
       description: "The number of daily active traders on an aggregator"
@@ -292,10 +307,12 @@ column_definitions:
       description: "The total volume on an aggregator"
     - name: aggregator_revenue
       description: "The total revenue on an aggregator"
-  
+
   supply_metrics:
     - name: mints_native
       description: "The amount of native tokens minted"
+    - name: mints
+      description: "The amount of USD value minted"
     - name: emissions_native
       description: "The amount of native tokens emitted"
     - name: premine_unlocks_native
