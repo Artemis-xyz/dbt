@@ -73,6 +73,7 @@ select
     , percent_censored
     , percent_semi_censored
     , percent_non_censored
+    , dune_dex_volumes_ethereum.dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -84,6 +85,8 @@ select
     , wau AS chain_wau
     , mau AS chain_mau
     , txns AS chain_txns
+    , avg_txn_fee AS chain_avg_txn_fee
+    , median_txn_fee AS chain_median_txn_fee
     , returning_users
     , new_users
     , low_sleep_users
@@ -117,12 +120,10 @@ select
     , avg_cost_per_mib_gwei
     , avg_cost_per_mib
     , submitters
-    , dune_dex_volumes_ethereum.dex_volumes
+    , dune_dex_volumes_ethereum.dex_volumes AS chain_dex_volumes
     -- Cashflow metrics
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
-    , avg_txn_fee AS chain_avg_txn_fee
-    , median_txn_fee AS chain_median_txn_fee
     , revenue_native AS burned_cash_flow_native
     , revenue AS burned_cash_flow
     , fees_native - revenue_native as priority_fee_native

@@ -16,11 +16,14 @@ with
     )
 
 select
-    date,
-    'mux' as app,
-    'DeFi' as category,
-    chain,
-    trading_volume,
-    unique_traders
+    date
+    , 'mux' as app
+    , 'DeFi' as category
+    , chain
+    , trading_volume
+    , unique_traders
+    -- standardize metrics
+    , trading_volume as perp_volume
+    , unique_traders as perp_dau
 from mux_data
 where date < to_date(sysdate())

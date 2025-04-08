@@ -80,8 +80,6 @@ WITH
 select
     date
     , token
-    , COALESCE(stability_fees,0) as stability_fees
-    , COALESCE(trading_fees, 0) AS trading_fees
     , COALESCE(fees, 0) AS fees
     , COALESCE(primary_revenue, 0) AS primary_revenue
     , COALESCE(other_revenue, 0) AS other_revenue
@@ -92,12 +90,38 @@ select
     , COALESCE(total_expenses, 0) AS total_expenses
     , COALESCE(protocol_revenue - total_expenses, 0) AS protocol_earnings
     , COALESCE(treasury, 0) as treasury_value
-    , COALESCE(treasury_native,0) as treasury_native
     , COALESCE(net_treasury, 0) as net_treasury
     , COALESCE(tvl, 0) as net_deposits
     , COALESCE(outstanding_supply,0) as outstanding_supply
-    , COALESCE(tvl, 0) as tvl
-FROM fees_revenue_expenses
+
+    -- Standardized metrics
+    , 'Maker' as app
+    , 'DeFi' as category
+    , COALESCE(stability_fees,0) as stability_fees
+    , COALESCE(trading_fees, 0) AS trading_fees
+    , COALESCE(fees, 0) AS gross_protocol_revenue
+
+    , COALESCE(primary_revenue, 0) AS interest_rate_cash_flow
+    , COALESCE(liquidation_revenue, 0) AS liquidation_cash_flow
+    , COALESCE(trading_revenue, 0) AS trading_cash_flow
+    -- token_cash_flow = trading_revenue + liquidation_revenue + interest_rate_cash_flow
+    , COALESCE(protocol_revenue, 0) AS token_cash_flow 
+    
+    , COALESCE(treasury, 0) AS treasury
+    , COALESCE(treasury_native, 0) AS treasury_native
+
+    , COALESCE(tvl, 0) AS lending_deposits
+    , COALESCE(outstanding_supply, 0) AS lending_loans
+
+    , COALESCE(tvl, 0) AS tvl
+    , COALESCE(price, 0) AS price
+    , COALESCE(fdmc, 0) AS fdmc
+    , COALESCE(market_cap, 0) AS market_cap
+    , COALESCE(token_volume, 0) AS token_volume
+    , COALESCE(token_turnover_fdv, 0) AS token_turnover_fdv
+    , COALESCE(token_turnover_circulating, 0) AS token_turnover_circulating
+
+from fees_revenue_expenses
 full join treasury using (date, token)
 full join treasury_native using (date, token)
 full join net_treasury using (date, token)

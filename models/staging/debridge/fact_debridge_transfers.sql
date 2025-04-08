@@ -42,9 +42,9 @@ latest_data as (
         max_by(fix_fee_native, extraction_date) as fix_fee_native,
         max_by(percentage_fee_native, extraction_date) as percentage_fee_native,
         max_by(state, extraction_date) as state,
-        extraction_date
+        max(extraction_date) as extraction_date
     from decoded_debridge_data t1
-    GROUP BY order_id, extraction_date
+    GROUP BY order_id
 )
 select 
     order_id,
