@@ -10,41 +10,45 @@
 
 with usd0_metrics as (
     select
-        date,
-        stablecoin_txns,
-        stablecoin_dau,
-        stablecoin_total_supply as usd0_tvl
+        date
+        , stablecoin_txns
+        , stablecoin_dau
+        , stablecoin_total_supply as usd0_tvl
     from {{ ref('ez_usd0_metrics') }}
 )
 
 , usd0pp_metrics as (
     select
-        date,
-        usd0pp_tvl as usd0pp_tvl
+        date
+        , usd0pp_tvl as usd0pp_tvl
     from {{ ref('fact_usd0pp_tvl') }}
 )
 
 , usual_fees as (
     select 
-        date,
-        daily_treasury_revenue as collateral_yield,
-        cumulative_treasury_revenue as cumulative_collateral_yield,
-        fees, 
-        cumulative_fees 
+        date
+        , daily_treasury_revenue as collateral_yield
+        , cumulative_treasury_revenue as cumulative_collateral_yield
+        , fees 
+        , cumulative_fees
+        , usualx_unstake_fees_daily
+        , treasury_fee
     from {{ ref('fact_usual_fees') }}
 ) 
 
 , usual_burn_mint as (
     select 
-        date, 
-        daily_supply, 
-        cumulative_supply, 
-        daily_treasury, 
-        cumulative_treasury, 
-        daily_burned, 
-        cumulative_burned,
-        circulating_supply_native,
-        cumulative_supply
+        date
+        , daily_supply
+        , cumulative_supply
+        , daily_treasury
+        , cumulative_treasury
+        , daily_burned
+        , cumulative_burned
+        , circulating_supply_native
+        , cumulative_supply
+        , daily_treasury_usualstar
+        , daily_treasury_usualx
     from {{ ref('fact_usual_burn_mint') }}
 )
 
@@ -70,15 +74,11 @@ select
     , usd0.stablecoin_dau
 
     -- Revenue Metrics
-    , (usual.collateral_yield * mm.price) + ubm.daily_treasury as treasury_cash_flow
+    , (usual.usualx_unstake_fees_daily) + (usual.treasury_fee) + (usual.collateral_yield * mm.price) + (ubm.daily_burned * mm.price) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as gross_protocol_revenue
+    , (usual.collateral_yield * mm.price) + (usual.treasury_fee) as treasury_cash_flow
+    , (usual.usualx_unstake_fees_daily) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as fee_sharing_token_cash_flow
     , ubm.daily_burned as burned_cash_flow_native
-    , ubm.daily_burned * mm.price as burned_cash_flow
-    , usual.fees + ubm.daily_treasury + (usual.collateral_yield * mm.price) + (ubm.daily_burned * mm.price) as gross_protocol_revenue
-    , usual.fees + (ubm.daily_burned * mm.price) as usual_issuance_module
-    -- 10% of issuance module goes to USUAL* holders
-    , usual_issuance_module * 0.1 as fee_sharing_token_cash_flow
-    -- 90% of issuance module goes to protocol's operations, stakers, LPs and ecosystem
-    , usual_issuance_module * 0.9 as service_cash_flow
+    , (ubm.daily_burned * mm.price) as burned_cash_flow
 
     , ubm.circulating_supply_native
 

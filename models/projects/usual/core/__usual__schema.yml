@@ -50,12 +50,6 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
-    description: "The share of protocol revenue accrued to service providers of the protocol."
-    tags:
-      - artemis_gaap
-
   stablecoin_dau: &stablecoin_dau
     name: stablecoin_dau
     description: "The number of daily active users on a chain"
@@ -105,7 +99,6 @@ models:
       - *circulating_supply_native
       - *fee_sharing_token_cash_flow
       - *gross_protocol_revenue
-      - *service_cash_flow
       - *stablecoin_dau
       - *stablecoin_txns
       - *treasury_cash_flow
@@ -122,7 +115,6 @@ models:
       - *gross_protocol_revenue
       - *market_cap
       - *price
-      - *service_cash_flow
       - *stablecoin_dau
       - *stablecoin_txns
       - *token_turnover_circulating

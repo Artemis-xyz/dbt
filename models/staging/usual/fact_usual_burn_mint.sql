@@ -1,3 +1,10 @@
+{{
+    config(
+        materialized='table',
+        snowflake_warehouse='USUAL'
+    )
+}}
+
 WITH usualBurned AS (
     SELECT 
         DATE(block_timestamp) AS date
@@ -78,15 +85,17 @@ net_balance AS (
 )
 
 SELECT 
-    c.date,
-    c.daily_supply,
-    c.cumulative_supply,
-    a.daily_treasury,
-    a.cumulative_treasury,
-    a.daily_burned,
-    a.cumulative_burned,
-    c.circulating_supply_native,
-    c.cumulative_supply
+    c.date
+    , c.daily_supply
+    , c.cumulative_supply
+    , a.daily_treasury
+    , a.cumulative_treasury
+    , a.daily_burned
+    , a.cumulative_burned
+    , c.circulating_supply_native
+    -- 1/3 goes to usual* holders, 1/3 goes to usualx holders, 1/3 goes to burn
+    , a.daily_treasury * 0.5 AS daily_treasury_usualx
+    , a.daily_treasury * 0.5 AS daily_treasury_usualstar
 FROM current_usual_balance c
 LEFT JOIN agg_data a ON c.date = a.date
 ORDER BY c.date DESC
