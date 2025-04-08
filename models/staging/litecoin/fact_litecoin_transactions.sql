@@ -4,7 +4,7 @@
     snowflake_warehouse='LITECOIN'
 ) }}
 
-with raw_transfers as (
+with raw_transactions as (
     select
         parquet_raw:hash::string as hash,
         parquet_raw:size::bigint as size,
@@ -25,9 +25,9 @@ with raw_transfers as (
         parquet_raw:outputs as outputs,
         -- Generate a unique ID for each transaction
         md5(hash) as unique_id
-    from {{ source('PROD_LANDING', 'raw_litecoin_transfers_parquet') }}
+    from {{ source('PROD_LANDING', 'raw_litecoin_transactions_parquet') }}
 )
 
 select *
-from raw_transfers
+from raw_transactions
 qualify row_number() over (partition by unique_id order by block_timestamp desc) = 1 
