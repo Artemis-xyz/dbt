@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_polygon_transactions") }}
+-- depends_on {{ ref("ez_polygon_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -10,7 +10,7 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("polygon") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("polygon", "v2") }}),
     price_data as ({{ get_coingecko_metrics("matic-network") }}),
     defillama_data as ({{ get_defillama_metrics("polygon") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("polygon") }}),
