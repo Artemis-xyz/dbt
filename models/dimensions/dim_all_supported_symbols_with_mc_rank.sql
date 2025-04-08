@@ -47,7 +47,7 @@ with
             when 
                 array_contains('Stablecoins'::variant, token_categories) or 
                 array_contains('Bridged Stablecoins'::variant, token_categories) 
-            then 'Stablecoins'
+            then 'Stablecoin'
             when 
                 array_contains('Liquid Staking'::variant, token_categories) or 
                 array_contains('Wrapped-Tokens'::variant, token_categories) or
