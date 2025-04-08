@@ -47,8 +47,6 @@ select
     , price_data.price
     , price_data.market_cap
     , price_data.fdmc
-    , price_data.token_turnover_circulating
-    , price_data.token_turnover_fdv
     , price_data.token_volume
     -- Chain Metrics
     , txns as chain_txns
@@ -64,10 +62,12 @@ select
     -- Cash Flow Metrics
     , fees as gross_protocol_revenue
     , fees_native as gross_protocol_revenue_native
-    -- Crypto Metrics
-    , rwa_tvl as tvl
+    -- Real World Asset Metrics
+    , rwa_tvl as tokenized_market_cap
     -- Stablecoin Metrics
     , stablecoin_mc as stablecoin_total_supply
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
 
 from fundamental_data
 left join prices using(date)

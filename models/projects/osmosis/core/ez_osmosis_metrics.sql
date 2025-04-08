@@ -81,8 +81,6 @@ select
     , price
     , market_cap
     , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
     , token_volume
     -- Chain Metrics
     , txns as chain_txns
@@ -91,7 +89,7 @@ select
     , dex_volumes as chain_dex_volumes
     -- Cash Flow Metrics
     , fees as gross_protocol_revenue
-    , revenue as foundation_cash_flow
+    , revenue as treasury_cash_flow
     , trading_fees as l1_data_cost_native
     , gas_usd as l1_cash_flow
     -- Crypto Metrics
@@ -101,6 +99,8 @@ select
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
+    , token_turnover_circulating
+    , token_turnover_fdv
 from date_spine
 left join fundamental_data using (date)
 left join price_data using (date)

@@ -49,8 +49,6 @@ select
     , price
     , market_cap
     , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
     , token_volume
     -- Chain Metrics
     , txns as chain_txns
@@ -66,6 +64,8 @@ select
     -- Developer Metrics
     , weekly_contracts_deployed
     , weekly_contract_deployers
+    , token_turnover_circulating
+    , token_turnover_fdv
 from daa_gold d
 left join price_data using (d.date)
 left join contract_data using (d.date)

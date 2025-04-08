@@ -29,8 +29,6 @@ SELECT
     , price_data.price
     , price_data.market_cap
     , price_data.fdmc
-    , price_data.token_turnover_circulating
-    , price_data.token_turnover_fdv
     , price_data.token_volume
     -- Chain Metrics
     , txns as chain_txns
@@ -40,6 +38,8 @@ SELECT
     -- Cash Flow Metrics
     , gas as gross_protocol_revenue_native
     , gas_usd as gross_protocol_revenue
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
 FROM fundamental_data
 LEFT JOIN prices USING(date)
 LEFT JOIN price_data USING(date)

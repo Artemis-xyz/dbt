@@ -98,10 +98,6 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  tvl: &tvl
-    name: tvl
-    description: "The total value locked in a protocol"
-
 models:
   - name: ez_stellar_metrics_by_application
     description: "This table stores metrics for the STELLAR protocol"
@@ -140,7 +136,6 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-      - *tvl
 
   - name: ez_stellar_metrics_by_category
     description: "This table stores metrics for the STELLAR protocol"

@@ -43,15 +43,15 @@ select
     , dau as chain_dau
     , wau as chain_wau
     , mau as chain_mau
+    , median_txn_fee as chain_median_txn_fee
+    , fees / txns as chain_avg_txn_fee
     -- Cash Flow Metrics
     , fees as gross_protocol_revenue
     , fees_native as gross_protocol_revenue_native
     , l1_data_cost as l1_cash_flow
     , l1_data_cost_native as l1_cash_flow_native
-    , revenue as foundation_cash_flow
-    , revenue_native as foundation_cash_flow_native
-    , median_txn_fee as chain_median_txn_fee
-    , fees / txns as chain_avg_txn_fee
+    , revenue as treasury_cash_flow
+    , revenue_native as treasury_cash_flow_native
     -- Crypto Metrics
     , tvl
     -- Developer Metrics

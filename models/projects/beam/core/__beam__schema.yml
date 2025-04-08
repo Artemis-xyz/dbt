@@ -46,6 +46,24 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  token_turnover_circulating: &token_turnover_circulating
+    name: token_turnover_circulating
+    description: "The turnover of a token in USD"
+    tags:
+      - artemis_gaap
+
+  token_turnover_fdv: &token_turnover_fdv
+    name: token_turnover_fdv
+    description: "The turnover of a token in USD"
+    tags:
+      - artemis_gaap
+
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of a token in USD"
+    tags:
+      - artemis_gaap
+
   tvl: &tvl
     name: tvl
     description: "The total value locked in a protocol"
@@ -62,5 +80,8 @@ models:
       - *gross_protocol_revenue_native
       - *market_cap
       - *price
+      - *token_turnover_circulating
+      - *token_turnover_fdv
+      - *token_volume
       - *tvl
 

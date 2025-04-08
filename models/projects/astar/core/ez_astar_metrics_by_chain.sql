@@ -26,8 +26,6 @@ select
     , price_data.price
     , price_data.market_cap
     , price_data.fdmc
-    , price_data.token_turnover_circulating
-    , price_data.token_turnover_fdv
     , price_data.token_volume
     -- Chain Metrics
     , txns as chain_txns
@@ -35,6 +33,8 @@ select
     -- Cash Flow Metrics
     , coalesce(fees_native, 0) as gross_protocol_revenue_native
     , coalesce(fees_usd, 0) as gross_protocol_revenue
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
 from fundamental_data f
 left join price_data using(f.date)
 where f.date < to_date(sysdate())

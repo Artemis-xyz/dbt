@@ -30,6 +30,7 @@ select
     , fees
     , cost
     , cost_native
+    -- we leave revenue and revenue_native untouched as there isn't much information about bob
     , revenue
     , revenue_native
     -- Standardized Metrics
@@ -37,8 +38,6 @@ select
     , price
     , market_cap
     , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
     , token_volume
     -- Chain Metrics
     , txns as chain_txns
@@ -48,8 +47,8 @@ select
     , fees_native as gross_protocol_revenue_native
     , cost as l1_cash_flow
     , cost_native as l1_cash_flow_native
-    , revenue as foundation_cash_flow
-    , revenue_native as foundation_cash_flow_native
+    , token_turnover_circulating
+    , token_turnover_fdv
 from fundamental_data f
 left join price_data using(f.date)
 where f.date  < to_date(sysdate())

@@ -39,8 +39,6 @@ select
     , price
     , market_cap
     , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
     , token_volume
     -- Chain Metrics
     , txns as chain_txns
@@ -57,6 +55,8 @@ select
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
+    , token_turnover_circulating
+    , token_turnover_fdv
 from fundamental_data f
 left join github_data using (f.date)
 left join defillama_data using (f.date)

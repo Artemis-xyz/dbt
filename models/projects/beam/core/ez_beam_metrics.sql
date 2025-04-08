@@ -29,6 +29,7 @@ select
     , price
     , market_cap
     , fdmc
+    , token_volume
     -- Chain Metrics
     , dau as chain_dau
     , txns as chain_txns
@@ -38,6 +39,8 @@ select
     , avg_txn_fee as chain_avg_txn_fee
     -- Crypto Metrics
     , tvl
+    , token_turnover_circulating
+    , token_turnover_fdv
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date

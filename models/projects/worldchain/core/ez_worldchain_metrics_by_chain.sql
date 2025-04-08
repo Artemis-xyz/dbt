@@ -23,8 +23,6 @@ select
     , price
     , market_cap
     , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
     , token_volume
     -- Chain Metrics
     , daa as chain_dau
@@ -36,6 +34,8 @@ select
     , cost_native as l1_cash_flow_native
     , revenue as foundation_cash_flow
     , revenue_native as foundation_cash_flow_native
+    , token_turnover_circulating
+    , token_turnover_fdv
 from {{ ref("fact_worldchain_fundamental_metrics") }} as f
 left join price_data on f.date = price_data.date
 left join worldchain_dex_volumes on f.date = worldchain_dex_volumes.date

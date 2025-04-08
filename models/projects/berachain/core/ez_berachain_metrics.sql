@@ -38,8 +38,6 @@ select
     , price
     , market_cap
     , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
     , token_volume
     -- Chain Metrics
     , txns as chain_txns
@@ -53,6 +51,8 @@ select
     , emission_native as emissions_native
     , net_supply_change_native
     , circulating_supply_native
+    , token_turnover_circulating
+    , token_turnover_fdv
 
 from {{ ref("fact_berachain_fundamental_metrics") }} as f
 left join price_data on f.date = price_data.date
