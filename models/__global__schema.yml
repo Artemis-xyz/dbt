@@ -171,6 +171,10 @@ column_definitions:
       description: "The number of submitters on a chain"
     - name: chain_dex_volumes
       description: "The total volume of DEXes on a chain"
+    - name: chain_avg_block_time
+      description: "The average time it takes to produce a block on a chain"
+    - name: chain_avg_tps
+      description: "The average number of transactions per second on a chain"
 
   developer_metrics:
     - name: weekly_commits_core_ecosystem
