@@ -84,7 +84,7 @@ deduped_deleted_manual_labeled_addresses AS (
     {% endif %}
     QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated_timestamp DESC) = 1
 ),
-full_labeled_automatic_table AS (
+global_labaled_automatic_table AS (
     SELECT
         COALESCE(dmla.address, a.address) AS address,
         COALESCE(dmla.name, a.name) AS name,
@@ -97,6 +97,22 @@ full_labeled_automatic_table AS (
         COALESCE(dmla.last_updated_timestamp, a.last_updated) AS last_updated,
         dmla.last_updated_by
     FROM labeled_automatic_table a
+    FULL OUTER JOIN {{ ref("dim_global_labeled_addresses")}} dmla
+        ON LOWER(a.address) = LOWER(dmla.address) AND a.chain = dmla.chain
+),
+full_labeled_automatic_table AS (
+    SELECT
+        COALESCE(dmla.address, a.address) AS address,
+        COALESCE(dmla.name, a.name) AS name,
+        COALESCE(dmla.artemis_application_id, a.artemis_application_id) AS artemis_application_id,
+        COALESCE(dmla.chain, a.chain) AS chain,
+        a.address_type,
+        COALESCE(a.is_token, dmla.is_token) AS is_token,
+        COALESCE(a.is_fungible, dmla.is_fungible) AS is_fungible,
+        COALESCE(a.type, dmla.type) AS type,
+        COALESCE(dmla.last_updated_timestamp, a.last_updated) AS last_updated,
+        dmla.last_updated_by
+    FROM global_labaled_automatic_table a
     FULL OUTER JOIN deduped_added_manual_labeled_addresses dmla
         ON LOWER(a.address) = LOWER(dmla.address) AND a.chain = dmla.chain
 ), 
