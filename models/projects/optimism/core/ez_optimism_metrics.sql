@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_optimism_transactions") }}
+-- depends_on {{ ref("ez_optimism_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -10,7 +10,7 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("optimism") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("optimism", "v2") }}),
     price_data as ({{ get_coingecko_metrics("optimism") }}),
     defillama_data as ({{ get_defillama_metrics("optimism") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("optimism") }}),
