@@ -55,8 +55,6 @@ with
                 array_contains('Bridged-Tokens'::variant, token_categories) or
                 array_contains('Binance-Peg Tokens'::variant, token_categories)
             then 'Staked, Bridged, or Wrapped Asset'
-            when array_contains('Meme'::variant, token_categories)
-            then 'Memecoin'
             end as category
         from tokens_supported
     )
