@@ -36,6 +36,13 @@ with
     ),
     price as (
         select * from ({{ get_coingecko_price_with_latest("hyperliquid") }}) 
+    ),
+    date_spine as (
+        SELECT
+            date,
+            'hyperliquid' as chain
+        FROM {{ref("dim_date_spine")}}
+        WHERE date between '2023-06-13' and to_date(sysdate())
     )
 select
     date,
@@ -55,7 +62,8 @@ select
     COALESCE(trading_fees * 0.46, 0) as primary_supply_side_revenue,
     -- add daily burn back to the revenue
     COALESCE(trading_fees * 0.54, 0) + COALESCE(daily_burn, 0) * p.price as revenue
-from unique_traders_data
+from date_spine
+left join unique_traders_data using(date, chain)
 left join trading_volume_data using(date, chain)
 left join daily_transactions_data using(date, chain)
 left join fees_data using(date, chain)
