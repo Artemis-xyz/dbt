@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_solana_transactions_v2") }}
+-- depends_on {{ ref('fact_solana_transactions_v2') }}
 {{
     config(
         materialized="incremental",
@@ -22,7 +22,7 @@ with
             count_if(index = 0 and succeeded = 'TRUE') as txns,
             count(distinct(case when succeeded = 'TRUE' then value else null end)) dau,
             max(category) category
-        from {{ ref("ez_solana_transactions_v2") }}, lateral flatten(input => signers)
+        from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         where
             not equal_null(category, 'EOA')
             {% if is_incremental() %}
