@@ -333,8 +333,6 @@ column_definitions:
       description: "The total volume of NFTs traded on an NFT marketplace"
     - name: nft_collections_transacted
       description: "The number of NFT collections transacted on an NFT marketplace"
-    - name: nft_royalties
-      description: "The total amount of royalties (in USD) distributed to creators on an NFT marketplace"
 
   etf_metrics:
     - name: net_etf_flow_native
