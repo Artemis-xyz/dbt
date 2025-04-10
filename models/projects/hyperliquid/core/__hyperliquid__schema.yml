@@ -33,7 +33,7 @@ column_definitions:
 
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
-    description: "Gross protocol revenue includes trading fees, composed of spot fees, perp fees, and auction fees, plus layer 1 transaction fees."
+    description: "Gross protocol revenue includes layer 1 transaction fees and trading fees, composed of spot fees, perp fees, and auction fees."
     tags:
       - artemis_gaap
       - override
