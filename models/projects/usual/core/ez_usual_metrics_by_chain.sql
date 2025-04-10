@@ -4,7 +4,7 @@
         snowflake_warehouse='USUAL',
         database='usual',
         schema='core',
-        alias='ez_metrics'
+        alias='ez_metrics_by_chain'
     )
 }}
 
@@ -84,14 +84,7 @@ select
     , (usual.usualx_unstake_fees_daily) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as fee_sharing_token_cash_flow
 
     , ubm.circulating_supply_native
-
-    -- Market Metrics
-    , mm.price
-    , mm.token_volume
-    , mm.market_cap
-    , mm.fdmc
-    , mm.token_turnover_circulating
-    , mm.token_turnover_fdv
+    , 'ethereum' as chain
 
 from usd0_metrics usd0 
 left join usd0pp_metrics usd0pp on usd0.date = usd0pp.date
