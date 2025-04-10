@@ -160,8 +160,6 @@ select
     , fdmc
     , tvl
     -- Chain Usage Metrics
-    -- NOTE: txns only contains non-votes, votes can only be referenced explicitly in
-    -- fact_votes_agg_block
     , txns AS chain_txns
     , dau AS chain_dau
     , wau AS chain_wau
@@ -185,6 +183,7 @@ select
         when (gas_usd - base_fee_native * price ) < 0.001 then 0 else (gas_usd - base_fee_native * price )
     end as priority_fee
     -- Cashflow Metrics
+    , gas_usd + vote_tx_fee_native * price as chain_fees
     , gas + vote_tx_fee_native as gross_protocol_revenue_native
     , gas_usd + vote_tx_fee_native * price as gross_protocol_revenue
     , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as validator_cash_flow_native

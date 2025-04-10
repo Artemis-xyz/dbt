@@ -30,15 +30,17 @@ column_definitions:
 
   burned_cash_flow: &burned_cash_flow
     name: burned_cash_flow
-    description: "The amount of USD value burned"
+    description: "On Solana, prior to the implementation of SIMD 0096 (02-12-2025), half of both base fees and priority fees were burned. After its implementation, only half of base fees are burned, while priority fees are fully distributed to validators."
     tags:
       - artemis_gaap
+      - override
 
   burned_cash_flow_native: &burned_cash_flow_native
     name: burned_cash_flow_native
-    description: "The amount of native tokens burned"
+    description: "On Solana, prior to the implementation of SIMD 0096 (02-12-2025), half of both base fees and priority fees were burned. After its implementation, only half of base fees are burned, while priority fees are fully distributed to validators."
     tags:
       - artemis_gaap
+      - override
 
   chain_avg_txn_fee: &chain_avg_txn_fee
     name: chain_avg_txn_fee
@@ -51,6 +53,12 @@ column_definitions:
   chain_dex_volumes: &chain_dex_volumes
     name: chain_dex_volumes
     description: "The total volume of DEXes on a chain"
+
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on Solana including gas fees and vote fees."
+    tags:
+      - override
 
   chain_mau: &chain_mau
     name: chain_mau
@@ -66,7 +74,9 @@ column_definitions:
 
   chain_txns: &chain_txns
     name: chain_txns
-    description: "Daily transactions on a chain"
+    description: "Daily transactions on Solana. Transactions only contains non-votes, votes can only be referenced explicitly in fact_votes_agg_block."
+    tags:
+      - override
 
   chain_wau: &chain_wau
     name: chain_wau
@@ -279,43 +289,8 @@ column_definitions:
     description: "The number of developers on a chain who have made commits to the sub-ecosystem"
     tags:
       - artemis_gaap
-  
-  base_fee: &base_fee
-    name: base_fee
-    description: "The base fee on Solana in USD"
-    tags:
-      - artemis_gaap  
-  
-  base_fee_native: &base_fee_native
-    name: base_fee_native
-    description: "The base fee on Solana in native tokens"
-    tags:
-      - artemis_gaap
-
-  vote_tx_fee: &vote_tx_fee
-    name: vote_tx_fee
-    description: "The vote transaction fee on Solana in USD"
-    tags:
-      - artemis_gaap 
-
-  vote_tx_fee_native: &vote_tx_fee_native
-    name: vote_tx_fee_native
-    description: "The vote transaction fee on Solana in native tokens"
-    tags:
-      - artemis_gaap
-      
 
 models:
-  - name: ez_solana_metrics_by_category
-    description: "This table stores metrics for the SOLANA protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
   - name: ez_solana_metrics_by_subcategory
     description: "This table stores metrics for the SOLANA protocol"
     columns:
@@ -333,13 +308,12 @@ models:
       - *artemis_stablecoin_mau
       - *artemis_stablecoin_transfer_volume
       - *artemis_stablecoin_txns
-      - *base_fee
-      - *base_fee_native
       - *burned_cash_flow
       - *burned_cash_flow_native
       - *chain_avg_txn_fee
       - *chain_dau
       - *chain_dex_volumes
+      - *chain_fees
       - *chain_mau
       - *chain_median_txn_fee
       - *chain_nft_trading_volume
@@ -374,8 +348,6 @@ models:
       - *tvl
       - *validator_cash_flow
       - *validator_cash_flow_native
-      - *vote_tx_fee
-      - *vote_tx_fee_native
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem
       - *weekly_contract_deployers
@@ -394,16 +366,6 @@ models:
       - *sybil_users
 
   - name: ez_solana_metrics_by_application_v2
-    description: "This table stores metrics for the SOLANA protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
-  - name: ez_solana_metrics_by_application
     description: "This table stores metrics for the SOLANA protocol"
     columns:
       - *high_sleep_users
