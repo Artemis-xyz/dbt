@@ -45,8 +45,6 @@ select
     , unique_traders::string as unique_traders
     , trades as txns
     , trading_fees as fees
-    , spot_fees
-    , perp_fees
     , auction_fees
     , daily_burn
     -- protocol’s revenue split between HLP (supplier) and AF (holder) at a ratio of 46%:54%
@@ -60,13 +58,15 @@ select
     , trades as perp_txns
 
     -- Revenue Metrics
+    , perp_fees
+    , spot_fees
+    -- all l1 fees are burned
+    , daily_burn * mm.price as chain_fees
     , trading_fees + (daily_burn * mm.price) as gross_protocol_revenue
-    , perp_fees as perp_revenue
-    , spot_fees as spot_revenue
     , trading_fees * 0.46 as service_cash_flow
     , trading_fees * 0.54 as buybacks_cash_flow
-    , daily_burn as l1_cash_flow_native
-    , daily_burn * mm.price as l1_cash_flow
+    , daily_burn as burned_cash_flow_native
+    , daily_burn * mm.price as burned_cash_flow
 
     -- Market metrics
     , mm.price as price
