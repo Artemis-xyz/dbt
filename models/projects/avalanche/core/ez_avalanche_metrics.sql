@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_avalanche_transactions") }}
+-- depends_on {{ ref("ez_avalanche_transactions_v2") }}
 -- depends_on {{ ref('fact_avalanche_amount_staked_silver') }}
 {{
     config(
@@ -11,7 +11,7 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("avalanche") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("avalanche", "v2") }}),
     price_data as ({{ get_coingecko_metrics("avalanche-2") }}),
     defillama_data as ({{ get_defillama_metrics("avalanche") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("avalanche") }}),

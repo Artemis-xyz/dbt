@@ -12,7 +12,7 @@ with
             app as namespace,
             friendly_name,
             category
-        from {{ref("fact_mantle_transactions")}} as t
+        from {{ref("fact_mantle_transactions_v2")}} as t
         where
             t.contract_address is not null
             and t.block_timestamp >= dateadd(day, -60, current_date)

@@ -14,7 +14,7 @@ SELECT
       WHEN symbol_in IN ('USDC') THEN 'USDC'
       WHEN symbol_in IN ('WBTC', 'BTC') then 'WBTC'
       WHEN symbol_in IN ('WETH', 'ETH') then 'WETH'
-      WHEN symbol_in IN ('SOL') then 'WETH'
+      WHEN symbol_in IN ('SOL') then 'SOL'
       when symbol_in in ('USDe', 'USDS', 'DAI', 'FDUSD', 'BUIDL', 'USDTB', 'USD0', 'PYUSD', 'sUSD', 'USDY') then 'Other Stablecoins'
       ELSE 'Other crypto'
     END as quote_asset,
@@ -40,7 +40,7 @@ SELECT
       WHEN symbol_in IN ('USDC') THEN 'USDC'
       WHEN symbol_in IN ('WBTC', 'BTC') then 'WBTC'
       WHEN symbol_in IN ('WETH', 'ETH') then 'WETH'
-      WHEN symbol_in IN ('SOL') then 'WETH'
+      WHEN symbol_in IN ('SOL') then 'SOL'
       when symbol_in in ('USDe', 'USDS', 'DAI', 'FDUSD', 'BUIDL', 'USDTB', 'USD0', 'PYUSD', 'sUSD', 'USDY') then 'Other Stablecoins'
       ELSE 'Other crypto'
     END as quote_asset,
@@ -66,7 +66,7 @@ SELECT
       WHEN symbol_in IN ('USDC') THEN 'USDC'
       WHEN symbol_in IN ('WBTC', 'BTC') then 'WBTC'
       WHEN symbol_in IN ('WETH', 'ETH') then 'WETH'
-      WHEN symbol_in IN ('SOL') then 'WETH'
+      WHEN symbol_in IN ('SOL') then 'SOL'
       when symbol_in in ('USDe', 'USDS', 'DAI', 'FDUSD', 'BUIDL', 'USDTB', 'USD0', 'PYUSD', 'sUSD', 'USDY') then 'Other Stablecoins'
       ELSE 'Other crypto'
     END as quote_asset,
@@ -94,7 +94,7 @@ SELECT
       WHEN symbol_in IN ('USDC') THEN 'USDC'
       WHEN symbol_in IN ('WBTC', 'BTC') then 'WBTC'
       WHEN symbol_in IN ('WETH', 'ETH') then 'WETH'
-      WHEN symbol_in IN ('SOL') then 'WETH'
+      WHEN symbol_in IN ('SOL') then 'SOL'
       when symbol_in in ('USDe', 'USDS', 'DAI', 'FDUSD', 'BUIDL', 'USDTB', 'USD0', 'PYUSD', 'sUSD', 'USDY') then 'Other Stablecoins'
       ELSE 'Other crypto'
     END as quote_asset,

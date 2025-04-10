@@ -1,3 +1,4 @@
+-- depends_on {{ ref("ez_mantle_transactions_v2") }}
 {{
     config(
         materialized='table'
@@ -10,7 +11,7 @@
 
 
 with 
-fundamental_data as ({{ get_fundamental_data_for_chain("mantle") }})
+fundamental_data as ({{ get_fundamental_data_for_chain("mantle", "v2") }})
 , expenses_data as (
     select date, chain, l1_data_cost_native, l1_data_cost
     from {{ ref("fact_mantle_l1_data_cost") }}
