@@ -5,4 +5,4 @@
     )
 }}
 
-{{ rolling_active_addresses("near") }}
+{{ rolling_active_addresses("near", "_v2") }}

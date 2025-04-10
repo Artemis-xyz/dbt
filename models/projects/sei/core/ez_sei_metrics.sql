@@ -1,14 +1,15 @@
+-- depends_on {{ ref("ez_sei_transactions_v2") }}
 {{
     config(
         materialized="table",
-        snowflake_warehouse="sei",
+        snowflake_warehouse="analytics_xl",
         database="sei",
         schema="core",
         alias="ez_metrics",
     )
 }}
 with
-    sei_combined_fundamental_metrics as ( {{ get_fundamental_data_for_chain("sei") }} )
+    sei_combined_fundamental_metrics as ( {{ get_fundamental_data_for_chain("sei", "v2") }} )
     , sei_fundamental_metrics as (select * from {{ ref("fact_sei_daa_txns_gas_gas_usd_revenue") }})
     , rolling_metrics as ({{ get_rolling_active_address_metrics("sei") }})
     , contract_data as ({{ get_contract_metrics("sei") }})
@@ -24,13 +25,11 @@ with
     )
 select
     coalesce(combined.date, wasm.date, evm.date, sei_avg_block_time.date, price.date, defillama.date, contracts.date) as date
+    , 'sei' as chain
     , (wasm_avg_block_time + evm_avg_block_time) / 2 as avg_block_time
     , (wasm_txns + evm_txns) / 86400 as avg_tps
-    , 'sei' as chain
     , combined.txns as txns
     , combined.dau as dau
-    , combined.new_users as new_users
-    , combined.returning_users as returning_users
     , rolling_metrics.mau as mau
     , rolling_metrics.wau as wau
     , combined.fees_native as fees_native
@@ -38,6 +37,36 @@ select
     , combined.avg_txn_fee as avg_txn_fee
     , 0 as revenue_native
     , 0 as revenue
+    , 0 as evm_revenue
+    , 0 as wasm_revenue
+    , dune_dex_volumes_sei.dex_volumes AS dex_volumes
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Chain Usage Metrics
+    , combined.txns as chain_txns
+    , combined.dau as chain_dau
+    , rolling_metrics.mau as chain_mau
+    , rolling_metrics.wau as chain_wau
+    , combined.new_users as new_users
+    , combined.returning_users as returning_users
+    , combined.avg_txn_fee as chain_avg_txn_fee
+    , (wasm_avg_block_time + evm_avg_block_time) / 2 as chain_avg_block_time
+    , (wasm_txns + evm_txns) / 86400 as chain_avg_tps
+    , dune_dex_volumes_sei.dex_volumes AS chain_dex_volumes
+    -- EVM Usage Metrics
+    , evm_avg_block_time 
+    , evm_new_users
+    , evm_returning_users
+    , evm_txns
+    , evm_daa as evm_dau
+    , evm_avg_tps
+    , evm_gas as evm_fees_native
+    , evm_gas_usd as evm_fees
+    -- Wasm Usage Metrics
     , wasm_txns
     , wasm_daa as wasm_dau
     , wasm_returning_users
@@ -46,23 +75,16 @@ select
     , wasm_gas_usd as wasm_fees
     , wasm_avg_block_time as wasm_avg_block_time
     , wasm_avg_tps as wasm_avg_tps
-    , 0 as wasm_revenue
-    , tvl
-    , price
-    , market_cap
-    , evm_new_users
-    , evm_returning_users
-    , evm_txns
-    , evm_daa as evm_dau
-    , evm_avg_tps
-    , evm_gas as evm_fees_native
-    , evm_gas_usd as evm_fees
-    , 0 as evm_revenue
-    , evm_avg_block_time 
+    -- Cashflow Metrics
+    , combined.fees_native as gross_protocol_revenue_native
+    , combined.fees as gross_protocol_revenue
+    , 0 as evm_cash_flow_native
+    , 0 as wasm_cash_flow_native
+    -- Supply Metrics
     , sei_emissions.mints_native
+    -- Developer Metrics
     , weekly_contracts_deployed
     , weekly_contract_deployers
-    , dune_dex_volumes_sei.dex_volumes
 from sei_combined_fundamental_metrics as combined
 full join contract_data as contracts using (date)
 full join sei_fundamental_metrics as wasm using (date)
