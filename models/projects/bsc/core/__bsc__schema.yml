@@ -237,26 +237,6 @@ column_definitions:
       - artemis_gaap
 
 models:
-  - name: ez_bsc_metrics_by_category
-    description: "This table stores metrics for the BSC protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
-  - name: ez_bsc_metrics_by_application
-    description: "This table stores metrics for the BSC protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
   - name: ez_bsc_metrics
     description: "This table stores metrics for the BSC protocol"
     columns:
