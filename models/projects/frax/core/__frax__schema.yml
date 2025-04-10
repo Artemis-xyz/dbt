@@ -61,7 +61,9 @@ column_definitions:
 
   tvl: &tvl
     name: tvl
-    description: "The total value locked in a protocol"
+    description: "The sum of TVL locked in Frax's liquid staking protocol as well as their spot DEX."
+    tags:
+      - override
 
 models:
   - name: ez_frax_metrics_by_chain
