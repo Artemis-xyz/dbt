@@ -38,7 +38,9 @@ select
     , icp_transaction_fees / txns AS chain_avg_txn_fee
     , dex_volumes AS chain_dex_volumes
     -- Cashflow Metrics
+    , total_native_fees * price AS chain_fees
     , total_native_fees AS gross_protocol_revenue_native -- total transaction fees
+    , total_native_fees * price AS gross_protocol_revenue
     , icp_burned AS burned_cash_flow_native
     , icp_burned * price AS burned_cash_flow
     -- Bespoke metrics
