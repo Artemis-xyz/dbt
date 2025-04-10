@@ -25,24 +25,35 @@ with  fees_and_revs as (
     from {{ ref('fact_liquity_outstanding_supply') }}
     group by 1, 2
 )
-, treasury as (
-    SELECT
+, treasury_by_token as (
+    select
         date,
         token,
-        sum(native_balance) as treasury_value,
-        SUM(
-            CASE WHEN token = 'LQTY'
-                THEN native_balance
-            END
-        ) AS treasury_native_value,
-        SUM(
-            CASE WHEN token <> 'LQTY'
-                THEN native_balance
-            END
-        ) AS net_treasury_value
-    FROM {{ ref('fact_liquity_treasury') }}
-    GROUP BY 1, 2
+        sum(usd_balance) as treasury,
+        sum(native_balance) as treasury_native
+    from {{ ref('fact_liquity_treasury') }}
+    group by 1, 2
 )
+, net_treasury as (
+    select
+        date,
+        token,
+        sum(usd_balance) as net_treasury,
+        sum(native_balance) as net_treasury_native
+    from {{ ref('fact_liquity_treasury') }}
+    where token != 'LQTY'
+    group by 1, 2
+)
+, treasury_native as (
+    select
+        date,
+        token,
+        sum(usd_balance) as own_token_treasury,
+        sum(native_balance) as own_token_treasury_native
+    from {{ ref('fact_liquity_treasury') }}
+    where token = 'LQTY'
+    group by 1, 2
+)  
 , token_incentives as (
     select
         date,
@@ -73,27 +84,47 @@ with  fees_and_revs as (
 )
 
 select
-    dts.date,
-    dts.token,
+    dts.date
+    , dts.token
+    , fr.revenue_usd as fees
+    , fr.revenue_native as fees_native
+    , fr.revenue_usd as revenue
+    , fr.revenue_native as revenue_native
+    , ti.token_incentives_native as token_incentives_native
+    , ti.token_incentives_native as expenses_native
+    , treasury_by_token.treasury as treasury_value
+    , treasury_by_token.treasury_native as treasury_native_value
+    , net_treasury.net_treasury as net_treasury_value
+    , os.outstanding_supply
 
-    -- Fees and revenue
-    fr.revenue_usd as fees,
-    fr.revenue_native as fees_native,
-    fr.revenue_usd as revenue,
-    fr.revenue_native as revenue_native,
-    ti.token_incentives_native as token_incentives_native,
-    ti.token_incentives_native as expenses_native,
-    -- Treasury
-    treasury.treasury_value,
-    treasury.treasury_native_value,
-    treasury.net_treasury_value,
+    -- Standardized Metrics
 
-    -- TVL
-    tvl.tvl,
-    os.outstanding_supply,
+    -- Lending Metrics
+    , tvl.tvl as lending_deposits
+    , fr.revenue_usd as lending_fees
+    , os.outstanding_supply as lending_loans
+
+    -- Crypto Metrics
+    , tvl.tvl
+    , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
+
+    -- Cash Flow Metrics
+    , fr.revenue_usd as gross_protocol_revenue
+    , fr.revenue_native as gross_protocol_revenue_native
+    , ti.token_incentives_native as fee_sharing_token_cash_flow_native
+
+    -- Protocol Metrics
+    , coalesce(treasury_by_token.treasury, 0) as treasury
+    , coalesce(treasury_by_token.treasury_native, 0) as treasury_native
+    , coalesce(net_treasury.net_treasury, 0) as net_treasury
+    , coalesce(net_treasury.net_treasury_native, 0) as net_treasury_native
+    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
+    , coalesce(treasury_native.own_token_treasury_native, 0) as own_token_treasury_native
 from date_token_spine dts
 left join tvl using (date, token)
 left join outstanding_supply os using (date, token)
 left join fees_and_revs fr using (date, token)
-left join treasury using (date, token)
+left join treasury_by_token using (date, token)
+left join net_treasury using (date, token)
+left join treasury_native using (date, token)
 left join token_incentives ti using (date, token)

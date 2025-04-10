@@ -33,9 +33,15 @@ with
     , daily_burn_data as (
         select date, daily_burn, chain
         from {{ ref("fact_hyperliquid_daily_burn") }}
-    )
     , market_metrics as (
         ({{ get_coingecko_metrics("hyperliquid") }}) 
+    ),
+    date_spine as (
+        SELECT
+            date,
+            'hyperliquid' as chain
+        FROM {{ref("dim_date_spine")}}
+        WHERE date between '2023-06-13' and to_date(sysdate())
     )
 select
     date
@@ -53,6 +59,7 @@ select
     -- protocol’s revenue split between HLP (supplier) and AF (holder) at a ratio of 46%:54%
     , COALESCE(trading_fees * 0.46, 0) as primary_supply_side_revenue
     -- add daily burn back to the revenue
+
     , COALESCE(trading_fees * 0.54, 0) + COALESCE(daily_burn, 0) * mm.price as revenue
 
     -- Standardized Metrics
@@ -75,7 +82,8 @@ select
     , mm.market_cap as market_cap
     , mm.fdmc as fdmc
     , mm.token_turnover_circulating as token_turnover_circulating
-from unique_traders_data
+
+left join unique_traders_data using(date, chain)
 left join trading_volume_data using(date, chain)
 left join daily_transactions_data using(date, chain)
 left join fees_data using(date, chain)

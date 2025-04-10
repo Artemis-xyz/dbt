@@ -7,9 +7,11 @@
 
 with evm_transactions as (
     select
-        date(timestamp) as date
-        , count(distinct signer) as daa
+        date
+        , count(distinct sender) as daa
         , count(*) as txns
+        , sum(fees) as fees
+        , sum(fees_native) as fees_native
     from {{ ref("fact_hydration_evm_transactions") }}
     group by date
 ),
