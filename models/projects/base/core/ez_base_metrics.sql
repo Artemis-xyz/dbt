@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_base_transactions") }}
+-- depends_on {{ ref("ez_base_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -10,7 +10,7 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("base") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("base", "v2") }}),
     defillama_data as ({{ get_defillama_metrics("base") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("base") }}),
     contract_data as ({{ get_contract_metrics("base") }}),

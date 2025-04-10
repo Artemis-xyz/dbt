@@ -345,16 +345,6 @@ models:
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
 
-  - name: ez_arbitrum_metrics_by_category
-    description: "This table stores metrics for the ARBITRUM protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
   - name: ez_arbitrum_metrics_by_subcategory
     description: "This table stores metrics for the ARBITRUM protocol"
     columns:
