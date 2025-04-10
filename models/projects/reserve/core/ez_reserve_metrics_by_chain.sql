@@ -10,7 +10,7 @@
 
 select
     date
-    , 'Ethereum' as chain
+    , 'ethereum' as chain
     -- Standardized Metrics
 
     -- Stablecoin Metrics
