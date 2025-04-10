@@ -66,7 +66,7 @@ select
     -- Spot DEX Metrics
     , coalesce(dau, 0) as spot_dau
     , coalesce(volume_usd, 0) as spot_volume
-    , coalesce(fee_fun_usd,0)  + coalesce(tax_usd,0) as spot_revenue
+    , coalesce(tax_usd, 0) + coalesce(fee_fun_usd, 0) as spot_fees
 
     -- Cash Flow Metrics
     , coalesce(fee_fun_usd,0)  + coalesce(tax_usd,0) as gross_protocol_revenue

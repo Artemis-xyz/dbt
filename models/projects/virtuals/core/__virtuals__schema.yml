@@ -45,9 +45,9 @@ column_definitions:
     tags:
       - override
 
-  spot_revenue: &spot_revenue
-    name: spot_revenue
-    description: "The sum of all taxes, 1% fee on all trades, and agent fees(in USD) paid on Virtuals protocol"
+  spot_fees: &spot_fees
+    name: spot_fees
+    description: "The total amount of fees (in USD) paid by users on Virtuals protocol"
     tags:
       - override
 
@@ -95,7 +95,7 @@ models:
       - *price
       - *service_cash_flow
       - *spot_dau
-      - *spot_revenue
+      - *spot_fees
       - *spot_volume
       - *token_turnover_circulating
       - *token_turnover_fdv
