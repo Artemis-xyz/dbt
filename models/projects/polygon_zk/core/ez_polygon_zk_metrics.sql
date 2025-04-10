@@ -50,11 +50,11 @@ select
     , fees / txns as chain_avg_txn_fee
     , dune_dex_volumes_polygon_zk.dex_volumes AS chain_dex_volumes
     -- Cash Flow Metrics
+    , fees AS chain_fees
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
-    -- https://docs.polygon.technology/zkEVM/architecture/protocol/incentive-mechanism/#aggregation-reward
-    , coalesce(fees_native, 0) - l1_data_cost_native as aggregator_cash_flow_native
-    , coalesce(fees, 0) - l1_data_cost as aggregator_cash_flow
+    , coalesce(fees_native, 0) - l1_data_cost_native as service_cash_flow_native
+    , coalesce(fees, 0) - l1_data_cost as service_cash_flow
     , l1_data_cost_native AS l1_cash_flow_native
     , l1_data_cost AS l1_cash_flow
     -- Developer Metrics

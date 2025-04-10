@@ -11,6 +11,9 @@ column_definitions:
     - name: service_cash_flow
       description: "The share of protocol revenue accrued to service providers of the protocol."
       tags: [artemis_gaap]
+    - name: service_cash_flow_native
+      description: "The share of protocol revenue accrued to service providers of the protocol in native tokens."
+      tags: [artemis_gaap]
     - name: equity_cash_flow
       description: "Revenue distributed to equity holders of an off-chain entity operating the protocol (e.g., dYdX Trading Inc., Uniswap Labs)."
       tags: [artemis_gaap]
@@ -34,12 +37,6 @@ column_definitions:
       tags: [artemis_gaap]
     - name: strategy_cash_flow
       description: "Revenue distributed to entities that manage or execute capital deployment strategies, such as vault operators, liquidity managers, leverage account managers and structured product creators."
-      tags: [artemis_gaap]
-    - name: aggregator_cash_flow
-      description: "Revenue distributed to entities that aggregate transactions on the protocol."
-      tags: [artemis_gaap]
-    - name: aggregator_cash_flow_native
-      description: "Revenue distributed to entities that aggregate transactions on the protocol in native tokens."
       tags: [artemis_gaap]
     - name: buybacks_cash_flow
       description: "The amount tokens bought back by the protocol (USD)."

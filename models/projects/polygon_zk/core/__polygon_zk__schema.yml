@@ -4,18 +4,6 @@
 version: 2
 
 column_definitions:
-  aggregator_cash_flow: &aggregator_cash_flow
-    name: aggregator_cash_flow
-    description: "Revenue distributed to entities that aggregate transactions on the protocol."
-    tags:
-      - artemis_gaap
-
-  aggregator_cash_flow_native: &aggregator_cash_flow_native
-    name: aggregator_cash_flow_native
-    description: "Revenue distributed to entities that aggregate transactions on the protocol in native tokens."
-    tags:
-      - artemis_gaap
-
   chain_avg_txn_fee: &chain_avg_txn_fee
     name: chain_avg_txn_fee
     description: "The average transaction fee on a chain"
@@ -27,6 +15,10 @@ column_definitions:
   chain_dex_volumes: &chain_dex_volumes
     name: chain_dex_volumes
     description: "The total volume of DEXes on a chain"
+
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on a chain"
 
   chain_txns: &chain_txns
     name: chain_txns
@@ -74,6 +66,20 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  service_cash_flow: &service_cash_flow
+    name: service_cash_flow
+    description: "The share of protocol revenue accrued to service providers of the protocol. Aggregation rewards on Polygon ZK https://docs.polygon.technology/zkEVM/architecture/protocol/incentive-mechanism/#aggregation-reward"
+    tags:
+      - override
+      - artemis_gaap
+
+  service_cash_flow_native: &service_cash_flow_native
+    name: service_cash_flow_native
+    description: "The share of protocol revenue accrued to service providers of the protocol in native tokens. Aggregation rewards on Polygon ZK https://docs.polygon.technology/zkEVM/architecture/protocol/incentive-mechanism/#aggregation-reward"
+    tags:
+      - override
+      - artemis_gaap
+
   tvl: &tvl
     name: tvl
     description: "The total value locked in a protocol"
@@ -106,11 +112,10 @@ models:
   - name: ez_polygon_zk_metrics
     description: "This table stores metrics for the POLYGON_ZK protocol"
     columns:
-      - *aggregator_cash_flow
-      - *aggregator_cash_flow_native
       - *chain_avg_txn_fee
       - *chain_dau
       - *chain_dex_volumes
+      - *chain_fees
       - *chain_txns
       - *fdmc
       - *gross_protocol_revenue
@@ -119,6 +124,8 @@ models:
       - *l1_cash_flow_native
       - *market_cap
       - *price
+      - *service_cash_flow
+      - *service_cash_flow_native
       - *tvl
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem
