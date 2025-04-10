@@ -103,21 +103,6 @@ column_definitions:
     description: "The market cap of a tokenized asset in USD."
 
 models:
-  - name: ez_stellar_metrics_by_application
-    description: "This table stores metrics for the STELLAR protocol"
-    columns:
-      - *chain_dau
-      - *chain_txns
-      - *fdmc
-      - *gross_protocol_revenue
-      - *market_cap
-      - *new_users
-      - *price
-      - *returning_users
-      - *token_turnover_circulating
-      - *token_turnover_fdv
-      - *token_volume
-
   - name: ez_stellar_metrics
     description: "This table stores metrics for the STELLAR protocol"
     columns:
@@ -141,36 +126,6 @@ models:
       - *token_turnover_fdv
       - *token_volume
       - *tokenized_market_cap
-
-  - name: ez_stellar_metrics_by_category
-    description: "This table stores metrics for the STELLAR protocol"
-    columns:
-      - *chain_dau
-      - *chain_txns
-      - *fdmc
-      - *gross_protocol_revenue
-      - *gross_protocol_revenue_native
-      - *market_cap
-      - *new_users
-      - *price
-      - *returning_users
-      - *token_turnover_circulating
-      - *token_turnover_fdv
-      - *token_volume
-
-  - name: ez_stellar_metrics_by_contract
-    description: "This table stores metrics for the STELLAR protocol"
-    columns:
-      - *chain_dau
-      - *chain_txns
-      - *fdmc
-      - *gross_protocol_revenue
-      - *gross_protocol_revenue_native
-      - *market_cap
-      - *price
-      - *token_turnover_circulating
-      - *token_turnover_fdv
-      - *token_volume
 
   - name: ez_stellar_metrics_by_category_v2
     description: "This table stores metrics for the STELLAR protocol"

@@ -315,16 +315,6 @@ models:
       - *returning_users
       - *sybil_users
 
-  - name: ez_polygon_metrics_by_category
-    description: "This table stores metrics for the POLYGON protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
   - name: ez_polygon_metrics
     description: "This table stores metrics for the POLYGON protocol"
     columns:
@@ -387,14 +377,3 @@ models:
     columns:
       - *inflow
       - *outflow
-
-  - name: ez_polygon_metrics_by_application
-    description: "This table stores metrics for the POLYGON protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
