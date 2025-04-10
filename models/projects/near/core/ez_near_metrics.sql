@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_near_transactions") }}
+-- depends_on {{ ref("ez_near_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -10,7 +10,7 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("near") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("near", "v2") }}),
     price_data as ({{ get_coingecko_metrics("near") }}),
     defillama_data as ({{ get_defillama_metrics("near") }}),
     revenue_data as (
