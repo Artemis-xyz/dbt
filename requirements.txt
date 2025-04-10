@@ -23,6 +23,7 @@ dbt-semantic-interfaces==0.7.4  # via dbt-core, -r requirements.in
 dbt-snowflake==1.9.1      # via -r requirements.in
 deepdiff==7.0.1           # via dbt-common
 diff-cover==9.2.1         # via sqlfluff
+duckdb==1.2.1             # via -r requirements.in
 filelock==3.16.1          # via snowflake-connector-python
 idna==3.10                # via requests, snowflake-connector-python
 importlib-metadata==6.11.0  # via dbt-semantic-interfaces, keyring

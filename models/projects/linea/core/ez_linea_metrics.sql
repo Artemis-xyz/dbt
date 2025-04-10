@@ -61,8 +61,8 @@ select
     -- Cashflow Metrics
     , fees AS gross_protocol_revenue
     , fees_native AS gross_protocol_revenue_native
-    , revenue AS burned_cash_flow
-    , revenue_native AS burned_cash_flow_native
+    , revenue AS treasury_cash_flow
+    , revenue_native AS treasury_cash_flow_native
     , l1_data_cost_native AS l1_cash_flow_native
     , l1_data_cost AS l1_cash_flow
     -- Developer Metrics
