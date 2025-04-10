@@ -84,7 +84,7 @@ deduped_deleted_manual_labeled_addresses AS (
     {% endif %}
     QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated_timestamp DESC) = 1
 ),
-global_labaled_automatic_table AS (
+global_labeled_automatic_table AS (
     SELECT
         COALESCE(dmla.address, a.address) AS address,
         COALESCE(dmla.name, a.name) AS name,
@@ -111,7 +111,7 @@ full_labeled_automatic_table AS (
         COALESCE(a.type, dmla.type) AS type,
         COALESCE(dmla.last_updated_timestamp, a.last_updated) AS last_updated,
         dmla.last_updated_by
-    FROM global_labaled_automatic_table a
+    FROM global_labeled_automatic_table a
     FULL OUTER JOIN deduped_added_manual_labeled_addresses dmla
         ON LOWER(a.address) = LOWER(dmla.address) AND a.chain = dmla.chain
 ), 
