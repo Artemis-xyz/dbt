@@ -14,7 +14,7 @@ select
     sum(b.stablecoin_supply) as stablecoin_supply,
 from pc_dbt_db.prod.dim_geo_labels l
 left join {{ ref("agg_daily_stablecoin_breakdown_silver") }} b
-on b.from_address = l.address
+on lower(b.from_address) = lower(l.address)
 and b.chain = l.chain
 where l.subregion is not null
 {% if is_incremental() %}
