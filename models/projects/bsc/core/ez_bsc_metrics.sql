@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_bsc_transactions") }}
+-- depends_on {{ ref("ez_bsc_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -10,7 +10,7 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("bsc") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("bsc", "v2") }}),
     price_data as ({{ get_coingecko_metrics("binancecoin") }}),
     defillama_data as ({{ get_defillama_metrics("bsc") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("bsc") }}),

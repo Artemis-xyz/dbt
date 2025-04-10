@@ -5,4 +5,4 @@
     )
 }}
 
-{{ rolling_active_addresses("optimism") }}
+{{ rolling_active_addresses("optimism", "_v2") }}

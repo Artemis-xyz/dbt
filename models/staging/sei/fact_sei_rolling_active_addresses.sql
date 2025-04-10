@@ -6,4 +6,4 @@
     )
 }}
 
-{{ rolling_active_addresses("sei") }}
+{{ rolling_active_addresses("sei", "_v2") }}

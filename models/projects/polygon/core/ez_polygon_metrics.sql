@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_polygon_transactions") }}
+-- depends_on {{ ref("ez_polygon_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -10,7 +10,7 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("polygon") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("polygon", "v2") }}),
     price_data as ({{ get_coingecko_metrics("matic-network") }}),
     defillama_data as ({{ get_defillama_metrics("polygon") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("polygon") }}),
@@ -25,7 +25,7 @@ with
             raw_date as date,
             sum(tx_fee) as l1_data_cost_native,
             sum(gas_usd) as l1_data_cost
-        from {{ref("ez_ethereum_transactions")}}
+        from {{ref("ez_ethereum_transactions_v2")}}
         where lower(contract_address) = lower('0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287')   
         group by date
     ),
