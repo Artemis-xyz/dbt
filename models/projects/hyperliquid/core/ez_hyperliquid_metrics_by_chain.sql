@@ -33,14 +33,9 @@ with
     , daily_burn_data as (
         select date, daily_burn, chain
         from {{ ref("fact_hyperliquid_daily_burn") }}
-<<<<<<< HEAD
     ),
-    price as (
-        select * from ({{ get_coingecko_price_with_latest("hyperliquid") }}) 
-=======
-    , market_metrics as (
+    market_metrics as (
         ({{ get_coingecko_metrics("hyperliquid") }}) 
->>>>>>> 9f2f9df07a08513f411e7beee4ffb099df1d0829
     ),
     date_spine as (
         SELECT
@@ -58,8 +53,6 @@ select
     , unique_traders::string as unique_traders
     , trades as txns
     , trading_fees as fees
-    , spot_fees
-    , perp_fees
     , auction_fees
     , daily_burn
     -- protocol’s revenue split between HLP (supplier) and AF (holder) at a ratio of 46%:54%
