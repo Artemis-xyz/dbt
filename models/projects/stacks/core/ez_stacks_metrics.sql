@@ -63,6 +63,7 @@ select
     , txns as chain_txns
     
     -- Cashflow Metrics
+    , fees as chain_fees
     , fees_native as gross_protocol_revenue_native
     , fees as gross_protocol_revenue
     , avg_txn_fee as chain_avg_txn_fee
