@@ -16,6 +16,10 @@ column_definitions:
     name: chain_dex_volumes
     description: "The total volume of DEXes on a chain"
 
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on a chain"
+
   chain_mau: &chain_mau
     name: chain_mau
     description: "Monthly unique users on a chain"
@@ -34,9 +38,10 @@ column_definitions:
 
   equity_cash_flow: &equity_cash_flow
     name: equity_cash_flow
-    description: "Revenue distributed to equity holders of an off-chain entity operating the protocol (e.g., dYdX Trading Inc., Uniswap Labs)."
+    description: "All the transaction fees after paying the L1 are retained by Scroll Labs"
     tags:
       - artemis_gaap
+      - override
 
   fdmc: &fdmc
     name: fdmc
@@ -135,6 +140,7 @@ models:
       - *chain_avg_txn_fee
       - *chain_dau
       - *chain_dex_volumes
+      - *chain_fees
       - *chain_mau
       - *chain_median_txn_fee
       - *chain_txns
