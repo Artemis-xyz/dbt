@@ -127,15 +127,15 @@ select
     , fees.fees_usd as fees
     , fees.fees_native as fees_native
     , token_incentives
-    , token_incentives as expenses
+    , token_incentives as total_expenses
     , token_holder_count
     , tvl as net_deposits
 
     -- Standardized Metrics
 
-    -- Spot DEX Metrics
-    , unique_traders as spot_dau
-    , trading_volume as spot_volume
+    -- Perpetuals Metrics
+    , unique_traders as perp_dau
+    , trading_volume as perp_volume
     
     -- Crypto Metrics
     , tvl 

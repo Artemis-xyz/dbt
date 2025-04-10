@@ -102,7 +102,6 @@ select
     date
     , 'synthetix' as app
     , 'DeFi' as category
-    , 0 as txns
     , coalesce(trading_volume, 0) as trading_volume
     , coalesce(unique_traders, 0) as dau
     , coalesce(unique_traders, 0) as unique_traders
@@ -126,10 +125,10 @@ select
     , coalesce(market_data.fdmc, 0) as fdmc
     , coalesce(market_data.token_volume, 0) as token_volume
 
-    -- Spot DEX Metrics
-    , coalesce(unique_traders, 0) as spot_dau
-    , coalesce(trading_volume, 0) as spot_volume
-    , coalesce(fees.fees, 0) as spot_revenue
+    -- Perpetuals Metrics
+    , coalesce(unique_traders, 0) as perp_dau
+    , coalesce(trading_volume, 0) as perp_volume
+    , coalesce(fees.fees, 0) as perp_revenue
 
     -- Crypto Metrics
     , coalesce(tvl, 0) as tvl
