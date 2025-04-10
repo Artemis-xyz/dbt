@@ -1,0 +1,35 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  bridge_dau: &bridge_dau
+    name: bridge_dau
+    description: "The number of daily active addresses on a bridge"
+
+  bridge_volume: &bridge_volume
+    name: bridge_volume
+    description: "The total volume on a bridge"
+
+  inflow: &inflow
+    name: inflow
+    description: "The amount (in USD) flowing into a chain"
+
+  outflow: &outflow
+    name: outflow
+    description: "The amount (in USD) flowing out of a chain"
+
+models:
+  - name: ez_cctp_metrics
+    description: "This table stores metrics for the CCTP protocol"
+    columns:
+      - *bridge_dau
+      - *bridge_volume
+
+  - name: ez_cctp_metrics_by_chain
+    description: "This table stores metrics for the CCTP protocol"
+    columns:
+      - *inflow
+      - *outflow
+
