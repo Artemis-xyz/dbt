@@ -17,8 +17,8 @@ with flattened_logs as (
 
 select
     date(f.block_timestamp) as date,
-    sum((f.supply_minted::number) / 1e18) as mintsNative,
-    sum(((f.supply_minted::number) / 1e18) * eph.price) as mintsUSD
+    sum((f.supply_minted::number) / 1e18) as mints_native,
+    sum(((f.supply_minted::number) / 1e18) * eph.price) as mints
 from 
     flattened_logs f
 join 

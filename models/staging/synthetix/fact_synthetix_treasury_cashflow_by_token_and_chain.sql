@@ -9,6 +9,7 @@ with fee_address_outflow_to_null_address as (
 
 select
     date(block_timestamp) as date, 
+    'Ethereum' as chain,
     symbol, 
     sum(coalesce(amount_usd, 0)) as treasury_cashflow,
 from ethereum_flipside.core.ez_token_transfers
@@ -17,4 +18,9 @@ where from_address ILIKE '0x0000000000000000000000000000000000000000'
                                 lower('0x99F4176EE457afedFfCB1839c7aB7A030a5e4A92'))
     and tx_hash in (select tx_hash from fee_address_outflow_to_null_address)
     and symbol is not null
-group by 1, 2
+group by 1, 2, 3
+
+
+
+
+

@@ -26,7 +26,7 @@ with
             date
             , chain
             , sum(tvl_usd) as tvl
-        from {{ ref("fact_synthetix_tvl_by_chain_and_token") }}
+        from {{ ref("fact_synthetix_tvl_by_token_and_chain") }}
         group by 1,2 
     ), 
     token_incentives as (
@@ -98,14 +98,14 @@ with
             date
             , chain
             , sum(treasury_cashflow) as treasury_cashflow
-        from {{ ref("fact_synthetix_treasury_inflow_by_token") }}
+        from {{ ref("fact_synthetix_treasury_cashflow_by_token_and_chain") }}
         group by 1,2
     )
     , fee_sharing_cashflow as (
         select
             date
             , chain
-            , sum(fee_sharing_cashflow) as fee_sharing_cashflow
+            , sum(fee_sharing_cash_flow) as fee_sharing_cashflow
         from {{ ref("fact_synthetix_fee_sharing_cashflow_by_token_and_chain") }}
         group by 1,2
     )
@@ -113,16 +113,8 @@ with
         select
             date
             , chain
-            , sum(token_cashflow) as token_cashflow
+            , sum(cash_flow) as token_cashflow
         from {{ ref("fact_synthetix_token_cashflow_by_token_and_chain") }}
-        group by 1,2
-    )
-    , token_incentives as (
-        select
-            date
-            , chain
-            , sum(token_incentives) as token_incentives
-        from {{ ref("fact_synthetix_token_incentives_by_chain") }}
         group by 1,2
     )
 select
@@ -132,6 +124,8 @@ select
     , chain
     , trading_volume
     , unique_traders
+    , fees.fees_usd as fees
+    , fees.fees_native as fees_native
     , token_incentives
     , token_incentives as expenses
     , token_holder_count
@@ -171,6 +165,6 @@ left join treasury_native using(date, chain)
 left join fees using(date, chain)
 left join service_cashflow using(date, chain)
 left join treasury_cashflow using(date, chain)
-left join token_cashflow using(date, chain)
 left join fee_sharing_cashflow using(date, chain)
+left join token_cashflow using(date, chain)
 where date < to_date(sysdate())

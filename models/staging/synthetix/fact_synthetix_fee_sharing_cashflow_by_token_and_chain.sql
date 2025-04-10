@@ -33,7 +33,7 @@ with ethereum_fee_sharing as (
     order by date desc
 ), 
 
-optimistic_fee_sharing as (
+optimism_fee_sharing as (
     select
         date(block_timestamp) as date, 
         'Optimism' as chain, 
@@ -49,7 +49,7 @@ optimistic_fee_sharing as (
 
 select * from ethereum_fee_sharing
 union all
-select * from optimistic_fee_sharing
+select * from optimism_fee_sharing
 
 
 

@@ -46,7 +46,7 @@ with
             date,
             token,
             sum(tvl_usd) as tvl
-        from {{ ref('fact_synthetix_tvl_by_chain_and_token') }}
+        from {{ ref('fact_synthetix_tvl_by_token_and_chain') }}
         group by 1,2
     )
     , date_token_spine as (
@@ -65,16 +65,66 @@ with
                     SELECT distinct token from tvl
                     )
         where date between '2019-08-11' and to_date(sysdate())
+    ), 
+    token_cashflow as (
+        select
+            date
+            , token
+            , sum(cash_flow) as token_cashflow
+        from {{ ref("fact_synthetix_token_cashflow_by_token_and_chain") }}
+        group by 1,2
     )
-
+    , service_cashflow as (
+        select
+            date
+            , token
+            , sum(service_cashflow) as service_cashflow
+        from {{ ref("fact_synthetix_service_cashflow_by_token_and_chain") }}
+        group by 1,2
+    )   
+    , treasury_cashflow as (
+        select
+            date
+            , symbol as token
+            , sum(treasury_cashflow) as treasury_cashflow
+        from {{ ref("fact_synthetix_treasury_cashflow_by_token_and_chain") }}
+        group by 1,2
+    )
+    , fee_sharing_cashflow as (
+        select
+            date
+            , token
+            , sum(fee_sharing_cash_flow) as fee_sharing_cashflow
+        from {{ ref("fact_synthetix_fee_sharing_cashflow_by_token_and_chain") }}
+        group by 1,2
+    )
+    , fees as (
+        select
+            date
+            , token
+            , sum(fees_usd) as fees_usd
+            , sum(fees_native) as fees_native
+        from {{ ref("fact_synthetix_fees_by_token_and_chain") }}
+        group by 1,2
+    )
 select
     date
     , token
+    , fees.fees_usd as fees
+    , fees.fees_native as fees_native
 
     -- Standardized Metrics
 
     -- Crypto Metrics
     , coalesce(tvl.tvl, 0) as tvl
+
+    -- Cashflow Metrics
+    , coalesce(fees.fees_usd, 0) as gross_protocol_revenue
+    , coalesce(fees.fees_native, 0) as gross_protocol_revenue_native
+    , coalesce(token_cashflow.token_cashflow, 0) as token_cashflow
+    , coalesce(service_cashflow.service_cashflow, 0) as service_cashflow
+    , coalesce(treasury_cashflow.treasury_cashflow, 0) as treasury_cashflow
+    , coalesce(fee_sharing_cashflow.fee_sharing_cashflow, 0) as fee_sharing_cashflow
 
     -- Protocol Metrics
     , coalesce(treasury_by_token.treasury, 0) as treasury
@@ -88,3 +138,8 @@ full outer join treasury_by_token using(date, token)
 full outer join net_treasury using(date, token)
 full outer join treasury_native using(date, token)
 full outer join tvl using(date, token)
+full outer join fees using(date, token)
+full outer join token_cashflow using(date, token)
+full outer join service_cashflow using(date, token)
+full outer join treasury_cashflow using(date, token)
+full outer join fee_sharing_cashflow using(date, token)

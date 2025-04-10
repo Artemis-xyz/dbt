@@ -1,7 +1,6 @@
 {{ config(materialized="table", snowflake_warehouse="SYNTHETIX") }}
 
-with recursive
-partitioned_transactions as (
+with recursive partitioned_transactions as (
     select 
         date_trunc('hour', block_timestamp) as hourly_timestamp,
         contract_address,

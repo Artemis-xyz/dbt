@@ -38,7 +38,7 @@ ethereum_fees as (
     select
         date(at.block_timestamp) as date,
         at.token,
-        'ethereum' as chain,
+        'Ethereum' as chain,
         sum(coalesce(at.amount_adj, 0) * eph.price) as fees_usd,
         sum(coalesce(at.amount_adj, 0)) as fees_native
     from adjusted_transfers at
