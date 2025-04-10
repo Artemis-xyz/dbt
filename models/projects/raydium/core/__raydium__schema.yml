@@ -80,7 +80,7 @@ column_definitions:
 
   treasury_cash_flow: &treasury_cash_flow
     name: treasury_cash_flow
-    description: "Revenue allocated to the protocol's treasury. For Raydium's CPMM and CLMM that is 4% of fees."
+    description: "Revenue allocated to the protocol's treasury. For Raydium's CPMM and CLMM that is 4% of fees, and 0% for AMM v4."
     tags:
       - artemis_gaap
       - override
