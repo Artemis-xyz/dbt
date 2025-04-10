@@ -27,6 +27,11 @@ with
     bridge_daa_metrics as (
         select date, bridge_daa
         from {{ ref("fact_starknet_bridge_bridge_daa") }}
+    ),
+    fees_data as (
+        select date
+        , fees_native
+        from {{ ref("fact_starknet_fees") }}
     )
 
 select
@@ -37,10 +42,11 @@ select
     , wau
     , mau
     , fees
-    , fees_native
+    , fees_data.fees_native
     , l1_data_cost_native
     , l1_data_cost
-    , coalesce(fees_native, 0) -  l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(fees_data.fees_native, 0) - l1_data_cost_native as revenue_native
     , coalesce(fees, 0) -  l1_data_cost as revenue
     , avg_txn_fee
     , median_txn_fee
@@ -62,10 +68,11 @@ select
     , new_users
     -- Cashflow Metrics
     , fees AS gross_protocol_revenue
-    , fees_native AS gross_protocol_revenue_native
+    , fees_data.fees_native AS gross_protocol_revenue_native
     , median_txn_fee AS chain_median_txn_fee
-    , coalesce(fees_native, 0) -  l1_data_cost_native as validator_cash_flow_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    , coalesce(fees, 0) -  l1_data_cost as validator_cash_flow
+    -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(fees_data.fees_native, 0) - l1_data_cost_native as equity_cash_flow_native
+    , coalesce(fees, 0) -  l1_data_cost as equity_cash_flow
     , l1_data_cost_native AS l1_cash_flow_native
     , l1_data_cost AS l1_cash_flow
     -- Bridge Metrics,
@@ -84,4 +91,5 @@ left join github_data on fundamental_data.date = github_data.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
+left join fees_data on fundamental_data.date = fees_data.date
 where fundamental_data.date < to_date(sysdate())

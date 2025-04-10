@@ -50,6 +50,10 @@ with
     ethereum_dex_volumes as (
         select date, daily_volume as dex_volumes
         from {{ ref("fact_ethereum_daily_dex_volumes") }}
+    ),
+    block_rewards_data as (
+        select date, block_rewards_native
+        from {{ ref("fact_ethereum_block_rewards") }}
     )
 
 select
@@ -135,6 +139,9 @@ select
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
+    -- Supply metrics
+    , block_rewards_native AS emissions_native
+    , block_rewards_native * price AS emissions
     -- Stablecoin metrics
     , stablecoin_total_supply
     , stablecoin_txns
@@ -172,4 +179,5 @@ left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join da_metrics on fundamental_data.date = da_metrics.date
 left join etf_metrics on fundamental_data.date = etf_metrics.date
 left join ethereum_dex_volumes as dune_dex_volumes_ethereum on fundamental_data.date = dune_dex_volumes_ethereum.date
+left join block_rewards_data on fundamental_data.date = block_rewards_data.date
 where fundamental_data.date < to_date(sysdate())
