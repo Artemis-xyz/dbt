@@ -195,7 +195,7 @@ with
 select
     aave_outstanding_supply_net_deposits_deposit_revenue.date
     , chain
-    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as fees
+    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_revenue, 0) as fees
     , supply_side_deposit_revenue
     , coalesce(supply_side_deposit_revenue, 0) as primary_supply_side_revenue
     , flashloan_fees as flashloan_supply_side_revenue
