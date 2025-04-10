@@ -8,6 +8,10 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
+  chain_dex_volumes: &chain_dex_volumes
+    name: chain_dex_volumes
+    description: "The total volume of DEXes on a chain"
+
   chain_txns: &chain_txns
     name: chain_txns
     description: "Daily transactions on a chain"
@@ -79,8 +83,8 @@ column_definitions:
       - artemis_gaap
 
 models:
-  - name: ez_unichain_metrics_by_chain
-    description: "This table stores metrics for the UNICHAIN protocol"
+  - name: ez_worldchain_metrics_by_chain
+    description: "This table stores metrics for the WORLDCHAIN protocol"
     columns:
       - *chain_dau
       - *chain_txns
@@ -96,10 +100,11 @@ models:
       - *token_turnover_fdv
       - *token_volume
 
-  - name: ez_unichain_metrics
-    description: "This table stores metrics for the UNICHAIN protocol"
+  - name: ez_worldchain_metrics
+    description: "This table stores metrics for the WORLDCHAIN protocol"
     columns:
       - *chain_dau
+      - *chain_dex_volumes
       - *chain_txns
       - *fdmc
       - *foundation_cash_flow

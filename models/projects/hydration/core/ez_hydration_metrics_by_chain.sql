@@ -1,10 +1,10 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="BIFROST",
-        database="bifrost",
+        snowflake_warehouse="HYDRATION",
+        database="hydration",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
     )
 }}
 with
@@ -15,15 +15,12 @@ with
             daa, 
             fees_native, 
             fees_usd
-        from {{ ref("fact_bifrost_fundamental_metrics") }}
+        from {{ ref("fact_hydration_fundamental_metrics") }}
     ),
-    price_data as ({{ get_coingecko_metrics('bifrost-native-coin') }})
+    price_data as ({{ get_coingecko_metrics('hydradx') }})
 select
     f.date
-    , txns
-    , daa as dau
-    , coalesce(fees_native, 0) as fees_native
-    , coalesce(fees_usd, 0) as fees
+    , 'hydration' as chain
     -- Standardized Metrics
     -- Market Data
     , price
@@ -32,10 +29,10 @@ select
     , token_volume
     -- Chain Metrics
     , txns as chain_txns
-    , dau as chain_dau
+    , daa as chain_dau
     -- Cash Flow Metrics
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
+    , coalesce(fees_usd, 0) as gross_protocol_revenue
+    , coalesce(fees_native, 0) as gross_protocol_revenue_native
     , token_turnover_circulating
     , token_turnover_fdv
 from fundamental_data f

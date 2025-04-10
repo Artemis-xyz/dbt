@@ -12,13 +12,25 @@ column_definitions:
     name: bridge_volume
     description: "The total volume on a bridge"
 
+  chain_avg_txn_fee: &chain_avg_txn_fee
+    name: chain_avg_txn_fee
+    description: "The average transaction fee on a chain"
+
   chain_dau: &chain_dau
     name: chain_dau
     description: "Daily unique users on a chain"
 
+  chain_dex_volumes: &chain_dex_volumes
+    name: chain_dex_volumes
+    description: "The total volume of DEXes on a chain"
+
   chain_mau: &chain_mau
     name: chain_mau
     description: "Monthly unique users on a chain"
+
+  chain_median_txn_fee: &chain_median_txn_fee
+    name: chain_median_txn_fee
+    description: "The median transaction fee on a chain"
 
   chain_txns: &chain_txns
     name: chain_txns
@@ -27,10 +39,6 @@ column_definitions:
   chain_wau: &chain_wau
     name: chain_wau
     description: "Weekly unique users on a chain"
-
-  dex_volumes: &dex_volumes
-    name: dex_volumes
-    description: "The total volume of DEXes on a chain"
 
   fdmc: &fdmc
     name: fdmc
@@ -124,11 +132,13 @@ models:
     columns:
       - *bridge_dau
       - *bridge_volume
+      - *chain_avg_txn_fee
       - *chain_dau
+      - *chain_dex_volumes
       - *chain_mau
+      - *chain_median_txn_fee
       - *chain_txns
       - *chain_wau
-      - *dex_volumes
       - *fdmc
       - *foundation_cash_flow
       - *gross_protocol_revenue

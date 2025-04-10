@@ -79,25 +79,8 @@ column_definitions:
       - artemis_gaap
 
 models:
-  - name: ez_unichain_metrics_by_chain
-    description: "This table stores metrics for the UNICHAIN protocol"
-    columns:
-      - *chain_dau
-      - *chain_txns
-      - *fdmc
-      - *foundation_cash_flow
-      - *gross_protocol_revenue
-      - *gross_protocol_revenue_native
-      - *l1_cash_flow
-      - *l1_cash_flow_native
-      - *market_cap
-      - *price
-      - *token_turnover_circulating
-      - *token_turnover_fdv
-      - *token_volume
-
-  - name: ez_unichain_metrics
-    description: "This table stores metrics for the UNICHAIN protocol"
+  - name: ez_bob_metrics
+    description: "This table stores metrics for the BOB protocol"
     columns:
       - *chain_dau
       - *chain_txns
