@@ -22,7 +22,7 @@ with bridge_volume_fees as (
 , price_data as ({{ get_coingecko_metrics("debridge") }})
 
 select
-    date
+    bridge_volume_fees.date
     , ecosystem_revenue
     , txns
     , fees
@@ -38,4 +38,4 @@ select
     , price_data.token_volume as token_volume
 from bridge_volume_fees
 left join price_data on bridge_volume_fees.date = price_data.date
-where date < to_date(sysdate())
+where bridge_volume_fees.date < to_date(sysdate())

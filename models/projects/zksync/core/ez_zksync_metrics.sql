@@ -66,14 +66,15 @@ select
     , price
     , market_cap
     , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
     , token_volume
     -- chain metrics
     , dau as chain_dau
     , wau as chain_wau
     , mau as chain_mau
     , txns as chain_txns
+    , avg_txn_fee as chain_avg_txn_fee
+    , median_txn_fee as chain_median_txn_fee
+    , dune_dex_volumes_zksync.dex_volumes as chain_dex_volumes
     -- Cash Flow Metrics
     , gas_usd as gross_protocol_revenue
     , gas as gross_protocol_revenue_native
@@ -84,6 +85,8 @@ select
     -- Bridge Metrics
     , bridge_volume_metrics.bridge_volume as bridge_volume
     , bridge_daa_metrics.bridge_daa as bridge_dau
+    , token_turnover_circulating
+    , token_turnover_fdv
 from fundamental_data f
 left join rolling_metrics on f.date = rolling_metrics.date
 left join revenue_data on f.date = revenue_data.date

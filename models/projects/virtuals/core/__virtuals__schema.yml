@@ -1,0 +1,104 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  fdmc: &fdmc
+    name: fdmc
+    description: "The fully diluted market cap of $VIRTUALS in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  gross_protocol_revenue: &gross_protocol_revenue
+    name: gross_protocol_revenue
+    description: "The sum of all taxes, 1% fee on all trades, and agent fees(in USD) paid on Virtuals protocol"
+    tags:
+      - artemis_gaap
+      - override
+
+  market_cap: &market_cap
+    name: market_cap
+    description: "The market cap of $VIRTUALS in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  price: &price
+    name: price
+    description: "The price of $VIRTUALS in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  service_cash_flow: &service_cash_flow
+    name: service_cash_flow
+    description: "All fees paid to AI agents on Virtuals protocol"
+    tags:
+      - artemis_gaap
+      - override
+
+  spot_dau: &spot_dau
+    name: spot_dau
+    description: "The number of daily active traders on Virtuals protocol"
+    tags:
+      - override
+
+  spot_fees: &spot_fees
+    name: spot_fees
+    description: "The total amount of fees (in USD) paid by users on Virtuals protocol"
+    tags:
+      - override
+
+  spot_volume: &spot_volume
+    name: spot_volume
+    description: "The total volume on Virtuals protocol"
+    tags:
+      - override
+
+  token_turnover_circulating: &token_turnover_circulating
+    name: token_turnover_circulating
+    description: "The turnover of $VIRTUALS in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  token_turnover_fdv: &token_turnover_fdv
+    name: token_turnover_fdv
+    description: "The turnover of $VIRTUALS in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of $VIRTUALS in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  treasury_cash_flow: &treasury_cash_flow
+    name: treasury_cash_flow
+    description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance. All taxes paid on trades first go to the treasury, then post-bond are distributed across the Agent Creator (30%), Agent Affiliates (20%), and the Agent subDAO (50%)."
+    tags:
+      - artemis_gaap
+      - override
+
+models:
+  - name: ez_virtuals_metrics
+    description: "This table stores metrics for the VIRTUALS protocol"
+    columns:
+      - *fdmc
+      - *gross_protocol_revenue
+      - *market_cap
+      - *price
+      - *service_cash_flow
+      - *spot_dau
+      - *spot_fees
+      - *spot_volume
+      - *token_turnover_circulating
+      - *token_turnover_fdv
+      - *token_volume
+      - *treasury_cash_flow
+

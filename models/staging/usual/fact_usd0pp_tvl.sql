@@ -1,3 +1,10 @@
+{{
+    config(
+        materialized='table',
+        snowflake_warehouse='USUAL'
+    )
+}}
+
 WITH user_balance AS (
   SELECT 
     date,

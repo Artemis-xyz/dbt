@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_ethereum_transactions") }}
+-- depends_on {{ ref("ez_ethereum_transactions_v2") }}
 -- depends_on {{ ref('fact_ethereum_block_producers_silver') }}
 -- depends_on {{ ref('fact_ethereum_amount_staked_silver') }}
 -- depends_on {{ ref('fact_ethereum_p2p_transfer_volume') }}
@@ -14,7 +14,7 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("ethereum") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("ethereum", "v2") }}),
     price_data as ({{ get_coingecko_metrics("ethereum") }}),
     defillama_data as ({{ get_defillama_metrics("ethereum") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("ethereum") }}),
