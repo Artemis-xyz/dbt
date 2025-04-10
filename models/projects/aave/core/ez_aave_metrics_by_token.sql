@@ -227,7 +227,7 @@ select
     , gho_revenue_nominal as gho_fees_nominal
 
     , coalesce(interest_rate_fees_nominal, 0) + coalesce(flashloan_fees_nominal, 0) + coalesce(gho_fees_nominal, 0) as fees_nominal
-    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as fees
+    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_revenue, 0) as fees
 
     , supply_side_deposit_revenue_nominal
     , supply_side_deposit_revenue
