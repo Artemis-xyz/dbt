@@ -33,9 +33,14 @@ with
     , daily_burn_data as (
         select date, daily_burn, chain
         from {{ ref("fact_hyperliquid_daily_burn") }}
+<<<<<<< HEAD
     ),
     price as (
         select * from ({{ get_coingecko_price_with_latest("hyperliquid") }}) 
+=======
+    , market_metrics as (
+        ({{ get_coingecko_metrics("hyperliquid") }}) 
+>>>>>>> 9f2f9df07a08513f411e7beee4ffb099df1d0829
     ),
     date_spine as (
         SELECT
