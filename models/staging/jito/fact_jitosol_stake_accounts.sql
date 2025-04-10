@@ -37,7 +37,7 @@ WITH all_stake_accounts AS (
 
 SELECT 
     DISTINCT stake_account as address
-    , NULL as name,
+    , NULL as name
     , 'jito' as artemis_application_id
     , 'solana' as chain
     , NULL as is_token
