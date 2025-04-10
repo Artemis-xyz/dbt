@@ -1,0 +1,8 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_aptos_thalaswap_v2_daily_volume
+      - name: raw_aptos_hyperion_daily_volume
+      - name: raw_aptos_cellana_daily_volume
