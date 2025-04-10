@@ -2,7 +2,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="polygon",
         database="polygon",
         schema="core",
         alias="ez_metrics",
@@ -93,6 +93,7 @@ select
     , coalesce(dune_dex_volumes_polygon.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     , dune_dex_volumes_polygon.dex_volumes AS chain_dex_volumes
     -- Cashflow Metrics
+    , fees AS chain_fees
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
     , revenue_native AS validator_cash_flow_native
