@@ -1,7 +1,8 @@
+-- depends_on {{ ref("ez_tron_transactions_v2") }}
 {{
     config(
         materialized="table",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="BAM_TRANSACTION_XLG",
         database="tron",
         schema="core",
         alias="ez_metrics",
@@ -9,7 +10,7 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("tron") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("tron", "v2") }}),
     price_data as ({{ get_coingecko_metrics("tron") }}),
     defillama_data as ({{ get_defillama_metrics("tron") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("tron") }}),

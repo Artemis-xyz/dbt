@@ -17,6 +17,7 @@ WITH
             trading_fees,
             fees,
             primary_revenue,
+            liquidation_revenue,
             other_revenue,
             protocol_revenue,
             token_incentives,
@@ -103,7 +104,7 @@ select
 
     , COALESCE(primary_revenue, 0) AS interest_rate_cash_flow
     , COALESCE(liquidation_revenue, 0) AS liquidation_cash_flow
-    , COALESCE(trading_revenue, 0) AS trading_cash_flow
+    , COALESCE(trading_fees, 0) AS trading_cash_flow
     -- token_cash_flow = trading_revenue + liquidation_revenue + interest_rate_cash_flow
     , COALESCE(protocol_revenue, 0) AS token_cash_flow 
     
@@ -112,14 +113,6 @@ select
 
     , COALESCE(tvl, 0) AS lending_deposits
     , COALESCE(outstanding_supply, 0) AS lending_loans
-
-    , COALESCE(tvl, 0) AS tvl
-    , COALESCE(price, 0) AS price
-    , COALESCE(fdmc, 0) AS fdmc
-    , COALESCE(market_cap, 0) AS market_cap
-    , COALESCE(token_volume, 0) AS token_volume
-    , COALESCE(token_turnover_fdv, 0) AS token_turnover_fdv
-    , COALESCE(token_turnover_circulating, 0) AS token_turnover_circulating
 
 from fees_revenue_expenses
 full join treasury using (date, token)
