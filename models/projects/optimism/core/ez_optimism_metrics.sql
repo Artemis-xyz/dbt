@@ -91,11 +91,12 @@ select
     , coalesce(dune_dex_volumes_optimism.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     , dune_dex_volumes_optimism.dex_volumes AS chain_dex_volumes
     -- Cashflow Metrics
-    , fees_native AS gross_protocol_revenue_native -- total gas fees paid on l2 by users(L2 Fees)
+    , fees AS chain_fees
+    , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
-    , l1_data_cost_native AS l1_cash_flow_native  -- fees paid to l1 by sequencer (L1 Fees)
+    , l1_data_cost_native AS l1_cash_flow_native
     , l1_data_cost AS l1_cash_flow
-    , coalesce(fees_native, 0) - l1_data_cost_native as treasury_cash_flow_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(fees_native, 0) - l1_data_cost_native as treasury_cash_flow_native
     , coalesce(fees, 0) - l1_data_cost as treasury_cash_flow
     -- Developer Metrics
     , weekly_commits_core_ecosystem
