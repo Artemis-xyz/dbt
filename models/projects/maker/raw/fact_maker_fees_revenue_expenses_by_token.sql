@@ -39,6 +39,12 @@ select
     sum(
         case
             when account_id like '312%'  -- Liquidation Revenues
+            then sum_value_token
+        end
+    ) as liquidation_revenue,
+    sum(
+        case
+            when account_id like '312%'  -- Liquidation Revenues
                 or account_id like '313%'  -- Trading Revenues
             then sum_value_token
         end

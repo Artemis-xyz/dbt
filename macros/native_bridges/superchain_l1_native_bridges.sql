@@ -4,8 +4,8 @@ select
     block_timestamp
     , tx_hash
     , event_index
-    , coalesce(decoded_log:"from", decoded_log:"_from") as depositor
-    , coalesce(decoded_log:"to", decoded_log:"_to") as recipient
+    , coalesce(decoded_log:"from"::string, decoded_log:"_from"::string) as depositor
+    , coalesce(decoded_log:"to"::string, decoded_log:"_to"::string) as recipient
     , TO_NUMERIC(coalesce(decoded_log:"amount", decoded_log:"_amount")) as amount_native
     , null as fee
     , case 
@@ -21,20 +21,26 @@ select
         when event_name = 'ETHWithdrawalFinalized' then '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
     end as dst_token_address
     , case 
-        when event_name = 'ERC20DepositInitiated' then '{{chain}}'
-        when event_name = 'ETHDepositInitiated' then '{{chain}}'
-        when event_name = 'ERC20WithdrawalFinalized' then 'ethereum' 
-        when event_name = 'ETHWithdrawalFinalized' then 'ethereum'
-    end as source_chain
-    , case 
         when event_name = 'ERC20DepositInitiated' then 'ethereum'
         when event_name = 'ETHDepositInitiated' then 'ethereum'
-        when event_name = 'ERC20WithdrawalFinalized' then '{{chain}}' 
+        when event_name = 'ERC20WithdrawalFinalized' then '{{chain}}'
         when event_name = 'ETHWithdrawalFinalized' then '{{chain}}'
+    end as source_chain
+    , case 
+        when event_name = 'ERC20DepositInitiated' then '{{chain}}'
+        when event_name = 'ETHDepositInitiated' then '{{chain}}'
+        when event_name = 'ERC20WithdrawalFinalized' then 'ethereum'
+        when event_name = 'ETHWithdrawalFinalized' then  'ethereum'
     end as destination_chain
     , decoded_log
     , event_name
     , contract_address
+    , case 
+        when event_name = 'ERC20DepositInitiated' then 'deposit'
+        when event_name = 'ETHDepositInitiated' then 'deposit'
+        when event_name = 'ERC20WithdrawalFinalized' then 'withdrawal' 
+        when event_name = 'ETHWithdrawalFinalized' then 'withdrawal'
+    end as action
 from ethereum_flipside.core.fact_decoded_event_logs
 where
     contract_address = lower('{{ contract_address }}')
