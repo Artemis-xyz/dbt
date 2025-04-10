@@ -12,14 +12,14 @@ with restaked_eth_metrics as (
     select
         date,
         chain,
-        num_restaked_eth,
+        num_restaked_eth::NUMBER as num_restaked_eth,
         amount_restaked_usd,
         num_restaked_eth_net_change,
         amount_restaked_usd_net_change
     from {{ ref('fact_bedrock_restaked_eth_count_with_usd_and_change') }}
 )
 , market_metrics as (
-    {{get_coingecko_metrics('bedrock')}}
+    {{get_coingecko_metrics('bedrock-token')}}
 )
 , date_spine as (
     select

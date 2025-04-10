@@ -12,7 +12,7 @@ with restaked_eth_metrics as (
     select
         date,
         chain,
-        num_restaked_eth,
+        num_restaked_eth::NUMBER as num_restaked_eth,
         amount_restaked_usd,
         num_restaked_eth_net_change,
         amount_restaked_usd_net_change

@@ -205,13 +205,7 @@ select
     , 'Oracle' as category
 
     --Old Metrics needed for compatibility
-    , coalesce(automation_fees, 0) as automation_fees
-    , coalesce(ccip_fees, 0) as ccip_fees
-    , coalesce(vrf_fees, 0) as vrf_fees
-    , coalesce(direct_fees, 0) as direct_fees
     , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
-    , coalesce(ocr_fees, 0) as ocr_fees
-    , coalesce(fm_fees, 0) as fm_fees
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue
     , fees as secondary_supply_side_revenue
     , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
@@ -221,35 +215,25 @@ select
     , coalesce(operating_expenses, 0) + coalesce(token_incentives, 0) as total_expenses
     , protocol_revenue - total_expenses as earnings
     , treasury_usd
-    , treasury_link
-    , coalesce(tvl,0) as tvl_usd
-    , coalesce(tvl_link, 0) as tvl_link
     , daily_txns as txns
     , dau 
-    , price as price
-    , market_cap as market_cap
-    , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
-    , token_volume
-    , tokenholder_count
 
     --Standardization Metrics
-    , coalesce(automation_fees, 0) as automation_fees_standard
-    , coalesce(ccip_fees, 0) as ccip_fees_standard
-    , coalesce(vrf_fees, 0) as vrf_fees_standard
-    , coalesce(direct_fees, 0) as direct_fees_standard
+    , coalesce(automation_fees, 0) as automation_fees
+    , coalesce(ccip_fees, 0) as ccip_fees
+    , coalesce(vrf_fees, 0) as vrf_fees
+    , coalesce(direct_fees, 0) as direct_fees
     , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as total_protocol_fees
-    , coalesce(ocr_fees, 0) as ocr_fees_standard
-    , coalesce(fm_fees, 0) as fm_fees_standard
+    , coalesce(ocr_fees, 0) as ocr_fees
+    , coalesce(fm_fees, 0) as fm_fees
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as total_supply_side_fees
     , total_protocol_fees + total_supply_side_fees as gross_protocol_revenue
-    , 0 as protocol_revenue_standard
-    , total_supply_side_fees as supply_side_revenue_standard
-    , total_protocol_fees as operating_expenses_standard
-    , token_incentives as token_incentives_standard
-    , coalesce(total_protocol_fees, 0) + coalesce(token_incentives, 0) as total_expenses_standard
-    , 0 - coalesce(total_protocol_fees, 0) - coalesce(token_incentives, 0) as protocol_earnings_standard
+    , 0 as protocol_revenue
+    , total_supply_side_fees as supply_side_revenue
+    , total_protocol_fees as operating_expenses
+    , token_incentives as token_incentives
+    , coalesce(total_protocol_fees, 0) + coalesce(token_incentives, 0) as total_expenses
+    , 0 - coalesce(total_protocol_fees, 0) - coalesce(token_incentives, 0) as protocol_earnings
     , treasury_usd as treasury
     , treasury_link as treasury_native
     , coalesce(tvl,0) as tvl

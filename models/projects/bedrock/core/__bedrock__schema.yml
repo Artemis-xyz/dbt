@@ -42,25 +42,25 @@ column_definitions:
 
   tvl: &tvl
     name: tvl
-    description: "The total value in usd restaked using bedrock restaking protocol"
+    description: "The total value in USD restaked using Bedrock restaking protocol"
     tags:
       - override
 
   tvl_native: &tvl_native
     name: tvl_native
-    description: "The total value in native eth restaked using bedrock restaking protocol"
+    description: "The total value in native ETH restaked using Bedrock restaking protocol"
     tags:
       - override
 
   tvl_native_net_change: &tvl_native_net_change
     name: tvl_native_net_change
-    description: "The net change in the total value in native eth restaked using bedrock restaking protocol"
+    description: "The net change in the total value in native ETH restaked using Bedrock restaking protocol"
     tags:
       - override
 
   tvl_net_change: &tvl_net_change
     name: tvl_net_change
-    description: "The net change in the total value in usd restaked using bedrock restaking protocol"
+    description: "The net change in the total value in USD restaked using Bedrock restaking protocol"
     tags:
       - override
 

@@ -84,13 +84,13 @@ select
 
     --Standardized Metrics
     , unstaking_fees as unstaking_fees
-    , fees_native as total_protocol_fees_native
-    , total_protocol_fees_native * price as total_protocol_fees
+    , fees_native as lst_fees_native
+    , (unstaking_fees + fees_native) * price as gross_protocol_revenue
     , case when 
         date < '2024-08-18' then unstaking_fees * 0.25 + total_protocol_fees
     -- when v2 fees are active, 100% goes to the protocol
-        else total_protocol_fees 
-    end as gross_protocol_revenue
+        else treasury_cash_flow 
+    end as treasury_cash_flow
     , unstaking_fees * 0.75 as supply_side_revenue
     , dau as lst_dau
     , txns as lst_txns

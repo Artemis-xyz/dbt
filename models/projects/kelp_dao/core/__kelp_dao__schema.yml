@@ -42,25 +42,25 @@ column_definitions:
 
   tvl: &tvl
     name: tvl
-    description: "The total value restaked in usd using the kelp_dao protocol"
+    description: "The total value restaked in USD using the Kelp_DAO protocol"
     tags:
       - override
 
   tvl_native: &tvl_native
     name: tvl_native
-    description: "The total value restaked in the kelp_dao protocol in the native currency of the protocol"
+    description: "The total value restaked in the Kelp_DAO protocol in the native currency of the protocol"
     tags:
       - override
 
   tvl_native_net_change: &tvl_native_net_change
     name: tvl_native_net_change
-    description: "The net change in the total value restaked in the kelp_dao protocol in the native currency of the protocol"
+    description: "The net change in the total value restaked in the Kelp_DAO protocol in the native currency of the protocol"
     tags:
       - override
 
   tvl_net_change: &tvl_net_change
     name: tvl_net_change
-    description: "The net change in the total value restaked in usd using the kelp_dao protocol"
+    description: "The net change in the total value restaked in USD using the Kelp_DAO protocol"
     tags:
       - override
 
