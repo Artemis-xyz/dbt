@@ -355,6 +355,18 @@ column_definitions:
     - name: circulating_supply_native
       description: "The circulating supply of a token in native tokens"
 
+  nft_metrics: 
+    - name: nft_dau
+      description: "The number of daily active NFT traders on an NFT marketplace"
+    - name: nft_txns
+      description: "The number of NFT transactions on an NFT marketplace"
+    - name: nft_fees
+      description: "The total amount of fees (in USD) on an NFT marketplace"
+    - name: nft_volume
+      description: "The total volume of NFTs traded on an NFT marketplace"
+    - name: nft_collections_transacted
+      description: "The number of NFT collections transacted on an NFT marketplace"
+
   etf_metrics:
     - name: net_etf_flow_native
       description: "The net flow of ETFs on a chain"
