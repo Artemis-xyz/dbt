@@ -12,6 +12,10 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on a chain"
+
   chain_mau: &chain_mau
     name: chain_mau
     description: "Monthly unique users on a chain"
@@ -94,6 +98,7 @@ models:
     columns:
       - *chain_avg_txn_fee
       - *chain_dau
+      - *chain_fees
       - *chain_mau
       - *chain_txns
       - *chain_wau
