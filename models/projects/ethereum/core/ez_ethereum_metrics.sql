@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_ethereum_transactions") }}
+-- depends_on {{ ref("ez_ethereum_transactions_v2") }}
 -- depends_on {{ ref('fact_ethereum_block_producers_silver') }}
 -- depends_on {{ ref('fact_ethereum_amount_staked_silver') }}
 -- depends_on {{ ref('fact_ethereum_p2p_transfer_volume') }}
@@ -14,7 +14,7 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("ethereum") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("ethereum", "v2") }}),
     price_data as ({{ get_coingecko_metrics("ethereum") }}),
     defillama_data as ({{ get_defillama_metrics("ethereum") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("ethereum") }}),
@@ -85,6 +85,8 @@ select
     , wau AS chain_wau
     , mau AS chain_mau
     , txns AS chain_txns
+    , avg_txn_fee AS chain_avg_txn_fee
+    , median_txn_fee AS chain_median_txn_fee
     , returning_users
     , new_users
     , low_sleep_users
@@ -122,8 +124,6 @@ select
     -- Cashflow metrics
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
-    , avg_txn_fee AS chain_avg_txn_fee
-    , median_txn_fee AS chain_median_txn_fee
     , revenue_native AS burned_cash_flow_native
     , revenue AS burned_cash_flow
     , fees_native - revenue_native as priority_fee_native

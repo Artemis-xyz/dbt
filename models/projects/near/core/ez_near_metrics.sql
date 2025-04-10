@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_near_transactions") }}
+-- depends_on {{ ref("ez_near_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -10,7 +10,7 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("near") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("near", "v2") }}),
     price_data as ({{ get_coingecko_metrics("near") }}),
     defillama_data as ({{ get_defillama_metrics("near") }}),
     revenue_data as (
@@ -54,10 +54,17 @@ select
     , wau as chain_wau
     , mau as chain_mau
     , txns as chain_txns
+    , avg_txn_fee AS chain_avg_txn_fee
     , returning_users
     , new_users
     , low_sleep_users
     , high_sleep_users
+    -- Cashflow Metrics
+    , fees_native as gross_protocol_revenue_native
+    , case when fees is null then fees_native * price else fees end as gross_protocol_revenue
+    , median_txn_fee AS chain_median_txn_fee
+    , revenue_native AS burned_cash_flow_native
+    , revenue AS burned_cash_flow
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -77,13 +84,6 @@ select
     , avg_cost_per_mib
     , submitters
     , coalesce(near_dex_volumes.dex_volumes, 0) as chain_dex_volumes
-    -- Cashflow Metrics
-    , fees_native as gross_protocol_revenue_native
-    , case when fees is null then fees_native * price else fees end as gross_protocol_revenue
-    , avg_txn_fee AS chain_avg_txn_fee
-    , median_txn_fee AS chain_median_txn_fee
-    , revenue_native AS burned_cash_flow_native
-    , revenue AS burned_cash_flow
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
