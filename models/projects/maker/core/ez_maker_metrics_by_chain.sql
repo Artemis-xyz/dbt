@@ -110,6 +110,7 @@ FROM token_holder_data
 left join treasury_usd using (date)
 left join treasury_native using (date)
 left join net_treasury using (date)
+left join tvl_metrics using (date)
 left join outstanding_supply using (date)
 left join token_turnover_metrics using (date)
 left join price_data using (date)

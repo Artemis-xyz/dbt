@@ -2,7 +2,7 @@
 with
     starknet_data as (
         select raw_date as date, sum(tx_fee) as fees_native, sum(gas_usd) as fees
-        from {{ ref("ez_ethereum_transactions") }}
+        from {{ ref("ez_ethereum_transactions_v2") }}
         where
             lower(contract_address) in (
                 lower('0xc662c410C0ECf747543f5bA90660f6ABeBD9C8c4'),

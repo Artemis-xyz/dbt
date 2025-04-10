@@ -1,8 +1,8 @@
-{% macro get_fundamental_data_for_chain(chain) %}
+{% macro get_fundamental_data_for_chain(chain, model_version='') %}
     with
         min_date as (
             select min(block_timestamp) as start_timestamp, from_address
-            from {{ chain }}.prod_raw.ez_transactions
+            from {{ chain }}.prod_raw.ez_transactions{% if model_version == 'v2' %}_v2{% endif %}
             group by from_address
         ),
         new_users as (
@@ -18,7 +18,7 @@
                     raw_date::date as raw_date,
                     count(distinct from_address) as low_sleep_users,
                     count(*) as tx_n
-                from {{ chain }}.prod_raw.ez_transactions
+                from {{ chain }}.prod_raw.ez_transactions{% if model_version == 'v2' %}_v2{% endif %}
                 where user_type = 'LOW_SLEEP'
                 group by user_type, raw_date
             ),
@@ -28,7 +28,7 @@
                     engagement_type,
                     count(distinct from_address) as sybil_users,
                     count(*) as tx_n
-                from {{ chain }}.prod_raw.ez_transactions
+                from {{ chain }}.prod_raw.ez_transactions{% if model_version == 'v2' %}_v2{% endif %}
                 where engagement_type = 'sybil'
                 group by engagement_type, raw_date
             ),
@@ -47,7 +47,7 @@
                 sum(gas_usd) / count(*) as avg_txn_fee,
                 count(distinct from_address) dau,
                 median(gas_usd) as median_txn_fee
-            from {{ chain }}.prod_raw.ez_transactions as t
+            from {{ chain }}.prod_raw.ez_transactions{% if model_version == 'v2' %}_v2{% endif %} as t
             group by t.raw_date
         )
         {% if (chain not in ("near", "starknet")) %}
@@ -56,7 +56,7 @@
                 select
                     count(distinct from_address) as dau_over_100,
                     raw_date as balance_date
-                from {{ chain }}.prod_raw.ez_transactions
+                from {{ chain }}.prod_raw.ez_transactions{% if model_version == 'v2' %}_v2{% endif %}
                 where balance_usd >= 100
                 group by raw_date
             )
