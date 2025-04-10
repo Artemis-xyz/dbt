@@ -10,7 +10,19 @@
 }}
 
 with buyback_from_pair as (
-    select date, sum(coalesce(buyback, 0)) as buyback_native
+    select 
+        date
+        , sum(coalesce(buyback, 0)) as buyback
+        , sum(
+                case when program = 'AMMv4' then (buyback / 0.12) * 0.88
+                else (buyback/0.12) * 0.84
+                end
+        ) as lp_cash_flow
+        , sum(
+                case when program = 'AMMv4' then (buyback / 0.12) * 0
+                else (buyback/0.12) * 0.04
+                end
+        ) as treasury_cash_flow
     from {{ ref("ez_raydium_metrics_by_pair") }}
     group by 1
 )
@@ -70,7 +82,7 @@ select
     ds.date
     , v.trading_volume
     
-    , bfp.buyback_native / 0.12 + coalesce(c.pool_creation_fees_native * pc.price, 0) as fees -- trading fee + pool creation
+    , bfp.buyback / 0.12 + coalesce(c.pool_creation_fees_native * pc.price, 0) as fees -- trading fee + pool creation
     
     , coalesce(b.buyback_native * pb.price, 0) + coalesce(t.treasury_fees_native * pt.price, 0) as revenue
 
@@ -97,12 +109,12 @@ select
             LAST_VALUE(tvl.tvl IGNORE NULLS) OVER (ORDER BY v.date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)) as tvl 
 
     -- Money Metrics
-    , bfp.buyback_native / 0.12 as trading_fees -- total_trading_fee = buyback (12%) + treasury (4%) + LP(84%); using buyback from token pair as it's more frequent than actual deposit of RAY
+    , bfp.buyback / 0.12 as spot_fees
     , coalesce(c.pool_creation_fees_native * pc.price, 0) as pool_creation_fees -- pool creation
-    , trading_fees + coalesce(c.pool_creation_fees_native * pc.price, 0) as gross_protocol_revenue
-    , trading_fees * 0.12 as buyback_cash_flow
-    , trading_fees * 0.04 as treasury_cash_flow
-    , trading_fees * 0.84 as service_cash_flow
+    , spot_fees + coalesce(c.pool_creation_fees_native * pc.price, 0) as gross_protocol_revenue
+    , bfp.buyback as buyback_cash_flow
+    , bfp.treasury_cash_flow as treasury_cash_flow
+    , bfp.lp_cash_flow as service_cash_flow
     , b.buyback_native * pb.price as buybacks
     , b.buyback_native   as buyback_native
 
