@@ -102,7 +102,9 @@ select
     date
     , 'synthetix' as app
     , 'DeFi' as category
+    , 0 as txns
     , coalesce(trading_volume, 0) as trading_volume
+    , coalesce(unique_traders, 0) as dau
     , coalesce(unique_traders, 0) as unique_traders
     , coalesce(net_deposits, 0) as net_deposits
     , coalesce(fees.fees, 0) as fees
@@ -114,7 +116,7 @@ select
     , coalesce(treasury.treasury, 0) as treasury_value
     , coalesce(treasury.own_token_treasury, 0) as treasury_value_native
     , coalesce(treasury.net_treasury, 0) as net_treasury_value
-    , coalesce(token_holders.token_holder_count, 0) as token_holder_count
+    , coalesce(token_holders.token_holder_count, 0) as tokenholder_count
 
     -- Standardized Metrics
 
