@@ -121,14 +121,14 @@ SELECT
     , d.daus as spot_dau
     , d.daily_txns as spot_txns
     , t.tvl as tvl
-    , {{ daily_pct_change('t.tvl') }} as tvl_growth
+    , {{ daily_pct_change('t.tvl') }} as tvl_pct_change
 
     -- Money Metrics
     , coalesce(yf.yield_revenue, 0) as yield_generated
     , coalesce(f.swap_fees, 0) as spot_fees
     , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as gross_protocol_revenue
     , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as fee_sharing_token_cash_flow
-    , f.supply_side_fees as service_cash_flow -- LPs get 20% of explicit swap fees https://docs.pendle.finance/ProtocolMechanics/PendleMarketAPYCalculation#swapfeeapy--voterapr
+    , f.supply_side_fees as service_cash_flow
 
     -- Treasury Metrics
     , tv.treasury_value as treasury

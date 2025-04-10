@@ -76,7 +76,7 @@ SELECT
     , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as fee_sharing_token_cash_flow
     , coalesce(f.swap_revenue, 0) as spot_fee_sharing_token_cash_flow
     , coalesce(yf.yield_revenue, 0) as yield_fee_sharing_token_cash_flow
-    , f.supply_side_fees as service_cash_flow -- LPs get 20% of explicit swap fees https://docs.pendle.finance/ProtocolMechanics/PendleMarketAPYCalculation#swapfeeapy--voterapr
+    , f.supply_side_fees as service_cash_flow
     , COALESCE(ti.token_incentives, 0) as token_incentives
 
 FROM swap_fees f
