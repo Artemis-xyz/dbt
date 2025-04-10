@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_solana_transactions_v2") }}
+-- depends_on {{ ref('fact_solana_transactions_v2') }}
 {{
     config(
         materialized="table",
@@ -46,7 +46,7 @@ with
                 lateral flatten(input => signers)
             where
                 date_trunc('day', block_timestamp)
-                < (select min(raw_date) from {{ ref("ez_solana_transactions_v2") }})
+                < (select min(raw_date) from {{ ref('fact_solana_transactions_v2') }})
             group by date
         ),
         unrefreshed_data_with_price as (
@@ -66,7 +66,7 @@ with
     {% endif %}
     min_date as (
         select min(raw_date) as start_date, value as signer
-        from {{ ref("ez_solana_transactions_v2") }}, lateral flatten(input => signers)
+        from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         where succeeded = 'TRUE'
         group by signer
     ),
@@ -99,7 +99,7 @@ with
             ) as base_fee_native,
             count_if(index = 0) as txns,
             count(distinct(case when succeeded = 'TRUE' then value else null end)) dau
-        from {{ ref("ez_solana_transactions_v2") }}, lateral flatten(input => signers)
+        from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         {% if is_incremental() %}
             where raw_date > (select dateadd('day', -5, max(date)) from {{ this }})
         {% endif %}
