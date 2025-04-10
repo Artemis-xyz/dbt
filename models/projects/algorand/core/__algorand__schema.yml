@@ -8,6 +8,10 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on a chain"
+
   chain_txns: &chain_txns
     name: chain_txns
     description: "Daily transactions on a chain"
@@ -47,41 +51,13 @@ column_definitions:
     description: "Portion of revenue allocated to validators, sequencers, or provers who secure or operate the protocol in native tokens."
     tags:
       - artemis_gaap
-    
-  unique_eoas: &unique_eoas
-    name: unique_eoas
-    description: "The number of unique eoas transacting on Algorand"
-
-  unique_senders: &unique_senders
-    name: unique_senders
-    description: "The number of unique sending addresses on Algorand"
-
-  unique_receivers: &unique_receivers
-    name: unique_receivers
-    description: "The number of unique receiving addresses on Algorand"
-
-  new_eoas: &new_eoas
-    name: new_eoas
-    description: "The number of new eoas transacting on Algorand"
-
-  unique_pairs: &unique_pairs
-    name: unique_pairs
-    description: "The number of unique pairs of addresses on Algorand"
-    
-  unique_eoa_pairs: &unique_eoa_pairs
-    name: unique_eoa_pairs
-    description: "The number of unique pairs of eoas on Algorand"
-
-  unique_tokens: &unique_tokens
-    name: unique_tokens
-    description: "The number of unique tokens on Algorand"
-    
 
 models:
   - name: ez_algorand_metrics
     description: "This table stores metrics for the ALGORAND protocol"
     columns:
       - *chain_dau
+      - *chain_fees
       - *chain_txns
       - *fdmc
       - *gross_protocol_revenue
