@@ -1,4 +1,4 @@
-{{config(materialized='incremental', unique_key=['deposit_id', 'origin_chain_id', 'dst_tx_hash'], snowflake_warehouse="ACROSS_V2")}}
+{{config(materialized='table', snowflake_warehouse="ACROSS_V2")}}
 
 with filled_relay_events as (
     select
@@ -94,7 +94,7 @@ SELECT
     , max(origin_token) as origin_token
     , max(dst_messaging_contract_address) as dst_messaging_contract_address
     , max(dst_block_timestamp) as dst_block_timestamp
-    , dst_tx_hash
+    , max(dst_tx_hash) as dst_tx_hash
     , max(dst_event_index) as dst_event_index
     , max(dst_amount) as dst_amount
     , max(depositor) as depositor
@@ -109,4 +109,4 @@ SELECT
     , deposit_id
     , max(protocol_fee) as protocol_fee
 from combined_data
-GROUP BY deposit_id, origin_chain_id, dst_tx_hash
+GROUP BY deposit_id, origin_chain_id

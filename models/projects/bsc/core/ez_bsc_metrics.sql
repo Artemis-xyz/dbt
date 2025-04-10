@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_bsc_transactions") }}
+-- depends_on {{ ref("ez_bsc_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -10,7 +10,7 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("bsc") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("bsc", "v2") }}),
     price_data as ({{ get_coingecko_metrics("binancecoin") }}),
     defillama_data as ({{ get_defillama_metrics("bsc") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("bsc") }}),
@@ -37,6 +37,7 @@ select
     , fees * .1 as revenue
     , dau_over_100
     , nft_trading_volume
+    , dune_dex_volumes_binance.dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -48,6 +49,8 @@ select
     , wau AS chain_wau
     , mau AS chain_mau
     , txns AS chain_txns
+    , avg_txn_fee AS chain_avg_txn_fee
+    , median_txn_fee AS chain_median_txn_fee
     , returning_users
     , new_users
     , low_sleep_users
@@ -56,12 +59,10 @@ select
     , non_sybil_users
     , dau_over_100 AS dau_over_100_balance
     , nft_trading_volume AS chain_nft_trading_volume
-    , dune_dex_volumes_binance.dex_volumes
+    , dune_dex_volumes_binance.dex_volumes AS chain_dex_volumes
     -- Cashflow metrics
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
-    , avg_txn_fee AS chain_avg_txn_fee
-    , median_txn_fee AS chain_median_txn_fee
     , fees_native * .1 AS burned_cash_flow_native
     , fees * .1 AS burned_cash_flow
     -- Developer metrics
