@@ -20,11 +20,20 @@ def load_global_schema(global_schema_path):
 
 def extract_sql_columns(sql_file_path):
     """ Extract column names from a dbt SQL file by parsing the last SELECT clause. """
+
+    def strip_sql_comments(sql):
+        # Remove single-line comments (--) and multi-line comments (/* */)
+        sql = re.sub(r'--.*?$', '', sql, flags=re.MULTILINE)
+        sql = re.sub(r'/\*.*?\*/', '', sql, flags=re.DOTALL)
+        return sql
+
     with open(sql_file_path, "r") as file:
         sql = file.read()
-    
+
+    cleaned_sql = strip_sql_comments(sql)
+
     # Find all SELECT statements
-    select_matches = re.findall(r"select\s+(.*?)\s+from", sql, re.DOTALL | re.IGNORECASE)
+    select_matches = re.findall(r"select\s+(.*?)\s+from", cleaned_sql, re.DOTALL | re.IGNORECASE)
     if not select_matches:
         raise ValueError("No SELECT statement found in SQL file.")
     
