@@ -5,7 +5,6 @@ sources:
     tables:
       - name: dim_injective_all_addresses
       - name: dim_stellar_all_addresses
-      - name: dim_sui_all_addresses
       - name: raw_manually_labeled_addresses_csv
   - name: PYTHON_LOGIC
     schema: PROD

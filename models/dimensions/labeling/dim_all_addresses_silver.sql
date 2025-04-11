@@ -28,7 +28,7 @@ WITH raw_addresses AS (
     ] %}
 
     {% for sourc in sources %}
-        {% if sourc.chain in ['injective', 'stellar', 'sui']  %}
+        {% if sourc.chain in ['injective', 'stellar']  %}
             SELECT address AS address, transaction_trace_type, address_type::STRING, chain, last_updated
             FROM  {{ source("PROD_LANDING", sourc.table) }}
         {% else %}
