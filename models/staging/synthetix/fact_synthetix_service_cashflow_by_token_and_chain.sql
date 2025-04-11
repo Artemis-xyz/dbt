@@ -8,7 +8,7 @@ with ethereum_service_cashflow as (
         sum(amount_usd) as service_cashflow
     from ethereum_flipside.core.ez_token_transfers
     where lower(origin_function_signature) in (lower('0x458efde3'), lower('0x34c7fec9'))                                        
-        and symbol ILIKE 'SNX'
+        and lower(symbol) = lower('SNX')
     group by 1, 2, 3
     order by date desc
 ), 
@@ -21,7 +21,7 @@ optimism_service_cashflow as (
         sum(amount_usd) as service_cashflow
     from optimism_flipside.core.ez_token_transfers
     where lower(origin_function_signature) in (lower('0x34c7fec9'))                                        
-        and symbol ILIKE 'SNX'
+        and lower(symbol) = lower('SNX')
     group by 1, 2, 3
     order by date desc
 )

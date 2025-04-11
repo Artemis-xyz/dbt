@@ -9,8 +9,8 @@ with optimism_fees as (
         sum(coalesce(tt.amount, 0)) as fees_native
     from optimism_flipside.core.ez_token_transfers as tt
     join ethereum_flipside.price.ez_prices_hourly as eph
-        on hour = date_trunc('hour', tt.block_timestamp) and tt.symbol ILIKE eph.symbol
-    where to_address ILIKE '0xfeefeefeefeefeefeefeefeefeefeefeefeefeef'
+        on hour = date_trunc('hour', tt.block_timestamp) and lower(tt.symbol) = lower(eph.symbol)
+    where lower(to_address) = lower('0xfeefeefeefeefeefeefeefeefeefeefeefeefeef')
     group by 1, 2, 3
     order by 1, 2, 3
 ), 
@@ -32,7 +32,7 @@ ethereum_fees as (
             raw_amount/1e18 as amount_adj,
             to_address
         from ethereum_flipside.core.ez_token_transfers
-        where to_address ILIKE '0xfeefeefeefeefeefeefeefeefeefeefeefeefeef' and block_timestamp > '2020-01-01' --one transaction in 2018 for negligble amount, so just ignored that
+        where lower(to_address) = lower('0xfeefeefeefeefeefeefeefeefeefeefeefeefeef') and block_timestamp > '2020-01-01' --one transaction in 2018 for negligble amount, so just ignored that
     )
 
     select

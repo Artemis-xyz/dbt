@@ -40,8 +40,8 @@ optimism_fee_sharing as (
         symbol as token,
         sum(amount_usd) as fee_sharing_cash_flow
     from optimism_flipside.core.ez_token_transfers
-    where to_address ILIKE '0xfD49C7EE330fE060ca66feE33d49206eB96F146D'
-        and from_address ILIKE '0x9644A6920bd0a1923C2C6C1DddF691b7a42e8A65'
+    where lower(to_address) = lower('0xfD49C7EE330fE060ca66feE33d49206eB96F146D')
+        and lower(from_address) = lower('0x9644A6920bd0a1923C2C6C1DddF691b7a42e8A65')
         and amount_usd is not null
     group by 1, 2, 3
     order by date desc

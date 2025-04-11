@@ -3,8 +3,8 @@
 with fee_address_outflow_to_null_address as (
     select distinct tx_hash 
     from ethereum_flipside.core.ez_token_transfers
-    where from_address ILIKE '0xfeefeefeefeefeefeefeefeefeefeefeefeefeef' 
-        and to_address ILIKE '0x0000000000000000000000000000000000000000'
+    where lower(from_address) = lower('0xfeefeefeefeefeefeefeefeefeefeefeefeefeef') 
+        and lower(to_address) = lower('0x0000000000000000000000000000000000000000')
 )
 
 select
@@ -13,7 +13,7 @@ select
     symbol, 
     sum(coalesce(amount_usd, 0)) as treasury_cashflow,
 from ethereum_flipside.core.ez_token_transfers
-where from_address ILIKE '0x0000000000000000000000000000000000000000'
+where lower(from_address) = lower('0x0000000000000000000000000000000000000000')
     and lower(to_address) in (lower('0xd939611c3ca425b4f6d4a82591eab3da43c2f4a0'), 
                                 lower('0x99F4176EE457afedFfCB1839c7aB7A030a5e4A92'))
     and tx_hash in (select tx_hash from fee_address_outflow_to_null_address)

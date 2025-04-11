@@ -23,7 +23,7 @@ from
     flattened_logs f
 join 
     ethereum_flipside.price.ez_prices_hourly as eph
-    on eph.symbol ILIKE 'SNX'
+    on lower(eph.symbol) = lower('SNX')
     and eph.hour = date_trunc('hour', f.block_timestamp)
 group by date
 order by date desc
