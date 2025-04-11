@@ -48,6 +48,7 @@ select
     , avg_txn_fee AS chain_avg_txn_fee
     , celo_dex_volumes.dex_volumes AS chain_dex_volumes
     -- Cashflow metrics
+    , fees AS chain_fees
     , fees AS gross_protocol_revenue
     , revenue AS burned_cash_flow
     -- Developer Metrics

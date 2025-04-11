@@ -48,6 +48,7 @@ select
     , null AS sybil_users
     , null AS non_sybil_users
     -- Cashflow Metrics
+    , fees AS chain_fees
     , fees AS gross_protocol_revenue
     , fees_native AS gross_protocol_revenue_native
     , coalesce(revenue.revenue, 0) AS burned_cash_flow

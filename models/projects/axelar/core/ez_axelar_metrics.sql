@@ -59,6 +59,9 @@ select
 
     , axelar_chain_data.dau as chain_dau
     , axelar_chain_data.txns as chain_txns
+
+    , crosschain_data.fees as bridge_fees
+    , validator_fees_data.validator_fees as chain_fees
     , crosschain_data.fees as gross_protocol_revenue
     , crosschain_data.fees / crosschain_data.bridge_txns as chain_avg_txn_fee
     , validator_fees_data.validator_fees as validator_cash_flow

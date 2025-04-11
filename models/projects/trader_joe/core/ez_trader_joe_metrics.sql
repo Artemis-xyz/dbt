@@ -59,7 +59,7 @@ SELECT
     , tvl
 
     -- Money Metrics
-    , trading_fees
+    , trading_fees as spot_fees
     , gross_protocol_revenue
     , gas_cost_native
     , gas_cost

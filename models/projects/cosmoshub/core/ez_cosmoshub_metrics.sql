@@ -60,7 +60,8 @@ select
     , mau as chain_mau
     , avg_txn_fee as chain_avg_txn_fee
     -- Cash Flow Metrics
-    , fees as gross_protocol_revenue_native
+    , fees as chain_fees
+    , fees as gross_protocol_revenue
     , revenue as treasury_cash_flow
     -- Crypto Metrics
     , tvl

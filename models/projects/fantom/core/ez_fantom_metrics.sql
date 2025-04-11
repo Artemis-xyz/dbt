@@ -58,6 +58,7 @@ select
     , avg_txn_fee as chain_avg_txn_fee
     , dex_volumes as chain_dex_volumes
     -- Cash Flow Metrics
+    , fees as chain_fees
     , fees as gross_protocol_revenue
     , fees_native as gross_protocol_revenue_native
     , revenue as foundation_cash_flow
