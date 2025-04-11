@@ -29,17 +29,16 @@ select
         when subregion in (
             'central_asia', 'south_asia', 'west_asia', 'east_asia', 'middle_east'
         ) then 'asia'
-
-        else coalesce(subregion, 'untaggable') end as subregion
+        end as subregion
     , t1.chain
-    , count(distinct case when artemis_stablecoin_daily_txns > 0 then from_address end)  as artemis_dau
-    , sum(artemis_stablecoin_transfer_volume) AS artemis_transfer_volume
+    , count(distinct case when artemis_stablecoin_daily_txns > 0 then from_address end)  as artemis_stablecoin_dau
+    , sum(artemis_stablecoin_transfer_volume) AS artemis_stablecoin_transfer_volume
 from {{ ref("agg_daily_stablecoin_breakdown_silver") }} t1
 left join pc_dbt_db.prod.dim_geo_labels t2 
 on lower(from_address) = lower(address) 
 and t1.chain = t2.chain
 where t1.chain in ('ethereum', 'solana') and date_granularity > '2020-01-01'
-and subregion != 'untaggable'
+and subregion is not null
 {% if is_incremental() %}
     and date_granularity >= (select dateadd('day', -7, max(date_granularity)) from {{ this }})
 {% endif %}
