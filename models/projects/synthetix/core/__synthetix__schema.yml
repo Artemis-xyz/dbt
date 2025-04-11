@@ -119,6 +119,18 @@ column_definitions:
     name: tvl
     description: "The total value locked in a protocol"
 
+  tvl_native: &tvl_native
+    name: tvl_native
+    description: "The total value locked in a protocol in the native currency of the protocol"
+
+  tvl_native_net_change: &tvl_native_net_change
+    name: tvl_native_net_change
+    description: "The net change in the total value locked in a protocol in the native currency of the protocol"
+
+  tvl_net_change: &tvl_net_change
+    name: tvl_net_change
+    description: "The net change in the total value locked in a protocol"
+
 models:
   - name: ez_synthetix_metrics_by_chain
     description: "This table stores metrics for the SYNTHETIX protocol"
@@ -134,6 +146,9 @@ models:
       - *treasury
       - *treasury_native
       - *tvl
+      - *tvl_native
+      - *tvl_native_net_change
+      - *tvl_net_change
 
   - name: ez_synthetix_metrics_by_token
     description: "This table stores metrics for the SYNTHETIX protocol"
@@ -147,6 +162,9 @@ models:
       - *treasury
       - *treasury_native
       - *tvl
+      - *tvl_native
+      - *tvl_native_net_change
+      - *tvl_net_change
 
   - name: ez_synthetix_metrics
     description: "This table stores metrics for the SYNTHETIX protocol"
@@ -170,4 +188,7 @@ models:
       - *treasury
       - *treasury_native
       - *tvl
+      - *tvl_native
+      - *tvl_native_net_change
+      - *tvl_net_change
 
