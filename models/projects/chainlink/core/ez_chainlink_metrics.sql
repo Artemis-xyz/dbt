@@ -201,34 +201,56 @@ with
 
 select
     date
-    , coalesce(automation_fees, 0) as automation_fees
-    , coalesce(ccip_fees, 0) as ccip_fees
-    , coalesce(vrf_fees, 0) as vrf_fees
-    , coalesce(direct_fees, 0) as direct_fees
+    , 'chainlink' as app
+    , 'Oracle' as category
+
+    --Old Metrics needed for compatibility
     , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
-    , coalesce(ocr_fees, 0) as ocr_fees
-    , coalesce(fm_fees, 0) as fm_fees
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue
     , fees as secondary_supply_side_revenue
     , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
     , 0 as protocol_revenue
     , primary_supply_side_revenue as operating_expenses
-    , token_incentives
+    , token_incentives as token_incentives
     , coalesce(operating_expenses, 0) + coalesce(token_incentives, 0) as total_expenses
     , protocol_revenue - total_expenses as earnings
     , treasury_usd
-    , treasury_link
-    , coalesce(tvl,0) as tvl
-    , coalesce(tvl_link, 0) as tvl_link
-    , price
-    , market_cap
-    , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
-    , token_volume
-    , tokenholder_count
     , daily_txns as txns
-    , dau
+    , dau 
+
+    --Standardization Metrics
+    , coalesce(automation_fees, 0) as automation_fees
+    , coalesce(ccip_fees, 0) as ccip_fees
+    , coalesce(vrf_fees, 0) as vrf_fees
+    , coalesce(direct_fees, 0) as direct_fees
+    , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as total_protocol_fees
+    , coalesce(ocr_fees, 0) as ocr_fees
+    , coalesce(fm_fees, 0) as fm_fees
+    , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as total_supply_side_fees
+    , total_protocol_fees + total_supply_side_fees as gross_protocol_revenue
+    , 0 as protocol_revenue
+    , total_supply_side_fees as supply_side_revenue
+    , total_protocol_fees as operating_expenses
+    , token_incentives as token_incentives
+    , coalesce(total_protocol_fees, 0) + coalesce(token_incentives, 0) as total_expenses
+    , 0 - coalesce(total_protocol_fees, 0) - coalesce(token_incentives, 0) as protocol_earnings
+    , treasury_usd as treasury
+    , treasury_link as treasury_native
+    , coalesce(tvl,0) as tvl
+    , coalesce(tvl_link, 0) as tvl_native
+    , daily_txns as oracle_txns
+    , dau as oracle_dau
+
+    --Market Metrics
+    , price as price_standard
+    , market_cap as market_cap_standard
+    , fdmc as fdmc_standard
+    , token_turnover_circulating as token_turnover_circulating_standard
+    , token_turnover_fdv as token_turnover_fdv_standard
+    , token_volume as token_volume_standard
+    , tokenholder_count as tokenholder_count_standard
+
+    
 from fm_fees_data
 left join orc_fees_data using (date)
 left join automation_fees_data using (date)
