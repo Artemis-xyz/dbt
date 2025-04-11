@@ -2,7 +2,7 @@
 with
     opt_data as (
         select raw_date as date, sum(tx_fee) as fees_native, sum(gas_usd) as fees
-        from {{ ref("ez_ethereum_transactions_v2") }}
+        from {{ ref("fact_ethereum_transactions_v2") }}
         where
             lower(contract_address) in (
                 lower('0x4BF681894abEc828B212C906082B444Ceb2f6cf6'),

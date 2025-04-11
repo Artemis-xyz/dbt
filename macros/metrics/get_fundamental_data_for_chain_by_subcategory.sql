@@ -1,8 +1,9 @@
 {% macro get_fundamental_data_for_chain_by_subcategory(chain, model_version='') %}
+{% set model_name = "fact_" ~ chain ~ "_transactions" ~ ("_v2" if model_version == "v2" else "") %}
     with
         min_date as (
             select min(raw_date) as start_date, from_address, category, sub_category
-            from {{ chain }}.prod_raw.ez_transactions{% if model_version == 'v2' %}_v2{% endif %}
+            from {{ ref(model_name) }}
             group by sub_category, category, from_address
         ),
         new_users as (
@@ -17,7 +18,7 @@
                 sub_category,
                 count(distinct from_address) as low_sleep_users,
                 count(*) as tx_n
-            from {{ chain }}.prod_raw.ez_transactions{% if model_version == 'v2' %}_v2{% endif %}
+            from {{ ref(model_name) }}
             where user_type = 'LOW_SLEEP'
             group by user_type, raw_date, category, sub_category
         ),
@@ -28,7 +29,7 @@
                 sub_category,
                 count(distinct from_address) as sybil_users,
                 count(*) as tx_n
-            from {{ chain }}.prod_raw.ez_transactions{% if model_version == 'v2' %}_v2{% endif %}
+            from {{ ref(model_name) }}
             where engagement_type = 'sybil'
             group by engagement_type, raw_date, category, sub_category
         ),
@@ -42,7 +43,7 @@
                 sum(gas_usd) gas_usd,
                 count(*) txns,
                 count(distinct from_address) dau
-            from {{ chain }}.prod_raw.ez_transactions{% if model_version == 'v2' %}_v2{% endif %}
+            from {{ ref(model_name) }}
             group by raw_date, category, sub_category
         )
     select

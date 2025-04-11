@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_optimism_transactions_v2") }}
+-- depends_on {{ ref("fact_optimism_transactions_v2") }}
 {{
     config(
         materialized="table",
