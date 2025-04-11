@@ -194,6 +194,7 @@ with
 
 select
     date
+    , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue
     , fees as secondary_supply_side_revenue
     , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
@@ -223,11 +224,12 @@ select
     , coalesce(ccip_fees, 0) as ccip_fees
     , coalesce(vrf_fees, 0) as vrf_fees
     , coalesce(direct_fees, 0) as direct_fees
-    , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
     , coalesce(ocr_fees, 0) as ocr_fees
     , coalesce(fm_fees, 0) as fm_fees
     , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as oracle_fees
+
     , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as gross_protocol_revenue
+    , gross_protocol_revenue as service_cash_flow
 
     , token_incentives
 
@@ -247,7 +249,6 @@ left join vrf_fees_data using (date)
 left join direct_fees_data using (date)
 left join staking_incentives_data using (date)
 left join treasury_data using (date)
-left join tvl_metrics using (date)
 left join token_turnover_metrics using (date)
 left join price_data using (date)
 left join token_holder_data using (date)
