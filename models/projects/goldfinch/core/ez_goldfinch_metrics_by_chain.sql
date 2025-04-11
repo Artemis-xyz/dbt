@@ -26,6 +26,8 @@ select
     , protocol_earnings
     , net_deposits
     , outstanding_supply
+    , treasury_value
+    , treasury_value_native
     , net_treasury_value
     , tvl_growth
     , token_holder_count
@@ -45,8 +47,7 @@ select
     , gross_protocol_revenue
     , service_cash_flow
     , token_cash_flow
-    , foundation_cash_flow
-    
+
     -- Protocol Metrics
     , treasury
     , treasury_native
