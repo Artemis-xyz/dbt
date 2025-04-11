@@ -4,13 +4,6 @@
 version: 2
 
 column_definitions:
-  buybacks: &buybacks
-    name: buybacks
-    description: "The amount of $MPLX bought back by Metaplex (USD)."
-    tags:
-      - artemis_gaap
-      - override
-
   fdmc: &fdmc
     name: fdmc
     description: "The fully diluted market cap of $MPLX in USD"
@@ -18,9 +11,16 @@ column_definitions:
       - artemis_gaap
       - override
 
+  foundation_cash_flow: &foundation_cash_flow
+    name: foundation_cash_flow
+    description: "50% of the gross protocol revenue allocated to the Metaplex foundation, used for grants, partnerships, operations, or legal."
+    tags:
+      - artemis_gaap
+      - override
+
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
-    description: "Total fees paid by NFT minters and individuals who swap tokens and NFTs on Metaplex."
+    description: "Total fees (USD) paid by NFT minters and individuals who swap tokens and NFTs on Metaplex."
     tags:
       - artemis_gaap
       - override
@@ -42,21 +42,21 @@ column_definitions:
     tags:
       - override
 
-  nft_toolkit_dau: &nft_toolkit_dau
-    name: nft_toolkit_dau
-    description: "Number of daily active developers on Metaplex toolkit."
+  nft_dau: &nft_dau
+    name: nft_dau
+    description: "The number of daily active NFT creators on Metaplex"
     tags:
       - override
 
-  nft_toolkit_platform_fees: &nft_toolkit_platform_fees
-    name: nft_toolkit_platform_fees
-    description: "Total fees paid by NFT minters and individuals who swap tokens and NFTs on Metaplex."
+  nft_fees: &nft_fees
+    name: nft_fees
+    description: "Total fees (USD) paid by NFT minters and individuals who swap tokens and NFTs on Metaplex."
     tags:
       - override
 
-  nft_toolkit_txns: &nft_toolkit_txns
-    name: nft_toolkit_txns
-    description: "Number of transactions on Metaplex toolkit."
+  nft_txns: &nft_txns
+    name: nft_txns
+    description: "The number of NFT transactions on Metaplex"
     tags:
       - override
 
@@ -90,7 +90,7 @@ column_definitions:
 
   treasury_cash_flow: &treasury_cash_flow
     name: treasury_cash_flow
-    description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance. This is 50% of the gross protocol revenue."
+    description: "50% of gross protocol revenue is allocated to the Metaplex treasury for future use, including development, growth, or governance."
     tags:
       - artemis_gaap
       - override
@@ -99,27 +99,27 @@ models:
   - name: ez_metaplex_metrics_by_chain
     description: "This table stores metrics for the METAPLEX protocol"
     columns:
-      - *buybacks
+      - *foundation_cash_flow
       - *gross_protocol_revenue
       - *mints_native
       - *net_supply_change_native
-      - *nft_toolkit_dau
-      - *nft_toolkit_platform_fees
-      - *nft_toolkit_txns
+      - *nft_dau
+      - *nft_fees
+      - *nft_txns
       - *treasury_cash_flow
 
   - name: ez_metaplex_metrics
     description: "This table stores metrics for the METAPLEX protocol"
     columns:
-      - *buybacks
       - *fdmc
+      - *foundation_cash_flow
       - *gross_protocol_revenue
       - *market_cap
       - *mints_native
       - *net_supply_change_native
-      - *nft_toolkit_dau
-      - *nft_toolkit_platform_fees
-      - *nft_toolkit_txns
+      - *nft_dau
+      - *nft_fees
+      - *nft_txns
       - *price
       - *token_turnover_circulating
       - *token_turnover_fdv

@@ -87,14 +87,15 @@ SELECT
     , coalesce(price.fdmc, 0) as fdmc
     , coalesce(price.token_volume, 0) as token_volume
 
-    -- Usage Metrics
-    , coalesce(active_wallets.dau, 0) as nft_toolkit_dau
-    , coalesce(transactions.txns, 0) as nft_toolkit_txns
-    , coalesce(revenue.revenue_usd, 0) as nft_toolkit_platform_fees
+    -- NFT Metrics
+    , coalesce(active_wallets.dau, 0) as nft_dau
+    , coalesce(transactions.txns, 0) as nft_txns
+    , coalesce(revenue.revenue_usd, 0) as nft_fees
 
     -- Cash Flow Metrics
     , coalesce(revenue.revenue_usd, 0) as gross_protocol_revenue
     , 0.5 * coalesce(revenue.revenue_usd, 0) as treasury_cash_flow
+    , 0.5 * coalesce(revenue.revenue_usd, 0) as foundation_cash_flow
     , coalesce(buybacks.buyback, 0) as buybacks
 
     -- Supply Metrics
