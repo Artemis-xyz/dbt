@@ -23,7 +23,7 @@ with buyback_from_pair as (
                 else (buyback/0.12) * 0.04
                 end
         ) as treasury_cash_flow
-    from {{ ref("ez_raydium_metrics_by_pair") }}
+    from {{ ref("fact_raydium_metrics_by_pair") }}
     group by 1
 )
 , buyback as ( --> buyback by tracking the direct RAY deposit, due to RAY price, will be the most accurate for amount usd, but it's less frequent
