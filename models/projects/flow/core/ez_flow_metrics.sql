@@ -43,6 +43,7 @@ select
     , dex_volumes AS chain_dex_volumes
     , nft_trading_volume
     -- Cashflow metrics
+    , fees as chain_fees
     , fees AS gross_protocol_revenue
     , revenue AS burned_cash_flow
     -- Developer Metrics

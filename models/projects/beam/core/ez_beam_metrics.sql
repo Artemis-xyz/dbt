@@ -34,6 +34,7 @@ select
     , dau as chain_dau
     , txns as chain_txns
     -- Cash Flow Metrics
+    , fees as chain_fees
     , fees as gross_protocol_revenue
     , fees_native as gross_protocol_revenue_native
     , avg_txn_fee as chain_avg_txn_fee

@@ -40,7 +40,8 @@ select
     , dau as chain_dau
     , txns as chain_txns
     -- Cashflow Metrics
-    , fees_usd as fees
+    , fees_usd as chain_fees
+    , fees_usd as gross_protocol_revenue
 from fees
 left join txns on fees.date = txns.date
 left join daus on fees.date = daus.date 
