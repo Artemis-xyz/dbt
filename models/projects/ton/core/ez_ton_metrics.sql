@@ -29,6 +29,10 @@ with
     stablecoin_data as ({{ get_stablecoin_metrics("ton") }}),
     github_data as ({{ get_github_metrics("ton") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("ton") }})
+    , block_rewards_data as (
+        select date, block_rewards_native
+        from {{ ref("fact_ton_minted") }}
+    )
 select
     ton.date
     , 'ton' as chain
@@ -67,6 +71,9 @@ select
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
+    -- Supply Metrics
+    , block_rewards_native AS emissions_native
+    , block_rewards_native * price AS emissions
     -- Stablecoin Metrics
     , stablecoin_total_supply
     , stablecoin_txns
@@ -90,4 +97,5 @@ left join github_data on ton.date = github_data.date
 left join fundamental_data on ton.date = fundamental_data.date
 left join stablecoin_data on ton.date = stablecoin_data.date
 left join rolling_metrics on ton.date = rolling_metrics.date
+left join block_rewards_data on ton.date = block_rewards_data.date
 where ton.date < to_date(sysdate())
