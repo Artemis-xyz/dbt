@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="SUI",
         database="sui",
         schema="core",
         alias="ez_metrics",
