@@ -12,7 +12,7 @@ with
     -- Alternative fundamental source from BigQuery, preferred when possible over Snowflake data
     fundamental_data as (select * EXCLUDE date, TO_TIMESTAMP_NTZ(date) AS date from {{ source('PROD_LANDING', 'ez_stride_metrics') }}),
 
-    market_data as ({{ get_coin_metrics("stride") }}),
+    market_data as ({{ get_coingecko_metrics("stride") }}),
 
 select
     fundamental_data.date,
