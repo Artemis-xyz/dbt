@@ -279,16 +279,6 @@ column_definitions:
       - artemis_gaap
 
 models:
-  - name: ez_arbitrum_metrics_by_application
-    description: "This table stores metrics for the ARBITRUM protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
   - name: ez_arbitrum_metrics
     description: "This table stores metrics for the ARBITRUM protocol"
     columns:
