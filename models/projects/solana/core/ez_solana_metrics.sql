@@ -169,7 +169,7 @@ select
     , gas_usd / txns as chain_avg_txn_fee
     , median_txn_fee AS chain_median_txn_fee
     , total_staked_native
-    , total_staked_usd
+    , total_staked_usd as total_staked
     , nft_trading_volume AS chain_nft_trading_volume
     , p2p_native_transfer_volume
     , p2p_token_transfer_volume
