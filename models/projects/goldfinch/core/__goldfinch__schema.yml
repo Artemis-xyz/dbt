@@ -11,13 +11,6 @@ column_definitions:
       - artemis_gaap
       - override
 
-  foundation_cash_flow: &foundation_cash_flow
-    name: foundation_cash_flow
-    description: "Revenue allocated to a foundation affiliated with the protocol, used for grants, partnerships, operations, or legal after token incentives are subtracted."
-    tags:
-      - artemis_gaap
-      - override
-
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
     description: "The total USD value of interest and withdrawal revenue generated from lending and borrowing activity on the protocol."
@@ -30,10 +23,6 @@ column_definitions:
     description: "The total amount of tokens deposited (in USD) on Goldfinch"
     tags:
       - override
-
-  lending_interest_fees: &lending_interest_fees
-    name: lending_interest_fees
-    description: "The daily amount of interest fees (in USD) paid by borrowers on a lending protocol"
 
   lending_loan_capacity: &lending_loan_capacity
     name: lending_loan_capacity
@@ -88,7 +77,7 @@ column_definitions:
 
   token_cash_flow: &token_cash_flow
     name: token_cash_flow
-    description: "The share of protocol revenue accrued to token holders of Goldfinch."
+    description: "The withdrawal revenue and interest revenue (10% of interest fees) accrues to the DAO-controlled treasury."
     tags:
       - artemis_gaap
       - override
@@ -138,10 +127,8 @@ models:
   - name: ez_goldfinch_metrics_by_chain
     description: "This table stores metrics for the GOLDFINCH protocol"
     columns:
-      - *foundation_cash_flow
       - *gross_protocol_revenue
       - *lending_deposits
-      - *lending_interest_fees
       - *lending_loan_capacity
       - *net_treasury
       - *net_treasury_native
@@ -158,10 +145,8 @@ models:
     description: "This table stores metrics for the GOLDFINCH protocol"
     columns:
       - *fdmc
-      - *foundation_cash_flow
       - *gross_protocol_revenue
       - *lending_deposits
-      - *lending_interest_fees
       - *lending_loan_capacity
       - *market_cap
       - *net_treasury
@@ -182,10 +167,8 @@ models:
   - name: ez_goldfinch_metrics_by_token
     description: "This table stores metrics for the GOLDFINCH protocol"
     columns:
-      - *foundation_cash_flow
       - *gross_protocol_revenue
       - *lending_deposits
-      - *lending_interest_fees
       - *lending_loan_capacity
       - *net_treasury
       - *net_treasury_native
