@@ -8,7 +8,7 @@
 
 WITH source_data AS (
     SELECT from_address, contract_address, block_timestamp as last_updated
-    FROM sei.prod_raw.ez_transactions
+    FROM pc_dbt_db.prod.fact_sei_transactions_v2 -- Hardcoded to prevent dbt cycle complaints
     {% if is_incremental() %}
         WHERE block_timestamp > (SELECT MAX(last_updated) FROM {{ this }})
     {% endif %}
