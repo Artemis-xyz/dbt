@@ -163,13 +163,6 @@ with
             , treasury_link
         from {{ ref("fact_chainlink_treasury_native_usd")}}
     )
-    , tvl_metrics as (
-        select
-            date
-            , balance_usd as tvl
-            , balance_link as tvl_link
-        from {{ ref("fact_chainlink_tvl_native_usd")}}
-    )
     , token_turnover_metrics as (
         select
             date
@@ -201,6 +194,31 @@ with
 
 select
     date
+    , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue
+    , fees as secondary_supply_side_revenue
+    , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
+    , 0 as protocol_revenue
+    , primary_supply_side_revenue as operating_expenses
+    , coalesce(operating_expenses, 0) + coalesce(token_incentives, 0) as total_expenses
+    , protocol_revenue - total_expenses as earnings
+    , daily_txns as txns
+    , dau
+
+    -- Standardized Metrics
+    , price
+    , market_cap
+    , fdmc
+    , token_volume
+
+    -- Market Metrics
+
+
+
+    -- Usage Metrics
+    , dau as oracle_dau
+    , daily_txns as oracle_txns
+
+    -- Cash Flow Metrics
     , coalesce(automation_fees, 0) as automation_fees
     , coalesce(ccip_fees, 0) as ccip_fees
     , coalesce(vrf_fees, 0) as vrf_fees
@@ -208,27 +226,19 @@ select
     , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
     , coalesce(ocr_fees, 0) as ocr_fees
     , coalesce(fm_fees, 0) as fm_fees
-    , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue
-    , fees as secondary_supply_side_revenue
-    , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
-    , 0 as protocol_revenue
-    , primary_supply_side_revenue as operating_expenses
+    , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as oracle_fees
+    , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as gross_protocol_revenue
+
     , token_incentives
-    , coalesce(operating_expenses, 0) + coalesce(token_incentives, 0) as total_expenses
-    , protocol_revenue - total_expenses as earnings
-    , treasury_usd
-    , treasury_link
-    , coalesce(tvl,0) as tvl
-    , coalesce(tvl_link, 0) as tvl_link
-    , price
-    , market_cap
-    , fdmc
+
+    -- Treasury Metrics
+    , treasury_usd as treasury
+    , treasury_link as treasury_native
+
+    -- Other Metrics
     , token_turnover_circulating
     , token_turnover_fdv
-    , token_volume
     , tokenholder_count
-    , daily_txns as txns
-    , dau
 from fm_fees_data
 left join orc_fees_data using (date)
 left join automation_fees_data using (date)
