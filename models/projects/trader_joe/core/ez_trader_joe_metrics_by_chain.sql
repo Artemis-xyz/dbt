@@ -58,17 +58,25 @@ with
         group by 1, 2
     )
 select
-    tvl_by_chain.date,
-    'trader_joe' as app,
-    'DeFi' as category,
-    tvl_by_chain.chain,
-    tvl_by_chain.tvl,
-    trading_volume_by_chain.trading_volume,
-    trading_volume_by_chain.trading_fees,
-    trading_volume_by_chain.unique_traders,
-    trading_volume_by_chain.gas_cost_native,
-    trading_volume_by_chain.gas_cost_usd,
-    daily_txns_data.daily_txns as number_of_swaps
+    tvl_by_chain.date
+    , 'trader_joe' as app
+    , 'DeFi' as category
+    , tvl_by_chain.chain
+    , trading_volume_by_chain.trading_volume
+    , trading_volume_by_chain.trading_fees
+    , trading_volume_by_chain.unique_traders
+    , trading_volume_by_chain.gas_cost_usd
+    , daily_txns_data.daily_txns as number_of_swaps
+
+    -- Standardized Metrics
+    , trading_volume_by_chain.unique_traders as spot_dau
+    , daily_txns_data.daily_txns as spot_txns
+    , trading_volume_by_chain.trading_volume as spot_volume
+    , trading_volume_by_chain.trading_fees as spot_fees
+    , tvl_by_chain.tvl as tvl
+    , trading_volume_by_chain.trading_fees as gross_protocol_revenue
+    , trading_volume_by_chain.gas_cost_native
+    , trading_volume_by_chain.gas_cost_usd as gas_cost
 from tvl_by_chain
 left join trading_volume_by_chain using(date, chain)
 left join daily_txns_data using (date, chain)

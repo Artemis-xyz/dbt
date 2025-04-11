@@ -1,11 +1,8 @@
 {{
     config(
         materialized="incremental",
-        unique_key=["date", "token_pair"],
-        snowflake_warehouse="RAYDIUM",
-        database="raydium",
-        schema="core",
-        alias="ez_metrics_by_pair",
+        unique_key=["date", "token_pair", "program"],
+        snowflake_warehouse="RAYDIUM"
     )
 }}
 
@@ -53,10 +50,14 @@ with amm_pool_creation AS ( -- special treatment for AMM v4 as the buyback event
             else coalesce(m1.symbol, b.token1_mint_address) || '-' || coalesce(m0.symbol, b.token0_mint_address)
         end as token_pair 
         , b.pool_address
+        , b.program
     from (
         select i.block_timestamp, i.block_id, i.tx_id, i.pool_address
             , coalesce(i.token0_mint_address, apc.token0_mint_address) as token0_mint_address
             , coalesce(i.token1_mint_address, apc.token1_mint_address) as token1_mint_address
+            , CASE WHEN event_type = 'collectProtocolFee' then 'CLMM/CPMM'
+                when event_type = 'withdrawPnl' then 'AMMv4'
+            end as program
         from (
             SELECT block_timestamp
                 , block_id
@@ -124,6 +125,7 @@ with amm_pool_creation AS ( -- special treatment for AMM v4 as the buyback event
 
 select date_trunc('day', b.block_timestamp) as date 
     , b.token_pair
+    , b.program
     , sum(t.amount * p.price) as buyback-- amount_usd
 from buyback_event b 
 left join SOLANA_FLIPSIDE.CORE.FACT_TRANSFERS t on t.block_id = b.block_id and t.tx_id = b.tx_id
@@ -131,5 +133,5 @@ left join SOLANA_FLIPSIDE.PRICE.EZ_ASSET_METADATA m on m.token_address = t.mint
 left join prices_data p on p.token_address = t.mint
         and p.day = date_trunc('day', t.block_timestamp)
 where date_trunc('day', b.block_timestamp) < to_date(sysdate())
-group by 1,2
+group by 1,2,3
 order by 1 desc 
