@@ -25,7 +25,9 @@ with
         select 
             date
             , chain
-            , sum(tvl_usd) as tvl
+            , sum(balance_raw) as tvl_raw
+            , sum(balance_native) as tvl_native
+            , sum(balance) as tvl
         from {{ ref("fact_synthetix_tvl_by_token_and_chain") }}
         group by 1,2 
     ), 
@@ -122,38 +124,42 @@ select
     , 'synthetix' as app
     , 'DeFi' as category
     , chain
-    , trading_volume
-    , unique_traders
-    , fees.fees_usd as fees
-    , fees.fees_native as fees_native
-    , token_incentives
-    , token_incentives as total_expenses
-    , token_holder_count
-    , tvl as net_deposits
+    , coalesce(trading_volume, 0) as trading_volume
+    , coalesce(unique_traders, 0) as unique_traders
+    , coalesce(fees.fees_usd, 0) as fees
+    , coalesce(fees.fees_native, 0) as fees_native
+    , coalesce(token_incentives, 0) as token_incentives
+    , coalesce(token_incentives, 0) as total_expenses
+    , coalesce(token_holder_count, 0) as token_holder_count
+    , coalesce(tvl.tvl, 0) as net_deposits
 
     -- Standardized Metrics
 
     -- Perpetuals Metrics
-    , unique_traders as perp_dau
-    , trading_volume as perp_volume
+    , coalesce(unique_traders, 0) as perp_dau
+    , coalesce(trading_volume, 0) as perp_volume
     
     -- Crypto Metrics
-    , tvl 
+    , coalesce(tvl.tvl, 0) as tvl
+    , coalesce(tvl.tvl - lag(tvl.tvl) over (order by date), 0) as tvl_net_change
+    , coalesce(tvl.tvl_native, 0) as tvl_native
+    , coalesce(tvl.tvl_native - lag(tvl.tvl_native) over (order by date), 0) as tvl_native_net_change
 
     -- Cashflow Metrics
-    , fees_usd as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
-    , service_cashflow as service_cashflow
-    , treasury_cashflow as treasury_cashflow
-    , fee_sharing_cashflow as fee_sharing_cashflow
-    , token_cashflow as token_cashflow
+    , coalesce(fees.fees_usd, 0) as gross_protocol_revenue
+    , coalesce(fees.fees_native, 0) as gross_protocol_revenue_native
+    , coalesce(service_cashflow.service_cashflow, 0) as service_cashflow
+    , coalesce(treasury_cashflow.treasury_cashflow, 0) as treasury_cashflow
+    , coalesce(fee_sharing_cashflow.fee_sharing_cashflow, 0) as fee_sharing_cashflow
+    , coalesce(token_cashflow.token_cashflow, 0) as token_cashflow
+
     -- Protocol Metrics
-    , treasury_by_chain.treasury as treasury
-    , treasury_by_chain.treasury_native as treasury_native
-    , net_treasury.net_treasury as net_treasury
-    , net_treasury.net_treasury_native as net_treasury_native
-    , treasury_native.own_token_treasury as own_token_treasury
-    , treasury_native.own_token_treasury_native as own_token_treasury_native
+    , coalesce(treasury_by_chain.treasury, 0) as treasury
+    , coalesce(treasury_by_chain.treasury_native, 0) as treasury_native
+    , coalesce(net_treasury.net_treasury, 0) as net_treasury
+    , coalesce(net_treasury.net_treasury_native, 0) as net_treasury_native
+    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
+    , coalesce(treasury_native.own_token_treasury_native, 0) as own_token_treasury_native
 from unique_traders_data
 left join trading_volume_data using(date, chain)
 left join tvl using(date, chain)

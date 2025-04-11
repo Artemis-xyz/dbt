@@ -43,9 +43,16 @@ with
     ) 
     , tvl as (
         select
-            date,
-            token,
-            sum(tvl_usd) as tvl
+            date
+            , case
+                when lower(contract_address) = lower('0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F') then 'SNX'
+                when lower(contract_address) = lower('0xb2f30a7c980f052f02563fb518dcc39e6bf38175') then 'snxUSD'
+                when lower(contract_address) = lower('0x8700daec35af8ff88c16bdf0418774cb3d7599b4') then 'sUSD'
+                else null
+            end as token
+            , sum(balance_raw) as tvl_raw
+            , sum(balance_native) as tvl_native
+            , sum(balance) as tvl
         from {{ ref('fact_synthetix_tvl_by_token_and_chain') }}
         group by 1,2
     )
@@ -110,13 +117,17 @@ with
 select
     date
     , token
-    , fees.fees_usd as fees
-    , fees.fees_native as fees_native
+    , coalesce(fees.fees_usd, 0) as fees
+    , coalesce(fees.fees_native, 0) as fees_native
+    , coalesce(tvl.tvl, 0) as net_deposits
 
     -- Standardized Metrics
 
     -- Crypto Metrics
     , coalesce(tvl.tvl, 0) as tvl
+    , coalesce(tvl.tvl - lag(tvl.tvl) over (order by date), 0) as tvl_net_change
+    , coalesce(tvl.tvl_native, 0) as tvl_native
+    , coalesce(tvl.tvl_native - lag(tvl.tvl_native) over (order by date), 0) as tvl_native_net_change
 
     -- Cashflow Metrics
     , coalesce(fees.fees_usd, 0) as gross_protocol_revenue

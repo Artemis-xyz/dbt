@@ -15,8 +15,15 @@ with all_tvl_by_chain_and_token as (
 )
 
 select
-    date,
-    chain,
-    token,
-    tvl_usd
+    date
+    , contract_address
+    , address
+    , balance_raw
+    , balance_native
+    , price
+    , balance
+    , artemis_application_id
+    , type
+    , chain
+    , unique_id
 from all_tvl_by_chain_and_token

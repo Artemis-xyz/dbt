@@ -19,9 +19,10 @@ with
     )
     , tvl as (
         select 
-            date,
-            sum(tvl_usd) as tvl,
-            sum(tvl_usd) as net_deposits
+            date
+            , sum(balance_raw) as tvl_raw
+            , sum(balance_native) as tvl_native
+            , sum(balance) as tvl
         from {{ ref("fact_synthetix_tvl_by_token_and_chain") }}
         group by 1 
     )
@@ -105,7 +106,7 @@ select
     , coalesce(trading_volume, 0) as trading_volume
     , coalesce(unique_traders, 0) as dau
     , coalesce(unique_traders, 0) as unique_traders
-    , coalesce(net_deposits, 0) as net_deposits
+    , coalesce(tvl, 0) as net_deposits
     , coalesce(fees.fees, 0) as fees
     , coalesce(fees.fees_native, 0) as fees_native
     , coalesce(fees.fees, 0) as revenue
@@ -132,6 +133,9 @@ select
 
     -- Crypto Metrics
     , coalesce(tvl, 0) as tvl
+    , coalesce(tvl - lag(tvl) over (order by date), 0) as tvl_net_change
+    , coalesce(tvl_native, 0) as tvl_native
+    , coalesce(tvl_native - lag(tvl_native) over (order by date), 0) as tvl_native_net_change
 
     -- Cash Flow Metrics
     , coalesce(fees.fees, 0) as gross_protocol_revenue
