@@ -11,6 +11,7 @@
 select
     date
     , 'ethereum' as chain
+    , dau
     -- Standardized Metrics
 
     -- Stablecoin Metrics
