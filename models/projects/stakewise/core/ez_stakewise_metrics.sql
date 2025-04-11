@@ -32,18 +32,23 @@ select
     staked_eth_metrics.amount_staked_usd_net_change
 
     --Standardized Metrics
-    , staked_eth_metrics.num_staked_eth as tvl_native
-    , staked_eth_metrics.amount_staked_usd as tvl
-    , staked_eth_metrics.num_staked_eth_net_change as tvl_native_net_change
-    , staked_eth_metrics.amount_staked_usd_net_change as tvl_net_change
 
     --Market Metrics
     , market_data.price
     , market_data.token_volume
     , market_data.market_cap
     , market_data.fdmc
+
+    --Usage Metrics
+    , staked_eth_metrics.num_staked_eth as tvl_native
+    , staked_eth_metrics.amount_staked_usd as tvl
+    , staked_eth_metrics.num_staked_eth_net_change as tvl_native_net_change
+    , staked_eth_metrics.amount_staked_usd_net_change as tvl_net_change
+
+    --Other Metrics
     , market_data.token_turnover_circulating
     , market_data.token_turnover_fdv
+    
 from staked_eth_metrics
 left join market_data using (date)
 where staked_eth_metrics.date < to_date(sysdate())

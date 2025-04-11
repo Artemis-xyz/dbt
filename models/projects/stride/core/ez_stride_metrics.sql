@@ -40,16 +40,14 @@ select
     fundamental_data.protocol_revenue_usd AS fees,
     fundamental_data.protocol_revenue_usd AS revenue,
     fundamental_data.operating_expenses_usd,
-    fundamental_data.protocol_earnings_usd
+    fundamental_data.protocol_earnings_usd,
 
     --Standardized Metrics
 
-    --Market Data Metrics
+    --Market Metrics
     , market_data.price
     , market_data.market_cap
     , market_data.fdmc
-    , fundamental_data.tvl as tvl
-    , fundamental_data.tvl_net_change as tvl_net_change
 
     --Chain Usage Metrics
     , fundamental_data.dau as chain_dau
@@ -62,19 +60,18 @@ select
     , fundamental_data.high_sleep_users as high_sleep_users
     , fundamental_data.sybil_users as sybil_users
     , fundamental_data.non_sybil_users as non_sybil_users
+    , fundamental_data.avg_txn_fee as chain_avg_txn_fee
+    , fundamental_data.tvl as tvl
+    , fundamental_data.tvl_net_change as tvl_net_change
 
     --Cashflow Metrics
-    , fundamental_data.fees_native as chain_fees_native
     , fundamental_data.fees_usd as chain_fees
-    , fundamental_data.avg_txn_fee as chain_avg_txn_fee
-    , fundamental_data.total_staking_yield_usd as gross_staking_revenue
-    , chain_fees + gross_staking_revenue as gross_protocol_revenue
-    , fundamental_data.protocol_revenue_usd as protocol_staking_revenue
-    , chain_fees as protocol_fees_revenue
-    , protocol_staking_revenue + chain_fees as total_protocol_revenue
-    , fundamental_data.total_supply_side_revenue_usd as supply_side_staking_revenue
-    , fundamental_data.operating_expenses_usd as operating_expenses
-    , fundamental_data.protocol_earnings_usd as protocol_earnings
+    , fundamental_data.total_staking_yield_usd as yield_generated
+    , chain_fees + yield_generated as gross_protocol_revenue
+    , (yield_generated * .1) as treasury_cash_flow
+    , (yield_generated * .9) as service_cash_flow
+    , chain_fees as validator_cash_flow
+   
 from fundamental_data
 left join market_data on fundamental_data.date = market_data.date
 where fundamental_data.date < to_date(sysdate())

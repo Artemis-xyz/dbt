@@ -40,16 +40,20 @@ select
     restaked_eth_metrics.amount_restaked_usd_net_change
 
     --Standardized Metrics
-    , restaked_eth_metrics.num_restaked_eth as tvl_native
-    , restaked_eth_metrics.amount_restaked_usd as tvl
-    , restaked_eth_metrics.num_restaked_eth_net_change as tvl_native_net_change
-    , restaked_eth_metrics.amount_restaked_usd_net_change as tvl_net_change
 
     --Market Metrics
     , market_metrics.price as price
     , market_metrics.token_volume as token_volume
     , market_metrics.market_cap as market_cap
     , market_metrics.fdmc as fdmc
+
+    --Usage Metrics
+    , restaked_eth_metrics.num_restaked_eth as tvl_native
+    , restaked_eth_metrics.amount_restaked_usd as tvl
+    , restaked_eth_metrics.num_restaked_eth_net_change as tvl_native_net_change
+    , restaked_eth_metrics.amount_restaked_usd_net_change as tvl_net_change
+
+    --Other Metrics
     , market_metrics.token_turnover_circulating as token_turnover_circulating
     , market_metrics.token_turnover_fdv as token_turnover_fdv
 from date_spine

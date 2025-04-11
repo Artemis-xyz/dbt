@@ -30,8 +30,9 @@ SELECT
     , coalesce(treasury_cash_flow, 0) as treasury_cash_flow
     , coalesce(strategy_cash_flow, 0) as strategy_cash_flow
     , coalesce(validator_cash_flow, 0) as validator_cash_flow
-    , coalesce(ecosystem_txns, 0) as ecosystem_txns
-    , coalesce(ecosystem_dau, 0) as ecosystem_dau
+    , coalesce(block_infra_txns, 0) as block_infra_txns
+    , coalesce(block_infra_dau, 0) as block_infra_dau
     , coalesce(tvl, 0) as tvl
     , coalesce(tvl_net_change, 0) as tvl_net_change
+
 FROM {{ ref('ez_jito_metrics') }}

@@ -26,7 +26,7 @@ dau as (
 v1_fees as (
     select
         date
-        , coalesce(unstaking_fees, 0) as unstaking_fees
+        , coalesce(unstaking_fees, 0) as unstaking_fees_native
         , coalesce(fees_native, 0) as fees_native
     from {{ ref("fact_marinade_v1_fees") }}
 ),
@@ -39,7 +39,7 @@ v2_fees as (
 fees as (
     select
         coalesce(v1_fees.date, v2_fees.date) as date,
-        coalesce(v1_fees.unstaking_fees, 0) as unstaking_fees,
+        coalesce(v1_fees.unstaking_fees_native, 0) as unstaking_fees_native,
         coalesce(v1_fees.fees_native, 0) + coalesce(v2_fees.fees_native, 0) as fees_native,
     from v1_fees
     full outer join v2_fees using (date)
@@ -63,8 +63,6 @@ select
     --Old metrics needed for compatibility
     , liquid
     , native
-    , tvl as tvl_native
-    , tvl * price as tvl
     , dau
     , txns
     , fees_native
@@ -72,41 +70,49 @@ select
     -- v2 fees - 100% goes to the protocol
     , fees_native * price as fees
     -- v1 - unstaking fees 75% goes to LP (Fees to Suppliers), 25% goes to treasury (Fees to Holders)
-    , unstaking_fees
-    , unstaking_fees * 0.75 as supply_side_fee
+    , unstaking_fees_native * 0.75 * price as supply_side_fee
     , case when 
         date < '2024-08-18' then unstaking_fees * 0.25 + fees
     -- when v2 fees are active, 100% goes to the protocol
         else fees 
     end as revenue
-    , circulating_supply
-    , price
+
 
     --Standardized Metrics
-    , unstaking_fees as unstaking_fees
-    , fees_native as lst_fees_native
-    , (unstaking_fees + fees_native) * price as gross_protocol_revenue
-    , case when 
-        date < '2024-08-18' then unstaking_fees * 0.25 + total_protocol_fees
-    -- when v2 fees are active, 100% goes to the protocol
-        else treasury_cash_flow 
-    end as treasury_cash_flow
-    , unstaking_fees * 0.75 as supply_side_revenue
+
+    --Market Metrics
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
+    , circulating_supply as circulating_supply
+
+    --Usage Metrics
+    , tvl * price as tvl
+    , tvl as tvl_native
     , dau as lst_dau
     , txns as lst_txns
     , liquid as tvl_liquid_stake
     , native as tvl_native_stake
-    , tvl as tvl_native
-    , tvl * price as tvl
 
-    --Market Metrics
-    , circulating_supply as circulating_supply
-    , market_metrics.price
-    , market_metrics.market_cap
-    , market_metrics.fdmc
+    --Cash Flow Metrics
+    , unstaking_fees_native * price as unstaking_fees
+    , fees_native * price as lst_fees
+    , unstaking_fees + lst_fees as gross_protocol_revenue
+    , case when 
+        date < '2024-08-18' then unstaking_fees * 0.25 + lst_fees
+    -- when v2 fees are active, 100% goes to the protocol
+        else unstaking_fees + lst_fees 
+    end as treasury_cash_flow
+    , case when 
+        date < '2024-08-18' then unstaking_fees * 0.75
+    -- when v2 fees are active, 100% goes to the protocol
+        else 0 
+    end as service_cash_flow
+    
+    --Other Metrics
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
-    , market_metrics.token_volume
 from tvl
 left join dau using (date)
 left join fees using (date)

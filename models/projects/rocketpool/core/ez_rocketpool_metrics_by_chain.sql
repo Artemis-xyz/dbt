@@ -46,14 +46,20 @@ select
     , treasury_value
 
     --Standardized Metrics
+
+    --Usage Metrics
+    , s.num_staked_eth as tvl_native
+    , s.amount_staked_usd as tvl
+
+    --Cash Flow Metrics
     , COALESCE(cl_rewards_usd, 0) as block_rewards
     , COALESCE(el_rewards_usd, 0) as mev_priority_fees
     , COALESCE(deposit_fees, 0) as lst_deposit_fees
     , COALESCE(fees, 0) as yield_generated
     , COALESCE(fees, 0) as gross_protocol_revenue
-    , gross_protocol_revenue * 0.14 as ecosystem_revenue
-    , gross_protocol_revenue - ecosystem_revenue as lp_revenue
-    , s.num_staked_eth as tvl_native
-    , s.amount_staked_usd as tvl
+    , gross_protocol_revenue * 0.14 as validator_cash_flow
+    , gross_protocol_revenue * 0.86 as service_cash_flow
+    
+    
 from staked_eth_metrics s
 left join {{ ref('ez_rocketpool_metrics') }} using(date)

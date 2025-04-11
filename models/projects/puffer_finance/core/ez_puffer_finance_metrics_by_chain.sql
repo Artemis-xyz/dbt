@@ -37,6 +37,8 @@ select
     restaked_eth_metrics.amount_restaked_usd_net_change
 
     --Standardized Metrics
+
+    --Usage Metrics
     , restaked_eth_metrics.num_restaked_eth as tvl_native
     , restaked_eth_metrics.amount_restaked_usd as tvl
     , restaked_eth_metrics.num_restaked_eth_net_change as tvl_native_net_change

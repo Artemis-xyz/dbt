@@ -97,6 +97,14 @@ select
     , COALESCE(s.num_staked_eth, 0) as num_staked_eth
 
     --Standardized Metrics
+
+    --Usage Metrics
+    , COALESCE(s.amount_staked_usd, 0) as tvl
+    , COALESCE(s.num_staked_eth, 0) as tvl_native
+    , COALESCE(s.amount_staked_usd_net_change, 0) as tvl_net_change
+    , COALESCE(s.num_staked_eth_net_change, 0) as tvl_native_net_change
+
+    --Cash Flow Metrics
     , COALESCE(f.mev_priority_fees, 0) as mev_priority_fees
     , COALESCE(f.block_rewards, 0) as block_rewards
     , COALESCE(f.fees, 0) as yield_generated
@@ -104,12 +112,12 @@ select
     , COALESCE(f.fees, 0) * .90 as service_cash_flow
     , COALESCE(f.fees, 0) * .05 as treasury_cash_flow
     , COALESCE(f.fees, 0) * .05 as validator_cash_flow
+
+    --Treasury Metrics
     , COALESCE(t.treasury_value, 0) as treasury
     , COALESCE(tn.treasury_native, 0) as treasury_native
     , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
-    , COALESCE(s.amount_staked_usd, 0) as tvl
-    , COALESCE(s.num_staked_eth, 0) as tvl_native
-    , COALESCE(s.num_staked_eth_net_change, 0) as tvl_native_net_change
+    
 from staked_eth_metrics s
 left join fees_revenue_expenses f using(date)
 left join treasury_cte t using(date)

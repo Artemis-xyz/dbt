@@ -85,8 +85,8 @@ SELECT
     , coalesce(jito_dau_txns_fees_cash_flow.treasury_cash_flow, 0) as treasury_cash_flow
     , coalesce(jito_dau_txns_fees_cash_flow.strategy_cash_flow, 0) as strategy_cash_flow
     , coalesce(jito_dau_txns_fees_cash_flow.validator_cash_flow, 0) as validator_cash_flow
-    , coalesce(tip_txns, 0) as ecosystem_txns
-    , coalesce(tip_dau, 0) as ecosystem_dau
+    , coalesce(tip_txns, 0) as block_infra_txns
+    , coalesce(tip_dau, 0) as block_infra_dau
     , coalesce(tvl, 0) as tvl
     , coalesce(tvl_change, 0) as tvl_net_change
 

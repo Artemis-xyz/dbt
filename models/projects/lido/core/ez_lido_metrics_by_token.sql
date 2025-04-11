@@ -96,9 +96,13 @@ SELECT
     , COALESCE(t.treasury_value_native, 0) AS treasury_value
     , COALESCE(s.num_staked_eth, 0) AS net_deposits
     , COALESCE(sto.outstanding_supply_native, 0) AS outstanding_supply
-    , COALESCE(s.num_staked_eth, 0) as tvl
 
     --Standardized Metrics
+
+    --Usage Metrics
+    , COALESCE(s.num_staked_eth, 0) as tvl_native
+
+    --Cash Flow Metrics
     , COALESCE(f.mev_priority_fees_native, 0) as mev_priority_fees
     , COALESCE(f.block_rewards_native, 0) as block_rewards
     , COALESCE(f.fees, 0) as yield_generated
@@ -106,11 +110,11 @@ SELECT
     , COALESCE(f.fees, 0) * .90 as service_cash_flow
     , COALESCE(f.fees, 0) * .05 as treasury_cash_flow
     , COALESCE(f.fees, 0) * .05 as validator_cash_flow
+
+    --Treasury Metrics
     , COALESCE(t.treasury_value_native, 0) as treasury
     , COALESCE(tn.treasury_native, 0) as treasury_native
     , COALESCE(nt.net_treasury_value_native, 0) as net_treasury_value
-    , COALESCE(s.num_staked_eth, 0) as tvl_native
-
 FROM fees f
 FULL JOIN revenues_expenses e USING (date, token)
 FULL JOIN treasury_cte t USING(date, token)

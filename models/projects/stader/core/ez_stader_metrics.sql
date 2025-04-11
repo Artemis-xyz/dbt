@@ -39,17 +39,19 @@ select
     staked_eth_metrics.num_staked_eth_net_change,
     staked_eth_metrics.amount_staked_usd_net_change
 
+    --Market Metrics
+    , market_metrics.price as price
+    , market_metrics.token_volume as token_volume
+    , market_metrics.market_cap as market_cap
+    , market_metrics.fdmc as fdmc
+
     --Standardized Metrics
     , staked_eth_metrics.num_staked_eth as tvl_native
     , staked_eth_metrics.amount_staked_usd as tvl
     , staked_eth_metrics.num_staked_eth_net_change as tvl_native_net_change
     , staked_eth_metrics.amount_staked_usd_net_change as tvl_net_change
 
-    --Market Metrics
-    , market_metrics.price as price
-    , market_metrics.token_volume as token_volume
-    , market_metrics.market_cap as market_cap
-    , market_metrics.fdmc as fdmc
+    --Other Metrics
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
 

@@ -105,19 +105,18 @@ select
     , COALESCE(t.treasury_value, 0) as treasury_value
 
     --Standardized Metrics
+
+    --Usage Metrics
+    , staked_eth_metrics.num_staked_eth as tvl_native
+    , staked_eth_metrics.amount_staked_usd as tvl
+
     , COALESCE(f.cl_rewards_eth, 0) as block_rewards
     , COALESCE(f.el_rewards_eth, 0) as mev_priority_fees
     , COALESCE(f.deposit_fees, 0) as lst_deposit_fees
     , COALESCE(f.fees, 0) as yield_generated
     , COALESCE(f.fees, 0) as gross_protocol_revenue
-    , gross_protocol_revenue * 0.14 as ecosystem_revenue
-    , gross_protocol_revenue - ecosystem_revenue as lp_revenue
-    , staked_eth_metrics.num_staked_eth as tvl_native
-    , staked_eth_metrics.amount_staked_usd as tvl
-    , COALESCE(t.treasury_value, 0) as treasury
-    , COALESCE(tn.treasury_native, 0) as treasury_value_native
-    , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
-    , COALESCE(th.token_holder_count, 0) as token_holder_count
+    , gross_protocol_revenue * 0.14 as validator_cash_flow
+    , gross_protocol_revenue * 0.86 as service_cash_flow
 
 from staked_eth_metrics
 full join fees_revs_cte f using (date, token)

@@ -31,15 +31,22 @@ SELECT
     '0' as fees,
 
     --Standardized Metrics
-    dau_txns.txns as oracle_txns,
-    dau_txns.dau as oracle_dau,
-    '0' as total_protocol_fees
 
     --Market Metrics
     , market_metrics.price as price
     , market_metrics.token_volume as token_volume
     , market_metrics.market_cap as market_cap
     , market_metrics.fdmc as fdmc
+
+    --Usage Metrics
+    , dau_txns.txns as oracle_txns
+    , dau_txns.dau as oracle_dau
+
+    --Cash Flow Metrics
+    , 0 as oracle_fees
+    , 0 as gross_protocol_revenue
+
+    --Other Metrics
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
 FROM date_spine
