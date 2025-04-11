@@ -61,6 +61,7 @@ select
     , returning_users
     , new_users
     -- Cashflow Metrics
+    , fees as chain_fees
     , fees AS gross_protocol_revenue
     , fees_native AS gross_protocol_revenue_native
     , median_txn_fee AS chain_median_txn_fee
