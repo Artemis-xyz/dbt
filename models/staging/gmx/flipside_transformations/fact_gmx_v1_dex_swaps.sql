@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="GMX") }}
+{{ config(materialized="table", snowflake_warehouse="PUMPFUN") }}
 
 with GMXSwapEvents_arbitrum_v1 as ( 
     select
@@ -16,7 +16,7 @@ with GMXSwapEvents_arbitrum_v1 as (
         full_decoded_log:data[4].value::NUMBER - full_decoded_log:data[5].value::NUMBER AS amount_fees
     from arbitrum_flipside.core.ez_decoded_event_logs
     where contract_address = lower('0x489ee077994B6658eAfA855C308275EAd8097C4A')
-    and event_name = 'Swap' 
+    and event_name = 'Swap'
 ), GMXSwapEventsUSD_arbitrum_v1 as (
     SELECT
         swaps.date,
@@ -38,10 +38,6 @@ with GMXSwapEvents_arbitrum_v1 as (
         swaps.amountOut,
         swaps.amountOut / POW(10, token_out_price.decimals) AS amountOut_nominal,
         amountOut_nominal * token_out_price.price AS amountOut_usd,
-        --amountOutAfterFees
-        swaps.amountOutAfterFees,
-        swaps.amountOutAfterFees / POW(10, token_out_price.decimals) AS amountOutAfterFees_nominal,
-        amountOutAfterFees_nominal * token_out_price.price AS amountOutAfterFees_usd,
         --amountOutFees
         swaps.amount_fees,
         swaps.amount_fees / POW(10, token_out_price.decimals) AS amount_fees_nominal,
@@ -94,10 +90,6 @@ with GMXSwapEvents_arbitrum_v1 as (
         swaps.amountOut,
         swaps.amountOut / POW(10, token_out_price.decimals) AS amountOut_nominal,
         amountOut_nominal * token_out_price.price AS amountOut_usd,
-        --amountOutAfterFees
-        swaps.amountOutAfterFees,
-        swaps.amountOutAfterFees / POW(10, token_out_price.decimals) AS amountOutAfterFees_nominal,
-        amountOutAfterFees_nominal * token_out_price.price AS amountOutAfterFees_usd,
         --amountOutFees
         swaps.amount_fees,
         swaps.amount_fees / POW(10, token_out_price.decimals) AS amount_fees_nominal,
@@ -113,10 +105,48 @@ with GMXSwapEvents_arbitrum_v1 as (
       AND token_out_price.price IS NOT NULL
     ORDER BY swaps.block_timestamp DESC
 ),
-GMXSwapEventsUSD_v1 as (
+gmx_v1_swap_events as (
     select * 
     from GMXSwapEventsUSD_arbitrum_v1
     union all
     select *
     from GMXSwapEventsUSD_avalanche_v1
-) select * from GMXSwapEventsUSD_v1
+) select * from gmx_v1_swap_events
+
+/*, spot_metrics as (
+    select
+        date,
+        chain,
+        'v1' as version,
+        count(distinct tx_hash) as spot_txns,
+        count(distinct sender) as spot_dau,
+        sum(coalesce(amountOut_usd, 0)) as spot_volume,
+        sum(coalesce(amount_fees_usd, 0)) as spot_fees,
+    from GMXSwapEventsUSD_v1
+    group by 1,2,3
+)
+SELECT
+    spot_metrics.date,
+    spot_metrics.chain,
+    spot_metrics.version,
+    spot_metrics.spot_txns,
+    spot_metrics.spot_dau,
+    spot_metrics.spot_volume,
+    spot_metrics.spot_fees,
+    CASE
+        WHEN version = 'v1' THEN 0.7 * spot_fees
+        WHEN version = 'v2' THEN 0.63 * spot_fees
+    END as spot_lp_cash_flow,
+    CASE
+        WHEN version = 'v1' THEN 0.3 * spot_fees
+        WHEN version = 'v2' THEN 0.27 * spot_fees
+    END as spot_stakers_cash_flow,
+    CASE
+        WHEN version = 'v1' THEN 0 * spot_fees
+        WHEN version = 'v2' THEN 0.012 * spot_fees
+    END as spot_oracle_cash_flow,
+    CASE
+        WHEN version = 'v1' THEN 0 * spot_fees
+        WHEN version = 'v2' THEN 0.088 * spot_fees
+    END as spot_treasury_cash_flow
+FROM spot_metrics*/

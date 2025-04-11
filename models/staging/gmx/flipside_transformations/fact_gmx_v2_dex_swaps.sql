@@ -12,7 +12,7 @@ with GMXSwapEvents_arbitrum_v2 as (
         decoded_log:eventData[0][0][3][1]::STRING AS tokenOut,
         decoded_log:eventData[1][0][2][1]::NUMBER AS amountIn,
         decoded_log:eventData[1][0][3][1]::NUMBER AS amountInAfterFees,
-        decoded_log:eventData[1][0][2][1]::NUMBER - decoded_log:eventData[1][0][3][1].value::NUMBER AS amount_fees,
+        decoded_log:eventData[1][0][2][1]::NUMBER - decoded_log:eventData[1][0][3][1]::NUMBER AS amount_fees,
         decoded_log:eventData[1][0][4][1]::NUMBER AS amountOut
     from arbitrum_flipside.core.ez_decoded_event_logs
     where contract_address = lower('0xC8ee91A54287DB53897056e12D9819156D3822Fb')
@@ -36,16 +36,12 @@ with GMXSwapEvents_arbitrum_v2 as (
         amountIn_nominal * token_in_price.price AS amountIn_usd,
         --amountOut
         swaps.amountOut,
-        swaps.amountOut / POW(10, token_out_price.decimals) AS amountOut_nominal,
-        amountOut_nominal * token_out_price.price AS amountOut_usd,
-        --amountOutAfterFees
-        swaps.amountInAfterFees,
-        swaps.amountInAfterFees / POW(10, token_out_price.decimals) AS amountInAfterFees_nominal,
-        amountInAfterFees_nominal * token_out_price.price AS amountInAfterFees_usd,
+        swaps.amountOut / POW(10, token_in_price.decimals) AS amountOut_nominal,
+        amountOut_nominal * token_in_price.price AS amountOut_usd,
         --amountOutFees
         swaps.amount_fees,
-        swaps.amount_fees / POW(10, token_out_price.decimals) AS amount_fees_nominal,
-        amount_fees_nominal * token_out_price.price AS amount_fees_usd,
+        swaps.amount_fees / POW(10, token_in_price.decimals) AS amount_fees_nominal,
+        amount_fees_nominal * token_in_price.price AS amount_fees_usd,
     FROM GMXSwapEvents_arbitrum_v2 swaps
     LEFT JOIN arbitrum_flipside.price.ez_prices_hourly token_in_price
         ON LOWER(swaps.tokenIn) = LOWER(token_in_price.token_address)
@@ -94,11 +90,7 @@ with GMXSwapEvents_arbitrum_v2 as (
         swaps.amountOut,
         swaps.amountOut / POW(10, token_out_price.decimals) AS amountOut_nominal,
         amountOut_nominal * token_out_price.price AS amountOut_usd,
-        --amountOutAfterFees
-        swaps.amountInAfterFees,
-        swaps.amountInAfterFees / POW(10, token_in_price.decimals) AS amountInAfterFees_nominal,
-        amountInAfterFees_nominal * token_in_price.price AS amountInAfterFees_usd,
-        --amountOutFees
+        --*amountOutFees
         swaps.amount_fees,
         swaps.amount_fees / POW(10, token_in_price.decimals) AS amount_fees_nominal,
         amount_fees_nominal * token_in_price.price AS amount_fees_usd
@@ -113,10 +105,49 @@ with GMXSwapEvents_arbitrum_v2 as (
       AND token_out_price.price IS NOT NULL
     ORDER BY swaps.block_timestamp DESC
 ),
-GMXSwapEventsUSD_v2 as (
+gmx_v2_swap_events as (
     select * 
     from GMXSwapEventsUSD_arbitrum_v2
     union all
     select *
     from GMXSwapEventsUSD_avalanche_v2
-) select * from GMXSwapEventsUSD_v2
+) select * from gmx_v2_swap_events
+
+
+/*, spot_metrics as (
+    select
+        date,
+        chain,
+        'v2' as version,
+        count(distinct tx_hash) as spot_txns,
+        count(distinct sender) as spot_dau,
+        sum(coalesce(amountOut_usd, 0)) as spot_volume,
+        sum(coalesce(amount_fees_usd, 0)) as spot_fees,
+    from GMXSwapEventsUSD_v2
+    group by 1,2,3
+)
+SELECT
+    spot_metrics.date,
+    spot_metrics.chain,
+    spot_metrics.version,
+    spot_metrics.spot_txns,
+    spot_metrics.spot_dau,
+    spot_metrics.spot_volume,
+    spot_metrics.spot_fees,
+    CASE
+        WHEN version = 'v1' THEN 0.7 * spot_fees
+        WHEN version = 'v2' THEN 0.63 * spot_fees
+    END as spot_lp_cash_flow,
+    CASE
+        WHEN version = 'v1' THEN 0.3 * spot_fees
+        WHEN version = 'v2' THEN 0.27 * spot_fees
+    END as spot_stakers_cash_flow,
+    CASE
+        WHEN version = 'v1' THEN 0 * spot_fees
+        WHEN version = 'v2' THEN 0.012 * spot_fees
+    END as spot_oracle_cash_flow,
+    CASE
+        WHEN version = 'v1' THEN 0 * spot_fees
+        WHEN version = 'v2' THEN 0.088 * spot_fees
+    END as spot_treasury_cash_flow
+from spot_metrics*/
