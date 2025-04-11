@@ -8,15 +8,65 @@
     )
 }}
 
+with market_data as (
+    {{ get_coingecko_metrics("joe") }}
+)
+, protocol_data as (
+    SELECT
+        date
+        , app
+        , category
+        , sum(trading_volume) as trading_volume
+        , sum(trading_fees) as trading_fees
+        , sum(unique_traders) as unique_traders
+        , sum(number_of_swaps) as number_of_swaps
+        , sum(gas_cost_usd) as gas_cost_usd
+
+        -- Standardized Metrics
+        , sum(spot_dau) as spot_dau
+        , sum(spot_txns) as spot_txns
+        , sum(spot_volume) as spot_volume
+        , sum(tvl) as tvl
+        , sum(trading_fees) as trading_fees
+        , sum(gross_protocol_revenue) as gross_protocol_revenue
+        , sum(gas_cost_native) as gas_cost_native
+        , sum(gas_cost) as gas_cost
+    FROM {{ ref("ez_trader_joe_metrics_by_chain") }}
+    GROUP BY 1, 2, 3
+)
 SELECT
-    date,
-    app,
-    category,
-    sum(tvl) as tvl,
-    sum(trading_volume) as trading_volume,
-    sum(trading_fees) as trading_fees,
-    sum(unique_traders) as unique_traders,
-    sum(number_of_swaps) as number_of_swaps,
-    sum(gas_cost_native) as gas_cost_native
-FROM {{ ref("ez_trader_joe_metrics_by_chain") }}
-GROUP BY 1, 2, 3
+    date
+    , app
+    , category
+    , trading_volume
+    , trading_fees
+    , unique_traders
+    , number_of_swaps
+    , gas_cost_usd
+
+    -- Standardized Metrics
+
+    -- Token Metrics
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
+
+    -- Usage/Sector Metrics
+    , spot_dau
+    , spot_txns
+    , spot_volume
+    , tvl
+
+    -- Money Metrics
+    , trading_fees
+    , gross_protocol_revenue
+    , gas_cost_native
+    , gas_cost
+
+    -- Other Metrics
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
+FROM protocol_data
+LEFT JOIN market_data using(date)
+WHERE date < to_date(sysdate())

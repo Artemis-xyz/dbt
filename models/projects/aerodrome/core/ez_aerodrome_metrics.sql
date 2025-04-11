@@ -54,22 +54,28 @@ SELECT
     , sm.daily_fees_usd as trading_fees
 
     -- Standardized Metrics
+    -- Market Metrics
+    , mm.price as price
+    , mm.market_cap as market_cap
+    , mm.fdmc as fdmc
+    , mm.token_volume as token_volume
+
+    -- Usage/Sector Metrics
     , sm.unique_traders as spot_dau
     , sm.total_swaps as spot_txns
     , sm.daily_volume_usd as spot_volume
+    , tm.tvl_usd as tvl
+
+    -- Money Metrics
     , sm.daily_fees_usd as spot_fees
     , sm.daily_fees_usd as gross_protocol_revenue
     , sm.daily_fees_usd as fee_sharing_token_cash_flow
-    , tm.tvl_usd as tvl
 
-    -- Market Metrics
-    , mm.price as price
-    , mm.token_volume as token_volume
-    , mm.market_cap as market_cap
-    , mm.fdmc as fdmc
+    -- Other Metrics
     , mm.token_turnover_circulating as token_turnover_circulating
     , mm.token_turnover_fdv as token_turnover_fdv
 FROM date_spine ds
 LEFT JOIN swap_metrics sm using (date)
 LEFT JOIN tvl_metrics tm using (date)
 LEFT JOIN market_metrics mm using (date)
+WHERE ds.date < to_date(sysdate())

@@ -4,7 +4,7 @@
             distinct_dates as (
                 select distinct 
                     raw_date
-                from {{ ref("ez_" ~ chain ~ "_transactions_v2") }}
+                from {{ ref("fact_" ~ chain ~ "_transactions_v2") }}
                 where succeeded = 'TRUE'
                 {% if is_incremental() %}
                     and raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
@@ -14,7 +14,7 @@
                 select distinct 
                     raw_date,
                     value as from_address 
-                from {{ ref("ez_" ~ chain ~ "_transactions_v2") }}, lateral flatten(input => signers)
+                from {{ ref("fact_" ~ chain ~ "_transactions_v2") }}, lateral flatten(input => signers)
                 where succeeded = 'TRUE'
             ),
     {% elif chain == 'sui' %}

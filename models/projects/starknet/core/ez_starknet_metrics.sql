@@ -45,7 +45,6 @@ select
     , fees_data.fees_native
     , l1_data_cost_native
     , l1_data_cost
-    -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     , coalesce(fees_data.fees_native, 0) - l1_data_cost_native as revenue_native
     , coalesce(fees, 0) -  l1_data_cost as revenue
     , avg_txn_fee
@@ -70,7 +69,6 @@ select
     , fees AS gross_protocol_revenue
     , fees_data.fees_native AS gross_protocol_revenue_native
     , median_txn_fee AS chain_median_txn_fee
-    -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     , coalesce(fees_data.fees_native, 0) - l1_data_cost_native as equity_cash_flow_native
     , coalesce(fees, 0) -  l1_data_cost as equity_cash_flow
     , l1_data_cost_native AS l1_cash_flow_native

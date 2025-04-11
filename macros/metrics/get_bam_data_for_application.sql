@@ -12,7 +12,7 @@ with
             daa,
             new_users,
             returning_users
-        FROM {{ref("fact_daily_bam_datahub")}}
+        FROM {{ref("fact_daily_bam_datahub_v2")}}
         WHERE app = '{{app}}' 
         and chain in  (
             {% for chain in chains %}

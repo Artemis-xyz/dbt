@@ -23,7 +23,8 @@ WITH raw_addresses AS (
         {"table": "dim_sei_all_addresses", "chain": "sei"},
         {"table": "dim_solana_all_addresses", "chain": "solana"},
         {"table": "dim_sui_all_addresses", "chain": "sui"},
-        {"table": "dim_tron_all_addresses", "chain": "tron"}
+        {"table": "dim_tron_all_addresses", "chain": "tron"},
+        {"table": "dim_mantle_all_addresses", "chain": "mantle"}
     ] %}
 
     {% for sourc in sources %}
@@ -35,9 +36,11 @@ WITH raw_addresses AS (
         {% endif %}
 
         {% if is_incremental() %}
-            WHERE last_updated > (SELECT MAX(last_updated) FROM {{ this }} WHERE chain = '{{ sourc.chain }}')
+            WHERE last_updated > COALESCE(
+                (SELECT MAX(last_updated) FROM {{ this }} WHERE chain = '{{ sourc.chain }}'),
+                '1970-01-01'::TIMESTAMP_NTZ
+            )
         {% endif %}
-
         {% if not loop.last %} UNION ALL {% endif %}
     {% endfor %}
 ),

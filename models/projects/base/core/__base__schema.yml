@@ -215,26 +215,6 @@ column_definitions:
       - artemis_gaap
 
 models:
-  - name: ez_base_metrics_by_application
-    description: "This table stores metrics for the BASE protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
-  - name: ez_base_metrics_by_category
-    description: "This table stores metrics for the BASE protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
   - name: ez_base_metrics_by_chain
     description: "This table stores metrics for the BASE protocol"
     columns:

@@ -473,4 +473,3 @@ models:
       - *weekly_contracts_deployed
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-

@@ -74,16 +74,37 @@ SELECT
     , coalesce(buybacks.buyback_native, 0) as buyback_native
     , coalesce(mints.daily_mints, 0) as daily_mints
     , coalesce(mints.cumulative_mints, 0) as cumulative_mints
-    , coalesce(active_wallets.dau, 0) as dau
-    , coalesce(transactions.txns, 0) as txns
     , coalesce(unique_signers.unique_signers, 0) as unique_signers
     , coalesce(new_holders.daily_new_holders, 0) as daily_new_holders
+    , coalesce(active_wallets.dau, 0) as dau
+    , coalesce(transactions.txns, 0) as txns
+
+    --Standardized Metrics
+
+    -- Token Metrics
     , coalesce(price.price, 0) as price
     , coalesce(price.market_cap, 0) as market_cap
-    , price.fdmc
-    , price.token_turnover_circulating
-    , price.token_turnover_fdv
-    , price.token_volume
+    , coalesce(price.fdmc, 0) as fdmc
+    , coalesce(price.token_volume, 0) as token_volume
+
+    -- NFT Metrics
+    , coalesce(active_wallets.dau, 0) as nft_dau
+    , coalesce(transactions.txns, 0) as nft_txns
+    , coalesce(revenue.revenue_usd, 0) as nft_fees
+
+    -- Cash Flow Metrics
+    , coalesce(revenue.revenue_usd, 0) as gross_protocol_revenue
+    , 0.5 * coalesce(revenue.revenue_usd, 0) as treasury_cash_flow
+    , 0.5 * coalesce(revenue.revenue_usd, 0) as foundation_cash_flow
+    , coalesce(buybacks.buyback, 0) as buybacks
+
+    -- Supply Metrics
+    , coalesce(mints.daily_mints, 0) as mints_native
+    , coalesce(mints.daily_mints, 0) - coalesce(buybacks.buyback, 0) as net_supply_change_native
+
+    -- Turnover Metrics
+    , coalesce(price.token_turnover_circulating, 0) as token_turnover_circulating
+    , coalesce(price.token_turnover_fdv, 0) as token_turnover_fdv
 FROM date_spine ds
 LEFT JOIN price USING (date)
 LEFT JOIN revenue USING (date)
