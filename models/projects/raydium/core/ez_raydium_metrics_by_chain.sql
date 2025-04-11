@@ -16,7 +16,7 @@ SELECT
     , spot_txns
     , spot_volume
     , tvl
-    , trading_fees
+    , spot_fees
     , pool_creation_fees
     , gross_protocol_revenue
     , buyback_cash_flow

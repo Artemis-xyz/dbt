@@ -186,10 +186,10 @@ select
     , gas_usd + vote_tx_fee_native * price as chain_fees
     , gas + vote_tx_fee_native as gross_protocol_revenue_native
     , gas_usd + vote_tx_fee_native * price as gross_protocol_revenue
-    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as validator_cash_flow_native
-    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee_native * price  + vote_tx_fee_native * price) * .5) as validator_cash_flow
-    , validator_cash_flow_native AS burned_cash_flow_native
-    , validator_cash_flow AS burned_cash_flow
+    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, ((base_fee_native + vote_tx_fee_native) * .5) + priority_fee_native) as validator_cash_flow_native
+    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, ((base_fee_native * price  + vote_tx_fee_native * price) * .5) + priority_fee) as validator_cash_flow
+    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as burned_cash_flow_native
+    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee_native * price  + vote_tx_fee_native * price) * .5) as burned_cash_flow
     , base_fee_native
     , base_fee_native * price AS base_fee
     , vote_tx_fee_native
