@@ -204,16 +204,15 @@ select
     , protocol_revenue - total_expenses as earnings
     , daily_txns as txns
     , dau
+    , treasury_usd
+    , treasury_link
 
     -- Standardized Metrics
+    -- Market Metrics
     , price
     , market_cap
     , fdmc
     , token_volume
-
-    -- Market Metrics
-
-
 
     -- Usage Metrics
     , dau as oracle_dau
