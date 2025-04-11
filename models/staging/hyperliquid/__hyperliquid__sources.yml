@@ -12,3 +12,4 @@ sources:
       - name: raw_hyperliquid_auction_fees
       - name: raw_hyperliquid_daily_burn
       - name: raw_hyperliquid_daily_price
+      - name: raw_hyperliquid_assistance_fund_data
