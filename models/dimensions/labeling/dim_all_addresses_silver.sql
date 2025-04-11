@@ -35,10 +35,12 @@ WITH raw_addresses AS (
             SELECT address AS address, transaction_trace_type, address_type, chain, last_updated FROM {{ ref(sourc.table) }}
         {% endif %}
 
-        WHERE last_updated > COALESCE(
-            (SELECT MAX(last_updated) FROM {{ this }} WHERE chain = '{{ sourc.chain }}'),
-            '1970-01-01'::TIMESTAMP_NTZ
-        )
+        {% if is_incremental() %}
+            WHERE last_updated > COALESCE(
+                (SELECT MAX(last_updated) FROM {{ this }} WHERE chain = '{{ sourc.chain }}'),
+                '1970-01-01'::TIMESTAMP_NTZ
+            )
+        {% endif %}
         {% if not loop.last %} UNION ALL {% endif %}
     {% endfor %}
 ),
