@@ -331,6 +331,7 @@ column_definitions:
       description: "The total amount of tokens deposited (in USD) on a lending protocol"
     - name: lending_loan_capacity
       description: "The total amount of loans available (in USD) on a lending protocol, including outstanding loans"
+  
   aggregator_metrics:
     - name: aggregator_dau
       description: "The number of daily active traders on an aggregator"
@@ -354,18 +355,6 @@ column_definitions:
       description: "The net change in the circulating supply of a token in native tokens"
     - name: circulating_supply_native
       description: "The circulating supply of a token in native tokens"
-
-  nft_metrics: 
-    - name: nft_dau
-      description: "The number of daily active NFT traders on an NFT marketplace"
-    - name: nft_txns
-      description: "The number of NFT transactions on an NFT marketplace"
-    - name: nft_fees
-      description: "The total amount of fees (in USD) on an NFT marketplace"
-    - name: nft_volume
-      description: "The total volume of NFTs traded on an NFT marketplace"
-    - name: nft_collections_transacted
-      description: "The number of NFT collections transacted on an NFT marketplace"
 
   etf_metrics:
     - name: net_etf_flow_native
