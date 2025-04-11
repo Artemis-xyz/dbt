@@ -24,14 +24,26 @@ select
     , cost_native
     , revenue
     , revenue_native
+    , dex_volumes
+    -- Standardized Metrics
     -- Market Data
     , price
     , market_cap
     , fdmc
+    , token_volume
+    -- Chain Metrics
+    , dau as chain_dau
+    , txns as chain_txns
+    , dex_volumes as chain_dex_volumes
+    -- Cash Flow Metrics
+    , fees as gross_protocol_revenue
+    , fees_native as gross_protocol_revenue_native
+    , cost as l1_cash_flow
+    , cost_native as l1_cash_flow_native
+    , revenue as foundation_cash_flow
+    , revenue_native as foundation_cash_flow_native
     , token_turnover_circulating
     , token_turnover_fdv
-    , token_volume
-    , dex_volumes
 from {{ ref("fact_worldchain_fundamental_metrics") }} as f
 left join price_data on f.date = price_data.date
 left join worldchain_dex_volumes on f.date = worldchain_dex_volumes.date
