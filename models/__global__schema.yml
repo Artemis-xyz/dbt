@@ -339,6 +339,12 @@ column_definitions:
       description: "The total amount of tokens deposited (in USD) on a lending protocol"
     - name: lending_loan_capacity
       description: "The total amount of loans available (in USD) on a lending protocol, including outstanding loans"
+
+  data_availability_metrics:
+    - name: da_dau
+      description: "The number of daily active blob submitters to a data availability solution."
+    - name: da_txns
+      description: "The number of blob posting actions on a data availability solution."
   
   aggregator_metrics:
     - name: aggregator_dau
