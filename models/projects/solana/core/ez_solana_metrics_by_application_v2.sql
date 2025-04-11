@@ -11,7 +11,7 @@
 with
     min_date as (
         select min(raw_date) as start_date, value as signer, app
-        from {{ ref("ez_solana_transactions_v2") }}, lateral flatten(input => signers)
+        from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         where not equal_null(category, 'EOA') and app is not null and succeeded = 'TRUE'
         group by app, signer
     ),
@@ -26,7 +26,7 @@ with
             app,
             count(distinct signers[0]) as low_sleep_users,
             count(*) as tx_n
-        from {{ ref("ez_solana_transactions_v2") }}
+        from {{ ref('fact_solana_transactions_v2') }}
         where user_type = 'LOW_SLEEP' and app is not null
         group by user_type, raw_date, app
     ),
@@ -36,7 +36,7 @@ with
             app,
             count(distinct signers[0]) as sybil_users,
             count(*) as tx_n
-        from {{ ref("ez_solana_transactions_v2") }}
+        from {{ ref('fact_solana_transactions_v2') }}
         where engagement_type = 'sybil'
         group by engagement_type, raw_date, app
     ),
@@ -51,7 +51,7 @@ with
             sum(case when index = 0 then gas_usd else 0 end) gas_usd,
             count_if(index = 0 and succeeded = 'TRUE') as txns,
             count(distinct(case when succeeded = 'TRUE' then value else null end)) dau
-        from {{ ref("ez_solana_transactions_v2") }}, lateral flatten(input => signers)
+        from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         where not equal_null(category, 'EOA') and app is not null
         group by raw_date, app
     )

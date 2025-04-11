@@ -12,9 +12,16 @@ models:
       tests:
         - dbt_expectations.expect_column_to_exist
     - name: chain
-      tess:
+      tests:
         - not_null
         - dbt_expectations.expect_column_to_exist
+    - name: type
+      tests:
+        - dbt_expectations.expect_column_to_exist
+        - dbt_expectations.expect_column_values_to_be_in_set:
+            value_set: ['pool', 'treasury', 'stake_pool', 'perps_pool']
+            quote_values: true
+            where: "type is not null"
     - name: last_updated
       tests:
         - not_null

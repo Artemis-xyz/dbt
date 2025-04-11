@@ -1,0 +1,80 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  fdmc: &fdmc
+    name: fdmc
+    description: "The fully diluted market cap of $RSR in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  market_cap: &market_cap
+    name: market_cap
+    description: "The market cap of $RSR in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  price: &price
+    name: price
+    description: "The price of $RSR in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  stablecoin_dau: &stablecoin_dau
+    name: stablecoin_dau
+    description: "The number of daily active users using Reserve stablecoins"
+    tags:
+      - artemis_gaap
+      - override
+
+  token_turnover_circulating: &token_turnover_circulating
+    name: token_turnover_circulating
+    description: "The turnover of $RSR in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  token_turnover_fdv: &token_turnover_fdv
+    name: token_turnover_fdv
+    description: "The turnover of $RSR in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of $RSR in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  tvl: &tvl
+    name: tvl
+    description: "The total value locked in Reserve"
+    tags:
+      - override
+
+models:
+  - name: ez_reserve_metrics
+    description: "This table stores metrics for the RESERVE protocol"
+    columns:
+      - *fdmc
+      - *market_cap
+      - *price
+      - *stablecoin_dau
+      - *token_turnover_circulating
+      - *token_turnover_fdv
+      - *token_volume
+      - *tvl
+
+  - name: ez_reserve_metrics_by_chain
+    description: "This table stores metrics for the RESERVE protocol"
+    columns:
+      - *stablecoin_dau
+      - *tvl
+
