@@ -13,9 +13,7 @@ with
         select
             date,
             data:id::string as coingecko_token_id,
-            '{'
-            || array_to_string(array_agg(value::string), ',')
-            || '}' as token_categories
+            array_agg(value::string) as token_categories
         from token_data, lateral flatten(input => data:categories)  -- Flatten the categories array
         group by date, coingecko_token_id
     ),
@@ -23,9 +21,7 @@ with
         select
             date,
             data:id::string as coingecko_token_id,
-            '{'
-            || array_to_string(array_agg(value::string), ',')
-            || '}' as token_homepage_link
+            array_agg(value::string) as token_homepage_link
         from token_data, lateral flatten(input => data:links:homepage)  -- Flatten the homepage array
         group by date, coingecko_token_id
     ),
@@ -33,9 +29,7 @@ with
         select
             date,
             data:id::string as coingecko_token_id,
-            '{'
-            || array_to_string(array_agg(value::string), ',')
-            || '}' as token_chat_url
+            array_agg(value::string) as token_chat_url
         from token_data, lateral flatten(input => data:links:chat_url)  -- Flatten the chat_url array
         group by date, coingecko_token_id
     ),

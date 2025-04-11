@@ -5,4 +5,4 @@
     )
 }}
 
-{{ rolling_active_addresses("arbitrum") }}
+{{ rolling_active_addresses("arbitrum", "_v2") }}

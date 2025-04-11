@@ -28,12 +28,12 @@ select
     , price
     , market_cap
     , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
     , token_volume
     -- Bridge Metrics
     , inflow
     , outflow
+    , token_turnover_circulating
+    , token_turnover_fdv
 from bridge_volume_metrics as b
 left join price_data on b.date = price_data.date
 where b.date < to_date(sysdate())

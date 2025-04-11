@@ -230,27 +230,7 @@ models:
       - *returning_users
       - *sybil_users
 
-  - name: ez_near_metrics_by_application
-    description: "This table stores metrics for the NEAR protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
   - name: ez_near_metrics_by_subcategory
-    description: "This table stores metrics for the NEAR protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
-  - name: ez_near_metrics_by_category
     description: "This table stores metrics for the NEAR protocol"
     columns:
       - *high_sleep_users
