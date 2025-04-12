@@ -33,6 +33,7 @@
             block_timestamp::date as date,
             sum(coalesce(price_usd, 0)) nft_trading_volume
         from {{ chain }}_flipside.nft.ez_nft_sales
+        where block_timestamp is not null
         group by date
         order by date desc
     {% endif %}
