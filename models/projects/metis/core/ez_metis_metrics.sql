@@ -31,6 +31,7 @@ select
     coalesce(fees.date, txns.date, daus.date) as date
     , dau
     , txns
+    , fees_usd as fees
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -40,7 +41,7 @@ select
     , dau as chain_dau
     , txns as chain_txns
     -- Cashflow Metrics
-    , fees_usd as fees
+    , fees_usd as gross_protocol_revenue
 from fees
 left join txns on fees.date = txns.date
 left join daus on fees.date = daus.date 
