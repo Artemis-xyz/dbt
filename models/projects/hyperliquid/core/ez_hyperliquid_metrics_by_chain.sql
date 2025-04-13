@@ -55,7 +55,7 @@ select
     , trading_fees as fees
     , auction_fees
     , daily_burn
-    -- protocol’s revenue split between HLP (supplier) and AF (holder) at a ratio of 46%:54%
+    -- protocol’s revenue split between HLP (supplier) and AF (holder) at a ratio of 3%:97%
     , COALESCE(trading_fees * 0.03, 0) as primary_supply_side_revenue
     -- add daily burn back to the revenue
     , COALESCE(trading_fees * 0.97, 0) + COALESCE(daily_burn, 0) * mm.price as revenue
