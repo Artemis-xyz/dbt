@@ -86,7 +86,6 @@ select
     --Old metrics needed for compatibility
     , COALESCE(f.cl_rewards_usd, 0) as cl_rewards_usd
     , COALESCE(f.el_rewards_usd, 0) as el_rewards_usd
-    , COALESCE(f.deposit_fees, 0) as lst_deposit_fees
     , COALESCE(f.fees, 0) as fees
     , COALESCE(f.primary_supply_side_revenue, 0) as primary_supply_side_revenue
     , COALESCE(f.secondary_supply_side_revenue, 0) as secondary_supply_side_revenue
@@ -118,10 +117,10 @@ select
     , COALESCE(f.cl_rewards_usd, 0) as block_rewards
     , COALESCE(f.el_rewards_usd, 0) as mev_priority_fees
     , COALESCE(f.deposit_fees, 0) as lst_deposit_fees
-    , COALESCE(f.fees, 0) as yield_generated
+    , COALESCE(f.cl_rewards_usd, 0) + COALESCE(f.el_rewards_usd, 0) as yield_generated
     , COALESCE(f.fees, 0) as gross_protocol_revenue
-    , gross_protocol_revenue * 0.14 as validator_cash_flow
-    , gross_protocol_revenue * 0.86 as service_cash_flow
+    , yield_generated * 0.14 as validator_cash_flow
+    , yield_generated * 0.86 as service_cash_flow
 
     --Treasury Metrics
     , COALESCE(t.treasury_value, 0) as treasury

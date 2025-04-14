@@ -30,7 +30,7 @@ select
     , s.amount_staked_usd_net_change
     , cl_rewards_usd
     , el_rewards_usd
-    , deposit_fees
+    , lst_deposit_fees
     , fees
     , primary_supply_side_revenue
     , secondary_supply_side_revenue
@@ -54,7 +54,7 @@ select
     --Cash Flow Metrics
     , COALESCE(cl_rewards_usd, 0) as block_rewards
     , COALESCE(el_rewards_usd, 0) as mev_priority_fees
-    , COALESCE(deposit_fees, 0) as lst_deposit_fees
+    , COALESCE(lst_deposit_fees, 0) as lst_deposit_fees
     , COALESCE(fees, 0) as yield_generated
     , COALESCE(fees, 0) as gross_protocol_revenue
     , gross_protocol_revenue * 0.14 as validator_cash_flow
