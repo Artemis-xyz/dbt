@@ -6,7 +6,7 @@
 
 with raw_transactions as (
     select
-        parquet_raw:hash::string as hash,
+        parquet_raw:hash::string as transaction_hash,
         parquet_raw:size::bigint as size,
         parquet_raw:virtual_size::bigint as virtual_size,
         parquet_raw:version::bigint as version,
