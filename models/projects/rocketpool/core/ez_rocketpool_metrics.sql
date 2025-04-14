@@ -105,7 +105,6 @@ select
     , COALESCE(p.fdmc, 0) as fdmc
     , COALESCE(p.market_cap, 0) as market_cap
     , COALESCE(p.token_volume, 0) as token_volume
-    , COALESCE(p.token_turnover_fdv, 0) as token_turnover_fdv
 
     --Usage Metrics
     , staked_eth_metrics.num_staked_eth as tvl_native
@@ -129,7 +128,9 @@ select
     
     --Other Metrics
     , COALESCE(p.token_turnover_circulating, 0) as token_turnover_circulating
+    , COALESCE(p.token_turnover_fdv, 0) as token_turnover_fdv
     , COALESCE(th.token_holder_count, 0) as token_holder_count
+    
 from prices_cte p
 left join fees_revs_cte f using(date)
 left join staked_eth_metrics using(date)

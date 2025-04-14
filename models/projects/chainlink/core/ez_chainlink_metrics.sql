@@ -211,10 +211,10 @@ select
     , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
     , 0 as protocol_revenue
     , primary_supply_side_revenue as operating_expenses
-    , token_incentives as token_incentives
     , coalesce(operating_expenses, 0) + coalesce(token_incentives, 0) as total_expenses
     , protocol_revenue - total_expenses as earnings
     , treasury_usd
+    , treasury_link
     , daily_txns as txns
     , dau 
 
@@ -228,11 +228,8 @@ select
     , coalesce(fm_fees, 0) as fm_fees
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as total_supply_side_fees
     , total_protocol_fees + total_supply_side_fees as gross_protocol_revenue
-    , 0 as protocol_revenue
     , total_supply_side_fees as supply_side_revenue
-    , total_protocol_fees as operating_expenses
     , token_incentives as token_incentives
-    , coalesce(total_protocol_fees, 0) + coalesce(token_incentives, 0) as total_expenses
     , 0 - coalesce(total_protocol_fees, 0) - coalesce(token_incentives, 0) as protocol_earnings
     , treasury_usd as treasury
     , treasury_link as treasury_native
@@ -242,13 +239,13 @@ select
     , dau as oracle_dau
 
     --Market Metrics
-    , price as price_standard
-    , market_cap as market_cap_standard
-    , fdmc as fdmc_standard
-    , token_turnover_circulating as token_turnover_circulating_standard
-    , token_turnover_fdv as token_turnover_fdv_standard
-    , token_volume as token_volume_standard
-    , tokenholder_count as tokenholder_count_standard
+    , price as price
+    , market_cap as market_cap
+    , fdmc as fdmc
+    , token_turnover_circulating as token_turnover_circulating
+    , token_turnover_fdv as token_turnover_fdv
+    , token_volume as token_volume
+    , tokenholder_count as tokenholder_count
 
     
 from fm_fees_data
