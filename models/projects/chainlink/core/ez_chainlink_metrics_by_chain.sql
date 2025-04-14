@@ -166,6 +166,7 @@ with
 select
     date
     , chain
+    --Old Metrics needed for compatibility
     , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue
     , fees as secondary_supply_side_revenue

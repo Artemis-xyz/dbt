@@ -181,6 +181,17 @@ select
     date
     , chain
     , token
+
+    --Old Metrics needed for compatibility
+    , coalesce(automation_fees, 0) as automation_fees
+    , coalesce(automation_fees_native, 0) as automation_fees_native
+    , coalesce(ccip_fees, 0) as ccip_fees
+    , coalesce(ccip_fees_native, 0) as ccip_fees_native
+    , coalesce(vrf_fees, 0) as vrf_fees
+    , coalesce(vrf_fees_native, 0) as vrf_fees_native
+    , coalesce(direct_fees, 0) as direct_fees
+    , coalesce(direct_fees_native, 0) as direct_fees_native
+
     , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
     , coalesce(automation_fees_native, 0) + coalesce(ccip_fees_native, 0) + coalesce(vrf_fees_native, 0) + coalesce(direct_fees_native, 0) as fees_native
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue

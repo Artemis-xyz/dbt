@@ -35,13 +35,11 @@ select
     fundamental_data.protocol_earnings_usd
 
     --Standardized Metrics
-
-    --Market Data Metrics
+    --Market Metrics
     , market_data.price
     , market_data.market_cap
     , market_data.fdmc
-    , fundamental_data.tvl as tvl
-    , fundamental_data.tvl_net_change as tvl_net_change
+    , market_data.token_volume
 
     --Chain Usage Metrics
     , fundamental_data.dau as chain_dau
@@ -67,6 +65,20 @@ select
     , fundamental_data.total_supply_side_revenue_usd as supply_side_staking_revenue
     , fundamental_data.operating_expenses_usd as operating_expenses
     , fundamental_data.protocol_earnings_usd as protocol_earnings
+    , fundamental_data.tvl as tvl
+    , fundamental_data.tvl_net_change as tvl_net_change
+
+    --Cashflow Metrics
+    , fundamental_data.fees_usd as chain_fees
+    , fundamental_data.total_staking_yield_usd as yield_generated
+    , chain_fees + yield_generated as gross_protocol_revenue
+    , (yield_generated * .1) as treasury_cash_flow
+    , (yield_generated * .9) as service_cash_flow
+    , chain_fees as validator_cash_flow
+
+    -- Other Metrics
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
 from fundamental_data
 left join market_data on fundamental_data.date = market_data.date
 where fundamental_data.date < to_date(sysdate())
