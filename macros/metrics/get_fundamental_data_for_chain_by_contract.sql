@@ -1,4 +1,5 @@
 {% macro get_fundamental_data_for_chain_by_contract(chain, model_version='') %}
+{% set model_name = "fact_" ~ chain ~ "_transactions" ~ ("_v2" if model_version == "v2" else "") %}
     with
         contract_data as (
             select
@@ -13,7 +14,7 @@
                 count(*) txns,
                 count(distinct from_address) dau,
                 max(category) category
-            from {{ chain }}.prod_raw.ez_transactions{% if model_version == 'v2' %}_v2{% endif %}
+            from {{ ref(model_name) }}
             where
                 not equal_null(category, 'EOA')
                 {% if is_incremental() %}

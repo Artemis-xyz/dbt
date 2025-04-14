@@ -15,44 +15,61 @@ with
     stablecoin_data as ({{ get_stablecoin_metrics("sui") }}),
     github_data as ({{ get_github_metrics("sui") }})
 select
-    fundamental_data.date,
-    'sui' as chain,
-    avg_txn_fee,
-    txns,
-    dau,
-    wau,
-    mau,
-    new_users,
-    returning_users,
-    fees_native,
-    fees,
-    revenue_native,
-    revenue,
-    mints_native,
-    price,
-    market_cap,
-    fdmc,
-    tvl,
-    dex_volumes,
-    weekly_commits_core_ecosystem,
-    weekly_commits_sub_ecosystem,
-    weekly_developers_core_ecosystem,
-    weekly_developers_sub_ecosystem,
-    stablecoin_total_supply,
-    stablecoin_txns,
-    stablecoin_dau,
-    stablecoin_mau,
-    stablecoin_transfer_volume,
-    artemis_stablecoin_txns,
-    artemis_stablecoin_dau,
-    artemis_stablecoin_mau,
-    artemis_stablecoin_transfer_volume,
-    p2p_stablecoin_txns,
-    p2p_stablecoin_dau,
-    p2p_stablecoin_mau,
-    stablecoin_data.p2p_stablecoin_transfer_volume,
-    stablecoin_tokenholder_count,
-    p2p_stablecoin_tokenholder_count
+    fundamental_data.date
+    , 'sui' as chain
+    , avg_txn_fee
+    , txns
+    , dau
+    , wau
+    , mau
+    , fees_native
+    , fees
+    , revenue_native
+    , revenue
+    , dex_volumes
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Chain Usage Metrics
+    , dau AS chain_dau
+    , wau AS chain_wau
+    , mau AS chain_mau
+    , txns AS chain_txns
+    , dex_volumes AS chain_dex_volumes
+    , returning_users
+    , new_users
+    -- Cashflow Metrics
+    , fees_native AS gross_protocol_revenue_native
+    , fees AS gross_protocol_revenue
+    , revenue AS burned_cash_flow
+    , revenue_native AS burned_cash_flow_native
+    , avg_txn_fee AS chain_avg_txn_fee
+    -- Supply Metrics
+    , mints_native
+    -- Developer Metrics
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
+    -- Stablecoin Metrics
+    , stablecoin_total_supply
+    , stablecoin_txns
+    , stablecoin_dau
+    , stablecoin_mau
+    , stablecoin_transfer_volume
+    , stablecoin_tokenholder_count
+    , artemis_stablecoin_txns
+    , artemis_stablecoin_dau
+    , artemis_stablecoin_mau
+    , artemis_stablecoin_transfer_volume
+    , p2p_stablecoin_tokenholder_count
+    , p2p_stablecoin_txns
+    , p2p_stablecoin_dau
+    , p2p_stablecoin_mau
+    , p2p_stablecoin_transfer_volume
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date

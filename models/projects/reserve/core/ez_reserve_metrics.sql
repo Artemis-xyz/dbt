@@ -31,6 +31,7 @@ with date_spine as (
 
 select
     date
+    , dau
 
     -- Standardized Metrics
 
