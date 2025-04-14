@@ -51,9 +51,6 @@ select
     , fundamental_data.returning_users as chain_returning_users
     , fundamental_data.new_users as chain_new_users
     , fundamental_data.low_sleep_users as chain_low_sleep_users
-    , fundamental_data.high_sleep_users as chain_high_sleep_users
-    , fundamental_data.sybil_users as chain_sybil_users
-    , fundamental_data.non_sybil_users as chain_non_sybil_users
     , fundamental_data.avg_txn_fee as chain_avg_txn_fee
 
     

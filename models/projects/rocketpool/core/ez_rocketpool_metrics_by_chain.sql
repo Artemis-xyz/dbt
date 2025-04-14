@@ -42,7 +42,6 @@ select
     , protocol_earnings
     , net_deposits
     , outstanding_supply
-    , tvl
     , treasury_value
 
     --Standardized Metrics
