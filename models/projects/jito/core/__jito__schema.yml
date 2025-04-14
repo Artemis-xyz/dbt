@@ -4,29 +4,11 @@
 version: 2
 
 column_definitions:
-  chain_avg_txn_fee: &chain_avg_txn_fee
-    name: chain_avg_txn_fee
-    description: "The average transaction fee on a chain"
-
-  chain_dau: &chain_dau
-    name: chain_dau
-    description: "Daily unique users on a chain"
-
-  chain_fees: &chain_fees
-    name: chain_fees
-    description: "The total transaction fees paid on a chain"
-
-  chain_mau: &chain_mau
-    name: chain_mau
-    description: "Monthly unique users on a chain"
-
-  chain_txns: &chain_txns
-    name: chain_txns
-    description: "Daily transactions on a chain"
-
-  chain_wau: &chain_wau
-    name: chain_wau
-    description: "Weekly unique users on a chain"
+  equity_cash_flow: &equity_cash_flow
+    name: equity_cash_flow
+    description: "Revenue distributed to equity holders of an off-chain entity operating the protocol (e.g., dYdX Trading Inc., Uniswap Labs)."
+    tags:
+      - artemis_gaap
 
   fdmc: &fdmc
     name: fdmc
@@ -49,6 +31,12 @@ column_definitions:
   price: &price
     name: price
     description: "The price of a token in USD"
+    tags:
+      - artemis_gaap
+
+  strategy_cash_flow: &strategy_cash_flow
+    name: strategy_cash_flow
+    description: "Revenue distributed to entities that manage or execute capital deployment strategies, such as vault operators, liquidity managers, leverage account managers and structured product creators."
     tags:
       - artemis_gaap
 
@@ -80,51 +68,36 @@ column_definitions:
     name: tvl
     description: "The total value locked in a protocol"
 
-  weekly_commits_core_ecosystem: &weekly_commits_core_ecosystem
-    name: weekly_commits_core_ecosystem
-    description: "The number of commits to the core ecosystem on a chain"
-    tags:
-      - artemis_gaap
+  tvl_net_change: &tvl_net_change
+    name: tvl_net_change
+    description: "The net change in the total value locked in a protocol"
 
-  weekly_commits_sub_ecosystem: &weekly_commits_sub_ecosystem
-    name: weekly_commits_sub_ecosystem
-    description: "The number of commits to the sub-ecosystem on a chain"
-    tags:
-      - artemis_gaap
-
-  weekly_developers_core_ecosystem: &weekly_developers_core_ecosystem
-    name: weekly_developers_core_ecosystem
-    description: "The number of developers on a chain who have made commits to the core ecosystem"
-    tags:
-      - artemis_gaap
-
-  weekly_developers_sub_ecosystem: &weekly_developers_sub_ecosystem
-    name: weekly_developers_sub_ecosystem
-    description: "The number of developers on a chain who have made commits to the sub-ecosystem"
+  validator_cash_flow: &validator_cash_flow
+    name: validator_cash_flow
+    description: "Portion of revenue allocated to validators, sequencers, or provers who secure or operate the protocol."
     tags:
       - artemis_gaap
 
 models:
-  - name: ez_cosmoshub_metrics
-    description: "This table stores metrics for the COSMOSHUB protocol"
+  - name: ez_jito_metrics
+    description: "This table stores metrics for the JITO protocol"
     columns:
-      - *chain_avg_txn_fee
-      - *chain_dau
-      - *chain_fees
-      - *chain_mau
-      - *chain_txns
-      - *chain_wau
+      - *equity_cash_flow
       - *fdmc
       - *gross_protocol_revenue
       - *market_cap
       - *price
+      - *strategy_cash_flow
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
       - *treasury_cash_flow
       - *tvl
-      - *weekly_commits_core_ecosystem
-      - *weekly_commits_sub_ecosystem
-      - *weekly_developers_core_ecosystem
-      - *weekly_developers_sub_ecosystem
+      - *tvl_net_change
+      - *validator_cash_flow
+
+  - name: ez_jito_metrics_by_chain
+    description: "This table stores metrics for the JITO protocol"
+    columns:
+      - *tvl
 
