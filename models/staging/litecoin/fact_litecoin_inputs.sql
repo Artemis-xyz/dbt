@@ -1,5 +1,8 @@
-{{ config(materialized='table') }}
-
+{{ config(
+    materialized='table',
+    unique_key='unique_id',
+    snowflake_warehouse='LITECOIN'
+) }}
 with source_data as (
     select 
         PARQUET_RAW:transaction_hash::string as transaction_hash,
