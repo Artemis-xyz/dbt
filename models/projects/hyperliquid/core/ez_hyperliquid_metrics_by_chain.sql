@@ -55,10 +55,16 @@ select
     , trading_fees as fees
     , auction_fees
     , daily_burn
-    -- protocol’s revenue split between HLP (supplier) and AF (holder) at a ratio of 3%:97%
-    , COALESCE(trading_fees * 0.03, 0) as primary_supply_side_revenue
+    -- protocol’s revenue split between HLP (supplier) and AF (holder) at a ratio of 3%:97% (after 2025-02-01)
+    , case
+        when date >= '2025-02-01' then trading_fees * 0.03
+        else trading_fees * 0.235
+    end as primary_supply_side_revenue
     -- add daily burn back to the revenue
-    , COALESCE(trading_fees * 0.97, 0) + COALESCE(daily_burn, 0) * mm.price as revenue
+    , case
+        when date >= '2025-02-01' then trading_fees * 0.97 + daily_burn * mm.price
+        else trading_fees * 0.765 + daily_burn * mm.price
+    end as revenue
 
     -- Standardized Metrics
     , unique_traders::string as perp_dau
@@ -71,8 +77,14 @@ select
     -- all l1 fees are burned
     , daily_burn * mm.price as chain_fees
     , trading_fees + (daily_burn * mm.price) as gross_protocol_revenue
-    , trading_fees * 0.03 as service_cash_flow
-    , trading_fees * 0.97 as buybacks_cash_flow
+    , case
+        when date >= '2025-02-01' then trading_fees * 0.03
+        else trading_fees * 0.235
+    end as service_cash_flow
+    , case
+        when date >= '2025-02-01' then trading_fees * 0.97
+        else trading_fees * 0.765
+    end as buybacks_cash_flow
     , daily_burn as burned_cash_flow_native
     , daily_burn * mm.price as burned_cash_flow
 
