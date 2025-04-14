@@ -24,7 +24,7 @@ with raw_transactions as (
         parquet_raw:inputs as inputs,
         parquet_raw:outputs as outputs,
         -- Generate a unique ID for each transaction
-        md5(hash) as unique_id
+        md5(transaction_hash) as unique_id
     from {{ source('PROD_LANDING', 'raw_litecoin_transactions_parquet') }}
 )
 
