@@ -1,5 +1,13 @@
 sources:
 
+# APTOS
+
+  - name: APTOS_FLIPSIDE
+    schema: DEFI
+    database: APTOS_FLIPSIDE
+    tables:
+      - name: ez_dex_swaps
+
 # SOLANA
 
   - name: SOLANA_FLIPSIDE_NFT

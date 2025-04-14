@@ -14,6 +14,7 @@ with
 
     market_data as ({{ get_coingecko_metrics("stride") }})
 
+
 select
     fundamental_data.date,
     'stride' as app,

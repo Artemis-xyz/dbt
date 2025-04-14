@@ -1,5 +1,5 @@
 models:
-- name: fact_avalanche_transactions
+- name: fact_avalanche_transactions_v2
   columns:
   - name: GAS_USD
     tests:

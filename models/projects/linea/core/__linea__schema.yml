@@ -4,18 +4,6 @@
 version: 2
 
 column_definitions:
-  burned_cash_flow: &burned_cash_flow
-    name: burned_cash_flow
-    description: "The amount of USD value burned"
-    tags:
-      - artemis_gaap
-
-  burned_cash_flow_native: &burned_cash_flow_native
-    name: burned_cash_flow_native
-    description: "The amount of native tokens burned"
-    tags:
-      - artemis_gaap
-
   chain_avg_txn_fee: &chain_avg_txn_fee
     name: chain_avg_txn_fee
     description: "The average transaction fee on a chain"
@@ -64,6 +52,12 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  treasury_cash_flow: &treasury_cash_flow
+    name: treasury_cash_flow
+    description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
+    tags:
+      - artemis_gaap
+
   tvl: &tvl
     name: tvl
     description: "The total value locked in a protocol"
@@ -108,8 +102,6 @@ models:
   - name: ez_linea_metrics
     description: "This table stores metrics for the LINEA protocol"
     columns:
-      - *burned_cash_flow
-      - *burned_cash_flow_native
       - *chain_avg_txn_fee
       - *chain_dau
       - *chain_dex_volumes
@@ -120,6 +112,7 @@ models:
       - *gross_protocol_revenue_native
       - *l1_cash_flow
       - *l1_cash_flow_native
+      - *treasury_cash_flow
       - *tvl
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem

@@ -36,6 +36,7 @@ with
     )
 select
     fundamental_data.date
+    , dune_dex_volumes_zora.dex_volumes
     , 'zora' as chain
     , txns
     , dau
@@ -49,14 +50,30 @@ select
     , revenue_native
     , l1_data_cost
     , l1_data_cost_native
+    -- Standardized Metrics
+    -- Chain Metrics
+    , txns as chain_txns
+    , dau as chain_dau
+    , wau as chain_wau
+    , mau as chain_mau
+    , median_txn_fee as chain_median_txn_fee
+    , avg_txn_fee as chain_avg_txn_fee
+    -- Cash Flow Metrics
+    , fees as gross_protocol_revenue
+    , fees_native as gross_protocol_revenue_native
+    , l1_data_cost as l1_cash_flow
+    , l1_data_cost_native as l1_cash_flow_native
+    , revenue as treasury_cash_flow
+    , revenue_native as treasury_cash_flow_native
+    -- Crypto Metrics
     , tvl
+    -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
-    , dune_dex_volumes_zora.dex_volumes
 from fundamental_data
 left join github_data using (date)
 left join contract_data using (date)

@@ -1,3 +1,4 @@
+-- depends_on {{ ref('fact_solana_transactions_v2') }}
 {{
     config(
         materialized="table",
@@ -45,7 +46,7 @@ with
                 lateral flatten(input => signers)
             where
                 date_trunc('day', block_timestamp)
-                < (select min(raw_date) from {{ ref("ez_solana_transactions") }})
+                < (select min(raw_date) from {{ ref('fact_solana_transactions_v2') }})
             group by date
         ),
         unrefreshed_data_with_price as (
@@ -65,7 +66,7 @@ with
     {% endif %}
     min_date as (
         select min(raw_date) as start_date, value as signer
-        from {{ ref("ez_solana_transactions") }}, lateral flatten(input => signers)
+        from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         where succeeded = 'TRUE'
         group by signer
     ),
@@ -98,7 +99,7 @@ with
             ) as base_fee_native,
             count_if(index = 0) as txns,
             count(distinct(case when succeeded = 'TRUE' then value else null end)) dau
-        from {{ ref("ez_solana_transactions") }}, lateral flatten(input => signers)
+        from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         {% if is_incremental() %}
             where raw_date > (select dateadd('day', -5, max(date)) from {{ this }})
         {% endif %}
@@ -137,66 +138,87 @@ with
         from {{ ref("fact_solana_dex_volumes") }}
     )
 select
-    fundamental_usage.date,
-    'solana' as chain,
-    base_fee_native,
-    base_fee_native * price as base_fee,
-    case
+    fundamental_usage.date
+    , 'solana' as chain
+    , txns
+    , dau
+    , wau
+    , mau
+    , gas + vote_tx_fee_native as fees_native
+    , vote_tx_fee_native * price + gas_usd as fees
+    , gas_usd / txns as avg_txn_fee
+    , median_txn_fee
+    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as revenue_native
+    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee_native * price  + vote_tx_fee_native * price) * .5) as revenue
+    , issuance
+    , nft_trading_volume
+    , solana_dex_volumes.dex_volumes as dex_volumes
+    -- Standardzed metrics
+    -- Market Data
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Chain Usage Metrics
+    , txns AS chain_txns
+    , dau AS chain_dau
+    , wau AS chain_wau
+    , mau AS chain_mau
+    , returning_users
+    , new_users
+    , gas_usd / txns as chain_avg_txn_fee
+    , median_txn_fee AS chain_median_txn_fee
+    , total_staked_native
+    , total_staked_usd as total_staked
+    , nft_trading_volume AS chain_nft_trading_volume
+    , p2p_native_transfer_volume
+    , p2p_token_transfer_volume
+    , p2p_transfer_volume
+    , coalesce(solana_dex_volumes.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
+    , solana_dex_volumes.dex_volumes as chain_dex_volumes
+    , case
         when (gas - base_fee_native) < 0.00001 then 0 else (gas - base_fee_native)
-    end as priority_fee_native,
-    case
-        when (gas_usd - base_fee) < 0.001 then 0 else (gas_usd - base_fee)
-    end as priority_fee,
-    vote_tx_fee_native,
-    vote_tx_fee_native * price as vote_tx_fee_usd,
-    gas + vote_tx_fee_native as fees_native,
-    vote_tx_fee_usd + gas_usd as fees,
-    gas_usd / txns as avg_txn_fee,
-    median_txn_fee,
-    IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as revenue_native,
-    IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee + vote_tx_fee_usd) * .5) as revenue,
-    price,
-    market_cap,
-    fdmc,
-    tvl,
-    -- NOTE: txns only contains non-votes, votes can only be referenced explicitly in
-    -- fact_votes_agg_block
-    txns,
-    dau,
-    wau,
-    mau,
-    returning_users,
-    new_users,
-    weekly_commits_core_ecosystem,
-    weekly_commits_sub_ecosystem,
-    weekly_developers_core_ecosystem,
-    weekly_developers_sub_ecosystem,
-    weekly_contracts_deployed,
-    weekly_contract_deployers,
-    stablecoin_total_supply,
-    stablecoin_txns,
-    stablecoin_dau,
-    stablecoin_mau,
-    stablecoin_transfer_volume,
-    artemis_stablecoin_txns,
-    artemis_stablecoin_dau,
-    artemis_stablecoin_mau,
-    artemis_stablecoin_transfer_volume,
-    p2p_stablecoin_txns,
-    p2p_stablecoin_dau,
-    p2p_stablecoin_mau,
-    stablecoin_data.p2p_stablecoin_transfer_volume,
-    stablecoin_tokenholder_count,
-    p2p_stablecoin_tokenholder_count,
-    total_staked_native,
-    total_staked_usd,
-    issuance,
-    nft_trading_volume,
-    p2p_native_transfer_volume,
-    p2p_token_transfer_volume,
-    p2p_transfer_volume,
-    coalesce(solana_dex_volumes.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume, 
-    solana_dex_volumes.dex_volumes as dex_volumes
+    end as priority_fee_native
+    , case
+        when (gas_usd - base_fee_native * price ) < 0.001 then 0 else (gas_usd - base_fee_native * price )
+    end as priority_fee
+    -- Cashflow Metrics
+    , gas_usd + vote_tx_fee_native * price as chain_fees
+    , gas + vote_tx_fee_native as gross_protocol_revenue_native
+    , gas_usd + vote_tx_fee_native * price as gross_protocol_revenue
+    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, ((base_fee_native + vote_tx_fee_native) * .5) + priority_fee_native) as validator_cash_flow_native
+    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, ((base_fee_native * price  + vote_tx_fee_native * price) * .5) + priority_fee) as validator_cash_flow
+    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as burned_cash_flow_native
+    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee_native * price  + vote_tx_fee_native * price) * .5) as burned_cash_flow
+    , base_fee_native
+    , base_fee_native * price AS base_fee
+    , vote_tx_fee_native
+    , vote_tx_fee_native * price AS vote_tx_fee
+    -- Supply Metrics
+    , issuance AS emissions_native
+    -- Developer Metrics
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
+    , weekly_contracts_deployed
+    , weekly_contract_deployers
+    -- Stablecoin metrics
+    , stablecoin_total_supply
+    , stablecoin_txns
+    , stablecoin_dau
+    , stablecoin_mau
+    , stablecoin_transfer_volume
+    , stablecoin_tokenholder_count
+    , artemis_stablecoin_txns
+    , artemis_stablecoin_dau
+    , artemis_stablecoin_mau
+    , artemis_stablecoin_transfer_volume
+    , p2p_stablecoin_tokenholder_count
+    , p2p_stablecoin_txns
+    , p2p_stablecoin_dau
+    , p2p_stablecoin_mau
+    , stablecoin_data.p2p_stablecoin_transfer_volume
 from fundamental_usage
 left join defillama_data on fundamental_usage.date = defillama_data.date
 left join stablecoin_data on fundamental_usage.date = stablecoin_data.date
