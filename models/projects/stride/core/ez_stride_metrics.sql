@@ -52,19 +52,6 @@ select
     , fundamental_data.high_sleep_users as high_sleep_users
     , fundamental_data.sybil_users as sybil_users
     , fundamental_data.non_sybil_users as non_sybil_users
-
-    --Cashflow Metrics
-    , fundamental_data.fees_native as chain_fees_native
-    , fundamental_data.fees_usd as chain_fees
-    , fundamental_data.avg_txn_fee as chain_avg_txn_fee
-    , fundamental_data.total_staking_yield_usd as gross_staking_revenue
-    , chain_fees + gross_staking_revenue as gross_protocol_revenue
-    , fundamental_data.protocol_revenue_usd as protocol_staking_revenue
-    , chain_fees as protocol_fees_revenue
-    , protocol_staking_revenue + chain_fees as total_protocol_revenue
-    , fundamental_data.total_supply_side_revenue_usd as supply_side_staking_revenue
-    , fundamental_data.operating_expenses_usd as operating_expenses
-    , fundamental_data.protocol_earnings_usd as protocol_earnings
     , fundamental_data.tvl as tvl
     , fundamental_data.tvl_net_change as tvl_net_change
 
