@@ -60,7 +60,7 @@ select
     -- Chain Metrics
     , coalesce(txns, 0) as chain_txns
     , coalesce(unique_namespaces, 0) as da_dau
-    , coalesce(da_txns, 0) as da_txns
+    , coalesce(txns, 0) as da_txns
     , coalesce(fees, 0) / coalesce(txns, 1) as chain_avg_txn_fee
     , coalesce(blob_size_mib, 0) as blob_size_mib
     , coalesce(blob_size_mib / 86400, 0) as avg_mib_per_second

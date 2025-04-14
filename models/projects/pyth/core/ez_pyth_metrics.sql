@@ -24,5 +24,10 @@ SELECT
     dau_txns.dau,
     dau_txns.txns,
     '0' as fees
+
+    -- Standardized Metrics
+    , dau_txns.dau as oracle_dau
+    , dau_txns.txns as oracle_txns
+    , '0' as gross_protocol_revenue
 FROM date_spine
 LEFT JOIN dau_txns ON date_spine.date = dau_txns.date
