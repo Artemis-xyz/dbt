@@ -31,6 +31,7 @@ select
     coalesce(fees.date, txns.date, daus.date) as date
     , dau
     , txns
+    , fees_usd as fees
     -- Standardized Metrics
     -- Market Data Metrics
     , price
