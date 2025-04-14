@@ -2,7 +2,7 @@
     config(
         materialized="table",
         unique_key=["tx_hash", "event_index"],
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="ARBITRUM",
     )
 }}
 
