@@ -69,8 +69,6 @@ select
     -- all l1 fees are burned
     , daily_burn * mm.price as chain_fees
     , trading_fees + (daily_burn * mm.price) as gross_protocol_revenue
-    , trading_fees * 0.03 as service_cash_flow
-    , trading_fees * 0.97 as buybacks_cash_flow
     , case
         when date >= '2025-02-01' then trading_fees * 0.03
         else trading_fees * 0.235
