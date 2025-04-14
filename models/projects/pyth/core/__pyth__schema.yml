@@ -12,11 +12,15 @@ column_definitions:
 
   oracle_dau: &oracle_dau
     name: oracle_dau
-    description: "The number of daily active addresses using an oracle."
+    description: "The number of daily active addresses using Pyth."
+    tags:
+      - override
 
   oracle_txns: &oracle_txns
     name: oracle_txns
-    description: "The number of transactions done through an oracle."
+    description: "The number of transactions done through Pyth."
+    tags:
+      - override
 
 models:
   - name: ez_pyth_metrics
