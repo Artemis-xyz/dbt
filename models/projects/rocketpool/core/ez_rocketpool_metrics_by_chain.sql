@@ -22,13 +22,15 @@ with
 select 
     s.date
     , 'ethereum' as chain
+
+    --Old metrics needed for compatibility
     , s.num_staked_eth
     , s.amount_staked_usd
     , s.num_staked_eth_net_change
     , s.amount_staked_usd_net_change
     , cl_rewards_usd
     , el_rewards_usd
-    , deposit_fees
+    , lst_deposit_fees
     , fees
     , primary_supply_side_revenue
     , secondary_supply_side_revenue
@@ -42,7 +44,22 @@ select
     , outstanding_supply
     , tvl
     , treasury_value
-    , treasury_value_native
-    , net_treasury_value
+
+    --Standardized Metrics
+
+    --Usage Metrics
+    , s.num_staked_eth as tvl_native
+    , s.amount_staked_usd as tvl
+
+    --Cash Flow Metrics
+    , COALESCE(cl_rewards_usd, 0) as block_rewards
+    , COALESCE(el_rewards_usd, 0) as mev_priority_fees
+    , COALESCE(lst_deposit_fees, 0) as lst_deposit_fees
+    , COALESCE(fees, 0) as yield_generated
+    , COALESCE(fees, 0) as gross_protocol_revenue
+    , gross_protocol_revenue * 0.14 as validator_cash_flow
+    , gross_protocol_revenue * 0.86 as service_cash_flow
+    
+    
 from staked_eth_metrics s
 left join {{ ref('ez_rocketpool_metrics') }} using(date)
