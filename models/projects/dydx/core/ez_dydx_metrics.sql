@@ -39,6 +39,7 @@ WITH
     unique_traders_data as (
         select date, unique_traders
         from {{ ref("fact_dydx_unique_traders") }}
+        where unique_traders < 1e6
     )
 select
     date_spine.date as date
