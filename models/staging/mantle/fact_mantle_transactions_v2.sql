@@ -41,6 +41,12 @@ select
         then new_contracts.category
         else null
     end as category,
+    null as user_type,
+    null as balance_usd,
+    null as native_token_balance,
+    null as stablecoin_balance,
+    null as probability,
+    null as engagement_type,
     CAST(current_timestamp() AS TIMESTAMP_NTZ) AS last_updated_timestamp
 from zksync_dune.mantle.transactions as t
 left join new_contracts on lower(t.to_hex) = lower(new_contracts.address)
