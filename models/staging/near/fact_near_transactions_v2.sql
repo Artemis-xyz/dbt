@@ -73,6 +73,11 @@ select distinct
     bots.cur_total_txns,
     bots.cur_distinct_to_address_count,
     tx_succeeded,
+    null as balance_usd,
+    null as native_token_balance,
+    null as stablecoin_balance,
+    null as probability,
+    null as engagement_type,
     CAST(current_timestamp() AS TIMESTAMP_NTZ) AS last_updated_timestamp
 from near_transactions as t
 left join new_contracts on lower(t.contract_address) = lower(new_contracts.address)
