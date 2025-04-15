@@ -20,7 +20,7 @@ column_definitions:
 
   buybacks_cash_flow: &buybacks_cash_flow
     name: buybacks_cash_flow
-    description: "The portion of protocol revenue that result in token buybacks. On Hyperliquid, the Assistance Fund is allocated a variable portion of trading fees which it uses to buyback HYPE (97% after 2025-02-01, 76.5% before)."
+    description: "The portion of protocol revenue that result in token buybacks. On Hyperliquid, the Assistance Fund is allocated a variable portion of trading fees which it uses to buyback HYPE (97% after 2025-02-01, 76.5% before). To achieve 14 million HYPE in assistancefund.top on 2025-02-01, we settled on 76.5% average split pre 2025-02-01 which best aligns with the cumulative HYPE balances."
     tags:
       - artemis_gaap
       - override
@@ -77,7 +77,7 @@ column_definitions:
 
   service_cash_flow: &service_cash_flow
     name: service_cash_flow
-    description: "A portion of protocol revenue derived from trading activities is shared with the Hyperliquidity Provider (HLP) at a variable rate (3% after 2025-02-01, 23.5% before)."
+    description: "A portion of protocol revenue derived from trading activities is shared with the Hyperliquidity Provider (HLP) at a variable rate (3% after 2025-02-01, 23.5% before). To achieve 14 million HYPE in assistancefund.top on 2025-02-01, we settled on 23.5% average split pre 2025-02-01 (100% - 76.5% = 23.5% goes to HLP)."
     tags:
       - artemis_gaap
       - override

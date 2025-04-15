@@ -55,7 +55,6 @@ select
     , trading_fees as fees
     , auction_fees
     , daily_burn
-    -- protocol’s revenue split between HLP (supplier) and AF (holder) at a ratio of 3%:97% (after 2025-02-01)
     , case
         when date >= '2025-02-01' then trading_fees * 0.03
         else trading_fees * 0.235
