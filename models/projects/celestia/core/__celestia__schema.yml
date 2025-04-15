@@ -28,19 +28,29 @@ column_definitions:
     name: chain_avg_txn_fee
     description: "The average transaction fee on a chain"
 
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on a chain"
+
   chain_txns: &chain_txns
     name: chain_txns
     description: "Daily transactions on a chain"
 
+  da_dau: &da_dau
+    name: da_dau
+    description: "The number of daily active blob submitters to Celestia."
+    tags:
+      - override
+
+  da_txns: &da_txns
+    name: da_txns
+    description: "The number of blob posting actions on Celestia."
+    tags:
+      - override
+
   fdmc: &fdmc
     name: fdmc
     description: "The fully diluted market cap of a token in USD"
-    tags:
-      - artemis_gaap
-
-  foundation_cash_flow: &foundation_cash_flow
-    name: foundation_cash_flow
-    description: "Revenue allocated to a foundation affiliated with the protocol, used for grants, partnerships, operations, or legal."
     tags:
       - artemis_gaap
 
@@ -82,13 +92,13 @@ column_definitions:
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
-    description: "The turnover of a token in USD"
+    description: "The turnover of a token in USD, based on the token's circulating supply."
     tags:
       - artemis_gaap
 
   token_turnover_fdv: &token_turnover_fdv
     name: token_turnover_fdv
-    description: "The turnover of a token in USD"
+    description: "The turnover of a token in USD, based on the token's fully diluted supply."
     tags:
       - artemis_gaap
 
@@ -120,9 +130,11 @@ models:
       - *blob_fees_native
       - *blob_size_mib
       - *chain_avg_txn_fee
+      - *chain_fees
       - *chain_txns
+      - *da_dau
+      - *da_txns
       - *fdmc
-      - *foundation_cash_flow
       - *gross_protocol_revenue
       - *gross_protocol_revenue_native
       - *market_cap

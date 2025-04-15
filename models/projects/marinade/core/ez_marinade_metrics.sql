@@ -72,7 +72,7 @@ select
     -- v1 - unstaking fees 75% goes to LP (Fees to Suppliers), 25% goes to treasury (Fees to Holders)
     , unstaking_fees_native * 0.75 * price as supply_side_fee
     , case when 
-        date < '2024-08-18' then unstaking_fees * 0.25 + fees
+        date < '2024-08-18' then unstaking_fees_native * price * 0.25 + fees
     -- when v2 fees are active, 100% goes to the protocol
         else fees 
     end as revenue
@@ -118,4 +118,5 @@ left join dau using (date)
 left join fees using (date)
 left join circulating_supply using (date)
 left join price using (date)
+left join market_metrics using (date)
 order by date desc

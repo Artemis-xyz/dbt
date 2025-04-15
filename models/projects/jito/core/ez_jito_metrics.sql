@@ -69,6 +69,7 @@ SELECT
 
     --Old metrics needed for compatibility
     , coalesce(withdraw_management_fees, 0) as withdraw_management_fees
+    , coalesce(tip_fees, 0) as tip_fees
     , coalesce(tip_fees, 0) + coalesce(withdraw_management_fees, 0) as fees
     , coalesce(tip_revenue, 0) + coalesce(withdraw_management_fees, 0) as revenue
     , coalesce(tip_supply_side_fees, 0) as supply_side_fees
@@ -78,17 +79,21 @@ SELECT
     , coalesce(tvl_change, 0) as amount_staked_usd_net_change
 
     --Standardized Metrics
+
+    -- Usage Metrics
+    , coalesce(tip_txns, 0) as block_infra_txns
+    , coalesce(tip_dau, 0) as block_infra_dau
+    , coalesce(tvl, 0) as tvl
+    , coalesce(tvl_change, 0) as tvl_net_change
+    
+    -- Cash Flow Metrics
     , coalesce(withdraw_management_fees, 0) as lst_fees
-    , coalesce(tip_fees, 0) as tip_fees
+    , coalesce(tip_fees, 0) as block_infra_fees
     , coalesce(withdraw_management_fees, 0) + coalesce(tip_fees, 0) as gross_protocol_revenue
     , coalesce(jito_dau_txns_fees_cash_flow.equity_cash_flow, 0) as equity_cash_flow
     , coalesce(jito_dau_txns_fees_cash_flow.treasury_cash_flow, 0) as treasury_cash_flow
     , coalesce(jito_dau_txns_fees_cash_flow.strategy_cash_flow, 0) as strategy_cash_flow
     , coalesce(jito_dau_txns_fees_cash_flow.validator_cash_flow, 0) as validator_cash_flow
-    , coalesce(tip_txns, 0) as block_infra_txns
-    , coalesce(tip_dau, 0) as block_infra_dau
-    , coalesce(tvl, 0) as tvl
-    , coalesce(tvl_change, 0) as tvl_net_change
 
     --Market Metrics
     , coalesce(market_metrics.price, 0) as price

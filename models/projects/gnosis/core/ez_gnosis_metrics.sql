@@ -57,6 +57,7 @@ select
     , fees / txns AS chain_avg_txn_fee
     , dune_dex_volumes_gnosis.dex_volumes AS chain_dex_volumes
     -- Cashflow metrics
+    , fees as chain_fees
     , fees AS gross_protocol_revenue
     , fees_native AS gross_protocol_revenue_native
     , revenue AS burned_cash_flow

@@ -20,13 +20,13 @@ with
     )
 
 SELECT
-    date_spine.date,
-    chain,
+    date_spine.date
+    , 'solana' as chain
 
     --Old Metrics needed for compatibility
-    dau_txns.dau,
-    dau_txns.txns,
-    '0' as fees,
+    , dau_txns.dau
+    , dau_txns.txns
+    , '0' as fees
 
     --Standardized Metrics
 
@@ -37,6 +37,5 @@ SELECT
     --Cash Flow Metrics
     , 0 as oracle_fees
     , 0 as gross_protocol_revenue
-
 FROM date_spine
-LEFT JOIN dau_txns ON date_spine.date = dau_txns.date
+LEFT JOIN dau_txns USING (date)

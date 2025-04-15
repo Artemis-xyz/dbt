@@ -12,6 +12,10 @@ column_definitions:
     name: chain_dex_volumes
     description: "The total volume of DEXes on a chain"
 
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on a chain"
+
   chain_txns: &chain_txns
     name: chain_txns
     description: "Daily transactions on a chain"
@@ -46,6 +50,7 @@ models:
     columns:
       - *chain_dau
       - *chain_dex_volumes
+      - *chain_fees
       - *chain_txns
       - *fdmc
       - *gross_protocol_revenue

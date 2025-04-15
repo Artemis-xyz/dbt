@@ -23,12 +23,12 @@ with
     )
 
 SELECT
-    date_spine.date,
+    date_spine.date
 
     --Old Metrics needed for compatibility
-    dau_txns.dau,
-    dau_txns.txns,
-    '0' as fees,
+    , dau_txns.dau
+    , dau_txns.txns
+    , '0' as fees
 
     --Standardized Metrics
 

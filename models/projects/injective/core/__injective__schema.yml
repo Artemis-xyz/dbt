@@ -6,7 +6,7 @@ version: 2
 column_definitions:
   burned_cash_flow: &burned_cash_flow
     name: burned_cash_flow
-    description: "The amount of USD value burned"
+    description: "The USD value of tokens burned"
     tags:
       - artemis_gaap
 
@@ -23,6 +23,10 @@ column_definitions:
   chain_dau: &chain_dau
     name: chain_dau
     description: "Daily unique users on a chain"
+
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on a chain"
 
   chain_mau: &chain_mau
     name: chain_mau
@@ -72,6 +76,10 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  mints: &mints
+    name: mints
+    description: "The amount of USD value minted"
+
   mints_native: &mints_native
     name: mints_native
     description: "The amount of native tokens minted"
@@ -106,6 +114,7 @@ models:
       - *burned_cash_flow_native
       - *chain_avg_txn_fee
       - *chain_dau
+      - *chain_fees
       - *chain_mau
       - *chain_txns
       - *chain_wau
@@ -116,6 +125,7 @@ models:
       - *high_sleep_users
       - *low_sleep_users
       - *market_cap
+      - *mints
       - *mints_native
       - *new_users
       - *non_sybil_users
