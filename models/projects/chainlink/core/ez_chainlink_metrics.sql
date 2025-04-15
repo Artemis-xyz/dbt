@@ -244,15 +244,6 @@ select
     , token_turnover_circulating
     , token_turnover_fdv
     , tokenholder_count
-
-    --Market Metrics
-    , price as price
-    , market_cap as market_cap
-    , fdmc as fdmc
-    , token_turnover_circulating as token_turnover_circulating
-    , token_turnover_fdv as token_turnover_fdv
-    , token_volume as token_volume
-    , tokenholder_count as tokenholder_count
 from fm_fees_data
 left join orc_fees_data using (date)
 left join automation_fees_data using (date)
