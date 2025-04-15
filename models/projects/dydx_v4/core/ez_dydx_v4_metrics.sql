@@ -4,7 +4,7 @@
         snowflake_warehouse="DYDX",
         database="dydx_v4",
         schema="core",
-        alias="ez_metrics_by_chain",
+        alias="ez_metrics",
     )
 }}
 
