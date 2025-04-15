@@ -8,6 +8,10 @@ column_definitions:
     name: bridge_dau
     description: "The number of daily active addresses on a bridge"
 
+  bridge_fees: &bridge_fees
+    name: bridge_fees
+    description: "The total fees on a bridge"
+
   bridge_txns: &bridge_txns
     name: bridge_txns
     description: "The number of transactions on a bridge"
@@ -23,6 +27,10 @@ column_definitions:
   chain_dau: &chain_dau
     name: chain_dau
     description: "Daily unique users on a chain"
+
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on a chain"
 
   chain_txns: &chain_txns
     name: chain_txns
@@ -58,13 +66,13 @@ column_definitions:
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
-    description: "The turnover of a token in USD"
+    description: "The turnover of a token in USD, based on the token's circulating supply."
     tags:
       - artemis_gaap
 
   token_turnover_fdv: &token_turnover_fdv
     name: token_turnover_fdv
-    description: "The turnover of a token in USD"
+    description: "The turnover of a token in USD, based on the token's fully diluted supply."
     tags:
       - artemis_gaap
 
@@ -109,10 +117,12 @@ models:
     description: "This table stores metrics for the AXELAR protocol"
     columns:
       - *bridge_dau
+      - *bridge_fees
       - *bridge_txns
       - *bridge_volume
       - *chain_avg_txn_fee
       - *chain_dau
+      - *chain_fees
       - *chain_txns
       - *fdmc
       - *gross_protocol_revenue

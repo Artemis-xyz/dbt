@@ -87,6 +87,7 @@ select
     , nft_trading_volume AS chain_nft_trading_volume
     , bitcoin_dex_volumes.dex_volumes AS chain_dex_volumes
     -- Cashflow metrics
+    , fees as chain_fees
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
     -- Supply Metrics

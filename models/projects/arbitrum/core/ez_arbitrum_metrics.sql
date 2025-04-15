@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_arbitrum_transactions_v2") }}
+-- depends_on {{ ref("fact_arbitrum_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -83,6 +83,7 @@ select
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_arbitrum.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     -- Cashflow Metrics
+    , fees_native AS chain_fees
     , fees_native AS gross_protocol_revenue_native -- Total gas fees paid on L2 by users (L2 Fees)
     , fees AS gross_protocol_revenue
     , coalesce(fees_native, 0) - l1_data_cost_native as treasury_cash_flow_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)

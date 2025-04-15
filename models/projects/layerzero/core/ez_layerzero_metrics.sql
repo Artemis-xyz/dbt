@@ -43,11 +43,11 @@ SELECT
 
     -- Bridge Metrics
     , coalesce(bridge_daa, 0) as bridge_dau
-    , coalesce(fees, 0) as bridge_fees
     , coalesce(bridge_txns, 0) as bridge_txns
     , coalesce(bridge_volume, 0) as bridge_volume
 
     -- Cash Flow Metrics
+    , coalesce(fees, 0) as bridge_fees
     , coalesce(fees, 0) as gross_protocol_revenue
 
     -- Turnover Metrics

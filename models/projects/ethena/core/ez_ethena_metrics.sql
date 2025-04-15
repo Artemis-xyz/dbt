@@ -34,6 +34,7 @@ select
     usde_metrics.stablecoin_dau as stablecoin_dau,
     usde_metrics.stablecoin_txns as stablecoin_txns,
     coalesce(ena_metrics.fees, 0) as fees,
+    coalesce(ena_metrics.fees, 0) as gross_protocol_revenue,
     tvl.stablecoin_total_supply as tvl,
     {{ daily_pct_change('tvl.stablecoin_total_supply') }} as tvl_growth
 from usde_metrics

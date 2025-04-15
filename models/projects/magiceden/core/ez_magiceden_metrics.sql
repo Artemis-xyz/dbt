@@ -54,10 +54,10 @@ SELECT
     , COALESCE(m.txns, 0) AS nft_txns
     , COALESCE(m.collections_transacted, 0) AS nft_collections_transacted
     , COALESCE(m.supply_side_fees, 0) AS nft_royalties
-    , COALESCE(m.fees, 0) AS nft_fees
     , COALESCE(m.daily_trading_volume, 0) AS nft_volume
 
     -- Cash Flow Metrics
+    , COALESCE(m.fees, 0) AS nft_fees
     , COALESCE(m.fees + m.supply_side_fees, 0) AS gross_protocol_revenue
     , COALESCE(m.supply_side_fees, 0) AS service_cash_flow
 

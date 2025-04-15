@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_bsc_transactions_v2") }}
+-- depends_on {{ ref("fact_bsc_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -61,6 +61,7 @@ select
     , nft_trading_volume AS chain_nft_trading_volume
     , dune_dex_volumes_binance.dex_volumes AS chain_dex_volumes
     -- Cashflow metrics
+    , fees as chain_fees
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
     , fees_native * .1 AS burned_cash_flow_native

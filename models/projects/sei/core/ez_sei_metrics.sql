@@ -1,8 +1,8 @@
--- depends_on {{ ref("ez_sei_transactions_v2") }}
+-- depends_on {{ ref("fact_sei_transactions_v2") }}
 {{
     config(
         materialized="table",
-        snowflake_warehouse="analytics_xl",
+        snowflake_warehouse="SEI",
         database="sei",
         schema="core",
         alias="ez_metrics",
@@ -76,6 +76,7 @@ select
     , wasm_avg_block_time as wasm_avg_block_time
     , wasm_avg_tps as wasm_avg_tps
     -- Cashflow Metrics
+    , combined.fees as chain_fees
     , combined.fees_native as gross_protocol_revenue_native
     , combined.fees as gross_protocol_revenue
     , 0 as evm_cash_flow_native

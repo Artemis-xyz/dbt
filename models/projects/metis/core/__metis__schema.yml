@@ -8,6 +8,10 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on a chain"
+
   chain_txns: &chain_txns
     name: chain_txns
     description: "Daily transactions on a chain"
@@ -41,6 +45,7 @@ models:
     description: "This table stores metrics for the METIS protocol"
     columns:
       - *chain_dau
+      - *chain_fees
       - *chain_txns
       - *fdmc
       - *gross_protocol_revenue

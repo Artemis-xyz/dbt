@@ -1,8 +1,8 @@
--- depends_on {{ ref("ez_near_transactions_v2") }}
+-- depends_on {{ ref("fact_near_transactions_v2") }}
 {{
     config(
         materialized="table",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="NEAR",
         database="near",
         schema="core",
         alias="ez_metrics",
@@ -60,6 +60,7 @@ select
     , low_sleep_users
     , high_sleep_users
     -- Cashflow Metrics
+    , case when fees is null then fees_native * price else fees end as chain_fees
     , fees_native as gross_protocol_revenue_native
     , case when fees is null then fees_native * price else fees end as gross_protocol_revenue
     , median_txn_fee AS chain_median_txn_fee
