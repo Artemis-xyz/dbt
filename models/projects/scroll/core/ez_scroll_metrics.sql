@@ -49,6 +49,8 @@ select
     , fd.revenue
     , fd.revenue_native
     , dsv.dex_volumes
+    , fd.l1_data_cost
+    , fd.l1_data_cost_native
 
     -- Standardized Metrics
     -- Market Data

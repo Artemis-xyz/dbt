@@ -4,7 +4,7 @@
         snowflake_warehouse="CHAINLINK",
         database="chainlink",
         schema="core",
-        alias="ez_metrics_by_token"
+        alias="ez_metrics_by_chain"
     )
 }}
 --Right now this model only suppoers ethereum
@@ -28,9 +28,7 @@ with
         select
             date_start as date
             , chain
-            , 'LINK' as token
             , sum(usd_amount) as ocr_fees
-            , sum(token_amount) as ocr_fees_native
         from ocr_models
         group by 1, 2
     )
@@ -53,9 +51,7 @@ with
         select
             date_start as date
             , chain
-            , 'LINK' as token
             , sum(usd_amount) as fm_fees
-            , sum(token_amount) as fm_fees_native
         from fm_models
         group by 1, 2
     )
@@ -75,9 +71,7 @@ with
         select
             date_start as date
             , chain
-            , 'LINK' as token
             , sum(usd_amount) as automation_fees
-            , sum(token_amount) as automation_fees_native
         from automation_models
         group by 1, 2
     )
@@ -101,11 +95,9 @@ with
             date_start as date
             , chain
             -- different tokens are paid out in ccip fees
-            , token
             , sum(usd_amount) as ccip_fees
-            , sum(token_amount) as ccip_fees_native
         from ccip_models
-        group by 1, 2, 3
+        group by 1, 2
     )
     , vrf_models as (
         {{
@@ -126,9 +118,7 @@ with
         select
             date
             , blockchain as chain
-            , 'LINK' as token
             , sum(usd_amount) as vrf_fees
-            , sum(token_amount) as vrf_fees_native
         from vrf_models
         group by 1, 2
     )
@@ -151,9 +141,7 @@ with
         select
             date
             , chain
-            , 'LINK' as token
             , sum(usd_amount) as direct_fees
-            , sum(token_amount) as direct_fees_native
         from direct_models
         group by 1, 2
     )
@@ -170,9 +158,7 @@ with
         select
             date
             , chain
-            , 'LINK' as token
             , sum(staking_rewards) as token_incentives
-            , sum(staking_rewards_native) as token_incentives_native
         from staking_incentive_models
         group by 1, 2
     )
@@ -180,41 +166,35 @@ with
 select
     date
     , chain
-    , token
-    , coalesce(automation_fees, 0) as automation_fees
-    , coalesce(automation_fees_native, 0) as automation_fees_native
-    , coalesce(ccip_fees, 0) as ccip_fees
-    , coalesce(ccip_fees_native, 0) as ccip_fees_native
-    , coalesce(vrf_fees, 0) as vrf_fees
-    , coalesce(vrf_fees_native, 0) as vrf_fees_native
-    , coalesce(direct_fees, 0) as direct_fees
-    , coalesce(direct_fees_native, 0) as direct_fees_native
+    --Old Metrics needed for compatibility
     , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
-    , coalesce(automation_fees_native, 0) + coalesce(ccip_fees_native, 0) + coalesce(vrf_fees_native, 0) + coalesce(direct_fees_native, 0) as fees_native
-    , coalesce(ocr_fees, 0) as ocr_fees
-    , coalesce(ocr_fees_native, 0) as ocr_fees_native
-    , coalesce(fm_fees, 0) as fm_fees
-    , coalesce(fm_fees_native, 0) as fm_fees_native
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue
-    , coalesce(ocr_fees_native, 0) + coalesce(fm_fees_native, 0) as primary_supply_side_revenue_native
     , fees as secondary_supply_side_revenue
-    , fees_native as secondary_supply_side_revenue_native
     , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
-    , primary_supply_side_revenue_native + secondary_supply_side_revenue_native as total_supply_side_revenue_native
     , 0 as protocol_revenue
     , primary_supply_side_revenue as operating_expenses
-    , primary_supply_side_revenue_native as operating_expenses_native
-    , coalesce(token_incentives, 0) as token_incentives
-    , coalesce(token_incentives_native, 0) as token_incentives_native
     , coalesce(operating_expenses, 0) + coalesce(token_incentives, 0) as total_expenses
-    , coalesce(operating_expenses_native, 0) + coalesce(token_incentives_native, 0) as total_expenses_native
     , protocol_revenue - total_expenses as earnings
-    , protocol_revenue - total_expenses_native as earnings_native
+
+    -- Standardized Metrics
+    -- Cash Flow Metrics
+    , coalesce(automation_fees, 0) as automation_fees
+    , coalesce(ccip_fees, 0) as ccip_fees
+    , coalesce(vrf_fees, 0) as vrf_fees
+    , coalesce(direct_fees, 0) as direct_fees
+    , coalesce(ocr_fees, 0) as ocr_fees
+    , coalesce(fm_fees, 0) as fm_fees
+    , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as oracle_fees
+
+    , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as gross_protocol_revenue
+    , gross_protocol_revenue as service_cash_flow
+
+    , token_incentives
 from fm_fees_data
-left join orc_fees_data using(date, chain, token)
-left join automation_fees_data using(date, chain, token)
-full join ccip_fees_data using(date, chain, token)
-left join vrf_fees_data using(date, chain, token)
-left join staking_incentives_data using(date, chain, token)
-left join direct_fees_data using(date, chain, token)
+left join orc_fees_data using(date, chain)
+left join automation_fees_data using(date, chain)
+left join ccip_fees_data using(date, chain)
+left join vrf_fees_data using(date, chain)
+left join staking_incentives_data using(date, chain)
+left join direct_fees_data using(date, chain)
 where date < to_date(sysdate())

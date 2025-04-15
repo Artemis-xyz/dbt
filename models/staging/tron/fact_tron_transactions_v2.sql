@@ -66,6 +66,9 @@ select
     bal.balance_usd::double as balance_usd,
     bal.native_token_balance::double as native_token_balance,
     bal.stablecoin_balance::double as stablecoin_balance,
+    null as user_type,
+    null as probability,
+    null as engagement_type,
     CAST(current_timestamp() AS TIMESTAMP_NTZ) AS last_updated_timestamp
 from tron_allium.raw.transactions as t
 left join tron_fees as fees on t.hash = fees.tx_hash

@@ -86,12 +86,14 @@ select
     , txns as chain_txns
     , dau as chain_dau
     , avg_txn_fee as chain_avg_txn_fee
-    , dex_volumes as chain_dex_volumes
+    , dex_volumes as chain_dex_volumes -- Osmosis is both a DEX and a chain
+    , dex_volumes as spot_volume
     -- Cash Flow Metrics
+    , gas_usd as chain_fees
+    , trading_fees as spot_fees
     , fees as gross_protocol_revenue
-    , revenue as treasury_cash_flow
-    , trading_fees as l1_data_cost_native
-    , gas_usd as l1_cash_flow
+    , trading_fees as service_cash_flow
+    , gas_usd as validator_cash_flow
     -- Crypto Metrics
     , tvl
     -- Developer Metrics

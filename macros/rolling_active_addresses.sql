@@ -334,7 +334,7 @@
         distinct_dates as (
             select distinct 
                 raw_date
-            from {{ ref("ez_" ~ chain ~ "_transactions" ~ (model_version)) }}
+            from {{ ref("fact_" ~ chain ~ "_transactions" ~ (model_version)) }}
             {% if is_incremental() %}
                 where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
@@ -343,7 +343,7 @@
             select distinct 
                 raw_date,
                 from_address
-            from {{ ref("ez_" ~ chain ~ "_transactions" ~ (model_version)) }}
+            from {{ ref("fact_" ~ chain ~ "_transactions" ~ (model_version)) }}
         ),
     {% endif %}
 

@@ -14,3 +14,6 @@ dbt-perms:
 
 pipcompile:
 	uv pip compile --annotation-style=line requirements.in -o requirements.txt --no-strip-extras
+
+generate_schema:
+	python3 dbt_scripts/generate_schema.py

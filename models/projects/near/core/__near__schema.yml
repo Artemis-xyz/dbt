@@ -26,7 +26,7 @@ column_definitions:
 
   burned_cash_flow: &burned_cash_flow
     name: burned_cash_flow
-    description: "The amount of USD value burned"
+    description: "The USD value of tokens burned"
     tags:
       - artemis_gaap
 
@@ -47,6 +47,10 @@ column_definitions:
   chain_dex_volumes: &chain_dex_volumes
     name: chain_dex_volumes
     description: "The total volume of DEXes on a chain"
+
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on a chain"
 
   chain_mau: &chain_mau
     name: chain_mau
@@ -194,6 +198,7 @@ models:
       - *chain_avg_txn_fee
       - *chain_dau
       - *chain_dex_volumes
+      - *chain_fees
       - *chain_mau
       - *chain_median_txn_fee
       - *chain_txns

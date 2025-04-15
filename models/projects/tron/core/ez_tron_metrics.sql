@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_tron_transactions_v2") }}
+-- depends_on {{ ref("fact_tron_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -61,6 +61,7 @@ select
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dex_volumes, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     -- Cash Flow Metrics
+    , fees as chain_fees
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
     , fees_native AS burned_cash_flow_native
