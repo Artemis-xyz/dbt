@@ -81,6 +81,23 @@ select
 
     -- Standardized Metrics
 
+    -- Volume
+    , all_trade_metrics.aggregator_volume
+    , all_trade_metrics.trading_volume as perp_volume
+    , all_trade_metrics.dca_volume
+    , all_trade_metrics.limit_order_volume
+
+    -- Txns
+    , all_trade_metrics.aggregator_txns
+    , all_trade_metrics.perp_txns
+    , all_trade_metrics.dca_txns
+    , all_trade_metrics.limit_order_txns
+
+    -- DAU
+    , all_trade_metrics.unique_traders as perp_dau -- perps specific metric
+    , all_trade_metrics.aggregator_unique_traders as aggregator_dau -- aggregator specific metric
+    , aggregator_dau + perp_dau as dau -- necessary for OL index pipeline
+
     -- Fees
     , all_trade_metrics.perp_fees
     , all_trade_metrics.aggregator_fees
@@ -98,23 +115,6 @@ select
     , all_trade_metrics.dca_revenue as dca_treasury_cash_flow
     , all_trade_metrics.limit_order_revenue as limit_order_treasury_cash_flow
     , all_trade_metrics.buyback as buyback
-
-    -- Volume
-    , all_trade_metrics.aggregator_volume
-    , all_trade_metrics.trading_volume as perp_volume
-    , all_trade_metrics.dca_volume
-    , all_trade_metrics.limit_order_volume
-
-    -- Txns
-    , all_trade_metrics.aggregator_txns
-    , all_trade_metrics.perp_txns
-    , all_trade_metrics.dca_txns
-    , all_trade_metrics.limit_order_txns
-
-    -- DAU
-    , all_trade_metrics.unique_traders as perp_dau -- perps specific metric
-    , all_trade_metrics.aggregator_unique_traders as aggregator_dau -- aggregator specific metric
-    , aggregator_dau + perp_dau as dau -- necessary for OL index pipeline
 
     -- Market Data
     , price

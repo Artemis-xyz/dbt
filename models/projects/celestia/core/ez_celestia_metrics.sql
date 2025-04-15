@@ -16,6 +16,7 @@ with
             sum(mints_usd) as mints_usd,
             sum(fees_tia) as fees_native,
             sum(fees) as fees,
+            sum(da_txns) as da_txns,
             sum(transaction_count) as txns,
             sum(unique_namespaces_count) as unique_namespaces,
             sum(total_blob_size_mb) as blob_size_mib,
@@ -45,6 +46,7 @@ select
     , coalesce(txns, 0) as txns
     , coalesce(fees_native, 0) as fees_native
     , coalesce(fees, 0) as fees
+    , coalesce(unique_namespaces, 0) as submitters
     --, coalesce(mints, 0) as mints
     , coalesce(mints_usd, 0) as mints_usd
     -- Standardized Metrics
@@ -57,21 +59,22 @@ select
 
     -- Chain Metrics
     , coalesce(txns, 0) as chain_txns
+    , coalesce(unique_namespaces, 0) as da_dau
+    , coalesce(txns, 0) as da_txns
     , coalesce(fees, 0) / coalesce(txns, 1) as chain_avg_txn_fee
-    , coalesce(fees_for_blobs_native, 0) as blob_fees_native
-    , coalesce(fees_for_blobs_native, 0) * coalesce(price, 0) as blob_fees
     , coalesce(blob_size_mib, 0) as blob_size_mib
     , coalesce(blob_size_mib / 86400, 0) as avg_mib_per_second
-    , coalesce(blob_fees_native / blob_size_mib, 0) as avg_cost_per_mib_native
-    , coalesce(blob_fees / blob_size_mib, 0) as avg_cost_per_mib
-    , coalesce(unique_namespaces, 0) as submitters
+    , coalesce(fees_for_blobs_native / blob_size_mib, 0) as avg_cost_per_mib_native
+    , coalesce(fees_for_blobs_native * price / blob_size_mib, 0) as avg_cost_per_mib
 
     -- Cash Flow Metrics
-    , coalesce(fees, 0) as gross_protocol_revenue
-    , coalesce(fees_native, 0) as gross_protocol_revenue_native
-    , 0.02 * coalesce(fees, 0) as foundation_cash_flow
-    , 0.98 * coalesce(fees, 0) as validator_cash_flow
-    , 0.98 * coalesce(fees_native, 0) as validator_cash_flow_native
+    , coalesce(fees_for_blobs_native, 0) as blob_fees_native
+    , coalesce(fees_for_blobs_native, 0) * coalesce(price, 0) as blob_fees
+    , coalesce(fees, 0) as chain_fees
+    , coalesce(fees, 0) + coalesce(blob_fees, 0) as gross_protocol_revenue
+    , coalesce(fees_native, 0) + coalesce(blob_fees_native, 0) as gross_protocol_revenue_native
+    , coalesce(gross_protocol_revenue, 0) as validator_cash_flow
+    , coalesce(gross_protocol_revenue_native, 0) as validator_cash_flow_native
 
     -- Supply Metrics
     , coalesce(mints, 0) as mints_native

@@ -43,6 +43,7 @@ select
     , txns as chain_txns
     , daa as chain_dau
     -- Cash Flow Metrics
+    , fees as chain_fees
     , fees as gross_protocol_revenue
     , fees_native as gross_protocol_revenue_native
     , burns_native as burned_cash_flow_native

@@ -24,6 +24,10 @@ column_definitions:
     name: chain_dex_volumes
     description: "The total volume of DEXes on a chain"
 
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on a chain"
+
   chain_mau: &chain_mau
     name: chain_mau
     description: "Monthly unique users on a chain"
@@ -109,70 +113,6 @@ column_definitions:
     description: "The number of contracts deployed on a chain"
     tags:
       - artemis_gaap
-  
-  evm_avg_block_time: &evm_avg_block_time
-    name: evm_avg_block_time
-    description: "The average time it takes to produce a block on the Sei EVM"
-
-  evm_new_users: &evm_new_users
-    name: evm_new_users
-    description: "The number of new users on the Sei EVM"
-
-  evm_returning_users: &evm_returning_users
-    name: evm_returning_users
-    description: "The number of returning users on the Sei EVM"
-
-  evm_txns: &evm_txns
-    name: evm_txns
-    description: "The number of transactions on the Sei EVM"
-
-  evm_dau: &evm_dau
-    name: evm_dau
-    description: "The number of daily active users on the Sei EVM"
-  
-  evm_avg_tps: &evm_avg_tps
-    name: evm_avg_tps
-    description: "The average number of transactions per second on the Sei EVM"
-
-  evm_fees_native: &evm_fees_native 
-    name: evm_fees_native
-    description: "The number of native fees on the Sei EVM"
-
-  evm_fees: &evm_fees
-    name: evm_fees
-    description: "The number of fees on the Sei EVM"
-
-  wasm_txns: &wasm_txns
-    name: wasm_txns
-    description: "The number of transactions on the Sei WASM"
-
-  wasm_dau: &wasm_dau
-    name: wasm_dau
-    description: "The number of daily active users on the Sei WASM"
-  
-  wasm_returning_users: &wasm_returning_users
-    name: wasm_returning_users
-    description: "The number of returning users on the Sei WASM"
-
-  wasm_new_users: &wasm_new_users
-    name: wasm_new_users
-    description: "The number of new users on the Sei WASM"
-
-  wasm_fees_native: &wasm_fees_native
-    name: wasm_fees_native
-    description: "The number of native fees on the Sei WASM"
-
-  wasm_fees: &wasm_fees
-    name: wasm_fees
-    description: "The number of fees on the Sei WASM"
-
-  wasm_avg_block_time: &wasm_avg_block_time
-    name: wasm_avg_block_time
-    description: "The average time it takes to produce a block on the Sei WASM"
-
-  wasm_avg_tps: &wasm_avg_tps
-    name: wasm_avg_tps
-    description: "The average number of transactions per second on the Sei WASM"
 
 models:
   - name: ez_sei_metrics_by_application_v2
@@ -203,24 +143,10 @@ models:
       - *chain_avg_txn_fee
       - *chain_dau
       - *chain_dex_volumes
+      - *chain_fees
       - *chain_mau
       - *chain_txns
       - *chain_wau
-      - *evm_avg_block_time
-      - *evm_avg_tps
-      - *evm_dau
-      - *evm_fees_native
-      - *evm_fees
-      - *evm_new_users
-      - *evm_returning_users
-      - *evm_txns
-      - *wasm_avg_block_time
-      - *wasm_avg_tps
-      - *wasm_dau
-      - *wasm_fees_native
-      - *wasm_fees
-      - *wasm_new_users
-      - *wasm_returning_users
       - *fdmc
       - *gross_protocol_revenue
       - *gross_protocol_revenue_native
@@ -242,3 +168,4 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
+

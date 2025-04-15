@@ -122,6 +122,7 @@ select
     , submitters
     , dune_dex_volumes_ethereum.dex_volumes AS chain_dex_volumes
     -- Cashflow metrics
+    , fees as chain_fees
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
     , revenue_native AS burned_cash_flow_native

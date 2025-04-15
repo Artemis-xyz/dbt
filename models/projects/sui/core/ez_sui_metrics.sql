@@ -42,6 +42,7 @@ select
     , returning_users
     , new_users
     -- Cashflow Metrics
+    , fees as chain_fees
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
     , revenue AS burned_cash_flow
