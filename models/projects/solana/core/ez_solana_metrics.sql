@@ -195,7 +195,8 @@ select
     , vote_tx_fee_native
     , vote_tx_fee_native * price AS vote_tx_fee
     -- Supply Metrics
-    , issuance AS emissions_native
+    , issuance AS gross_emissions_native
+    , issuance * price AS gross_emissions
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

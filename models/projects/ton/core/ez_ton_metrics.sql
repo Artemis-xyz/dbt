@@ -73,8 +73,8 @@ select
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
     -- Supply Metrics
-    , block_rewards_native AS emissions_native
-    , block_rewards_native * price AS emissions
+    , block_rewards_native AS gross_emissions_native
+    , block_rewards_native * price AS gross_emissions
     -- Stablecoin Metrics
     , stablecoin_total_supply
     , stablecoin_txns

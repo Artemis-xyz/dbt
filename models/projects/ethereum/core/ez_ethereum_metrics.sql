@@ -141,8 +141,8 @@ select
     , weekly_contracts_deployed
     , weekly_contract_deployers
     -- Supply metrics
-    , block_rewards_native AS emissions_native
-    , block_rewards_native * price AS emissions
+    , block_rewards_native AS gross_emissions_native
+    , block_rewards_native * price AS gross_emissions
     -- Stablecoin metrics
     , stablecoin_total_supply
     , stablecoin_txns

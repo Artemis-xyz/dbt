@@ -371,7 +371,9 @@ column_definitions:
       description: "The amount of native tokens minted"
     - name: mints
       description: "The amount of USD value minted"
-    - name: emissions_native
+    - name: gross_emissions
+      description: "The amount of USD value emitted"
+    - name: gross_emissions_native
       description: "The amount of native tokens emitted"
     - name: premine_unlocks_native
       description: "The amount of native tokens unlocked from premine"
