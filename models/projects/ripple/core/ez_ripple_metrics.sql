@@ -47,5 +47,5 @@ select
     , price_data.token_turnover_circulating
     , price_data.token_turnover_fdv
 FROM fundamental_data
-left join price_data on fundamental_data.date = price_data.date
+left join price_data using(date)
 where fundamental_data.date < to_date(sysdate())
