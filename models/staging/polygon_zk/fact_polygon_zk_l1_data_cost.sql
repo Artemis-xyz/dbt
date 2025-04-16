@@ -18,7 +18,7 @@ from expenses
 where expenses.date < to_date(sysdate())
 {% if is_incremental() %} 
     and expenses.date >= (
-        select dateadd('day', -5, max(date))
+        select dateadd('day', -3, max(date))
         from {{ this }}
     )
 {% endif %}

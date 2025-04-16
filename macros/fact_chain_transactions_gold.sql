@@ -39,7 +39,7 @@
         raw_date < to_date(sysdate())
         {% if is_incremental() %}
             and block_timestamp
-            >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+            >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
 
 {% endmacro %}

@@ -26,7 +26,7 @@ with
         where
             date < to_date(sysdate())
             {% if is_incremental() %}
-                and date >= (select dateadd('day', -5, max(raw_date)) from {{ this }})
+                and date >= (select dateadd('day', -3, max(raw_date)) from {{ this }})
             {% endif %}
     )
 select
@@ -68,5 +68,5 @@ where
     lower(t.from_address) <> lower('0xdeaddeaddeaddeaddeaddeaddeaddeaddead0001')
     {% if is_incremental() %}
         and block_timestamp
-        >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+        >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}

@@ -16,5 +16,5 @@ select
     balance_token
 from {{ref("fact_base_address_balances_by_token")}}
 {% if is_incremental() %}
-    where block_timestamp >= dateadd('day', -7, to_date(sysdate()))
+    where block_timestamp >= DATEADD('day', -3, to_date(sysdate()))
 {% endif %}
