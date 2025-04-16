@@ -20,7 +20,7 @@ column_definitions:
 
   buybacks_cash_flow: &buybacks_cash_flow
     name: buybacks_cash_flow
-    description: "A portion of protocol revenue is allocated to the Assistance Fund (AF) for HYPE buybacks — 97% (using assistancefund.top data post-Feb 1) after Feb 1, 2025, and (using asxn data pre-Feb 1). The 97% is based on confirmation from the Hyperliquid team and matches our observed fee data from assistancefund.top."
+    description: "A portion of protocol revenue is allocated to the Assistance Fund (AF) for HYPE buybacks — (97%). The 97% is based on confirmation from the Hyperliquid team and matches our observed fee data from assistancefund.top and asxn data."
     tags:
       - artemis_gaap
       - override
@@ -87,7 +87,7 @@ column_definitions:
 
   service_cash_flow: &service_cash_flow
     name: service_cash_flow
-    description: "A portion of protocol revenue is allocated to the Hyperliquidity Provider (HLP) — 3%. The 3% is based on Hyperliquid team guidance and aligns with assistancefund.top data post-Feb 1."
+    description: "A portion of protocol revenue is allocated to the Hyperliquidity Provider (HLP) — 3%. The 3% is based on 100% - 97% (HYPE buybacks - Assistance Fund) = 3%."
     tags:
       - artemis_gaap
       - override

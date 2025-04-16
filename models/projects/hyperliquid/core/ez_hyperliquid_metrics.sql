@@ -34,10 +34,6 @@ with
         select date, daily_burn, chain
         from {{ ref("fact_hyperliquid_daily_burn") }}
     )
-    , assistance_fund_data as (
-        select date, cumulative_hype, usd_value as hype_usd, hype_value, chain
-        from {{ ref("fact_hyperliquid_assistance_fund_data") }}
-    )
     , daily_assistance_fund_data as (
         select date, daily_balance as daily_buybacks_native, balance as assistance_fund_balance, chain
         from {{ ref("fact_hyperliquid_assistance_fund_balance") }}
@@ -57,10 +53,7 @@ select
     , daily_burn
     , trading_fees * 0.03 as primary_supply_side_revenue
     -- add daily burn back to the revenue
-    , case
-        when date >= '2025-02-01' then hype_usd + daily_burn * mm.price
-        else (daily_buybacks_native * mm.price) + (daily_burn * mm.price)
-    end as revenue
+    , (daily_buybacks_native * mm.price) + (daily_burn * mm.price) as revenue
     , daily_buybacks_native
 
     -- Standardized Metrics
@@ -75,10 +68,7 @@ select
     , daily_burn * mm.price as chain_fees
     , trading_fees + (daily_burn * mm.price) as gross_protocol_revenue
     , trading_fees * 0.03 as service_cash_flow
-    , case
-        when date >= '2025-02-01' then hype_usd
-        else daily_buybacks_native * mm.price
-    end as buybacks_cash_flow
+    , (daily_buybacks_native * mm.price) as buybacks_cash_flow
     , daily_buybacks_native as buybacks_native
     , daily_burn as burned_cash_flow_native
     , daily_burn * mm.price as burned_cash_flow
@@ -97,7 +87,6 @@ left join daily_transactions_data using(date, chain)
 left join fees_data using(date, chain)
 left join auction_fees_data using(date, chain)
 left join daily_burn_data using(date, chain)
-left join assistance_fund_data using(date, chain)
 left join daily_assistance_fund_data using(date, chain)
 left join market_metrics mm using(date)
 where date < to_date(sysdate())
