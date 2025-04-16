@@ -56,7 +56,9 @@ with
             end as category,
             CAST(current_timestamp() AS TIMESTAMP_NTZ) AS last_updated_timestamp,
             fees.gas::double as tx_fee,
-            fees.gas_usd::double as gas_usd
+            fees.gas_usd::double as gas_usd,
+            t.input,
+            t.value
         from tron_allium.raw.transactions as t
         left join tron_fees as fees on t.hash = fees.tx_hash
         left join new_contracts on lower(t.to_address) = lower(new_contracts.address)
@@ -76,48 +78,30 @@ with
     ), 
     updated_contract_transactions as (
         select
-            hash as tx_hash,
-            coalesce(to_address, t.from_address) as contract_address,
-            block_timestamp,
-            date_trunc('day', block_timestamp) raw_date,
+            t.tx_hash,
+            t.contract_address,
+            t.block_timestamp,
+            t.raw_date,
             t.from_address,
-            'tron' as chain,
-            new_contracts_incremental.name,
-            new_contracts_incremental.app,
-            new_contracts_incremental.friendly_name,
-            new_contracts_incremental.sub_category,
+            t.chain,
+            c.name,
+            c.app,
+            c.friendly_name,
+            c.sub_category,
             case
                 when t.input = '0x' and t.value::double > 0
                 then 'EOA'
-                when new_contracts_incremental.category is not null
-                then new_contracts_incremental.category
+                when c.category is not null
+                then c.category
                 else null
             end as category,
-            CAST(current_timestamp() AS TIMESTAMP_NTZ) AS last_updated_timestamp
-        from tron_allium.raw.transactions as t
-        inner join new_contracts_incremental on lower(t.to_address) = lower(new_contracts_incremental.address)
-    ),
-    updated_contract_tron_fees as (
-        select
-            concat('0x', t.transaction_hash) as tx_hash,
-            max(t.amount) as gas,
-            max(t.usd_amount) as gas_usd,
-            max(t.usd_exchange_rate) as price
-        from tron_allium.assets.trx_token_transfers t
-        where
-            transfer_type = 'fees'
-            and concat('0x', transaction_hash) in (
-                select tx_hash from updated_contract_transactions
-            )
-        group by transaction_hash
-    ),
-    final_updated_contract_transactions as (
-        select 
-            t.*,
-            fees.gas::double as tx_fee,
-            fees.gas_usd::double as gas_usd
-        from updated_contract_transactions as t
-        left join updated_contract_tron_fees as fees on t.tx_hash = fees.tx_hash
+            CAST(current_timestamp() AS TIMESTAMP_NTZ) AS last_updated_timestamp,
+            t.tx_fee,
+            t.gas_usd,
+            t.input,
+            t.value
+        from {{ this }} as t
+        inner join new_contracts_incremental c on lower(t.to_address) = lower(c.address)
     ),
     {% endif %}
 
@@ -125,7 +109,7 @@ with
         select * from transactions_with_contracts
         {% if is_incremental() %}
             union
-            select * from final_updated_contract_transactions
+            select * from updated_contract_transactions
         {% endif %}
     )
 
