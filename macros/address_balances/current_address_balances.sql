@@ -6,7 +6,7 @@
         contract_address
     from {% if chain in ('ton') %} ton.prod_core.ez_ton_address_balances_by_token {% else %} prod.fact_{{ chain }}_address_balances_by_token {% endif %}
     {% if is_incremental() %}
-        where block_timestamp >= dateadd('day', -7, to_date(sysdate()))
+        where block_timestamp >= DATEADD('day', -3, to_date(sysdate()))
     {% endif %}
     group by address, contract_address
 {% endmacro %}

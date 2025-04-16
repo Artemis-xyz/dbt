@@ -18,7 +18,7 @@
             where
                 not equal_null(category, 'EOA')
                 {% if is_incremental() %}
-                    and date >= (select dateadd('day', -7, max(date)) from {{ this }})
+                    and date >= (select dateadd('day', -3, max(date)) from {{ this }})
                 {% endif %}
             group by date, contract_address
         )

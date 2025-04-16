@@ -17,7 +17,7 @@ with hex_cte as (
     where
     {% if is_incremental() %}
         -- this filter will only be applied on an incremental run
-        block_timestamp >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+        block_timestamp >= (select DATEADD('day', -3, max(block_timestamp)) from {{ this }})
     {% else %}
         block_timestamp > date('2023-07-17')
     {% endif %}
