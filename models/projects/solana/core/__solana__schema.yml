@@ -82,15 +82,23 @@ column_definitions:
     name: chain_wau
     description: "Weekly unique users on a chain"
 
-  emissions_native: &emissions_native
-    name: emissions_native
-    description: "The amount of native tokens emitted"
-
   fdmc: &fdmc
     name: fdmc
     description: "The fully diluted market cap of a token in USD"
     tags:
       - artemis_gaap
+
+  gross_emissions: &gross_emissions
+    name: gross_emissions
+    description: "The amount of block rewards in USD value"
+    tags:
+      - override
+
+  gross_emissions_native: &gross_emissions_native
+    name: gross_emissions_native
+    description: "The amount of block rewards in native tokens"
+    tags:
+      - override
 
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
@@ -234,6 +242,10 @@ column_definitions:
     name: sybil_users
     description: "The number of sybil users on a chain"
 
+  total_staked: &total_staked
+    name: total_staked
+    description: "The total amount of USD value staked on a chain"
+
   total_staked_native: &total_staked_native
     name: total_staked_native
     description: "The total amount of native tokens staked on a chain"
@@ -319,8 +331,9 @@ models:
       - *chain_nft_trading_volume
       - *chain_txns
       - *chain_wau
-      - *emissions_native
       - *fdmc
+      - *gross_emissions
+      - *gross_emissions_native
       - *gross_protocol_revenue
       - *gross_protocol_revenue_native
       - *market_cap
@@ -344,6 +357,7 @@ models:
       - *stablecoin_total_supply
       - *stablecoin_transfer_volume
       - *stablecoin_txns
+      - *total_staked
       - *total_staked_native
       - *tvl
       - *validator_cash_flow

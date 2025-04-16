@@ -91,7 +91,8 @@ select
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
     -- Supply Metrics
-    , issuance AS emissions_native
+    , issuance AS gross_emissions_native
+    , issuance * price AS gross_emissions
     , circulating_supply AS circulating_supply_native
     -- Developer metrics
     , weekly_commits_core_ecosystem
