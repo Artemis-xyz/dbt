@@ -16,6 +16,8 @@ column_definitions:
       tags: [artemis_gaap]
     - name: equity_cash_flow
       description: "Revenue distributed to equity holders of an off-chain entity operating the protocol (e.g., dYdX Trading Inc., Uniswap Labs)."
+    - name: equity_cash_flow_native
+      description: "Revenue distributed to equity holders of an off-chain entity operating the protocol (e.g., dYdX Trading Inc., Uniswap Labs) in native tokens."
       tags: [artemis_gaap]
     - name: foundation_cash_flow
       description: "Revenue allocated to a foundation affiliated with the protocol, used for grants, partnerships, operations, or legal."
@@ -369,7 +371,9 @@ column_definitions:
       description: "The amount of native tokens minted"
     - name: mints
       description: "The amount of USD value minted"
-    - name: emissions_native
+    - name: gross_emissions
+      description: "The amount of USD value emitted"
+    - name: gross_emissions_native
       description: "The amount of native tokens emitted"
     - name: premine_unlocks_native
       description: "The amount of native tokens unlocked from premine"
