@@ -122,7 +122,7 @@ models:
     description: "This table stores metrics for the JUPITER protocol"
     columns:
       - *aggregator_dau
-      - *aggregator_revenue
+      - *aggregator_fees
       - *aggregator_txns
       - *aggregator_volume
       - *buyback_cash_flow
