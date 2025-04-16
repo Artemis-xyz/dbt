@@ -12,6 +12,14 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
+  chain_dex_volumes: &chain_dex_volumes
+    name: chain_dex_volumes
+    description: "The total volume of DEXes on a chain"
+
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on a chain"
+
   chain_mau: &chain_mau
     name: chain_mau
     description: "Monthly unique users on a chain"
@@ -39,10 +47,6 @@ column_definitions:
   cumulative_etf_flow_native: &cumulative_etf_flow_native
     name: cumulative_etf_flow_native
     description: "The cumulative flow of ETFs on a chain"
-
-  dex_volumes: &dex_volumes
-    name: dex_volumes
-    description: "The total volume of DEXes on a chain"
 
   emissions_native: &emissions_native
     name: emissions_native
@@ -120,6 +124,8 @@ models:
     columns:
       - *chain_avg_txn_fee
       - *chain_dau
+      - *chain_dex_volumes
+      - *chain_fees
       - *chain_mau
       - *chain_nft_trading_volume
       - *chain_txns
@@ -127,7 +133,6 @@ models:
       - *circulating_supply_native
       - *cumulative_etf_flow
       - *cumulative_etf_flow_native
-      - *dex_volumes
       - *emissions_native
       - *fdmc
       - *gross_protocol_revenue

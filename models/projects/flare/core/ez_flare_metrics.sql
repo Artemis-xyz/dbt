@@ -38,6 +38,7 @@ select
     , dau
     , txns
     , fees_usd as fees
+    , dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -46,8 +47,9 @@ select
     -- Chain Usage Metrics
     , txns AS chain_txns
     , dau AS chain_dau
-    , dex_volumes
+    , dex_volumes AS chain_dex_volumes
     -- Cashflow metrics
+    , fees_usd as chain_fees
     , fees_usd AS gross_protocol_revenue
 from fees
 left join txns on fees.date = txns.date

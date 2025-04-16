@@ -2,7 +2,7 @@
 with
     mantle_data as (
         select raw_date as date, sum(tx_fee) as fees_native, sum(gas_usd) as fees
-        from {{ ref("ez_ethereum_transactions") }}
+        from {{ ref("fact_ethereum_transactions_v2") }}
         where
             lower(from_address) in (
                 lower('0x4e59e778a0fb77fBb305637435C62FaeD9aED40f'),

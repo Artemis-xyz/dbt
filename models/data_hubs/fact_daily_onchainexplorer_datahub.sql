@@ -88,10 +88,10 @@ ranked_unique_ids AS (
         SUM(total_gas_usd) AS avg_total_gas_usd,
         ROW_NUMBER() OVER (
             PARTITION BY chain 
-            ORDER BY SUM(total_gas_usd) DESC, unique_id
+            ORDER BY SUM(total_gas_usd) DESC NULLS LAST, unique_id
         ) AS chain_rank,
         ROW_NUMBER() OVER (
-            ORDER BY SUM(total_gas_usd) DESC, unique_id
+            ORDER BY SUM(total_gas_usd) DESC NULLS LAST, unique_id
         ) AS global_rank
     FROM final_aggregated
     WHERE app_or_address IS NOT NULL AND app_or_address != 'Unlabeled'

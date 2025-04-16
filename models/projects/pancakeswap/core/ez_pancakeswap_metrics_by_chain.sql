@@ -62,16 +62,27 @@ with
         group by tvl_by_pool.date, tvl_by_pool.chain
     )
 select
-    tvl_by_chain.date,
-    'pancakeswap' as app,
-    'DeFi' as category,
-    tvl_by_chain.chain,
-    tvl_by_chain.tvl,
-    trading_volume_by_chain.trading_volume,
-    trading_volume_by_chain.trading_fees,
-    trading_volume_by_chain.unique_traders,
-    trading_volume_by_chain.gas_cost_native,
-    trading_volume_by_chain.gas_cost_usd
+    tvl_by_chain.date
+    , 'pancakeswap' as app
+    , 'DeFi' as category
+    , tvl_by_chain.chain
+    , tvl_by_chain.tvl
+    , trading_volume_by_chain.trading_volume    
+    , trading_volume_by_chain.trading_fees
+    , trading_volume_by_chain.unique_traders
+    , trading_volume_by_chain.gas_cost_usd
+
+    -- Standardized Metrics
+    , trading_volume_by_chain.unique_traders as spot_dau
+    , trading_volume_by_chain.trading_volume as spot_volume
+    , trading_volume_by_chain.trading_fees as spot_fees
+    , trading_volume_by_chain.trading_fees as gross_protocol_revenue
+    , trading_volume_by_chain.trading_fees * .68 as service_cash_flow
+    -- TODO: see comment in ez_pancakeswap_metrics re: remaining fees
+
+    , trading_volume_by_chain.gas_cost_usd as gas_cost
+    , trading_volume_by_chain.gas_cost_native
+
 from tvl_by_chain
 left join trading_volume_by_chain using(date, chain)
 where tvl_by_chain.date < to_date(sysdate())

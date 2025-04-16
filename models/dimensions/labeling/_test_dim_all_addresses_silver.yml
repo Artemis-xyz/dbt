@@ -9,7 +9,7 @@ models:
         - not_null
         - dbt_expectations.expect_column_to_exist
     - name: chain
-      tess:
+      tests:
         - not_null
         - dbt_expectations.expect_column_to_exist
     - name: last_updated
