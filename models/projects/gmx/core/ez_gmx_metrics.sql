@@ -102,33 +102,35 @@ with
         select date
         from {{ ref("dim_date_spine") }}
         where date between '2021-08-29' and to_date(sysdate())
-    ),
-    treasury as (
+    )
+    , treasury as (
         select
             date,
-            sum(usd_balance) as net_treasury_usd
+            sum(usd_balance) as treasury_usd,
+            sum(case
+                when token = 'GMX' then usd_balance
+                else 0
+            end) as own_token_treasury,
+            sum(case
+                when token <> 'GMX' then usd_balance
+                else 0
+            end) as net_treasury_usd
         from {{ ref('fact_gmx_treasury_data') }}
         group by 1
-    ), treasury_native as (
+    )
+    , treasury_native as (
         select
             date,
-            sum(native_balance) as treasury_native
+            sum(native_balance) as own_token_treasury_native
         from {{ ref('fact_gmx_treasury_data') }}
         where token = 'GMX'
         group by 1
-    ), net_treasury as (
-        select
-            date,
-            sum(usd_balance) as net_treasury_usd
-        from {{ ref('fact_gmx_treasury_data') }}
-        where token <> 'GMX'
-        group by 1
     )
-    ,fees_data as (
+    , fees_data as (
         select date, fees, revenue, supply_side_revenue
         from {{ ref("fact_gmx_all_versions_fees") }}
     )
-    ,market_metrics as ({{ get_coingecko_metrics("gmx") }})
+    , market_metrics as ({{ get_coingecko_metrics("gmx") }})
 
 select 
     date_spine.date as date
@@ -140,7 +142,7 @@ select
     , coalesce(combined_data.unique_traders, 0) as unique_traders
     , coalesce(fees_data.fees, 0) as fees
     , coalesce(fees_data.revenue, 0) as revenue
-    , coalesce(treasury_native.treasury_native, 0) as treasury_value_native    
+    , coalesce(treasury_native.own_token_treasury_native, 0) as treasury_value_native    
 
 
     --Standardized Metrics
@@ -165,9 +167,9 @@ select
     , coalesce(txns_and_dau_data.gmx_dau, 0) as gmx_dau
     
     , coalesce(tvl_metrics_grouped.tvl, 0) as tvl
-    , coalesce(treasury.net_treasury_usd, 0) as treasury_value
-    , coalesce(net_treasury.net_treasury_usd, 0) as net_treasury_value
-    , coalesce(treasury_native.treasury_native, 0) as own_token_treasury    
+    , coalesce(treasury.treasury_usd, 0) as treasury
+    , coalesce(treasury.own_token_treasury, 0) as own_token_treasury
+    , coalesce(treasury.net_treasury_usd, 0) as net_treasury
     
     -- Market Data
     , market_metrics.price as price
@@ -183,7 +185,6 @@ left join spot_data using(date)
 left join txns_and_dau_data using(date)
 left join treasury using(date)
 left join treasury_native using(date)
-left join net_treasury using(date)
 left join combined_data using(date)
 left join fees_data using(date)
 left join market_metrics using(date)
