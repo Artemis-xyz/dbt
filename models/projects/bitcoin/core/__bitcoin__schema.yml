@@ -56,11 +56,15 @@ column_definitions:
 
   gross_emissions: &gross_emissions
     name: gross_emissions
-    description: "The amount of USD value emitted"
+    description: "The amount of block rewards in USD value"
+    tags:
+      - override
 
   gross_emissions_native: &gross_emissions_native
     name: gross_emissions_native
-    description: "The amount of native tokens emitted"
+    description: "The amount of block rewards in native tokens"
+    tags:
+      - override
 
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
