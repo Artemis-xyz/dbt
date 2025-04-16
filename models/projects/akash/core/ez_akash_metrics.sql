@@ -91,6 +91,7 @@ SELECT
     , coalesce(mints.mints, 0) - coalesce(burns.total_burned_native, 0) AS net_supply_change_native
     , sum(coalesce(mints.mints, 0) - coalesce(burns.total_burned_native, 0)) over (order by mints.date) AS total_net_supply_change_native
     , sum(coalesce(premine_unlocks.pre_mine_unlocks, 0)) over (order by mints.date) AS total_premine_unlocks_native
+    , total_net_supply_change_native + total_premine_unlocks_native as circulating_supply_native
     
     -- Turnover Metrics
     , coalesce(token_turnover_circulating, 0) as token_turnover_circulating
