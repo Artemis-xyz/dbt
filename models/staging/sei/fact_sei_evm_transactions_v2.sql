@@ -51,11 +51,11 @@ with
         where
             -- this filter will only be applied on an incremental run 
             inserted_timestamp
-            >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
+            >= (select dateadd('day', -3, max(inserted_timestamp)) from {{ this }})
 
             or 
             new_contracts.last_updated
-            >= (select dateadd('day', -5, max(last_updated_timestamp)) from {{ this }})
+            >= (select dateadd('day', -3, max(last_updated_timestamp)) from {{ this }})
         {% endif %}
     )
     select 

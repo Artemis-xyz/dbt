@@ -41,6 +41,6 @@ and t1.chain = t2.chain
 where t1.chain in ('ethereum', 'solana') and date_granularity > '2020-01-01'
 and subregion is not null
 {% if is_incremental() %}
-    and date_granularity >= (select dateadd('day', -7, max(date_granularity)) from {{ this }})
+    and date_granularity >= (select DATEADD('day', -3, max(date_granularity)) from {{ this }})
 {% endif %}
 group by 1, 2, 3

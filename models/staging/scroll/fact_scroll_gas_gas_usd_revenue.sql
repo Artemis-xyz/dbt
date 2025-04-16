@@ -17,7 +17,7 @@ with
         where
             -- https://l2beat.com/scaling/projects/scroll#permissions
             lower(to_address) = lower('0xa13BAF47339d63B743e7Da8741db5456DAc1E556')
-            and block_timestamp >= dateadd(day, -5, (select min(date) from gas))
+            and block_timestamp >= dateadd(day, -3, (select min(date) from gas))
         group by 1
     )
 select

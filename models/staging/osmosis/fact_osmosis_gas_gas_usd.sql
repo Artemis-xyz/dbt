@@ -19,7 +19,7 @@ with
             substring(fee, length(regexp_substr(fee, '^[0-9]+')) + 1) as currency
         from osmosis_flipside.core.fact_transactions
         {% if is_incremental() %}
-            where to_date(block_timestamp) >= (select dateadd('day', -5, max(date)) from {{ this }})
+            where to_date(block_timestamp) >= (select dateadd('day', -3, max(date)) from {{ this }})
         {% endif %}
         group by date, currency
     ),

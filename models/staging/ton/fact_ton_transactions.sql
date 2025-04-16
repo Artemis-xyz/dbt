@@ -21,5 +21,5 @@ from {{ source("PROD_LANDING", "raw_ton_transactions_avro") }}
 left join {{ref("ton_tagged_interfaces")}} on account_code_hash = code_hash
 where avro_raw:now::timestamp::date >= '2022-06-28'
 {% if is_incremental() %}
-    and avro_raw:now::timestamp > (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+    and avro_raw:now::timestamp > (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
 {% endif %}
