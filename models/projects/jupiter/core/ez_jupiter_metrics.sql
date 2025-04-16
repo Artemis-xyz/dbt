@@ -114,7 +114,7 @@ select
     , all_trade_metrics.aggregator_revenue as aggregator_treasury_cash_flow
     , all_trade_metrics.dca_revenue as dca_treasury_cash_flow
     , all_trade_metrics.limit_order_revenue as limit_order_treasury_cash_flow
-    , all_trade_metrics.buyback as buyback
+    , all_trade_metrics.buyback as buyback_cash_flow
 
     -- Market Data
     , price

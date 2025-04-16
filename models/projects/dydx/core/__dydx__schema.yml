@@ -21,18 +21,21 @@ column_definitions:
     description: "The fully diluted market cap of DYDX in USD"
     tags:
       - artemis_gaap
+      - override
 
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
     description: "The sum of all trading fees paid across dYdX v3, dYdX v4, and any transaction fees paid on dYdX chain."
     tags:
       - artemis_gaap
+      - override
 
   market_cap: &market_cap
     name: market_cap
     description: "The market cap of DYDX in USD"
     tags:
       - artemis_gaap
+      - override
 
   perp_dau: &perp_dau
     name: perp_dau
@@ -54,27 +57,31 @@ column_definitions:
 
   price: &price
     name: price
-    description: "The price of a token in USD"
+    description: "The price of DYDX in USD"
     tags:
       - artemis_gaap
+      - override
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
-    description: "The turnover of a token in USD, based on the token's circulating supply."
+    description: "The turnover of DYDX in USD, based on the token's circulating supply."
     tags:
       - artemis_gaap
+      - override
 
   token_turnover_fdv: &token_turnover_fdv
     name: token_turnover_fdv
-    description: "The turnover of a token in USD, based on the token's fully diluted supply."
+    description: "The turnover of DYDX in USD, based on the token's fully diluted supply."
     tags:
       - artemis_gaap
+      - override
 
   token_volume: &token_volume
     name: token_volume
-    description: "The volume of a token in USD"
+    description: "The volume of DYDX in USD"
     tags:
       - artemis_gaap
+      - override
 
 models:
   - name: ez_dydx_metrics_by_version
