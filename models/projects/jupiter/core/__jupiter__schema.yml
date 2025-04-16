@@ -30,7 +30,7 @@ column_definitions:
 
   buyback_cash_flow: &buyback_cash_flow
     name: buyback_cash_flow
-    description: "Portion of revenue allocated to buy back tokens of the protocol. Jupiter allocated 50% of protocol revenue to token buybacks."
+    description: "Portion of revenue allocated to buy back tokens of the protocol. Jupiter allocates 50% of protocol revenue to token buybacks."
     tags:
       - artemis_gaap
       - override
