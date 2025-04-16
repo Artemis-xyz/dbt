@@ -16,33 +16,39 @@ with date_spine as (
 )
 
 , swap_metrics as (
-    SELECT
-        block_timestamp::date as date,
+    select *
+    from {{ ref('fact_meteora_swap_metrics') }}
+)
+, api_metrics as (
+    select
+        date,
         'solana' as chain,
-        count(distinct swapper) as unique_traders, 
-        count(distinct tx_id) as number_of_swaps,
-        sum(swap_from_amount_usd) as amount_in_usd,
-        sum(swap_to_amount_usd) as amount_out_usd,
-        count(
-            distinct concat(swap_to_symbol,'-',swap_from_symbol)
-        ) as pairs_traded,
-        sum(coalesce(swap_to_amount_usd, swap_from_amount_usd)) as trading_volume 
-    FROM {{ source('SOLANA_FLIPSIDE_DEFI', 'ez_dex_swaps') }}
-    WHERE swap_program ilike '%meteora%'
-    AND (swap_from_mint != '8twuNzMszqWeFbDErwtf4gw13E6MUS4Hsdx5mi3aqXAM' AND swap_to_mint != '8twuNzMszqWeFbDErwtf4gw13E6MUS4Hsdx5mi3aqXAM') --filter out SB token swaps, as Solana flipside source has bad pricing data for this token
-    group by 1
+        coalesce(daily_fee, 0) as daily_fee,
+        coalesce(daily_trade_volume, 0) as daily_trade_volume,
+        coalesce(total_fee, 0) as total_fee,
+        coalesce(total_trade_volume, 0) as total_trade_volume,
+        coalesce(total_tvl, 0) as total_tvl
+    from {{ ref('fact_meteora_api_metrics') }}
 )
 
 select
-    date_spine.date
-    , coalesce(swap_metrics.chain, 'solana') as chain
-    , coalesce(swap_metrics.unique_traders, 0) as unique_swappers
-    , coalesce(swap_metrics.number_of_swaps, 0) as number_of_swaps
-    , coalesce(swap_metrics.trading_volume, 0) as trading_volume
+    date_spine.date,
+    'solana' as chain,
 
-    -- Standardized Metrics
-    , coalesce(swap_metrics.unique_traders, 0) as spot_dau
-    , coalesce(swap_metrics.number_of_swaps, 0) as spot_txns
-    , coalesce(swap_metrics.trading_volume, 0) as spot_volume
+     --Standardized Metrics
+
+    --Financial Metrics
+    coalesce(api_metrics.daily_fee, 0) as spot_dlmm_fees,
+    coalesce(api_metrics.daily_fee, 0) as gross_protocol_revenue,
+    coalesce(api_metrics.daily_fee, 0) * .05 as treasury_cash_flow,
+    coalesce(api_metrics.daily_fee, 0) * .95 as protocol_cash_flow,
+    coalesce(api_metrics.total_tvl, 0) as dlmm_tvl,
+    --Usage Metrics 
+    coalesce(swap_metrics.unique_traders, 0) as spot_dlmm_dau,
+    coalesce(swap_metrics.number_of_swaps, 0) as spot_dlmm_txns,
+    coalesce(swap_metrics.trading_volume, 0) as spot_dlmm_volume,
+
 from date_spine
 left join swap_metrics using(date)
+left join api_metrics using(date)
+where date_spine.date < to_date(sysdate())
