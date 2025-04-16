@@ -50,8 +50,8 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
-  chain_dex_volumes: &chain_dex_volumes
-    name: chain_dex_volumes
+  chain_dex_volume: &chain_dex_volume
+    name: chain_dex_volume
     description: "The total volume of DEXes on a chain"
 
   chain_fees: &chain_fees
@@ -234,6 +234,10 @@ column_definitions:
     name: sybil_users
     description: "The number of sybil users on a chain"
 
+  total_staked: &total_staked
+    name: total_staked
+    description: "The total amount of USD value staked on a chain"
+
   total_staked_native: &total_staked_native
     name: total_staked_native
     description: "The total amount of native tokens staked on a chain"
@@ -312,7 +316,7 @@ models:
       - *burned_cash_flow_native
       - *chain_avg_txn_fee
       - *chain_dau
-      - *chain_dex_volumes
+      - *chain_dex_volume
       - *chain_fees
       - *chain_mau
       - *chain_median_txn_fee
@@ -344,6 +348,7 @@ models:
       - *stablecoin_total_supply
       - *stablecoin_transfer_volume
       - *stablecoin_txns
+      - *total_staked
       - *total_staked_native
       - *tvl
       - *validator_cash_flow

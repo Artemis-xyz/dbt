@@ -42,8 +42,8 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
-  chain_dex_volumes: &chain_dex_volumes
-    name: chain_dex_volumes
+  chain_dex_volume: &chain_dex_volume
+    name: chain_dex_volume
     description: "The total volume of DEXes on a chain"
 
   chain_fees: &chain_fees
@@ -191,7 +191,7 @@ models:
       - *burned_cash_flow
       - *chain_avg_txn_fee
       - *chain_dau
-      - *chain_dex_volumes
+      - *chain_dex_volume
       - *chain_fees
       - *chain_mau
       - *chain_txns

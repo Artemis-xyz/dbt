@@ -34,7 +34,7 @@ select
     , txns as chain_txns
     , dau as chain_dau
     , case when txns > 0 then fees / txns end as chain_avg_txn_fee
-    , dex_volumes as chain_dex_volumes
+    , dex_volumes as chain_dex_volume
     -- Cash Flow Metrics
     , fees as gross_protocol_revenue
     , fees_native as gross_protocol_revenue_native

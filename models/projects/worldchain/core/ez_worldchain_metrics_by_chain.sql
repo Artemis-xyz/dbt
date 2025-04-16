@@ -27,6 +27,7 @@ select
     -- Chain Metrics
     , daa as chain_dau
     , txns as chain_txns
+    , worldchain_dex_volumes.dex_volumes as chain_dex_volume
     -- Cash Flow Metrics
     , fees as gross_protocol_revenue
     , fees_native as gross_protocol_revenue_native

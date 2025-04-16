@@ -12,8 +12,8 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
-  chain_dex_volumes: &chain_dex_volumes
-    name: chain_dex_volumes
+  chain_dex_volume: &chain_dex_volume
+    name: chain_dex_volume
     description: "The total volume of DEXes on a chain"
 
   chain_fees: &chain_fees
@@ -62,6 +62,10 @@ column_definitions:
     description: "The total amount of fees (in USD) on the Osmosis DEX."
     tags:
       - override
+
+  spot_volume: &spot_volume
+    name: spot_volume
+    description: "The total volume on a spot dex"
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
@@ -122,7 +126,7 @@ models:
     columns:
       - *chain_avg_txn_fee
       - *chain_dau
-      - *chain_dex_volumes
+      - *chain_dex_volume
       - *chain_fees
       - *chain_txns
       - *fdmc
@@ -131,6 +135,7 @@ models:
       - *price
       - *service_cash_flow
       - *spot_fees
+      - *spot_volume
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume

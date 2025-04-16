@@ -85,7 +85,7 @@ select
     , txns AS chain_txns
     , avg_txn_fee AS chain_avg_txn_fee
     , nft_trading_volume AS chain_nft_trading_volume
-    , bitcoin_dex_volumes.dex_volumes AS chain_dex_volumes
+    , bitcoin_dex_volumes.dex_volumes AS chain_dex_volume
     -- Cashflow metrics
     , fees as chain_fees
     , fees_native AS gross_protocol_revenue_native

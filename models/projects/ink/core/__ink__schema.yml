@@ -8,13 +8,13 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
+  chain_dex_volume: &chain_dex_volume
+    name: chain_dex_volume
+    description: "The total volume of DEXes on a chain"
+
   chain_txns: &chain_txns
     name: chain_txns
     description: "Daily transactions on a chain"
-
-  dex_volumes: &dex_volumes
-    name: dex_volumes
-    description: "The total volume of DEXes on a chain"
 
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
@@ -33,8 +33,8 @@ models:
     description: "This table stores metrics for the INK protocol"
     columns:
       - *chain_dau
+      - *chain_dex_volume
       - *chain_txns
-      - *dex_volumes
       - *gross_protocol_revenue
       - *gross_protocol_revenue_native
 

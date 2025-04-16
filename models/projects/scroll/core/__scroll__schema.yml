@@ -12,8 +12,8 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
-  chain_dex_volumes: &chain_dex_volumes
-    name: chain_dex_volumes
+  chain_dex_volume: &chain_dex_volume
+    name: chain_dex_volume
     description: "The total volume of DEXes on a chain"
 
   chain_fees: &chain_fees
@@ -87,7 +87,7 @@ column_definitions:
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
-    description: "The turnover of a token in USD"
+    description: "The turnover of a token in USD, based on the token's circulating supply."
     tags:
       - artemis_gaap
 
@@ -139,7 +139,7 @@ models:
     columns:
       - *chain_avg_txn_fee
       - *chain_dau
-      - *chain_dex_volumes
+      - *chain_dex_volume
       - *chain_fees
       - *chain_mau
       - *chain_median_txn_fee
