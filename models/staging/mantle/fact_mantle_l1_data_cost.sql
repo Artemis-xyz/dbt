@@ -76,7 +76,7 @@ from mantle_data
 where mantle_data.date < to_date(sysdate())
 {% if is_incremental() %} 
     and mantle_data.date >= (
-        select dateadd('day', -5, max(date))
+        select dateadd('day', -3, max(date))
         from {{ this }}
     )
 {% endif %}

@@ -9,7 +9,7 @@ with
                 lower('0x47312450B3Ac8b5b8e247a6bB6d523e7605bDb60')
             )
             {% if is_incremental() %}
-                and raw_date >= (select dateadd('day', -7, max(date)) from {{ this }})
+                and raw_date >= (select DATEADD('day', -3, max(date)) from {{ this }})
             {% endif %}
         group by raw_date
         order by raw_date desc
@@ -23,7 +23,7 @@ from starknet_data
 where starknet_data.date < to_date(sysdate())
 {% if is_incremental() %} 
     and starknet_data.date >= (
-        select dateadd('day', -5, max(date))
+        select dateadd('day', -3, max(date))
         from {{ this }}
     )
 {% endif %}

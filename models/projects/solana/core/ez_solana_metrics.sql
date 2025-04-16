@@ -83,7 +83,7 @@ with
         {% if is_incremental() %}
             where
                 date_trunc('day', block_timestamp)
-                > (select dateadd('day', -5, max(date)) from {{ this }})
+                > (select dateadd('day', -3, max(date)) from {{ this }})
         {% endif %}
         group by date
     ),
@@ -101,7 +101,7 @@ with
             count(distinct(case when succeeded = 'TRUE' then value else null end)) dau
         from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         {% if is_incremental() %}
-            where raw_date > (select dateadd('day', -5, max(date)) from {{ this }})
+            where raw_date > (select dateadd('day', -3, max(date)) from {{ this }})
         {% endif %}
         group by raw_date
     ),
