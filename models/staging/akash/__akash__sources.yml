@@ -12,3 +12,9 @@ sources:
       - name: raw_akash_validator_fees
       - name: raw_akash_burns_native
       - name: raw_akash_mints_native
+
+  - name: MANUAL_STATIC_TABLES
+    schema: PROD
+    database: PC_DBT_DB
+    tables:
+      - name: akash_pre_mine_unlocks_data
