@@ -18,7 +18,7 @@ with
             transfer_type = 'fees'
             {% if is_incremental() %}
                 and block_timestamp
-                >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+                >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
             {% endif %}
         group by transaction_hash
     ),
@@ -40,7 +40,7 @@ with
         from {{ ref("fact_tron_daily_balances") }}
         {% if is_incremental() %}
             -- this filter will only be applied on an incremental run 
-            where date >= (select dateadd('day', -5, max(raw_date)) from {{ this }})
+            where date >= (select dateadd('day', -3, max(raw_date)) from {{ this }})
         {% endif %}
     )
 select
@@ -78,8 +78,8 @@ left join balances as bal on t.from_address = bal.address and raw_date = bal.dat
     -- this filter will only be applied on an incremental run 
     where
         block_timestamp
-        >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+        >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         or 
         new_contracts.last_updated
-        >= (select dateadd('day', -5, max(last_updated_timestamp)) from {{ this }})
+        >= (select dateadd('day', -3, max(last_updated_timestamp)) from {{ this }})
 {% endif %}

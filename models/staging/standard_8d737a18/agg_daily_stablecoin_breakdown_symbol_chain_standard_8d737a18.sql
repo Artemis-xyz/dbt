@@ -17,7 +17,7 @@ left join {{ ref("chain_agnostic_ids") }} ca
     on agg.chain = ca.chain
 where symbol in ('USDT', 'USDC')-- TODO: Need to keep a list of assets to include not remove
 {% if is_incremental() %}
-    and date >= (select dateadd('day', -7, max(date_day)) from {{ this }})
+    and date >= (select DATEADD('day', -3, max(date_day)) from {{ this }})
 {% endif %}
 group by date_day, chain_name, chain_id, asset_id, contract_address, asset_symbol
 

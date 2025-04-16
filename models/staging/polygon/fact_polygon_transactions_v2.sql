@@ -37,7 +37,7 @@ with
             date < to_date(sysdate())
             {% if is_incremental() %}
                 -- this filter will only be applied on an incremental run 
-                and date >= (select dateadd('day', -7, max(raw_date)) from {{ this }})
+                and date >= (select DATEADD('day', -3, max(raw_date)) from {{ this }})
             {% endif %}
     )
 select
@@ -81,8 +81,8 @@ left join balances as bal on t.from_address = bal.address and raw_date = bal.dat
     -- this filter will only be applied on an incremental run 
     where
         block_timestamp
-        >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+        >= (select DATEADD('day', -3, max(block_timestamp)) from {{ this }})
         or 
         new_contracts.last_updated
-            >= (select dateadd('day', -7, max(last_updated_timestamp)) from {{ this }})
+            >= (select DATEADD('day', -3, max(last_updated_timestamp)) from {{ this }})
 {% endif %}

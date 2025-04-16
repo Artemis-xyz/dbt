@@ -50,6 +50,12 @@ with
             sum(cumulative_etf_flow) as cumulative_etf_flow
         FROM {{ ref("ez_bitcoin_etf_metrics") }}
         GROUP BY 1
+    ), 
+    bitcoin_dex_volumes as (
+        SELECT
+            date,
+            volume_usd as dex_volumes
+        FROM {{ ref("fact_bitcoin_dex_volumes") }}
     )
 select
     fundamental_data.date
@@ -65,7 +71,7 @@ select
     , issuance
     , circulating_supply
     , nft_trading_volume
-    , dex_volumes
+    , bitcoin_dex_volumes.dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -79,7 +85,7 @@ select
     , txns AS chain_txns
     , avg_txn_fee AS chain_avg_txn_fee
     , nft_trading_volume AS chain_nft_trading_volume
-    , dex_volumes AS chain_dex_volumes
+    , bitcoin_dex_volumes.dex_volumes AS chain_dex_volumes
     -- Cashflow metrics
     , fees as chain_fees
     , fees_native AS gross_protocol_revenue_native
@@ -105,4 +111,5 @@ left join github_data on fundamental_data.date = github_data.date
 left join nft_metrics on fundamental_data.date = nft_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join etf_metrics on fundamental_data.date = etf_metrics.date
+left join bitcoin_dex_volumes on fundamental_data.date = bitcoin_dex_volumes.date
 where fundamental_data.date < to_date(sysdate())

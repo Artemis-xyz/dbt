@@ -18,7 +18,7 @@ WITH addresses_with_namespace_and_category AS (
     FROM {{ ref("dim_all_addresses_gold") }}
     WHERE namespace IS NOT NULL  
     {% if is_incremental() %}
-        AND last_updated > (SELECT DATEADD('day', -5, MAX(last_updated)) FROM {{ this }})
+        AND last_updated > (SELECT DATEADD('day', -3, MAX(last_updated)) FROM {{ this }})
     {% endif %}
 ), mapped_addresses AS (
     select 
@@ -47,7 +47,7 @@ deduped_bulk_manual_labeled_addresses AS (
     SELECT *
     FROM {{ ref("dim_manual_labeled_addresses") }}
     {% if is_incremental() %}
-        WHERE last_updated > (SELECT DATEADD('day', -5, MAX(last_updated)) FROM {{ this }})
+        WHERE last_updated > (SELECT DATEADD('day', -3, MAX(last_updated)) FROM {{ this }})
     {% endif %}
     QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated DESC) = 1
 ),
@@ -71,7 +71,7 @@ deduped_added_manual_labeled_addresses AS (
     FROM {{ source("PYTHON_LOGIC", "dim_frontend_manual_contracts") }}
     WHERE action = 'ADD'
     {% if is_incremental() %}
-        AND last_updated_timestamp > (SELECT DATEADD('day', -5, MAX(last_updated)) FROM {{ this }})
+        AND last_updated_timestamp > (SELECT DATEADD('day', -3, MAX(last_updated)) FROM {{ this }})
     {% endif %}
     QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated_timestamp DESC) = 1
 ),
@@ -80,7 +80,7 @@ deduped_deleted_manual_labeled_addresses AS (
     FROM {{ source("PYTHON_LOGIC", "dim_frontend_manual_contracts") }}
     WHERE action = 'DELETE'
     {% if is_incremental() %}
-        AND last_updated_timestamp > (SELECT DATEADD('day', -5, MAX(last_updated)) FROM {{ this }})
+        AND last_updated_timestamp > (SELECT DATEADD('day', -3, MAX(last_updated)) FROM {{ this }})
     {% endif %}
     QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated_timestamp DESC) = 1
 ),
@@ -123,7 +123,7 @@ recent_app_changes AS (
         artemis_sub_category_id,
         last_updated_timestamp AS last_updated
     FROM {{ ref('dim_all_apps_gold') }}
-    WHERE last_updated_timestamp > DATEADD('day', -5, CURRENT_TIMESTAMP())
+    WHERE last_updated_timestamp > DATEADD('day', -3, CURRENT_TIMESTAMP())
 ),
 recent_app_changes_rows AS (
     SELECT
