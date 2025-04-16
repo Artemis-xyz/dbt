@@ -20,10 +20,20 @@ column_definitions:
 
   buybacks_cash_flow: &buybacks_cash_flow
     name: buybacks_cash_flow
-    description: "The portion of protocol revenue that result in token buybacks. On Hyperliquid, the Assistance Fund is allocated a variable portion of trading fees which it uses to buyback HYPE (97% after 2025-02-01, 76.5% before). To achieve 14 million HYPE in assistancefund.top on 2025-02-01, we settled on 76.5% average split pre 2025-02-01 which best aligns with the cumulative HYPE balances."
+    description: "A portion of protocol revenue is allocated to the Assistance Fund (AF) for HYPE buybacks — 97% (using assistancefund.top data post-Feb 1) after Feb 1, 2025, and (using asxn data pre-Feb 1). The 97% is based on confirmation from the Hyperliquid team and matches our observed fee data from assistancefund.top."
     tags:
       - artemis_gaap
       - override
+
+  buybacks_native: &buybacks_native
+    name: buybacks_native
+    description: "The amount of native tokens bought back by the protocol"
+    tags:
+      - artemis_gaap
+
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on a chain"
 
   fdmc: &fdmc
     name: fdmc
@@ -40,7 +50,7 @@ column_definitions:
 
   market_cap: &market_cap
     name: market_cap
-    description: "The market cap of a token in USD."
+    description: "The market cap of a token in USD"
     tags:
       - artemis_gaap
 
@@ -77,7 +87,7 @@ column_definitions:
 
   service_cash_flow: &service_cash_flow
     name: service_cash_flow
-    description: "A portion of protocol revenue derived from trading activities is shared with the Hyperliquidity Provider (HLP) at a variable rate (3% after 2025-02-01, 23.5% before). To achieve 14 million HYPE in assistancefund.top on 2025-02-01, we settled on 23.5% average split pre 2025-02-01 (100% - 76.5% = 23.5% goes to HLP)."
+    description: "A portion of protocol revenue is allocated to the Hyperliquidity Provider (HLP) — 3%. The 3% is based on Hyperliquid team guidance and aligns with assistancefund.top data post-Feb 1."
     tags:
       - artemis_gaap
       - override
@@ -116,6 +126,8 @@ models:
       - *burned_cash_flow
       - *burned_cash_flow_native
       - *buybacks_cash_flow
+      - *buybacks_native
+      - *chain_fees
       - *fdmc
       - *gross_protocol_revenue
       - *market_cap
@@ -135,6 +147,8 @@ models:
       - *burned_cash_flow
       - *burned_cash_flow_native
       - *buybacks_cash_flow
+      - *buybacks_native
+      - *chain_fees
       - *fdmc
       - *gross_protocol_revenue
       - *market_cap

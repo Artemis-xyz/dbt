@@ -33,8 +33,16 @@ with
     , daily_burn_data as (
         select date, daily_burn, chain
         from {{ ref("fact_hyperliquid_daily_burn") }}
-    ),
-    market_metrics as (
+    )
+    , assistance_fund_data as (
+        select date, cumulative_hype, usd_value as hype_usd, hype_value, chain
+        from {{ ref("fact_hyperliquid_assistance_fund_data") }}
+    )
+    , daily_assistance_fund_data as (
+        select date, daily_balance as daily_buybacks_native, balance as assistance_fund_balance, chain
+        from {{ ref("fact_hyperliquid_assistance_fund_balance") }}
+    )
+    , market_metrics as (
         ({{ get_coingecko_metrics("hyperliquid") }}) 
     ),
     date_spine as (
@@ -55,15 +63,13 @@ select
     , trading_fees as fees
     , auction_fees
     , daily_burn
-    , case
-        when date >= '2025-02-01' then trading_fees * 0.03
-        else trading_fees * 0.235
-    end as primary_supply_side_revenue
+    , trading_fees * 0.03 as primary_supply_side_revenue
     -- add daily burn back to the revenue
     , case
-        when date >= '2025-02-01' then trading_fees * 0.97 + daily_burn * mm.price
-        else trading_fees * 0.765 + daily_burn * mm.price
+        when date >= '2025-02-01' then hype_usd + daily_burn * mm.price
+        else (daily_buybacks_native * mm.price) + (daily_burn * mm.price)
     end as revenue
+    , daily_buybacks_native
 
     -- Standardized Metrics
     , unique_traders::string as perp_dau
@@ -76,14 +82,12 @@ select
     -- all l1 fees are burned
     , daily_burn * mm.price as chain_fees
     , trading_fees + (daily_burn * mm.price) as gross_protocol_revenue
+    , trading_fees * 0.03 as service_cash_flow
     , case
-        when date >= '2025-02-01' then trading_fees * 0.03
-        else trading_fees * 0.235
-    end as service_cash_flow
-    , case
-        when date >= '2025-02-01' then trading_fees * 0.97
-        else trading_fees * 0.765
+        when date >= '2025-02-01' then hype_usd
+        else daily_buybacks_native * mm.price
     end as buybacks_cash_flow
+    , daily_buybacks_native as buybacks_native
     , daily_burn as burned_cash_flow_native
     , daily_burn * mm.price as burned_cash_flow
 
