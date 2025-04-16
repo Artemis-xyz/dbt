@@ -3,6 +3,7 @@
         materialized="incremental",
         unique_key="tx_hash",
         snowflake_warehouse="BAM_TRANSACTION_XLG",
+        cluster_by=["TO_DATE(block_timestamp)", "app"],
     )
 }}
 
