@@ -7,7 +7,7 @@ select t.tx_receiver address
 from near_flipside.core.fact_transactions as t
 left join contracts on lower(t.tx_receiver) = lower(contracts.address)
 where
-    t.block_timestamp > dateadd(day, -7, current_date())
+    t.block_timestamp > dateadd(day, -3, current_date())
     and contracts.name is null
     and tx_receiver is not null
 group by t.tx_receiver
