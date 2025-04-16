@@ -140,6 +140,8 @@ select
     , coalesce(combined_data.unique_traders, 0) as unique_traders
     , coalesce(fees_data.fees, 0) as fees
     , coalesce(fees_data.revenue, 0) as revenue
+    , coalesce(treasury_native.treasury_native, 0) as treasury_value_native    
+
 
     --Standardized Metrics
     , coalesce(spot_data.spot_fees, 0) as spot_fees
@@ -165,7 +167,7 @@ select
     , coalesce(tvl_metrics_grouped.tvl, 0) as tvl
     , coalesce(treasury.net_treasury_usd, 0) as treasury_value
     , coalesce(net_treasury.net_treasury_usd, 0) as net_treasury_value
-    , coalesce(treasury_native.treasury_native, 0) as treasury_value_native    
+    , coalesce(treasury_native.treasury_native, 0) as own_token_treasury    
     
     -- Market Data
     , market_metrics.price as price

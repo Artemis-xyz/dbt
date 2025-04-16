@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="PUMPFUN") }}
+{{ config(materialized="table", snowflake_warehouse="GMX") }}
 
 with GMXSwapEvents_arbitrum_v2 as ( 
     select

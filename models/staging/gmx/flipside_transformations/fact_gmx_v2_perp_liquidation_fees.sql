@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="PUMPFUN") }}
+{{ config(materialized="table", snowflake_warehouse="GMX") }}
 
 -- VERSION 2
 WITH v2_trade_fees_arbitrum AS (

@@ -1,7 +1,7 @@
 {{
     config(
         materialized='table',
-        snowflake_warehouse='PUMPFUN'
+        snowflake_warehouse='GMX'
     )
 }}
 
