@@ -95,7 +95,7 @@ SELECT
     -- Cash Flow Metrics
     , coalesce(revenue.revenue_usd, 0) as gross_protocol_revenue
     , 0.5 * coalesce(revenue.revenue_usd, 0) as treasury_cash_flow
-    , 0.5 * coalesce(revenue.revenue_usd, 0) as foundation_cash_flow
+    , 0.5 * coalesce(revenue.revenue_usd, 0) as buyback_cash_flow
     , coalesce(buybacks.buyback, 0) as buybacks
 
     -- Supply Metrics
