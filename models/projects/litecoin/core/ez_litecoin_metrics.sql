@@ -18,13 +18,10 @@ with
             date_trunc('day', block_timestamp) as date,
             count(*) as txns,
             sum(fee) / 100000000 as fees_native, -- Convert satoshis to LTC
-            sum(fee) / 100000000 * price_data.price as fees, -- Use actual price
             avg(fee) / 100000000 as avg_txn_fee,
             sum(fee) / 100000000 as revenue_native, -- Revenue in LTC
-            sum(fee) / 100000000 * price_data.price as revenue, -- Revenue in USD
             'litecoin' as chain
         from {{ ref("fact_litecoin_transactions") }}
-        left join price_data on date_trunc('day', block_timestamp) = price_data.date
         group by 1
     ),
     
@@ -92,10 +89,10 @@ select
     rolling_metrics.wau,
     rolling_metrics.mau,
     transaction_metrics.fees_native,
-    transaction_metrics.fees,
+    transaction_metrics.fees_native * price_data.price as fees,
     transaction_metrics.avg_txn_fee,
     transaction_metrics.revenue_native,
-    transaction_metrics.revenue,
+    transaction_metrics.revenue_native * price_data.price as revenue,
     block_metrics.issuance,
     supply_metrics.circulating_supply,
     github_data.weekly_commits_core_ecosystem,
