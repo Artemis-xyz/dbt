@@ -101,15 +101,21 @@ with
             t.input,
             t.value
         from {{ this }} as t
-        inner join new_contracts_incremental c on lower(t.to_address) = lower(c.address)
+        inner join new_contracts_incremental c on lower(t.contract_address) = lower(c.address)
     ),
     {% endif %}
 
     final_table as (
         select * from transactions_with_contracts
         {% if is_incremental() %}
-            union
-            select * from updated_contract_transactions
+            union all
+            select u.* 
+            from updated_contract_transactions u
+            where not exists (
+                select 1 
+                from transactions_with_contracts t 
+                where t.tx_hash = u.tx_hash
+            )
         {% endif %}
     )
 
