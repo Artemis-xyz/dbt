@@ -38,6 +38,10 @@ with
         select date, daily_balance as daily_buybacks_native, balance as assistance_fund_balance, chain
         from {{ ref("fact_hyperliquid_assistance_fund_balance") }}
     )
+    , hype_staked_data as (
+        select date, chain, hype_staked, num_stakers
+        from {{ ref("fact_hyperliquid_hype_staked") }}
+    )
     , market_metrics as (
         ({{ get_coingecko_metrics("hyperliquid") }}) 
     )
@@ -55,6 +59,8 @@ select
     -- add daily burn back to the revenue
     , (daily_buybacks_native * mm.price) + (daily_burn * mm.price) as revenue
     , daily_buybacks_native
+    , num_stakers
+    , hype_staked
 
     -- Standardized Metrics
     , unique_traders::string as perp_dau
@@ -87,6 +93,7 @@ left join daily_transactions_data using(date, chain)
 left join fees_data using(date, chain)
 left join auction_fees_data using(date, chain)
 left join daily_burn_data using(date, chain)
+left join hype_staked_data using(date, chain)
 left join daily_assistance_fund_data using(date, chain)
 left join market_metrics mm using(date)
 where date < to_date(sysdate())
