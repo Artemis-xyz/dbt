@@ -4,8 +4,8 @@
 version: 2
 
 column_definitions:
-  chain_dex_volumes: &chain_dex_volumes
-    name: chain_dex_volumes
+  chain_dex_volume: &chain_dex_volume
+    name: chain_dex_volume
     description: "The total volume of DEXes on a chain"
 
   fdmc: &fdmc
@@ -28,7 +28,7 @@ column_definitions:
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
-    description: "The turnover of a token in USD"
+    description: "The turnover of a token in USD, based on the token's circulating supply."
     tags:
       - artemis_gaap
 
@@ -42,7 +42,7 @@ models:
   - name: ez_ronin_metrics
     description: "This table stores metrics for the RONIN protocol"
     columns:
-      - *chain_dex_volumes
+      - *chain_dex_volume
       - *fdmc
       - *market_cap
       - *price

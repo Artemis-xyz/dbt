@@ -40,7 +40,7 @@ select
     , txns AS chain_txns
     , dau AS chain_dau
     , fees / txns AS chain_avg_txn_fee
-    , dex_volumes AS chain_dex_volumes
+    , dex_volumes AS chain_dex_volume
     , nft_trading_volume
     -- Cashflow metrics
     , fees as chain_fees

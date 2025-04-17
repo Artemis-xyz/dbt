@@ -20,7 +20,7 @@ select
     , dex_volumes
 
     -- Standardized Metrics
-    , dex_volumes as spot_volume
+    , dex_volumes as chain_dex_volume
 
     -- Market Metrics
     , cmd.price

@@ -54,8 +54,8 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
-  chain_dex_volumes: &chain_dex_volumes
-    name: chain_dex_volumes
+  chain_dex_volume: &chain_dex_volume
+    name: chain_dex_volume
     description: "The total volume of DEXes on a chain"
 
   chain_fees: &chain_fees
@@ -323,26 +323,6 @@ models:
       - *inflow
       - *outflow
 
-  - name: ez_avalanche_metrics_by_category
-    description: "This table stores metrics for the AVALANCHE protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
-  - name: ez_avalanche_metrics_by_application
-    description: "This table stores metrics for the AVALANCHE protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
   - name: ez_avalanche_metrics
     description: "This table stores metrics for the AVALANCHE protocol"
     columns:
@@ -355,7 +335,7 @@ models:
       - *burned_cash_flow_native
       - *chain_avg_txn_fee
       - *chain_dau
-      - *chain_dex_volumes
+      - *chain_dex_volume
       - *chain_fees
       - *chain_mau
       - *chain_median_txn_fee

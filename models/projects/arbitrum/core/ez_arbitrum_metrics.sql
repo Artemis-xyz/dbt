@@ -68,7 +68,7 @@ select
     , txns AS chain_txns
     , avg_txn_fee AS chain_avg_txn_fee  
     , median_txn_fee AS chain_median_txn_fee
-    , dune_dex_volumes_arbitrum.dex_volumes AS chain_dex_volumes
+    , dune_dex_volumes_arbitrum.dex_volumes AS chain_dex_volume
     , returning_users
     , new_users
     , low_sleep_users

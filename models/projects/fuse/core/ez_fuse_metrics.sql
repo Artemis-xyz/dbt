@@ -40,7 +40,7 @@ select
     , txns as chain_txns
     , dau as chain_dau
     , avg_txn_fee as chain_avg_txn_fee
-    , dex_volumes as chain_dex_volumes
+    , dex_volumes as chain_dex_volume
     -- Cash Flow Metrics
     , fees as chain_fees
     , fees as gross_protocol_revenue
