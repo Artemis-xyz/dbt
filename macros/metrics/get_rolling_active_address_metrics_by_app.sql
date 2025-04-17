@@ -4,7 +4,7 @@
             distinct_dates as (
                 select distinct 
                     raw_date
-                from {{ ref("ez_" ~ chain ~ "_transactions") }}
+                from {{ ref("fact_" ~ chain ~ "_transactions_v2") }}
                 {% if is_incremental() %}
                     and raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
                 {% endif %}
@@ -13,14 +13,14 @@
                 select distinct 
                     raw_date,
                     value as from_address 
-                from {{ ref("ez_" ~ chain ~ "_transactions") }}, lateral flatten(input => signers)
+                from {{ ref("fact_" ~ chain ~ "_transactions_v2") }}, lateral flatten(input => signers)
                 where succeeded = 'TRUE' and app = '{{ app }}'
             ),
     {% elif chain == 'sui' %}
         distinct_dates as (
             select distinct
                 raw_date
-            from {{ ref("ez_" ~ chain ~ "_transactions") }}
+            from {{ ref("fact_" ~ chain ~ "_transactions_v2") }}
             {% if is_incremental() %}
                 where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
@@ -29,14 +29,14 @@
             select distinct
                 raw_date,
                 sender as from_address
-            from {{ ref("ez_" ~ chain ~ "_transactions") }}
+            from {{ ref("fact_" ~ chain ~ "_transactions_v2") }}
             WHERE status = 'success' and app = '{{ app }}'
         ),
     {% elif chain == 'near' %}
         distinct_dates as (
             select distinct
                 raw_date
-            from {{ ref("ez_" ~ chain ~ "_transactions") }}
+            from {{ ref("fact_" ~ chain ~ "_transactions_v2") }}
             {% if is_incremental() %}
                 where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
@@ -45,14 +45,14 @@
             select distinct
                 raw_date,
                 from_address
-            from {{ ref("ez_" ~ chain ~ "_transactions") }}
+            from {{ ref("fact_" ~ chain ~ "_transactions_v2") }}
             WHERE app = '{{ app }}' and tx_succeeded = TRUE
         ),
     {% else %}
         distinct_dates as (
             select distinct 
                 raw_date
-            from {{ ref("ez_" ~ chain ~ "_transactions") }}
+            from {{ ref("fact_" ~ chain ~ "_transactions_v2") }}
             {% if is_incremental() %}
                 where raw_date > (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
@@ -61,7 +61,7 @@
             select distinct 
                 raw_date,
                 from_address
-            from {{ ref("ez_" ~ chain ~ "_transactions") }}
+            from {{ ref("fact_" ~ chain ~ "_transactions_v2") }}
             where app = '{{ app }}'
         ),
     {% endif %}

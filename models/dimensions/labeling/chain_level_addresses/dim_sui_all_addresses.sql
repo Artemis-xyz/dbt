@@ -39,4 +39,4 @@ SELECT
     MAX(last_updated) AS last_updated
 FROM union_data
 WHERE address IS NOT NULL
-GROUP BY address 
+GROUP BY address

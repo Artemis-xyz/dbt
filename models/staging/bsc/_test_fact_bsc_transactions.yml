@@ -1,5 +1,5 @@
 models:
-- name: fact_bsc_transactions
+- name: fact_bsc_transactions_v2
   columns:
   - name: GAS_USD
     tests:

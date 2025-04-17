@@ -23,7 +23,7 @@ with
         where
             date < to_date(sysdate())
             {% if is_incremental() %}
-                and block_timestamp >= (select dateadd('day', -5, max(date)) from {{ this }})
+                and block_timestamp >= (select dateadd('day', -3, max(date)) from {{ this }})
             {% endif %}
 
     ),

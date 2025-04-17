@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_arbitrum_transactions_v2") }}
+-- depends_on {{ ref("ez_arbitrum_metrics_by_subcategory") }}
 {{
     config(
         materialized="table",

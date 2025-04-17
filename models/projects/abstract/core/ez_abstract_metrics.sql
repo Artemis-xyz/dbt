@@ -21,7 +21,7 @@ select
 
     -- Standardized Metrics
 
-    -- Usage Metrics
+    -- Chain Usage Metrics
     , txns as chain_txns
     , daa as chain_dau
 

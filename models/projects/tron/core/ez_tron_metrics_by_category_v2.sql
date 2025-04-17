@@ -1,4 +1,4 @@
--- depends_on: {{ ref("ez_tron_transactions_v2") }}
+-- depends_on: {{ ref("ez_tron_metrics_by_subcategory") }}
 {{
     config(
         materialized="table",

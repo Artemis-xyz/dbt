@@ -1,7 +1,7 @@
 {{
     config(
         materialized='table',
-        snowflake_warehouse='ANALYTICS_XL',
+        snowflake_warehouse='AERODROME',
         database='AERODROME',
         schema='raw',
         alias='fact_v1_tvl'

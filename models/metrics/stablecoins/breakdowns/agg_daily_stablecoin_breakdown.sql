@@ -30,5 +30,5 @@ from {{ ref("agg_daily_stablecoin_breakdown_silver") }}
     )
 {% endif %}
 {% if is_incremental()  and list_stablecoin_address | length == 0 %}
-    where date >= (select dateadd('day', -7, max(date)) from {{ this }})
+    where date >= (select DATEADD('day', -3, max(date)) from {{ this }})
 {% endif %}

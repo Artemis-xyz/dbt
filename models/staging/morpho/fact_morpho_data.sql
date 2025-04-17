@@ -19,6 +19,8 @@ with
     )
 select
     f.value:date::date as date,
+    f.value:daily_active_addresses::number as dau,
+    f.value:daily_transactions::number as txns,
     f.value:borrow_amount_usd::number as borrow_amount_usd,
     f.value:collat_amount_usd::number as collat_amount_usd,
     f.value:supply_amount_usd::number as supply_amount_usd,

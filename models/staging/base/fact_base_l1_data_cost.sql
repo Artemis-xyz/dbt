@@ -2,7 +2,7 @@
 with
     base_data as (
         select raw_date as date, sum(tx_fee) as fees_native, sum(gas_usd) as fees
-        from {{ ref("ez_ethereum_transactions") }}
+        from {{ ref("fact_ethereum_transactions_v2") }}
         where
             lower(contract_address) in (
                 lower('0xFf00000000000000000000000000000000008453'),
@@ -20,7 +20,7 @@ from base_data
 where base_data.date < to_date(sysdate())
 {% if is_incremental() %} 
     and base_data.date >= (
-        select dateadd('day', -5, max(date))
+        select dateadd('day', -3, max(date))
         from {{ this }}
     )
 {% endif %}

@@ -42,22 +42,43 @@ with
 select 
     crosschain_data.date
     , 'axelar' as chain
-    , crosschain_data.bridge_txns
+    
     , axelar_chain_data.dau
     , axelar_chain_data.txns
     , crosschain_data.bridge_daa
-    , crosschain_data.bridge_volume
+
     , crosschain_data.fees
     , crosschain_data.fees / crosschain_data.bridge_txns as avg_txn_fee
     , validator_fees_data.validator_fees
+    
+
+    -- Standardized Metrics
+    , crosschain_data.bridge_daa as bridge_dau
+    , crosschain_data.bridge_volume as bridge_volume
+    , crosschain_data.bridge_txns
+
+    , axelar_chain_data.dau as chain_dau
+    , axelar_chain_data.txns as chain_txns
+
+    , crosschain_data.fees as bridge_fees
+    , validator_fees_data.validator_fees as chain_fees
+    , crosschain_data.fees as gross_protocol_revenue
+    , crosschain_data.fees / crosschain_data.bridge_txns as chain_avg_txn_fee
+    , validator_fees_data.validator_fees as validator_cash_flow
     , mints_data.mints
+
+
+    , price_data.price as price
+    , price_data.market_cap as market_cap
+    , price_data.fdmc as fdmc
+    , price_data.token_turnover_circulating as token_turnover_circulating
+    , price_data.token_turnover_fdv as token_turnover_fdv
+    , price_data.token_volume as token_volume
+
     , github_data.weekly_commits_core_ecosystem
     , github_data.weekly_commits_sub_ecosystem
     , github_data.weekly_developers_core_ecosystem
     , github_data.weekly_developers_sub_ecosystem
-    , price_data.price
-    , price_data.market_cap
-    , fdmc
 from crosschain_data
 left join axelar_chain_data using (date)
 left join github_data using (date)

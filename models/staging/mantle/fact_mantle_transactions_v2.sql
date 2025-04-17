@@ -41,6 +41,12 @@ select
         then new_contracts.category
         else null
     end as category,
+    null as user_type,
+    null as balance_usd,
+    null as native_token_balance,
+    null as stablecoin_balance,
+    null as probability,
+    null as engagement_type,
     CAST(current_timestamp() AS TIMESTAMP_NTZ) AS last_updated_timestamp
 from zksync_dune.mantle.transactions as t
 left join new_contracts on lower(t.to_hex) = lower(new_contracts.address)
@@ -50,8 +56,8 @@ where
     {% if is_incremental() %}
         -- this filter will only be applied on an incremental run 
         and (block_time
-        >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+        >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         or 
             new_contracts.last_updated
-        >= (select dateadd('day', -5, max(last_updated_timestamp)) from {{ this }}))
+        >= (select dateadd('day', -3, max(last_updated_timestamp)) from {{ this }}))
     {% endif %}

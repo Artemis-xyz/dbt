@@ -48,19 +48,36 @@ txns as (
         usd_balance,
         usd_balance_change
     from {{ref("fact_chiliz_treasury")}}
-)
+), price_data as ({{ get_coingecko_metrics("chiliz") }})
 select
-    ds.date,
-    dau,
-    txns,
-    fees_usd as fees,
-    coalesce(revenue, 0) as revenue,
-    coalesce(burns_native, 0) as burns_native,
-    usd_balance as treasury_value,
-    usd_balance_change as treasury_value_native_change
+    ds.date
+    , dau
+    , txns
+    , fees_usd as fees
+    , coalesce(revenue, 0) as revenue
+    , coalesce(burns_native, 0) as burns_native
+    , usd_balance as treasury_value
+    , usd_balance_change as treasury_value_native_change
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    -- Chain Usage Metrics
+    , txns AS chain_txns
+    , dau AS chain_dau
+    -- Cashflow metrics
+    , fees AS chain_fees
+    , fees_usd AS gross_protocol_revenue
+    , revenue AS burned_cash_flow
+    , burns_native AS burned_cash_flow_native
+    -- Protocol Metrics
+    , usd_balance AS treasury
+    , usd_balance_change AS treasury_native_change
 from date_spine ds
 left join fees using (date)
 left join txns using (date)
 left join daus using (date)
 left join burns using (date)
 left join treasury using (date)
+left join price_data using (date)

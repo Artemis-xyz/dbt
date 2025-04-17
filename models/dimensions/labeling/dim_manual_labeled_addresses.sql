@@ -1,5 +1,4 @@
 -- This file has been renamed from uploaded_labeled_addresses to dim_manual_labeled_addresses
--- Hardcoded `all_chains_gas_dau_txns_by_contract_v2` to prevent possible circular dependency
 {{config(materialized='table')}}
 select
     --lower all hex addresses
