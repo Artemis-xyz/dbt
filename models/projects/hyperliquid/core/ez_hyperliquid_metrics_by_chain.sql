@@ -10,7 +10,7 @@
 
 with
     trading_volume_data as (
-        select date, trading_volume, chain
+        select date, trading_volume as perp_volume, chain
         from {{ ref("fact_hyperliquid_trading_volume") }}
     )
     , unique_traders_data as (
@@ -42,6 +42,10 @@ with
         select date, chain, staked_hype, num_stakers
         from {{ ref("fact_hyperliquid_hype_staked") }}
     )
+    , spot_trading_volume_data as (
+        select date, spot_trading_volume, chain
+        from {{ ref("fact_hyperliquid_spot_trading_volume") }}
+    )
     , market_metrics as (
         ({{ get_coingecko_metrics("hyperliquid") }}) 
     )
@@ -57,7 +61,8 @@ select
     , 'hyperliquid' as app
     , 'DeFi' as category
     , chain
-    , trading_volume
+    , spot_trading_volume
+    , perp_volume + spot_trading_volume as trading_volume
     , unique_traders::string as unique_traders
     , trades as txns
     , trading_fees as fees
@@ -72,7 +77,8 @@ select
 
     -- Standardized Metrics
     , unique_traders::string as perp_dau
-    , trading_volume as perp_volume
+    , perp_volume
+    , spot_trading_volume as spot_volume
     , trades as perp_txns
 
     -- Revenue Metrics
