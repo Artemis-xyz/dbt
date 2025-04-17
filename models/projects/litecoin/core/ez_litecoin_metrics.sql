@@ -9,17 +9,21 @@
 }}
 
 with
+    github_data as ({{ get_github_metrics("litecoin") }}),
+    price_data as ({{ get_coingecko_metrics("litecoin") }}),
+    
     -- Daily transaction metrics from transactions
     transaction_metrics as (
         select
             date_trunc('day', block_timestamp) as date,
             count(*) as txns,
             sum(fee) / 100000000 as fees_native, -- Convert satoshis to LTC
-            sum(fee) / 100000000 * 100 as fees, -- Assuming $100/LTC for now
+            sum(fee) / 100000000 * price_data.price as fees, -- Use actual price
             avg(fee) / 100000000 as avg_txn_fee,
-            sum(fee) / 100000000 * 100 as revenue, -- Same as fees for now
+            sum(fee) / 100000000 * price_data.price as revenue, -- Use actual price
             'litecoin' as chain
         from {{ ref("fact_litecoin_transactions") }}
+        left join price_data on date_trunc('day', block_timestamp) = price_data.date
         group by 1
     ),
     
@@ -32,7 +36,6 @@ with
             sum(weight) as total_weight,
             sum(size) as total_size,
             avg(transaction_count) as avg_transactions_per_block,
-            
             sum(case 
                 when number < 840000 then 50
                 when number < 1680000 then 25
@@ -93,10 +96,13 @@ select
     transaction_metrics.revenue,
     block_metrics.issuance,
     supply_metrics.circulating_supply,
-
+    price_data.price,
+    price_data.price * supply_metrics.circulating_supply as market_cap,
+    price_data.price * supply_metrics.circulating_supply as fdmc
 from transaction_metrics
 left join block_metrics on transaction_metrics.date = block_metrics.date
 left join supply_metrics on transaction_metrics.date = supply_metrics.date
 left join active_addresses on transaction_metrics.date = active_addresses.date
 left join rolling_metrics on transaction_metrics.date = rolling_metrics.date
+left join price_data on transaction_metrics.date = price_data.date
 where transaction_metrics.date < to_date(sysdate()) 
