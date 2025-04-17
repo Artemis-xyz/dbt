@@ -39,7 +39,7 @@ with
         from {{ ref("fact_hyperliquid_assistance_fund_balance") }}
     )
     , hype_staked_data as (
-        select date, chain, hype_staked, num_stakers
+        select date, chain, staked_hype, num_stakers
         from {{ ref("fact_hyperliquid_hype_staked") }}
     )
     , market_metrics as (
@@ -60,7 +60,7 @@ select
     , (daily_buybacks_native * mm.price) + (daily_burn * mm.price) as revenue
     , daily_buybacks_native
     , num_stakers
-    , hype_staked
+    , staked_hype
 
     -- Standardized Metrics
     , unique_traders::string as perp_dau
