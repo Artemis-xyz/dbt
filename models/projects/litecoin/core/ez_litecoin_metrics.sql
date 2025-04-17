@@ -20,7 +20,8 @@ with
             sum(fee) / 100000000 as fees_native, -- Convert satoshis to LTC
             sum(fee) / 100000000 * price_data.price as fees, -- Use actual price
             avg(fee) / 100000000 as avg_txn_fee,
-            sum(fee) / 100000000 * price_data.price as revenue, -- Use actual price
+            sum(fee) / 100000000 as revenue_native, -- Revenue in LTC
+            sum(fee) / 100000000 * price_data.price as revenue, -- Revenue in USD
             'litecoin' as chain
         from {{ ref("fact_litecoin_transactions") }}
         left join price_data on date_trunc('day', block_timestamp) = price_data.date
@@ -93,9 +94,14 @@ select
     transaction_metrics.fees_native,
     transaction_metrics.fees,
     transaction_metrics.avg_txn_fee,
+    transaction_metrics.revenue_native,
     transaction_metrics.revenue,
     block_metrics.issuance,
     supply_metrics.circulating_supply,
+    github_data.weekly_commits_core_ecosystem,
+    github_data.weekly_commits_sub_ecosystem,
+    github_data.weekly_developers_core_ecosystem,
+    github_data.weekly_developers_sub_ecosystem,
     price_data.price,
     price_data.price * supply_metrics.circulating_supply as market_cap,
     price_data.price * supply_metrics.circulating_supply as fdmc
@@ -105,4 +111,5 @@ left join supply_metrics on transaction_metrics.date = supply_metrics.date
 left join active_addresses on transaction_metrics.date = active_addresses.date
 left join rolling_metrics on transaction_metrics.date = rolling_metrics.date
 left join price_data on transaction_metrics.date = price_data.date
+left join github_data on transaction_metrics.date = github_data.date
 where transaction_metrics.date < to_date(sysdate()) 
