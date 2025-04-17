@@ -33,8 +33,12 @@ with
     , daily_burn_data as (
         select date, daily_burn, chain
         from {{ ref("fact_hyperliquid_daily_burn") }}
-    ),
-    market_metrics as (
+    )
+    , daily_assistance_fund_data as (
+        select date, daily_balance as daily_buybacks_native, balance as assistance_fund_balance, chain
+        from {{ ref("fact_hyperliquid_assistance_fund_balance") }}
+    )
+    , market_metrics as (
         ({{ get_coingecko_metrics("hyperliquid") }}) 
     ),
     date_spine as (
@@ -55,10 +59,10 @@ select
     , trading_fees as fees
     , auction_fees
     , daily_burn
-    -- protocol’s revenue split between HLP (supplier) and AF (holder) at a ratio of 46%:54%
-    , COALESCE(trading_fees * 0.46, 0) as primary_supply_side_revenue
+    , trading_fees * 0.03 as primary_supply_side_revenue
     -- add daily burn back to the revenue
-    , COALESCE(trading_fees * 0.54, 0) + COALESCE(daily_burn, 0) * mm.price as revenue
+    , (daily_buybacks_native * mm.price) + (daily_burn * mm.price) as revenue
+    , daily_buybacks_native
 
     -- Standardized Metrics
     , unique_traders::string as perp_dau
@@ -71,8 +75,9 @@ select
     -- all l1 fees are burned
     , daily_burn * mm.price as chain_fees
     , trading_fees + (daily_burn * mm.price) as gross_protocol_revenue
-    , trading_fees * 0.46 as service_cash_flow
-    , trading_fees * 0.54 as buybacks_cash_flow
+    , trading_fees * 0.03 as service_cash_flow
+    , (daily_buybacks_native * mm.price) as buybacks_cash_flow
+    , daily_buybacks_native as buybacks_native
     , daily_burn as burned_cash_flow_native
     , daily_burn * mm.price as burned_cash_flow
 
@@ -89,5 +94,6 @@ left join daily_transactions_data using(date, chain)
 left join fees_data using(date, chain)
 left join auction_fees_data using(date, chain)
 left join daily_burn_data using(date, chain)
+left join daily_assistance_fund_data using(date, chain)
 left join market_metrics mm using(date)
 where date < to_date(sysdate())
