@@ -16,7 +16,7 @@ with
             , value / 1e18 as value_native
         from {{ref("fact_"~chain~"_traces")}}
         where status = 1
-            and type not in ('delegatecall', 'staticcall')
+            and call_type not in ('delegatecall', 'staticcall')
         {% if is_incremental() %}
             and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
