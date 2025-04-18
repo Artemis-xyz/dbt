@@ -8,6 +8,7 @@ with
             , 'hyperliquid' as app
             , 'hyperliquid' as chain
             , 'DeFi' as category
+        -- data comes from dune query, hitting defillama api
         from {{ source('MANUAL_STATIC_TABLES', 'hyperliquid_spot_trading_volume') }}
     
     union all
