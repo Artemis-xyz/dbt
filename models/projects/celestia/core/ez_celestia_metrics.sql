@@ -38,6 +38,10 @@ with
             )
         group by 1
     ),
+    supply_data as (
+        select *
+        from {{ ref("fact_celestia_supply_data") }}
+    ),
     price_data as ({{ get_coingecko_metrics("celestia") }})
 
 select
@@ -79,9 +83,15 @@ select
     -- Supply Metrics
     , coalesce(mints, 0) as mints_native
     , coalesce(mints_usd, 0) as mints
+    , coalesce(premine_unlocks_native, 0) as premine_unlocks_native
+    , coalesce(gross_emissions_native, 0) as gross_emissions_native
+    , coalesce(gross_emissions_native, 0) * price as gross_emissions
+    , coalesce(circulating_supply_native, 0) as circulating_supply_native
+    , coalesce(net_supply_change_native, 0) as net_supply_change_native
 
     -- Turnover Metrics
     , coalesce(token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(token_turnover_fdv, 0) as token_turnover_fdv
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
+left join supply_data on fundamental_data.date = supply_data.date
