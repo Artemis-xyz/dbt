@@ -6,4 +6,4 @@
     )
 }}
 
-{{ clean_goldsky_evm_native_transfers("celo", "celo") }}
+{{ clean_goldsky_evm_native_token_transfers("celo", "celo") }}
