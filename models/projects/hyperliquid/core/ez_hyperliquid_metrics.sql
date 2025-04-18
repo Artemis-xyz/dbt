@@ -39,6 +39,7 @@ with
         from {{ ref("fact_hyperliquid_assistance_fund_balance") }}
     )
     , hype_staked_data as (
+        -- snapshot data only starts as early as 2024-01-06
         select date, chain, staked_hype, num_stakers
         from {{ ref("fact_hyperliquid_hype_staked") }}
     )
