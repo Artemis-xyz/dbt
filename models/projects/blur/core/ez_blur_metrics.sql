@@ -56,6 +56,7 @@ select
     , blur_daily_supply.locked_supply_native
     , blur_daily_supply.circulating_supply_native
     , blur_daily_supply.net_supply_change_native
+    , blur_daily_supply.vested_supply_native as total_supply_native
 
     -- Turnover Metrics
     , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
