@@ -43,7 +43,7 @@
                 , address
                 , max_by(balance_token, block_timestamp) as balance_token
                 , max_by(balance_native, block_timestamp) as balance_native
-            from {{ref("fact_"~chain~"_address_balances")}}
+            from {{ this }}
             group by address, contract_address
         {% endif %}
     )
