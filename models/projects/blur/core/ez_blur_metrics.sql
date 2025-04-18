@@ -21,6 +21,10 @@ with
         select *
         from {{ ref("fact_blur_daily_txns") }}
     )
+    , blur_daily_supply as (
+        select *
+        from {{ ref("fact_blur_daily_supply") }}
+    )
     , market_data as (
         {{ get_coingecko_metrics("blur") }}
     )
@@ -46,6 +50,13 @@ select
     , blur_fees.fees as gross_protocol_revenue
     , blur_fees.fees as service_cash_flow
 
+    -- Supply Metrics
+    , blur_daily_supply.vested_supply_native
+    , blur_daily_supply.premine_unlocks_native
+    , blur_daily_supply.locked_supply_native
+    , blur_daily_supply.circulating_supply_native
+    , blur_daily_supply.net_supply_change_native
+
     -- Turnover Metrics
     , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
@@ -53,5 +64,6 @@ select
 from blur_daus
 left join blur_daily_txns using (date)
 left join blur_fees using (date)
+left join blur_daily_supply using (date)
 left join market_data using (date)
 order by date desc
