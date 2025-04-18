@@ -12,8 +12,8 @@ with
             , trace_address::string as trace_index
             , from_address
             , to_address
-            , value as value_raw
-            , value / 1e18 as value_native
+            , value::float as value_raw
+            , value::float / 1e18 as value_native
         from {{ref("fact_"~chain~"_traces")}}
         where status = 1
             and call_type not in ('delegatecall', 'staticcall')
@@ -27,11 +27,11 @@ with
             , block_number
             , transaction_hash
             , transaction_index
-            , -1::string as trace_index
+            , '-1' as trace_index
             , from_address
-            , to_address
-            , gas_used * gas_price::float as value_raw
-            , gas_used * gas_price::float / 1e9 as value_native
+            , miner as to_address
+            , gas_used::float * gas_price::float as value_raw
+            , gas_used::float * gas_price::float / 1e18 as value_native
         from {{ref("fact_"~chain~"_transactions")}}
         left join {{ref("fact_"~chain~"_blocks")}} using (block_number)
         {% if chain in ('celo') %}
@@ -48,7 +48,7 @@ select
     , block_number
     , transaction_hash
     , transaction_index
-    , trace_index
+    , trace_index::string as trace_index
     , chain_agnostic_id || ':' || 'native' as contract_address
     , from_address
     , to_address
