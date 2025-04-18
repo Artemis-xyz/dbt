@@ -5,3 +5,4 @@ sources:
     tables:
       - name: raw_chainlink_dau
       - name: raw_chainlink_daily_txns
+      - name: raw_chainlink_supply
