@@ -25,7 +25,7 @@ with
                 t1.block_timestamp,
                 t1.block_number,
                 t1.transaction_hash,
-                t1.transaction_index,
+                t1.transaction_index::number as transaction_index,
                 -1 as event_index,
                 t1.fee_currency as contract_address,
                 t1.from_address,
