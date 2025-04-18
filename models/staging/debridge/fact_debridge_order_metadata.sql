@@ -13,4 +13,4 @@ select
     , dst_amount_native
     , TRIM(sender_address_2::string, '"') as authority_src_chain
     , TRIM(receipient_address_2::string, '"') as authority_destination_chain
-from {{ SOURCE('PROD_LANDING', 'dln_orders_backfil_csv')}}
+from {{ source('PROD_LANDING', 'dln_orders_backfil_csv') }}
