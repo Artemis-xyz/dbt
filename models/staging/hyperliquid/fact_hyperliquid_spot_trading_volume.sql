@@ -8,10 +8,10 @@ with
             , 'hyperliquid' as app
             , 'hyperliquid' as chain
             , 'DeFi' as category
-        -- data comes from dune query, hitting defillama api
+        -- data comes from dune query (4642952), hitting defillama api
         from {{ source('MANUAL_STATIC_TABLES', 'hyperliquid_spot_trading_volume') }}
     
-    union all
+        union all
 
         select
             extraction_date::date as date,
