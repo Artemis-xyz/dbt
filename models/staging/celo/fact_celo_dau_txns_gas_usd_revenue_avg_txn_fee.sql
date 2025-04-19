@@ -6,7 +6,7 @@ with
             count(distinct from_address) as dau,
             count(distinct transaction_hash) as txns
         from {{ ref("fact_celo_transactions") }}
-        where status = 1
+        where receipt_status = 1
         group by 1
     ),
     prices as (
