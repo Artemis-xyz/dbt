@@ -2,7 +2,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="SEI",
+        snowflake_warehouse="SOLANA_XLG",
         database="sei",
         schema="core",
         alias="ez_metrics",
@@ -86,7 +86,7 @@ select
     , 0 as evm_cash_flow_native
     , 0 as wasm_cash_flow_native
     -- Supply Metrics
-    , sei_emissions.mints_native as emissions_native
+    , sei_emissions.mints_native as gross_emissions_native
     , sei_supply.premine_unlocks_native
     , sei_supply.net_supply_change_native
     , sei_supply.burns_native
