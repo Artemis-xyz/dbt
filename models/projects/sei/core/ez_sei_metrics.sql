@@ -23,6 +23,10 @@ with
         select date, daily_volume as dex_volumes
         from {{ ref("fact_sei_daily_dex_volumes") }}
     )
+    , sei_supply as (
+        select date, premine_unlocks_native, net_supply_change_native, burns_native, circulating_supply_native 
+        from {{ ref("fact_sei_supply_data") }}
+    )
 select
     coalesce(combined.date, wasm.date, evm.date, sei_avg_block_time.date, price.date, defillama.date, contracts.date) as date
     , 'sei' as chain
@@ -82,7 +86,11 @@ select
     , 0 as evm_cash_flow_native
     , 0 as wasm_cash_flow_native
     -- Supply Metrics
-    , sei_emissions.mints_native
+    , sei_emissions.mints_native as emissions_native
+    , sei_supply.premine_unlocks_native
+    , sei_supply.net_supply_change_native
+    , sei_supply.burns_native
+    , sei_supply.circulating_supply_native + coalesce(sei_emissions.mints_native, 0) as circulating_supply_native
     -- Developer Metrics
     , weekly_contracts_deployed
     , weekly_contract_deployers
@@ -97,5 +105,6 @@ full join price_data as price using (date)
 full join defillama_data as defillama using (date)
 full join sei_emissions using (date)
 left join sei_dex_volumes as dune_dex_volumes_sei using (date)
+full join sei_supply as sei_supply using (date)
 where 
 coalesce(combined.date, wasm.date, evm.date, sei_avg_block_time.date, price.date, defillama.date, contracts.date) < date(sysdate())
