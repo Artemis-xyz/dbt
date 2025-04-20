@@ -2,7 +2,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="SOLANA_XLG",
+        snowflake_warehouse="SEI",
         database="sei",
         schema="core",
         alias="ez_metrics",
