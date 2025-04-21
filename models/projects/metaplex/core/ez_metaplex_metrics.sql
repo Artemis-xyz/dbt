@@ -95,12 +95,13 @@ SELECT
     , coalesce(price.fdmc, 0) as fdmc
     , coalesce(price.token_volume, 0) as token_volume
 
-    -- NFT Metrics
+    -- Usage Metrics
     , coalesce(active_wallets.dau, 0) as nft_dau
     , coalesce(transactions.txns, 0) as nft_txns
-    , coalesce(revenue.revenue_usd, 0) as nft_fees
+    , coalesce(mints.daily_mints, 0) as nft_mints
 
     -- Cash Flow Metrics
+    , coalesce(revenue.revenue_usd, 0) as nft_fees
     , coalesce(revenue.revenue_usd, 0) as gross_protocol_revenue
     , 0.5 * coalesce(revenue.revenue_usd, 0) as treasury_cash_flow
     , 0.5 * coalesce(revenue.revenue_usd, 0) as foundation_cash_flow
