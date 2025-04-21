@@ -210,8 +210,6 @@ def get_project_path():
     return paths
 
 def exec_main_script(project_name):
-    print(f"Running script for: {project_name}")
-
     try:
         # Get dbt root directory
         dbt_root = get_dbt_root()
