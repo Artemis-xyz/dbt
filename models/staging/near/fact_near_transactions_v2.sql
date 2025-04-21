@@ -85,8 +85,8 @@ left join {{ ref("dim_near_bots") }} as bots on t.from_address = bots.from_addre
 {% if is_incremental() %}
     -- this filter will only be applied on an incremental run 
     where block_timestamp
-    >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+    >= (select DATEADD('day', -3, max(block_timestamp)) from {{ this }})
     or 
     new_contracts.last_updated
-        >= (select dateadd('day', -7, max(last_updated_timestamp)) from {{ this }})
+        >= (select DATEADD('day', -3, max(last_updated_timestamp)) from {{ this }})
 {% endif %}

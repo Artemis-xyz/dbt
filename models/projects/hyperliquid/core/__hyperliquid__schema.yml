@@ -20,7 +20,7 @@ column_definitions:
 
   buyback_cash_flow: &buyback_cash_flow
     name: buybacks_cash_flow
-    description: "The portion of protocol revenue that is allocatoed to token buybacks. On Hyperliquid, the Assistance Fund is allocated a variable portion of trading fees which it uses to buyback HYPE."
+    description: "A portion of protocol revenue is allocated to the Assistance Fund (AF) for HYPE buybacks — (97%). The 97% is based on confirmation from the Hyperliquid team and matches our observed fee data from assistancefund.top and asxn data."
     tags:
       - artemis_gaap
       - override
@@ -30,6 +30,12 @@ column_definitions:
     description: "The total transaction fees paid on the HyperEVM."
     tags:
       - override
+
+  buybacks_native: &buybacks_native
+    name: buybacks_native
+    description: "The amount of native tokens bought back by the protocol"
+    tags:
+      - artemis_gaap
 
   fdmc: &fdmc
     name: fdmc
@@ -83,7 +89,7 @@ column_definitions:
 
   service_cash_flow: &service_cash_flow
     name: service_cash_flow
-    description: "A portion of protocol revenue derived from trading activities is shared with the Hyperliquidity Provider (HLP) at a variable rate."
+    description: "A portion of protocol revenue is allocated to the Hyperliquidity Provider (HLP) — 3%. The 3% is based on 100% - 97% (HYPE buybacks - Assistance Fund) = 3%."
     tags:
       - artemis_gaap
       - override
@@ -93,6 +99,10 @@ column_definitions:
     description: "The total amount of fees (in USD) on Hyperliquid's spot exchange."
     tags:
       - override
+
+  spot_volume: &spot_volume
+    name: spot_volume
+    description: "The total volume on a spot dex"
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
@@ -122,6 +132,7 @@ models:
       - *burned_cash_flow
       - *burned_cash_flow_native
       - *buyback_cash_flow
+      - *buybacks_native
       - *chain_fees
       - *fdmc
       - *gross_protocol_revenue
@@ -133,6 +144,7 @@ models:
       - *price
       - *service_cash_flow
       - *spot_fees
+      - *spot_volume
       - *token_turnover_circulating
       - *token_volume
 
@@ -142,6 +154,7 @@ models:
       - *burned_cash_flow
       - *burned_cash_flow_native
       - *buyback_cash_flow
+      - *buybacks_native
       - *chain_fees
       - *fdmc
       - *gross_protocol_revenue
@@ -153,6 +166,7 @@ models:
       - *price
       - *service_cash_flow
       - *spot_fees
+      - *spot_volume
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume

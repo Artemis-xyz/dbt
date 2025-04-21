@@ -14,7 +14,7 @@ buybacks AS (
     where tx_to = 'E7Hzc1cQwx5BgJa8hJGVuDF2G2f2penLrhiKU6nU53gK' and tx_from = 'BBcPaj5v95nFFbXfgTebYyJDSY5HBCpARuRCLynVWimp'
     and mint = 'METAewgxyPbgwsseH8T16a39CQ5VyVxZi9zXiDPY18m'
     {% if is_incremental() %}
-    and block_timestamp >= (select dateadd('day', -5, max(date)) from {{ this }})
+    and block_timestamp >= (select dateadd('day', -3, max(date)) from {{ this }})
     {% else %}
     and block_timestamp >= '2024-06-26'
     {% endif %}

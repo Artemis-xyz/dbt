@@ -83,7 +83,7 @@ with
         {% if is_incremental() %}
             where
                 date_trunc('day', block_timestamp)
-                > (select dateadd('day', -5, max(date)) from {{ this }})
+                > (select dateadd('day', -3, max(date)) from {{ this }})
         {% endif %}
         group by date
     ),
@@ -101,7 +101,7 @@ with
             count(distinct(case when succeeded = 'TRUE' then value else null end)) dau
         from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         {% if is_incremental() %}
-            where raw_date > (select dateadd('day', -5, max(date)) from {{ this }})
+            where raw_date > (select dateadd('day', -3, max(date)) from {{ this }})
         {% endif %}
         group by raw_date
     ),
@@ -175,7 +175,7 @@ select
     , p2p_token_transfer_volume
     , p2p_transfer_volume
     , coalesce(solana_dex_volumes.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
-    , solana_dex_volumes.dex_volumes as chain_dex_volumes
+    , solana_dex_volumes.dex_volumes as chain_spot_volume
     , case
         when (gas - base_fee_native) < 0.00001 then 0 else (gas - base_fee_native)
     end as priority_fee_native
@@ -195,7 +195,8 @@ select
     , vote_tx_fee_native
     , vote_tx_fee_native * price AS vote_tx_fee
     -- Supply Metrics
-    , issuance AS emissions_native
+    , issuance AS gross_emissions_native
+    , issuance * price AS gross_emissions
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

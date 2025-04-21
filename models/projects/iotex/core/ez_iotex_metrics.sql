@@ -82,7 +82,7 @@ select
     -- Chain Usage Metrics
     , metrics.dau as chain_dau
     , metrics.txns as chain_txns
-    , dex_volume.dex_volumes as chain_dex_volumes
+    , dex_volume.dex_volumes as chain_spot_volume
     -- Cashflow Metrics
     , metrics.fees AS gross_protocol_revenue
     , metrics.primary_supply_side_revenue AS validator_cash_flow
