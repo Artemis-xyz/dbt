@@ -226,10 +226,10 @@ def exec_main_script(project_name):
         
         # Change back to original directory
         os.chdir(original_dir)
-        
+
         if result.returncode != 0:
             print("❌ dbt compile failed:")
-            print(result.stderr)
+            print(result.stdout)
             exit(1)
         print("✅ dbt compile successful")
 
