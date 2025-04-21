@@ -86,7 +86,7 @@ select
     , txns as chain_txns
     , dau as chain_dau
     , avg_txn_fee as chain_avg_txn_fee
-    , dex_volumes as chain_dex_volumes -- Osmosis is both a DEX and a chain
+    , dex_volumes as chain_spot_volume -- Osmosis is both a DEX and a chain
     , dex_volumes as spot_volume
     -- Cash Flow Metrics
     , gas_usd as chain_fees

@@ -209,7 +209,7 @@ def get_project_path():
     }
     return paths
 
-if __name__ == "__main__":
+def exec_main_script(project_name):
     try:
         # Get dbt root directory
         dbt_root = get_dbt_root()
@@ -218,9 +218,6 @@ if __name__ == "__main__":
         print(f"Changing to dbt root directory: {dbt_root}")
         original_dir = os.getcwd()
         os.chdir(dbt_root)
-
-        # Get project name from user
-        project_name = input("Enter project name: ")
         
         print(f"Compiling models for project: {project_name}...")
         dbt_compile_command = ['dbt', 'compile', '-s', f'models/projects/{project_name}']
@@ -229,10 +226,10 @@ if __name__ == "__main__":
         
         # Change back to original directory
         os.chdir(original_dir)
-        
+
         if result.returncode != 0:
             print("❌ dbt compile failed:")
-            print(result.stderr)
+            print(result.stdout)
             exit(1)
         print("✅ dbt compile successful")
 
@@ -255,3 +252,11 @@ if __name__ == "__main__":
     generate_project_schema(project_name, global_schema_path, sql_files)
 
     
+
+if __name__ == "__main__":
+    # Get comma-separated input and split into list
+    project_names = input("Enter project names, separated by commas: ").split(',')
+
+    # Trim whitespace and run script
+    for name in [n.strip() for n in project_names if n.strip()]:
+        exec_main_script(name)

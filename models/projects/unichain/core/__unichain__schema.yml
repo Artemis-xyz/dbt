@@ -8,6 +8,10 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
+  chain_spot_volume: &chain_spot_volume
+    name: chain_spot_volume
+    description: "Total spot dex volume on a chain"
+
   chain_txns: &chain_txns
     name: chain_txns
     description: "Daily transactions on a chain"
@@ -62,13 +66,13 @@ column_definitions:
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
-    description: "The turnover of a token in USD"
+    description: "The turnover of a token in USD, based on the token's circulating supply."
     tags:
       - artemis_gaap
 
   token_turnover_fdv: &token_turnover_fdv
     name: token_turnover_fdv
-    description: "The turnover of a token in USD"
+    description: "The turnover of a token in USD, based on the token's fully diluted supply."
     tags:
       - artemis_gaap
 
@@ -83,6 +87,7 @@ models:
     description: "This table stores metrics for the UNICHAIN protocol"
     columns:
       - *chain_dau
+      - *chain_spot_volume
       - *chain_txns
       - *fdmc
       - *foundation_cash_flow
@@ -100,6 +105,7 @@ models:
     description: "This table stores metrics for the UNICHAIN protocol"
     columns:
       - *chain_dau
+      - *chain_spot_volume
       - *chain_txns
       - *fdmc
       - *foundation_cash_flow

@@ -8,6 +8,10 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
+  chain_spot_volume: &chain_spot_volume
+    name: chain_spot_volume
+    description: "Total spot dex volume on a chain"
+
   chain_txns: &chain_txns
     name: chain_txns
     description: "Daily transactions on a chain"
@@ -36,14 +40,20 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  tvl: &tvl
+    name: tvl
+    description: "The total value locked in a protocol"
+
 models:
   - name: ez_manta_metrics
     description: "This table stores metrics for the MANTA protocol"
     columns:
       - *chain_dau
+      - *chain_spot_volume
       - *chain_txns
       - *fdmc
       - *gross_protocol_revenue
       - *market_cap
       - *price
+      - *tvl
 

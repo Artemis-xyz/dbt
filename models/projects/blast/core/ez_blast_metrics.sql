@@ -65,7 +65,7 @@ select
     , low_sleep_users
     , high_sleep_users
     , dau_over_100 AS dau_over_100_balance
-    , dune_dex_volumes_blast.dex_volumes as chain_dex_volumes
+    , dune_dex_volumes_blast.dex_volumes as chain_spot_volume
     -- Cashflow metrics
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
