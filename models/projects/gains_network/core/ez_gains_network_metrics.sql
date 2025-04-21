@@ -23,6 +23,7 @@ with date_spine as (
         with agg as (
             select date, sum(trading_volume) as trading_volume, sum(unique_traders) as unique_traders
             from {{ ref("fact_gains_trading_volume_unique_traders") }} -- V7
+            where chain is not null
             group by date
             UNION ALL
             SELECT date, sum(trading_volume) as trading_volume, sum(unique_traders) as unique_traders

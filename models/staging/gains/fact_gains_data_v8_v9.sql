@@ -12,7 +12,7 @@ with max_extraction as (
 )
 select
     value:date as date,
-    value:chain as chain,
+    value:blockchain as chain,
     'gains_network' as app,
     'DeFi' as category,
     value:trading_volume as trading_volume,
