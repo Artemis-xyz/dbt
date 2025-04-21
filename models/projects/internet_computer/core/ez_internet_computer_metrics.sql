@@ -36,7 +36,7 @@ select
     , dau AS chain_dau
     , txns AS chain_txns
     , icp_transaction_fees / txns AS chain_avg_txn_fee
-    , dex_volumes AS chain_dex_volume
+    , dex_volumes AS chain_spot_volume
     -- Cashflow Metrics
     , total_native_fees * price AS chain_fees
     , total_native_fees AS gross_protocol_revenue_native -- total transaction fees

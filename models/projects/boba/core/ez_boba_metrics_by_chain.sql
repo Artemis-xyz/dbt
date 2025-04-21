@@ -25,7 +25,7 @@ select
     , fdmc
     , token_volume
     -- Chain Metrics
-    , dex_volumes as chain_dex_volume
+    , dex_volumes as chain_spot_volume
     , token_turnover_circulating
     , token_turnover_fdv
 from boba_dex_volumes d

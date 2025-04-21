@@ -57,7 +57,7 @@ select
     , mau AS chain_mau
     , txns AS chain_txns
     , avg_txn_fee AS chain_avg_txn_fee
-    , dex_volumes AS chain_dex_volume
+    , dex_volumes AS chain_spot_volume
     , returning_users
     , new_users
     -- Cashflow Metrics

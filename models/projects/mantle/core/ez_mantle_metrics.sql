@@ -66,7 +66,7 @@ select
     , returning_users
     , new_users
     , avg_txn_fee AS chain_avg_txn_fee
-    , dune_dex_volumes_mantle.dex_volumes AS chain_dex_volume
+    , dune_dex_volumes_mantle.dex_volumes AS chain_spot_volume
     -- Cashflow Metrics
     , fees as chain_fees
     , fees_native AS gross_protocol_revenue_native

@@ -8,9 +8,9 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
-  chain_dex_volume: &chain_dex_volume
-    name: chain_dex_volume
-    description: "The total volume of DEXes on a chain"
+  chain_spot_volume: &chain_spot_volume
+    name: chain_spot_volume
+    description: "Total spot dex volume on a chain"
 
   chain_txns: &chain_txns
     name: chain_txns
@@ -33,7 +33,7 @@ models:
     description: "This table stores metrics for the INK protocol"
     columns:
       - *chain_dau
-      - *chain_dex_volume
+      - *chain_spot_volume
       - *chain_txns
       - *gross_protocol_revenue
       - *gross_protocol_revenue_native

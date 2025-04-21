@@ -28,10 +28,6 @@ column_definitions:
     tags:
       - override
 
-  chain_dex_volume: &chain_dex_volume
-    name: chain_dex_volume
-    description: "The total volume of DEXes on a chain"
-
   chain_fees: &chain_fees
     name: chain_fees
     description: "The total transaction fees paid on a chain"
@@ -41,6 +37,10 @@ column_definitions:
     description: "Monthly unique users on Aptos"
     tags:
       - override
+
+  chain_spot_volume: &chain_spot_volume
+    name: chain_spot_volume
+    description: "Total spot dex volume on a chain"
 
   chain_txns: &chain_txns
     name: chain_txns
@@ -151,9 +151,9 @@ models:
       - *burned_cash_flow_native
       - *chain_avg_txn_fee
       - *chain_dau
-      - *chain_dex_volume
       - *chain_fees
       - *chain_mau
+      - *chain_spot_volume
       - *chain_txns
       - *chain_wau
       - *fdmc

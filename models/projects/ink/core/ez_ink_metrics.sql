@@ -24,7 +24,7 @@ select
     -- Chain Usage Metrics
     , txns AS chain_txns
     , dau AS chain_dau
-    , ink_dex_volumes.dex_volumes AS chain_dex_volume
+    , ink_dex_volumes.dex_volumes AS chain_spot_volume
     -- Cashflow Metrics
     , fees AS gross_protocol_revenue
     , fees_native AS gross_protocol_revenue_native

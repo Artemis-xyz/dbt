@@ -65,7 +65,7 @@ select
     , rm.wau as chain_wau
     , rm.mau as chain_mau
     , fd.txns as chain_txns
-    , dsv.dex_volumes as chain_dex_volume
+    , dsv.dex_volumes as chain_spot_volume
 
     -- Cashflow Metrics
     , fd.fees as chain_fees

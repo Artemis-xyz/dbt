@@ -4,9 +4,9 @@
 version: 2
 
 column_definitions:
-  chain_dex_volume: &chain_dex_volume
-    name: chain_dex_volume
-    description: "The total volume of DEXes on a chain"
+  chain_spot_volume: &chain_spot_volume
+    name: chain_spot_volume
+    description: "Total spot dex volume on a chain"
 
   fdmc: &fdmc
     name: fdmc
@@ -42,7 +42,7 @@ models:
   - name: ez_ronin_metrics
     description: "This table stores metrics for the RONIN protocol"
     columns:
-      - *chain_dex_volume
+      - *chain_spot_volume
       - *fdmc
       - *market_cap
       - *price

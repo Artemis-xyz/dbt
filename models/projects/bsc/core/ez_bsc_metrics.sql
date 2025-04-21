@@ -59,7 +59,7 @@ select
     , non_sybil_users
     , dau_over_100 AS dau_over_100_balance
     , nft_trading_volume AS chain_nft_trading_volume
-    , dune_dex_volumes_binance.dex_volumes AS chain_dex_volume
+    , dune_dex_volumes_binance.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
     , fees as chain_fees
     , fees_native AS gross_protocol_revenue_native

@@ -120,7 +120,7 @@ select
     , avg_cost_per_mib_gwei
     , avg_cost_per_mib
     , submitters
-    , dune_dex_volumes_ethereum.dex_volumes AS chain_dex_volume
+    , dune_dex_volumes_ethereum.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
     , fees as chain_fees
     , fees_native AS gross_protocol_revenue_native

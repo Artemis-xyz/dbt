@@ -40,10 +40,6 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
-  chain_dex_volume: &chain_dex_volume
-    name: chain_dex_volume
-    description: "The total volume of DEXes on a chain"
-
   chain_median_txn_fee: &chain_median_txn_fee
     name: chain_median_txn_fee
     description: "The median transaction fee on a chain"
@@ -51,6 +47,10 @@ column_definitions:
   chain_nft_trading_volume: &chain_nft_trading_volume
     name: chain_nft_trading_volume
     description: "The total volume of NFT trading on a chain"
+
+  chain_spot_volume: &chain_spot_volume
+    name: chain_spot_volume
+    description: "Total spot dex volume on a chain"
 
   chain_txns: &chain_txns
     name: chain_txns
@@ -237,9 +237,9 @@ models:
       - *bridge_volume
       - *chain_avg_txn_fee
       - *chain_dau
-      - *chain_dex_volume
       - *chain_median_txn_fee
       - *chain_nft_trading_volume
+      - *chain_spot_volume
       - *chain_txns
       - *gross_protocol_revenue
       - *gross_protocol_revenue_native

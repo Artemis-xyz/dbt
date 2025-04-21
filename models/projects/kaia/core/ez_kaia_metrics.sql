@@ -23,7 +23,7 @@ select
     , market_cap
     , fdmc
     -- Chain Metrics
-    , kaia_dex_volumes.dex_volumes AS chain_dex_volume
+    , kaia_dex_volumes.dex_volumes AS chain_spot_volume
 from kaia_dex_volumes   
 left join price_data using (date)
 where date < to_date(sysdate())

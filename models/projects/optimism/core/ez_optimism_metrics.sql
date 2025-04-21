@@ -89,7 +89,7 @@ select
     , p2p_transfer_volume
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_optimism.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
-    , dune_dex_volumes_optimism.dex_volumes AS chain_dex_volume
+    , dune_dex_volumes_optimism.dex_volumes AS chain_spot_volume
     -- Cashflow Metrics
     , fees AS chain_fees
     , fees_native AS gross_protocol_revenue_native

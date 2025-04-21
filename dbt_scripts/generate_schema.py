@@ -261,4 +261,5 @@ if __name__ == "__main__":
 
     # Trim whitespace and run script
     for name in [n.strip() for n in project_names if n.strip()]:
+        print(name)
         exec_main_script(name)
