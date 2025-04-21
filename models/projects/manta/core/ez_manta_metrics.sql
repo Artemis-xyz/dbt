@@ -49,3 +49,4 @@ FROM {{ ref('fact_manta_txns_daa') }}
 LEFT JOIN price_data using (date)
 LEFT JOIN defillama_data using (date)
 LEFT JOIN supply_data using (date)
+WHERE date < to_date(sysdate())
