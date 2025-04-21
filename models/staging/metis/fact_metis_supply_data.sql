@@ -14,8 +14,8 @@ with date_spine as (
 
 select
     ds.date
-    , net_supply_change as premine_unlocks_native
-    , net_supply_change as net_supply_change_native
-    , circulating_supply as circulating_supply_native
+    , coalesce(net_supply_change, 0) as premine_unlocks_native
+    , coalesce(net_supply_change, 0) as net_supply_change_native
+    , sum(coalesce(net_supply_change, 0)) over (order by date) as circulating_supply_native
 from date_spine ds
 left join {{ source('MANUAL_STATIC_TABLES', 'metis_daily_supply_data') }} using (date)
