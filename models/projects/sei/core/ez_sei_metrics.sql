@@ -60,7 +60,7 @@ select
     , combined.avg_txn_fee as chain_avg_txn_fee
     , (wasm_avg_block_time + evm_avg_block_time) / 2 as chain_avg_block_time
     , (wasm_txns + evm_txns) / 86400 as chain_avg_tps
-    , dune_dex_volumes_sei.dex_volumes AS chain_dex_volumes
+    , dune_dex_volumes_sei.dex_volumes AS chain_spot_volume
     -- EVM Usage Metrics
     , evm_avg_block_time 
     , evm_new_users

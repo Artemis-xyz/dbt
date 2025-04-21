@@ -74,7 +74,7 @@ select
     , txns as chain_txns
     , avg_txn_fee as chain_avg_txn_fee
     , median_txn_fee as chain_median_txn_fee
-    , dune_dex_volumes_zksync.dex_volumes as chain_dex_volumes
+    , dune_dex_volumes_zksync.dex_volumes as chain_spot_volume
     -- Cash Flow Metrics
     , gas_usd as gross_protocol_revenue
     , gas as gross_protocol_revenue_native

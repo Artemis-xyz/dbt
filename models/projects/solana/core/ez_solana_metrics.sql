@@ -175,7 +175,7 @@ select
     , p2p_token_transfer_volume
     , p2p_transfer_volume
     , coalesce(solana_dex_volumes.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
-    , solana_dex_volumes.dex_volumes as chain_dex_volumes
+    , solana_dex_volumes.dex_volumes as chain_spot_volume
     , case
         when (gas - base_fee_native) < 0.00001 then 0 else (gas - base_fee_native)
     end as priority_fee_native

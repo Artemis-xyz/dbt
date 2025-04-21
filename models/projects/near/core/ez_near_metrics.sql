@@ -84,7 +84,7 @@ select
     , avg_cost_per_mib_native
     , avg_cost_per_mib
     , submitters
-    , coalesce(near_dex_volumes.dex_volumes, 0) as chain_dex_volumes
+    , coalesce(near_dex_volumes.dex_volumes, 0) as chain_spot_volume
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
