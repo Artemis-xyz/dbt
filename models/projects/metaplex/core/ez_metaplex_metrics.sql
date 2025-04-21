@@ -65,6 +65,14 @@ with date_spine as (
 , price as (
     {{get_coingecko_metrics('metaplex')}}
 )
+, supply as (
+    select
+        date,
+        premine_unlocks_native,
+        net_supply_change_native,
+        circulating_supply_native
+    from {{ ref("fact_metaplex_supply_data") }}
+)
 
 SELECT
     ds.date
@@ -99,8 +107,9 @@ SELECT
     , coalesce(buybacks.buyback, 0) as buybacks
 
     -- Supply Metrics
-    , coalesce(mints.daily_mints, 0) as mints_native
-    , coalesce(mints.daily_mints, 0) - coalesce(buybacks.buyback, 0) as net_supply_change_native
+    , supply.premine_unlocks_native
+    , supply.net_supply_change_native
+    , supply.circulating_supply_native
 
     -- Turnover Metrics
     , coalesce(price.token_turnover_circulating, 0) as token_turnover_circulating
@@ -114,4 +123,5 @@ LEFT JOIN active_wallets USING (date)
 LEFT JOIN transactions USING (date)
 LEFT JOIN unique_signers USING (date)
 LEFT JOIN new_holders USING (date)
+LEFT JOIN supply USING (date)
 where ds.date < to_date(sysdate())
