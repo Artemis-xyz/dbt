@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="SOLANA_XLG",
+        snowflake_warehouse="STARGATE",
         database="stargate",
         schema="core",
         alias="ez_metrics",
@@ -253,9 +253,9 @@ SELECT
     , t.treasury_usd as treasury
     , ts.staked_usd as staked
     , ts.staked_native
+    
     , pd.price as price
-
-    , pd.price * cs.circulating_supply_native as market_cap
+    , pd.price * sd.circulating_supply_native as market_cap
     , h.hydra_locked_assets as hydra_tvl
 
     -- Supply Data
@@ -266,13 +266,10 @@ SELECT
     , sd.circulating_supply_native
 
     -- Market Data
-    , pd.price
     , pd.token_volume
-    , pd.market_cap
     , pd.fdmc
     , pd.token_turnover_circulating
     , pd.token_turnover_fdv
-    
 FROM treasury_metrics t
 full outer join daily_growth d ON d.transaction_date = t.date
 LEFT JOIN new_addresses n ON t.date = n.transaction_date
