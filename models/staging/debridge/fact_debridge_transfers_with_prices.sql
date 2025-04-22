@@ -1,7 +1,44 @@
 {{ config(snowflake_warehouse="DEBRIDGE", materialized="table") }}
 
-WITH prices as (
-    {{ get_coingecko_prices_on_chains(['solana', 'berachain', 'ethereum', 'abstract', 'bsc', 'polygon', 'arbitrum', 'base', 'avalanche', 'sonic', 'fantom', 'story', 'hyperliquid', 'gnosis']) }}
+WITH all_prices as (
+    {{ get_coingecko_prices_on_chains(['solana', 'berachain', 'ethereum', 'abstract', 'bsc', 'polygon', 'arbitrum', 'base', 'avalanche', 'sonic', 'fantom', 'story', 'hyperliquid', 'gnosis', 'optimism']) }}
+),
+coalesced_prices as (
+    select
+        contract_address
+        , date
+        , max(price) as price
+        , max(decimals) as decimals
+        , max(symbol) as symbol
+    from all_prices
+    group by contract_address, date
+),
+eth_price as (
+    select
+        '0x0000000000000000000000000000000000000000' as contract_address
+        , date
+        , price 
+        , decimals
+        , symbol
+    from coalesced_prices
+    where lower(contract_address) = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+),
+prices as (
+    select
+        contract_address
+        , date
+        , price
+        , decimals
+        , symbol
+    from coalesced_prices
+    union all
+    select 
+        contract_address
+        , date
+        , price
+        , decimals
+        , symbol 
+    from eth_price
 ),
 token_fee_prices as (
     {{ get_multiple_coingecko_price_with_latest_by_ids(['ethereum', 'avalanche-2', 'binancecoin', 'matic-network', 'fantom', 'solana', 'dai', 'sonic-3', 'berachain-bera', 'story-2', 'hyperliquid', 'crossfi-2', 'neon', 'metis-token', 'bitrock', 'cronos-zkevm-cro']) }}
