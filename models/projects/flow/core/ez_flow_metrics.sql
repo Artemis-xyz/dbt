@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="FLOW",
+        snowflake_warehouse="PUMPFUN",
         database="flow",
         schema="core",
         alias="ez_metrics",
