@@ -31,7 +31,11 @@ with
                 else contract_address 
             end as contract_address
             , block_timestamp
-            , balance_token as balance_raw
+            {%if chain == 'solana' %} -- note Solana balances are already decimals adjusted
+                , amount AS balance_raw
+            {% else %}
+                , balance_token AS balance_raw
+            {% endif %}
         from {{ ref("fact_" ~ chain ~ "_address_balances_by_token") }}
         where lower(address) in (select lower(address) from tagged_addresses)
     )
@@ -41,10 +45,14 @@ with
             , ab.contract_address
             , block_timestamp
             , balance_raw
-            , case
-                when right(ab.contract_address, 6) = 'native' then balance_raw
-                else balance_raw / pow(10, decimals) 
-            end as balance_native
+            , {% if chain != 'solana' %}
+                case
+                    when right(ab.contract_address, 6) = 'native' then balance_raw
+                    else balance_raw / pow(10, decimals) 
+                end as balance_native
+            {% else %}
+                balance_raw as balance_native
+            {% endif %}
         from old_balances ab
         inner join tagged_addresses
             on lower(ab.address) = lower(tagged_addresses.address)

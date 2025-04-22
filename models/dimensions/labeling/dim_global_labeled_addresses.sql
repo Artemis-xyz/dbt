@@ -7,13 +7,10 @@
     )
 }}
 
-SELECT 
-    address,
-    name,
-    artemis_application_id,
-    chain,
-    is_token,
-    is_fungible,
-    type,
-    last_updated
-FROM {{ ref("fact_jitosol_stake_accounts") }}
+
+{{ dbt_utils.union_relations(
+    relations=[
+        ref("fact_jitosol_stake_accounts"),
+        ref("fact_orca_treasury_accounts"),
+    ]
+)}}
