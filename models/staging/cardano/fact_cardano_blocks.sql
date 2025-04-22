@@ -1,6 +1,6 @@
 {{ config(
     materialized='table',
-    unique_key='block_hash',
+    unique_key='unique_id',
     snowflake_warehouse='CARDANO'
 ) }}
 
@@ -15,7 +15,9 @@ with source_data as (
         PARQUET_RAW:script_count::integer as script_count,
         PARQUET_RAW:sum_script_size::integer as sum_script_size,
         PARQUET_RAW:pool_hash::string as pool_hash,
-        PARQUET_RAW:block_hash::string as block_hash
+        PARQUET_RAW:block_hash::string as block_hash,
+        -- Generate a unique ID for each record
+        md5(concat(block_hash)) as unique_id
     from {{ source('PROD_LANDING', 'raw_cardano_blocks_parquet') }}
 )
 
@@ -29,5 +31,7 @@ select
     script_count,
     sum_script_size,
     pool_hash,
-    block_hash
-from source_data 
+    block_hash,
+    unique_id
+from source_data
+qualify row_number() over (partition by unique_id order by block_time desc) = 1 

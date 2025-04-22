@@ -21,4 +21,5 @@ select
     pool_hash,
     amount,
     unique_id
-from source_data 
+from source_data
+qualify row_number() over (partition by unique_id order by epoch_no desc) = 1 
