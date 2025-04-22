@@ -7,7 +7,7 @@ WITH daily_burns AS (
     fcs.fxs_burned_cumulative_sum,
     fcs.fxs_burned_cumulative_sum - LAG(fcs.fxs_burned_cumulative_sum, 1, 0) OVER (ORDER BY fcs.date) AS daily_burn,
     ROW_NUMBER() OVER (PARTITION BY fcs.date ORDER BY fcs.date DESC) AS row_num
-  FROM {{source("PC_DBT_DB", "fact_fxs_circulating_supply")}} fcs
+  FROM {{ref('fact_fxs_circulating_supply')}} fcs
 ),
 daily_burns_2 AS (
   SELECT 
@@ -28,7 +28,7 @@ supply_metrics AS (
     db2.circulating_supply - LAG(db2.circulating_supply, 1) OVER (ORDER BY db2.date) AS net_supply_change_native,
     COALESCE(pu.premine_unlocks, 0) AS premine_unlocks
   FROM daily_burns_2 db2
-  LEFT JOIN {{source("PC_DBT_DB", "fact_fxs_premine_unlocks")}} pu ON db2.date = pu.date
+  LEFT JOIN {{ref('fact_fxs_premine_unlocks')}} pu ON db2.date = pu.date
 ),
 -- Calculate emissions and adjust burns if needed to balance the equation
 final_metrics AS (

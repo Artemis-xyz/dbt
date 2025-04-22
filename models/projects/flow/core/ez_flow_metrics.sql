@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="PUMPFUN",
+        snowflake_warehouse="FLOW",
         database="flow",
         schema="core",
         alias="ez_metrics",
@@ -69,8 +69,8 @@ select
     , dau_txn_data.dau as chain_dau
     , fees_revenue_data.fees / dau_txn_data.txns AS chain_avg_txn_fee
     , defillama_data.dex_volumes AS chain_dex_volumes
-    , defillama_data.tvl
-    , nft_metrics.nft_trading_volume
+    , defillama_data.tvl AS chain_tvl
+    , nft_metrics.nft_trading_volume AS chain_nft_trading_volume
     
     -- Cashflow metrics
     , fees_revenue_data.fees AS gross_protocol_revenue

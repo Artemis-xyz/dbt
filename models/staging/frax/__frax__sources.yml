@@ -13,18 +13,7 @@ sources:
     schema: core
     database: ethereum_flipside
     tables:
-      - name: ez_token_transfers
-  # PC_DBT_DB
-  - name: PC_DBT_DB
-    schema: prod
-    database: pc_dbt_db
-    tables:
-      - name: fact_fxs_premine_unlocks
-      - name: fact_fxs_circulating_supply
-      - name: fact_frax_circulating_supply
-      - name: fact_veFXS_raw_supply
-      - name: fractal_L2
-      
+      - name: ez_token_transfers    
       
       
       

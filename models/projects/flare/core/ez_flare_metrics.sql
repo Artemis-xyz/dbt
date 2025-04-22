@@ -32,7 +32,7 @@ with fees as (
         daily_volume as dex_volumes
     from {{ref("fact_flare_daily_dex_volumes")}}
 )
-, tvl as (
+, defillama_tvl as (
     select
         date,
         tvl
@@ -74,7 +74,7 @@ select
     , txns.txns AS chain_txns
     , daus.dau AS chain_dau
     , dex_volumes.dex_volumes AS chain_dex_volumes
-    , tvl.tvl AS chain_tvl
+    , defillama_tvl.tvl AS chain_tvl
 
     -- Cashflow metrics
     , fees.fees_usd as chain_fees
@@ -94,5 +94,5 @@ left join daus on date_spine.date = daus.date
 left join dex_volumes on date_spine.date = dex_volumes.date
 left join market_metrics on date_spine.date = market_metrics.date
 left join daily_supply_data on date_spine.date = daily_supply_data.date
-left join tvl on date_spine.date = tvl.date
+left join defillama_tvl on date_spine.date = defillama_tvl.date
 

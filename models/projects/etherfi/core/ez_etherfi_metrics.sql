@@ -40,6 +40,15 @@ with restaked_eth_metrics as (
         fees_usd
     from {{ ref('fact_etherfi_auction_fees') }}
 )
+, defillama_tvl as (
+    select
+        date,
+        stake_tvl,
+        liquid_tvl,
+        liquid_tvl * 0.000055 as liquid_fees_usd
+    from {{ ref('fact_etherfi_tvl') }}
+)
+
 , date_spine as (
     select
         ds.date
@@ -65,15 +74,18 @@ SELECT
     , market_metrics.token_turnover_fdv as token_turnover_fdv
 
     --Usage Metrics
-    , restaked_eth_metrics.num_restaked_eth as tvl_native
-    , restaked_eth_metrics.amount_restaked_usd as tvl
-    , restaked_eth_metrics.num_restaked_eth_net_change as tvl_native_net_change
-    , restaked_eth_metrics.amount_restaked_usd_net_change as tvl_net_change
+    , restaked_eth_metrics.num_restaked_eth as stake_tvl_native
+    , restaked_eth_metrics.amount_restaked_usd as stake_tvl
+    , restaked_eth_metrics.num_restaked_eth_net_change as stake_tvl_native_net_change
+    , restaked_eth_metrics.amount_restaked_usd_net_change as stake_tvl_net_change
+    , defillama_tvl.liquid_tvl as liquid_tvl
+    , stake_tvl + liquid_tvl as tvl
 
     --Cash Flow Metrics
     , coalesce(liquidity_pool_fees.fees_usd, 0) as liquidity_pool_fees
     , coalesce(auction_fees.fees_usd, 0) as auction_fees
-    , coalesce(liquidity_pool_fees.fees_usd, 0) + coalesce(auction_fees.fees_usd, 0) as gross_protocol_revenue
+    , coalesce(defillama_tvl.liquid_fees_usd, 0) as liquid_vault_fees
+    , coalesce(liquidity_pool_fees.fees_usd, 0) + coalesce(auction_fees.fees_usd, 0) + coalesce(defillama_tvl.liquid_fees_usd, 0) as gross_protocol_revenue
 
     --ETHFI Token Supply Data
     , daily_supply_data.emissions_native
@@ -87,5 +99,6 @@ left join market_metrics using(date)
 left join restaked_eth_metrics using(date)
 left join liquidity_pool_fees using(date)
 left join auction_fees using(date)
+left join defillama_tvl using(date)
 left join daily_supply_data using(date)
 where date < to_date(sysdate())

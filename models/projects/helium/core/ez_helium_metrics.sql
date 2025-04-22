@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="PUMPFUN",
+        snowflake_warehouse="HELIUM",
         database="helium",
         schema="core",
         alias="ez_metrics",
@@ -42,8 +42,6 @@ select
     date_spine.date
     , coalesce(revenue_data.revenue, 0) as revenue
     , coalesce(fees_data.fees, 0) as fees
-    
-    
 
     -- Standardized Metrics)
 

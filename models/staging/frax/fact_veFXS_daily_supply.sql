@@ -4,7 +4,7 @@ WITH daily_supply_data AS (
     SELECT
         date,
         max(total_supply) as total_supply
-    FROM {{ source("PC_DBT_DB", "fact_veFXS_raw_supply") }}
+    FROM {{ ref("fact_veFXS_raw_supply") }}
     GROUP BY date
 ),
 
