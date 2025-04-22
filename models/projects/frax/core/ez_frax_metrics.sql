@@ -39,6 +39,38 @@ with dex_data as (
     GROUP BY
         date
 )
+, fxs_daily_supply_data as (
+    SELECT
+        date,
+        emissions_native,
+        total_premine_unlocks,
+        burns_native,
+        net_supply_change_native,
+        total_circulating_supply
+    FROM
+        {{ ref("fact_fxs_daily_supply_data") }}
+)
+, frax_daily_supply_data as (
+    SELECT
+        date,
+        supply as frax_circulating_supply
+    FROM
+        {{ ref("fact_frax_circulating_supply") }}
+)
+, veFXS_daily_supply_data as (
+    SELECT
+        date,
+        circulating_supply
+    FROM
+        {{ ref("fact_veFXS_daily_supply") }}
+)
+, fractal_l2_txns as (
+    SELECT
+        date,
+        l2_txns
+    FROM
+        {{ ref("fact_frax_l2_transactions") }}
+)
 , market_data as (
     {{ get_coingecko_metrics('frax-share')}}
 )
@@ -48,30 +80,52 @@ SELECT
 
     -- Standardized Metrics
 
-    -- Price Metrics
+    -- Market Data Metrics
     , market_data.price
     , market_data.market_cap
     , market_data.fdmc
     , market_data.token_volume
 
     -- Usage/Sector Metrics
-    , dex_data.spot_dau
-    , dex_data.spot_txns
-    , dex_data.spot_volume
-    , dex_data.spot_fees
-    , staked_eth_metrics.num_staked_eth as lst_tvl_native
-    , staked_eth_metrics.amount_staked_usd as lst_tvl
-    , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
-    , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
+    , fractal_l2_txns.l2_txns as l2_txns
+    , dex_data.spot_txns as spot_txns
+    , dex_data.spot_dau as spot_dau
+    , dex_data.spot_volume as spot_volume
     , tvl_data.tvl as spot_tvl
-    
+    , staked_eth_metrics.num_staked_eth as tvl_native
+    , staked_eth_metrics.amount_staked_usd as tvl
+    , staked_eth_metrics.num_staked_eth_net_change as tvl_native_net_change
+    , staked_eth_metrics.amount_staked_usd_net_change as tvl_net_change
+
+    --Cash Flow Metrics
+    , dex_data.spot_fees as spot_fees
+    , spot_fees as gross_protocol_revenue
 
     -- Other Metrics
     , dex_data.gas_cost_native
     , market_data.token_turnover_circulating
     , market_data.token_turnover_fdv
+
+    --FXS Token Supply Data
+    , fxs_daily_supply_data.emissions_native as fxs_emissions_native
+    , fxs_daily_supply_data.total_premine_unlocks as fxs_premine_unlocks_native
+    , fxs_daily_supply_data.burns_native as fxs_burns_native
+    , fxs_daily_supply_data.net_supply_change_native as fxs_net_supply_change_native
+    , fxs_daily_supply_data.total_circulating_supply as fxs_circulating_supply
+
+    --FRAX Token Supply Data
+    , frax_daily_supply_data.frax_circulating_supply as frax_circulating_supply
+
+    --veFXS Supply Data (Locked FXS Tokens)
+    , veFXS_daily_supply_data.circulating_supply as veFXS_supply
+
+
 from market_data
 left join dex_data using (date)
 left join staked_eth_metrics using (date)
 left join tvl_data using (date)
+left join fxs_daily_supply_data using (date)
+left join frax_daily_supply_data using (date)
+left join veFXS_daily_supply_data using (date)
+left join fractal_l2_txns using (date)
 where market_data.date < to_date(sysdate())

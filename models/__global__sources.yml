@@ -51,6 +51,7 @@ sources:
       - name: ez_decoded_event_logs
       - name: fact_event_logs
       - name: fact_blocks
+      - name: fact_transactions
       - name: fact_decoded_event_logs
       - name: fact_decoded_traces
       - name: ez_token_transfers

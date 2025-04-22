@@ -4,3 +4,28 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_frax_staked_eth_count
+      - name: raw_frax_circulating_supply
+      - name: raw_frax_premine_unlocks
+      - name: raw_frax_net_mint_burns
+      - name: raw_veFXS_supply
+# ETHEREUM
+  - name: ETHEREUM_FLIPSIDE_CORE
+    schema: core
+    database: ethereum_flipside
+    tables:
+      - name: ez_token_transfers
+  # PC_DBT_DB
+  - name: PC_DBT_DB
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: fact_fxs_premine_unlocks
+      - name: fact_fxs_circulating_supply
+      - name: fact_frax_circulating_supply
+      - name: fact_veFXS_raw_supply
+      - name: fractal_L2
+      
+      
+      
+      
+      
