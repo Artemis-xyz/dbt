@@ -1,0 +1,24 @@
+{{ config(
+    materialized='table',
+    unique_key='unique_id',
+    snowflake_warehouse='CARDANO'
+) }}
+
+with source_data as (
+    select 
+        PARQUET_RAW:epoch_no::integer as epoch_no,
+        PARQUET_RAW:stake_addr_hash::string as stake_addr_hash,
+        PARQUET_RAW:pool_hash::string as pool_hash,
+        PARQUET_RAW:amount::numeric as amount,
+        -- Generate a unique ID for each record
+        md5(concat(epoch_no::string, stake_addr_hash, pool_hash)) as unique_id
+    from {{ source('PROD_LANDING', 'raw_cardano_epoch_stake_parquet') }}
+)
+
+select 
+    epoch_no,
+    stake_addr_hash,
+    pool_hash,
+    amount,
+    unique_id
+from source_data 
