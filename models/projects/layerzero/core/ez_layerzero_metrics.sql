@@ -18,43 +18,65 @@ with bridge_volume as (
 , bridge_metrics as (
     SELECT
         date
-        , sum(bridge_daa) as bridge_daa
+        , sum(bridge_dau) as bridge_dau
         , sum(fees) as fees
         , sum(bridge_txns) as bridge_txns
     FROM {{ ref('ez_layerzero_metrics_by_chain') }}
     GROUP BY 1
 )
-, market_data as (
+, daily_supply_data as (
+    SELECT 
+        date
+        , 0 as emissions_native
+        , premine_unlocks as premine_unlocks_native
+        , 0 as burns_native
+    FROM {{ ref('fact_layerzero_daily_premine_unlocks') }}
+)
+, date_spine as (
+    SELECT * 
+    FROM {{ ref('dim_date_spine') }}
+    WHERE date BETWEEN '2020-03-16' AND TO_DATE(SYSDATE())
+)
+, market_metrics as (
     {{ get_coingecko_metrics("layerzero") }}
 )
 
 SELECT
-    date
-    , coalesce(bridge_daa, 0) as bridge_daa
-    , coalesce(fees, 0) as fees
+    date_spine.date
+    , coalesce(bridge_metrics.bridge_dau, 0) as bridge_daa
+    , coalesce(bridge_metrics.fees, 0) as fees
 
     -- Standardized Metrics
 
-    -- Token Metrics
-    , coalesce(market_data.price, 0) as price
-    , coalesce(market_data.market_cap, 0) as market_cap
-    , coalesce(market_data.fdmc, 0) as fdmc
-    , coalesce(market_data.token_volume, 0) as token_volume
+    -- Market Metrics
+    , coalesce(market_metrics.price, 0) as price
+    , coalesce(market_metrics.market_cap, 0) as market_cap
+    , coalesce(market_metrics.fdmc, 0) as fdmc
+    , coalesce(market_metrics.token_volume, 0) as token_volume
 
-    -- Bridge Metrics
-    , coalesce(bridge_daa, 0) as bridge_dau
-    , coalesce(bridge_txns, 0) as bridge_txns
-    , coalesce(bridge_volume, 0) as bridge_volume
+    -- Usage Metrics
+    , coalesce(bridge_metrics.bridge_dau, 0) as bridge_dau
+    , coalesce(bridge_metrics.bridge_txns, 0) as bridge_txns
+    , coalesce(bridge_volume.bridge_volume, 0) as bridge_volume
 
-    -- Cash Flow Metrics
-    , coalesce(fees, 0) as bridge_fees
-    , coalesce(fees, 0) as gross_protocol_revenue
+    -- Cashflow Metrics
+    , coalesce(bridge_metrics.fees, 0) as bridge_fees
+    , coalesce(bridge_metrics.fees, 0) as gross_protocol_revenue
 
     -- Turnover Metrics
-    , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
-    , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
-FROM {{ ref('ez_layerzero_metrics_by_chain') }}
+    , coalesce(market_metrics.token_turnover_circulating, 0) as token_turnover_circulating
+    , coalesce(market_metrics.token_turnover_fdv, 0) as token_turnover_fdv
+
+    --ZRO Token Supply Data
+    , coalesce(daily_supply_data.emissions_native, 0) as emissions_native
+    , coalesce(daily_supply_data.premine_unlocks_native, 0) as premine_unlocks_native
+    , coalesce(daily_supply_data.burns_native, 0) as burns_native
+    , coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(daily_supply_data.burns_native, 0) as net_supply_change_native
+    , sum(net_supply_change_native) over (order by date rows between unbounded preceding and current row) as circulating_supply_native
+FROM date_spine
+LEFT JOIN market_metrics using (date)
+LEFT JOIN bridge_metrics using (date)
 LEFT JOIN bridge_volume using (date)
-LEFT JOIN market_data using (date)
-WHERE date < to_date(sysdate())
+LEFT JOIN daily_supply_data using (date)
+WHERE date_spine.date < to_date(sysdate())
 ORDER BY 1

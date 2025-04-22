@@ -56,6 +56,8 @@ select
     , fees_revenue_data.revenue
     , dau_txn_data.chain
     , defillama_data.dex_volumes
+    , defillama_data.tvl AS tvl
+    , nft_metrics.nft_trading_volume AS nft_trading_volume
 
     -- Standardized Metrics
 
