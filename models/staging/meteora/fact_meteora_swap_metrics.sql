@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="METEORA",
         alias="fact_meteora_swap_metrics",
     )
 }}

@@ -38,15 +38,15 @@ select
      --Standardized Metrics
 
     --Financial Metrics
-    coalesce(api_metrics.daily_fee, 0) as spot_dlmm_fees,
+    coalesce(api_metrics.daily_fee, 0) as spot_fees,
     coalesce(api_metrics.daily_fee, 0) as gross_protocol_revenue,
     coalesce(api_metrics.daily_fee, 0) * .05 as treasury_cash_flow,
-    coalesce(api_metrics.daily_fee, 0) * .95 as protocol_cash_flow,
+    coalesce(api_metrics.daily_fee, 0) * .95 as lp_cash_flow,
     coalesce(api_metrics.total_tvl, 0) as dlmm_tvl,
     --Usage Metrics 
-    coalesce(swap_metrics.unique_traders, 0) as spot_dlmm_dau,
-    coalesce(swap_metrics.number_of_swaps, 0) as spot_dlmm_txns,
-    coalesce(swap_metrics.trading_volume, 0) as spot_dlmm_volume,
+    coalesce(swap_metrics.unique_traders, 0) as spot_dau,
+    coalesce(swap_metrics.number_of_swaps, 0) as spot_txns,
+    coalesce(swap_metrics.trading_volume, 0) as spot_volume,
 
 from date_spine
 left join swap_metrics using(date)
