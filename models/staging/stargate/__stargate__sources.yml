@@ -5,3 +5,8 @@ sources:
     tables:
       - name: raw_stargate_proposals_csv
       - name: raw_stargate_aerodrome_base_balance
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: stargate_daily_supply_data
