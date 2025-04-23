@@ -25,7 +25,19 @@ txns as (
         date,
         dau
     from {{ref("fact_metis_dau")}}
-), price_data as ({{ get_coingecko_metrics("metis-token") }})
+)
+, defillama_data as (
+    {{ get_defillama_metrics("metis") }}
+)
+, supply_data as (
+    select
+        date
+        , premine_unlocks_native
+        , net_supply_change_native
+        , circulating_supply_native
+    from {{ref("fact_metis_supply_data")}}
+)
+, price_data as ({{ get_coingecko_metrics("metis-token") }})
 
 select
     coalesce(fees.date, txns.date, daus.date) as date
@@ -40,10 +52,25 @@ select
     -- Chain Usage Metrics
     , dau as chain_dau
     , txns as chain_txns
+    , defillama_data.dex_volumes as chain_dex_volumes
+    , defillama_data.tvl as tvl
     -- Cashflow Metrics
     , fees_usd as chain_fees
     , fees_usd as gross_protocol_revenue
+    , fees_usd * 0.7 as validator_cash_flow
+    , fees_usd * 0.3 as other_cash_flow
+ 
+    -- Supply Metrics
+    , premine_unlocks_native
+    , net_supply_change_native
+    , circulating_supply_native
+ 
+    -- Other Metrics
+    , token_turnover_circulating
+    , token_turnover_fdv
 from fees
 left join txns on fees.date = txns.date
 left join daus on fees.date = daus.date 
 left join price_data on fees.date = price_data.date
+left join defillama_data on fees.date = defillama_data.date
+left join supply_data on fees.date = supply_data.date

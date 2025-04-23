@@ -20,7 +20,7 @@
             where
                 t1.event_name in ('Swap')
                 {% if is_incremental() %}
-                    and block_timestamp >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+                    and block_timestamp >= (select DATEADD('day', -3, max(block_timestamp)) from {{ this }})
                 {% endif %}
         )
     select

@@ -4,3 +4,5 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_debridge_orders
+      - name: raw_debridge_order_metadata
+      - name: dln_orders_backfil_csv
