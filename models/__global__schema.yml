@@ -70,6 +70,9 @@ column_definitions:
     - name: l1_cash_flow
       description: "The total USD value of L1 cash flow on a chain"
       tags: [artemis_gaap]
+    - name: user_cash_flow
+      description: "The amount of revenue allocated to users of the protocol"
+      tags: [artemis_gaap]
 
   token_metrics:
     - name: price
