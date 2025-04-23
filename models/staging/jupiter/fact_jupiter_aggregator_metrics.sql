@@ -28,7 +28,7 @@ flattened_data AS (
   LATERAL FLATTEN(input => json_data) f
 )
 SELECT
-  date_str as date,
+  TO_DATE(SUBSTRING(date_str, 1, 10)) as date,
   overall,
   single
 FROM flattened_data
