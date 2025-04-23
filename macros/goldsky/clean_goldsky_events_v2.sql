@@ -7,7 +7,7 @@ data as (
         , parquet_raw:transaction_hash::string as transaction_hash
         , parquet_raw:transaction_index::integer as transaction_index
         , parquet_raw:log_index::integer as event_index
-        , parquet_raw:contract_address::string as contract_address
+        , coalesce(parquet_raw:contract_address::string, parquet_raw:address::string) as contract_address
         , parquet_raw:data::string as data
         , SPLIT(parquet_raw:topics::string, ',') as topics
         , SPLIT(parquet_raw:topics::string, ',')[0]::string as topic_zero

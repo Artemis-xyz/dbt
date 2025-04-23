@@ -70,6 +70,9 @@ column_definitions:
     - name: l1_cash_flow
       description: "The total USD value of L1 cash flow on a chain"
       tags: [artemis_gaap]
+    - name: user_cash_flow
+      description: "The amount of revenue allocated to users of the protocol"
+      tags: [artemis_gaap]
 
   token_metrics:
     - name: price
@@ -192,8 +195,6 @@ column_definitions:
       description: "The average cost per MiB of data stored in blobs on a chain in USD"
     - name: submitters
       description: "The number of submitters on a chain"
-    - name: chain_dex_volumes
-      description: "The total volume of DEXes on a chain"
     - name: chain_avg_block_time
       description: "The average time it takes to produce a block on a chain"
     - name: chain_avg_tps

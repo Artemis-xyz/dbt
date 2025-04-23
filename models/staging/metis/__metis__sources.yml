@@ -8,3 +8,9 @@ sources:
       - name: raw_metis_gas_used
       - name: raw_metis_avg_gas_price
       - name: raw_metis_dau
+
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: metis_daily_supply_data

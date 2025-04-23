@@ -46,7 +46,7 @@ select
     , wau AS chain_wau
     , mau AS chain_mau
     , avg_txn_fee AS chain_avg_txn_fee
-    , celo_dex_volumes.dex_volumes AS chain_dex_volumes
+    , celo_dex_volumes.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
     , fees AS chain_fees
     , fees AS gross_protocol_revenue

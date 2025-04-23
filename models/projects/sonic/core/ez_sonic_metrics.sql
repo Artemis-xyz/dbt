@@ -45,7 +45,7 @@ select
     -- Chain Usage Metrics
     , fundamentals.dau AS chain_dau
     , fundamentals.txns AS chain_txns
-    , sonic_dex_volumes.dex_volumes AS chain_dex_volumes
+    , sonic_dex_volumes.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
     , fundamentals.fees AS gross_protocol_revenue
     -- Supply Metrics
