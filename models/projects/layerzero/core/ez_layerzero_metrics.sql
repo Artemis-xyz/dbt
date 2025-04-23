@@ -45,6 +45,7 @@ select
     date_spine.date
 
     , coalesce(bridge_metrics.fees, 0) as fees
+    , coalesce(bridge_metrics.bridge_dau, 0) as bridge_daa
 
     -- Standardized Metrics
 
