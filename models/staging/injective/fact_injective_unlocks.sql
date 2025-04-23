@@ -23,11 +23,8 @@ with outflows_data as (
 )
 SELECT 
     date,
-    CASE 
-        WHEN date = (SELECT MIN(date) FROM outflows_data) THEN outflows + 12000000
-        ELSE outflows
-    END as outflows
+    sum(outflows) as outflows
 FROM 
     outflows_data
-ORDER BY 
-    date DESC
+GROUP BY 
+    date

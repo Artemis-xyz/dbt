@@ -29,31 +29,14 @@ with fundamental_data as (
     from {{ ref("fact_injective_revenue_silver") }}
 )
 , mints AS (
-    SELECT
-        date,
-        mints,
-        ROW_NUMBER() OVER (ORDER BY date ASC) as row_num
+    SELECT *
     FROM {{ ref("fact_injective_mints_silver") }}
 )
-, mints_adjusted as (
-    SELECT
-        date,
-        mints,
-        CASE 
-            WHEN row_num = 1 THEN mints + 11000000
-        ELSE mints
-    END as mints_new
-    FROM mints
-)
---DELETE
-, mints as (
+, unlocks as (
     select
         date,
-        mints as mints
-    from {{ ref("fact_injective_mints_silver") }}
-)
-, unlocks as (
-    select * from {{ ref("fact_injective_unlocks") }}
+        outflows
+    from {{ ref("fact_injective_unlocks") }}
 )
 , defillama_metrics as (
     select
@@ -64,7 +47,7 @@ with fundamental_data as (
 )
 , date_spine as (
     select * from {{ ref('dim_date_spine') }}
-    where date between (select min(date) from fundamental_data) and to_date(sysdate())
+    where date between (select min(date) from unlocks) and to_date(sysdate())
 )
 , market_metrics as ({{ get_coingecko_metrics("injective-protocol") }})
 
@@ -81,7 +64,7 @@ select
     , fundamental_data.fees_native
     , fundamental_data.avg_txn_fee
     , unlocks.outflows as unlocks
-    , mints_adjusted.mints_new as mints
+    , mints.mints as mints
     , COALESCE(revenue.revenue, 0) AS revenue
     , fundamental_data.fees_native as gross_protocol_revenue_native
     , coalesce(revenue.revenue_native, 0) as burned_cash_flow_native
@@ -117,16 +100,16 @@ select
     , coalesce(revenue.dapp_fees, 0) as dapp_cash_flow
 
     -- INJ Token Supply Data
-    , coalesce(mints_adjusted.mints_new, 0) as emissions_native
+    , coalesce(mints.mints, 0) as emissions_native
     , coalesce(unlocks.outflows, 0) as premine_unlocks_native
     , coalesce(revenue.revenue_native, 0) as burns_native
-    , coalesce(mints_adjusted.mints_new, 0) + coalesce(unlocks.outflows, 0) - coalesce(revenue.revenue_native, 0) as net_supply_change_native
-    , sum(coalesce(mints_adjusted.mints_new, 0) + coalesce(unlocks.outflows, 0) - coalesce(revenue.revenue_native, 0)) over (order by fundamental_data.date) as circulating_supply_native
+    , coalesce(mints.mints, 0) + coalesce(unlocks.outflows, 0) - coalesce(revenue.revenue_native, 0) as net_supply_change_native
+    , sum(coalesce(mints.mints, 0) + coalesce(unlocks.outflows, 0) - coalesce(revenue.revenue_native, 0)) over (order by date_spine.date) as circulating_supply_native
 
 from date_spine
 left join market_metrics using (date)
 left join fundamental_data using (date)
 left join defillama_metrics using (date)
 left join revenue using (date)
-left join mints_adjusted using (date)
+left join mints using (date)
 left join unlocks using (date)
