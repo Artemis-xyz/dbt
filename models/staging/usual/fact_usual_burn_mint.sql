@@ -84,18 +84,34 @@ net_balance AS (
     left join cumulative_supply cs on ibc.date = cs.date
 )
 
-SELECT 
-    c.date
-    , c.daily_supply
-    , c.cumulative_supply
-    , a.daily_treasury
-    , a.cumulative_treasury
-    , a.daily_burned
-    , a.cumulative_burned
-    , c.circulating_supply_native
-    -- 1/3 goes to usual* holders, 1/3 goes to usualx holders, 1/3 goes to burn
-    , a.daily_treasury * 0.5 AS daily_treasury_usualx
-    , a.daily_treasury * 0.5 AS daily_treasury_usualstar
-FROM current_usual_balance c
-LEFT JOIN agg_data a ON c.date = a.date
-ORDER BY c.date DESC
+, net_supply_change as (
+    select 
+        c.date
+        , coalesce(c.daily_supply, 0) as gross_emissions_native
+        , coalesce(c.cumulative_supply, 0) as cumulative_supply
+        , coalesce(a.daily_treasury, 0) as daily_treasury
+        , coalesce(a.cumulative_treasury, 0) as cumulative_treasury
+        , coalesce(a.daily_burned, 0) as burns_native
+        , coalesce(a.cumulative_burned, 0) as cumulative_burns_native
+        , coalesce(c.circulating_supply_native, 0) as circulating_supply_native
+        , coalesce(gross_emissions_native, 0) - coalesce(burns_native, 0) as net_supply_change_native
+        -- 1/3 goes to usual* holders, 1/3 goes to usualx holders, 1/3 goes to burn
+        , a.daily_treasury * 0.5 as daily_treasury_usualx
+        , a.daily_treasury * 0.5 as daily_treasury_usualstar
+    from current_usual_balance c
+    left join agg_data a on c.date = a.date
+    order by c.date desc
+)
+
+select 
+    date
+    , gross_emissions_native
+    , burns_native
+    , net_supply_change_native
+    , circulating_supply_native
+    , cumulative_supply
+    , daily_treasury
+    , cumulative_treasury
+    , daily_treasury_usualx
+    , daily_treasury_usualstar
+from net_supply_change
