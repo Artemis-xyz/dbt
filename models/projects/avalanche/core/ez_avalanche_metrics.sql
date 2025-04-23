@@ -84,7 +84,7 @@ select
     , dau_over_100 AS dau_over_100_balance
     , total_staked_native AS total_staked_native
     , total_staked_usd AS total_staked
-    , dune_dex_volumes_avalanche_c.dex_volumes AS chain_dex_volumes
+    , dune_dex_volumes_avalanche_c.dex_volumes AS chain_spot_volume
     , nft_trading_volume AS chain_nft_trading_volume
     , p2p_native_transfer_volume
     , p2p_token_transfer_volume
