@@ -40,9 +40,7 @@ column_definitions:
 
   chain_spot_volume: &chain_spot_volume
     name: chain_spot_volume
-    description: "Total spot dex volume on Aptos. Calculated by summing the volumes of Thalaswap V1 and V2, Hyperion, LiquidSwap, Sushi, PancakeSwap, and Cellana Finance."
-    tags:
-      - override
+    description: "Total spot dex volume on a chain"
 
   chain_txns: &chain_txns
     name: chain_txns

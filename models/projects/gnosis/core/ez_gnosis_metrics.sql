@@ -55,7 +55,7 @@ select
     , mau AS chain_mau
     , wau AS chain_wau
     , fees / txns AS chain_avg_txn_fee
-    , dune_dex_volumes_gnosis.dex_volumes AS chain_dex_volumes
+    , dune_dex_volumes_gnosis.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
     , fees as chain_fees
     , fees AS gross_protocol_revenue

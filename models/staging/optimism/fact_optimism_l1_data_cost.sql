@@ -24,7 +24,7 @@ from opt_data
 where opt_data.date < to_date(sysdate()) and l1_data_cost_native is not null
 {% if is_incremental() %} 
     and opt_data.date >= (
-        select dateadd('day', -5, max(date))
+        select dateadd('day', -3, max(date))
         from {{ this }}
     )
 {% endif %}

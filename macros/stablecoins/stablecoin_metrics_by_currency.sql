@@ -28,7 +28,7 @@ select
 from {{ ref("ez_"~ chain ~"_stablecoin_metrics_by_address") }}
 where chain = '{{ chain }}'
 {% if is_incremental() %}
-    and date >= (select dateadd('day', -5, max(date)) from {{ this }})
+    and date >= (select dateadd('day', -3, max(date)) from {{ this }})
 {% endif %}
 group by date, symbol
 order by date

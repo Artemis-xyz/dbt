@@ -12,10 +12,6 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
-  chain_dex_volumes: &chain_dex_volumes
-    name: chain_dex_volumes
-    description: "The total volume of DEXes on a chain"
-
   chain_fees: &chain_fees
     name: chain_fees
     description: "The total transaction fees paid on a chain"
@@ -27,6 +23,10 @@ column_definitions:
   chain_nft_trading_volume: &chain_nft_trading_volume
     name: chain_nft_trading_volume
     description: "The total volume of NFT trading on a chain"
+
+  chain_spot_volume: &chain_spot_volume
+    name: chain_spot_volume
+    description: "Total spot dex volume on a chain"
 
   chain_txns: &chain_txns
     name: chain_txns
@@ -48,15 +48,23 @@ column_definitions:
     name: cumulative_etf_flow_native
     description: "The cumulative flow of ETFs on a chain"
 
-  emissions_native: &emissions_native
-    name: emissions_native
-    description: "The amount of native tokens emitted"
-
   fdmc: &fdmc
     name: fdmc
     description: "The fully diluted market cap of a token in USD"
     tags:
       - artemis_gaap
+
+  gross_emissions: &gross_emissions
+    name: gross_emissions
+    description: "The amount of block rewards in USD value"
+    tags:
+      - override
+
+  gross_emissions_native: &gross_emissions_native
+    name: gross_emissions_native
+    description: "The amount of block rewards in native tokens"
+    tags:
+      - override
 
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
@@ -124,17 +132,18 @@ models:
     columns:
       - *chain_avg_txn_fee
       - *chain_dau
-      - *chain_dex_volumes
       - *chain_fees
       - *chain_mau
       - *chain_nft_trading_volume
+      - *chain_spot_volume
       - *chain_txns
       - *chain_wau
       - *circulating_supply_native
       - *cumulative_etf_flow
       - *cumulative_etf_flow_native
-      - *emissions_native
       - *fdmc
+      - *gross_emissions
+      - *gross_emissions_native
       - *gross_protocol_revenue
       - *gross_protocol_revenue_native
       - *market_cap

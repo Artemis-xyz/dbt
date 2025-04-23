@@ -6,4 +6,4 @@
     )
 }}
 
-{{ clean_flipside_evm_transactions('ethereum') }}
+{{ clean_flipside_evm_native_token_transfers('ethereum') }}

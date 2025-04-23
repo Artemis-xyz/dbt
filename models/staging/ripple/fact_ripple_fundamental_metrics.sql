@@ -14,6 +14,6 @@ SELECT
 FROM {{ source("SONARX_XRP", "transactions") }}
 WHERE success
 {% if is_incremental() %}
-    AND datetime >= (select dateadd(day, -5, max(date)) from {{ this }})
+    AND datetime >= (select dateadd(day, -3, max(date)) from {{ this }})
 {% endif %}
 GROUP BY 1
