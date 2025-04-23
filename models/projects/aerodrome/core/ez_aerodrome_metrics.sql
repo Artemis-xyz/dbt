@@ -35,7 +35,9 @@ with swap_metrics as (
         emissions_native,
         locked_supply,
         total_supply,
-        circulating_supply
+        circulating_supply_native, 
+        buybacks_native, 
+        buybacks
     FROM {{ ref('fact_aerodrome_supply_data') }}
 )
 , date_spine as (
@@ -78,18 +80,21 @@ SELECT
     , coalesce(sm.daily_volume_usd, 0) as spot_volume
     , coalesce(tm.tvl_usd, 0) as tvl
 
-    -- Money Metrics
+    -- Cash Flow Metrics
     , coalesce(sm.daily_fees_usd, 0) as spot_fees
     , coalesce(sm.daily_fees_usd, 0) as gross_protocol_revenue
     , coalesce(sm.daily_fees_usd, 0) as fee_sharing_token_cash_flow
+    , coalesce(sp.buybacks_native, 0) as buybacks_native
+    , coalesce(sp.buybacks, 0) as buybacks
 
     -- Supply Metrics
     , coalesce(sp.pre_mine_unlocks, 0) + coalesce(sp.emissions_native, 0) as mints_native
     , (coalesce(sp.pre_mine_unlocks, 0) + coalesce(sp.emissions_native, 0)) * coalesce(mm.price, 0) as mints
-    , coalesce(sp.emissions_native, 0) as emissions_native
+    , coalesce(sp.emissions_native, 0) as gross_emissions_native
+    , coalesce(sp.emissions_native, 0) * coalesce(mm.price, 0) as gross_emissions
     , coalesce(sp.pre_mine_unlocks, 0) as premine_unlocks_native
-    , coalesce(sp.emissions_native, 0) as net_supply_change_native
-    , coalesce(sp.circulating_supply, 0) as circulating_supply_native
+    , coalesce(sp.circulating_supply_native, 0) - lag(coalesce(sp.circulating_supply_native, 0)) over (order by date) as net_supply_change_native
+    , coalesce(sp.circulating_supply_native, 0) as circulating_supply_native
     , coalesce(sp.locked_supply, 0) as locked_supply
     , coalesce(sp.total_supply, 0) as total_supply
 

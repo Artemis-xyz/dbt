@@ -13,7 +13,7 @@ with locked_supply_balance as (
         date(block_timestamp) as date, 
         balance_token / 1e18 as ve_aero_balance, 
         row_number() over (partition by date(block_timestamp) order by block_timestamp) as rn
-    from base.prod_raw.ez_address_balances_by_token
+    from {{ ref('ez_base_address_balances_by_token') }}
     where lower(contract_address) = lower('0x940181a94A35A4569E4529A3CDfB74e38FD98631')
         and lower(address) = lower('0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4')
 ),
@@ -22,14 +22,28 @@ emissions as (
     select 
         date(block_timestamp) as date, 
         sum(amount) as emissions
-    from base_flipside.core.ez_token_transfers
+    from {{ source('BASE_FLIPSIDE', 'ez_token_transfers') }}
     where lower(contract_address) = lower('0x940181a94A35A4569E4529A3CDfB74e38FD98631')
         and lower(from_address) = lower('0x0000000000000000000000000000000000000000')
     group by date
+), 
+
+buybacks as (
+    select
+        date(block_timestamp) as date, 
+        sum(amount) as buybacks_native, 
+        sum(amount_usd) as buybacks
+    from {{ source('BASE_FLIPSIDE', 'ez_token_transfers') }}
+    where lower(from_address) in (lower('0x834C0DA026d5F933C2c18Fa9F8Ba7f1f792fDa52'), 
+                                    lower('0xc27c8B3Ce02349f4916BFC8FD45A586D8787Ee5e'), 
+                                    lower('0xc9814f18a8751214F719De15C54D01b3D78EF14f')
+                                )
+        and lower(to_address) = lower('0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4')
+    group by date 
 )
 
 select 
-    coalesce(em.date, lsb.date) as date, 
+    coalesce(em.date, lsb.date, bb.date) as date, 
     case when em.date = '2023-08-28' then coalesce(em.emissions, 0) else 0 end as pre_mine_unlocks, 
     case when em.date <> '2023-08-28' then coalesce(em.emissions, 0) else 0 end as emissions_native, 
     coalesce(lsb.ve_aero_balance, 0) as locked_supply, 
@@ -40,9 +54,13 @@ select
     sum(coalesce(em.emissions, 0)) over (
         order by em.date
         rows between unbounded preceding and current row
-    ) - coalesce(lsb.ve_aero_balance, 0) as circulating_supply
+    ) - coalesce(lsb.ve_aero_balance, 0) as circulating_supply_native,
+    coalesce(bb.buybacks_native, 0) as buybacks_native, 
+    coalesce(bb.buybacks, 0) as buybacks
 from emissions as em
 full join locked_supply_balance as lsb
     on em.date = lsb.date
+full join buybacks as bb
+    on em.date = bb.date
 where lsb.rn = 1
 order by date asc

@@ -4,13 +4,21 @@
 version: 2
 
 column_definitions:
+  buybacks: &buybacks
+    name: buybacks
+    description: "The amount tokens actually bought back by the protocol (USD)."
+    tags:
+      - artemis_gaap
+
+  buybacks_native: &buybacks_native
+    name: buybacks_native
+    description: "The amount of native tokens bought back by the protocol"
+    tags:
+      - artemis_gaap
+
   circulating_supply_native: &circulating_supply_native
     name: circulating_supply_native
     description: "The circulating supply of a token in native tokens"
-
-  emissions_native: &emissions_native
-    name: emissions_native
-    description: "The amount of native tokens emitted"
 
   fdmc: &fdmc
     name: fdmc
@@ -24,6 +32,14 @@ column_definitions:
     tags:
       - artemis_gaap
       - override
+
+  gross_emissions: &gross_emissions
+    name: gross_emissions
+    description: "The amount of USD value emitted"
+
+  gross_emissions_native: &gross_emissions_native
+    name: gross_emissions_native
+    description: "The amount of native tokens emitted"
 
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
@@ -62,19 +78,27 @@ column_definitions:
 
   spot_dau: &spot_dau
     name: spot_dau
-    description: "The number of daily active traders on a spot dex"
+    description: "The number of daily active traders on Aerodrome V1 and Aerodrome Slipstream"
+    tags:
+      - override
 
   spot_fees: &spot_fees
     name: spot_fees
-    description: "The total amount of fees (in USD) on a spot dex"
+    description: "The total amount of fees (in USD) on Aerodrome V1 and Aerodrome Slipstream"
+    tags:
+      - override
 
   spot_txns: &spot_txns
     name: spot_txns
-    description: "The number of daily trades on a spot dex"
+    description: "The number of daily trades on Aerodrome V1 and Aerodrome Slipstream"
+    tags:
+      - override
 
   spot_volume: &spot_volume
     name: spot_volume
-    description: "The total volume on a spot dex"
+    description: "The total volume on Aerodrome V1 and Aerodrome Slipstream"
+    tags:
+      - override
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
@@ -102,10 +126,13 @@ models:
   - name: ez_aerodrome_metrics
     description: "This table stores metrics for the AERODROME protocol"
     columns:
+      - *buybacks
+      - *buybacks_native
       - *circulating_supply_native
-      - *emissions_native
       - *fdmc
       - *fee_sharing_token_cash_flow
+      - *gross_emissions
+      - *gross_emissions_native
       - *gross_protocol_revenue
       - *market_cap
       - *mints
