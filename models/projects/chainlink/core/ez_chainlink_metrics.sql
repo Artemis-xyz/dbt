@@ -246,8 +246,8 @@ select
 
     -- Supply Metrics
     , premine_unlocks_native
-    , circulating_supply_native
     , circulating_supply_native - lag(circulating_supply_native) over (order by date) as net_supply_change_native
+    , circulating_supply_native
 
     -- Other Metrics
     , token_turnover_circulating
