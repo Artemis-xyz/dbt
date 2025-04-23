@@ -88,9 +88,8 @@ SELECT
     , coalesce(mints.mints, 0) * coalesce(price, 0) AS mints
     , coalesce(mints.mints, 0) AS emissions_native
     , coalesce(premine_unlocks.pre_mine_unlocks, 0) AS premine_unlocks_native
-    , coalesce(mints.mints, 0) - coalesce(burns.total_burned_native, 0) AS net_supply_change_native
+    , coalesce(mints.mints, 0) + coalesce(premine_unlocks.pre_mine_unlocks, 0) - coalesce(burns.total_burned_native, 0) AS net_supply_change_native
     , sum((coalesce(mints.mints, 0) - coalesce(burns.total_burned_native, 0)) + coalesce(premine_unlocks.pre_mine_unlocks, 0)) OVER (order by mints.date) AS circulating_supply_native
-    , sum(coalesce(mints.mints, 0) + coalesce(premine_unlocks.pre_mine_unlocks, 0)) OVER (order by mints.date) AS total_supply_native
     
     -- Turnover Metrics
     , coalesce(token_turnover_circulating, 0) as token_turnover_circulating
