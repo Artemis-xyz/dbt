@@ -1,3 +1,3 @@
-{{ config(materialized="incremental", unique_key=["transaction_hash", "event_index"]) }}
+{{ config(materialized="incremental", unique_key=["transaction_hash", "event_index"], snowflake_warehouse="CELO_LG") }}
 
-{{ decode_events("celo") }}
+{{ decode_artemis_events("celo") }}

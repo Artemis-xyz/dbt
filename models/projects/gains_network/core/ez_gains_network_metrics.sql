@@ -20,8 +20,21 @@ with date_spine as (
 )
 
     , gains_data as (
-        select date, sum(trading_volume) as trading_volume, sum(unique_traders) as unique_traders
-        from {{ ref("fact_gains_trading_volume_unique_traders") }}
+        with agg as (
+            select date, sum(trading_volume) as trading_volume, sum(unique_traders) as unique_traders
+            from {{ ref("fact_gains_trading_volume_unique_traders") }} -- V7
+            where chain is not null
+            group by date
+            UNION ALL
+            SELECT date, sum(trading_volume) as trading_volume, sum(unique_traders) as unique_traders
+            from {{ ref("fact_gains_data_v8_v9") }} -- V8 and V9
+            group by date
+        )
+        SELECT
+            date
+            , sum(trading_volume) as trading_volume
+            , sum(unique_traders) as unique_traders
+        FROM agg
         group by date
     )
     , gains_fees as (

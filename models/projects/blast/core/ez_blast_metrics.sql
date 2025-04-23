@@ -10,21 +10,25 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("blast") }}),
-    defillama_data as ({{ get_defillama_metrics("blast") }}),
-    price_data as ({{ get_coingecko_metrics("blast") }}),
-    contract_data as ({{ get_contract_metrics("blast") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("blast") }})
+    , defillama_data as ({{ get_defillama_metrics("blast") }})
+    , price_data as ({{ get_coingecko_metrics("blast") }})
+    , contract_data as ({{ get_contract_metrics("blast") }})
     -- NOTE, this says l1 data cost, but that's inaccurate
     -- its both data and execution cost, but I'm following convention for now and we don't publish 
     -- this field anywhere, we only use it to derive revenue
-    expenses_data as (
+    , expenses_data as (
         select date, chain, l1_data_cost_native, l1_data_cost
         from {{ ref("fact_blast_l1_data_cost") }}
-    ),  -- supply side revenue and fees
-    rolling_metrics as ({{ get_rolling_active_address_metrics("blast") }}),
-    blast_dex_volumes as (
+    )  -- supply side revenue and fees
+    , rolling_metrics as ({{ get_rolling_active_address_metrics("blast") }})
+    , blast_dex_volumes as (
         select date, daily_volume as dex_volumes
         from {{ ref("fact_blast_daily_dex_volumes") }}
+    )
+    , premine_emissions as (
+        select date, premine_unlocks_native, circulating_supply_native
+        from {{ ref("fact_blast_daily_supply_data") }}
     )
 select
     coalesce(
@@ -65,7 +69,7 @@ select
     , low_sleep_users
     , high_sleep_users
     , dau_over_100 AS dau_over_100_balance
-    , dune_dex_volumes_blast.dex_volumes as chain_dex_volumes
+    , dune_dex_volumes_blast.dex_volumes as chain_spot_volume
     -- Cashflow metrics
     , fees_native AS gross_protocol_revenue_native
     , fees AS gross_protocol_revenue
@@ -79,6 +83,11 @@ select
     -- Developer metrics
     , weekly_contracts_deployed
     , weekly_contract_deployers
+
+    -- Supply Metrics
+    , premine_unlocks_native
+    , premine_unlocks_native as net_supply_change_native
+    , circulating_supply_native
 from fundamental_data
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join contract_data on fundamental_data.date = contract_data.date
@@ -86,4 +95,5 @@ left join expenses_data on fundamental_data.date = expenses_data.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join blast_dex_volumes as dune_dex_volumes_blast on fundamental_data.date = dune_dex_volumes_blast.date
 left join price_data on fundamental_data.date = price_data.date
+left join premine_emissions on fundamental_data.date = premine_emissions.date
 where fundamental_data.date < to_date(sysdate())

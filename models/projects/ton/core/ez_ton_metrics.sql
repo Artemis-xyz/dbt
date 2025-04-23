@@ -5,6 +5,7 @@
         database="ton",
         schema="core",
         alias="ez_metrics",
+        unique_key="date"
     )
 }}
 
@@ -32,6 +33,16 @@ with
     , block_rewards_data as (
         select date, block_rewards_native
         from {{ ref("fact_ton_minted") }}
+    )
+    , supply_data as (
+        select 
+            date
+            , premine_unlocks_native
+            , gross_emissions_native
+            , burns_native
+            , net_supply_change_native
+            , circulating_supply_native
+        from {{ ref("fact_ton_supply_data") }}
     )
 select
     ton.date
@@ -73,8 +84,12 @@ select
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
     -- Supply Metrics
-    , block_rewards_native AS gross_emissions_native
+    , premine_unlocks_native
+    , gross_emissions_native
     , block_rewards_native * price AS gross_emissions
+    , burns_native
+    , net_supply_change_native
+    , circulating_supply_native
     -- Stablecoin Metrics
     , stablecoin_total_supply
     , stablecoin_txns
@@ -99,4 +114,5 @@ left join fundamental_data on ton.date = fundamental_data.date
 left join stablecoin_data on ton.date = stablecoin_data.date
 left join rolling_metrics on ton.date = rolling_metrics.date
 left join block_rewards_data on ton.date = block_rewards_data.date
+left join supply_data on ton.date = supply_data.date
 where ton.date < to_date(sysdate())

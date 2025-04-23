@@ -41,7 +41,7 @@ with date_spine as (
 )
 select
     ds.date
-    , fees_and_volume.trading_fees
+    , fees_and_volume.total_fees as trading_fees
     , fees_and_volume.climate_fund_fees
     , fees_and_volume.dao_treasury_fees as revenue
     , fees_and_volume.lp_fees as total_supply_side_revenue
@@ -52,10 +52,10 @@ select
 
     -- Standardized Metrics
     -- Market Metrics
-    , market_metrics.price
-    , market_metrics.market_cap
-    , market_metrics.fdmc
-    , market_metrics.token_volume
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
     
     -- Usage/Sector Metrics
     , coalesce(dau_txns.unique_traders, 0) as spot_dau

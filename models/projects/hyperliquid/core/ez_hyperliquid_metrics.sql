@@ -10,7 +10,7 @@
 
 with
     trading_volume_data as (
-        select date, trading_volume, chain
+        select date, trading_volume as perp_volume, chain
         from {{ ref("fact_hyperliquid_trading_volume") }}
     )
     , unique_traders_data as (
@@ -38,14 +38,31 @@ with
         select date, daily_balance as daily_buybacks_native, balance as assistance_fund_balance, chain
         from {{ ref("fact_hyperliquid_assistance_fund_balance") }}
     )
+    , hype_staked_data as (
+        -- snapshot data only starts as early as 2024-01-06
+        select date, chain, staked_hype, num_stakers
+        from {{ ref("fact_hyperliquid_hype_staked") }}
+    )
+    , spot_trading_volume_data as (
+        select date, spot_trading_volume, chain
+        from {{ ref("fact_hyperliquid_spot_trading_volume") }}
+    )
     , market_metrics as (
         ({{ get_coingecko_metrics("hyperliquid") }}) 
+    )
+    , date_spine as (
+        SELECT
+            date,
+            'hyperliquid' as chain
+        FROM {{ref("dim_date_spine")}}
+        WHERE date between '2023-06-13' and to_date(sysdate())
     )
 select
     date
     , 'hyperliquid' as app
     , 'DeFi' as category
-    , trading_volume
+    , spot_trading_volume
+    , perp_volume + spot_trading_volume as trading_volume
     , unique_traders::string as unique_traders
     , trades as txns
     , trading_fees as fees
@@ -55,10 +72,13 @@ select
     -- add daily burn back to the revenue
     , (daily_buybacks_native * mm.price) + (daily_burn * mm.price) as revenue
     , daily_buybacks_native
+    , num_stakers
+    , staked_hype
 
     -- Standardized Metrics
     , unique_traders::string as perp_dau
-    , trading_volume as perp_volume
+    , perp_volume
+    , spot_trading_volume as spot_volume
     , trades as perp_txns
 
     -- Revenue Metrics
@@ -81,12 +101,15 @@ select
     , mm.token_turnover_circulating as token_turnover_circulating
     , mm.token_turnover_fdv as token_turnover_fdv
 
-from unique_traders_data
+from date_spine
+left join unique_traders_data using(date, chain)
 left join trading_volume_data using(date, chain)
 left join daily_transactions_data using(date, chain)
 left join fees_data using(date, chain)
 left join auction_fees_data using(date, chain)
 left join daily_burn_data using(date, chain)
+left join hype_staked_data using(date, chain)
 left join daily_assistance_fund_data using(date, chain)
+left join spot_trading_volume_data using(date, chain)
 left join market_metrics mm using(date)
 where date < to_date(sysdate())
