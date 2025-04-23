@@ -48,7 +48,7 @@ select
     , txns AS chain_txns
     , dau AS chain_dau
     , fees / txns as chain_avg_txn_fee
-    , dune_dex_volumes_polygon_zk.dex_volumes AS chain_dex_volumes
+    , dune_dex_volumes_polygon_zk.dex_volumes AS chain_spot_volume
     -- Cash Flow Metrics
     , fees AS chain_fees
     , fees_native AS gross_protocol_revenue_native

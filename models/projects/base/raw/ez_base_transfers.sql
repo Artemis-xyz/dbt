@@ -37,7 +37,7 @@ token_transfers as (
     from base_flipside.core.ez_native_transfers 
     {% if is_incremental() %}
         where block_timestamp >= (
-            select dateadd('day', -7, max(block_timestamp)) 
+            select DATEADD('day', -3, max(block_timestamp)) 
             from {{ this }}
             where contract_address = 'eip:8453:native'
         )
@@ -71,7 +71,7 @@ token_transfers as (
     left join base_flipside.core.fact_transactions txn using(tx_hash)
     {% if is_incremental() %}
         where block_timestamp >= (
-            select dateadd('day', -7, max(block_timestamp)) 
+            select DATEADD('day', -3, max(block_timestamp)) 
             from {{ this }}
             where contract_address <> 'eip:8453:native'
         )

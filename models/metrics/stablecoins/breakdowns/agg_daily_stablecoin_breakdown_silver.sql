@@ -32,7 +32,7 @@ with
             select *
             from {{ ref("ez_" ~ chain ~ "_stablecoin_metrics_by_address") }}
             {% if is_incremental() %}
-                where date >= (select dateadd('day', -7, max(date)) from {{ this }})
+                where date >= (select DATEADD('day', -3, max(date)) from {{ this }})
             {% endif %}
             {% if not loop.last %} union all {% endif %}
         {% endfor %}

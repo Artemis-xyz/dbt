@@ -22,7 +22,7 @@ SELECT
     count(distinct tx_hash) as trades
   FROM base_flipside.defi.ez_dex_swaps
   {% if is_incremental() %}
-    where block_timestamp >= (select dateadd('day', -7, max(date_day)) from {{ this }})
+    where block_timestamp >= (select DATEADD('day', -3, max(date_day)) from {{ this }})
   {% endif %}
   group by 1,2,3,4
 
@@ -48,7 +48,7 @@ SELECT
     count(distinct tx_hash) as trades
   FROM ethereum_flipside.defi.ez_dex_swaps
   {% if is_incremental() %}
-    where block_timestamp >= (select dateadd('day', -7, max(date_day)) from {{ this }})
+    where block_timestamp >= (select DATEADD('day', -3, max(date_day)) from {{ this }})
   {% endif %}
   group by 1,2,3,4
 
@@ -74,7 +74,7 @@ SELECT
     count(distinct tx_hash) as trades
   FROM arbitrum_flipside.defi.ez_dex_swaps
   {% if is_incremental() %}
-    where block_timestamp >= (select dateadd('day', -7, max(date_day)) from {{ this }})
+    where block_timestamp >= (select DATEADD('day', -3, max(date_day)) from {{ this }})
   {% endif %}
   group by 1,2,3,4
 
@@ -102,7 +102,7 @@ SELECT
     count(distinct tx_hash) as trades
   FROM bsc_flipside.defi.ez_dex_swaps
   {% if is_incremental() %}
-    where block_timestamp >= (select dateadd('day', -7, max(date_day)) from {{ this }})
+    where block_timestamp >= (select DATEADD('day', -3, max(date_day)) from {{ this }})
   {% endif %}
   group by 1,2,3,4
 
@@ -128,7 +128,7 @@ SELECT
     count(distinct tx_id) as trades
   FROM solana_flipside.defi.ez_dex_swaps
   {% if is_incremental() %}
-    where block_timestamp >= (select dateadd('day', -7, max(date_day)) from {{ this }})
+    where block_timestamp >= (select DATEADD('day', -3, max(date_day)) from {{ this }})
   {% endif %}
   group by 1,2,3,4
   )

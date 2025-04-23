@@ -12,3 +12,13 @@ sources:
       - name: raw_hyperliquid_auction_fees
       - name: raw_hyperliquid_daily_burn
       - name: raw_hyperliquid_daily_price
+      - name: raw_hyperliquid_assistance_fund_holdings
+      - name: raw_hyperliquid_hype_staked
+      - name: raw_hyperliquid_spot_trading_volume
+      - name: raw_hyperevm_transactions_parquet
+      - name: raw_hyperevm_logs_parquet
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: hyperliquid_spot_trading_volume

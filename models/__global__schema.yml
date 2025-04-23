@@ -16,6 +16,8 @@ column_definitions:
       tags: [artemis_gaap]
     - name: equity_cash_flow
       description: "Revenue distributed to equity holders of an off-chain entity operating the protocol (e.g., dYdX Trading Inc., Uniswap Labs)."
+    - name: equity_cash_flow_native
+      description: "Revenue distributed to equity holders of an off-chain entity operating the protocol (e.g., dYdX Trading Inc., Uniswap Labs) in native tokens."
       tags: [artemis_gaap]
     - name: foundation_cash_flow
       description: "Revenue allocated to a foundation affiliated with the protocol, used for grants, partnerships, operations, or legal."
@@ -46,6 +48,10 @@ column_definitions:
       tags: [artemis_gaap]
     - name: buybacks
       description: "The amount tokens actually bought back by the protocol (USD)."
+      tags: [artemis_gaap]
+    - name: buybacks_native
+      description: "The amount of native tokens bought back by the protocol"
+      tags: [artemis_gaap]
     - name: buybacks_cash_flow
       description: "The portion of revenue allocated to token buybacks (USD)."
       tags: [artemis_gaap]
@@ -63,6 +69,9 @@ column_definitions:
       tags: [artemis_gaap]
     - name: l1_cash_flow
       description: "The total USD value of L1 cash flow on a chain"
+      tags: [artemis_gaap]
+    - name: user_cash_flow
+      description: "The amount of revenue allocated to users of the protocol"
       tags: [artemis_gaap]
 
   token_metrics:
@@ -186,8 +195,6 @@ column_definitions:
       description: "The average cost per MiB of data stored in blobs on a chain in USD"
     - name: submitters
       description: "The number of submitters on a chain"
-    - name: chain_dex_volumes
-      description: "The total volume of DEXes on a chain"
     - name: chain_avg_block_time
       description: "The average time it takes to produce a block on a chain"
     - name: chain_avg_tps
@@ -369,7 +376,9 @@ column_definitions:
       description: "The amount of native tokens minted"
     - name: mints
       description: "The amount of USD value minted"
-    - name: emissions_native
+    - name: gross_emissions
+      description: "The amount of USD value emitted"
+    - name: gross_emissions_native
       description: "The amount of native tokens emitted"
     - name: premine_unlocks_native
       description: "The amount of native tokens unlocked from premine"
