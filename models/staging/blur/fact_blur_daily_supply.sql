@@ -6,7 +6,6 @@
 
 select 
     date
-    , vested_supply_native
     , premine_unlocks_native
     , locked_supply_native
     , circulating_supply_native
