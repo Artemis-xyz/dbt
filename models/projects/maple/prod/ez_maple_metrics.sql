@@ -55,7 +55,7 @@ with fees as (
         date,
         SUM(usd_balance) AS net_treasury_value
     FROM {{ ref('fact_maple_treasury') }}
-    WHERE token <> 'MPL'
+    WHERE token <> 'SYRUP'
     GROUP BY 1
 )
 , treasury_native as (
@@ -63,11 +63,11 @@ with fees as (
         date,
         SUM(native_balance) AS treasury_value_native
     FROM {{ ref('fact_maple_treasury') }}
-    WHERE token = 'MPL'
+    WHERE token = 'SYRUP'
     GROUP BY 1
 )
 , price as(
-    {{ get_coingecko_metrics('maple')}}
+    {{ get_coingecko_metrics('syrup')}}
 )
 , tokenholders as (
     SELECT * FROM {{ ref('fact_maple_tokenholder_count')}}
