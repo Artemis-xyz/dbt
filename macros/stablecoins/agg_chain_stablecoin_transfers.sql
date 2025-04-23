@@ -84,7 +84,7 @@
                 select lower(contract_address)
                 from {{ ref('fact_ton_stablecoin_contracts') }} t1
             )
-            and tx_status = 'TRUE'
+            and tx_succeeded = TRUE
     {% elif chain in ("solana") %}
     -- CASE 1: Mints into non-premint addresses
         select
@@ -380,7 +380,7 @@
             )
             -- DO NOT include mint / burn events here - they will be duped
             and event_name in ('Transfer', 'Issue', 'Redeem')
-            and tx_status = 'SUCCESS'
+            and tx_succeeded = TRUE
     {% endif %}
     {% if is_incremental() and new_stablecoin_address == '' %} 
         and block_timestamp >= (

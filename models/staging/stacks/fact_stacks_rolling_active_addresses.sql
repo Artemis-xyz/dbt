@@ -11,7 +11,7 @@ with
         select distinct 
             block_timestamp::date as raw_date
         from {{ ref("fact_stacks_transactions") }}
-        where tx_status = 'success'
+            and tx_succeeded = TRUE
         and block_timestamp::date >= '2024-07-10'
     ),
     distinct_dates_for_rolling_active_address as (
@@ -19,7 +19,7 @@ with
             block_timestamp::date raw_date,
             sender_address as from_address 
         from {{ ref("fact_stacks_transactions") }}
-        where tx_status = 'success'
+            and tx_succeeded = TRUE
     ),
     rolling_mau as (
         select 
