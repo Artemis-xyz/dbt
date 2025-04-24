@@ -59,9 +59,9 @@ with restaked_eth_metrics as (
 )
 
 SELECT
-    date_spine.date,
-    'etherfi' as app,
-    'DeFi' as category,
+    date_spine.date
+    , 'etherfi' as app
+    , 'DeFi' as category
 
     --Standardized Metrics
 
@@ -72,12 +72,10 @@ SELECT
     , market_metrics.fdmc as fdmc
 
     --Usage Metrics
-    , restaked_eth_metrics.num_restaked_eth as stake_tvl_native
-    , restaked_eth_metrics.amount_restaked_usd as stake_tvl
-    , restaked_eth_metrics.num_restaked_eth_net_change as stake_tvl_native_net_change
-    , restaked_eth_metrics.amount_restaked_usd_net_change as stake_tvl_net_change
-    , defillama_tvl.liquid_tvl as liquid_tvl
-    , stake_tvl + liquid_tvl as tvl
+    , restaked_eth_metrics.num_restaked_eth as tvl_native
+    , restaked_eth_metrics.amount_restaked_usd as tvl
+    , restaked_eth_metrics.num_restaked_eth_net_change as tvl_native_net_change
+    , restaked_eth_metrics.amount_restaked_usd_net_change as tvl_net_change
 
     --Cash Flow Metrics
     , coalesce(liquidity_pool_fees.fees_usd, 0) as liquidity_pool_fees
@@ -102,5 +100,6 @@ left join liquidity_pool_fees using(date)
 left join auction_fees using(date)
 left join defillama_tvl using(date)
 left join daily_supply_data using(date)
+left join market_metrics using(date)
 where date < to_date(sysdate())
 
