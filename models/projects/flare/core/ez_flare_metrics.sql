@@ -71,10 +71,11 @@ select
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
+    , market_metrics.token_volume
 
     -- Usage Metrics
     , txns.txns AS chain_txns
-    , dau.dau AS chain_dau
+    , daus.dau AS chain_dau
     , dex_volumes.dex_volumes AS chain_spot_volume
     , defillama_tvl.tvl AS chain_tvl
 
