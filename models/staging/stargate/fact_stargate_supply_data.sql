@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="SEI",
+        snowflake_warehouse="STARGATE",
     )
 }}
 

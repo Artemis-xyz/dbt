@@ -32,7 +32,7 @@ EigenPods AS (
         decoded_log:eigenPod::STRING AS eigenpod_address,
         DATE_TRUNC('day', block_timestamp) AS day_of_pod_deployed_event
     FROM 
-        {{ source("ETHEREUM_FLIPSIDE", "fact_decoded_event_logs")}}-- flipside table 'ethereum.core.fact_decoded_event_logs'
+        {{ source("ETHEREUM_FLIPSIDE", "ez_decoded_event_logs")}}-- flipside table 'ethereum.core.ez_decoded_event_logs'
     WHERE 
         contract_address = lower('0x91E677b07F7AF907ec9a428aafA9fc14a0d3A338')
         AND event_name = 'PodDeployed'

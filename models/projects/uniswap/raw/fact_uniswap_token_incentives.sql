@@ -22,7 +22,7 @@ with prices as (
         'UNI' as token,
         sum(l.decoded_log:reward::number / 1e18) as reward_native
     FROM
-        ethereum_flipside.core.fact_decoded_event_logs l
+        ethereum_flipside.core.ez_decoded_event_logs l
     WHERE
         contract_address in (
             lower('0xca35e32e7926b96a9988f61d510e038108d8068e')

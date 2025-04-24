@@ -39,6 +39,17 @@ WITH
     unique_traders_data as (
         select date, unique_traders
         from {{ ref("fact_dydx_unique_traders") }}
+    ), 
+    dydx_supply_data AS (
+        SELECT
+            date
+            , premine_unlocks_native
+            , circulating_supply_native
+        FROM {{ ref('fact_dydx_supply_data') }}
+        where unique_traders < 1e6
+    )
+    , price_data as (
+        {{ get_coingecko_metrics("dydx-chain") }}
     )
 select
     date_spine.date as date
@@ -48,13 +59,29 @@ select
     , trading_volume_data.trading_volume as trading_volume
     , unique_traders_data.unique_traders as unique_traders
     , fees + txn_fees as fees
+    
     -- standardize metrics
+
+    -- Market Metrics
+    , price_data.price
+    , price_data.market_cap
+    , price_data.fdmc
+    , price_data.token_volume
+
+    -- Cash Flow Metrics
+    , fees as perp_fees
+    , txn_fees as chain_fees
     , trading_volume_data.trading_volume + trading_volume_data_v4.trading_volume as perp_volume
     , unique_traders_data.unique_traders + unique_traders_data_v4.unique_traders as perp_dau
     , txn_fees + fees as gross_protocol_revenue
     , case when date_spine.date >= '2022-03-25' then gross_protocol_revenue * 0.25 else 0 end as buybacks
     , fees as trading_fees
     , txn_fees as txn_fees
+
+    -- Supply Metrics
+    , dydx_supply_data.circulating_supply_native as circulating_supply_native
+    , dydx_supply_data.premine_unlocks_native as premine_unlocks_native
+    , dydx_supply_data.circulating_supply_native - lag(dydx_supply_data.circulating_supply_native) over (order by date_spine.date) as net_supply_change_native
 from date_spine
 left join trading_volume_data on date_spine.date = trading_volume_data.date
 left join unique_traders_data on date_spine.date = unique_traders_data.date
@@ -62,4 +89,5 @@ left join trading_volume_data_v4 on date_spine.date = trading_volume_data_v4.dat
 left join fees_data_v4 on date_spine.date = fees_data_v4.date
 left join chain_data_v4 on date_spine.date = chain_data_v4.date
 left join unique_traders_data_v4 on date_spine.date = unique_traders_data_v4.date
+left join dydx_supply_data on date_spine.date = dydx_supply_data.date
 where date_spine.date < to_date(sysdate())

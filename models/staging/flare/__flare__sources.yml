@@ -8,3 +8,8 @@ sources:
       - name: raw_flare_gas_used
       - name: raw_flare_avg_gas_price
       - name: raw_flare_dau
+  - name: MANUAL_STATIC_TABLES
+    schema: PROD
+    database: pc_dbt_db
+    tables:
+      - name: flare_daily_supply_data
