@@ -8,6 +8,15 @@ sources:
     tables:
       - name: ez_dex_swaps
 
+
+# BASE
+
+  - name: BASE_FLIPSIDE
+    schema: CORE
+    database: BASE_FLIPSIDE
+    tables:
+      - name: ez_token_transfers
+
 # SOLANA
 
   - name: SOLANA_FLIPSIDE_NFT
@@ -48,6 +57,7 @@ sources:
     tables:
       - name: ez_native_transfers
       - name: fact_token_transfers
+      - name: fact_transactions
       - name: ez_decoded_event_logs
       - name: fact_event_logs
       - name: fact_blocks

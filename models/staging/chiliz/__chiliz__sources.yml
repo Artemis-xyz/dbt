@@ -7,3 +7,9 @@ sources:
       - name: raw_chiliz_gas_used
       - name: raw_chiliz_avg_gas_price
       - name: raw_chiliz_dau
+
+  - name: MANUAL_STATIC_TABLES
+    schema: PROD
+    database: pc_dbt_db
+    tables:
+      - name: chiliz_daily_supply_data

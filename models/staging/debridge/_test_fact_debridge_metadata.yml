@@ -1,0 +1,7 @@
+models:
+  - name: fact_debridge_order_metadata
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique

@@ -20,7 +20,7 @@
         FROM {{ source((chain | upper) ~ '_FLIPSIDE', 'ez_decoded_event_logs') }}
         WHERE contract_address = lower('0xBA12222222228d8Ba445958a75a0704d566BF2C8')
         AND event_name = 'Swap'
-        AND tx_status = 'SUCCESS'
+        AND tx_succeeded = TRUE
         {% if is_incremental() %}
             AND block_timestamp > (SELECT MAX(block_timestamp) FROM {{ this }})
         {% endif %}

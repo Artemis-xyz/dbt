@@ -17,3 +17,16 @@ SELECT
     type,
     last_updated
 FROM {{ ref("fact_jitosol_stake_accounts") }}
+
+UNION ALL 
+
+SELECT 
+    address,
+    name,
+    artemis_application_id,
+    chain,
+    is_token,
+    is_fungible,
+    type,
+    last_updated
+FROM {{ ref("fact_maple_treasury_accounts") }}

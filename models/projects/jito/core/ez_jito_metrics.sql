@@ -60,12 +60,22 @@ with
         FROM {{ ref('dim_date_spine') }}
         WHERE date between (select min(date) from jito_dau_txns_fees) and (to_date(sysdate()))
     )
+    , daily_supply_data as (
+        SELECT 
+            date
+            , 0 as emissions_native
+            , pre_mine_unlocks as premine_unlocks_native
+            , 0 as burns_native
+        FROM {{ ref('fact_jito_daily_premine_unlocks') }}
+    )
     , market_metrics as (
         {{get_coingecko_metrics('jto')}}
     )
 
 SELECT 
-    date
+    date_spine.date
+    , 'jito' as app
+    , 'DeFi' as category
 
     --Old metrics needed for compatibility
     , coalesce(withdraw_management_fees, 0) as withdraw_management_fees
@@ -80,13 +90,19 @@ SELECT
 
     --Standardized Metrics
 
+    --Market Metrics
+    , coalesce(market_metrics.price, 0) as price
+    , coalesce(market_metrics.token_volume, 0) as token_volume
+    , coalesce(market_metrics.market_cap, 0) as market_cap
+    , coalesce(market_metrics.fdmc, 0) as fdmc
+
     -- Usage Metrics
     , coalesce(tip_txns, 0) as block_infra_txns
     , coalesce(tip_dau, 0) as block_infra_dau
     , coalesce(tvl, 0) as tvl
     , coalesce(tvl_change, 0) as tvl_net_change
-    
-    -- Cash Flow Metrics
+
+    -- Cashflow Metrics
     , coalesce(withdraw_management_fees, 0) as lst_fees
     , coalesce(tip_fees, 0) as block_infra_fees
     , coalesce(withdraw_management_fees, 0) + coalesce(tip_fees, 0) as gross_protocol_revenue
@@ -95,17 +111,21 @@ SELECT
     , coalesce(jito_dau_txns_fees_cash_flow.strategy_cash_flow, 0) as strategy_cash_flow
     , coalesce(jito_dau_txns_fees_cash_flow.validator_cash_flow, 0) as validator_cash_flow
 
-    --Market Metrics
-    , coalesce(market_metrics.price, 0) as price
-    , coalesce(market_metrics.token_volume, 0) as token_volume
-    , coalesce(market_metrics.market_cap, 0) as market_cap
-    , coalesce(market_metrics.fdmc, 0) as fdmc
+    -- Token Turnover Metrics
     , coalesce(market_metrics.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(market_metrics.token_turnover_fdv, 0) as token_turnover_fdv
 
-FROM date_spine ds
+    -- JTO Token Supply Data
+    , coalesce(daily_supply_data.emissions_native, 0) as emissions_native
+    , coalesce(daily_supply_data.premine_unlocks_native, 0) as premine_unlocks_native
+    , coalesce(daily_supply_data.burns_native, 0) as burns_native
+    , coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(daily_supply_data.burns_native, 0) as net_supply_change_native
+    , sum(coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(daily_supply_data.burns_native, 0)) over (order by daily_supply_data.date) as circulating_supply_native
+
+FROM date_spine
 LEFT JOIN jito_mgmt_withdraw_fees using (date)
 LEFT JOIN jito_dau_txns_fees_cash_flow using (date)
 LEFT JOIN jito_dau_txns_fees using (date)
 LEFT JOIN jito_tvl using (date)
+LEFT JOIN daily_supply_data using (date)
 LEFT JOIN market_metrics using (date)

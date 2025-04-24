@@ -72,7 +72,7 @@ select
     , gf.referral_fees
     , gf.nft_bot_fees
     , gf.fees as gross_protocol_revenue
-    , gf.buybacks
+    , gf.buybacks as buyback_cash_flow
     , gf.foundation_cash_flow
     , gf.fee_sharing_token_cash_flow
     , gf.service_cash_flow
