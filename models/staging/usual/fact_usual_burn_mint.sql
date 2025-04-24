@@ -45,7 +45,7 @@ net_balance AS (
             THEN -decoded_log:"value" / 1e18
             ELSE 0
         END) AS tokens_mint
-    FROM ethereum_flipside.core.fact_decoded_event_logs
+    FROM ethereum_flipside.core.ez_decoded_event_logs
     WHERE 
         LOWER(contract_address) = LOWER('0xC4441c2BE5d8fA8126822B9929CA0b81Ea0DE38E')
         AND event_name = 'Transfer'
