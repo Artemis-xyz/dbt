@@ -75,8 +75,8 @@ select
 from date_spine
 left join trading_volume_data using(date)
 left join unique_traders_data using(date)
-left join trading_volume_data_v4 using(date)s
-left join fees_data_v4 using(date)
+left join trading_volume_data_v4 using(date)
+left join fees_data_v4 using(date
 left join chain_data_v4 using(date)
 left join unique_traders_data_v4 using(date)
 left join price_data using(date)
