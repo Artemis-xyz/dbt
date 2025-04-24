@@ -23,6 +23,10 @@ column_definitions:
       - artemis_gaap
       - override
 
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
+
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
     description: "The sum of all trading fees paid across dYdX v3, dYdX v4, and any transaction fees paid on dYdX chain."
@@ -36,6 +40,10 @@ column_definitions:
     tags:
       - artemis_gaap
       - override
+
+  net_supply_change_native: &net_supply_change_native
+    name: net_supply_change_native
+    description: "The net change in the circulating supply of a token in native tokens"
 
   perp_dau: &perp_dau
     name: perp_dau
@@ -54,6 +62,10 @@ column_definitions:
     description: "The total trading volume on dYdX v3 and v4"
     tags:
       - override
+
+  premine_unlocks_native: &premine_unlocks_native
+    name: premine_unlocks_native
+    description: "The amount of native tokens unlocked from premine"
 
   price: &price
     name: price
@@ -94,6 +106,9 @@ models:
     description: "This table stores metrics for the DYDX protocol"
     columns:
       - *buybacks
+      - *circulating_supply_native
+      - *gross_protocol_revenue
+      - *net_supply_change_native
       - *chain_fees
       - *fdmc
       - *gross_protocol_revenue
@@ -101,6 +116,7 @@ models:
       - *perp_dau
       - *perp_fees
       - *perp_volume
+      - *premine_unlocks_native
       - *price
       - *token_turnover_circulating
       - *token_turnover_fdv
