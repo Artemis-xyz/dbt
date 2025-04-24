@@ -8,6 +8,7 @@ sources:
       - name: raw_frax_premine_unlocks
       - name: raw_frax_net_mint_burns
       - name: raw_veFXS_supply
+      - name: raw_frax_fxs_burned
 # ETHEREUM
   - name: ETHEREUM_FLIPSIDE_CORE
     schema: core
