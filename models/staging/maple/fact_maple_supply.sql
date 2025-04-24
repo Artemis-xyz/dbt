@@ -25,7 +25,7 @@ syrup_emissions as (
         ds.date, 
         sum(coalesce(tt.amount, 0)) as emissions_native
     from date_spine as ds
-    left join ethereum_flipside.core.ez_token_transfers as tt
+    left join {{ source('ETHEREUM_FLIPSIDE', 'ez_token_transfers') }} as tt
         on date(tt.block_timestamp) = ds.date
     where lower(tt.contract_address) = lower('0x643C4E15d7d62Ad0aBeC4a9BD4b001aA3Ef52d66')
         and lower(from_address) = lower('0x0000000000000000000000000000000000000000')
@@ -70,7 +70,7 @@ syrup_buybacks as (
             amount_usd, 
             symbol, 
             row_number() over (partition by tx_hash order by symbol asc) as rn
-        from ethereum_flipside.core.ez_token_transfers
+        from {{ source('ETHEREUM_FLIPSIDE', 'ez_token_transfers') }}
         where (lower(to_address) = lower('0xa7cc8d3e64ea81670181b005a476d0ca46e4c1fc') 
                 and lower(from_address) = lower('0x9008d19f58aabd9ed0d60971565aa8510560ab41') 
                 and lower(symbol) = 'syrup')
