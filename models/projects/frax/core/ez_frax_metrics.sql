@@ -69,7 +69,7 @@ with dex_data as (
         date,
         l2_txns
     FROM
-        {{ ref("fact_frax_l2_transactions") }}
+        {{ ref("fact_frax_L2_transactions") }}
 )
 , date_spine as (
     select
