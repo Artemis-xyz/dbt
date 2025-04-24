@@ -4,7 +4,7 @@ with liquid as (
     SELECT
         *
     FROM
-        pc_dbt_db.prod.fact_defillama_protocol_tvls
+        {{ref('fact_defillama_protocol_tvls')}}
     WHERE
         defillama_protocol_id = 4429
 ),
@@ -12,7 +12,7 @@ stake as (
     SELECT
         *
     FROM
-        pc_dbt_db.prod.fact_defillama_protocol_tvls
+        {{ref('fact_defillama_protocol_tvls')}}
     WHERE
         defillama_protocol_id = 2626
 )
