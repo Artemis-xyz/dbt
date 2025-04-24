@@ -111,8 +111,8 @@ SELECT
 
     -- Other Metrics
     , dex_data.gas_cost_native
-    , market_data.token_turnover_circulating
-    , market_data.token_turnover_fdv
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
 
     --FXS Token Supply Data
     , fxs_daily_supply_data.emissions_native as fxs_emissions_native
