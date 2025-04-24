@@ -51,12 +51,12 @@ select
     source_token_decimals,
     source_token_symbol,
     source_token_address,
-    amount_sent_native / POW(10, source_token_decimals) as amount_sent_adjusted,
-    (amount_sent_native / POW(10, source_token_decimals)) * source_prices.price as amount_sent,
+    amount_sent_native / POW(10, source_token_decimals - coalesce(length(amount_sent_native_remainder), 0)) as amount_sent_adjusted,
+    amount_sent_adjusted * source_prices.price as amount_sent,
     source_tx_hash,
     amount_received_native,
-    amount_received_native / POW(10, destination_token_decimals) as amount_received_adjusted,
-    (amount_received_native / POW(10, destination_token_decimals)) * destination_prices.price as amount_received,
+    amount_received_native / POW(10, destination_token_decimals - coalesce(length(amount_received_native_remainder), 0)) as amount_received_adjusted,
+    amount_received_adjusted * destination_prices.price as amount_received,
     destination_chain,
     destination_token_decimals,
     destination_token_symbol,
@@ -70,5 +70,5 @@ select
     case when contains(coalesce(lower(t.source_token_symbol), lower(t.destination_token_symbol)), 'usd') then 'Stablecoin' else 'Token' end as category
 from {{ref('fact_debridge_transfers')}} as t
 left join prices as source_prices on lower(t.source_token_address) = lower(source_prices.contract_address) and date_trunc('day', t.src_timestamp) = source_prices.date
-left join prices as destination_prices on lower(t.source_token_address) = lower(destination_prices.contract_address) and date_trunc('day', t.src_timestamp) = destination_prices.date
+left join prices as destination_prices on lower(t.destination_token_address) = lower(destination_prices.contract_address) and date_trunc('day', t.src_timestamp) = destination_prices.date
 left join token_fee_prices as fee_prices on lower(t.fee_chain_coingecko_id) = lower(fee_prices.coingecko_id) and date_trunc('day', t.src_timestamp) = fee_prices.date

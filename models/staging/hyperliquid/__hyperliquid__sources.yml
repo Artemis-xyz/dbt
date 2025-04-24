@@ -18,7 +18,8 @@ sources:
       - name: raw_hyperevm_transactions_parquet
       - name: raw_hyperevm_logs_parquet
   - name: MANUAL_STATIC_TABLES
-    schema: prod
+    schema: PROD
     database: pc_dbt_db
     tables:
+      - name: hyperliquid_daily_supply_data
       - name: hyperliquid_spot_trading_volume

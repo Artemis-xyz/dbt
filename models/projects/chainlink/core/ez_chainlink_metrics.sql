@@ -189,6 +189,10 @@ with
             date
             , dau
         from {{ ref("fact_chainlink_dau")}}
+    ), 
+    supply_data as (
+        select *
+        from {{ ref("fact_chainlink_supply")}}
     )
 
 
@@ -240,6 +244,11 @@ select
     , treasury_usd as treasury
     , treasury_link as treasury_native
 
+    -- Supply Metrics
+    , premine_unlocks_native
+    , circulating_supply_native - lag(circulating_supply_native) over (order by date) as net_supply_change_native
+    , circulating_supply_native
+
     -- Other Metrics
     , token_turnover_circulating
     , token_turnover_fdv
@@ -257,4 +266,5 @@ left join price_data using (date)
 left join token_holder_data using (date)
 left join daily_txns_data using (date)
 left join dau_data using (date)
+left join supply_data using (date)
 where date < to_date(sysdate())
