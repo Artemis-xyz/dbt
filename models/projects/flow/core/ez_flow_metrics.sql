@@ -64,7 +64,7 @@ select
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
-    , market_metrics.tvl
+    , market_metrics.token_volume
 
     -- Usage Metrics
     , dau_txn_data.txns as chain_txns
