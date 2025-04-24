@@ -21,6 +21,12 @@ with
     market_metrics as (
         {{ get_coingecko_metrics("pyth") }}
     )
+    , dfl_tvs as (
+        SELECT
+            date,
+            dfl_tvs
+        FROM {{ ref('fact_pyth_dfl_tvs') }}
+    )
 
 SELECT
     date_spine.date
@@ -41,6 +47,7 @@ SELECT
     --Usage Metrics
     , dau_txns.txns as oracle_txns
     , dau_txns.dau as oracle_dau
+    , dfl_tvs.dfl_tvs as tvs
 
     --Cash Flow Metrics
     , 0 as oracle_fees
@@ -52,3 +59,4 @@ SELECT
 FROM date_spine
 LEFT JOIN dau_txns ON date_spine.date = dau_txns.date
 LEFT JOIN market_metrics ON date_spine.date = market_metrics.date
+LEFT JOIN dfl_tvs ON date_spine.date = dfl_tvs.date
