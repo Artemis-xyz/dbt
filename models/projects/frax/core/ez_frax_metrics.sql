@@ -96,7 +96,7 @@ SELECT
     , dex_data.spot_txns as spot_txns
     , dex_data.spot_dau as spot_dau
     , dex_data.spot_volume as spot_volume
-    , fractal_l2_txns.l2_txns as l2_txns
+    , fractal_l2_txns.l2_txns as chain_txns
     , staked_eth_metrics.num_staked_eth as stake_tvl_native
     , staked_eth_metrics.amount_staked_usd as stake_tvl
     , staked_eth_metrics.num_staked_eth_net_change as stake_tvl_native_net_change
