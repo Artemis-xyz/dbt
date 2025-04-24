@@ -80,8 +80,9 @@ SELECT
     --Cash Flow Metrics
     , coalesce(liquidity_pool_fees.fees_usd, 0) as liquidity_pool_fees
     , coalesce(auction_fees.fees_usd, 0) as auction_fees
-    , coalesce(defillama_tvl.liquid_fees_usd, 0) as liquid_vault_fees
+    , coalesce(defillama_tvl.liquid_fees_usd, 0) as strategy_fees
     , coalesce(liquidity_pool_fees.fees_usd, 0) + coalesce(auction_fees.fees_usd, 0) + coalesce(defillama_tvl.liquid_fees_usd, 0) as gross_protocol_revenue
+    , strategy_fees as equity_cash_flow
 
     --Token Turnover Metrics
     , market_metrics.token_turnover_circulating as token_turnover_circulating
