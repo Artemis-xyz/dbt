@@ -16,7 +16,7 @@ SELECT
     decoded_log:user::string AS addr,
     decoded_log:usdcReceivedAmount::number / 1e6 AS amount
 FROM 
-    ethereum_flipside.core.fact_decoded_event_logs
+    ethereum_flipside.core.ez_decoded_event_logs
 WHERE 
     event_name = 'UnstakedAndWithdrewMultiple'
     AND LOWER(contract_address) = '0xfd6ff39da508d281c2d255e9bbbfab34b6be60c3'

@@ -43,7 +43,7 @@ with
             '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' as token_address,
             'polygon' as source_chain,
             'ethereum' as destination_chain
-        from ethereum_flipside.core.fact_decoded_event_logs
+        from ethereum_flipside.core.ez_decoded_event_logs
         where
             contract_address = lower('0x8484Ef722627bf18ca5Ae6BcF031c23E6e922B30')
             and event_name = 'ExitedEther'

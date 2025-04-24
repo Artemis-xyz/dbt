@@ -46,7 +46,7 @@ net_staked_withdrawal AS (
     select 
         lower(fded.decoded_log:from::STRING) as staker_address
         , sum(fded.decoded_log:value::NUMERIC / 1e18) as value
-    from {{chain}}_flipside.core.fact_decoded_event_logs fded
+    from {{chain}}_flipside.core.ez_decoded_event_logs fded
     where 
         lower(fded.contract_address) = lower('{{token_contract_address}}')
         and lower(fded.decoded_log:to::STRING) = lower('{{stake_contract_address}}')
@@ -57,7 +57,7 @@ net_staked_withdrawal AS (
     select 
         lower(fded.decoded_log:to::STRING) as staker_address
         , sum(fded.decoded_log:value::NUMERIC / 1e18) * -1 as value
-    from {{chain}}_flipside.core.fact_decoded_event_logs fded
+    from {{chain}}_flipside.core.ez_decoded_event_logs fded
     where 
         lower(fded.contract_address) = lower('{{token_contract_address}}')
         and lower(fded.decoded_log:from::STRING) = lower('{{stake_contract_address}}')
@@ -68,7 +68,7 @@ net_staked_withdrawal AS (
     select 
         lower(fded.decoded_log:provider::STRING) as staker_address
         , sum(fded.decoded_log:value::NUMERIC / 1e18) as value
-    from {{chain}}_flipside.core.fact_decoded_event_logs fded
+    from {{chain}}_flipside.core.ez_decoded_event_logs fded
     where 
         lower(fded.contract_address) = lower('{{stake_contract_address}}') 
         and fded.event_name = 'Deposit'
@@ -79,7 +79,7 @@ net_staked_withdrawal AS (
     select 
         lower(fdew.decoded_log:provider::STRING) as staker_address
         , sum(fdew.decoded_log:value::NUMERIC / 1e18) * -1 as value
-    from {{chain}}_flipside.core.fact_decoded_event_logs fdew
+    from {{chain}}_flipside.core.ez_decoded_event_logs fdew
     where 
         lower(fdew.contract_address) = lower('{{stake_contract_address}}')
         and fdew.event_name = 'Withdraw'

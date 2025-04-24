@@ -18,11 +18,17 @@ column_definitions:
       - artemis_gaap
       - override
 
-  buybacks_cash_flow: &buybacks_cash_flow
+  buyback_cash_flow: &buyback_cash_flow
     name: buybacks_cash_flow
     description: "A portion of protocol revenue is allocated to the Assistance Fund (AF) for HYPE buybacks — (97%). The 97% is based on confirmation from the Hyperliquid team and matches our observed fee data from assistancefund.top and asxn data."
     tags:
       - artemis_gaap
+      - override
+
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on the HyperEVM."
+    tags:
       - override
 
   buybacks_native: &buybacks_native
@@ -30,10 +36,6 @@ column_definitions:
     description: "The amount of native tokens bought back by the protocol"
     tags:
       - artemis_gaap
-
-  chain_fees: &chain_fees
-    name: chain_fees
-    description: "The total transaction fees paid on a chain"
 
   fdmc: &fdmc
     name: fdmc
@@ -94,7 +96,7 @@ column_definitions:
 
   spot_fees: &spot_fees
     name: spot_fees
-    description: "The total amount of fees (in USD) on a spot dex."
+    description: "The total amount of fees (in USD) on Hyperliquid's spot exchange."
     tags:
       - override
 
@@ -129,7 +131,7 @@ models:
     columns:
       - *burned_cash_flow
       - *burned_cash_flow_native
-      - *buybacks_cash_flow
+      - *buyback_cash_flow
       - *buybacks_native
       - *chain_fees
       - *fdmc
@@ -151,7 +153,7 @@ models:
     columns:
       - *burned_cash_flow
       - *burned_cash_flow_native
-      - *buybacks_cash_flow
+      - *buyback_cash_flow
       - *buybacks_native
       - *chain_fees
       - *fdmc

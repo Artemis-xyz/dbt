@@ -5,6 +5,6 @@ select
     count(distinct tx_id) as txns,
     'flow' as chain
 from flow_flipside.core.fact_transactions
-where tx_succeeded = 'TRUE'
+where tx_succeeded = TRUE
 group by date
 

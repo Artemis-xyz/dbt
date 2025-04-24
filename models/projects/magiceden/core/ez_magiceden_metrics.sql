@@ -8,12 +8,7 @@
     )
 }}
 
-WITH date_spine AS (
-    SELECT * 
-    FROM {{ ref('dim_date_spine') }}
-    WHERE date BETWEEN '2020-03-16' AND TO_DATE(SYSDATE())
-)
-, magiceden_metrics AS (
+WITH magiceden_metrics AS (
     SELECT
         date,
         SUM(daily_trading_volume) AS daily_trading_volume,
@@ -28,44 +23,67 @@ WITH date_spine AS (
     GROUP BY
         date
 )
-, market_data as (
+, daily_supply_data as (
+    SELECT 
+        date
+        , 0 as emissions_native
+        , premine_unlocks as premine_unlocks_native
+        , 0 as burns_native
+    FROM {{ ref('fact_magiceden_daily_premine_unlocks') }}
+)
+, date_spine AS (
+    SELECT * 
+    FROM {{ ref('dim_date_spine') }}
+    WHERE date BETWEEN '2020-03-16' AND TO_DATE(SYSDATE())
+)
+, market_metrics as (
     {{ get_coingecko_metrics('magic-eden') }}
 )
-SELECT
+
+select
     date_spine.date
-    , COALESCE(m.daily_trading_volume, 0) AS daily_trading_volume
-    , COALESCE(m.dau, 0) AS dau 
-    , COALESCE(m.collections_transacted, 0) AS collections_transacted
-    , COALESCE(m.txns, 0) AS txns
-    , COALESCE(m.revenue, 0) AS revenue
-    , COALESCE(m.supply_side_fees, 0) AS supply_side_fees
-    , COALESCE(m.fees, 0) AS fees
+    , COALESCE(magiceden_metrics.daily_trading_volume, 0) AS daily_trading_volume
+    , COALESCE(magiceden_metrics.dau, 0) AS dau 
+    , COALESCE(magiceden_metrics.collections_transacted, 0) AS collections_transacted
+    , COALESCE(magiceden_metrics.txns, 0) AS txns
+    , COALESCE(magiceden_metrics.revenue, 0) AS revenue
+    , COALESCE(magiceden_metrics.supply_side_fees, 0) AS supply_side_fees
+    , COALESCE(magiceden_metrics.fees, 0) AS fees
+    , COALESCE(magiceden_metrics.supply_side_fees, 0) AS nft_royalties
 
     -- Standardized Metrics
 
-    -- Token Metrics
-    , COALESCE(md.price, 0) AS price
-    , COALESCE(md.market_cap, 0) AS market_cap
-    , COALESCE(md.fdmc, 0) AS fdmc
-    , COALESCE(md.token_volume, 0) AS token_volume
+    -- Market Metrics
+    , COALESCE(market_metrics.price, 0) AS price
+    , COALESCE(market_metrics.market_cap, 0) AS market_cap
+    , COALESCE(market_metrics.fdmc, 0) AS fdmc
+    , COALESCE(market_metrics.token_volume, 0) AS token_volume
 
     -- NFT Metrics
-    , COALESCE(m.dau, 0) AS nft_dau
-    , COALESCE(m.txns, 0) AS nft_txns
-    , COALESCE(m.collections_transacted, 0) AS nft_collections_transacted
-    , COALESCE(m.supply_side_fees, 0) AS nft_royalties
-    , COALESCE(m.daily_trading_volume, 0) AS nft_volume
+    , COALESCE(magiceden_metrics.dau, 0) AS nft_dau
+    , COALESCE(magiceden_metrics.txns, 0) AS nft_txns
+    , COALESCE(magiceden_metrics.collections_transacted, 0) AS nft_collections_transacted
+    , COALESCE(magiceden_metrics.daily_trading_volume, 0) AS nft_volume
 
     -- Cash Flow Metrics
-    , COALESCE(m.fees, 0) AS nft_fees
-    , COALESCE(m.fees + m.supply_side_fees, 0) AS gross_protocol_revenue
-    , COALESCE(m.supply_side_fees, 0) AS service_cash_flow
+    , COALESCE(magiceden_metrics.fees, 0) AS gross_protocol_revenue
+    , COALESCE(magiceden_metrics.supply_side_fees, 0) AS service_cash_flow
+    , COALESCE(magiceden_metrics.revenue, 0) AS treasury_cash_flow
 
     -- Turnover Metrics
-    , COALESCE(md.token_turnover_circulating, 0) AS token_turnover_circulating
-    , COALESCE(md.token_turnover_fdv, 0) AS token_turnover_fdv
-FROM date_spine
-LEFT JOIN magiceden_metrics m ON date_spine.date = m.date
-LEFT JOIN market_data md ON date_spine.date = md.date
-WHERE date_spine.date < to_date(SYSDATE())
-ORDER BY date_spine.date
+    , COALESCE(market_metrics.token_turnover_circulating, 0) AS token_turnover_circulating
+    , COALESCE(market_metrics.token_turnover_fdv, 0) AS token_turnover_fdv
+
+    --ME Token Supply Data
+    , COALESCE(daily_supply_data.emissions_native, 0) as emissions_native
+    , COALESCE(daily_supply_data.premine_unlocks_native, 0) as premine_unlocks_native
+    , COALESCE(daily_supply_data.burns_native, 0) as burns_native
+    , COALESCE(daily_supply_data.emissions_native, 0) + COALESCE(daily_supply_data.premine_unlocks_native, 0) - COALESCE(daily_supply_data.burns_native, 0) as net_supply_change_native
+    , sum(net_supply_change_native) over (order by date_spine.date rows between unbounded preceding and current row) as circulating_supply_native
+
+from date_spine
+left join market_metrics on date_spine.date = market_metrics.date
+left join magiceden_metrics on date_spine.date = magiceden_metrics.date
+left join daily_supply_data on date_spine.date = daily_supply_data.date
+where date_spine.date < to_date(sysdate())
+order by date_spine.date

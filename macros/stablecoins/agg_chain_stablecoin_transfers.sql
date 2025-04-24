@@ -380,7 +380,7 @@
             )
             -- DO NOT include mint / burn events here - they will be duped
             and event_name in ('Transfer', 'Issue', 'Redeem')
-            and TX_SUCCEEDED = 'SUCCESS'
+            and tx_succeeded = TRUE
     {% endif %}
     {% if is_incremental() and new_stablecoin_address == '' %} 
         and block_timestamp >= (

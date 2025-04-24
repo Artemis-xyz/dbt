@@ -39,7 +39,7 @@ with
             decoded_log:"depositData":"instantRelayFeePct"::integer / 1e18
             + decoded_log:"depositData":"slowRelayFeePct"::integer
             / 1e18 as relayer_fee_pct
-        from ethereum_flipside.core.fact_decoded_event_logs
+        from ethereum_flipside.core.ez_decoded_event_logs
         where
             contract_address in (select contract_address from v1_contracts)
             and event_name = 'DepositRelayed'

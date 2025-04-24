@@ -4,3 +4,8 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_layerzero_cross_chain_volume
+  - name: MANUAL_STATIC_TABLES
+    schema: PROD
+    database: pc_dbt_db
+    tables:
+      - name: layerzero_daily_premine_unlocks
