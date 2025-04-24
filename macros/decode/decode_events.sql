@@ -17,7 +17,7 @@
         data
     from {{ ref("fact_" ~ chain ~ "_events") }} t1
     inner join {{ ref("dim_events_silver") }} t2 on t1.topic_zero = t2.topic_zero
-    where tx_succeeded = TRUE
+    where tx_status = 1
     {% if is_incremental() %}
         and
             block_timestamp

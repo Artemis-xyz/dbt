@@ -84,7 +84,7 @@
                 select lower(contract_address)
                 from {{ ref('fact_ton_stablecoin_contracts') }} t1
             )
-            and tx_succeeded = TRUE
+            and tx_status = 'TRUE'
     {% elif chain in ("solana") %}
     -- CASE 1: Mints into non-premint addresses
         select
