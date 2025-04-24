@@ -16,7 +16,7 @@ SELECT
     decoded_log:fiduCanceled::number / 1e18 AS fidu_canceled,
     decoded_log:reserveFidu::number / 1e18 AS reserve_fidu
 FROM 
-    ethereum_flipside.core.fact_decoded_event_logs
+    ethereum_flipside.core.ez_decoded_event_logs
 WHERE 
     event_name = 'WithdrawalCanceled'
     AND LOWER(contract_address) = '0x8481a6ebaf5c7dabc3f7e09e44a89531fd31f822'

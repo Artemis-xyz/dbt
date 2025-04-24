@@ -18,7 +18,7 @@ with uba_across_data as (
         decoded_log:"originChainId"::integer as origin_chain_id,
         decoded_log:"realizedLpFeePct"::integer / 1e18 as realized_lp_fee_pct,
         decoded_log:"updatableRelayData":"relayerFeePct"::integer / 1e18 as relayer_fee_pct
-    from ethereum_flipside.core.fact_decoded_event_logs
+    from ethereum_flipside.core.ez_decoded_event_logs
     where
         event_name = 'FilledRelay'
         and contract_address = '0x5c7bcd6e7de5423a257d81b442095a1a6ced35c5'
@@ -50,7 +50,7 @@ with uba_across_data as (
         decoded_log:"originChainId"::integer as origin_chain_id,
         decoded_log:"realizedLpFeePct"::integer / 1e18 as realized_lp_fee_pct,
         decoded_log:"updatableRelayData":"relayerFeePct" / 1e18 as relayer_fee_pct
-    from arbitrum_flipside.core.fact_decoded_event_logs
+    from arbitrum_flipside.core.ez_decoded_event_logs
     where
         event_name = 'FilledRelay'
         and contract_address = '0xe35e9842fceaca96570b734083f4a58e8f7c5f2a'
@@ -86,7 +86,7 @@ with uba_across_data as (
         decoded_log:"originChainId"::integer as origin_chain_id,
         decoded_log:"realizedLpFeePct"::integer / 1e18 as realized_lp_fee_pct,
         decoded_log:"updatableRelayData":"relayerFeePct" / 1e18 as relayer_fee_pct
-    from optimism_flipside.core.fact_decoded_event_logs
+    from optimism_flipside.core.ez_decoded_event_logs
     where
         event_name = 'FilledRelay'
         and contract_address = '0x6f26bf09b1c792e3228e5467807a900a503c0281'
@@ -118,7 +118,7 @@ with uba_across_data as (
         decoded_log:"originChainId"::integer as origin_chain_id,
         decoded_log:"realizedLpFeePct"::integer / 1e18 as realized_lp_fee_pct,
         decoded_log:"updatableRelayData":"relayerFeePct" / 1e18 as relayer_fee_pct
-    from polygon_flipside.core.fact_decoded_event_logs
+    from polygon_flipside.core.ez_decoded_event_logs
     where
         event_name = 'FilledRelay'
         and contract_address = '0x9295ee1d8c5b022be115a2ad3c30c72e34e7f096'

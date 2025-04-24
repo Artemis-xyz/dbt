@@ -19,7 +19,7 @@
             decoded_log:"message"::string as message,
             '{{ chain }}' as chain,
             decoded_log
-        from {{chain}}_flipside.core.fact_decoded_event_logs
+        from {{chain}}_flipside.core.ez_decoded_event_logs
         where
             ((event_name = 'FilledV3Relay') or (event_name = 'FilledRelay' and block_timestamp >= '2025-02-07'))
             and

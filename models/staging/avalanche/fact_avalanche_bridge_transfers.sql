@@ -39,7 +39,7 @@ with
             contract_address as token_address,
             'ethereum' as source_chain,
             'avalanche' as destination_chain
-        from avalanche_flipside.core.fact_decoded_event_logs
+        from avalanche_flipside.core.ez_decoded_event_logs
         where
             tx_hash in (select * from txs) and event_name = 'Mint'
             {% if is_incremental() %}
@@ -64,7 +64,7 @@ with
             contract_address as token_address,
             'avalanche' as source_chain,
             'ethereum' as destination_chain
-        from avalanche_flipside.core.fact_decoded_event_logs
+        from avalanche_flipside.core.ez_decoded_event_logs
         where
             contract_address in (select * from tokens)
             and event_name = 'Transfer'
@@ -99,7 +99,7 @@ with
             contract_address as token_address,
             'bitcoin' as source_chain,
             'avalanche' as destination_chain
-        from avalanche_flipside.core.fact_decoded_event_logs
+        from avalanche_flipside.core.ez_decoded_event_logs
         where
             tx_hash in (select * from txs) and event_name = 'Mint'
             {% if is_incremental() %}
@@ -124,7 +124,7 @@ with
             contract_address as token_address,
             'avalanche' as source_chain,
             'bitcoin' as destination_chain
-        from avalanche_flipside.core.fact_decoded_event_logs
+        from avalanche_flipside.core.ez_decoded_event_logs
         where
             contract_address in (select * from tokens)
             and event_name = 'Transfer'
