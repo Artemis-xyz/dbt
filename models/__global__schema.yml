@@ -32,7 +32,7 @@ column_definitions:
       description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
       tags: [artemis_gaap]
     - name: validator_cash_flow
-      description: "Portion of revenue allocated to validators, sequencers, or provers who secure or operate the protocol."
+      description: "Portion of revenue allocated to validators who secure or operate the protocol."
       tags: [artemis_gaap]
     - name: validator_cash_flow_native
       description: "Portion of revenue allocated to validators, sequencers, or provers who secure or operate the protocol in native tokens."
