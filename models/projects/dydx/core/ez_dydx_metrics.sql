@@ -46,6 +46,10 @@ WITH
             , premine_unlocks_native
             , circulating_supply_native
         FROM {{ ref('fact_dydx_supply_data') }}
+        where unique_traders < 1e6
+    )
+    , price_data as (
+        {{ get_coingecko_metrics("dydx-chain") }}
     )
 select
     date_spine.date as date
@@ -55,7 +59,18 @@ select
     , trading_volume_data.trading_volume as trading_volume
     , unique_traders_data.unique_traders as unique_traders
     , fees + txn_fees as fees
+    
     -- standardize metrics
+
+    -- Market Metrics
+    , price_data.price
+    , price_data.market_cap
+    , price_data.fdmc
+    , price_data.token_volume
+
+    -- Cash Flow Metrics
+    , fees as perp_fees
+    , txn_fees as chain_fees
     , trading_volume_data.trading_volume + trading_volume_data_v4.trading_volume as perp_volume
     , unique_traders_data.unique_traders + unique_traders_data_v4.unique_traders as perp_dau
     , txn_fees + fees as gross_protocol_revenue

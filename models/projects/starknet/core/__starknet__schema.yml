@@ -16,10 +16,6 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
-  chain_dex_volumes: &chain_dex_volumes
-    name: chain_dex_volumes
-    description: "The total volume of DEXes on a chain"
-
   chain_fees: &chain_fees
     name: chain_fees
     description: "The total transaction fees paid on a chain"
@@ -32,6 +28,10 @@ column_definitions:
     name: chain_median_txn_fee
     description: "The median transaction fee on a chain"
 
+  chain_spot_volume: &chain_spot_volume
+    name: chain_spot_volume
+    description: "Total spot dex volume on a chain"
+
   chain_txns: &chain_txns
     name: chain_txns
     description: "Daily transactions on a chain"
@@ -39,6 +39,10 @@ column_definitions:
   chain_wau: &chain_wau
     name: chain_wau
     description: "Weekly unique users on a chain"
+
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
 
   equity_cash_flow: &equity_cash_flow
     name: equity_cash_flow
@@ -58,6 +62,10 @@ column_definitions:
     description: "The fully diluted market cap of a token in USD"
     tags:
       - artemis_gaap
+
+  gross_emissions_native: &gross_emissions_native
+    name: gross_emissions_native
+    description: "The amount of native tokens emitted"
 
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
@@ -95,6 +103,10 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  net_supply_change_native: &net_supply_change_native
+    name: net_supply_change_native
+    description: "The net change in the circulating supply of a token in native tokens"
+
   new_users: &new_users
     name: new_users
     description: "The number of new users on a chain"
@@ -102,6 +114,10 @@ column_definitions:
   outflow: &outflow
     name: outflow
     description: "The amount (in USD) flowing out of a chain"
+
+  premine_unlocks_native: &premine_unlocks_native
+    name: premine_unlocks_native
+    description: "The amount of native tokens unlocked from premine"
 
   price: &price
     name: price
@@ -116,18 +132,6 @@ column_definitions:
   tvl: &tvl
     name: tvl
     description: "The total value locked in a protocol"
-
-  validator_cash_flow: &validator_cash_flow
-    name: validator_cash_flow
-    description: "Portion of revenue allocated to validators, sequencers, or provers who secure or operate the protocol."
-    tags:
-      - artemis_gaap
-
-  validator_cash_flow_native: &validator_cash_flow_native
-    name: validator_cash_flow_native
-    description: "Portion of revenue allocated to validators, sequencers, or provers who secure or operate the protocol in native tokens."
-    tags:
-      - artemis_gaap
 
   weekly_commits_core_ecosystem: &weekly_commits_core_ecosystem
     name: weekly_commits_core_ecosystem
@@ -160,26 +164,28 @@ models:
       - *bridge_volume
       - *chain_avg_txn_fee
       - *chain_dau
-      - *chain_dex_volumes
       - *chain_fees
       - *chain_mau
       - *chain_median_txn_fee
+      - *chain_spot_volume
       - *chain_txns
       - *chain_wau
+      - *circulating_supply_native
       - *equity_cash_flow
       - *equity_cash_flow_native
       - *fdmc
+      - *gross_emissions_native
       - *gross_protocol_revenue
       - *gross_protocol_revenue_native
       - *l1_cash_flow
       - *l1_cash_flow_native
       - *market_cap
+      - *net_supply_change_native
       - *new_users
+      - *premine_unlocks_native
       - *price
       - *returning_users
       - *tvl
-      - *validator_cash_flow
-      - *validator_cash_flow_native
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem
       - *weekly_developers_core_ecosystem

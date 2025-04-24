@@ -62,7 +62,7 @@ treasury_data as (
         , '0x5692db8177a81a6c6afc8084c2976c9933ec1bab' as contract_address
         , 'veCAKE' as symbol
         , decoded_log:value::float/1e18 as balance_native
-    from bsc_flipside.core.fact_decoded_event_logs
+    from bsc_flipside.core.ez_decoded_event_logs
     where contract_address = lower('0x5692db8177a81a6c6afc8084c2976c9933ec1bab')
         and lower(decoded_log:locker::string) = lower('0x6e690075eedBC52244Dd4822D9F7887d4f27442F')
         and event_name = 'Deposit'

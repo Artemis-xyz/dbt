@@ -33,6 +33,10 @@ with
         , fees_native
         from {{ ref("fact_starknet_fees") }}
     )
+    , supply_data as (
+        select date, gross_emissions_native, premine_unlocks_native, burns_native, net_supply_change_native, circulating_supply_native
+        from {{ ref("fact_starknet_supply_data") }}
+    )
 
 select
     fundamental_data.date
@@ -62,7 +66,7 @@ select
     , mau AS chain_mau
     , txns AS chain_txns
     , avg_txn_fee AS chain_avg_txn_fee
-    , dex_volumes AS chain_dex_volumes
+    , dex_volumes AS chain_spot_volume
     , returning_users
     , new_users
     -- Cashflow Metrics
@@ -82,6 +86,13 @@ select
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
+
+    -- Supply Metrics
+    , premine_unlocks_native
+    , gross_emissions_native
+    , burns_native
+    , net_supply_change_native
+    , circulating_supply_native
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -91,4 +102,5 @@ left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join fees_data on fundamental_data.date = fees_data.date
+left join supply_data on fundamental_data.date = supply_data.date
 where fundamental_data.date < to_date(sysdate())

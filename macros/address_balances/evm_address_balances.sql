@@ -41,8 +41,8 @@
                 , max(block_number) as block_number
                 , contract_address
                 , address
-                , max_by(balance_token, block_timestamp) as balance_token
-                , max_by(balance_native, block_timestamp) as balance_native
+                , max_by(balance_raw, block_timestamp) as flow_raw
+                , max_by(balance_native, block_timestamp) as flow_native
             from {{ this }}
             group by address, contract_address
         {% endif %}

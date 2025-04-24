@@ -34,8 +34,19 @@ with market_data as (
     FROM {{ ref("ez_trader_joe_metrics_by_chain") }}
     GROUP BY 1, 2, 3
 )
+
+, supply_data as (
+    select
+        date
+        , premine_unlocks_native
+        , gross_emissions_native
+        , burns_native
+        , net_supply_change_native
+        , circulating_supply_native
+    from {{ ref("fact_trader_joe_supply_data") }}
+)
 SELECT
-    date
+    date(date) as date
     , app
     , category
     , trading_volume
@@ -45,6 +56,13 @@ SELECT
     , gas_cost_usd
 
     -- Standardized Metrics
+
+    -- Supply Metrics
+    , premine_unlocks_native
+    , gross_emissions_native
+    , burns_native
+    , net_supply_change_native
+    , circulating_supply_native
 
     -- Token Metrics
     , market_data.price
@@ -69,4 +87,5 @@ SELECT
     , market_data.token_turnover_fdv
 FROM protocol_data
 LEFT JOIN market_data using(date)
+LEFT JOIN supply_data using(date)
 WHERE date < to_date(sysdate())

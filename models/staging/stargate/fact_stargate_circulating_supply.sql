@@ -96,11 +96,12 @@ vesting_historical as (
         date_trunc('day', block_timestamp) as date,
         'Ethereum' as chain,
         'Vesting' as wallet_type,
-        address,
-        balance_token / 1e18 as stg_balance
+        min(address) as address,
+        min_by(balance_token / 1e18, balance_token) as stg_balance
     from {{ ref("fact_ethereum_address_balances_by_token") }}
     where lower(address) = lower('0x8A27E7e98f62295018611DD681Ec47C7d9FF633A')
     and lower(contract_address) = lower('0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6')
+    group by 1
 ),
 
 all_wallet_historical as (
@@ -201,8 +202,8 @@ historical_circulating_supply as (
         date,
         treasury_balance,
         vesting_balance,
-        -- Using 1 billion as total supply, subtract both treasury and vesting
-        1000000000 - (treasury_balance + vesting_balance) AS circulating_supply
+        -- Using 1 billion as total supply by vesting balance
+        1000000000 - (vesting_balance) AS circulating_supply
     from daily_wallet_summary
     order by date
 ),

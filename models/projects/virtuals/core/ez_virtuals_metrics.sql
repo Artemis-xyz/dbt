@@ -44,6 +44,16 @@ volume as (
 , market_data as (
     {{ get_coingecko_metrics('virtual-protocol') }}
 )
+, supply_data as (
+    select
+        date
+        , virtuals_sablier_lockup
+        , virtuals_treasury
+        , premine_unlocks_native
+        , net_supply_change_native
+        , circulating_supply_native
+    from {{ ref("fact_virtuals_supply_data") }}
+)
 select
     date
     , coalesce(daily_agents, 0) as daily_agents
@@ -56,6 +66,11 @@ select
     , coalesce(fees, 0) as fees
 
     -- Standardized Metrics
+
+    -- Supply Metrics
+    , premine_unlocks_native
+    , net_supply_change_native
+    , circulating_supply_native
 
     -- Token Metrics
     , coalesce(price, 0) as price
@@ -82,3 +97,4 @@ left join dau using (date)
 left join volume using (date)
 left join fees using (date)
 left join market_data using (date)
+left join supply_data using (date)

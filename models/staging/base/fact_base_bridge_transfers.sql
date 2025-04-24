@@ -85,7 +85,7 @@ with
                     '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' as token_address,
                     'base' as source_chain,
                     'ethereum' as destination_chain
-                from ethereum_flipside.core.fact_decoded_event_logs
+                from ethereum_flipside.core.ez_decoded_event_logs
                 where
                     contract_address
                     = lower('0x3154Cf16ccdb4C6d922629664174b904d80F2C35')
@@ -145,7 +145,7 @@ with
             decoded_log:"l1Token" as token_address,
             'ethereum' as source_chain,
             'base' as destination_chain
-        from ethereum_flipside.core.fact_decoded_event_logs
+        from ethereum_flipside.core.ez_decoded_event_logs
         where
             contract_address = lower('0x3154Cf16ccdb4C6d922629664174b904d80F2C35')
             and event_name = 'ERC20DepositInitiated'
@@ -169,7 +169,7 @@ with
             decoded_log:"l1Token" as token_address,
             'base' as source_chain,
             'ethereum' as destination_chain
-        from ethereum_flipside.core.fact_decoded_event_logs
+        from ethereum_flipside.core.ez_decoded_event_logs
         where
             contract_address = lower('0x3154Cf16ccdb4C6d922629664174b904d80F2C35')
             and event_name = 'ERC20WithdrawalFinalized'
