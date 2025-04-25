@@ -6,3 +6,4 @@ sources:
       - name: raw_reserve_tvl
       - name: raw_reserve_dau
       - name: raw_reserve_rtoken_market_cap
+      - name: raw_reserve_protocol_revenue

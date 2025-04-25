@@ -59,11 +59,20 @@ with date_spine as (
     left join rtoken_market_cap using (date)
 )
 
+, protocol_revenue as (
+    select
+        date
+        , sum(gross_protocol_revenue) as gross_protocol_revenue
+    from {{ ref("fact_reserve_protocol_revenue") }}
+    group by date
+)
+
 select
     date
     , dau
 
     -- Standardized Metrics
+    , coalesce(protocol_revenue, 0) as protocol_revenue
 
     -- Token Metrics
     , coalesce(price, 0) as price
