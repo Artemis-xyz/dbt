@@ -18,10 +18,12 @@ with usde_metrics as (
 , ena_metrics as (
     SELECT
         date,
+        yield_fees.service_cash_flow,
+        yield_fees.foundation_cash_flow, 
         sum(coalesce(collateral_fees.collateral_fee, 0) + coalesce(yield_fees.fees, 0)) as fees
     FROM  {{ ref('fact_ethena_yield_fees') }} yield_fees
     left join  {{ ref('fact_ethena_collateral_fees') }} collateral_fees using(date)
-    group by 1
+    group by 1, 2, 3
 )
 , tvl as (
     SELECT
@@ -38,10 +40,10 @@ select
     usde_metrics.stablecoin_dau as stablecoin_dau,
     usde_metrics.stablecoin_txns as stablecoin_txns,
     coalesce(ena_metrics.fees, 0) as fees,
-    coalesce(ena_metrics.fees, 0) as gross_protocol_revenue,--20% of fees supports Ethena's reserve fund
-    0.2 * coalesce(ena_metrics.fees, 0) as foundation_cash_flow, --20% of fees supports Ethena's reserve fund
-    0.8 * coalesce(ena_metrics.fees, 0) as service_cash_flow, --80% to sUSDe holders--80% of fees supports Ethena's ecosystem fund
-    coalesce(ena_metrics.fees, 0) * 0.2 as susde_fees, 
+    coalesce(ena_metrics.fees, 0) as gross_protocol_revenue,
+    coalesce(ena_metrics.foundation_cash_flow, 0) as foundation_cash_flow, --20% of fees supports Ethena's reserve fund
+    coalesce(ena_metrics.service_cash_flow, 0) as service_cash_flow, --80% of fees supports Ethena's ecosystem fund
+    coalesce(ena_metrics.service_cash_flow, 0) as susde_fees, 
     0 as ena_fees, 
     tvl.stablecoin_total_supply as tvl,
     tvl.stablecoin_total_supply as usde_supply,
