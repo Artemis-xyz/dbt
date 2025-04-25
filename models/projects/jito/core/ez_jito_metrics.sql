@@ -61,7 +61,7 @@ with
         WHERE date between (select min(date) from jito_dau_txns_fees) and (to_date(sysdate()))
     )
     , market_metrics as (
-        {{get_coingecko_metrics('jto')}}
+        {{get_coingecko_metrics('jito-governance-token')}}
     )
 
 SELECT 
