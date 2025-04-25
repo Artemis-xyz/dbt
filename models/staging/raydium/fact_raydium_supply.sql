@@ -53,6 +53,6 @@ SELECT
     coalesce(gross_emissions, 0) as gross_emissions_native,
     coalesce(premine_unlocks, 0) as premine_unlocks_native,
     sum(coalesce(net_change, 0)) over (order by date asc) as locked_supply_native,
-    555000000 - locked_supply_native as circulating_supply_native
+    555000000 - locked_supply_native as circulating_supply_native -- Raydium max supply = 555M
 FROM date_spine
 left join mid using (date)
