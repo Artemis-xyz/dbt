@@ -18,7 +18,7 @@
                         lower(contract_address) = lower('{{ token_address }}')
                         and event_name
                         in ('Mint', 'Burn', 'TokensMinted', 'TokensBurned')
-                        and tx_status = 'SUCCESS'
+                        and tx_succeeded = TRUE
                 )
             group by date
         )

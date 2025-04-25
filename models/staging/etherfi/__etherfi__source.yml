@@ -4,3 +4,8 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_etherfi_restaked_eth_count
+  - name: MANUAL_STATIC_TABLES
+    schema: PROD
+    database: PC_DBT_DB
+    tables:
+      - name: etherfi_daily_supply_data

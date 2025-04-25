@@ -15,7 +15,7 @@ SELECT
     decoded_log:owner::string AS addr,
     decoded_log:amount::number / 1e6 AS amount
 FROM 
-    ethereum_flipside.core.fact_decoded_event_logs
+    ethereum_flipside.core.ez_decoded_event_logs
 WHERE 
     event_name = 'DepositMade'
     AND 

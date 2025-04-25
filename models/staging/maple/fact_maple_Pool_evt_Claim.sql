@@ -11,7 +11,7 @@ with pools as (
         decoded_log:pool as pool_address,
         decoded_log:liquidityAsset as pool_liquidity_asset
     FROM
-        {{ source('ETHEREUM_FLIPSIDE', 'fact_decoded_event_logs') }}
+        {{ source('ETHEREUM_FLIPSIDE', 'ez_decoded_event_logs') }}
     WHERE CONTRACT_ADDRESS = lower('0x2Cd79F7f8b38B9c0D80EA6B230441841A31537eC')
     AND event_name = 'PoolCreated'
 )
