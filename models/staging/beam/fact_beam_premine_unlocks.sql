@@ -1,0 +1,1 @@
+select * from {{ source("MANUAL_STATIC_TABLES", "beam_premine_unlocks_data") }}
