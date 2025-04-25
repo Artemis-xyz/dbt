@@ -9,4 +9,4 @@
 
 SELECT 
     *
-FROM PC_DBT_DB.PROD.ALL_CHAINS_GAS_DAU_TXNS_BY_CONTRACT_V2
+FROM {{ ref("all_chains_gas_dau_txns_by_contract_v2") }}
