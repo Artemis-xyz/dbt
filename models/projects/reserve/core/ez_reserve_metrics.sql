@@ -95,3 +95,4 @@ select
     , market_cap_filled / price_filled as circulating_supply_native
 
 from forward_filled_data
+left join protocol_revenue using (date)
