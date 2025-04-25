@@ -42,10 +42,5 @@ SELECT
     , babylon_metrics.active_delegations
     , babylon_metrics.total_stakers
 
-    -- Turnover Metrics
-    , market_metrics.token_turnover_circulating
-    , market_metrics.token_turnover_fdv
-
 FROM date_spine
-LEFT JOIN market_metrics ON date_spine.date = market_metrics.date
 LEFT JOIN babylon_metrics ON date_spine.date = babylon_metrics.date
