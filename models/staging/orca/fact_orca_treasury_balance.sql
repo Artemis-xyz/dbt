@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        snowflake_warehouse="ORCA",
+        snowflake_warehouse="ANALYTICS_XL",
     )
 }}
 
