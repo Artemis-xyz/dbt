@@ -62,7 +62,7 @@ select
     , 'DeFi' as category
     , chain
     , spot_trading_volume
-    , perp_volume + spot_trading_volume as trading_volume
+    , coalesce(perp_volume, 0) + coalesce(spot_trading_volume, 0) as trading_volume
     , unique_traders::string as unique_traders
     , trades as txns
     , trading_fees as fees
