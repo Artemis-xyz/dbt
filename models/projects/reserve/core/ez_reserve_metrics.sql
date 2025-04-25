@@ -72,7 +72,7 @@ select
     , dau
 
     -- Standardized Metrics
-    , coalesce(protocol_revenue, 0) as protocol_revenue
+    , coalesce(gross_protocol_revenue, 0) as gross_protocol_revenue
 
     -- Token Metrics
     , coalesce(price, 0) as price
