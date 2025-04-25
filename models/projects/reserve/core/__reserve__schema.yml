@@ -4,6 +4,10 @@
 version: 2
 
 column_definitions:
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
+
   fdmc: &fdmc
     name: fdmc
     description: "The fully diluted market cap of $RSR in USD"
@@ -17,6 +21,10 @@ column_definitions:
     tags:
       - artemis_gaap
       - override
+
+  net_supply_change_native: &net_supply_change_native
+    name: net_supply_change_native
+    description: "The net change in the circulating supply of a token in native tokens"
 
   price: &price
     name: price
@@ -63,8 +71,10 @@ models:
   - name: ez_reserve_metrics
     description: "This table stores metrics for the RESERVE protocol"
     columns:
+      - *circulating_supply_native
       - *fdmc
       - *market_cap
+      - *net_supply_change_native
       - *price
       - *stablecoin_dau
       - *token_turnover_circulating
