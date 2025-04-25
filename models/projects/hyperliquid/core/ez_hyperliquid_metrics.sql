@@ -105,7 +105,7 @@ select
      , daily_burn * mm.price as chain_fees
      , trading_fees + (daily_burn * mm.price) as gross_protocol_revenue
      , trading_fees * 0.03 as service_cash_flow
-     , (daily_buybacks_native * mm.price) as buybacks_cash_flow
+     , (daily_buybacks_native * mm.price) as buyback_cash_flow
      , daily_buybacks_native as buybacks_native
      , daily_burn as burned_cash_flow_native
      , daily_burn * mm.price as burned_cash_flow

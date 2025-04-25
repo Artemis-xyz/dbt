@@ -50,9 +50,6 @@ column_definitions:
       tags: [artemis_gaap]
     - name: strategy_cash_flow
       description: "Revenue distributed to entities that manage or execute capital deployment strategies, such as vault operators, liquidity managers, leverage account managers and structured product creators."
-    - name: buybacks_cash_flow
-      description: "The portion of revenue allocated to token buybacks (USD)."
-      tags: [artemis_gaap]
     - name: burned_cash_flow_native
       description: "The amount of native tokens burned"
       tags: [artemis_gaap]

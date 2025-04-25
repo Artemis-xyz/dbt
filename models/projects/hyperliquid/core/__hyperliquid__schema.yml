@@ -18,11 +18,12 @@ column_definitions:
       - artemis_gaap
       - override
 
-  buybacks_cash_flow: &buybacks_cash_flow
-    name: buybacks_cash_flow
-    description: "The portion of revenue allocated to token buybacks (USD)."
+  buyback_cash_flow: &buyback_cash_flow
+    name: buyback_cash_flow
+    description: "A portion of protocol revenue is allocated to the Assistance Fund (AF) for HYPE buybacks — (97%). The 97% is based on confirmation from the Hyperliquid team and matches our observed fee data from assistancefund.top and asxn data."
     tags:
       - artemis_gaap
+      - override
 
   buybacks_native: &buybacks_native
     name: buybacks_native
@@ -142,7 +143,7 @@ models:
     columns:
       - *burned_cash_flow
       - *burned_cash_flow_native
-      - *buybacks_cash_flow
+      - *buyback_cash_flow
       - *buybacks_native
       - *chain_fees
       - *fdmc
@@ -164,7 +165,7 @@ models:
     columns:
       - *burned_cash_flow
       - *burned_cash_flow_native
-      - *buybacks_cash_flow
+      - *buyback_cash_flow
       - *buybacks_native
       - *chain_fees
       - *circulating_supply_native
