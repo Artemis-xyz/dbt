@@ -3,7 +3,7 @@
         snowflake_warehouse="COMMON",
         database="common",
         schema="core",
-        alias="ez_stablecoin_metrics_by_category_and_chain",
+        alias="ez_stablecoin_metrics_by_category_chain_symbol",
         materialized='view'
     )
 }}
@@ -11,6 +11,7 @@
 SELECT
     DATE_GRANULARITY
     , CHAIN
+    , SYMBOL
     , CATEGORY
     , STABLECOIN_DAU
     , STABLECOIN_TRANSFER_VOLUME
@@ -26,4 +27,4 @@ SELECT
     , P2P_STABLECOIN_AVG_TXN_VALUE
     , STABLECOIN_SUPPLY
     , P2P_STABLECOIN_SUPPLY
-FROM {{ref("agg_daily_stablecoin_breakdown_category_chain")}}
+FROM {{ref("agg_daily_stablecoin_breakdown_category_symbol_chain")}}
