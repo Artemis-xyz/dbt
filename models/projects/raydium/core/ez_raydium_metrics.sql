@@ -77,6 +77,15 @@ with buyback_from_pair as (
     from {{ ref("dim_date_spine") }}
     where date between '2021-03-17' and to_date(sysdate())
 )
+, supply_data as (
+    select
+        date
+        , net_supply_change_native
+        , gross_emissions_native
+        , premine_unlocks_native
+        , circulating_supply_native
+    from {{ ref("fact_raydium_supply") }}
+)
 
 select 
     ds.date
@@ -118,6 +127,12 @@ select
     , b.buyback_native * pb.price as buybacks
     , b.buyback_native   as buyback_native
 
+    -- Supply Metrics
+    , supply_data.net_supply_change_native
+    , supply_data.gross_emissions_native
+    , supply_data.premine_unlocks_native
+    , supply_data.circulating_supply_native
+
     -- Other Metrics
     , price_data.token_turnover_circulating
     , price_data.token_turnover_fdv 
@@ -135,5 +150,6 @@ left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pt on pt.token_address = t.toke
         and pt.hour = t.date and pt.blockchain = 'solana'
 left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pc on pc.token_address = c.token_mint_address
         and pc.hour = c.date and pc.blockchain = 'solana'
+left join supply_data using (date)
 where ds.date < to_date(sysdate())
 order by 1 desc 
