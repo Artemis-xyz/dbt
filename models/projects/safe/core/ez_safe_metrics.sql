@@ -55,8 +55,16 @@ select
     , token_volume
     , token_turnover_circulating
     , token_turnover_fdv
+
+    -- Supply Metrics
+    , gross_emissions_native
+    , premine_unlocks_native
+    , burns_native
+    , net_supply_change_native
+    , circulating_supply_native
     
 from txns
 left join safes_created using (date)
 left join tvl using (date)
 left join market_data using (date)
+left join supply_data using (date)
