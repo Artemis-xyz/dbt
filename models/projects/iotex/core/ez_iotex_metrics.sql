@@ -75,9 +75,8 @@ select
     , metrics.primary_supply_side_revenue
     , metrics.secondary_supply_side_revenue
     , supply.burn_usd as revenue
-    , supply.mints_usd as mints_usd
-    , supply.mints as mints_native
-    , supply.mints as mints
+    , supply.mints_usd as gross_emissions
+    , supply.mints as gross_emissions_native
     , supply.circulating_supply as circulating_supply
     , supply.burn AS burned_cash_flow_native
 
