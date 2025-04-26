@@ -136,8 +136,9 @@ SELECT
     , nt.net_treasury_value as net_treasury
 
     -- Other Metrics
-    , coalesce(token_incentives, 0) as token_incentives
-    , coalesce(token_incentives_native, 0) as mints_native
+    , coalesce(ti.token_incentives, 0) as token_incentives
+    , coalesce(ti.token_incentives, 0) as gross_emissions
+    , coalesce(ti.token_incentives_native, 0) as gross_emissions_native
 
     , p.token_turnover_fdv
     , p.token_turnover_circulating
@@ -147,7 +148,7 @@ FROM price_data_cte p
 LEFT JOIN swap_fees f using(date)
 LEFT JOIN yield_fees yf using(date)
 LEFT JOIN daus_txns d using(date)
-LEFT JOIN token_incentives_cte using(date)
+LEFT JOIN token_incentives_cte ti using(date)
 LEFT JOIN tvl t USING (date)
 LEFT JOIN treasury_value_cte tv USING (date)
 LEFT JOIN net_treasury_value_cte nt USING (date)

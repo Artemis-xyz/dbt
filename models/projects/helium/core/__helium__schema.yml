@@ -18,12 +18,24 @@ column_definitions:
       - artemis_gaap
       - override
 
+  burns_native: &burns_native
+    name: burns_native
+    description: "The amount of native tokens burned"
+
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
+
   fdmc: &fdmc
     name: fdmc
     description: "The fully diluted market cap of $HNT in USD"
     tags:
       - artemis_gaap
       - override
+
+  gross_emissions_native: &gross_emissions_native
+    name: gross_emissions_native
+    description: "The amount of native tokens emitted"
 
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
@@ -38,12 +50,13 @@ column_definitions:
       - artemis_gaap
       - override
 
-  mints_native: &mints_native
-    name: mints_native
-    description: "The amount of native $HNT minted"
-    tags:
-      - artemis_gaap
-      - override
+  net_supply_change_native: &net_supply_change_native
+    name: net_supply_change_native
+    description: "The net change in the circulating supply of a token in native tokens"
+
+  premine_unlocks_native: &premine_unlocks_native
+    name: premine_unlocks_native
+    description: "The amount of native tokens unlocked from premine"
 
   price: &price
     name: price
@@ -86,10 +99,11 @@ models:
     columns:
       - *burned_cash_flow
       - *burned_cash_flow_native
+      - *burns_native
       - *fdmc
+      - *gross_emissions_native
       - *gross_protocol_revenue
       - *market_cap
-      - *mints_native
       - *price
       - *service_cash_flow
       - *token_turnover_circulating
@@ -101,10 +115,14 @@ models:
     columns:
       - *burned_cash_flow
       - *burned_cash_flow_native
+      - *burns_native
+      - *circulating_supply_native
       - *fdmc
+      - *gross_emissions_native
       - *gross_protocol_revenue
       - *market_cap
-      - *mints_native
+      - *net_supply_change_native
+      - *premine_unlocks_native
       - *price
       - *service_cash_flow
       - *token_turnover_circulating

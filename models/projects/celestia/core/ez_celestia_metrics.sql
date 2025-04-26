@@ -51,8 +51,8 @@ select
     , coalesce(fees_native, 0) as fees_native
     , coalesce(fees, 0) as fees
     , coalesce(unique_namespaces, 0) as submitters
-    , coalesce(mints, 0) as mints_native
-    , coalesce(mints_usd, 0) as mints_usd
+    , coalesce(mints, 0) as gross_emissions_native
+    , coalesce(mints_usd, 0) as gross_emissions
     -- Standardized Metrics
 
     -- Token Metrics
