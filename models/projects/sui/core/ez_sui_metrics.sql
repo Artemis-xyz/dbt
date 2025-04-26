@@ -49,7 +49,7 @@ select
     , revenue_native AS burned_cash_flow_native
     , avg_txn_fee AS chain_avg_txn_fee
     -- Supply Metrics
-    , mints_native
+    , mints_native as gross_emissions_native
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
