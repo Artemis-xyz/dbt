@@ -44,7 +44,6 @@ select
     --Old metrics needed for backwards compatibility
     , coalesce(revenue_data.revenue, 0) as revenue
     , coalesce(fees_data.fees, 0) as fees
-    , coalesce(mints_data.mints_native, 0) as gross_emissions_native
 
     -- Standardized Metrics)
 
