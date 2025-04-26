@@ -136,8 +136,8 @@ SELECT
     , nt.net_treasury_value as net_treasury
 
     -- Other Metrics
-    , coalesce(token_incentives, 0) as token_incentives
-    , coalesce(token_incentives_native, 0) as mints_native
+    , coalesce(token_incentives, 0) as gross_emissions
+    , coalesce(token_incentives_native, 0) as gross_emissions_native
 
     , p.token_turnover_fdv
     , p.token_turnover_circulating
