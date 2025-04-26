@@ -88,8 +88,6 @@ SELECT
     , coalesce(sp.buybacks, 0) as buybacks
 
     -- Supply Metrics
-    , coalesce(sp.pre_mine_unlocks, 0) + coalesce(sp.emissions_native, 0) as mints_native
-    , (coalesce(sp.pre_mine_unlocks, 0) + coalesce(sp.emissions_native, 0)) * coalesce(mm.price, 0) as mints
     , coalesce(sp.emissions_native, 0) as gross_emissions_native
     , coalesce(sp.emissions_native, 0) * coalesce(mm.price, 0) as gross_emissions
     , coalesce(sp.pre_mine_unlocks, 0) as premine_unlocks_native
