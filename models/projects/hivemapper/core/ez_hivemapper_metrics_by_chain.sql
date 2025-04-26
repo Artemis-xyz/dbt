@@ -29,7 +29,7 @@ select
     , burned_cash_flow_native
 
     -- Supply Metrics
-    , mints_native
-    , mints
+    , gross_emissions_native
+    , gross_emissions
     , net_supply_change_native
 from {{ ref('ez_hivemapper_metrics') }}

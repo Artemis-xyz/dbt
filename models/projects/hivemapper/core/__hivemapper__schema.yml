@@ -6,7 +6,7 @@ version: 2
 column_definitions:
   burned_cash_flow: &burned_cash_flow
     name: burned_cash_flow
-    description: "The amount of USD value burned"
+    description: "The USD value of tokens burned"
     tags:
       - artemis_gaap
 
@@ -17,11 +17,19 @@ column_definitions:
       - artemis_gaap
       - override
 
+  burns_native: &burns_native
+    name: burns_native
+    description: "The amount of native tokens burned"
+
   chain_dau: &chain_dau
     name: chain_dau
     description: "Daily unique users on Hivemapper"
     tags:
       - override
+
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
 
   fdmc: &fdmc
     name: fdmc
@@ -29,6 +37,14 @@ column_definitions:
     tags:
       - artemis_gaap
       - override
+
+  gross_emissions: &gross_emissions
+    name: gross_emissions
+    description: "The amount of USD value emitted"
+
+  gross_emissions_native: &gross_emissions_native
+    name: gross_emissions_native
+    description: "The amount of native tokens emitted"
 
   gross_protocol_revenue: &gross_protocol_revenue
     name: gross_protocol_revenue
@@ -44,23 +60,15 @@ column_definitions:
       - artemis_gaap
       - override
 
-  mints: &mints
-    name: mints
-    description: "The amount of USD value of $HONEY minted"
-    tags:
-      - override
-
-  mints_native: &mints_native
-    name: mints_native
-    description: "The amount of native tokens of $HONEY minted"
-    tags:
-      - override
-
   net_supply_change_native: &net_supply_change_native
     name: net_supply_change_native
     description: "The net change in the circulating supply of $HONEY in native tokens"
     tags:
       - override
+
+  premine_unlocks_native: &premine_unlocks_native
+    name: premine_unlocks_native
+    description: "The amount of native tokens unlocked from premine"
 
   price: &price
     name: price
@@ -103,13 +111,16 @@ models:
     columns:
       - *burned_cash_flow
       - *burned_cash_flow_native
+      - *burns_native
       - *chain_dau
+      - *circulating_supply_native
       - *fdmc
+      - *gross_emissions
+      - *gross_emissions_native
       - *gross_protocol_revenue
       - *market_cap
-      - *mints
-      - *mints_native
       - *net_supply_change_native
+      - *premine_unlocks_native
       - *price
       - *service_cash_flow
       - *token_turnover_circulating
@@ -121,10 +132,11 @@ models:
     columns:
       - *burned_cash_flow
       - *burned_cash_flow_native
+      - *burns_native
       - *chain_dau
+      - *gross_emissions
+      - *gross_emissions_native
       - *gross_protocol_revenue
-      - *mints
-      - *mints_native
       - *net_supply_change_native
       - *service_cash_flow
 
