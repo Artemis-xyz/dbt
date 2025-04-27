@@ -82,8 +82,6 @@ select
 
     -- Supply Metrics
     , coalesce(premine_unlocks_native, 0) as premine_unlocks_native
-    , coalesce(gross_emissions_native, 0) as gross_emissions_native
-    , coalesce(gross_emissions_native, 0) * price as gross_emissions
     , coalesce(circulating_supply_native, 0) as circulating_supply_native
     , coalesce(net_supply_change_native, 0) as net_supply_change_native
 
