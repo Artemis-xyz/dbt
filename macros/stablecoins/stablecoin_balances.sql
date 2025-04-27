@@ -19,7 +19,7 @@ with
             , address
             {% if chain in ('solana') %}
                 , amount as stablecoin_supply_native
-            {% elif chain in ('celo') %}
+            {% elif chain in ('celo', 'base') %}
                 , balance_raw / pow(10, num_decimals) as stablecoin_supply_native
             {% else %}
                 , balance_token / pow(10, num_decimals) as stablecoin_supply_native
