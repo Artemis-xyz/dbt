@@ -5,6 +5,7 @@
         database="rabbit_x",
         schema="core",
         alias="ez_metrics",
+        enabled=false,
     )
 }}
 
