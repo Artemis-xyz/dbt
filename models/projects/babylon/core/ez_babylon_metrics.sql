@@ -76,3 +76,4 @@ FROM date_spine
 LEFT JOIN market_metrics ON date_spine.date = market_metrics.date
 LEFT JOIN babylon_metrics ON date_spine.date = babylon_metrics.date
 LEFT JOIN tvl_seeding ON date_spine.date = tvl_seeding.date
+WHERE date_spine.date < to_date(sysdate())
