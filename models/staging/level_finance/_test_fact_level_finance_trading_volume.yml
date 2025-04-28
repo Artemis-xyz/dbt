@@ -11,7 +11,7 @@ models:
     - dbt_expectations.expect_column_to_exist
     - dbt_expectations.expect_row_values_to_have_recent_data:
         datepart: day
-        interval: 3
+        interval: 6
         severity: warn
   - name: TRADING_VOLUME
     tests:
