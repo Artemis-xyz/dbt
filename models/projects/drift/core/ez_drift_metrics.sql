@@ -71,6 +71,7 @@ SELECT
     -- Usage Metrics
     , parsed_log_metrics.perp_trading_volume as perp_volume
     , parsed_log_metrics.spot_trading_volume as spot_volume
+    , defillama_data.tvl
     
     -- Cashflow Metrics
     , parsed_log_metrics.perp_fees as perp_fees

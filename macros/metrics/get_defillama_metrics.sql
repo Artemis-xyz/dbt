@@ -39,14 +39,24 @@ defillama_revenue AS (
         revenue
     FROM {{ref("fact_defillama_protocol_revenue")}} r
     WHERE r.defillama_protocol_id = (SELECT id FROM defillama_protocol)
-)
+),
+    defillama_tvls as (
+        SELECT 
+            date,
+            tvl
+        FROM {{ref("fact_defillama_protocol_tvls")}}
+        WHERE defillama_protocol_id = (SELECT id FROM defillama_protocol)
+    )
 
 SELECT 
     COALESCE(f.date, r.date) AS date,
     f.fees,
-    r.revenue 
+    r.revenue,
+    t.tvl
 FROM defillama_fees f
 FULL OUTER JOIN defillama_revenue r
     ON f.date = r.date
+FULL OUTER JOIN defillama_tvls t
+    ON f.date = t.date
 ORDER BY date DESC
 {% endmacro %}
