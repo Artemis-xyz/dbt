@@ -5,6 +5,7 @@
             select min(raw_date) as start_date, from_address, app
             from {{ ref(model_name) }}
             where not equal_null(category, 'EOA') and app is not null
+            and raw_date < to_date(sysdate())
             group by app, from_address
         ),
         new_users as (
@@ -20,6 +21,7 @@
                 count(*) as tx_n
             from {{ ref(model_name) }}
             where user_type = 'LOW_SLEEP' and app is not null
+            and raw_date < to_date(sysdate())
             group by user_type, raw_date, app
         ),
         sybil as (
@@ -30,6 +32,7 @@
                 count(*) as tx_n
             from {{ ref(model_name) }}
             where engagement_type = 'sybil'
+            and raw_date < to_date(sysdate())
             group by engagement_type, raw_date, app
         ),
         agg_data as (
@@ -46,6 +49,7 @@
                 count(distinct from_address) dau
             from {{ ref(model_name) }}
             where not equal_null(category, 'EOA') and app is not null
+            and raw_date < to_date(sysdate())
             group by raw_date, app
         )
     select

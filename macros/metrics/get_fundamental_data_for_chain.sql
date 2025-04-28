@@ -6,6 +6,7 @@
         min_date as (
             select min(block_timestamp) as start_timestamp, from_address
             from {{ ref(model_name) }}
+            where block_timestamp < to_date(sysdate())
             group by from_address
         ),
         new_users as (
@@ -23,6 +24,7 @@
                     count(*) as tx_n
                 from {{ ref(model_name) }}
                 where user_type = 'LOW_SLEEP'
+                and raw_date::date < to_date(sysdate())
                 group by user_type, raw_date
             ),
             sybil as (
@@ -33,6 +35,7 @@
                     count(*) as tx_n
                 from {{ ref(model_name) }}
                 where engagement_type = 'sybil'
+                and raw_date::date < to_date(sysdate())
                 group by engagement_type, raw_date
             ),
         {% endif %}
@@ -51,6 +54,7 @@
                 count(distinct from_address) dau,
                 median(gas_usd) as median_txn_fee
             from {{ ref(model_name) }} as t
+            where raw_date::date < to_date(sysdate())
             group by t.raw_date
         )
         {% if (chain not in ("near", "starknet")) %}
@@ -61,6 +65,7 @@
                     raw_date as balance_date
                 from {{ ref(model_name) }}
                 where balance_usd >= 100
+                and raw_date < to_date(sysdate())
                 group by raw_date
             )
         {% endif %}
