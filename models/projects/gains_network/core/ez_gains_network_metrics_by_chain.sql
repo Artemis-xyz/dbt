@@ -5,7 +5,6 @@
         database="gains_network",
         schema="core",
         alias="ez_metrics_by_chain",
-        enabled=false,
     )
 }}
 
