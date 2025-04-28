@@ -154,8 +154,8 @@ select
     , coalesce(treasury.own_token_treasury_native, 0) as own_token_treasury_native
 
     -- Supply Metrics
-    , coalesce(mints, 0) as mints
-    , coalesce(mints_native, 0) as mints_native
+    , coalesce(mints, 0) as gross_emissions
+    , coalesce(mints_native, 0) as gross_emissions_native
 
     -- Turnover Metrics
     , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating

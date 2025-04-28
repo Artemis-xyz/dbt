@@ -19,12 +19,12 @@ with
             , address
             {% if chain in ('solana') %}
                 , amount as stablecoin_supply_native
-            {% elif chain in ('celo') %}
+            {% elif chain in ('celo', 'base') %}
                 , balance_raw / pow(10, num_decimals) as stablecoin_supply_native
             {% else %}
                 , balance_token / pow(10, num_decimals) as stablecoin_supply_native
             {% endif %}
-        {% if chain in ('celo') %}
+        {% if chain in ('celo', 'base') %}
             from {{ ref("fact_"~chain~"_address_balances")}} t1
         {% else %}
              from {{ ref("fact_" ~ chain ~ "_address_balances_by_token")}} t1

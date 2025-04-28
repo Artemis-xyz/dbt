@@ -64,7 +64,7 @@ select
     , fundamental_data.fees_native
     , fundamental_data.avg_txn_fee
     , unlocks.outflows as unlocks
-    , mints.mints as mints
+    , mints.mints as gross_emissions_native
     , COALESCE(revenue.revenue, 0) AS revenue
     , fundamental_data.fees_native as gross_protocol_revenue_native
     , coalesce(revenue.revenue_native, 0) as burned_cash_flow_native
