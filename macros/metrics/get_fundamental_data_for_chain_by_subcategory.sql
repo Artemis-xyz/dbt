@@ -4,6 +4,7 @@
         min_date as (
             select min(raw_date) as start_date, from_address, category, sub_category
             from {{ ref(model_name) }}
+            where raw_date < to_date(sysdate())
             group by sub_category, category, from_address
         ),
         new_users as (
@@ -20,6 +21,7 @@
                 count(*) as tx_n
             from {{ ref(model_name) }}
             where user_type = 'LOW_SLEEP'
+            and raw_date < to_date(sysdate())
             group by user_type, raw_date, category, sub_category
         ),
         sybil as (
@@ -31,6 +33,7 @@
                 count(*) as tx_n
             from {{ ref(model_name) }}
             where engagement_type = 'sybil'
+            and raw_date < to_date(sysdate())
             group by engagement_type, raw_date, category, sub_category
         ),
         agg_data as (
@@ -44,6 +47,7 @@
                 count(*) txns,
                 count(distinct from_address) dau
             from {{ ref(model_name) }}
+            where raw_date < to_date(sysdate())
             group by raw_date, category, sub_category
         )
     select

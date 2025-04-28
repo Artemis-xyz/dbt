@@ -20,6 +20,7 @@
                 {% if is_incremental() %}
                     and date >= (select dateadd('day', -3, max(date)) from {{ this }})
                 {% endif %}
+                and raw_date < to_date(sysdate())
             group by date, contract_address
         )
     select
