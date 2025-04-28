@@ -85,6 +85,6 @@ from native_transfers
 left join prices 
     on native_transfers.block_timestamp::date = prices.date
 left join {{ref("dim_chain_id_mapping")}} on chain_name = '{{chain}}'
-where block_timestamp::date < to_date(sysdate())
+where block_timestamp::date < to_date(sysdate()) and amount_raw > 0
 {% endmacro %}
 
