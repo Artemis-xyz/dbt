@@ -2,7 +2,7 @@
     config(
         materialized="table",
         unique_key="unique_id",
-        snowflake_warehouse="MEDIUM",
+        snowflake_warehouse="JUPITER",
     )
 }}
 

@@ -1,7 +1,7 @@
 {{
     config( 
         materialized="table",
-        snowflake_warehouse="SOLANA_XLG",
+        snowflake_warehouse="JUPITER",
         unique_key="address"
     )
 }}
