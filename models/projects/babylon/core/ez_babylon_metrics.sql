@@ -31,7 +31,7 @@ WITH babylon_metrics AS (
     select
         defillama_tvl_data.date,
         CASE
-            WHEN defillama_tvl_data.date < '2025-04-25' THEN defillama_tvl_data.tvl
+            WHEN defillama_tvl_data.date < '2025-04-28' THEN defillama_tvl_data.tvl
             ELSE tvl_usd
         END as tvl,
         tvl - LAG(tvl) 
