@@ -84,7 +84,7 @@ last_value as (
 extended_date_boundaries as (
     select 
         (select max(date) + 1 from final_result) as min_date,
-        current_date() as max_date
+        dateadd(day, -1, current_date()) as max_date
 ),
 -- Create sequence for extrapolated date range
 extrapolation_sequence as (
