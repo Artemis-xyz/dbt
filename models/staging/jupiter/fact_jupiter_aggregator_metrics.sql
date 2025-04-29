@@ -4,8 +4,8 @@
 WITH max_data AS (
     SELECT
         source_json
-    from landing_database.prod_landing.raw_jupiter_aggregator_volume
-    WHERE extraction_date = (SELECT MAX(extraction_date) FROM landing_database.prod_landing.raw_jupiter_aggregator_volume)
+    from {{ source("PROD_LANDING", "raw_jupiter_aggregator_volume") }}
+    WHERE extraction_date = (SELECT MAX(extraction_date) FROM {{ source("PROD_LANDING", "raw_jupiter_aggregator_volume") }})
 )
 SELECT
     left(a.value:date, 10)::date as date,
