@@ -21,11 +21,11 @@ WITH drift_data AS (
         block_date
 )
 select
-    date,
-    'drift' as app,
-    'DeFi' as category,
-    chain,
-    trading_volume
+    date
+    , 'drift' as app
+    , 'DeFi' as category
+    , 'solana' as chain
+    , perp_trading_volume as trading_volume
 
     -- Standardized metrics
     , trading_volume as perp_volume
@@ -35,6 +35,5 @@ select
     , perp_fees
     , spot_fees
     , coalesce(perp_fees, 0) + coalesce(spot_fees, 0) as gross_protocol_revenue
-    
 from drift_data
 where date < to_date(sysdate())
