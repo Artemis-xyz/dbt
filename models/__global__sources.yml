@@ -20,7 +20,7 @@ sources:
 # SOLANA
 
   - name: SOLANA_FLIPSIDE_NFT
-    schema: NFT
+    schema: SOLANA_SHARE
     database: SOLANA_FLIPSIDE
     tables:
       - name: fact_nft_mints
