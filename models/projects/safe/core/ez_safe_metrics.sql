@@ -45,7 +45,7 @@ with txns as (
 select
     txns.date
     , txns
-    , safes_created
+    , safes_created as multisigs_created
     , tvl as value_in_multisigs
 
     -- Standardized Metrics
