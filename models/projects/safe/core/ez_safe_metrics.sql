@@ -46,7 +46,7 @@ select
     txns.date
     , txns
     , safes_created
-    , tvl
+    , tvl as value_in_multisigs
 
     -- Standardized Metrics
     , price
