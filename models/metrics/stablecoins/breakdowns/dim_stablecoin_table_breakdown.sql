@@ -1,4 +1,4 @@
-{{ config(materialized='table', snowflake_warehouse='ANALYTICS_XL') }}
+{{ config(materialized='table', snowflake_warehouse='STABLECOIN_V2_LG_2') }}
 with 
     max_date as (
         select max(date) as max_date from {{ref('agg_daily_stablecoin_breakdown')}}
@@ -36,7 +36,7 @@ with
             , ARRAY_AGG(
                 ARRAY_CONSTRUCT(
                     DATE_PART(EPOCH_SECOND, date::TIMESTAMP_NTZ),
-                    stablecoin_supply::variant
+                    COALESCE(stablecoin_supply::variant, 0)
                 )
             ) WITHIN GROUP (ORDER BY date ASC) AS historical_L_30_stablecoin_supply
         from stablecoin_metrics_by_chain
@@ -46,7 +46,7 @@ with
     select
         ARRAY_CONSTRUCT(
             app_or_address,
-            icon::variant
+            COALESCE(icon::variant, NULL)
         ) as name
         , icon
         , app_or_address
