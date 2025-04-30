@@ -1,4 +1,4 @@
-{{ config(materialized='table', snowflake_warehouse='ANALYTICS_XL') }}
+{{ config(materialized='table', snowflake_warehouse='STABLECOIN_V2_LG') }}
 with 
     max_date as (
         select max(date) as max_date from {{ref('agg_daily_stablecoin_breakdown')}}
