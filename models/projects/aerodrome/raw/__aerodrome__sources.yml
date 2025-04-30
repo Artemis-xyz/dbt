@@ -1,0 +1,8 @@
+sources: 
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_aerodrome_pools
+      - name: raw_aerodrome_bribes
+      

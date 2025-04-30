@@ -75,8 +75,26 @@ select
     from {{ ref("dim_date_spine") }}
     where date between (select min(date) from all_trade_metrics) and (to_date(sysdate()))
 )
-, market_metrics as ({{ get_coingecko_metrics("jupiter-exchange-solana") }})
-
+, perps_tvl as (
+    select
+        date,
+            sum(balance) as perps_tvl
+        from {{ ref("fact_jupiter_perps_tvl") }}
+        where balance > 2 and balance is not null
+        group by date
+)
+, lst_tvl as (
+    select
+        date,
+        sum(balance_native) as lst_tvl_native
+    from {{ ref("fact_jupiter_lst_tvl") }}
+    where balance_native > 2 and balance_native is not null
+    group by date
+)
+, market_metrics as ({{ get_coingecko_metrics("jupiter-exchange-solana") }}
+)
+, solana_price as ({{ get_coingecko_metrics("solana") }}
+)
 select
     date_spine.date
     , 'solana' as chain
@@ -121,6 +139,9 @@ select
     , all_trade_metrics.unique_traders as perp_dau -- perps specific metric
     , all_trade_metrics.aggregator_unique_traders as aggregator_dau -- aggregator specific metric
     , aggregator_dau + perp_dau as dau -- necessary for OL index pipeline
+    , pt.perps_tvl
+    , lst.lst_tvl_native * sp.price as lst_tvl
+    , pt.perps_tvl + (lst.lst_tvl_native * sp.price) as tvl
 
     -- Cashflow Metrics
     , all_trade_metrics.perp_fees
@@ -153,4 +174,6 @@ left join market_metrics using (date)
 left join aggregator_volume_data using (date)
 left join all_trade_metrics using (date)
 left join daily_supply_data using (date)
-where all_trade_metrics.date < to_date(sysdate())
+left join perps_tvl pt using (date)
+left join lst_tvl lst using (date)
+left join solana_price sp using (date)

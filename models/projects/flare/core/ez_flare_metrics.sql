@@ -41,7 +41,7 @@ with fees as (
 , daily_supply_data as (
     select
         date,
-        emissions_native,
+        gross_emissions_native,
         premine_unlocks_native,
         burns_native,
         net_supply_change_native,
@@ -84,11 +84,11 @@ select
     , fees.fees_usd AS gross_protocol_revenue
 
     --FLR Token Supply Data
-    , daily_supply_data.emissions_native
+    , daily_supply_data.gross_emissions_native
     , daily_supply_data.premine_unlocks_native
     , daily_supply_data.burns_native
     , daily_supply_data.net_supply_change_native
-    , daily_supply_data.circulating_supply
+    , daily_supply_data.circulating_supply as circulating_supply_native
 
 from date_spine
 left join fees on date_spine.date = fees.date

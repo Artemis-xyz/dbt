@@ -5,7 +5,8 @@
         snowflake_warehouse="blast",
         database="blast",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics",
+        enabled=false,
     )
 }}
 
