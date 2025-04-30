@@ -21,6 +21,24 @@ WITH babylon_metrics AS (
         OVER (ORDER BY date) AS tvl_native_net_change
     FROM {{ ref('fact_babylon_metrics') }}
 )
+, defillama_tvl_data as (
+    select
+        date,
+        tvl
+    from {{ ref('fact_babylon_tvl') }}
+)
+, tvl_seeding as (
+    select
+        defillama_tvl_data.date,
+        CASE
+            WHEN defillama_tvl_data.date < '2025-04-28' THEN defillama_tvl_data.tvl
+            ELSE tvl_usd
+        END as tvl,
+        tvl - LAG(tvl) 
+        OVER (ORDER BY defillama_tvl_data.date) AS tvl_net_change
+    from defillama_tvl_data
+    left join babylon_metrics on defillama_tvl_data.date = babylon_metrics.date
+)
 , date_spine AS (
     SELECT
         date
@@ -30,17 +48,19 @@ WITH babylon_metrics AS (
 
 SELECT
     date_spine.date,
-    'bitcoin' as chain
+    'babylon' as chain
 
     -- Standardized Metrics
 
     -- Usage Metrics
     , babylon_metrics.tvl_native
     , babylon_metrics.tvl_native_net_change
-    , babylon_metrics.tvl_usd as tvl
-    , babylon_metrics.tvl_net_change as tvl_net_change
+    , tvl_seeding.tvl as tvl
+    , tvl_seeding.tvl_net_change as tvl_net_change
     , babylon_metrics.active_delegations
     , babylon_metrics.total_stakers
 
 FROM date_spine
 LEFT JOIN babylon_metrics ON date_spine.date = babylon_metrics.date
+LEFT JOIN tvl_seeding ON date_spine.date = tvl_seeding.date
+WHERE date_spine.date < to_date(sysdate())
