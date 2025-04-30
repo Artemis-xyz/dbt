@@ -40,7 +40,7 @@ WITH transaction_data AS (
     FROM 
         solana_flipside.core.fact_transactions t
     JOIN 
-        solana_flipside.solana_share.fact_nft_sales n
+        solana_flipside.nft.ez_nft_sales n
     ON 
         t.tx_id = n.tx_id
     LEFT JOIN 
