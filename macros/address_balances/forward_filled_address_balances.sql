@@ -32,6 +32,7 @@ with
                 else ab.contract_address
             end as contract_address
             , block_timestamp
+            , decimals
             {%if chain == 'solana' %} -- note Solana balances are already decimals adjusted
                 , amount AS balance_raw
             {% else %}
