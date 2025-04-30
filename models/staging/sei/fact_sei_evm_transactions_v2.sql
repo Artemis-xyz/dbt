@@ -30,7 +30,7 @@ with
             t.from_address,
             tx_fee,
             (tx_fee * price) gas_usd,
-            new_contracts.address as contract_address,
+            t.to_address as contract_address,
             new_contracts.name,
             new_contracts.app,
             new_contracts.friendly_name,
