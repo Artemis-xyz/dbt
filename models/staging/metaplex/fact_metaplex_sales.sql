@@ -10,7 +10,7 @@
 SELECT 
     s.*
 FROM 
-    {{ source('SOLANA_FLIPSIDE_NFT', 'fact_nft_sales') }} AS s
+    {{ source('SOLANA_FLIPSIDE_NFT', 'ez_nft_sales') }} AS s
 JOIN 
     {{ ref('fact_metaplex_mints') }} AS m ON s.mint = m.mint
 {% if is_incremental() %}
