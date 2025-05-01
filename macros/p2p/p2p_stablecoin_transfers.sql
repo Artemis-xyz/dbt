@@ -82,7 +82,9 @@ with
         )
     {% endif %}
      , cex_contracts as (
-        select address, app, sub_category from {{ ref("dim_contracts_gold")}} where chain = '{{ chain }}' and lower(sub_category) in ('cex', 'market maker')
+        select address, artemis_application_id as app, artemis_sub_category_id as sub_category 
+        from {{ ref("dim_all_addresses_labeled_gold")}} 
+        where chain = '{{ chain }}' and lower(artemis_sub_category_id) in ('cex', 'market_maker')
     )
     , cex_filter as (
         select distinct tx_hash 
@@ -90,7 +92,7 @@ with
         left join cex_contracts t1 on lower(from_address) = lower(t1.address)
         left join cex_contracts t2 on lower(to_address) = lower(t2.address)
         where t1.app = t2.app
-            and lower(t1.sub_category) in ('cex', 'market maker') 
+            and lower(t1.sub_category) in ('cex', 'market_maker') 
     )
     select
         t1.block_timestamp,
