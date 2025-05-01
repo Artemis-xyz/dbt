@@ -46,6 +46,7 @@ select
     friendly_name,
     icon,
     artemis_application_id,
+    INITCAP(REPLACE(app_name, '_', ' ')) as application,
     artemis_category_id,
     
     is_wallet,
