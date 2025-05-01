@@ -18,6 +18,6 @@
         from near_flipside.core.fact_transactions
         --tx_singer is a contract: https://flipsidecrypto.github.io/near-models/#!/model/model.near.core__fact_actions_events_function_call
         -- receipt_receiver_id is a contract: https://flipsidecrypto.github.io/near-models/#!/model/model.near_models.core__ez_actions
-        where tx_signer not in (select receipt_receiver_id from near_flipside.core.ez_actions where method_name is not null)
+        where tx_signer not in (select receipt_receiver_id from near_flipside.core.ez_actions where action_data:method_name is not null)
     {% endif %}
 {% endmacro %}
