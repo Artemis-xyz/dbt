@@ -10,6 +10,7 @@
         , decoded_log:"upgradeable"::number as upgradeable
     from {{ ref("fact_" ~ chain ~ "_decoded_events") }}
     where lower(contract_address) = lower('{{ contract_address }}')
+    and event_name = 'ProxyCreated'
     {% if is_incremental() %}
         and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}
