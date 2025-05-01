@@ -8,6 +8,6 @@
 
 {{ forward_filled_address_balances(
         artemis_application_id="jupiter"
-        , type="lst"
+        , type="lst_pool"
         , chain="solana"
 )}}

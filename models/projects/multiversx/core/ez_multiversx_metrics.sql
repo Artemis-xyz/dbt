@@ -42,7 +42,7 @@ select
     , token_volume
     -- Chain Metrics
     , txns as chain_txns
-    , dau as chain_dau
+    , dau::number as chain_dau
     , avg_txn_fee as chain_avg_txn_fee
     , dex_volumes as chain_spot_volume
     -- Cash Flow Metrics

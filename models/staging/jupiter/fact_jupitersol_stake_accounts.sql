@@ -36,6 +36,6 @@ SELECT
     , 'solana' as chain
     , NULL as is_token
     , NULL as is_fungible
-    , 'lst' as type
+    , 'lst_pool' as type
     , SYSDATE()::TIMESTAMP_NTZ as last_updated
 FROM all_stake_accounts
