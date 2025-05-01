@@ -189,6 +189,7 @@
     )
     select
         date
+        , '{{chain}}' as chain
         , vault_address
         , asset_address
         , price

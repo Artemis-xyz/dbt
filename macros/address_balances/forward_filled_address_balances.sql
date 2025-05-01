@@ -32,11 +32,12 @@ with
                 else ab.contract_address
             end as contract_address
             , block_timestamp
-            , decimals
             {%if chain == 'solana' %} -- note Solana balances are already decimals adjusted
                 , amount AS balance_raw
+                , ab.decimals
             {% else %}
                     , balance_token AS balance_raw
+                    , decimals
                 , case
                     when right(ab.contract_address, 6) = 'native' then balance_raw
                     else balance_raw / pow(10, decimals) 
