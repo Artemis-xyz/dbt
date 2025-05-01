@@ -1,0 +1,8 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_codex_traces_parquet
+      - name: raw_codex_logs_parquet
+      - name: raw_codex_transactions_parquet
