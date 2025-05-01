@@ -48,7 +48,7 @@ SELECT
   b.price as price,
   total_active_tvl_btc * b.price as total_active_tvl_usd
 FROM latest_data
-LEFT JOIN bitcoin_flipside.price.ez_prices_hourly b
+LEFT JOIN {{ source('BITCOIN_FLIPSIDE_PRICE', 'ez_prices_hourly') }} b
   on latest_data.date = b.hour
   and b.symbol = 'BTC'
 where date > '2025-04-30' --API calls start May 1 2025
