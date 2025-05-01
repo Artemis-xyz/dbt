@@ -283,5 +283,49 @@ merged_results AS (
     SELECT *
     FROM {{ this }}
     WHERE chain IN (SELECT chain FROM outdated_chains)
+),
+all_apps_for_all_chains AS (
+    SELECT DISTINCT 
+        CONCAT('__null__', '|', ac.namespace, '|', ac.chain) AS unique_id,
+        ac.namespace AS app_or_address,
+        ag.app_name,
+        ag.icon,
+        'application' AS type,
+        ag.artemis_category_id AS category,
+        ag.artemis_sub_category_id AS sub_category,
+        ac.chain
+    FROM {{ ref('all_chains_gas_dau_txns_by_contract_v2') }} ac
+    LEFT JOIN {{ ref('dim_all_apps_gold') }} ag
+        ON ac.namespace = ag.artemis_application_id
+    WHERE ac.namespace IS NOT NULL
+),
+all_including_apps_with_no_30d_activity AS (
+    SELECT 
+        COALESCE(mr.app_or_address, aac.app_or_address) AS app_or_address,
+        COALESCE(mr.app_name, aac.app_name) AS app_name,
+        COALESCE(mr.icon, aac.icon) AS icon,
+        COALESCE(mr.type, aac.type) AS type,
+        COALESCE(mr.chain, aac.chain) AS chain,
+        mr.date,
+        mr.dau,
+        mr.dau_30d_avg,
+        mr.dau_1d_change,
+        mr.dau_7d_change,
+        mr.dau_30d_change,
+        mr.dau_30d_historical,
+        mr.fees,
+        mr.fees_30d_total,
+        mr.fees_1d_change,
+        mr.fees_7d_change,
+        mr.fees_30d_change,
+        mr.chain_rank,
+        mr.global_rank,
+        COALESCE(mr.category, aac.category) AS category,
+        COALESCE(mr.sub_category, aac.sub_category) AS sub_category,
+        mr.fees_total
+    FROM merged_results mr
+    FULL OUTER JOIN all_apps_for_all_chains aac
+        ON mr.app_or_address = aac.app_or_address
+        AND mr.chain = aac.chain
 )
-SELECT DISTINCT * FROM merged_results
+SELECT DISTINCT * FROM all_including_apps_with_no_30d_activity
