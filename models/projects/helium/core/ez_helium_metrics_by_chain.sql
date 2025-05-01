@@ -60,7 +60,7 @@ select
     , coalesce(revenue_data.hnt_burned, 0) as burned_cash_flow_native
 
     -- Supply Metrics
-    , coalesce(mints_data.mints_native, 0) as mints_native
+    , coalesce(mints_data.mints_native, 0) as gross_emissions_native
 
     -- Turnover Metrics
     , coalesce(price_data.token_turnover_circulating, 0) as token_turnover_circulating

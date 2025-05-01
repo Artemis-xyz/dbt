@@ -8,22 +8,22 @@
     )
 }}
 
-WITH tvl_data as (
+with tvl_data as (
     select
         date,
         tvl,
         tvl - LAG(tvl) 
-        OVER (ORDER BY date) AS tvl_net_change
+        OVER (order by date) as tvl_net_change
     from {{ ref('fact_babylon_tvl') }}
 )    
-, date_spine AS (
-    SELECT
+, date_spine as (
+    select
         date
-    FROM {{ ref('dim_date_spine') }}
+    from {{ ref('dim_date_spine') }}
     where date between (select min(date) from tvl_data) and to_date(sysdate())
 )
 
-SELECT
+select
     date_spine.date,
     'bitcoin' as chain
 
@@ -33,6 +33,6 @@ SELECT
     , tvl_data.tvl as tvl
     , tvl_data.tvl_net_change as tvl_net_change
 
-FROM date_spine
-LEFT JOIN tvl_data ON date_spine.date = tvl_data.date
-WHERE date_spine.date <= to_date(sysdate())
+from date_spine
+left join tvl_data on date_spine.date = tvl_data.date
+where date_spine.date <= to_date(sysdate())

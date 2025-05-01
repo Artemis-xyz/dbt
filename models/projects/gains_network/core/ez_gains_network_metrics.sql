@@ -4,7 +4,7 @@
         snowflake_warehouse="GAINS_NETWORK",
         database="gains_network",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics",
     )
 }}
 

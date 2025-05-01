@@ -8,7 +8,7 @@
     )
 }}
 
-WITH tvl_data as (
+with tvl_data as (
     select
         date,
         tvl,
@@ -21,6 +21,7 @@ WITH tvl_data as (
         date
     FROM {{ ref('dim_date_spine') }}
     where date between (select min(date) from tvl_data) and to_date(sysdate())
+
 )
 , market_metrics AS (
     {{ get_coingecko_metrics('babylon') }}

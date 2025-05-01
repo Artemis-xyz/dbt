@@ -69,7 +69,7 @@ with
         FROM {{ ref('fact_jito_daily_premine_unlocks') }}
     )
     , market_metrics as (
-        {{get_coingecko_metrics('jto')}}
+        {{get_coingecko_metrics('jito-governance-token')}}
     )
 
 SELECT 

@@ -83,8 +83,8 @@ SELECT
     , coalesce(stats.supply_side_fees, 0) as primary_supply_side_revenue
     , coalesce(stats.revenue, 0) as revenue
     , coalesce(stats.contributors, 0) as dau
-    , coalesce(stats.mints_native, 0) as mints_native
-    , coalesce(stats.mints_native, 0) * coalesce(market_metrics.price, 0) as mints
+    , coalesce(stats.mints_native, 0) as gross_emissions_native
+    , coalesce(stats.mints_native, 0) * coalesce(market_metrics.price, 0) as gross_emissions
 
     -- Standardized Metrics
 

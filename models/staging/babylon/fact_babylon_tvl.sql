@@ -30,6 +30,3 @@ select
   api_tvl.total_active_tvl_usd as tvl
 from api_tvl
 where api_tvl.date >= '2025-05-01'
-
-  
-  

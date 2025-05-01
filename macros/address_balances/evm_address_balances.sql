@@ -2,12 +2,12 @@
     with
     credit_and_debit as (
         select
-        block_timestamp
-        , block_number
-        , contract_address
-        , address
-        , credit_raw as flow_raw
-        , credit_native as flow_native
+            block_timestamp
+            , block_number
+            , contract_address
+            , address
+            , credit_raw as flow_raw
+            , credit_native as flow_native
         from {{ref("fact_"~chain~"_address_credits")}}
         {% if is_incremental() %}
             where block_timestamp > (select max(block_timestamp) from {{ this }})

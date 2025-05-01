@@ -24,7 +24,7 @@ sources:
     database: SOLANA_FLIPSIDE
     tables:
       - name: fact_nft_mints
-      - name: fact_nft_sales
+      - name: ez_nft_sales
 
   - name: SOLANA_FLIPSIDE
     schema: CORE
