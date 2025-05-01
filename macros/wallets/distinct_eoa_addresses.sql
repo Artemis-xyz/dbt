@@ -17,6 +17,7 @@
         select distinct tx_signer as address, 'signer' as address_type
         from near_flipside.core.fact_transactions
         --tx_singer is a contract: https://flipsidecrypto.github.io/near-models/#!/model/model.near.core__fact_actions_events_function_call
-        where tx_signer not in (select receiver_id from near_flipside.core.fact_actions_events_function_call where method_name is not null)
+        -- receipt_receiver_id is a contract: https://flipsidecrypto.github.io/near-models/#!/model/model.near_models.core__ez_actions
+        where tx_signer not in (select receipt_receiver_id from near_flipside.core.ez_actions where method_name is not null)
     {% endif %}
 {% endmacro %}
