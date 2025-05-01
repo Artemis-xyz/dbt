@@ -11,8 +11,8 @@
 with lending_metrics as (
     select
         date
-        , sum(supplied_amount_cumulative) as lending_supply
-        , sum(borrow_amount_cumulative) as lending_borrow
+        , sum(supplied_amount_cumulative) as lending_deposits
+        , sum(borrow_amount_cumulative) as lending_loans
         , sum(supplied_amount_cumulative - borrow_amount_cumulative) as tvl
     from {{ ref("fact_euler_borrow_and_lending_metrics_by_chain") }}
     group by 1
@@ -28,8 +28,8 @@ with lending_metrics as (
 )
 select
     ds.date
-    , coalesce(lending_supply, 0) as lending_supply
-    , coalesce(lending_borrow, 0) as lending_borrow
+    , coalesce(lending_deposits, 0) as lending_deposits
+    , coalesce(lending_loans, 0) as lending_loans
     , coalesce(tvl, 0) as tvl
     , coalesce(market_metrics.price, 0) as price
 from date_spine ds
