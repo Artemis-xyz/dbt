@@ -8,59 +8,31 @@
     )
 }}
 
-WITH babylon_metrics AS (
-    SELECT
-        date
-        , active_tvl_btc as tvl_native
-        , active_tvl_usd as tvl_usd
-        , active_delegations as active_delegations
-        , total_stakers as total_stakers
-        , active_tvl_usd - LAG(active_tvl_usd) 
-        OVER (ORDER BY date) AS tvl_net_change
-        , active_tvl_btc - LAG(active_tvl_btc) 
-        OVER (ORDER BY date) AS tvl_native_net_change
-    FROM {{ ref('fact_babylon_metrics') }}
-)
-, defillama_tvl_data as (
+WITH tvl_data as (
     select
         date,
-        tvl
-    from {{ ref('fact_babylon_tvl') }}
-)
-, tvl_seeding as (
-    select
-        defillama_tvl_data.date,
-        CASE
-            WHEN defillama_tvl_data.date < '2025-04-28' THEN defillama_tvl_data.tvl
-            ELSE tvl_usd
-        END as tvl,
+        tvl,
         tvl - LAG(tvl) 
-        OVER (ORDER BY defillama_tvl_data.date) AS tvl_net_change
-    from defillama_tvl_data
-    left join babylon_metrics on defillama_tvl_data.date = babylon_metrics.date
-)
+        OVER (ORDER BY date) AS tvl_net_change
+    from {{ ref('fact_babylon_tvl') }}
+)    
 , date_spine AS (
     SELECT
         date
     FROM {{ ref('dim_date_spine') }}
-    where date between (select min(date) from babylon_metrics) and to_date(sysdate())
+    where date between (select min(date) from tvl_data) and to_date(sysdate())
 )
 
 SELECT
     date_spine.date,
-    'babylon' as chain
+    'bitcoin' as chain
 
     -- Standardized Metrics
 
     -- Usage Metrics
-    , babylon_metrics.tvl_native
-    , babylon_metrics.tvl_native_net_change
-    , tvl_seeding.tvl as tvl
-    , tvl_seeding.tvl_net_change as tvl_net_change
-    , babylon_metrics.active_delegations
-    , babylon_metrics.total_stakers
+    , tvl_data.tvl as tvl
+    , tvl_data.tvl_net_change as tvl_net_change
 
 FROM date_spine
-LEFT JOIN babylon_metrics ON date_spine.date = babylon_metrics.date
-LEFT JOIN tvl_seeding ON date_spine.date = tvl_seeding.date
+LEFT JOIN tvl_data ON date_spine.date = tvl_data.date
 WHERE date_spine.date < to_date(sysdate())

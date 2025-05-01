@@ -1,18 +1,35 @@
-{{ config(materialized="incremental") }}
+{{
+    config(
+        materialized="table",
+        alias="fact_babylon_tvl",
+    )
+}}
 
-with tvl as (
-    SELECT
-        *
-    FROM
-        {{ref('fact_defillama_protocol_tvls')}}
-    WHERE
-        defillama_protocol_id = 5258
+WITH dfillama_tvl AS (
+  select
+    *
+  FROM
+    {{ref('fact_babylon_tvl_defillama')}}
 )
-SELECT
+, api_tvl as (
+  SELECT
     date,
-    tvl
-FROM tvl
-WHERE date < to_date(sysdate())
-{% if is_incremental() %}
-    and date >= (select max(date) from {{ this }})
-{% endif %}
+    total_active_tvl_btc,
+    total_active_tvl_usd
+  FROM
+    {{ref('fact_babylon_api_metrics')}}
+)
+select
+  date,
+  dfillama_tvl.tvl as tvl
+from dfillama_tvl
+where date < '2025-05-01'
+union all 
+select
+  api_tvl.date,
+  api_tvl.total_active_tvl_usd as tvl
+from api_tvl
+where api_tvl.date >= '2025-05-01'
+
+  
+  
