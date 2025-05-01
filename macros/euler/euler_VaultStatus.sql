@@ -38,6 +38,6 @@
         and lower(flipside_prices.contract_address) = lower(vaults.asset_token_address)
     where events.event_name = 'VaultStatus'
     {% if is_incremental() %}
-        and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+        and events.block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}
 {% endmacro %}
