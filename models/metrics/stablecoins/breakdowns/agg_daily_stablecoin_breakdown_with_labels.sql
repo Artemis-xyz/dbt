@@ -1,7 +1,6 @@
 {{ config(materialized="incremental", unique_key="unique_id", snowflake_warehouse="STABLECOIN_V2_LG") }}
 {% set list_stablecoin_address = var('list_stablecoin_address', []) %}
 select
-select
     date,
     address,
     name, 
