@@ -35,4 +35,4 @@ SELECT
 
 FROM date_spine
 LEFT JOIN tvl_data ON date_spine.date = tvl_data.date
-WHERE date_spine.date < to_date(sysdate())
+WHERE date_spine.date <= to_date(sysdate())
