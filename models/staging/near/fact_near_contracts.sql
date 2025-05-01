@@ -2,7 +2,7 @@
 select
     date_trunc('week', near_flipside.core.ez_actions.block_timestamp) as date,
     count(*) contracts_deployed,
-    count(distinct(tx_signer)) contract_deployers,
+    count(distinct(ez_actions.tx_signer)) contract_deployers,
     'near' as chain
 from near_flipside.core.ez_actions
 join
