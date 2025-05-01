@@ -11,7 +11,7 @@
 with
     dex_swaps as (
         select
-            block_timestamp as date,
+            block_timestamp::date as date,
             count(distinct sender) as unique_traders,
             count(*) as number_of_swaps,
             sum(trading_volume) as trading_volume,
