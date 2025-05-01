@@ -44,7 +44,6 @@ select
     coalesce(ena_metrics.foundation_cash_flow, 0) as foundation_cash_flow, --20% of fees supports Ethena's reserve fund
     coalesce(ena_metrics.service_cash_flow, 0) as service_cash_flow, --80% of fees supports Ethena's ecosystem fund
     coalesce(ena_metrics.service_cash_flow, 0) as susde_fees, 
-    0 as ena_fees, 
     tvl.stablecoin_total_supply as tvl,
     tvl.stablecoin_total_supply as usde_supply,
     tvl.stablecoin_total_supply - lag(tvl.stablecoin_total_supply) over (order by date) as net_usde_supply_change,
