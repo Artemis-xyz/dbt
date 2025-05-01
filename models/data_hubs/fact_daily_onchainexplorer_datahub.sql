@@ -15,7 +15,9 @@ last_30_days_name_augmented AS (
     SELECT
         l.*,
         ag.app_name,
-        ag.icon
+        ag.icon,
+        ag.artemis_category_id,
+        ag.artemis_sub_category_id
     FROM last_30_days l
     LEFT JOIN {{ ref('dim_all_apps_gold') }} ag
      ON l.namespace = ag.artemis_application_id
@@ -27,6 +29,8 @@ aggregated AS (
         app_name,
         icon,
         'application' AS type,
+        MAX(artemis_category_id) AS category,
+        MAX(artemis_sub_category_id) AS sub_category,
         chain,
         date,
         SUM(dau) AS dau,
@@ -43,6 +47,8 @@ aggregated AS (
         NULL AS app_name,
         NULL AS icon,
         'address' AS type,
+        NULL AS category,
+        NULL AS sub_category,
         chain,
         date,
         dau,
@@ -56,7 +62,7 @@ date_range AS (
     FROM TABLE(GENERATOR(ROWCOUNT => 30))
 ),
 unique_ids AS (
-    SELECT DISTINCT unique_id, app_or_address, app_name, icon, type, chain
+    SELECT DISTINCT unique_id, app_or_address, app_name, icon, type, category, sub_category, chain
     FROM aggregated
 ),
 all_dates AS (
@@ -71,6 +77,8 @@ final_aggregated AS (
         d.app_name,
         d.icon,
         d.type,
+        d.category,
+        d.sub_category,
         d.chain,
         d.date,
         COALESCE(ag.dau, NULL) AS dau,
@@ -83,6 +91,7 @@ final_aggregated AS (
 ranked_unique_ids AS (
     SELECT 
         unique_id,
+        app_name,
         chain,
         AVG(dau) AS avg_dau,
         SUM(total_gas_usd) AS avg_total_gas_usd,
@@ -95,7 +104,7 @@ ranked_unique_ids AS (
         ) AS global_rank
     FROM final_aggregated
     WHERE app_or_address IS NOT NULL AND app_or_address != 'Unlabeled'
-    GROUP BY unique_id, chain
+    GROUP BY unique_id, app_name, chain
 ),
 filtered_ids AS (
     SELECT 
@@ -103,7 +112,7 @@ filtered_ids AS (
         chain_rank, 
         global_rank 
     FROM ranked_unique_ids 
-    WHERE chain_rank <= 10000 OR global_rank <= 10000
+    WHERE chain_rank <= 10000 OR global_rank <= 10000 OR app_name IS NOT NULL
 ),
 clean_datahub AS (
     SELECT DISTINCT
@@ -112,6 +121,8 @@ clean_datahub AS (
         a.app_name,
         a.icon,
         a.type,
+        a.category,
+        a.sub_category,
         a.chain,
         a.date,
         a.dau,
@@ -146,6 +157,8 @@ individual_stats AS (
         app_name,
         icon,
         type,
+        category,
+        sub_category,
         chain,
         date,
         dau,
@@ -231,7 +244,9 @@ final_result AS (
         s.fees_7d_change,
         s.fees_30d_change,
         s.chain_rank,
-        s.global_rank
+        s.global_rank,
+        s.category,
+        s.sub_category,
     FROM individual_stats s
     JOIN grouped_stats gs ON s.app_or_address = gs.app_or_address AND s.chain = gs.chain
 ),
@@ -252,8 +267,10 @@ merged_results AS (
     -- Use new data for chains with up-to-date information
     SELECT 
         CONCAT(s.app_or_address, '|', s.chain) AS unique_id,
-        s.*,
-        ft.fees_total
+        s.* EXCLUDE(category, sub_category),
+        ft.fees_total,
+        s.category,
+        s.sub_category
     FROM final_result s
     LEFT JOIN fees_all_time ft 
         ON s.app_or_address = ft.app_or_address 
