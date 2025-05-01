@@ -267,10 +267,8 @@ merged_results AS (
     -- Use new data for chains with up-to-date information
     SELECT 
         CONCAT(s.app_or_address, '|', s.chain) AS unique_id,
-        s.* EXCLUDE(category, sub_category),
-        ft.fees_total,
-        s.category,
-        s.sub_category
+        s.*,
+        ft.fees_total
     FROM final_result s
     LEFT JOIN fees_all_time ft 
         ON s.app_or_address = ft.app_or_address 
@@ -286,7 +284,7 @@ merged_results AS (
 ),
 all_apps_for_all_chains AS (
     SELECT DISTINCT 
-        CONCAT('__null__', '|', ac.namespace, '|', ac.chain) AS unique_id,
+        CONCAT(ac.namespace, '|', ac.chain) AS unique_id,
         ac.namespace AS app_or_address,
         ag.app_name,
         ag.icon,
@@ -301,6 +299,7 @@ all_apps_for_all_chains AS (
 ),
 all_including_apps_with_no_30d_activity AS (
     SELECT 
+        COALESCE(mr.unique_id, aac.unique_id) AS unique_id,
         COALESCE(mr.app_or_address, aac.app_or_address) AS app_or_address,
         COALESCE(mr.app_name, aac.app_name) AS app_name,
         COALESCE(mr.icon, aac.icon) AS icon,
