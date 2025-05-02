@@ -1,8 +1,8 @@
 {{
     config(
-        materialized="incremental",
+        materialized="table",
         unique_key="unique_id",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="JITO",
     )
 }}
 
