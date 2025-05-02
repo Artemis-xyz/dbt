@@ -2,8 +2,10 @@
 select
     date_trunc('{{granularity}}', date) as date_granularity
     {% for breakdown in breakdowns %}
-        {% if breakdown in ('application', 'category') %}
-            , coalesce({{ breakdown }}, 'Unlabeled') as {{ breakdown }}
+        {% if breakdown in ('application') %}
+            , coalesce(application, 'Unlabeled') as {{ breakdown }}
+        {% elif breakdown == 'category' %}
+            , coalesce(artemis_category_id, 'Unlabeled') as {{ breakdown }}
         {% else %}
             , {{ breakdown }}
         {% endif %}
@@ -40,7 +42,7 @@ select
         , sum(case when date = date_trunc('{{granularity}}', date) then stablecoin_supply else 0 end) as stablecoin_supply
         , sum(case when is_wallet::number = 1 and date = date_trunc('{{granularity}}', date) then stablecoin_supply else 0 end) as p2p_stablecoin_supply
     {% endif %}
-from {{ ref("agg_daily_stablecoin_breakdown_silver") }}
+from {{ ref("agg_daily_stablecoin_breakdown_with_labels_silver") }}
 {% if is_incremental() %}
     where date >= (select dateadd('{{granularity}}', -3, max(date_granularity)) from {{ this }})
 {% endif %}
