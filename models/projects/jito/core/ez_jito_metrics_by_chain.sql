@@ -1,6 +1,6 @@
 {{
     config(
-        materialized='view',
+        materialized='table',
         snowflake_warehouse='jito',
         database='jito',
         schema='core',
