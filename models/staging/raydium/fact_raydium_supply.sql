@@ -2,7 +2,7 @@
     config(
         materialized="table",
         unique_key="date",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="RAYDIUM",
     )
 }}
 
