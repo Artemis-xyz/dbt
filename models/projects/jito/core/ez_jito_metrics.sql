@@ -1,6 +1,6 @@
 {{
     config(
-        materialized='view',
+        materialized='table',
         snowflake_warehouse='jito',
         database='jito',
         schema='core',
@@ -129,3 +129,4 @@ LEFT JOIN jito_dau_txns_fees using (date)
 LEFT JOIN jito_tvl using (date)
 LEFT JOIN daily_supply_data using (date)
 LEFT JOIN market_metrics using (date)
+WHERE date_spine.date < to_date(sysdate())
