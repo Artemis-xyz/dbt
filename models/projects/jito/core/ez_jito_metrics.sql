@@ -49,7 +49,7 @@ with
     , jito_tvl as (
         SELECT
             date
-            , sum(usd_balance) as tvl
+            , sum(balance) as tvl
             , tvl - lag(tvl) over (order by date) as tvl_change
         FROM {{ ref('fact_jitosol_tvl') }}
         GROUP BY 1
