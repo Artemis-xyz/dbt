@@ -1,5 +1,5 @@
 coingecko_token_id,symbol,chain,contract_address,decimals
-solana,SOL,solana,solana:mainnet:native,9
+solana,SOL,solana,solana:5eykt4usfv8p8njdtrepy1vzqkqzkvdp:native,9
 ethereum,ETH,ethereum,eip155:1:native,18
 ethereum,ETH,arbitrum,eip155:42161:native,18
 ethereum,ETH,base,eip155:8453:native,18

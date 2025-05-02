@@ -28,7 +28,7 @@ with
                 when ab.contract_address = 'native_token' and '{{chain}}' = 'arbitrum' then 'eip155:42161:native'
                 when ab.contract_address = 'native_token' and '{{chain}}' = 'base' then 'eip155:8453:native'
                 when ab.contract_address = 'native_token' and '{{chain}}' = 'optimism' then 'eip155:10:native'
-                when ab.contract_address = 'native_token' and '{{chain}}' = 'solana' then 'solana:mainnet:native'
+                when ab.contract_address = 'native_token' and '{{chain}}' = 'solana' then 'solana:5eykt4usfv8p8njdtrepy1vzqkqzkvdp:native'
                 else ab.contract_address
             end as contract_address
             , block_timestamp
