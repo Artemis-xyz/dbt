@@ -1,4 +1,3 @@
--- depends_on: {{ ref('agg_daily_stablecoin_breakdown_silver') }}
 
 {{ 
     config(
@@ -32,4 +31,4 @@ select
     , stablecoin_supply
     , chain
     , unique_id
-from {{ ref('agg_daily_stablecoin_breakdown_silver') }}
+from {{ ref('agg_daily_stablecoin_breakdown_with_labels_silver') }}
