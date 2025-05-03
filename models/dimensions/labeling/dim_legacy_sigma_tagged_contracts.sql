@@ -20,6 +20,6 @@ ranked_data AS (
            ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY table_priority) AS row_rank
     FROM combined_data
 )
-SELECT address, name, namespace, chain, CURRENT_TIMESTAMP() AS last_updated
+SELECT address, name, namespace, chain, TO_TIMESTAMP('2025-03-31 00:00:00.000') AS last_updated
 FROM ranked_data
 WHERE row_rank = 1

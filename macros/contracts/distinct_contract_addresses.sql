@@ -29,10 +29,10 @@
             , min(type) as type
         FROM ton_contracts
         GROUP BY contract_address
-    {% elif chain == "mantle" %}
+    {% elif chain in ("mantle", "sonic") %}
         select min(block_time) as block_timestamp, address_hex as contract_address, min(type) as type
-        from zksync_dune.mantle.traces 
-        where type = 'create'
+        from zksync_dune.{{ chain }}.traces 
+        where type in ('create', 'create2')
             and address is not null --if the deploy fails the to address will be null
             {% if is_incremental() %}
                 and block_time

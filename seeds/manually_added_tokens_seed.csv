@@ -1,4 +1,5 @@
 coingecko_token_id,symbol,chain,contract_address,decimals
+solana,SOL,solana,solana:5eykt4usfv8p8njdtrepy1vzqkqzkvdp:native,9
 ethereum,ETH,ethereum,eip155:1:native,18
 ethereum,ETH,arbitrum,eip155:42161:native,18
 ethereum,ETH,base,eip155:8453:native,18
@@ -52,5 +53,4 @@ usd-coin,S*USDC,polygon,0x1205f31718499dbf1fca446663b532ef87481fe1,6
 usd-coin,variableDebtEthUSDC,ethereum,0x72E95b8931767C79bA4EeE721354d6E99a61D004,6
 tether,variableDebtEthUSDT,ethereum,0x6df1C1E379bC5a00a7b4C6e67A203333772f45A8,6
 ethereum,variableDebtEthWETH,ethereum,0xeA51d7853EEFb32b6ee06b1C12E6dcCA88Be0fFE,18
-bitcoin,WBTC,solana,3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh,8
 ethereum,ETH,solana,Bgarxg65CEjN3kosjCW5Du3wEqvV3dpCGDR3a2HRQsYJ,18
