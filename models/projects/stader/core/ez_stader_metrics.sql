@@ -19,9 +19,9 @@ with
             amount_staked_usd_net_change
         from {{ ref('fact_ethx_staked_eth_count_with_usd_and_change') }}
     )
-    , market_metrics as 
+    , market_metrics as (
         {{ get_coingecko_metrics('stader') }}
-    
+    )
     , date_spine as (
         select
             date

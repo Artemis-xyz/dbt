@@ -20,11 +20,11 @@ sources:
 # SOLANA
 
   - name: SOLANA_FLIPSIDE_NFT
-    schema: SOLANA_SHARE
+    schema: NFT
     database: SOLANA_FLIPSIDE
     tables:
       - name: fact_nft_mints
-      - name: fact_nft_sales
+      - name: ez_nft_sales
 
   - name: SOLANA_FLIPSIDE
     schema: CORE
