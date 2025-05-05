@@ -4,14 +4,13 @@
         materialized='incremental',
         incremental_strategy='microbatch',
         event_time='block_timestamp',
-        begin='2025-04-26', 
+        begin='2023-11-27', 
         batch_size='day',
         concurrent_batches=true,
         snowflake_warehouse='SNOWPARK_WAREHOUSE',
         full_refresh=false,
     )
  }}
--- TODO: begin='2023-11-27',
 with swaps as (
     SELECT
         *
