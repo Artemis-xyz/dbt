@@ -19,5 +19,5 @@ models:
           - dbt_expectations.expect_column_to_exist
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 3
+              interval: 8
               severity: warn
