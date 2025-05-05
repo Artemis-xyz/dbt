@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="WORMHOLE",
+        snowflake_warehouse="SUI",
     )
 }}
 
