@@ -57,4 +57,5 @@ from token_transfers
 left join prices
     on token_transfers.block_timestamp::date = prices.date
     and lower(token_transfers.contract_address) = lower(prices.contract_address)
+where amount_raw > 0
 {% endmacro %}

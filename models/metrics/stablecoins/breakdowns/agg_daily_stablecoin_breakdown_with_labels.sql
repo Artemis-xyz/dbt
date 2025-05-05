@@ -7,6 +7,7 @@ select
     friendly_name,
     icon,
     artemis_application_id,
+    application,
     artemis_category_id,
     
     is_wallet,
