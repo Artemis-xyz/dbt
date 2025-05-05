@@ -30,7 +30,7 @@ extracted as (
 select
     id,
     iff(tokenB_symbol is null, tokenA_symbol, concat(tokenA_symbol, '-', tokenB_symbol)) as name,
-    power(1 + yield, 365) - 1 as apy,
+    yield * 365 as apy,
     tvl,
     fees / 10000.0 as fees,
     array_construct(tokenA_symbol, tokenB_symbol) as symbol,
