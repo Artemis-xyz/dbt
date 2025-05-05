@@ -1,4 +1,9 @@
-{{ config(materialized="table") }}
+{{ config(
+    materialized="table",
+    dagster={
+        "asset_deps": [["PROD_LANDING", "create_datahub_asset"]]
+    }
+) }}
 
 SELECT 
     date,
