@@ -1,4 +1,4 @@
-{{ config(materialized="table", unique_key="id") }}
+{{ config(materialized="table") }}
 
 with latest_per_group as (
   select
@@ -35,6 +35,7 @@ select
   , l.symbol
   , l.protocol
   , l.type
+  , p.link
 from latest_apy l
-join {{ ref("fact_raydium_stablecoin_pool_ids") }} p
+join {{ ref("raydium_stablecoin_pool_ids") }} p
   on l.id = p.id

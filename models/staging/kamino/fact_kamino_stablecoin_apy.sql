@@ -1,6 +1,5 @@
 {{ config(
-    materialized="table",
-    unique_key=["id", "extraction_timestamp"]
+    materialized="table"
 ) }}
 
 select
@@ -11,9 +10,10 @@ select
     v.tvl,
     v.symbol,
     v.protocol,
-    v.type
+    v.type,
+    s.link
 from {{ ref("fact_kamino_vaults_apy") }} v
-join {{ ref("fact_kamino_stablecoin_vault_ids") }} s
+join {{ ref("kamino_stablecoin_vault_ids") }} s
   on v.id = s.id
 union all
 select
@@ -24,5 +24,6 @@ select
     tvl,
     symbol,
     protocol,
-    type
+    type,
+    null as link,
 from {{ ref("fact_kamino_lending_apy") }}

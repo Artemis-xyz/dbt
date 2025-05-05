@@ -1,6 +1,5 @@
 {{ config(
-    materialized="table",
-    unique_key=["market_id", "id", "extraction_timestamp"]
+    materialized="table"
 ) }}
 
 with base as (
