@@ -28,20 +28,16 @@ extracted as (
     pool:tvl::float as tvl,
     extraction_date
   from flattened
-),
-
-final as (
-  select
-    id,
-    iff(mintB_symbol is null, mintA_symbol, concat(mintA_symbol, '-', mintB_symbol)) as name,
-    (power(1 + ((apr / 100) / 365), 365) - 1) as apy,
-    tvl,
-    fees,
-    array_construct(mintA_symbol, mintB_symbol) as symbol,
-    'raydium' as protocol,
-    'Pool' as type,
-    extraction_date as extraction_timestamp
-  from extracted
 )
 
-select * from final
+select
+  id,
+  iff(mintB_symbol is null, mintA_symbol, concat(mintA_symbol, '-', mintB_symbol)) as name,
+  (power(1 + ((apr / 100) / 365), 365) - 1) as apy,
+  tvl,
+  fees,
+  array_construct(mintA_symbol, mintB_symbol) as symbol,
+  'raydium' as protocol,
+  'Pool' as type,
+  extraction_date as extraction_timestamp
+from extracted
