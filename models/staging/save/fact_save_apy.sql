@@ -25,7 +25,7 @@ extracted as (
         symbol,
         data:rates:supplyInterest::float as apy,
         data:reserve:liquidity:availableAmount::float as available_amount,
-        data:reserve:liquidity:borrowedAmountWads::float as borrow_amount,
+        data:reserve:liquidity:borrowedAmountWads::float / 1e18 as borrow_amount,
         data:reserve:liquidity:mintDecimals::int as mint_decimals,
         extraction_date
     from flattened
@@ -37,7 +37,7 @@ select
     (
       available_amount / pow(10, mint_decimals)
       +
-      borrow_amount / pow(10, 18)
+      borrow_amount / pow(10, mint_decimals)
     ) as tvl,
     extraction_date as extraction_timestamp,
     concat(symbol, ' main pool') as name,
