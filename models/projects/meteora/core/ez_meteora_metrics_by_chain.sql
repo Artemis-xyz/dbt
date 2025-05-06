@@ -23,7 +23,18 @@ with dlmm_metrics as (
     select
         date,
         fees,
+        unique_traders,
+        number_of_swaps,
+        trading_volume,
     from {{ ref('fact_meteora_amm_metrics') }}
+)
+, spot_metrics as (
+    select
+        date,
+        unique_traders,
+        number_of_swaps,
+        trading_volume
+    from {{ ref('fact_meteora_spot_swap_metrics') }}
 )
 , date_spine as (
     select date_spine.date
@@ -44,8 +55,14 @@ select
 
     -- Usage Metrics
     , coalesce(dlmm_metrics.unique_traders, 0) as dlmm_spot_dau
+    , coalesce(amm_metrics.unique_traders, 0) as amm_spot_dau
+    , coalesce(spot_metrics.unique_traders, 0) as spot_dau
     , coalesce(dlmm_metrics.number_of_swaps, 0) as dlmm_spot_txns
+    , coalesce(amm_metrics.number_of_swaps, 0) as amm_spot_txns
+    , coalesce(spot_metrics.number_of_swaps, 0) as spot_txns
     , coalesce(dlmm_metrics.trading_volume, 0) as dlmm_spot_volume
+    , coalesce(amm_metrics.trading_volume, 0) as amm_spot_volume
+    , coalesce(dlmm_metrics.trading_volume, 0) + coalesce(amm_metrics.trading_volume, 0) as spot_volume
     , coalesce(dlmm_metrics.tvl, 0) as dlmm_tvl
     
     -- Cash Flow Metrics
@@ -59,4 +76,5 @@ select
 from date_spine
 left join dlmm_metrics using(date)
 left join amm_metrics using(date)
+left join spot_metrics using(date)
 where date < to_date(sysdate())
