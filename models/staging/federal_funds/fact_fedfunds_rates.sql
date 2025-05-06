@@ -26,7 +26,7 @@ select
   date as timestamp,
   extraction_date,
   'Fed Funds' as name,
-  value as apy,
+  value / 100 as apy,
   null as tvl,
   [] as symbol,
   'fedfunds' as protocol,
