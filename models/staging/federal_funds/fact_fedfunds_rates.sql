@@ -2,13 +2,24 @@
     materialized="table"
 ) }}
 
-with flattened as (
+with latest_base as (
+  select
+    source_json,
+    extraction_date
+  from {{ source("PROD_LANDING", "raw_fedfunds") }}
+  where extraction_date = (
+    select max(extraction_date)
+    from {{ source("PROD_LANDING", "raw_fedfunds") }}
+  )
+),
+
+flattened as (
   select
     value:"date"::string as date,
     value:"value"::string as value,
-    base.extraction_date
-  from {{ source("PROD_LANDING", "raw_fedfunds") }} as base,
-    lateral flatten(input => parse_json(base.source_json):observations) as value
+    latest_base.extraction_date
+  from latest_base,
+    lateral flatten(input => parse_json(latest_base.source_json):observations) as value
 )
 
 select
@@ -22,5 +33,4 @@ select
   'Fed Fund Rates' as type,
   null as link
 from flattened
-where extraction_date = (select max(extraction_date) from flattened)
-  and date = (select max(date) from flattened where extraction_date = (select max(extraction_date) from flattened))
+where date = (select max(date) from flattened)
