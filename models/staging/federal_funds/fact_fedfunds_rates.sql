@@ -19,18 +19,23 @@ flattened as (
 ),
 
 latest_date as (
-  select max(date) as max_date from flattened
+    select
+        max(date) as max_date,
+        max(extraction_date) as max_extraction_date
+    from flattened
 )
 
 select
-  date as timestamp,
-  extraction_date,
-  'Fed Funds' as name,
-  value / 100 as apy,
-  null as tvl,
-  [] as symbol,
-  'fedfunds' as protocol,
-  'Fed Fund Rates' as type,
-  null as link
+    date as timestamp,
+    extraction_date,
+    'Fed Funds' as name,
+    value / 100 as apy,
+    null as tvl,
+    [] as symbol,
+    'fedfunds' as protocol,
+    'Fed Fund Rates' as type,
+    null as link
 from flattened
-where date = (select max_date from latest_date)
+join latest_date
+on flattened.date = latest_date.max_date
+    and flattened.extraction_date = latest_date.max_extraction_date
