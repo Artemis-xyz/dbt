@@ -21,3 +21,6 @@ SELECT
     PARSE_JSON(DECODE_SOLANA_INNER_INSTRUCTION(idl::STRING, encoded_data)) as decoded_data
 FROM SOLANA_FLIPSIDE.CORE.dim_idls idls, swaps
 WHERE lower(idls.program_id) = lower('LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo')
+{% if is_incremental() %}
+    and block_timestamp > (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+{% endif %}

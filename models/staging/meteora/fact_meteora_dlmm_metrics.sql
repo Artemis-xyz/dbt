@@ -13,7 +13,7 @@ with artemis_tvl as (
     date,
     sum(swap_fee_amount_usd) as dlmm_spot_fees
   from
-    {{ref('fact_meteora_decoded_swaps2')}}
+    {{ref('fact_meteora_decoded_swaps_extract')}}
   group by 1
 )
 , swap_metrics as (
@@ -22,7 +22,7 @@ with artemis_tvl as (
     unique_traders,
     number_of_swaps,
     trading_volume
-  from {{ref('fact_meteora_dlmm_swap_metrics_filled')}}
+  from {{ref('fact_meteora_dlmm_swap_metrics')}}
 )
   
 select

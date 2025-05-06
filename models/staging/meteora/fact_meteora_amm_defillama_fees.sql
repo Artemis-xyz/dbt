@@ -1,4 +1,4 @@
-{{ config(materialized="incremental") }}
+{{ config(materialized="incremental", unique_key="date") }}
 
 with defillama_meteora_amm_fees as (
     SELECT
@@ -18,5 +18,5 @@ FROM defillama_meteora_amm_fees
     where date < '2025-05-01'
 {% endif %}
 {% if is_incremental() %}
-    where defillama_meteora_amm_fees.date > (select max(date) from {{ this }})
+    where defillama_meteora_amm_fees.date > (select dateadd('day', -3, max(date)) from {{ this }})
 {% endif %}
