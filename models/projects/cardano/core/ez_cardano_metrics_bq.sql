@@ -36,21 +36,41 @@ with
             json_value(outputs[0], '$.out_address') as address
         from {{ ref('fact_cardano_transactions') }}
     ),
-    -- Combine unique addresses
-    unique_addresses as (
+    -- Combine unique addresses for each day
+    unique_daily_addresses as (
         select date, address
         from input_addresses
         union distinct
         select date, address
         from output_addresses
     ),
-    -- Count unique from addresses per day
-    address_data as (
+    -- Calculate daily active addresses (DAA)
+    daily_active_addresses as (
         select
             date,
             count(distinct address) as daa
-        from input_addresses
+        from unique_daily_addresses
         group by 1
+    ),
+    -- Calculate rolling metrics (WAA/MAA) 
+    rolling_address_metrics as (
+        select 
+            curr_day.date,
+            -- Weekly Active Addresses (WAA)
+            count(distinct case 
+                when prev_day.date >= dateadd('day', -6, curr_day.date)  -- Last 7 days including current day
+                then prev_day.address 
+            end) as waa,
+            -- Monthly Active Addresses (MAA)
+            count(distinct case 
+                when prev_day.date >= dateadd('day', -29, curr_day.date)  -- Last 30 days including current day
+                then prev_day.address 
+            end) as maa
+        from (select distinct date from unique_daily_addresses) curr_day
+        left join unique_daily_addresses prev_day 
+            on prev_day.date <= curr_day.date 
+            and prev_day.date >= dateadd('day', -29, curr_day.date)  -- Join on full 30-day window
+        group by curr_day.date
     ),
     -- Get staking rewards data
     staking_rewards as (
@@ -77,7 +97,9 @@ select
     b.date,
     b.chain,
     b.txns,
-    coalesce(a.daa, 0) as dau,
+    coalesce(d.daa, 0) as daa,
+    coalesce(r.waa, 0) as waa,
+    coalesce(r.maa, 0) as maa,
     b.fees_native,
     b.fees_native * p.price as fees,
     b.fees_native / nullif(b.txns, 0) as avg_txn_fee,
@@ -94,10 +116,10 @@ select
     github_data.weekly_commits_core_ecosystem,
     github_data.weekly_commits_sub_ecosystem,
     github_data.weekly_developers_core_ecosystem,
-    github_data.weekly_developers_sub_ecosystem,
+    github_data.weekly_developers_sub_ecosystem
 from blocks_data b
-left join address_data a on b.date = a.date
-left join rolling_metrics r on b.date = r.date
+left join daily_active_addresses d on b.date = d.date
+left join rolling_address_metrics r on b.date = r.date
 left join supply_data s on b.date = s.date
 left join price_data p on b.date = p.date
 left join github_data g on b.date = g.date
