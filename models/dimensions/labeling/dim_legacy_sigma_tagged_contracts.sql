@@ -1,18 +1,15 @@
 {{
     config(
-        materialized="incremental",
-        unique_key=["address", "chain"],
-        incremental_strategy="merge"
+        materialized="table",
+        snowflake_warehouse="LABELING",
     )
 }}
 
 WITH combined_data AS (
-    SELECT LOWER(address) AS address, name, namespace, chain, 
-           1 AS table_priority
+    SELECT LOWER(address) AS address, name, namespace, chain, 1 AS table_priority
     FROM {{ ref('dim_usersubmittedcontracts') }} where chain is not null
     UNION
-    SELECT LOWER(address) AS address, name, namespace, chain, 
-           2 AS table_priority 
+    SELECT LOWER(address) AS address, name, namespace, chain, 2 AS table_priority 
     FROM {{ ref('dim_scanner_contracts') }} where chain is not null
 ),
 ranked_data AS (
