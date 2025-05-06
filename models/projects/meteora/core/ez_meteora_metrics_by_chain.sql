@@ -43,9 +43,9 @@ select
     -- Standardized Metrics
 
     -- Usage Metrics
-    , coalesce(dlmm_metrics.unique_traders, 0) as spot_dlmm_dau
-    , coalesce(dlmm_metrics.number_of_swaps, 0) as spot_dlmm_txns
-    , coalesce(dlmm_metrics.trading_volume, 0) as spot_dlmm_volume
+    , coalesce(dlmm_metrics.unique_traders, 0) as dlmm_spot_dau
+    , coalesce(dlmm_metrics.number_of_swaps, 0) as dlmm_spot_txns
+    , coalesce(dlmm_metrics.trading_volume, 0) as dlmm_spot_volume
     , coalesce(dlmm_metrics.tvl, 0) as dlmm_tvl
     
     -- Cash Flow Metrics
