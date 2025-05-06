@@ -17,3 +17,8 @@ sources:
       - name: raw_sui_transfers_parquet
       - name: raw_sui_balances_parquet
       - name: raw_sui_epoch_data
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: sui_daily_supply_data

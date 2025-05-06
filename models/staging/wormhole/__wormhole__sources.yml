@@ -5,3 +5,8 @@ sources:
     tables:
       - name: raw_wormhole_transactions
       - name: raw_wormhole_operations
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: wormhole_daily_supply_data

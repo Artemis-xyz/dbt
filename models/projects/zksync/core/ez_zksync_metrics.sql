@@ -38,8 +38,18 @@ with
     zksync_dex_volumes as (
         select date, daily_volume as dex_volumes
         from {{ ref("fact_zksync_daily_dex_volumes") }}
-    ),
-    price_data as (
+    )
+    , supply_data as (
+        select
+            date
+            , gross_emissions_native
+            , premine_unlocks_native
+            , burns_native
+            , net_supply_change_native
+            , circulating_supply_native
+        from {{ ref("fact_zksync_supply_data") }}
+    )
+    , price_data as (
         {{ get_coingecko_metrics('zksync') }}
     )
 select
@@ -87,6 +97,12 @@ select
     , bridge_daa_metrics.bridge_daa as bridge_dau
     , token_turnover_circulating
     , token_turnover_fdv
+    -- Supply Data
+    , gross_emissions_native
+    , premine_unlocks_native
+    , burns_native
+    , net_supply_change_native
+    , circulating_supply_native
 from fundamental_data f
 left join rolling_metrics on f.date = rolling_metrics.date
 left join revenue_data on f.date = revenue_data.date
@@ -94,4 +110,5 @@ left join bridge_volume_metrics on f.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on f.date = bridge_daa_metrics.date
 left join zksync_dex_volumes as dune_dex_volumes_zksync on f.date = dune_dex_volumes_zksync.date
 left join price_data on f.date = price_data.date
+left join supply_data on f.date = supply_data.date
 where f.date < to_date(sysdate())

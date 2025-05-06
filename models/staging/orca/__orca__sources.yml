@@ -5,6 +5,7 @@ sources:
     tables:
       - name: raw_orca_fees_and_volume
       - name: raw_orca_dau_txns
+      - name: raw_orca_pools
 
   - name: MANUAL_STATIC_TABLES
     schema: PROD

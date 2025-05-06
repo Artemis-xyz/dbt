@@ -54,3 +54,5 @@ usd-coin,variableDebtEthUSDC,ethereum,0x72E95b8931767C79bA4EeE721354d6E99a61D004
 tether,variableDebtEthUSDT,ethereum,0x6df1C1E379bC5a00a7b4C6e67A203333772f45A8,6
 ethereum,variableDebtEthWETH,ethereum,0xeA51d7853EEFb32b6ee06b1C12E6dcCA88Be0fFE,18
 ethereum,ETH,solana,Bgarxg65CEjN3kosjCW5Du3wEqvV3dpCGDR3a2HRQsYJ,18
+usd-ethena,S*USDe,ethereum,0x4c9EDD5852cd905f086C759E8383e09bff1E68B3,18
+
