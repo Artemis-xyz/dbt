@@ -9,6 +9,7 @@
         concurrent_batches=true,
         snowflake_warehouse='SNOWPARK_WAREHOUSE',
         full_refresh=false,
+        enabled=false
     )
  }}
 with swaps as (
