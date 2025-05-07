@@ -100,7 +100,7 @@ transfer_with_price as  (
         , dst_message
         , dst_chain
         , deposit_id
-        , protocol_fee
+        , (protocol_fee/POW(10, coalesce(src_prices.decimals, dst_prices.decimals)) * coalesce(src_prices.price, dst_prices.price)) as protocol_fee
         , bridge_message_app
         , version
     FROM
