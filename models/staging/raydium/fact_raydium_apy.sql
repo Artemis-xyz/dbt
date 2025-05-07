@@ -8,6 +8,10 @@ with base as (
     extraction_date,
     source_url
   from {{ source("PROD_LANDING", "raw_raydium_pools") }}
+  where extraction_date = (
+    select max(extraction_date)
+    from {{ source("PROD_LANDING", "raw_raydium_pools") }}
+  )
 ),
 
 flattened as (
