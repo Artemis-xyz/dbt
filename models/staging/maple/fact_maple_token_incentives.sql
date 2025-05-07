@@ -1,7 +1,7 @@
 {{
     config(
         materialized='table',
-        snowflake_warehouse='MAPLE'
+        snowflake_warehouse='ANALYTICS_XL'
     )
 }}
 
@@ -38,10 +38,10 @@ with rewards_contracts as (
     LEFT JOIN mpl_price_syrup mp_syrup ON mp_maple.date = mp_syrup.date
 )
 
-, token_incentives as (
+, token_incentives_v1 as (
     select
         date(block_timestamp) as date
-        , 'SYRUP' as token
+        , 'MPL' as token
         , decoded_log:reward / 1e18 as incentive_native
         , (decoded_log:reward / 1e18) * 
             case 
@@ -52,6 +52,24 @@ with rewards_contracts as (
     left join mpl_prices p on date(block_timestamp) = p.date
     where contract_address in (select rewards_contract_address from rewards_contracts)
     and event_name = 'RewardPaid'
+)
+
+, token_incentives_v2 as (
+    select 
+        date(block_timestamp) as date
+        , 'SYRUP' as token
+        , sum(amount) as incentive_native
+        , sum(amount_usd) as incentive_usd
+    from {{ source('ETHEREUM_FLIPSIDE', 'ez_token_transfers') }}
+    where lower(from_address) = lower('0x509712F368255E92410893Ba2E488f40f7E986EA') -- v2 (Syrup Drip contract where users claim drip rewards)
+        and symbol = 'SYRUP'
+    group by date
+)
+
+, token_incentives as (
+    select date, token, incentive_native, incentive_usd from token_incentives_v1
+    union all
+    select date, token, incentive_native, incentive_usd from token_incentives_v2
 )
 
 , date_spine as (
