@@ -1,13 +1,4 @@
-{{
-    config(
-        materialized="table"
-    )
-}}
-
-WITH dim_frontend_manual_applications AS (
-    SELECT * FROM {{ source("PYTHON_LOGIC", "dim_frontend_manual_applications") }}
-    QUALIFY ROW_NUMBER() OVER (PARTITION BY artemis_application_id ORDER BY last_updated_timestamp DESC) = 1
-)
+{{ config(materialized="table", snowflake_warehouse="LABELING") }}
 
 SELECT
     COALESCE(ma.artemis_application_id, sil.artemis_application_id) as artemis_application_id,
@@ -18,8 +9,8 @@ SELECT
     COALESCE(ma.ecosystem_id, sil.ecosystem_id) as ecosystem_id,
     COALESCE(ma.defillama_protocol_id, sil.defillama_protocol_id) as defillama_protocol_id,
     COALESCE(ma.visibility, sil.visibility) as visibility,
-    COALESCE(ma.app_symbol, token.token_symbol, sil.symbol) as symbol,
-    COALESCE(ma.app_icon, token.token_image_small, sil.icon) as icon,
+    COALESCE(ma.symbol, token.token_symbol, sil.symbol) as symbol,
+    COALESCE(ma.icon, token.token_image_small, sil.icon) as icon,
     COALESCE(ma.app_name, sil.app_name) as app_name,
     COALESCE(ma.description, sil.description) as description,
     COALESCE(ma.website_url, sil.website_url) as website_url,
@@ -34,11 +25,9 @@ SELECT
         WHEN ma.last_updated_timestamp IS NOT NULL THEN CURRENT_TIMESTAMP()::TIMESTAMP_NTZ
         ELSE sil.last_updated_timestamp 
     END as last_updated_timestamp
-FROM
-    {{ this }} sil
-LEFT JOIN
-    dim_coingecko_tokens token
+FROM {{ ref("all_apps_2025_05_07_seed") }} sil
+LEFT JOIN {{ ref('dim_coingecko_tokens')}} token
 ON sil.coingecko_id = token.coingecko_token_id
 FULL OUTER JOIN 
-    dim_frontend_manual_applications ma
+    {{ ref("dim_all_frontend_labeled_applications") }} ma
 ON sil.artemis_application_id = ma.artemis_application_id
