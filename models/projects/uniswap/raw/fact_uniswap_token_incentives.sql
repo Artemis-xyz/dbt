@@ -38,9 +38,9 @@ with prices as (
 
 , incentives_v4 as (
     SELECT
-        TO_DATE(date, 'MM-DD-YYYY') as date,
+        date,
         'UNI' as token,
-        sum(total_incentives) as reward_native
+        sum(amount_native) as reward_native
     FROM {{ ref('fact_uniswap_token_incentives_2025') }}
     GROUP BY
         1,
