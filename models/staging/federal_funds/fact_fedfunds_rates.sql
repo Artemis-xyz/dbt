@@ -30,7 +30,7 @@ select
   null as tvl,
   [] as symbol,
   'fedfunds' as protocol,
-  'Fed Fund Rates' as type,
+  'fed fund rates' as type,
   null as link
 from flattened
 where date = (select max(date) from flattened)
