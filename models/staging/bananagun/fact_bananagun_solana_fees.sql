@@ -1,7 +1,7 @@
 {{
     config(
         materialized='incremental',
-        snowflake_warehouse='ANALYTICS_XL',
+        snowflake_warehouse='BANANAGUN',
         unique_key=['transaction_hash','index']
     )
 }}
