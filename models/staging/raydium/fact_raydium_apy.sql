@@ -8,6 +8,10 @@ with base as (
     extraction_date,
     source_url
   from {{ source("PROD_LANDING", "raw_raydium_pools") }}
+  where extraction_date = (
+    select max(extraction_date)
+    from {{ source("PROD_LANDING", "raw_raydium_pools") }}
+  )
 ),
 
 flattened as (
@@ -38,6 +42,7 @@ select
   fees,
   array_construct(mintA_symbol, mintB_symbol) as symbol,
   'raydium' as protocol,
-  'Pool' as type,
+  'pool' as type,
+  'solana' as chain,
   extraction_date as extraction_timestamp
 from extracted

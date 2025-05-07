@@ -35,6 +35,7 @@ select
     fees / 10000.0 as fees,
     array_construct(tokenA_symbol, tokenB_symbol) as symbol,
     'orca' as protocol,
-    'Pool' as type,
+    'pool' as type,
+    'solana' as chain,
     extraction_date as extraction_timestamp
 from extracted

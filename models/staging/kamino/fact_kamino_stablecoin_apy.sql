@@ -25,6 +25,7 @@ select
     v.symbol,
     v.protocol,
     v.type,
+    v.chain,
     s.link
 from {{ ref("fact_kamino_vaults_apy") }} v
 join latest_vaults lv
@@ -42,6 +43,7 @@ select
     symbol,
     protocol,
     type,
+    chain,
     link,
 from {{ ref("fact_kamino_lending_apy") }} l
 join latest_lending ll
