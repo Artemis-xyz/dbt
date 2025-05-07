@@ -1,7 +1,7 @@
 {{
     config(
         materialized='table',
-        snowflake_warehouse='BANANAGUN'
+        snowflake_warehouse=var('snowflake_warehouse', default='BANANAGUN')
     )
 }}
 

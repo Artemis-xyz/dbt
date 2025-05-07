@@ -19,6 +19,9 @@ FROM
     trades
     LEFT JOIN fees ON trades.transaction_hash = fees.transaction_hash
 WHERE fees.fee_usd < 1e6
+{% if is_incremental() %}
+    AND trades.block_timestamp > (SELECT dateadd('day', -3, MAX(trade_date)) FROM {{ this }})
+{% endif %}
 GROUP BY
     trades.block_timestamp::date
 ORDER BY
