@@ -3,7 +3,7 @@
 select
     timestamp
     , name
-    , apy * 100
+    , apy * 100 as apy
     , tvl
     , symbol
     , protocol
@@ -14,7 +14,7 @@ union all
 select
     timestamp
     , name
-    , apy * 100
+    , apy * 100 as apy
     , tvl
     , symbol
     , protocol
