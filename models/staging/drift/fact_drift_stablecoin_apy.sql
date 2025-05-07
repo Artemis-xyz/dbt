@@ -1,5 +1,9 @@
 {{ config(materialized="table") }}
 
+with latest_date as (
+  select max(date) as max_date from {{ ref("fact_drift_daily_spot_data") }}
+)
+
 select
     d.date as timestamp,
     d.market as id,
@@ -11,6 +15,6 @@ select
     'lending' as type,
     p.link
 from {{ ref("fact_drift_daily_spot_data") }} d
+join latest_date ld on d.date = ld.max_date
 inner join {{ ref("drift_stablecoin_pool_ids") }} p
     on d.market = p.name
-where d.date = current_date
