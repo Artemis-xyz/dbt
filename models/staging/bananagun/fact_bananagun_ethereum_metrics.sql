@@ -1,7 +1,8 @@
 {{
     config(
-        materialized='table',
-        snowflake_warehouse='BANANAGUN'
+        materialized='incremental',
+        snowflake_warehouse='BANANAGUN',
+        unique_key='trade_date'
     )
 }}
 
