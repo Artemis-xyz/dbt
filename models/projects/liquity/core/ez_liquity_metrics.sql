@@ -11,8 +11,9 @@
 with tvl as (
     select
         date,
-        tvl_usd as tvl
+        sum(tvl_usd) as tvl
     from {{ ref('fact_liquity_tvl') }}
+    group by 1
 )
 , outstanding_supply as (
     select
