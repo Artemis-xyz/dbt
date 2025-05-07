@@ -1,7 +1,7 @@
 {{
     config(
         materialized='table',
-        snowflake_warehouse='LIQUITY',
+        snowflake_warehouse='ANALYTICS_XL',
         database='LIQUITY',
         schema='raw',
         alias='fact_liquity_v1_tvl'
