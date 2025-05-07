@@ -1,0 +1,6 @@
+sources:
+  - name: PC_DBT_DB
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: fact_datahub_silver

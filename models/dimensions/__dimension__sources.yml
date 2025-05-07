@@ -31,6 +31,8 @@ sources:
     - name: core_protocolnamespaces
     - name: core_asset
     - name: core_pydefillamachains
+    - name: core_assettag
+
   - name: MANUAL_STATIC_TABLES
     schema: prod
     database: pc_dbt_db

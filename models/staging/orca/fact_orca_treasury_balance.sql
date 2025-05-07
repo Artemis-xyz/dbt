@@ -2,6 +2,7 @@
     config(
         materialized="incremental",
         snowflake_warehouse="ORCA",
+        unique_key="unique_id"
     )
 }}
 
