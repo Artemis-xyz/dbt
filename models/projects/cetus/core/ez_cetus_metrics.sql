@@ -16,8 +16,8 @@ with cetus_tvl as (
 )
 
 select
-    cetus_tvl.date,
-    'Defillama' as source,
+    cetus_tvl.date
+    , 'Defillama' as source
 
     -- Standardized Metrics
     , cetus_tvl.tvl
