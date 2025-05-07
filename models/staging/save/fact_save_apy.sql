@@ -34,11 +34,7 @@ extracted as (
 select
     reserve_id as id,
     apy * 0.01 as apy,
-    (
-      available_amount / pow(10, mint_decimals)
-      +
-      borrow_amount / pow(10, mint_decimals)
-    ) as tvl,
+    available_amount / pow(10, mint_decimals) as tvl,
     extraction_date as extraction_timestamp,
     concat(symbol, ' main pool') as name,
     'lending' as type,

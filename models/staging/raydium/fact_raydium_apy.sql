@@ -38,6 +38,6 @@ select
   fees,
   array_construct(mintA_symbol, mintB_symbol) as symbol,
   'raydium' as protocol,
-  'Pool' as type,
+  'pool' as type,
   extraction_date as extraction_timestamp
 from extracted
