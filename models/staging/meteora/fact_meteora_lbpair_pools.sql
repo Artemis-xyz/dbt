@@ -1,7 +1,6 @@
 {{
     config(
         materialized="table",
-        alias="fact_meteora_lbpair_pools",
     )
 }}
 
