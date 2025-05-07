@@ -1,7 +1,8 @@
 {{
     config(
         materialized='table',
-        snowflake_warehouse='BANANAGUN'
+        snowflake_warehouse='BANANAGUN',
+        unique_key='transaction_hash'
     )
 }}
 
