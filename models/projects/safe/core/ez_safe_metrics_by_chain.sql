@@ -26,7 +26,7 @@ with tvl as (
 select
     tvl.date
     , tvl.chain
-    , safes_created.safes_created
-    , tvl.tvl
+    , safes_created as multisigs_created
+    , tvl as value_in_multisigs
 from tvl
 left join safes_created using (date, chain)
