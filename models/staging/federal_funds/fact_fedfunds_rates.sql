@@ -29,8 +29,8 @@ select
   value / 100 as apy,
   null as tvl,
   [] as symbol,
-  'fedFunds' as protocol,
-  'fedFundRates' as type,
+  'fed_funds' as protocol,
+  'fed_fund_rates' as type,
   null as chain,
   null as link
 from flattened
