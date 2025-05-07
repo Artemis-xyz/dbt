@@ -1,7 +1,7 @@
 {{
     config(
         materialized='table',
-        snowflake_warehouse='MAPLE'
+        snowflake_warehouse='SOLANA_XLG'
     )
 }}
 
@@ -13,24 +13,40 @@ with rewards_contracts as (
     where
         event_name = 'MplRewardsCreated'
 )
+, mpl_price_maple as (
+    {{ get_coingecko_metrics("maple") }}
+)
+
+, mpl_price_syrup as (
+    {{ get_coingecko_metrics("syrup") }}
+)
+
+, combined_prices as (
+    SELECT date, price, 'maple' as source FROM mpl_price_maple
+    UNION ALL
+    SELECT date, price, 'syrup' as source FROM mpl_price_syrup
+)
+
 , mpl_prices as (
     SELECT
-        hour,
-        price,
-        decimals,
-        token_address,
-        symbol
-    FROM
-        {{ source('ETHEREUM_FLIPSIDE_PRICE', 'ez_prices_hourly') }}
-    WHERE token_address = lower('0x33349b282065b0284d756f0577fb39c158f935e6')
+        mp_maple.date,
+        -- Join both price tables
+        mp_maple.price as maple_price,
+        mp_syrup.price as syrup_price
+    FROM mpl_price_maple mp_maple
+    LEFT JOIN mpl_price_syrup mp_syrup ON mp_maple.date = mp_syrup.date
 )
 SELECT
-    block_timestamp,
-    symbol as token,
-    decoded_log:reward * POWER(10, p.decimals) as incentive_native,
-    decoded_log:reward * p.price / POWER(10, p.decimals) as incentive_usd
+    date(block_timestamp) as date,
+    'SYRUP' as token,
+    decoded_log:reward / 1e18 as incentive_native,
+    (decoded_log:reward / 1e18) * 
+        case when 
+            date(block_timestamp) > '2024-11-11' then syrup_price
+            else maple_price
+        end as incentive_usd
 FROM
     {{ source('ETHEREUM_FLIPSIDE', 'ez_decoded_event_logs') }} l
-LEFT JOIN mpl_prices p ON p.hour = DATE_TRUNC('hour', l.block_timestamp)
+LEFT JOIN mpl_prices p on date(block_timestamp) = p.date
 WHERE contract_address in (SELECT rewards_contract_address FROM rewards_contracts)
 AND event_name = 'RewardPaid'

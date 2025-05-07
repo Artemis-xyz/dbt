@@ -16,6 +16,7 @@ SELECT
     total_supply_side_revenue,
     revenue,
     token_incentives,
+    token_incentives_native,
     total_expenses,
     protocol_earnings,
     treasury_value,
