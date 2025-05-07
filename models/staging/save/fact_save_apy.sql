@@ -39,5 +39,6 @@ select
     concat(symbol, ' main pool') as name,
     'lending' as type,
     'save' as protocol,
+    'solana' as chain,
     array_construct(symbol) as symbol
 from extracted

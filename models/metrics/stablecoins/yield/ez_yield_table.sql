@@ -8,6 +8,7 @@ select
     , symbol
     , protocol
     , type
+    , chain
     , link
 from {{ ref("fact_stablecoin_apy") }}
 union all
@@ -19,5 +20,6 @@ select
     , symbol
     , protocol
     , type
+    , chain
     , link
 from {{ ref("fact_fedfunds_rates") }}

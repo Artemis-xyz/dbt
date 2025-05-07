@@ -17,7 +17,8 @@ latest_apy as (
     f.tvl,
     f.symbol,
     f.protocol,
-    f.type
+    f.type,
+    f.chain
   from {{ ref("fact_orca_apy") }} f
   join latest_per_group l
     on f.name = l.name
@@ -34,6 +35,7 @@ select
   , l.symbol
   , l.protocol
   , l.type
+  , l.chain
   , p.link
 from latest_apy l
 join {{ ref("orca_stablecoin_pool_ids") }} p

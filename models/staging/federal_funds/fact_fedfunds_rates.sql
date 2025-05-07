@@ -29,8 +29,9 @@ select
   value / 100 as apy,
   null as tvl,
   [] as symbol,
-  'fedfunds' as protocol,
-  'fed fund rates' as type,
+  'fedFunds' as protocol,
+  'fedFundRates' as type,
+  null as chain,
   null as link
 from flattened
 where date = (select max(date) from flattened)

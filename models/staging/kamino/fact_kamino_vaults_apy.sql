@@ -36,5 +36,6 @@ select
     array_construct(tokenA, tokenB) as symbol,
     'pool' as type,
     'kamino' as protocol,
+    'solana' as chain,
     extraction_date as extraction_timestamp
 from extracted

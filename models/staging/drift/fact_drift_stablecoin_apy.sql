@@ -13,6 +13,7 @@ select
     array_construct(p.symbol) as symbol,
     'drift' as protocol,
     'lending' as type,
+    'solana' as chain,
     p.link
 from {{ ref("fact_drift_daily_spot_data") }} d
 join latest_date ld on d.date = ld.max_date

@@ -19,6 +19,7 @@ select
     f.symbol,
     f.protocol,
     f.type,
+    f.chain,
     p.link
 from {{ ref("fact_save_apy") }} f
 join latest l

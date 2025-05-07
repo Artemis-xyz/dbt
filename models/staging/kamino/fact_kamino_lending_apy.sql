@@ -55,6 +55,7 @@ select
     end as name,
     'lending' as type,
     'kamino' as protocol,
+    'solana' as chain,
     array_construct(h.symbol) as symbol
 from history_flattened h
 join latest_timestamp_per_reserve l

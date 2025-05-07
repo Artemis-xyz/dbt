@@ -43,5 +43,6 @@ select
   array_construct(mintA_symbol, mintB_symbol) as symbol,
   'raydium' as protocol,
   'pool' as type,
+  'solana' as chain,
   extraction_date as extraction_timestamp
 from extracted
