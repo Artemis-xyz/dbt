@@ -22,31 +22,58 @@ with rewards_contracts as (
 )
 
 , combined_prices as (
-    SELECT date, price, 'maple' as source FROM mpl_price_maple
-    UNION ALL
-    SELECT date, price, 'syrup' as source FROM mpl_price_syrup
+    select date, price, 'maple' as source from mpl_price_maple
+
+    union all
+
+    select date, price, 'syrup' as source from mpl_price_syrup
 )
 
 , mpl_prices as (
     SELECT
-        mp_maple.date,
-        -- Join both price tables
-        mp_maple.price as maple_price,
-        mp_syrup.price as syrup_price
+        mp_maple.date
+        , mp_maple.price as maple_price
+        , mp_syrup.price as syrup_price
     FROM mpl_price_maple mp_maple
     LEFT JOIN mpl_price_syrup mp_syrup ON mp_maple.date = mp_syrup.date
 )
+
+, token_incentives as (
+    select
+        date(block_timestamp) as date
+        , 'SYRUP' as token
+        , decoded_log:reward / 1e18 as incentive_native
+        , (decoded_log:reward / 1e18) * 
+            case 
+                when date(block_timestamp) > '2024-11-11' then syrup_price 
+                else maple_price 
+            end as incentive_usd
+    from {{ source('ETHEREUM_FLIPSIDE', 'ez_decoded_event_logs') }}
+    left join mpl_prices p on date(block_timestamp) = p.date
+    where contract_address in (select rewards_contract_address from rewards_contracts)
+    and event_name = 'RewardPaid'
+)
+
+, date_spine as (
+    select
+        date
+    from {{ ref('dim_date_spine') }}
+    where date between '2021-05-27' and to_date(sysdate())
+)
+
+, token_incentives_none_filled as (
+    select
+        date_spine.date
+        , 'SYRUP' as token
+        , coalesce(incentive_native, 0) as incentive_native
+        , coalesce(incentive_usd, 0) as incentive_usd
+    from date_spine
+    left join token_incentives on date_spine.date = token_incentives.date
+)
+
 SELECT
-    date(block_timestamp) as date,
-    'SYRUP' as token,
-    decoded_log:reward / 1e18 as incentive_native,
-    (decoded_log:reward / 1e18) * 
-        case when 
-            date(block_timestamp) > '2024-11-11' then syrup_price
-            else maple_price
-        end as incentive_usd
-FROM
-    {{ source('ETHEREUM_FLIPSIDE', 'ez_decoded_event_logs') }} l
-LEFT JOIN mpl_prices p on date(block_timestamp) = p.date
-WHERE contract_address in (SELECT rewards_contract_address FROM rewards_contracts)
-AND event_name = 'RewardPaid'
+    date
+    , 'SYRUP' as token
+    , incentive_native
+    , incentive_usd
+from token_incentives_none_filled
