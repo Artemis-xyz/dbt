@@ -1,4 +1,4 @@
-{% macro get_decoded_l1_superchain_bridge_events(chain, bridge_contract_address)%}
+{% macro get_decoded_l1_superchain_bridge_events(chain, bridge_contract_address, decoding_type)%}
 with
     prices as (
         select date as date, contract_address, decimals, symbol, shifted_token_price_usd as price
@@ -43,7 +43,11 @@ with
     , eth_deposits as (
         select
             block_timestamp
-            , transaction_hash
+            {% if decoding_type == 'artemis' %}
+                , transaction_hash
+            {% else %}
+                , tx_hash as transaction_hash
+            {% endif %}
             , event_index
             , decoded_log:"from"::string as depositor
             , decoded_log:"to"::string as recipient
@@ -56,7 +60,11 @@ with
             , '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' as token_address
             , 'ethereum' as source_chain
             , '{{ chain }}' as destination_chain
-        from {{ ref('fact_ethereum_decoded_events') }}
+        {% if decoding_type == 'artemis' %}
+            from {{ ref('fact_ethereum_decoded_events') }} 
+        {% else %}
+            from ethereum_flipside.core.ez_decoded_event_logs
+        {% endif %}
         where contract_address = lower('{{ bridge_contract_address }}')
         and event_name = 'ETHDepositInitiated'
         {% if is_incremental() %}
@@ -72,7 +80,11 @@ with
     , eth_withdraws as (
         select
             block_timestamp
-            , transaction_hash
+            {% if decoding_type == 'artemis' %}
+                , transaction_hash
+            {% else %}
+                , tx_hash as transaction_hash
+            {% endif %}
             , event_index
             , decoded_log:"from"::string as depositor
             , decoded_log:"to"::string as recipient
@@ -85,7 +97,11 @@ with
             , '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' as token_address
             , '{{ chain }}' as source_chain
             , 'ethereum' as destination_chain
-        from {{ ref('fact_ethereum_decoded_events') }} 
+        {% if decoding_type == 'artemis' %}
+            from {{ ref('fact_ethereum_decoded_events') }} 
+        {% else %}
+            from ethereum_flipside.core.ez_decoded_event_logs
+        {% endif %}
         where
             contract_address
             = lower('{{ bridge_contract_address }}')
@@ -103,7 +119,11 @@ with
     , erc20_deposits as (
         select
             block_timestamp
-            , transaction_hash
+            {% if decoding_type == 'artemis' %}
+                , transaction_hash
+            {% else %}
+                , tx_hash as transaction_hash
+            {% endif %}
             , event_index
             , decoded_log:"from"::string as depositor
             , decoded_log:"to"::string as recipient
@@ -115,7 +135,11 @@ with
             , decoded_log:"l1Token" as token_address
             , 'ethereum' as source_chain
             , '{{ chain }}' as destination_chain
-        from {{ ref('fact_ethereum_decoded_events') }} 
+        {% if decoding_type == 'artemis' %}
+            from {{ ref('fact_ethereum_decoded_events') }} 
+        {% else %}
+            from ethereum_flipside.core.ez_decoded_event_logs
+        {% endif %}
         where
             contract_address = lower('{{ bridge_contract_address }}')
             and event_name = 'ERC20DepositInitiated'
@@ -130,7 +154,11 @@ with
     , erc20_withdraws as (
         select
             block_timestamp
-            , transaction_hash
+            {% if decoding_type == 'artemis' %}
+                , transaction_hash
+            {% else %}
+                , tx_hash as transaction_hash
+            {% endif %}
             , event_index
             , decoded_log:"from"::string as depositor
             , decoded_log:"to"::string as recipient
@@ -141,7 +169,11 @@ with
             , decoded_log:"l1Token" as token_address
             , '{{ chain }}' as source_chain
             , 'ethereum' as destination_chain
-        from {{ ref('fact_ethereum_decoded_events') }} 
+        {% if decoding_type == 'artemis' %}
+            from {{ ref('fact_ethereum_decoded_events') }} 
+        {% else %}
+            from ethereum_flipside.core.ez_decoded_event_logs
+        {% endif %}
         where
             contract_address = lower('{{ bridge_contract_address }}')
             and event_name = 'ERC20WithdrawalFinalized'
