@@ -58,6 +58,9 @@
                     ON DATE_TRUNC('hour', e.BLOCK_TIMESTAMP) = tp.price_hour
             WHERE
                 TOPICS[0] IN ('0x72015ace03712f361249380657b3d40777dd8f8a686664cab48afd9dbbe4499f','0x0c2a2f565c7774c59e49ef6b3c255329f4d254147e06e724d3a8569bb7bd21ad')
+                {% if is_incremental() %}
+                    AND BLOCK_TIMESTAMP > (SELECT dateadd('day', -3, MAX(BLOCK_TIMESTAMP)) FROM {{ this }})
+                {% endif %}
         {% endif %}
     )
     SELECT 
