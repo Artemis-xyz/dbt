@@ -1,6 +1,6 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='BANANAGUN',
         unique_key='transaction_hash'
     )
