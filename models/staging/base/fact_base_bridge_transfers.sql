@@ -85,7 +85,7 @@ with
                     '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' as token_address,
                     'base' as source_chain,
                     'ethereum' as destination_chain
-                from ethereum_flipside.core.fact_decoded_event_logs
+                from ethereum_flipside.core.ez_decoded_event_logs
                 where
                     contract_address
                     = lower('0x3154Cf16ccdb4C6d922629664174b904d80F2C35')
@@ -105,8 +105,8 @@ with
                     block_timestamp,
                     tx_hash,
                     trace_index as event_index,
-                    origin_from_address::string as depositor,
-                    origin_from_address::string as recipient,
+                    origin_to_address::string as depositor,
+                    origin_to_address::string as recipient,
                     amount_precise_raw::bigint as amount,
                     null as fee,
                     '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' as token_address,
@@ -114,8 +114,9 @@ with
                     'base' as destination_chain
                 from ethereum_flipside.core.ez_native_transfers
                 where
-                    origin_from_address
+                    (origin_from_address
                     = lower('0x49048044d57e1c92a77f79988d21fa8faf74e97e')
+                    or from_address = lower('0x49048044d57e1c92a77f79988d21fa8faf74e97e'))
                     {% if is_incremental() %}
 
                         and block_timestamp >= (
@@ -145,7 +146,7 @@ with
             decoded_log:"l1Token" as token_address,
             'ethereum' as source_chain,
             'base' as destination_chain
-        from ethereum_flipside.core.fact_decoded_event_logs
+        from ethereum_flipside.core.ez_decoded_event_logs
         where
             contract_address = lower('0x3154Cf16ccdb4C6d922629664174b904d80F2C35')
             and event_name = 'ERC20DepositInitiated'
@@ -169,7 +170,7 @@ with
             decoded_log:"l1Token" as token_address,
             'base' as source_chain,
             'ethereum' as destination_chain
-        from ethereum_flipside.core.fact_decoded_event_logs
+        from ethereum_flipside.core.ez_decoded_event_logs
         where
             contract_address = lower('0x3154Cf16ccdb4C6d922629664174b904d80F2C35')
             and event_name = 'ERC20WithdrawalFinalized'

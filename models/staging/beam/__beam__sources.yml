@@ -9,3 +9,8 @@ sources:
       - name: raw_beam_contracts
       - name: raw_beam_deployers
       - name: raw_beam_avg_gas_price
+  - name: MANUAL_STATIC_TABLES
+    schema: PROD
+    database: PC_DBT_DB
+    tables:
+      - name: beam_premine_unlocks_data

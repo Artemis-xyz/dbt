@@ -46,6 +46,8 @@ active_providers AS (
 
 , price as ({{ get_coingecko_metrics("akash-network") }})
 
+, premine_unlocks AS (SELECT * FROM {{ ref("fact_akash_premine_unlocks") }})
+
 SELECT
     mints.date
     , coalesce(active_leases.active_leases, 0) AS active_leases
@@ -63,9 +65,16 @@ SELECT
     , coalesce(total_fees.total_fees, 0) AS total_fees
     , coalesce(revenue.revenue, 0) AS revenue
     , coalesce(burns.total_burned_native, 0) AS total_burned_native
-    , coalesce(mints.mints, 0) AS mints
 
     -- Standardized Metrics
+
+    -- Token Metrics
+    , coalesce(price, 0) as price
+    , coalesce(market_cap, 0) as market_cap
+    , coalesce(fdmc, 0) as fdmc
+    , coalesce(token_volume, 0) as token_volume  
+
+    -- Cashflow Metrics
     , (coalesce(compute_fees_total_usd.compute_fees_total_usd, 0))/ 1e6 AS compute_fees
     , coalesce(validator_fees.validator_fees, 0) AS gas_fees
     , compute_fees + gas_fees AS gross_protocol_revenue
@@ -73,15 +82,16 @@ SELECT
     , revenue.revenue AS treasury_cash_flow
     , compute_fees - treasury_cash_flow AS service_cash_flow
     , coalesce(burns.total_burned_native, 0) AS burns_native
-    , coalesce(mints.mints, 0) AS mints_native
 
-    -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
-    , token_volume    
+    -- Supply Metrics
+    , coalesce(mints.mints, 0) AS gross_emissions_native
+    , coalesce(premine_unlocks.pre_mine_unlocks, 0) AS premine_unlocks_native
+    , coalesce(mints.mints, 0) + coalesce(premine_unlocks.pre_mine_unlocks, 0) - coalesce(burns.total_burned_native, 0) AS net_supply_change_native
+    , sum((coalesce(mints.mints, 0) - coalesce(burns.total_burned_native, 0)) + coalesce(premine_unlocks.pre_mine_unlocks, 0)) OVER (order by mints.date) AS circulating_supply_native
+    
+    -- Turnover Metrics
+    , coalesce(token_turnover_circulating, 0) as token_turnover_circulating
+    , coalesce(token_turnover_fdv, 0) as token_turnover_fdv 
 FROM mints
 LEFT JOIN active_providers ON mints.date = active_providers.date
 LEFT JOIN new_leases ON mints.date = new_leases.date
@@ -95,5 +105,6 @@ LEFT JOIN revenue ON mints.date = revenue.date
 LEFT JOIN burns ON mints.date = burns.date
 LEFT JOIN active_leases ON mints.date = active_leases.date
 LEFT JOIN price ON mints.date = price.date
+LEFT JOIN premine_unlocks ON mints.date = premine_unlocks.date
 WHERE mints.date < to_date(sysdate())
 ORDER BY date DESC

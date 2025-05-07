@@ -62,7 +62,7 @@ select
     , 'DeFi' as category
     , chain
     , spot_trading_volume
-    , perp_volume + spot_trading_volume as trading_volume
+    , coalesce(perp_volume, 0) + coalesce(spot_trading_volume, 0) as trading_volume
     , unique_traders::string as unique_traders
     , trades as txns
     , trading_fees as fees
@@ -88,7 +88,7 @@ select
     , daily_burn * mm.price as chain_fees
     , trading_fees + (daily_burn * mm.price) as gross_protocol_revenue
     , trading_fees * 0.03 as service_cash_flow
-    , (daily_buybacks_native * mm.price) as buybacks_cash_flow
+    , (daily_buybacks_native * mm.price) as buyback_cash_flow
     , daily_buybacks_native as buybacks_native
     , daily_burn as burned_cash_flow_native
     , daily_burn * mm.price as burned_cash_flow

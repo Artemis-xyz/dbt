@@ -19,7 +19,7 @@
         decoded_log:"message"::string as message,
         '{{ chain }}' as chain,
         decoded_log
-    from {{ chain }}_flipside.core.fact_decoded_event_logs
+    from {{ chain }}_flipside.core.ez_decoded_event_logs
     where
         ((event_name = 'V3FundsDeposited') or (event_name = 'FundsDeposited' and block_timestamp >= '2025-02-07'))
         and

@@ -66,8 +66,7 @@ SELECT
 
     -- Supply Metrics
     , coalesce(coin_metrics.circulating_supply, 0) AS circulating_supply_native
-    , coalesce(coin_metrics.gross_emissions, 0) AS emissions_native
-    , coalesce(coin_metrics.gross_emissions, 0) as mints_native
+    , coalesce(coin_metrics.gross_emissions, 0) AS gross_emissions_native
     , coalesce(coin_metrics.net_supply_change, 0) AS net_supply_change_native
     , coalesce(coin_metrics.pre_mine_unlocks, 0) AS premine_unlocks_native
 

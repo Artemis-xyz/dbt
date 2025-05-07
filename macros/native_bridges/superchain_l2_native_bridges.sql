@@ -36,7 +36,7 @@
             when event_name = 'WithdrawalInitiated' then 'withdrawal'
             when event_name = 'DepositFinalized' then 'deposit' 
         end as action
-    from {{chain}}_flipside.core.fact_decoded_event_logs
+    from {{chain}}_flipside.core.ez_decoded_event_logs
     where
         contract_address = lower('0x4200000000000000000000000000000000000010')
         and event_name in ('WithdrawalInitiated', 'DepositFinalized')

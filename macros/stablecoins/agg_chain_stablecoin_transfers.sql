@@ -275,7 +275,7 @@
                 select lower(contract_address)
                 from {{ref("fact_" ~chain~ "_stablecoin_contracts")}}
             )
-    {% elif chain in ("mantle") %}
+    {% elif chain in ("mantle", 'sonic') %}
         select
             block_timestamp
             , block_timestamp::date as date
@@ -380,7 +380,7 @@
             )
             -- DO NOT include mint / burn events here - they will be duped
             and event_name in ('Transfer', 'Issue', 'Redeem')
-            and tx_status = 'SUCCESS'
+            and tx_succeeded = TRUE
     {% endif %}
     {% if is_incremental() and new_stablecoin_address == '' %} 
         and block_timestamp >= (

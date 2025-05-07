@@ -225,7 +225,7 @@
             left join filtered_contracts
                 on lower(chain_stablecoin_metrics.from_address) = lower(filtered_contracts.address)
         )
-    {% if is_incremental() %}
+    {% if is_incremental() and backfill_date != '' %}
         , updated_labels as (
             select 
                 t1.address
@@ -318,7 +318,7 @@
         , '{{ chain }}' as chain
         , unique_id || '-' || chain as unique_id
     from tagged_chain_stablecoin_metrics
-    {% if is_incremental() %}
+    {% if is_incremental() and backfill_date != '' %}
         union all
         select
             date

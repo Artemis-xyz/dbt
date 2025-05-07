@@ -8,9 +8,8 @@
     )
 }}
 
-with
-    all_trade_metrics as (
-       select
+with all_trade_metrics as (
+    select
         date,
 
         -- Fees
@@ -51,14 +50,54 @@ with
         sum(CASE WHEN trade_type = 'perps' THEN dau ELSE 0 END) as unique_traders, -- Perps specific metric
         sum(CASE WHEN trade_type = 'aggregator' THEN dau ELSE 0 END) as aggregator_unique_traders, -- Aggregator specific metric
         sum(dau) as dau
-       from {{ ref("fact_jupiter_all_trade_metrics") }}
-       where date < to_date(sysdate())
-       group by 1
-    ),
-    price_data as ({{ get_coingecko_metrics("jupiter-exchange-solana") }})
-
+    from {{ ref("fact_jupiter_all_trade_metrics") }}
+    where date < to_date(sysdate())
+    group by 1
+)
+, aggregator_volume_data as (
 select
-    all_trade_metrics.date as date
+        date,
+        overall,
+        single
+    from {{ ref("fact_jupiter_aggregator_metrics") }}
+)
+, daily_supply_data as (
+    select
+        date,
+        0 as emissions_native,
+        premine_unlocks as premine_unlocks_native,
+        0 as burns_native    
+    from {{ ref("fact_jupiter_premine_unlocks") }}
+)
+, date_spine as (
+    select
+        date
+    from {{ ref("dim_date_spine") }}
+    where date between (select min(date) from all_trade_metrics) and (to_date(sysdate()))
+)
+, perps_tvl as (
+    select
+        date,
+            sum(balance) as perps_tvl
+        from {{ ref("fact_jupiter_perps_tvl") }}
+        where balance > 2 and balance is not null
+        and contract_address not ilike '%solana%' -- Perps holds WSOL not SOL, but there's a bug in the balances table that includes both WSOL and SOL
+        group by date
+)
+, lst_tvl as (
+    select
+        date,
+        sum(balance_native) as lst_tvl_native
+    from {{ ref("fact_jupiter_lst_tvl") }}
+    where balance_native > 2 and balance_native is not null
+    group by date
+)
+, market_metrics as ({{ get_coingecko_metrics("jupiter-exchange-solana") }}
+)
+, solana_price as ({{ get_coingecko_metrics("solana") }}
+)
+select
+    date_spine.date
     , 'solana' as chain
     , 'jupiter' as protocol
 
@@ -81,49 +120,61 @@ select
 
     -- Standardized Metrics
 
-    -- Volume
-    , all_trade_metrics.aggregator_volume
+    --Market Metrics
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
+
+    -- Usage Metrics
+    , aggregator_volume_data.single as aggregator_volume_single
+    , aggregator_volume_data.overall as aggregator_volume_overall
+    , all_trade_metrics.aggregator_volume as aggregator_volume
     , all_trade_metrics.trading_volume as perp_volume
     , all_trade_metrics.dca_volume
     , all_trade_metrics.limit_order_volume
-
-    -- Txns
     , all_trade_metrics.aggregator_txns
     , all_trade_metrics.perp_txns
     , all_trade_metrics.dca_txns
     , all_trade_metrics.limit_order_txns
-
-    -- DAU
     , all_trade_metrics.unique_traders as perp_dau -- perps specific metric
     , all_trade_metrics.aggregator_unique_traders as aggregator_dau -- aggregator specific metric
     , aggregator_dau + perp_dau as dau -- necessary for OL index pipeline
+    , pt.perps_tvl
+    , lst.lst_tvl_native * sp.price as lst_tvl
+    , pt.perps_tvl + (lst.lst_tvl_native * sp.price) as tvl
 
-    -- Fees
+    -- Cashflow Metrics
     , all_trade_metrics.perp_fees
     , all_trade_metrics.aggregator_fees
     , all_trade_metrics.dca_fees
     , all_trade_metrics.limit_order_fees
-
-    -- Revenue
     , all_trade_metrics.fees as gross_protocol_revenue
     , all_trade_metrics.aggregator_fees - all_trade_metrics.aggregator_revenue as integrator_cash_flow
     , perp_supply_side_revenue as service_cash_flow
     , all_trade_metrics.revenue as treasury_cash_flow
-
     , all_trade_metrics.perp_revenue as perp_treasury_cash_flow
     , all_trade_metrics.aggregator_revenue as aggregator_treasury_cash_flow
     , all_trade_metrics.dca_revenue as dca_treasury_cash_flow
     , all_trade_metrics.limit_order_revenue as limit_order_treasury_cash_flow
-    , all_trade_metrics.buyback as buyback
+    , all_trade_metrics.buyback as buyback_cash_flow
 
-    -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
-    , token_volume
+    -- Token Turnover Metrics
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
 
-from all_trade_metrics
-left join price_data using (date)
-where all_trade_metrics.date < to_date(sysdate())
+    -- JUP Token Supply Data
+    , coalesce(daily_supply_data.emissions_native, 0) as emissions_native
+    , coalesce(daily_supply_data.premine_unlocks_native, 0) as premine_unlocks_native
+    , coalesce(daily_supply_data.burns_native, 0) as burns_native
+    , coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(daily_supply_data.burns_native, 0) as net_supply_change_native
+    , sum(coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(daily_supply_data.burns_native, 0)) over (order by daily_supply_data.date) as circulating_supply_native
+
+FROM date_spine
+left join market_metrics using (date)
+left join aggregator_volume_data using (date)
+left join all_trade_metrics using (date)
+left join daily_supply_data using (date)
+left join perps_tvl pt using (date)
+left join lst_tvl lst using (date)
+left join solana_price sp using (date)

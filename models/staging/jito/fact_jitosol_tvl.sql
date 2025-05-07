@@ -1,8 +1,13 @@
 {{
     config(
-        materialized="table",
-        snowflake_warehouse="JITO"
+        materialized="incremental",
+        unique_key="unique_id",
+        snowflake_warehouse="JITO",
     )
 }}
 
-{{get_entity_historical_balance(chain='solana', table_name='fact_jitosol_stake_accounts', address_column='address', earliest_date='2022-10-24')}}
+{{forward_filled_address_balances(
+        artemis_application_id="jito"
+        , type="lst_pool"
+        , chain="solana"
+    )}}

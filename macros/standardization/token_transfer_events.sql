@@ -30,7 +30,7 @@ with
                 t1.fee_currency as contract_address,
                 t1.from_address,
                 t2.miner as to_address,
-                t1.gas * t1.gas_price as amount_raw
+                t1.receipt_gas_used * t1.gas_price as amount_raw
             from {{ref("fact_celo_transactions")}} t1
             left join {{ref("fact_celo_blocks")}} t2
                 using (block_number)
@@ -57,4 +57,5 @@ from token_transfers
 left join prices
     on token_transfers.block_timestamp::date = prices.date
     and lower(token_transfers.contract_address) = lower(prices.contract_address)
+where amount_raw > 0
 {% endmacro %}

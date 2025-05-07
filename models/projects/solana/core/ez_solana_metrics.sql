@@ -137,6 +137,12 @@ with
         select date, daily_volume_usd as dex_volumes
         from {{ ref("fact_solana_dex_volumes") }}
     )
+    , jito_tips as (
+        SELECT
+            day as date,
+            tip_fees
+        FROM {{ ref('fact_jito_dau_txns_fees')}}
+    )
 select
     fundamental_usage.date
     , 'solana' as chain
@@ -194,6 +200,7 @@ select
     , base_fee_native * price AS base_fee
     , vote_tx_fee_native
     , vote_tx_fee_native * price AS vote_tx_fee
+    , chain_fees + jito_tips.tip_fees as rev -- Blockworks' REV
     -- Supply Metrics
     , issuance AS gross_emissions_native
     , issuance * price AS gross_emissions
@@ -233,4 +240,5 @@ left join nft_metrics on fundamental_usage.date = nft_metrics.date
 left join p2p_metrics on fundamental_usage.date = p2p_metrics.date
 left join rolling_metrics on fundamental_usage.date = rolling_metrics.date
 left join solana_dex_volumes on fundamental_usage.date = solana_dex_volumes.date
+left join jito_tips on fundamental_usage.date = jito_tips.date
 where fundamental_usage.date < to_date(sysdate())

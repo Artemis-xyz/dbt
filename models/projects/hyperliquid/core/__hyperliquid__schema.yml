@@ -18,8 +18,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  buybacks_cash_flow: &buybacks_cash_flow
-    name: buybacks_cash_flow
+  buyback_cash_flow: &buyback_cash_flow
+    name: buyback_cash_flow
     description: "A portion of protocol revenue is allocated to the Assistance Fund (AF) for HYPE buybacks — (97%). The 97% is based on confirmation from the Hyperliquid team and matches our observed fee data from assistancefund.top and asxn data."
     tags:
       - artemis_gaap
@@ -27,13 +27,19 @@ column_definitions:
 
   buybacks_native: &buybacks_native
     name: buybacks_native
-    description: "The amount of native tokens bought back by the protocol"
+    description: "The amount tokens actually bought back by the protocol (USD)."
     tags:
       - artemis_gaap
 
   chain_fees: &chain_fees
     name: chain_fees
-    description: "The total transaction fees paid on a chain"
+    description: "The total transaction fees paid on the HyperEVM."
+    tags:
+      - override
+
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
 
   fdmc: &fdmc
     name: fdmc
@@ -53,6 +59,10 @@ column_definitions:
     description: "The market cap of a token in USD"
     tags:
       - artemis_gaap
+
+  net_supply_change_native: &net_supply_change_native
+    name: net_supply_change_native
+    description: "The net change in the circulating supply of a token in native tokens"
 
   perp_dau: &perp_dau
     name: perp_dau
@@ -78,6 +88,10 @@ column_definitions:
     tags:
       - override
 
+  premine_unlocks_native: &premine_unlocks_native
+    name: premine_unlocks_native
+    description: "The amount of native tokens unlocked from premine"
+
   price: &price
     name: price
     description: "The price of HYPE in USD"
@@ -94,7 +108,7 @@ column_definitions:
 
   spot_fees: &spot_fees
     name: spot_fees
-    description: "The total amount of fees (in USD) on a spot dex."
+    description: "The total amount of fees (in USD) on Hyperliquid's spot exchange."
     tags:
       - override
 
@@ -129,7 +143,7 @@ models:
     columns:
       - *burned_cash_flow
       - *burned_cash_flow_native
-      - *buybacks_cash_flow
+      - *buyback_cash_flow
       - *buybacks_native
       - *chain_fees
       - *fdmc
@@ -151,20 +165,22 @@ models:
     columns:
       - *burned_cash_flow
       - *burned_cash_flow_native
-      - *buybacks_cash_flow
+      - *buyback_cash_flow
       - *buybacks_native
       - *chain_fees
+      - *circulating_supply_native
       - *fdmc
       - *gross_protocol_revenue
       - *market_cap
+      - *net_supply_change_native
       - *perp_dau
       - *perp_fees
       - *perp_txns
       - *perp_volume
+      - *premine_unlocks_native
       - *price
       - *service_cash_flow
       - *spot_fees
-      - *spot_volume
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume

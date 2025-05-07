@@ -9,7 +9,7 @@
         , event_index
         , origin_from_address as tx_from
         , event_name
-        , tx_status
+        , tx_succeeded AS tx_status
     from {{ chain }}_flipside.core.ez_decoded_event_logs
     {% if topics is string %} where topics[0]::string = '{{ topics }}'
     {% else %} where topics[0]::string in {{ topics }}

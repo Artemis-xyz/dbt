@@ -151,7 +151,7 @@ SELECT
     , null as origin_chain_id
     , source_token_address as origin_token
     , null as dst_messaging_contract_address
-    , null as dst_block_timestamp
+    , dst_block_timestamp
     , null as dst_tx_hash
     , null as dst_event_index
     , amount_received_native as dst_amount
@@ -160,8 +160,8 @@ SELECT
     , amount_received
     , destination_token_decimals as dst_decimals
     , destination_token_symbol as dst_symbol
-    , null as depositor
-    , null as recipient
+    , depositor
+    , recipient
     , null as destination_chain_id
     , destination_token_address as destination_token
     , destination_chain as dst_chain
@@ -172,7 +172,7 @@ SELECT
     , null as version
     , 'debridge' as app
 FROM 
-    {{ref('fact_debridge_transfers_with_prices')}}
+    {{ref('fact_debridge_transfers_with_price_and_metadata')}}
 WHERE
     src_timestamp <= to_date(sysdate())
     and (source_chain is not null and destination_chain is not null)

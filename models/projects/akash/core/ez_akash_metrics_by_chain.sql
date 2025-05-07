@@ -22,7 +22,7 @@ SELECT
     , service_cash_flow
     , revenue
     , burns_native
-    , mints_native
+    , gross_emissions_native
     , price
     , market_cap
     , fdmc

@@ -8,10 +8,10 @@
 }}
 
 select
-    to_address as address,
-    contract_address,
-    block_timestamp,
-    cast(raw_amount as float) as credit,
+    max_by(to_address, block_timestamp) as address,
+    max_by(contract_address, block_timestamp) as contract_address,
+    max(block_timestamp) as block_timestamp,
+    max_by(cast(raw_amount as float), block_timestamp) as credit,
     tx_hash,
     -1 as trace_index,
     event_index
@@ -23,6 +23,7 @@ where
         and block_timestamp
         >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}
+group by tx_hash, trace_index, event_index
     
 union all
 

@@ -8,6 +8,15 @@ sources:
     tables:
       - name: ez_dex_swaps
 
+
+# BASE
+
+  - name: BASE_FLIPSIDE
+    schema: CORE
+    database: BASE_FLIPSIDE
+    tables:
+      - name: ez_token_transfers
+
 # SOLANA
 
   - name: SOLANA_FLIPSIDE_NFT
@@ -15,7 +24,7 @@ sources:
     database: SOLANA_FLIPSIDE
     tables:
       - name: fact_nft_mints
-      - name: fact_nft_sales
+      - name: ez_nft_sales
 
   - name: SOLANA_FLIPSIDE
     schema: CORE
@@ -27,6 +36,7 @@ sources:
       - name: fact_token_balances
       - name: fact_decoded_instructions
       - name: fact_events_inner
+      - name: fact_token_account_owners
   
   - name: SOLANA_FLIPSIDE_PRICE
     schema: PRICE
@@ -48,10 +58,10 @@ sources:
     tables:
       - name: ez_native_transfers
       - name: fact_token_transfers
+      - name: fact_transactions
       - name: ez_decoded_event_logs
       - name: fact_event_logs
       - name: fact_blocks
-      - name: fact_decoded_event_logs
       - name: fact_decoded_traces
       - name: ez_token_transfers
       - name: ez_decoded_traces
@@ -93,7 +103,6 @@ sources:
       - name: ez_decoded_event_logs
       - name: fact_event_logs
       - name: fact_blocks
-      - name: fact_decoded_event_logs
       - name: ez_token_transfers
       - name: ez_native_transfers
       - name: fact_traces
@@ -115,7 +124,6 @@ sources:
       - name: ez_decoded_event_logs
       - name: fact_event_logs
       - name: fact_blocks
-      - name: fact_decoded_event_logs
       - name: ez_token_transfers
       - name: ez_native_transfers
 
@@ -134,7 +142,6 @@ sources:
       - name: ez_decoded_event_logs
       - name: fact_event_logs
       - name: fact_blocks
-      - name: fact_decoded_event_logs
       - name: ez_token_transfers
       - name: ez_native_transfers
       - name: fact_traces

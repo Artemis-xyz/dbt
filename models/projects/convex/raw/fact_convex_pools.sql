@@ -19,4 +19,5 @@
   FROM {{ source('ETHEREUM_FLIPSIDE', 'fact_decoded_traces') }}
   WHERE to_address = lower('0xF403C135812408BFbE8713b5A23a04b3D48AAE31')
     AND function_name = 'addPool'
+    -- Will be replaced by trace_succeeded = TRUE on 2025-05-05
     AND trace_status = 'SUCCESS'
