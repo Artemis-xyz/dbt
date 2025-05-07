@@ -6,7 +6,12 @@ with
             dbt_utils.union_relations(
                 relations=[
                     ref("fact_unichain_bridge_transfers"),
+                    ref("fact_base_bridge_transfers")
                 ]
             )
         }}
     )
+select
+    *
+    , 'superchain_bridge' as app
+from flows_by_super_chain
