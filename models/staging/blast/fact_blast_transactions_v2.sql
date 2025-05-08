@@ -62,6 +62,16 @@ with
                 then try_cast(parquet_raw:receipt_effective_gas_price::string as integer)
                 else 0
             end as receipt_effective_gas_price
+            , case
+                when try_cast(parquet_raw:receipt_l1_fee::string as integer) is not null
+                then try_cast(parquet_raw:receipt_l1_fee::string as integer)
+                else 0
+            end as receipt_l1_fee
+            , case
+                when try_cast(parquet_raw:receipt_l1_fee_scalar::string as integer) is not null
+                then try_cast(parquet_raw:receipt_l1_fee_scalar::string as integer)
+                else 0
+            end as receipt_l1_fee_scalar
             , parquet_raw:receipt_root_hash::string as receipt_root_hash
         from {{ source("PROD_LANDING", "raw_blast_transactions_parquet") }}
         where
@@ -71,31 +81,9 @@ with
         {% endif %}
     ),
     transactions AS (
-        select
-            transaction_hash,
-            MAX(nonce) as nonce,
-            MAX(block_hash) as block_hash,
-            MAX(block_number) as block_number,
-            MAX(transaction_index) as transaction_index,
-            MAX(from_address) as from_address,
-            MAX(to_address) as to_address,  
-            MAX(value) as value,
-            MAX(gas) as gas,
-            MAX(gas_price) as gas_price,
-            MAX(input) as input,
-            MAX(max_fee_per_gas) as max_fee_per_gas,
-            MAX(max_priority_fee_per_gas) as max_priority_fee_per_gas,
-            MAX(transaction_type) as transaction_type,
-            MAX(block_timestamp) as block_timestamp,
-            MAX(receipt_cumulative_gas_used) as receipt_cumulative_gas_used,
-            MAX(receipt_gas_used) as receipt_gas_used,
-            MAX(receipt_contract_address) as receipt_contract_address,
-            MAX(receipt_status) as receipt_status,
-            MAX(receipt_effective_gas_price) as receipt_effective_gas_price,
-            MAX(receipt_root_hash) as receipt_root_hash
-        FROM raw_receipt_transactions
-        GROUP BY 
-            transaction_hash
+        select *
+        from raw_receipt_transactions
+        qualify row_number() over (partition by transaction_hash order by block_timestamp desc) = 1
     )
 select
     transaction_hash as tx_hash,
@@ -104,7 +92,7 @@ select
     date_trunc('day', block_timestamp) raw_date,
     t.from_address,
     t.to_address,
-    gas AS tx_fee,
+    gas,
     (gas * price) gas_usd,
     'blast' as chain,
     new_contracts.name,
@@ -117,7 +105,11 @@ select
         when new_contracts.category is not null
         then new_contracts.category
         else null
-    end as category
+    end as category,
+    receipt_effective_gas_price,
+    receipt_gas_used,
+    receipt_l1_fee,
+    receipt_l1_fee_scalar
     -- sybil.user_type,
     -- sybil.address_life_span,
     -- sybil.cur_total_txns,
