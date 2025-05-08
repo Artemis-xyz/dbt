@@ -1,7 +1,7 @@
 {{ config(materialized='table', snowflake_warehouse='STABLECOIN_V2_LG') }}
 with 
     max_date as (
-        select max(date) as max_date from {{ref('agg_daily_stablecoin_breakdown')}}
+        select max(date) as max_date from {{ref('agg_daily_stablecoin_breakdown_with_labels_silver')}}
     )
     , stablecoin_metrics_by_chain as (
         select 
@@ -13,12 +13,12 @@ with
             , max(icon) as icon
             , chain
             , symbol
-            , coalesce(application, from_address) as app_or_address
+            , coalesce(application, address) as app_or_address
             , sum(stablecoin_transfer_volume) as stablecoin_transfer_volume
             -- Hide DQ issues with the stablecoin supply field
             , sum(case when stablecoin_supply < 0 then 0 else stablecoin_supply end) as stablecoin_supply
             , sum(stablecoin_daily_txns) as stablecoin_txns
-        from {{ref('agg_daily_stablecoin_breakdown')}}
+        from {{ref('agg_daily_stablecoin_breakdown_with_labels_silver')}}
         where date >= (select dateadd('day', -60, max_date) from max_date)
         group by date, chain, symbol, app_or_address, month_number
         order by date

@@ -81,6 +81,7 @@ select
             sum(balance) as perps_tvl
         from {{ ref("fact_jupiter_perps_tvl") }}
         where balance > 2 and balance is not null
+        and contract_address not ilike '%solana%' -- Perps holds WSOL not SOL, but there's a bug in the balances table that includes both WSOL and SOL
         group by date
 )
 , lst_tvl as (

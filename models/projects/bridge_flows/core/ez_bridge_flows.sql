@@ -40,7 +40,7 @@ SELECT
     , dst_chain
     , null as token_address
     , null as token_chain
-    , fees_native as protocol_fee
+    , fees as protocol_fee
     , 'OFT' as bridge_message_app
     , 2 as version
     , 'stargate' as app
@@ -167,7 +167,7 @@ SELECT
     , destination_chain as dst_chain
     , null as token_address
     , null as token_chain
-    , null as protocol_fee
+    , protocol_fee
     , null as bridge_message_app
     , null as version
     , 'debridge' as app

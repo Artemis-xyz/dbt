@@ -115,9 +115,9 @@ select
     , coalesce(perp_data.perp_trading_fees, 0) as perp_trading_fees
     , coalesce(perp_data.perp_fees, 0) as perp_fees
     , coalesce(spot_data.spot_fees, 0) + coalesce(perp_data.perp_fees, 0) as gross_protocol_revenue
-    , coalesce(spot_data.spot_lp_cash_flow, 0) + coalesce(perp_data.perp_lp_cash_flow, 0) as lp_cash_flow
-    , coalesce(spot_data.spot_stakers_cash_flow, 0) + coalesce(perp_data.perp_stakers_cash_flow, 0) as stakers_cash_flow
-    , coalesce(spot_data.spot_oracle_cash_flow, 0) + coalesce(perp_data.perp_oracle_cash_flow, 0) as oracle_cash_flow
+    , coalesce(spot_data.spot_lp_cash_flow, 0) + coalesce(perp_data.perp_lp_cash_flow, 0) as service_cash_flow
+    , coalesce(spot_data.spot_stakers_cash_flow, 0) + coalesce(perp_data.perp_stakers_cash_flow, 0) as fee_sharing_token_cash_flow
+    , coalesce(spot_data.spot_oracle_cash_flow, 0) + coalesce(perp_data.perp_oracle_cash_flow, 0) as other_cash_flow
     , coalesce(spot_data.spot_treasury_cash_flow, 0) + coalesce(perp_data.perp_treasury_cash_flow, 0) as treasury_cash_flow
     , coalesce(spot_data.spot_volume, 0) as spot_volume
     , coalesce(perp_data.perp_volume, 0) as perp_volume

@@ -1,0 +1,25 @@
+{{ config( materialized="table") }}
+
+select
+    timestamp
+    , name
+    , apy * 100 as apy
+    , tvl
+    , symbol
+    , protocol
+    , type
+    , chain
+    , link
+from {{ ref("fact_stablecoin_apy") }}
+union all
+select
+    timestamp
+    , name
+    , apy * 100 as apy
+    , tvl
+    , symbol
+    , protocol
+    , type
+    , chain
+    , link
+from {{ ref("fact_fedfunds_rates") }}
