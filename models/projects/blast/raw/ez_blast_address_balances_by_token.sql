@@ -5,6 +5,7 @@
         database="blast",
         schema="raw",
         alias="ez_address_balances_by_token",
+        enabled=false
     )
 }}
 
