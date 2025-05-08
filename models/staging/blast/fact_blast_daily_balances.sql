@@ -4,6 +4,7 @@
         materialized="incremental",
         unique_key=["date", "address"],
         snowflake_warehouse="BALANCES_MD",
+        enabled=false
     )
 }}
 

@@ -5,4 +5,4 @@
     )
 }}
 
-{{ rolling_active_addresses("blast") }}
+{{ rolling_active_addresses("blast", "_v2") }}
