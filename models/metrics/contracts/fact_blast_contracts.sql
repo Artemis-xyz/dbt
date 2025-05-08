@@ -5,7 +5,7 @@ select
     date_trunc(week, block_timestamp) as date,
     count(distinct from_address) as contract_deployers,
     count(*) as contracts_deployed
-from blast_flipside.core.fact_transactions
+from {{ ref("fact_blast_transactions_v2") }}
 where
     to_address is null
     {% if is_incremental() %}
