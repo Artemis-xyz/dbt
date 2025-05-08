@@ -2,7 +2,7 @@
 {{
     config(
         materialized='incremental',
-        snowflake_warehouse='PUMPFUN',
+        snowflake_warehouse='METEORA',
         database='METEORA',
         schema='raw',
         event_time='block_timestamp',
