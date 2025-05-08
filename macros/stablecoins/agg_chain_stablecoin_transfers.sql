@@ -8,9 +8,9 @@
     {% if chain in ("tron") %}
         select
             block_timestamp,
-            trunc(block_timestamp, 'day') as date,
+            block_timestamp::date as date,
             block_number,
-            unique_id as index,
+            event_index as index,
             transaction_hash as tx_hash,
             from_address,
             to_address,
@@ -25,24 +25,24 @@
                 select distinct (lower(premint_address))
                 from {{ ref("fact_tron_stablecoin_bridge_addresses") }}
             ) as is_bridge_mint,
-            coalesce(amount, 0) as amount,
+            coalesce(amount_raw/ pow(10, num_decimals), 0) as amount,
             case
-                when is_mint or is_bridge_mint then amount when is_burn or is_bridge_burn then -1 * amount else 0
+                when is_mint or is_bridge_mint then coalesce(amount_raw/ pow(10, num_decimals), 0) 
+                when is_burn or is_bridge_burn then -1 * coalesce(amount_raw/ pow(10, num_decimals), 0) 
+                else 0
             end as inflow,
             case
-                when not is_mint and not is_burn then amount else 0
+                when not is_mint and not is_burn then coalesce(amount_raw/ pow(10, num_decimals), 0) 
             end as transfer_volume,
-            token_address as contract_address,
-            fact_{{ chain }}_stablecoin_contracts.symbol
-        from tron_allium.assets.trc20_token_transfers
-        join
-            fact_{{ chain }}_stablecoin_contracts
-            on lower(tron_allium.assets.trc20_token_transfers.token_address)
-            = lower(fact_{{ chain }}_stablecoin_contracts.contract_address)
+            stablecoin_transfers.contract_address,
+            contracts.symbol
+        from {{ ref("fact_tron_token_transfers") }} stablecoin_transfers
+        inner join {{ ref("fact_tron_stablecoin_contracts") }} contracts
+            on lower(stablecoin_transfers.contract_address) = lower(contracts.contract_address)
         where
-            lower(tron_allium.assets.trc20_token_transfers.token_address) in (
+            lower(stablecoin_transfers.contract_address) in (
                 select lower(contract_address)
-                from fact_{{ chain }}_stablecoin_contracts t1
+                from {{ ref("fact_tron_stablecoin_contracts") }}
             )
     -- TODO: Refactor to support native currencies. Currently assumes everything is $1
     -- b/c of perf issues when joining
