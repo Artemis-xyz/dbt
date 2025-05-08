@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_blast_transactions") }}
+-- depends_on {{ ref("fact_blast_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -6,12 +6,11 @@
         database="blast",
         schema="core",
         alias="ez_metrics",
-        enabled=false,
     )
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("blast") }})
+    fundamental_data as ({{ get_fundamental_data_for_chain("blast", "v2") }})
     , defillama_data as ({{ get_defillama_metrics("blast") }})
     , price_data as ({{ get_coingecko_metrics("blast") }})
     , contract_data as ({{ get_contract_metrics("blast") }})
@@ -51,7 +50,7 @@ select
     , l1_data_cost
     , coalesce(fees_native, 0) - l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     , coalesce(fees, 0) - l1_data_cost as revenue
-    , dau_over_100
+    -- , dau_over_100 omitting balances for blast
     , dune_dex_volumes_blast.dex_volumes as dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
