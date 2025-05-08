@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        unique_key="block_timestamp",
+        unique_key=["block_timestamp", "_log_id"],
         alias="fact_meteora_decoded_swaps_extract",
         snowflake_warehouse="METEORA",
     )
