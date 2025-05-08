@@ -2,11 +2,11 @@
 {{
     config(
         materialized='incremental',
-        snowflake_warehouse='MEDIUM',
+        snowflake_warehouse='METEORA',
         database='METEORA',
         schema='raw',
         event_time='block_timestamp',
-        unique_key='block_timestamp',
+        unique_key=['block_timestamp', '_log_id'],
     )
  }}
 
