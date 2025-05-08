@@ -31,12 +31,12 @@ with
         from {{ ref("fact_blast_daily_supply_data") }}
     )
 select
-    coalesce(
+    DATE(coalesce(
         fundamental_data.date,
         defillama_data.date,
         contract_data.date,
         expenses_data.date
-    ) as date
+    )) as date
     , 'blast' as chain
     , txns
     , dau
