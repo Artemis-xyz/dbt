@@ -23,4 +23,3 @@ SELECT
     last_updated_by,
     last_updated_timestamp
 FROM {{ ref("dim_all_apps_silver") }}
-qualify row_number() over (partition by artemis_application_id order by last_updated_timestamp desc) = 1
