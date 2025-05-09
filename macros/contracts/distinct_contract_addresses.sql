@@ -29,7 +29,7 @@
             , min(type) as type
         FROM ton_contracts
         GROUP BY contract_address
-    {% elif chain in ("mantle", "sonic") %}
+    {% elif chain in ("mantle", "sonic", "kaia") %}
         select min(block_time) as block_timestamp, address_hex as contract_address, min(type) as type
         from zksync_dune.{{ chain }}.traces 
         where type in ('create', 'create2')
