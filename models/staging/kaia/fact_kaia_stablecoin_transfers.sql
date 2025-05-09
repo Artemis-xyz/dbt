@@ -1,6 +1,6 @@
 {{ config(
     materialized="incremental", 
-        snowflake_warehouse="STABLECOIN_LG_2", 
+        snowflake_warehouse="KAIA", 
         unique_key=["tx_hash", "index"],
     ) 
 }}
