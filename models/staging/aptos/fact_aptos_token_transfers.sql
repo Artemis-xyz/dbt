@@ -1,7 +1,7 @@
 {{ config(
     materialized="incremental", 
     snowflake_warehouse="APTOS_LG",
-    unique_key=["tx_hash", "event_index"],
+    unique_key=["transaction_hash", "event_index"],
     ) 
 }}
 
