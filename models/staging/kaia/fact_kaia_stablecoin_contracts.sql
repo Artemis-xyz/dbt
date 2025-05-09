@@ -7,5 +7,5 @@ from
             , ('USDC', '0xe2053bcf56d2030d2470fb454574237cf9ee3d4b', 6, 'usd-coin', 0)
             , ('USDT', '0x5c13e303a62fc5dedf5b52d66873f2e59fedadc2', 6, 'tether', 0)
             , ('USDT', '0x9025095263d1e548dc890a7589a4c78038ac40ab', 6, 'tether', 0)
-            , ('USDT', '0x6047828dc181963ba44974801FF68e538dA5eaF9', 6, 'tether', 0)
+            , ('USDT', '0xd077a400968890eacc75cdc901f0356c943e4fdb', 6, 'tether', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
