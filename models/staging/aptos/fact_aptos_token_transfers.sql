@@ -168,4 +168,4 @@ select
 from token_transfers
 left join aptos_flipside.price.ez_hourly_token_prices prices 
     on date_trunc('hour', token_transfers.block_timestamp) = prices.hour
-    and lower(token_transfers.token_address) = lower(prices.contract_address)
+    and lower(token_transfers.token_address) = lower(prices.token_address)
