@@ -32,7 +32,7 @@ with
             sum(trading_volume_by_pool.gas_cost_usd) as gas_cost_usd
         from trading_volume_by_pool
         group by trading_volume_by_pool.date
-    ),
+    )
     , ez_dex_swaps as (
         SELECT
             block_timestamp::date as date,
