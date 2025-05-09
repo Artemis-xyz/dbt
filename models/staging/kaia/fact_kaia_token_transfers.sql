@@ -1,2 +1,2 @@
-{{ config(snowflake_warehouse="KAIA", materialized="incremental", unique_key=["transaction_hash", "event_index"]) }}
+{{ config(snowflake_warehouse="KAIA_LG", materialized="incremental", unique_key=["transaction_hash", "event_index"]) }}
 {{ token_transfer_events('kaia') }}
