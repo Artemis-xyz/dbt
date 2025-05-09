@@ -8,11 +8,11 @@ SELECT
     token_address as contract_address,
     event_index AS event_index,
     -1 as trace_index,
-    amount AS credit_raw,
-    amount / pow(10, decimals) AS credit_native
+    -1 * amount AS debit_raw,
+    -1 * amount / pow(10, decimals) AS debit_native
 FROM aptos_flipside.core.fact_transfers
 left join aptos_flipside.core.dim_tokens using (token_address)
-WHERE transfer_event = 'DepositEvent'
+WHERE transfer_event = 'WithdrawEvent'
     and block_timestamp::date < to_date(sysdate())
     {% if is_incremental() %}
         and block_timestamp > (select dateadd('day', -3, max(block_timestamp)) from {{ this }})

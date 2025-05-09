@@ -1,5 +1,6 @@
 {{ config(
     materialized="incremental", 
+    snowflake_warehouse="APTOS_LG",
     unique_key=["tx_hash", "event_index"],
     ) 
 }}
@@ -114,38 +115,57 @@ tx_event_counts AS (
     WHERE c.withdraw_count > c.deposit_count
 )
 
+, token_transfers AS (
+    select 
+        block_number
+        , block_timestamp
+        , tx_hash
+        , token_address
+        , event_index
+        , from_address
+        , to_address
+        , amount_raw
+    from case1_matches
+    union all
+    select 
+        block_number
+        , block_timestamp
+        , tx_hash
+        , token_address
+        , receiving_event_index as event_index
+        , from_address
+        , to_address
+        , receiving_amount as amount_raw
+    from case2_matches
+    where match_rank = 1
+    union all
+    select 
+        block_number
+        , block_timestamp
+        , tx_hash
+        , token_address
+        , withdraw_event_index as event_index
+        , from_address
+        , to_address
+        , withdraw_amount as amount_raw
+    from case3_matches
+    where match_rank = 1
+)
 
 select 
     block_number
     , block_timestamp
-    , tx_hash
-    , token_address
+    , tx_hash as transaction_hash
+    , null as transaction_index
     , event_index
+    , token_transfers.token_address as contract_address
     , from_address
     , to_address
     , amount_raw
-from case1_matches
-union all
-select 
-    block_number
-    , block_timestamp
-    , tx_hash
-    , token_address
-    , receiving_event_index as event_index
-    , from_address
-    , to_address
-    , receiving_amount as amount_raw
-from case2_matches
-where match_rank = 1
-union all
-select 
-    block_number
-    , block_timestamp
-    , tx_hash
-    , token_address
-    , withdraw_event_index as event_index
-    , from_address
-    , to_address
-    , withdraw_amount as amount_raw
-from case3_matches
-where match_rank = 1
+    , amount_raw / power(10, decimals) as amount_native
+    , amount_native * price as amount
+    , price
+from token_transfers
+left join aptos_flipside.price.ez_hourly_token_prices prices 
+    on date_trunc('hour', token_transfers.block_timestamp) = prices.hour
+    and lower(token_transfers.token_address) = lower(prices.contract_address)
