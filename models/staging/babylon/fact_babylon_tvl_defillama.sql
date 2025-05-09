@@ -1,18 +1,20 @@
 {{ config(materialized="incremental") }}
 
 with tvl as (
-    SELECT
+    select
         *
-    FROM
+    from
         {{ref('fact_defillama_protocol_tvls')}}
-    WHERE
+    where
         defillama_protocol_id = 5258
 )
-SELECT
+select
     date,
     tvl
-FROM tvl
-WHERE date < '2025-05-01'
+from tvl
+{% if not is_incremental() %}
+    where date < '2025-05-01'
+{% endif %}
 {% if is_incremental() %}
-    or tvl.date > (select max(date) from {{ this }})
+    where date > (select max(date) from {{ this }})
 {% endif %}

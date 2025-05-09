@@ -16,7 +16,7 @@
             from min_date
             group by start_date
         ),
-        {% if chain not in ("starknet") %}
+        {% if chain not in ("starknet", "blast") %}
             bot as (
                 select
                     raw_date::date as raw_date,
@@ -57,7 +57,7 @@
             where raw_date::date < to_date(sysdate())
             group by t.raw_date
         )
-        {% if (chain not in ("near", "starknet")) %}
+        {% if (chain not in ("near", "starknet", "blast")) %}
             ,
             users_over_100 as (
                 select
@@ -80,7 +80,7 @@
         median_txn_fee,
         (dau - new_users) as returning_users,
         new_users,
-        {% if (chain not in ("starknet")) %}
+        {% if (chain not in ("starknet", "blast")) %}
             low_sleep_users,
             (dau - low_sleep_users) as high_sleep_users,
             sybil_users,
@@ -91,16 +91,16 @@
             null as sybil_users,
             null as non_sybil_users
         {% endif %}
-        {% if (chain not in ("near", "starknet")) %}, dau_over_100
+        {% if (chain not in ("near", "starknet", "blast")) %}, dau_over_100
         {% else %}, null as dau_over_100
         {% endif %}
     from chain_agg
     left join new_users on date = new_users.start_date
-    {% if chain not in ("starknet") %}
+    {% if chain not in ("starknet", "blast") %}
         left join bot on date = bot.raw_date
         left join sybil on date = sybil.raw_date
     {% endif %}
-    {% if (chain not in ("near", "starknet")) %}
+    {% if (chain not in ("near", "starknet", "blast")) %}
         left join users_over_100 on date = users_over_100.balance_date
     {% endif %}
 {% endmacro %}

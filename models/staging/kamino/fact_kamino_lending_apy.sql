@@ -27,6 +27,7 @@ history_flattened as (
     value:metrics:symbol::string as symbol,
     value:metrics:supplyInterestAPY::float as supply_interest_apy,
     value:metrics:depositTvl::float as deposit_tvl,
+    value:metrics:borrowTvl::float as borrow_tvl,
     extraction_date
   from outer_flatten,
   lateral flatten(input => history_array)
@@ -45,15 +46,16 @@ select
     h.market_id,
     h.reserve_id as id,
     h.supply_interest_apy as apy,
-    h.deposit_tvl as tvl,
+    h.deposit_tvl - h.borrow_tvl as tvl,
     h.extraction_date as extraction_timestamp,
     case
-    when h.market_id = '7u3HeHxYDLhnCoErrtycNokbQYbWGzLs6JSDqGAv5PfF' then concat(h.symbol, ' main market')
-    when h.market_id = 'DxXdAyU3kCjnyggvHmY5nAwg5cRbbmdyX3npfDMjjMek' then concat(h.symbol, ' jlp market')
+    when h.market_id = '7u3HeHxYDLhnCoErrtycNokbQYbWGzLs6JSDqGAv5PfF' then concat(h.symbol, ' Main Market')
+    when h.market_id = 'DxXdAyU3kCjnyggvHmY5nAwg5cRbbmdyX3npfDMjjMek' then concat(h.symbol, ' JLP Market')
     else h.symbol
     end as name,
-    'lending' as type,
+    'Lending' as type,
     'kamino' as protocol,
+    'solana' as chain,
     array_construct(h.symbol) as symbol
 from history_flattened h
 join latest_timestamp_per_reserve l

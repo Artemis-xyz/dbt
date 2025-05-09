@@ -26,7 +26,13 @@ with
         select
             date
         from {{ ref('dim_date_spine') }}
-        where date < to_date(sysdate())
+        where date between (
+                SELECT min(date) FROM (
+                    SELECT date FROM staked_eth_metrics
+                    UNION ALL
+                    SELECT date FROM market_metrics
+                )
+            ) and to_date(sysdate())
     )
 select
     date_spine.date,

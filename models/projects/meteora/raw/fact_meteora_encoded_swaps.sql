@@ -2,10 +2,11 @@
 {{
     config(
         materialized='incremental',
-        snowflake_warehouse='MEDIUM',
+        snowflake_warehouse='METEORA',
         database='METEORA',
         schema='raw',
         event_time='block_timestamp',
+        unique_key=['block_timestamp', '_log_id'],
     )
  }}
 
@@ -27,7 +28,7 @@ WITH log_id_add_query as (
         OR
         (program_id = 'Eo7WjKq67rjJQSZxS6z3YkapzY3eMj6Xy8X5EQVn5UaB'))
     {% if is_incremental() %}
-        and block_timestamp > (select max(block_timestamp) from {{ this }})
+        and block_timestamp > (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}
 ), ez_dex_swaps_encoded_fees as (
     SELECT
@@ -40,7 +41,7 @@ WITH log_id_add_query as (
     WHERE program_id = 'LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo'
     and encoded_data is not null
     {% if is_incremental() %}
-        and block_timestamp > (select max(block_timestamp) from {{ this }})
+        and block_timestamp > (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}
 )
 select *
