@@ -36,8 +36,8 @@ select
     apy * 0.01 as apy,
     available_amount / pow(10, mint_decimals) as tvl,
     extraction_date as extraction_timestamp,
-    concat(symbol, ' main pool') as name,
-    'lending' as type,
+    concat(symbol, ' Main Pool') as name,
+    'Lending' as type,
     'save' as protocol,
     'solana' as chain,
     array_construct(symbol) as symbol

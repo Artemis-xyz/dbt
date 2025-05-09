@@ -12,7 +12,7 @@ select
     d.daily_avg_user_balance + d.daily_avg_protocol_balance as tvl,
     array_construct(p.symbol) as symbol,
     'drift' as protocol,
-    'lending' as type,
+    'Lending' as type,
     'solana' as chain,
     p.link
 from {{ ref("fact_drift_daily_spot_data") }} d

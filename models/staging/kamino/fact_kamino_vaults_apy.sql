@@ -34,7 +34,7 @@ select
     (power(1 + (apr / 365), 365) - 1) as apy,
     iff(tokenB is null, tokenA, concat(tokenA, '-', tokenB)) as name,
     array_construct(tokenA, tokenB) as symbol,
-    'pool' as type,
+    'Pool' as type,
     'kamino' as protocol,
     'solana' as chain,
     extraction_date as extraction_timestamp
