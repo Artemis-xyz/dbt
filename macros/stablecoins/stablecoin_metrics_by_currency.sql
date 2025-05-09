@@ -25,7 +25,7 @@ select
     end as p2p_stablecoin_avg_txn_value
     , sum(stablecoin_supply) as stablecoin_supply
     , sum(case when is_wallet::number = 1 then stablecoin_supply else 0 end) as p2p_stablecoin_supply
-from {{ ref("ez_"~ chain ~"_stablecoin_metrics_by_address") }}
+from {{ ref("ez_"~ chain ~"_stablecoin_metrics_by_address_with_labels") }}
 where chain = '{{ chain }}'
 {% if is_incremental() %}
     and date >= (select dateadd('day', -3, max(date)) from {{ this }})

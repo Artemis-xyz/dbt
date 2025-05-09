@@ -5,8 +5,3 @@ sources:
     tables:
       - name: raw_tron_erc20_transfer_logs
       - name: raw_tron_erc20_transfer_decoded_logs
-  - name: BALANCES
-    schema: PROD
-    database: PC_DBT_DB
-    tables:
-      - name: dim_tron_current_balances
