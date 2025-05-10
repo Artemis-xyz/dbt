@@ -20,4 +20,5 @@ SELECT
     , fees_usd * 0.2 as supply_side_fees
     , fees_native * 0.2 as supply_side_fees_native
 FROM {{ref('fact_pendle_swap_fees_by_chain_and_token_silver')}}
-where date < current_date()
+WHERE fees_usd < 1e6
+AND date < current_date()
