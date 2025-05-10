@@ -53,6 +53,10 @@ with trading_volume_data as (
          premine_unlocks_native,
      from {{ref('fact_hyperliquid_daily_supply_data')}}
  )
+, perps_tvl_data as (
+    select date, tvl
+    from {{ ref("fact_hyperliquid_perps_tvl") }}
+)
 , market_metrics as (
     ({{ get_coingecko_metrics("hyperliquid") }}) 
 )
@@ -97,7 +101,8 @@ select
     , unique_traders::string as perp_dau
     , perp_volume as perp_volume
     , trades as perp_txns
-
+    , perps_tvl_data.tvl as tvl
+    
     -- Cash Flow Metrics
     , perp_fees
     , spot_fees
@@ -129,4 +134,5 @@ left join auction_fees_data using(date)
 left join hype_staked_data using(date)
 left join spot_trading_volume_data using(date)
 left join daily_assistance_fund_data using(date)
+left join perps_tvl_data using(date)
 where date < to_date(sysdate())
