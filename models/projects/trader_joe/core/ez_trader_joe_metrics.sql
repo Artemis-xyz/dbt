@@ -31,6 +31,7 @@ with market_data as (
         , sum(gross_protocol_revenue) as gross_protocol_revenue
         , sum(gas_cost_native) as gas_cost_native
         , sum(gas_cost) as gas_cost
+
     FROM {{ ref("ez_trader_joe_metrics_by_chain") }}
     GROUP BY 1, 2, 3
 )
@@ -44,6 +45,13 @@ with market_data as (
         , net_supply_change_native
         , circulating_supply_native
     from {{ ref("fact_trader_joe_supply_data") }}
+)
+, token_incentives as (
+    select
+        date
+        , sum(amount_usd) as token_incentives_usd
+    from {{ ref("fact_trader_joe_token_incentives") }}
+    group by date
 )
 SELECT
     date(date) as date
@@ -79,6 +87,7 @@ SELECT
     -- Money Metrics
     , trading_fees as spot_fees
     , gross_protocol_revenue
+    , token_incentives_usd
     , gas_cost_native
     , gas_cost
 
@@ -88,4 +97,5 @@ SELECT
 FROM protocol_data
 LEFT JOIN market_data using(date)
 LEFT JOIN supply_data using(date)
+LEFT JOIN token_incentives using(date)
 WHERE date < to_date(sysdate())
