@@ -20,7 +20,7 @@ with all_swaps as (
     LEFT JOIN {{ source('SOLANA_FLIPSIDE_PRICE', 'ez_prices_hourly') }} p
         ON p.hour = date_trunc(hour, block_timestamp)
         AND p.is_native
-    WHERE swap_program ilike '%pump%'
+    WHERE swap_program ilike '%pump.fun%'
     AND swap_from_mint ='So11111111111111111111111111111111111111112'
 
     UNION ALL 
@@ -36,7 +36,7 @@ with all_swaps as (
     LEFT JOIN {{ source('SOLANA_FLIPSIDE_PRICE', 'ez_prices_hourly') }} p
         ON p.hour = date_trunc(hour, block_timestamp)
         AND p.is_native
-    WHERE swap_program ilike '%pump%'
+    WHERE swap_program ilike '%pump.fun%'
     AND swap_to_mint ='So11111111111111111111111111111111111111112'
 )
 SELECT * FROM all_swaps
