@@ -85,8 +85,8 @@ with treasury_historical as (
         'Base' as chain,
         'Treasury' as wallet_type,
         address,
-        balance_token / 1e18 as stg_balance
-    from {{ ref("fact_base_address_balances_by_token") }}
+        balance_raw / 1e18 as stg_balance
+    from {{ ref("fact_base_address_balances") }}
     where lower(address) = lower('0x81EAb64E630C4a2E3E849268A6B64cb76D1C8109')
     and lower(contract_address) = lower('0xE3B53AF74a4BF62Ae5511055290838050bf764Df')
 ),
