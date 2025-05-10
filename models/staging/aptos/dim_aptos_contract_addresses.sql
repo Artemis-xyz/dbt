@@ -1,7 +1,7 @@
 {{ 
     config(
         materialized="incremental",
-        snowflake_warehouse="APTOS"
+        snowflake_warehouse="APTOS_LG"
     )
 }}
 
