@@ -12,6 +12,7 @@ with
             , token_address
             , decimals
             , price
+            , symbol
         from ethereum_flipside.price.ez_prices_hourly
         where token_address in (select * from distinct_tokens)
         union
@@ -20,6 +21,7 @@ with
             , token_address
             , decimals
             , price
+            , symbol
         from arbitrum_flipside.price.ez_prices_hourly
         where token_address in (select * from distinct_tokens)
     ),
