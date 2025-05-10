@@ -240,7 +240,7 @@
     {% elif chain in ("celo") %}
         select
             block_timestamp,
-            trunc(block_timestamp, 'day') as date,
+            block_timestamp::date as date,
             block_number,
             event_index as index,
             transaction_hash as tx_hash,
@@ -274,7 +274,7 @@
                 select lower(contract_address)
                 from {{ref("fact_" ~chain~ "_stablecoin_contracts")}}
             )
-    {% elif chain in ("mantle", 'sonic', 'kaia') %}
+    {% elif chain in ("mantle", 'sonic', 'kaia', 'aptos') %}
         select
             block_timestamp
             , block_timestamp::date as date

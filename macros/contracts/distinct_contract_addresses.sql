@@ -39,6 +39,15 @@
                 >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
             {% endif %}
         group by contract_address
+    {% elif chain == "aptos" %}
+        select min(block_timestamp) as block_timestamp, event_address as contract_address, min(event_module) as type
+        from aptos_flipside.core.fact_events 
+        where tx_type = 'user_transaction' 
+            {% if is_incremental() %}
+                and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+            {% endif %}
+        group by contract_address
+
     {% else %}
         select min(block_timestamp) as block_timestamp, to_address as contract_address, min(type) as type --Contracts can be redeployed at the same addresses with CREATE2
         from {{ chain }}_flipside.core.fact_traces
