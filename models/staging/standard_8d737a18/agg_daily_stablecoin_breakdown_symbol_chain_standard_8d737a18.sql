@@ -29,7 +29,7 @@ select
     , contract_address
     , symbol as asset_symbol
     , sum(stablecoin_supply) as supply_usd
-from {{ ref("agg_daily_stablecoin_breakdown_with_labels_silver") }} agg
+from stablecoin_metrics agg
 left join {{ ref("chain_agnostic_ids") }} ca
     on agg.chain = ca.chain
 where symbol in ('USDT', 'USDC', 'USDe', 'USDS', 'DAI', 'USDtb', 'FDUSD', 'PYUSD', 'USD0', 'TUSD', 'RLUSD', 'BUSD', 'EURC', 'cUSD')-- TODO: Need to keep a list of assets to include not remove
