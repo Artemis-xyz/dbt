@@ -1,5 +1,22 @@
 {{ config(materialized="incremental", unique_key=["date_day", "asset_id"], snowflake_warehouse="STABLECOIN_V2_LG") }}
 
+{% set chain_list = ['arbitrum', 'avalanche', 'base', 'bsc', 'celo', 'ethereum', 'mantle', 'optimism', 'polygon', 'solana', 'sui', 'ton', 'tron', 'kaia', 'aptos'] %}
+
+
+with
+    stablecoin_metrics as (
+        {% for chain in chain_list %}
+            select *
+            from {{ ref("ez_" ~ chain ~ "_stablecoin_metrics_by_address_with_labels")}}
+            {% if is_incremental() %}
+                where date >= (select DATEADD('day', -3, max(date)) from {{ this }})
+            {% endif %}
+            {% if not loop.last %}
+                union all
+            {% endif %}
+        {% endfor %}
+    )
+
 select
     date as date_day
     , agg.chain as chain_name
