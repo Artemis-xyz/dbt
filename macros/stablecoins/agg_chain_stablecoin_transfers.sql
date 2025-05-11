@@ -237,7 +237,7 @@
             )
             and transfer_type = 'nep141'
 
-    {% elif chain in ("celo") %}
+    {% elif chain in ("celo", "kaia", "aptos") %}
         select
             block_timestamp,
             block_timestamp::date as date,
@@ -274,7 +274,7 @@
                 select lower(contract_address)
                 from {{ref("fact_" ~chain~ "_stablecoin_contracts")}}
             )
-    {% elif chain in ("mantle", 'sonic', 'kaia', 'aptos') %}
+    {% elif chain in ("mantle", 'sonic') %}
         select
             block_timestamp
             , block_timestamp::date as date
