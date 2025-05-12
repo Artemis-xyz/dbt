@@ -59,6 +59,13 @@ with
         from tvl_by_pool
         group by tvl_by_pool.date
     )
+    , token_incentives as (
+        select
+            date,
+            sum(amount_usd) as token_incentives_usd
+        from {{ ref('fact_pancakeswap_token_incentives') }}
+        group by date
+    )
 select
     tvl.date
     , 'pancakeswap' as app
@@ -77,8 +84,10 @@ select
     -- The remaining fees are distributed among CAKE burns, Treasury, and Fixed Term CAKE Stakers
     -- https://docs.pancakeswap.finance/products/pancakeswap-exchange/pancakeswap-pools
     
+    , token_incentives.token_incentives_usd as token_incentives
     , trading_volume.gas_cost_native as gas_cost_native
     , trading_volume.gas_cost_usd as gas_cost
 from tvl
 left join trading_volume using(date)
+left join token_incentives using(date)
 where tvl.date < to_date(sysdate())
