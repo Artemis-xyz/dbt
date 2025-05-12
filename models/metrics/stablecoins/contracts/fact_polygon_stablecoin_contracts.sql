@@ -15,5 +15,6 @@ from
             ('MIM', '0x49a0400587a7f65072c87c4910449fdcc5c47242', 18, 'magic-internet-money-polygon', 0),
             ('IDRT', '0x554cd6bdD03214b10AafA3e0D4D42De0C5D2937b', 6, 'rupiah-token', 0),
             ('IDRX', '0x649a2DA7B28E0D54c13D5eFf95d3A660652742cC', 0, 'idrx', 0),
-            ('BRLA', '0xE6A537a407488807F0bbeb0038B79004f19DDDFb', 18, 'brla-digital-brla', 0)
+            ('BRLA', '0xE6A537a407488807F0bbeb0038B79004f19DDDFb', 18, 'brla-digital-brla', 0),
+            ('BUIDL', '0x2893Ef551B6dD69F661Ac00F11D93E5Dc5Dc0e99', 6, 'blackrock-usd-institutional-digital-liquidity-fund', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
