@@ -9,7 +9,7 @@ with
             select *
             from {{ ref("ez_" ~ chain ~ "_stablecoin_metrics_by_address_with_labels")}}
             {% if is_incremental() %}
-                where date >= (select DATEADD('day', -3, max(date)) from {{ this }})
+                where date >= (select DATEADD('day', -3, max(date_day)) from {{ this }})
             {% endif %}
             {% if not loop.last %}
                 union all
