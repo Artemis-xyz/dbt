@@ -20,5 +20,6 @@ from
             ('AEUR', '0xA40640458FBc27b6EefEdeA1E9C9E17d4ceE7a21', 18, 'anchored-coins-eur', 0),
             ('IDRT', '0x66207E39bb77e6B99aaB56795C7c340C08520d83', 2, 'rupiah-token', 0),
             ('TRYB', '0xC1fdbed7Dac39caE2CcC0748f7a80dC446F6a594', 6, 'bilira', 0),
-            ('IDRX', '0x649a2DA7B28E0D54c13D5eFf95d3A660652742cC', 0, 'idrx', 0)
+            ('IDRX', '0x649a2DA7B28E0D54c13D5eFf95d3A660652742cC', 0, 'idrx', 0),
+            ('USD1', '0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d', 18, 'usd1-wlfi', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
