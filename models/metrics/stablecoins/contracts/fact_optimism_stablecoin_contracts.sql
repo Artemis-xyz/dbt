@@ -16,5 +16,6 @@ from
             ('FRAX', '0x2e3d870790dc77a83dd1d18184acc7439a53f475', 18, 'frax', 0),
             ('DOLA', '0x8ae125e8653821e851f12a49f7765db9a9ce7384', 18, 'dola-usd', 0),
             ('crvUSD', '0xc52d7f23a2e460248db6ee192cb23dd12bddcbf6', 18, 'crvusd', 0),
-            ('S_USD', '0x8c6f28f2F1A3C87F0f938b96d27520d9751ec8d9', 18, 'susd-optimism', 0)
+            ('S_USD', '0x8c6f28f2F1A3C87F0f938b96d27520d9751ec8d9', 18, 'susd-optimism', 0),
+            ('BUIDL', '0xa1CDAb15bBA75a80dF4089CaFbA013e376957cF5', 6, 'blackrock-usd-institutional-digital-liquidity-fund', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)

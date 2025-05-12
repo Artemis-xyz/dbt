@@ -60,5 +60,6 @@ from
             ('IDRT', '0x998FFE1E43fAcffb941dc337dD0468d52bA5b48A', 2, 'rupiah-token', 0),
             ('TRYB', '0x2C537E5624e4af88A7ae4060C022609376C8D0EB', 6, 'bilira', 0),
             ('LVLUSD', '0x7c1156e515aa1a2e851674120074968c905aaf37', 18, 'level-usd', 0),
-            ('USDFALCON', '0xfa2b947eec368f42195f24f36d2af29f7c24cec2', 18, 'falcon-finance', 0)
+            ('USDFALCON', '0xfa2b947eec368f42195f24f36d2af29f7c24cec2', 18, 'falcon-finance', 0),
+            ('BUIDL', '0x7712c34205737192402172409a8f7ccef8aa2aec', 6, 'blackrock-usd-institutional-digital-liquidity-fund', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
