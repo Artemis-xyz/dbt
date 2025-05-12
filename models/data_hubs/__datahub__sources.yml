@@ -3,4 +3,4 @@ sources:
     schema: prod
     database: pc_dbt_db
     tables:
-      - name: fact_datahub_silver
+      - name: fact_datahub_metrics_silver
