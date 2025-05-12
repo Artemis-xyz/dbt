@@ -17,6 +17,14 @@ sources:
     tables:
       - name: ez_token_transfers
 
+# BSC
+
+  - name: BSC_FLIPSIDE
+    schema: CORE
+    database: BSC_FLIPSIDE
+    tables:
+      - name: ez_token_transfers
+
 # SOLANA
 
   - name: SOLANA_FLIPSIDE_NFT
