@@ -49,7 +49,7 @@ with market_data as (
 , token_incentives as (
     select
         date
-        , sum(amount_usd) as token_incentives_usd
+        , sum(amount_usd) as token_incentives
     from {{ ref("fact_trader_joe_token_incentives") }}
     group by date
 )
@@ -87,7 +87,7 @@ SELECT
     -- Money Metrics
     , trading_fees as spot_fees
     , gross_protocol_revenue
-    , token_incentives_usd
+    , token_incentives
     , gas_cost_native
     , gas_cost
 
