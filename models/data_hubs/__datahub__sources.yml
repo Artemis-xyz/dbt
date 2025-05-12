@@ -4,3 +4,4 @@ sources:
     database: pc_dbt_db
     tables:
       - name: fact_datahub_metrics_silver
+      - name: fact_datahub_metrics_by_chain_silver
