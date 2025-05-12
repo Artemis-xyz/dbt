@@ -16,6 +16,7 @@ with metrics as (
 SELECT
     date
     , chain
+    , coalesce(metrics.trading_volume, 0) as trading_volume
 
     --Standardized Metrics
 

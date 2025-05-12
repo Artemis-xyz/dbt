@@ -91,6 +91,7 @@ select
     , coalesce(treasury_native.own_token_treasury, 0) as treasury_value_native
     , coalesce(net_treasury.net_treasury, 0) as net_treasury_value
     , coalesce(os.outstanding_supply, 0) as outstanding_supply
+    , coalesce(tvl.tvl, 0) as net_deposits
 
     -- Standardized Metrics
 
