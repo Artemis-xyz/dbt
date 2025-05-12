@@ -15,5 +15,5 @@ SELECT
     fdmc::number as fdmc,
     token_volume::number as token_volume
 FROM {{ source('PC_DBT_DB', 'fact_datahub_silver') }} dh
-LEFT JOIN {{ source('POSTGRES_REPLICATED', 'core_asset') }} ca ON ca.artemis_id = dh.artemis_id 
+LEFT JOIN {{ source('POSTGRES_REPLICATED', 'core_asset') }} ca ON REPLACE(ca.artemis_id, '-', '_') = dh.artemis_id 
 LEFT JOIN {{ source('POSTGRES_REPLICATED', 'core_assettag') }} cat on cat.asset_id = ca.id AND cat."KEY" = 'groups'
