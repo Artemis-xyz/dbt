@@ -15,6 +15,7 @@ WITH all_address_balances AS (
 SELECT
     date
     , contract_address
+    , symbol
     , address
     , balance
     , price

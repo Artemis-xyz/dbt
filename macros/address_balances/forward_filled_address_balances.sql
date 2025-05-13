@@ -170,6 +170,7 @@ with
         select
             date
             , contract_address
+            , symbol
             , address
             , price
             , balance_raw
@@ -185,6 +186,7 @@ with
 select 
     date
     , contract_address
+    , symbol
     , address
     , balance_raw
     , balance_native

@@ -70,8 +70,9 @@ WITH
         SELECT
             date,
             symbol as token,
-            total_amount_native as tvl
-        FROM {{ ref('fact_maker_tvl_addresses') }}
+            sum(balance_native) as tvl
+        FROM {{ ref('fact_maker_tvl_by_address_balance') }}
+        GROUP BY 1,2
     )
     , outstanding_supply AS (
         SELECT date, 'DAI' as token, outstanding_supply FROM {{ ref('fact_dai_supply') }}

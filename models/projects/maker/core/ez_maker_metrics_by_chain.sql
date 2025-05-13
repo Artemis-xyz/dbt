@@ -36,7 +36,8 @@ WITH
         SELECT date, net_treasury_usd FROM {{ ref('fact_net_treasury_usd') }}
     )
     , tvl_metrics AS (
-        SELECT date, tvl_usd as net_deposit, tvl_usd as tvl FROM {{ ref('fact_maker_tvl_by_address_balance') }}
+        SELECT date, sum(balance) as net_deposit, sum(balance) as tvl FROM {{ ref('fact_maker_tvl_by_address_balance') }}
+        group by date
     )
     , outstanding_supply AS (
         SELECT date, outstanding_supply FROM {{ ref('fact_dai_supply') }}
