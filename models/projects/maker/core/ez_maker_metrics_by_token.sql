@@ -71,7 +71,7 @@ WITH
             date,
             symbol as token,
             total_amount_native as tvl
-        FROM {{ ref('fact_maker_tvl_by_asset') }}
+        FROM {{ ref('fact_maker_tvl_addresses') }}
     )
     , outstanding_supply AS (
         SELECT date, 'DAI' as token, outstanding_supply FROM {{ ref('fact_dai_supply') }}
