@@ -10,6 +10,7 @@
 select 
     date,
     artemis_id,
+    chain,
     sectors,
     dau,
     txns,

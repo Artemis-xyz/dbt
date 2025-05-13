@@ -5,6 +5,7 @@
 SELECT 
     date,
     dh.artemis_id,
+    dh.chain,
     cat."VALUES" as sectors,
     dau::number as dau,
     txns::number as txns,
