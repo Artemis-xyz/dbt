@@ -3,8 +3,6 @@
         materialized="table",
         snowflake_warehouse="LABELING",
         unique_key=["address", "chain"],
-        incremental_strategy="merge",
-        on_schema_change="append_new_columns"
     )
 }}
 
