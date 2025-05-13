@@ -1,8 +1,7 @@
 {{ 
     config(
         materialized = 'table',
-        snowflake_warehouse = 'BELIEVE',
-        unique_key = 'block_timestamp'
+        snowflake_warehouse = 'BELIEVE'    
     ) 
 }}
 

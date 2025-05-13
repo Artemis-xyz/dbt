@@ -2,7 +2,6 @@
     config(
         materialized = 'table',
         snowflake_warehouse = 'BELIEVE',
-        unique_key = 'tx_id'
     ) 
 }}
 

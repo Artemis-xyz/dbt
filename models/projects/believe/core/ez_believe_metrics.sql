@@ -13,6 +13,7 @@ with
         select
             date(block_timestamp) as date
             , sum(amount_usd) as trading_volume
+            , count(distinct trader) as unique_traders
             , count(distinct tx_id) as txns
         from {{ ref('fact_believe_trades') }}
         group by 1
@@ -32,17 +33,22 @@ with
 
 select
     bst.date
-    , bst.trading_volume
-    , bst.txns
-    , bcm.coins_minted
 
     -- Standardized Metrics
+
+    -- Market Metrics
     , price
     , market_cap
     , fdmc
     , token_volume
     , token_turnover_circulating
     , token_turnover_fdv
+
+    -- Usage Metrics
+    , bst.trading_volume as launchpad_volume
+    , bst.txns as launchpad_txns
+    , bst.unique_traders as launchpad_dau
+    , bcm.coins_minted
 
 from believe_swap_trades bst
 left join believe_coins_minted bcm
