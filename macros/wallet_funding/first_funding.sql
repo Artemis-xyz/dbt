@@ -9,14 +9,14 @@
             , value 
             , row_number() over (partition by to_address order by block_timestamp, trace_index) as rn 
         from {{ chain }}_flipside.core.fact_traces
+        where trace_succeeded = true 
+        and value > 0
         {% if is_incremental() %}
             -- only grab new traces
-            where block_timestamp >= (select max(block_timestamp) from {{ this }})
+            and block_timestamp >= (select max(block_timestamp) from {{ this }})
             -- only grab traces for recipients who have not been logged yet
             and to_address not in (select distinct recipient from {{ this }})
         {% endif %}
-        and trace_succeeded = true 
-        and value > 0
     )
 
     select 
