@@ -1,9 +1,11 @@
-{{ config(materialized="table") }}
+{{ config(materialized="incremental", unique_key=["ticker", "fiscal_year", "fiscal_period", "metric"]) }}
 with
+    {% if is_incremental() %}
     max_extraction as (
         select max(extraction_date) as max_date
         from {{ source("PROD_LANDING", "artemis_equities_comps") }}
     ),
+    {% endif %}
     data as (
         select 
             value:"fiscal_year"::VARCHAR AS fiscal_year,
@@ -23,6 +25,12 @@ with
         from
             {{ source("PROD_LANDING", "artemis_equities_comps") }},
             lateral flatten(input => parse_json(source_json))
+        {% if is_incremental() %}
         where extraction_date = (select max_date from max_extraction)
+        {% endif %}
     )
 select * from data
+qualify row_number() over (
+    partition by ticker, fiscal_year, fiscal_period, metric 
+    order by extraction_date desc
+) = 1
