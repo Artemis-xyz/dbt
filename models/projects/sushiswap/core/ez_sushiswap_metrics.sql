@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="SUSHISWAP_SM",
+        snowflake_warehouse="MEDIUM",
         database="sushiswap",
         schema="core",
         alias="ez_metrics",
@@ -54,6 +54,15 @@ with
         from tvl_by_pool
         group by tvl_by_pool.date
     )
+    , token_incentives as (
+        select
+            date,
+            sum(token_incentives_native) as token_incentives_native,
+            sum(token_incentives_usd) as token_incentives
+        from {{ ref('fact_sushiswap_token_incentives') }}
+        group by date
+    )
+    
 select
     tvl.date
     , 'sushiswap' as app
@@ -83,6 +92,8 @@ select
         else
             tv.trading_fees * 0.0005 / 0.0030
     end as fee_sharing_token_cash_flow
+    , token_incentives.token_incentives
 from tvl
 left join trading_volume tv using(date)
+left join token_incentives using(date)
 where tvl.date < to_date(sysdate())
