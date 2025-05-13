@@ -15,4 +15,5 @@ select
     , f.link
 from  {{ ref("fact_vaults_fyi_apy") }} f
 join {{ ref("vaults_fyi_stablecoin_pool_ids") }} v
-    on f.id = v.id
+    on lower(f.id) = lower(v.id)
+    and lower(f.chain) = lower(v.chain)
