@@ -1,0 +1,7 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: fact_sui_transactions_silver_bigquery_v2
+      - name: fact_sui_epoch_data
