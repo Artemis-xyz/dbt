@@ -41,7 +41,7 @@ select
     name,
     apy,
     tvl,
-    protocol,
+    case when lower(protocol) = lower('sky') then 'maker' else protocol end as protocol,
     type,
     coalesce(source, vault_url) as link,
     case when chain = 'mainnet' then 'ethereum' else chain end as chain,
