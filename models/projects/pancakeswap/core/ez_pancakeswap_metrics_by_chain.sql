@@ -71,7 +71,7 @@ select
     , trading_volume_by_chain.trading_fees
     , trading_volume_by_chain.unique_traders
     , trading_volume_by_chain.gas_cost_usd
-
+    , NULL AS token_incentives
     -- Standardized Metrics
     , trading_volume_by_chain.unique_traders as spot_dau
     , trading_volume_by_chain.trading_volume as spot_volume
