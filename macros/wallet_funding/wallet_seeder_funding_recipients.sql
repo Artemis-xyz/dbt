@@ -8,7 +8,7 @@ select
     , value AS amount 
     , 'native' as transfer_type
     , '0x0000000000000000000000000000000000000000' as token_address
-    , {{ chain }} AS chain
+    , '{{ chain }}' AS chain
 from {{ chain }}_flipside.core.fact_traces
 where lower(from_address) IN (
         lower('0xD152f549545093347A162Dce210e7293f1452150') -- disperse app contract
@@ -31,7 +31,7 @@ select
     , amount
     , 'erc20' AS transfer_type
     , contract_address AS token_address
-    , {{ chain }} AS chain
+    , '{{ chain }}' AS chain
 from {{chain}}_flipside.core.ez_token_transfers
 where lower(from_address) IN (
     lower('0xD152f549545093347A162Dce210e7293f1452150') -- disperse app contract

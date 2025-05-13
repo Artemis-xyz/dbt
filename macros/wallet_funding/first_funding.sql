@@ -26,7 +26,7 @@
         , tx_hash
         , value
         , '0x0000000000000000000000000000000000000000' as token_address
-        , {{ chain }} as chain
+        , '{{ chain }}' as chain
     from first_trace
     where rn = 1
 
