@@ -1,5 +1,5 @@
 {% macro extract_dune_dex_volumes(chain) %}
-    {% set coingecko_chain = 'avalanche' if chain == 'avalanche_c' 
+    {% set coingecko_chain = 'avalanche' if chain == 'avalanche_c'
         else ('bsc' if chain == 'bnb'
         else ('polygon-zkevm' if chain == 'zkevm'
         else chain)) %}

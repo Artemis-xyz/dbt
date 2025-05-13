@@ -5,4 +5,4 @@
     )
 }}
 
-{{ extract_dune_dex_volumes("polygon_zk") }}
+{{ extract_dune_dex_volumes("zkevm") }}
