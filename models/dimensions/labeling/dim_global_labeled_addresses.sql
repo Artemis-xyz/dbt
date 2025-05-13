@@ -16,6 +16,7 @@
         ref("fact_maple_treasury_accounts"),
         ref("fact_jupitersol_stake_accounts"),
         ref("fact_meteora_lbpair_pools"),
-        ref("fact_meteora_lbpair_vaults")
+        ref("fact_meteora_lbpair_vaults"),
+        ref("fact_maker_tvl_addresses")
     ]   
 )}}
