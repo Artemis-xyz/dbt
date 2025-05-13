@@ -1,8 +1,7 @@
 {% macro extract_dune_dex_volumes(chain) %}
     {% set coingecko_chain = 'avalanche' if chain == 'avalanche_c'
         else ('bsc' if chain == 'bnb'
-        else ('polygon-zkevm' if chain == 'zkevm'
-        else chain)) %}
+        else chain) %}
     
     WITH coingecko_latest_prices AS (
         {{ get_multiple_coingecko_price_with_latest(coingecko_chain) }}
