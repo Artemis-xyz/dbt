@@ -18,7 +18,7 @@
         AND token_bought_price.price IS NOT NULL 
         AND token_sold_price.price * token_sold_amount != 0
         AND token_bought_price.price * token_bought_amount != 0
-        AND (token_bought_price.price * token_bought_amount) / (token_sold_price.price * token_sold_amount) > 0.2
-        AND (token_bought_price.price * token_bought_amount) / (token_sold_price.price * token_sold_amount) < 4
+        AND (token_bought_price.price * token_bought_amount) / (token_sold_price.price * token_sold_amount) > 0.5
+        AND (token_bought_price.price * token_bought_amount) / (token_sold_price.price * token_sold_amount) < 2.5
     GROUP BY 1
 {% endmacro %}
