@@ -1,3 +1,4 @@
+-- Depends on {{ source('PYTHON_LOGIC', 'namespace_to_application')}}
 {{ config(materialized="table", snowflake_warehouse="LABELING") }}
 
 with
