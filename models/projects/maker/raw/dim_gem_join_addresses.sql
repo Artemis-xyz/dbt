@@ -35,3 +35,4 @@ SELECT
 FROM
      contract_creation_hashes h
 LEFT JOIN ethereum_flipside.core.fact_traces t ON h.created_tx_hash = t.tx_hash
+HAVING length(gem_address) = 42

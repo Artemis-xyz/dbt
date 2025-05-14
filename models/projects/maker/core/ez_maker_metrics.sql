@@ -36,7 +36,11 @@ WITH
         SELECT date, net_treasury_usd FROM {{ ref('fact_net_treasury_usd') }}
     )
     , tvl_metrics AS (
-        SELECT date, tvl_usd as net_deposit, tvl_usd as tvl FROM {{ ref('fact_maker_tvl') }}
+        SELECT 
+            date, 
+            sum(balance) as tvl
+        FROM {{ ref('fact_maker_tvl_by_address_balance') }} 
+        GROUP BY 1
     )
     , outstanding_supply AS (
         SELECT date, outstanding_supply FROM {{ ref('fact_dai_supply') }}
@@ -72,7 +76,7 @@ select
     
     , COALESCE(treasury_usd, 0) AS treasury_usd
     , COALESCE(net_treasury_usd, 0) AS net_treasury_usd
-    , COALESCE(net_deposit, 0) AS net_deposits
+    , COALESCE(tvl, 0) AS net_deposits
     , COALESCE(outstanding_supply, 0) AS outstanding_supply
     , COALESCE(tokenholder_count, 0) AS tokenholder_count
 
@@ -93,7 +97,7 @@ select
     , COALESCE(treasury_usd, 0) AS treasury
     , COALESCE(treasury_native, 0) AS treasury_native
 
-    , COALESCE(net_deposit, 0) AS lending_deposits
+    , COALESCE(tvl, 0) AS lending_deposits
     , COALESCE(outstanding_supply, 0) AS lending_loans
 
     , COALESCE(tvl, 0) AS tvl

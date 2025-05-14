@@ -19,6 +19,7 @@ SELECT
     , txns
     , fees_native
     , fees_native * price AS fees
+    , fees AS revenue
     , rewards_algo
     , rewards_algo * price AS rewards_usd
     -- Standardized Metrics

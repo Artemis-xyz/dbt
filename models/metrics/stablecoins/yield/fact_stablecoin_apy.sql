@@ -64,3 +64,16 @@ select
     , chain
     , link
 from {{ ref("fact_drift_stablecoin_apy") }}
+union all
+select
+    timestamp
+    , id
+    , name
+    , apy
+    , tvl
+    , symbol
+    , protocol
+    , type
+    , chain
+    , link
+from {{ ref("fact_vaults_fyi_stablecoin_apy") }}
