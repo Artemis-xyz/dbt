@@ -4,12 +4,13 @@
         database="ostium",
         snowflake_warehouse="OSTIUM",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics_by_chain"
     )
 }}
 
 select
     date
+    , 'arbitrum' as chain
 
     --Standardized Metrics
 
