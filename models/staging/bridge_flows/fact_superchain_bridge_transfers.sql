@@ -6,7 +6,10 @@ with
             dbt_utils.union_relations(
                 relations=[
                     ref("fact_unichain_bridge_transfers"),
-                    ref("fact_base_bridge_transfers")
+                    ref("fact_base_bridge_transfers"),
+                    ref("fact_soneium_bridge_transfers"),
+                    ref("fact_worldchain_bridge_transfers"),
+                    ref("fact_optimism_bridge_transfers"),
                 ]
             )
         }}
