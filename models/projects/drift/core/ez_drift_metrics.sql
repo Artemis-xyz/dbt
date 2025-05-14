@@ -71,7 +71,7 @@ SELECT
     -- Cashflow Metrics
     , parsed_log_metrics.perp_fees as perp_fees
     , parsed_log_metrics.spot_fees as spot_fees
-    , coalesce(parsed_log_metrics.perp_fees + parsed_log_metrics.spot_fees, 0) as gross_protocol_revenue
+    , coalesce(parsed_log_metrics.perp_fees + parsed_log_metrics.spot_fees, 0) as ecosystem_revenue
     -- TODO: Add cashflows to individual entities
 
     -- Supply Metrics

@@ -53,7 +53,7 @@ SELECT
     , COALESCE(daily_trading_volume, 0) AS nft_volume
 
     -- Cash Flow Metrics
-    , COALESCE(fees + supply_side_fees, 0) AS gross_protocol_revenue
+    , COALESCE(fees + supply_side_fees, 0) AS ecosystem_revenue
     , COALESCE(supply_side_fees, 0) AS service_cash_flow  
 FROM date_spine
 LEFT JOIN magiceden_metrics m ON date_spine.date = m.date

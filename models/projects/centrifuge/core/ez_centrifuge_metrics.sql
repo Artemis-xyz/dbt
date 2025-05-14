@@ -43,8 +43,8 @@ select
     , coalesce(fees_usd, 0)/coalesce(txns, 1) as chain_avg_txn_fee
 
     -- Cash Flow Metrics
-    , coalesce(fees_usd, 0) as gross_protocol_revenue
-    , coalesce(fees_native, 0) as gross_protocol_revenue_native
+    , coalesce(fees_usd, 0) as ecosystem_revenue
+    , coalesce(fees_native, 0) as ecosystem_revenue_native
 
     -- Turnover Metrics
     , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating

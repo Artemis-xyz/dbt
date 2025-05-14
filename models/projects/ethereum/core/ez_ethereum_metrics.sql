@@ -127,8 +127,8 @@ select
     , dune_dex_volumes_ethereum.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
     , fees as chain_fees
-    , fees_native AS gross_protocol_revenue_native
-    , fees AS gross_protocol_revenue
+    , fees_native AS ecosystem_revenue_native
+    , fees AS ecosystem_revenue
     , revenue_native AS burned_cash_flow_native
     , revenue AS burned_cash_flow
     , fees_native - revenue_native as priority_fee_native

@@ -28,7 +28,7 @@ select
 
     -- Money Metrics
     , treasury_cash_flow
-    , gross_protocol_revenue
+    , ecosystem_revenue
     , service_cash_flow
     , other_cash_flow
 from {{ ref("ez_orca_metrics") }}

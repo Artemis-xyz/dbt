@@ -94,8 +94,8 @@ select
     , dune_dex_volumes_polygon.dex_volumes AS chain_spot_volume
     -- Cashflow Metrics
     , fees AS chain_fees
-    , fees_native AS gross_protocol_revenue_native
-    , fees AS gross_protocol_revenue
+    , fees_native AS ecosystem_revenue_native
+    , fees AS ecosystem_revenue
     , revenue_native AS validator_cash_flow_native
     , revenue AS validator_cash_flow
     , l1_data_cost_native AS l1_cash_flow_native

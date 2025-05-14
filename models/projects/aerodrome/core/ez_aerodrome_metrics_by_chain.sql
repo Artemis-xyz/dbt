@@ -58,7 +58,7 @@ SELECT
 
     -- Money Metrics
     , sm.daily_fees_usd as spot_fees
-    , sm.daily_fees_usd as gross_protocol_revenue
+    , sm.daily_fees_usd as ecosystem_revenue
     , sm.daily_fees_usd as fee_sharing_token_cash_flow
 FROM date_spine ds
 LEFT JOIN swap_metrics sm using (date)

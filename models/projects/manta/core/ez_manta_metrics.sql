@@ -36,7 +36,7 @@ SELECT
     , tvl
     -- Cashflow Metrics
     , fees as chain_fees
-    , fees AS gross_protocol_revenue
+    , fees AS ecosystem_revenue
     , case when date > '2024-09-30' then fees / 2 else fees end as equity_cash_flow
     , case when date > '2024-09-30' then fees / 2 else 0 end as user_cash_flow
 

@@ -50,7 +50,7 @@ select
     , trading_volume_pool.trading_fees as spot_fees
     , trading_volume_pool.trading_volume as spot_volume
     , tvl_by_pool.tvl as tvl
-    , trading_volume_pool.trading_fees as gross_protocol_revenue
+    , trading_volume_pool.trading_fees as ecosystem_revenue
     , trading_volume_pool.gas_cost_native
     , trading_volume_pool.gas_cost_usd as gas_cost
 

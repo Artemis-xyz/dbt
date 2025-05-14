@@ -41,7 +41,7 @@ select
     
     -- Money Metrics
     , trading_volume_pool.trading_fees as spot_fees
-    , trading_volume_pool.trading_fees as gross_protocol_revenue
+    , trading_volume_pool.trading_fees as ecosystem_revenue
     -- We only track v2 where all fees go to LPs
     , trading_volume_pool.trading_fees as service_cash_flow
     , trading_volume_pool.gas_cost_native

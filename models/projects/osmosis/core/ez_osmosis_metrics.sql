@@ -91,7 +91,7 @@ select
     -- Cash Flow Metrics
     , gas_usd as chain_fees
     , trading_fees as spot_fees
-    , fees as gross_protocol_revenue
+    , fees as ecosystem_revenue
     , trading_fees as service_cash_flow
     , gas_usd as validator_cash_flow
     -- Crypto Metrics

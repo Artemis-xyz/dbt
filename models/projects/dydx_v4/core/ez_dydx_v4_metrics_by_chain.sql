@@ -41,8 +41,8 @@ select
     -- standardize metrics
     , trading_volume as perp_volume
     , unique_traders as perp_dau
-    , trading_fees + txn_fees as gross_protocol_revenue
-    , case when unique_traders_data.date > '2025-03-25' then gross_protocol_revenue * 0.25 else 0 end as buybacks
+    , trading_fees + txn_fees as ecosystem_revenue
+    , case when unique_traders_data.date > '2025-03-25' then ecosystem_revenue * 0.25 else 0 end as buybacks
 from trading_volume_data
 left join fees_data on trading_volume_data.date = fees_data.date
 left join chain_data on trading_volume_data.date = chain_data.date

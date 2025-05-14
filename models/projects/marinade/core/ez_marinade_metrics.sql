@@ -98,7 +98,7 @@ select
     --Cash Flow Metrics
     , unstaking_fees_native * price as unstaking_fees
     , fees_native * price as lst_fees
-    , unstaking_fees + lst_fees as gross_protocol_revenue
+    , unstaking_fees + lst_fees as ecosystem_revenue
     , case when 
         date < '2024-08-18' then unstaking_fees * 0.25 + lst_fees
     -- when v2 fees are active, 100% goes to the protocol

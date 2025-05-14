@@ -75,7 +75,7 @@ select
     , trading_volume_by_chain.trading_volume as spot_volume
     , trading_volume_by_chain.trading_fees as spot_fees
     , tvl_by_chain.tvl as tvl
-    , trading_volume_by_chain.trading_fees as gross_protocol_revenue
+    , trading_volume_by_chain.trading_fees as ecosystem_revenue
     , trading_volume_by_chain.gas_cost_native
     , trading_volume_by_chain.gas_cost_usd as gas_cost
 from tvl_by_chain

@@ -105,7 +105,7 @@ select
     , coalesce(tvl.tvl, 0) - lag(coalesce(tvl.tvl, 0)) over (order by date) as tvl_net_change
 
     -- Cash Flow Metrics
-    , coalesce(fr.revenue_usd, 0) as gross_protocol_revenue
+    , coalesce(fr.revenue_usd, 0) as ecosystem_revenue
     , coalesce(ti.token_incentives, 0) as fee_sharing_token_cash_flow
 
     -- Protocol Metrics

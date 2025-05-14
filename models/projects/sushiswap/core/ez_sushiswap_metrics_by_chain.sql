@@ -73,7 +73,7 @@ select
     , tvl_by_chain.tvl
 
     -- Revenue Metrics
-    , tvbc.trading_fees as gross_protocol_revenue
+    , tvbc.trading_fees as ecosystem_revenue
     , case
         when tvbc.date between '2023-01-23' and '2024-01-23' THEN
             tvbc.trading_fees * 0.0030
