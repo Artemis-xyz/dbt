@@ -1,4 +1,4 @@
-{% macro extract_dune_dex_volumes(chain) %}
+{% macro adjusted_dune_dex_volumes(chain) %}
     {% set coingecko_chain = 'avalanche' if chain == 'avalanche_c'
         else ('bsc' if chain == 'bnb'
         else chain) %}
@@ -23,7 +23,7 @@
                     THEN token_sold_price.price * token_sold_amount
                 ELSE NULL
             END
-        ) AS daily_volume
+        ) AS daily_volume_adjusted
     FROM {{ source("DUNE_DEX_VOLUMES", "trades") }}
     
     LEFT JOIN partitioned_coingecko_prices AS token_bought_price
