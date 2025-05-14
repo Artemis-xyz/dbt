@@ -15,22 +15,40 @@
 
     SELECT 
         block_date::date AS date,
-        sum(amount_usd) AS daily_volume
-    FROM {{ source("DUNE_DEX_VOLUMES", "trades")}}
+        SUM(
+            CASE 
+                WHEN token_bought_price.price IS NOT NULL 
+                    THEN token_bought_price.price * token_bought_amount
+                WHEN token_sold_price.price IS NOT NULL 
+                    THEN token_sold_price.price * token_sold_amount
+                ELSE NULL
+            END
+        ) AS daily_volume
+    FROM {{ source("DUNE_DEX_VOLUMES", "trades") }}
+    
     LEFT JOIN partitioned_coingecko_prices AS token_bought_price
         ON block_date::date = token_bought_price.date
-        AND lower(token_bought_address_hex) = lower(token_bought_price.contract_address)
+        AND LOWER(token_bought_address_hex) = LOWER(token_bought_price.contract_address)
         AND token_bought_price.rn = 1
+
     LEFT JOIN partitioned_coingecko_prices AS token_sold_price
         ON block_date::date = token_sold_price.date
-        AND lower(token_sold_address_hex) = lower(token_sold_price.contract_address)
+        AND LOWER(token_sold_address_hex) = LOWER(token_sold_price.contract_address)
         AND token_sold_price.rn = 1
+
     WHERE blockchain = '{{ chain }}'
-        AND token_sold_price.price IS NOT NULL
-        AND token_bought_price.price IS NOT NULL 
-        AND token_sold_price.price * token_sold_amount != 0
-        AND token_bought_price.price * token_bought_amount != 0
-        AND (token_bought_price.price * token_bought_amount) / (token_sold_price.price * token_sold_amount) > 0.5
-        AND (token_bought_price.price * token_bought_amount) / (token_sold_price.price * token_sold_amount) < 2.5
+      AND (
+        (token_bought_price.price IS NOT NULL AND token_bought_price.price * token_bought_amount > 0)
+        OR 
+        (token_sold_price.price IS NOT NULL AND token_sold_price.price * token_sold_amount > 0)
+      )
+      AND (
+        token_bought_price.price IS NULL 
+        OR token_sold_price.price IS NULL 
+        OR (
+          (token_bought_price.price * token_bought_amount) / NULLIF(token_sold_price.price * token_sold_amount, 0)
+          BETWEEN 0.5 AND 2.5
+        )
+      )
     GROUP BY 1
 {% endmacro %}
