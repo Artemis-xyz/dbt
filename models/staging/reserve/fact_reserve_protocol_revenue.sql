@@ -95,7 +95,7 @@ with
 select
     r.date
     , r.symbol
-    , sum(r.data_value * coalesce(p.price, 0)) as gross_protocol_revenue
+    , sum(r.data_value * coalesce(p.price, 0)) as ecosystem_revenue
 from revenue_with_symbol r
 left join all_prices p
     on r.symbol = p.symbol and r.date = p.date

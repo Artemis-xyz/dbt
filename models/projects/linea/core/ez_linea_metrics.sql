@@ -59,8 +59,8 @@ select
     , dune_dex_volumes_linea.dex_volumes AS chain_spot_volume
     , fees / txns as chain_avg_txn_fee
     -- Cashflow Metrics
-    , fees AS gross_protocol_revenue
-    , fees_native AS gross_protocol_revenue_native
+    , fees AS ecosystem_revenue
+    , fees_native AS ecosystem_revenue_native
     , revenue AS treasury_cash_flow
     , revenue_native AS treasury_cash_flow_native
     , l1_data_cost_native AS l1_cash_flow_native

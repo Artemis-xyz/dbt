@@ -17,8 +17,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  gross_protocol_revenue: &gross_protocol_revenue
-    name: gross_protocol_revenue
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
     description: "The total value generated through trading fees on Balancer v1 and v2."
     tags:
       - artemis_gaap
@@ -116,7 +116,7 @@ models:
     description: "This table stores metrics for the BALANCER protocol"
     columns:
       - *fee_sharing_token_cash_flow
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *net_treasury
       - *net_treasury_native
       - *own_token_treasury
@@ -135,7 +135,7 @@ models:
     description: "This table stores metrics for the BALANCER protocol"
     columns:
       - *fee_sharing_token_cash_flow
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *net_treasury
       - *own_token_treasury
       - *service_cash_flow
@@ -151,7 +151,7 @@ models:
     description: "This table stores metrics for the BALANCER protocol"
     columns:
       - *fee_sharing_token_cash_flow
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *service_cash_flow
       - *spot_dau
       - *spot_txns
@@ -164,7 +164,7 @@ models:
     columns:
       - *fdmc
       - *fee_sharing_token_cash_flow
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *market_cap
       - *net_treasury
       - *own_token_treasury

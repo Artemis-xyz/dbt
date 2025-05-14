@@ -17,7 +17,7 @@ select
     aggregator_volume,
     buyback_cash_flow,
     fdmc,
-    gross_protocol_revenue,
+    ecosystem_revenue,
     market_cap,
     perp_dau,
     perp_fees,

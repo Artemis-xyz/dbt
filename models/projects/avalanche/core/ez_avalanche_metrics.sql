@@ -93,8 +93,8 @@ select
     , coalesce(dune_dex_volumes_avalanche_c.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     -- Cashflow Metrics
     , case when fees is null then fees_native * price else fees end as chain_fees
-    , fees_native AS gross_protocol_revenue_native
-    , case when fees is null then fees_native * price else fees end as gross_protocol_revenue
+    , fees_native AS ecosystem_revenue_native
+    , case when fees is null then fees_native * price else fees end as ecosystem_revenue
     , fees_native AS burned_cash_flow_native
     , case when fees is null then fees_native * price else fees end as burned_cash_flow
     -- Supply Metrics

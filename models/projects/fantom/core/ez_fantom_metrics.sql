@@ -59,8 +59,8 @@ select
     , dex_volumes as chain_spot_volume
     -- Cash Flow Metrics
     , fees as chain_fees
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
     , revenue as foundation_cash_flow
     -- Developer Metrics
     , weekly_contracts_deployed

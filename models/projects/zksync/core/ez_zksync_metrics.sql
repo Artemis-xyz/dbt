@@ -86,8 +86,8 @@ select
     , median_txn_fee as chain_median_txn_fee
     , dune_dex_volumes_zksync.dex_volumes as chain_spot_volume
     -- Cash Flow Metrics
-    , gas_usd as gross_protocol_revenue
-    , gas as gross_protocol_revenue_native
+    , gas_usd as ecosystem_revenue
+    , gas as ecosystem_revenue_native
     , l1_data_cost as l1_cash_flow
     , l1_data_cost_native as l1_cash_flow_native
     , revenue as foundation_cash_flow

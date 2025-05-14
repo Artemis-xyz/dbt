@@ -25,8 +25,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  gross_protocol_revenue: &gross_protocol_revenue
-    name: gross_protocol_revenue
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
     description: "The total USD value generated from all user-paid fees on Raydium's CPMM, AMM, and CLMM, prior to the split with network participants."
     tags:
       - artemis_gaap
@@ -97,7 +97,7 @@ models:
     columns:
       - *buyback_cash_flow
       - *buybacks
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *service_cash_flow
       - *spot_dau
       - *spot_txns

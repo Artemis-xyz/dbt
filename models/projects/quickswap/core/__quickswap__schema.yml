@@ -10,8 +10,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  gross_protocol_revenue: &gross_protocol_revenue
-    name: gross_protocol_revenue
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
     description: "The totality of trading fees paid on Quickswap v2."
     tags:
       - artemis_gaap
@@ -68,7 +68,7 @@ models:
     description: "This table stores metrics for the QUICKSWAP protocol"
     columns:
       - *fdmc
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *market_cap
       - *price
       - *service_cash_flow
@@ -81,7 +81,7 @@ models:
   - name: ez_quickswap_metrics_by_pool
     description: "This table stores metrics for the QUICKSWAP protocol"
     columns:
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *service_cash_flow
       - *spot_dau
       - *spot_volume
@@ -90,7 +90,7 @@ models:
   - name: ez_quickswap_metrics_by_chain
     description: "This table stores metrics for the QUICKSWAP protocol"
     columns:
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *service_cash_flow
       - *spot_dau
       - *spot_volume

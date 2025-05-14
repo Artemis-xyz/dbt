@@ -60,8 +60,8 @@ select
     , nft_trading_volume as chain_nft_trading_volume
     -- Cash Flow Metrics
     , fees as chain_fees
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
     -- Crypto Metrics
     , tvl
     -- Developer Metrics

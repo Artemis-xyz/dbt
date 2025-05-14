@@ -244,7 +244,7 @@ select
     , interest_rate_fees as interest_rate_fees
     , flashloan_fees
     , gho_revenue as gho_fees
-    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as gross_protocol_revenue
+    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as ecosystem_revenue
 
     , supply_side_deposit_revenue + flashloan_fees as service_cash_flow
     , liquidation_revenue as liquidator_cash_flow

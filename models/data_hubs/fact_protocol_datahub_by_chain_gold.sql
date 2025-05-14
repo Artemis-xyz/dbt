@@ -10,7 +10,7 @@ SELECT
     dau::number as dau,
     txns::number as txns,
     volume::number as volume,
-    gross_protocol_revenue::number as gross_protocol_revenue,
+    ecosystem_revenue::number as ecosystem_revenue,
     tvl::number as tvl,
     price::number as price,
     market_cap::number as market_cap,

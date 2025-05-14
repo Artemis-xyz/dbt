@@ -25,8 +25,8 @@ column_definitions:
     name: gross_emissions_native
     description: "The amount of native tokens emitted"
 
-  gross_protocol_revenue: &gross_protocol_revenue
-    name: gross_protocol_revenue
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
     description: "Total trading fees paid on Pendle AMM plus Pendle collects a 3% fee from all yield accrued to YT."
     tags:
       - artemis_gaap
@@ -111,7 +111,7 @@ models:
     description: "This table stores metrics for the PENDLE protocol"
     columns:
       - *fee_sharing_token_cash_flow
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *service_cash_flow
       - *spot_fees
       - *tvl
@@ -124,7 +124,7 @@ models:
       - *fee_sharing_token_cash_flow
       - *gross_emissions
       - *gross_emissions_native
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *market_cap
       - *net_treasury
       - *own_token_treasury
@@ -146,7 +146,7 @@ models:
       - *fee_sharing_token_cash_flow
       - *gross_emissions
       - *gross_emissions_native
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *service_cash_flow
       - *spot_dau
       - *spot_fees

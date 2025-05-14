@@ -84,8 +84,8 @@ select
     , coalesce(dune_dex_volumes_arbitrum.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     -- Cashflow Metrics
     , fees_native AS chain_fees
-    , fees_native AS gross_protocol_revenue_native -- Total gas fees paid on L2 by users (L2 Fees)
-    , fees AS gross_protocol_revenue
+    , fees_native AS ecosystem_revenue_native -- Total gas fees paid on L2 by users (L2 Fees)
+    , fees AS ecosystem_revenue
     , coalesce(fees_native, 0) - l1_data_cost_native as treasury_cash_flow_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     , coalesce(fees, 0) - l1_data_cost as treasury_cash_flow
     , l1_data_cost_native AS l1_cash_flow_native -- fees paid to l1 by sequencer (L1 Fees)

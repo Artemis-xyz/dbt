@@ -18,7 +18,7 @@ SELECT
     , tvl
     , spot_fees
     , pool_creation_fees
-    , gross_protocol_revenue
+    , ecosystem_revenue
     , buyback_cash_flow
     , treasury_cash_flow
     , service_cash_flow

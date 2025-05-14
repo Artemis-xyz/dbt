@@ -15,7 +15,7 @@ select
     dau,
     txns,
     volume,
-    gross_protocol_revenue,
+    ecosystem_revenue,
     tvl,
     price,
     market_cap,

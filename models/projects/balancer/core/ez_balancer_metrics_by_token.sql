@@ -133,7 +133,7 @@ select
 
     -- Money Metrics
     , coalesce(swap_metrics.trading_fees, 0) as spot_fees
-    , coalesce(swap_metrics.trading_fees, 0) as gross_protocol_revenue
+    , coalesce(swap_metrics.trading_fees, 0) as ecosystem_revenue
     , coalesce(swap_metrics.service_cash_flow, 0) as service_cash_flow
     , coalesce(swap_metrics.service_cash_flow_native, 0) as service_cash_flow_native
     , coalesce(swap_metrics.treasury_cash_flow, 0) as treasury_cash_flow
