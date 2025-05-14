@@ -34,7 +34,7 @@
             select
                 recipient as address,
                 block_timestamp as first_native_received
-            from PC_DBT_DB.PROD.FACT_ARBITRUM_FIRST_FUNDING -- {{ ref("fact_" ~ chain ~ "_first_funding") }}
+            from PC_DBT_DB.PROD.FACT_ARBITRUM_FIRST_FUNDING
         ),
 
         first_bridge_used as (
@@ -68,11 +68,19 @@
                 to_address as address,
                 block_timestamp as funded_by_wallet_seeder_date,
                 tx_hash as funded_by_wallet_seeder_tx_hash 
-            from PC_DBT_DB.PROD.FACT_ARBITRUM_WALLET_SEEDER_FUNDING_RECIPIENTS -- {{ ref("fact_" ~ chain ~ "_wallet_seeder_funding_recipients") }}
+            from PC_DBT_DB.PROD.FACT_ARBITRUM_WALLET_SEEDER_FUNDING_RECIPIENTS
         )
 
     select
-        from_address.address,
+        COALESCE(
+            from_address.address, 
+            first_app.address, 
+            first_native_transfer.address, 
+            first_native_received.address, 
+            first_bridge_used.address,
+            to_address_transaction_data.address,
+            funded_by_wallet_seeder.address
+        ) as address,
         app_used,
         number_of_apps_used,
         category_used,
