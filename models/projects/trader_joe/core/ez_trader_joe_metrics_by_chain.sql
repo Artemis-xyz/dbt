@@ -67,6 +67,7 @@ select
     , trading_volume_by_chain.unique_traders
     , trading_volume_by_chain.gas_cost_usd
     , daily_txns_data.daily_txns as number_of_swaps
+    , NULL AS token_incentives
 
     -- Standardized Metrics
     , trading_volume_by_chain.unique_traders as spot_dau

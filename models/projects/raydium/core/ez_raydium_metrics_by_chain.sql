@@ -24,5 +24,6 @@ SELECT
     , service_cash_flow
     , buybacks
     , buyback_native
+    , trading_volume
 FROM
     {{ ref("ez_raydium_metrics") }}

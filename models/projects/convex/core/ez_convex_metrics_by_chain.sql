@@ -93,6 +93,7 @@ select
     , fees_and_revenue.revenue - token_incentives.token_incentives as earnings
     , treasury.treasury as treasury_value
     , net_treasury.net_treasury as net_treasury_value
+    , tvl.tvl as net_deposits
 
     -- Standardized Metrics
 

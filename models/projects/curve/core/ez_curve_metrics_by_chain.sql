@@ -78,6 +78,8 @@ select
     , trading_volume_by_chain.trading_fees * 0.5 as service_cash_flow
     , trading_volume_by_chain.gas_cost_native
     , trading_volume_by_chain.gas_cost_usd as gas_cost
+    , NULL AS token_incentives
+    -- , IF(chain = 'ethereum'token_incentives.token_incentives as token_incentives
 from tvl_by_chain
 left join trading_volume_by_chain using(date, chain)
 where tvl_by_chain.date < to_date(sysdate())

@@ -78,6 +78,7 @@ SELECT
     , COALESCE(ti.token_incentives, 0) as total_expenses
     , protocol_revenue - total_expenses as protocol_earnings
     , COALESCE(t.tvl, 0) as net_deposits
+    , 0 as outstanding_supply
 
     -- Standardized Metrics
     -- Usage/Sector Metrics
