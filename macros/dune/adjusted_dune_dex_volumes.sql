@@ -15,15 +15,7 @@
 
     SELECT 
         block_date::date AS date,
-        SUM(
-            CASE 
-                WHEN token_bought_price.price IS NOT NULL 
-                    THEN token_bought_price.price * token_bought_amount
-                WHEN token_sold_price.price IS NOT NULL 
-                    THEN token_sold_price.price * token_sold_amount
-                ELSE NULL
-            END
-        ) AS daily_volume_adjusted
+        SUM(amount_usd) AS daily_volume_adjusted
     FROM {{ source("DUNE_DEX_VOLUMES", "trades") }}
     
     LEFT JOIN partitioned_coingecko_prices AS token_bought_price
@@ -37,11 +29,6 @@
         AND token_sold_price.rn = 1
 
     WHERE blockchain = '{{ chain }}'
-      AND (
-        (token_bought_price.price IS NOT NULL AND token_bought_price.price * token_bought_amount > 0)
-        OR 
-        (token_sold_price.price IS NOT NULL AND token_sold_price.price * token_sold_amount > 0)
-      )
       AND (
         token_bought_price.price IS NULL 
         OR token_sold_price.price IS NULL 
