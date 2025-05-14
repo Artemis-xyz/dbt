@@ -179,3 +179,6 @@ models:
 
 vars:
   dbt_date:time_zone: "Etc/UTC"
+
+flags:
+  enable_iceberg_materializations: True

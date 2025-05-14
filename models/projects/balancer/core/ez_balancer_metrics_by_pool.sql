@@ -2,9 +2,12 @@
     config(
         materialized='table',
         snowflake_warehouse='BALANCER',
+        table_format="iceberg",
         database='BALANCER',
         schema='core',
-        alias='ez_metrics_by_pool'
+        external_volume="ICEBERG_EXTERNAL_VOLUME_INTERNAL",
+        alias='ez_metrics_by_pool',
+        base_location_root="balancer"
     )
 }}
 
@@ -43,7 +46,7 @@ with swap_metrics as (
 )
 
 select
-    date_pool_spine.date
+    date_pool_spine.date::TIMESTAMP_NTZ(6) AS date
     , date_pool_spine.pool_address
     , swap_metrics.number_of_swaps
     , swap_metrics.unique_traders
