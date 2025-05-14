@@ -29,13 +29,15 @@
         AND token_sold_price.rn = 1
 
     WHERE blockchain = '{{ chain }}'
-      AND (
-        token_bought_price.price IS NULL 
-        OR token_sold_price.price IS NULL 
-        OR (
-          (token_bought_price.price * token_bought_amount) / NULLIF(token_sold_price.price * token_sold_amount, 0)
-          BETWEEN 0.5 AND 2.5
-        )
-      )
+        AND (token_bought_price.price * token_bought_amount) / NULLIF(token_sold_price.price * token_sold_amount, 0)
+        BETWEEN 0.5 AND 2.5
+      --AND (
+        --token_bought_price.price IS NULL 
+        --OR token_sold_price.price IS NULL 
+        --OR (
+        --  (token_bought_price.price * token_bought_amount) / NULLIF(token_sold_price.price * token_sold_amount, 0)
+        --  BETWEEN 0.5 AND 2.5
+        --)
+      --)
     GROUP BY 1
 {% endmacro %}
