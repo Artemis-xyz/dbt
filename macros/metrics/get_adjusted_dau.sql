@@ -13,6 +13,9 @@
         FROM {{ ref("fact_" ~ chain ~ "_transactions_v2") }} t 
         LEFT JOIN {{ ref("dim_" ~ chain ~ "_wallet_v2") }} w
             ON t.from_address = w.address 
+        {% if is_incremental() %}
+            where t.raw_date >= (select max(raw_date) from {{ this }})
+        {% endif %}
     )
 
     select 
