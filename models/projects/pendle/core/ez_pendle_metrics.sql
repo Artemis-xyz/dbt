@@ -126,7 +126,7 @@ SELECT
     -- Money Metrics
     , coalesce(yf.yield_revenue, 0) as yield_generated
     , coalesce(f.swap_fees, 0) as spot_fees
-    , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as gross_protocol_revenue
+    , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as ecosystem_revenue
     , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as fee_sharing_token_cash_flow
     , f.supply_side_fees as service_cash_flow
 
