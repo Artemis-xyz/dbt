@@ -6,4 +6,4 @@
     )
 }}
 
-{{ get_decoded_l1_superchain_bridge_events('optimism', '0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1', 'flipside') }}
+{{ get_decoded_l1_superchain_bridge_events('worldchain', '0x470458C91978D2d929704489Ad730DC3E3001113', 'artemis') }}

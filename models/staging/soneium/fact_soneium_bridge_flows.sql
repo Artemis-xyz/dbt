@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="OPTIMISM",
+        snowflake_warehouse="SONEIUM",
     )
 }}
 
@@ -13,12 +13,12 @@ with
             , destination_chain
             , case when contains(coalesce(lower(t.source_token_symbol), lower(t.destination_token_symbol)), 'usd') then 'Stablecoin' else 'Token' end as category
             , amount_usd
-        from {{ ref("fact_optimism_bridge_transfers") }} t
+        from {{ ref("fact_soneium_bridge_transfers") }} t
     )
 
 select
     date,
-    'optimism' as app,
+    'soneium' as app,
     source_chain,
     destination_chain,
     category,
