@@ -45,7 +45,7 @@ select
     , token_turnover_fdv
 
     -- Usage Metrics
-    , bst.trading_volume as launchpad_volume
+    , bst.trading_volume as launchpad_volumes
     , bst.txns as launchpad_txns
     , bst.unique_traders as launchpad_dau
     , bcm.coins_minted
