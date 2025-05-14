@@ -35,10 +35,11 @@ eod_balances_filled AS (
 daily_prices_raw AS (
     SELECT 
         DATEADD(seconds, decoded_log:updatedAt, '1970-01-01'::timestamp_ntz)::date AS date,
-        decoded_log:price / 1e8 AS price
+        AVG(decoded_log:price / 1e8) AS price
     FROM ethereum_flipside.core.ez_decoded_event_logs
     WHERE event_name = 'BalanceReported'
       AND lower(contract_address) = lower('0x4c48bcb2160F8e0aDbf9D4F3B034f1e36d1f8b3e')
+    GROUP BY 1
 ),
 
 daily_prices_filled AS (

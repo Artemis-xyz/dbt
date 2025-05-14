@@ -12,7 +12,9 @@ column_definitions:
 
   chain_dau: &chain_dau
     name: chain_dau
-    description: "Daily unique users on a chain"
+    description: "Count of distinct signign pubkeys on a chain. Signing pubkeys are automatically generated at transaction signing time, the 'account' field uniquely identifies the sender https://xrpl.org/docs/references/protocol/transactions/common-fields."
+    tags:
+      - override
 
   chain_fees: &chain_fees
     name: chain_fees
