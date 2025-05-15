@@ -281,6 +281,10 @@ column_definitions:
     description: "The number of developers on a chain who have made commits to the sub-ecosystem"
     tags:
       - artemis_gaap
+  
+  adjusted_dau: &adjusted_dau
+    name: adjusted_dau
+    description: "The number of adjusted daily active users on a chain"
 
 models:
   - name: ez_arbitrum_metrics
@@ -339,7 +343,8 @@ models:
       - *weekly_contracts_deployed
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-
+      - *adjusted_dau
+      
   - name: ez_arbitrum_metrics_by_subcategory
     description: "This table stores metrics for the ARBITRUM protocol"
     columns:

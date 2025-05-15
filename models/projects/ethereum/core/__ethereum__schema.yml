@@ -376,6 +376,10 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  adjusted_dau: &adjusted_dau
+    name: adjusted_dau
+    description: "The number of adjusted daily active users on a chain"
+
 models:
   - name: ez_ethereum_metrics_by_subcategory
     description: "This table stores metrics for the ETHEREUM protocol"

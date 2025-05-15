@@ -281,6 +281,10 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  adjusted_dau: &adjusted_dau
+    name: adjusted_dau
+    description: "The number of adjusted daily active users on a chain"
+
 models:
   - name: ez_optimism_metrics_by_application_v2
     description: "This table stores metrics for the OPTIMISM protocol"
@@ -347,7 +351,7 @@ models:
       - *weekly_contracts_deployed
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-
+      - *adjusted_dau
   - name: ez_optimism_metrics_by_category_v2
     description: "This table stores metrics for the OPTIMISM protocol"
     columns:

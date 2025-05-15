@@ -35,12 +35,17 @@ with
     arbitrum_dex_volumes as (
         select date, daily_volume as dex_volumes
         from {{ ref("fact_arbitrum_daily_dex_volumes") }}
+    ),
+    adjusted_dau_metrics as (
+        select date, adj_daus as adjusted_dau
+        from {{ ref("ez_arbitrum_adjusted_dau") }}
     )
 select
     fundamental_data.date
     , fundamental_data.chain
     , txns
     , dau
+    , adjusted_dau
     , wau
     , mau
     , fees_native
@@ -129,4 +134,5 @@ left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join arbitrum_dex_volumes as dune_dex_volumes_arbitrum on fundamental_data.date = dune_dex_volumes_arbitrum.date
+left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 where fundamental_data.date < to_date(sysdate())

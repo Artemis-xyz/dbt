@@ -54,6 +54,10 @@ with
     block_rewards_data as (
         select date, block_rewards_native
         from {{ ref("fact_ethereum_block_rewards") }}
+    ),
+    adjusted_dau_metrics as (
+        select date, adj_daus as adjusted_dau
+        from {{ ref("ez_ethereum_adjusted_dau") }}
     )
 
 select
@@ -61,6 +65,7 @@ select
     , fundamental_data.chain
     , fundamental_data.txns
     , dau
+    , adjusted_dau
     , wau
     , mau
     , fees_native
@@ -181,4 +186,5 @@ left join da_metrics on fundamental_data.date = da_metrics.date
 left join etf_metrics on fundamental_data.date = etf_metrics.date
 left join ethereum_dex_volumes as dune_dex_volumes_ethereum on fundamental_data.date = dune_dex_volumes_ethereum.date
 left join block_rewards_data on fundamental_data.date = block_rewards_data.date
+left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 where fundamental_data.date < to_date(sysdate())
