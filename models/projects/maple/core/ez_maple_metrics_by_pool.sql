@@ -2,9 +2,12 @@
     config(
         materialized='table',
         snowflake_warehouse='MAPLE',
+        table_format="iceberg",
         database='MAPLE',
         schema='core',
-        alias='ez_metrics_by_pool'
+        external_volume="ICEBERG_EXTERNAL_VOLUME_INTERNAL",
+        alias='ez_metrics_by_pool',
+        base_location_root="maple"
     )
 }}
 
@@ -29,7 +32,7 @@ with fees as (
     GROUP BY 1, 2
 )
 SELECT
-    coalesce(fees.date, tvl.date) as date,
+    coalesce(fees.date, tvl.date)::TIMESTAMP_NTZ(6) AS date,
     coalesce(fees.pool_name, tvl.pool_name) as pool_name,
     fees.fees,
     fees.platform_fees,

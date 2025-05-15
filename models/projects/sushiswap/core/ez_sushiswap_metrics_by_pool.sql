@@ -2,9 +2,12 @@
     config(
         materialized="table",
         snowflake_warehouse="SUSHISWAP_SM",
+        table_format="iceberg",
         database="sushiswap",
         schema="core",
+        external_volume="ICEBERG_EXTERNAL_VOLUME_INTERNAL",
         alias="ez_metrics_by_pool",
+        base_location_root="sushiswap"
     )
 }}
 
@@ -37,7 +40,7 @@ with
         }}
     )
 select
-    tvl_by_pool.date
+    tvl_by_pool.date::TIMESTAMP_NTZ(6) AS date
     , 'sushiswap' as app
     , 'DeFi' as category
     , tvl_by_pool.chain
