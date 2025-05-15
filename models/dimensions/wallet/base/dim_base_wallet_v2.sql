@@ -33,7 +33,7 @@ select
     dex.total_dex_volume,
     dex.avg_dex_trade,
     dex.distinct_dex_platforms,
-    dex.distint_token_out as distinct_token_out,
+    dex.distinct_token_out,
     dex.max_dex_trade,
     dex.distinct_days_traded as distinct_days_traded_on_dex,
     stablecoin.first_stablecoin_to_address,
