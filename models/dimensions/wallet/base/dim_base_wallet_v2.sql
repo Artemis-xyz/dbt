@@ -1,7 +1,7 @@
 {{ 
     config(
         materialized="table",
-        snowflake_warehouse="ARBITRUM_MD"
+        snowflake_warehouse="BASE"
     )
 }}
 
@@ -24,16 +24,16 @@ select
     fundamental.first_native_transfer,
     fundamental.first_native_received,
     fundamental.first_bridge_used,
+    fundamental.number_of_bridge_txns,
     fundamental.top_from_address,
     fundamental.first_from_address,
     fundamental.funded_by_wallet_seeder_date,
-    fundamental.funded_by_wallet_seeder_tx_hash,
     dex.number_dex_trades,
     dex.distinct_pools,
     dex.total_dex_volume,
     dex.avg_dex_trade,
     dex.distinct_dex_platforms,
-    dex.distinct_token_out,
+    dex.distint_token_out as distinct_token_out,
     dex.max_dex_trade,
     dex.distinct_days_traded as distinct_days_traded_on_dex,
     stablecoin.first_stablecoin_to_address,
@@ -50,10 +50,10 @@ select
     stablecoin.latest_stablecoin_transfer_date,
     stablecoin.first_stablecoin_received_date,
     stablecoin.latest_stablecoin_received_date
-from {{ ref("dim_arbitrum_wallets_fundamental_metrics_v2") }} as fundamental
+from {{ ref("dim_base_wallets_fundamental_metrics_v2") }} as fundamental
 full join
-    {{ ref("dim_arbitrum_wallets_stablecoin_metrics") }} as stablecoin
+    {{ ref("dim_base_wallets_stablecoin_metrics") }} as stablecoin
     on fundamental.address = stablecoin.address
 full join
-    {{ ref("dim_arbitrum_wallets_dex_trade") }} as dex
+    {{ ref("dim_base_wallets_dex_trade") }} as dex
     on fundamental.address = dex.address

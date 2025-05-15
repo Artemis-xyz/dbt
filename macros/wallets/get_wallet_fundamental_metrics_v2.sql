@@ -34,15 +34,16 @@
             select
                 recipient as address,
                 block_timestamp as first_native_received
-            from PC_DBT_DB.PROD.FACT_ARBITRUM_FIRST_FUNDING
+            from {{ ref("fact_" ~ chain ~ "_first_funding") }}
         ),
 
-        first_bridge_used as (
+        bridge_metrics as (
             select
                 from_address as address,
-                min_by(app, block_timestamp) as first_bridge_used
+                min_by(app, block_timestamp) as first_bridge_used,
+                count(distinct tx_hash) as number_of_bridge_txns
             from {{ ref("fact_" ~ chain ~ "_transactions_v2") }}
-            where category = 'Bridge'
+            where lower(category) = 'bridge'
             group by from_address
         ),
 
@@ -66,9 +67,9 @@
         funded_by_wallet_seeder as (
             select
                 to_address as address,
-                block_timestamp as funded_by_wallet_seeder_date,
-                tx_hash as funded_by_wallet_seeder_tx_hash 
-            from PC_DBT_DB.PROD.FACT_ARBITRUM_WALLET_SEEDER_FUNDING_RECIPIENTS
+                min(block_timestamp) as funded_by_wallet_seeder_date,
+            from {{ ref("fact_" ~ chain ~ "_wallet_seeder_funding_recipients") }}
+            group by 1
         )
 
     select
@@ -77,7 +78,7 @@
             first_app.address, 
             first_native_transfer.address, 
             first_native_received.address, 
-            first_bridge_used.address,
+            bridge_metrics.address,
             to_address_transaction_data.address,
             funded_by_wallet_seeder.address
         ) as address,
@@ -92,25 +93,21 @@
         latest_transaction_timestamp,
         first_transaction_timestamp,
         number_of_days_active,
-        first_app,
+        first_app.first_app,
         top_app,
         top_to_address,
-        first_native_transfer,
-        first_native_received,
+        first_native_transfer.first_native_transfer,
+        first_native_received.first_native_received,
         first_bridge_used,
+        number_of_bridge_txns,
         top_from_address,
         first_from_address,
-        funded_by_wallet_seeder_date,
-        funded_by_wallet_seeder_tx_hash
+        funded_by_wallet_seeder_date
     from from_address_labeled_data as from_address
     full join first_app on from_address.address = first_app.address
-    full join
-        first_native_transfer on from_address.address = first_native_transfer.address
-    full join
-        first_native_received on from_address.address = first_native_received.address
-    full join first_bridge_used on from_address.address = first_bridge_used.address
-    full join
-        to_address_transaction_data
-        on from_address.address = to_address_transaction_data.address
-    left join funded_by_wallet_seeder on from_address.address = funded_by_wallet_seeder.address
+    full join first_native_transfer on coalesce(from_address.address, first_app.address) = first_native_transfer.address
+    full join first_native_received on coalesce(from_address.address, first_app.address, first_native_transfer.address) = first_native_received.address
+    full join bridge_metrics on coalesce(from_address.address, first_app.address, first_native_transfer.address, first_native_received.address) = bridge_metrics.address
+    full join to_address_transaction_data on coalesce(from_address.address, first_app.address, first_native_transfer.address, first_native_received.address, bridge_metrics.address) = to_address_transaction_data.address
+    left join funded_by_wallet_seeder on coalesce(from_address.address, first_app.address, first_native_transfer.address, first_native_received.address, bridge_metrics.address, to_address_transaction_data.address) = funded_by_wallet_seeder.address
 {% endmacro %}

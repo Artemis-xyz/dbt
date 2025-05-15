@@ -74,6 +74,7 @@ sources:
       - name: ez_token_transfers
       - name: ez_decoded_traces
       - name: dim_contracts
+      - name: fact_traces
   
 
   - name: ETHEREUM_FLIPSIDE_PRICE

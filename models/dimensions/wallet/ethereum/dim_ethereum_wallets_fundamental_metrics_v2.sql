@@ -1,11 +1,11 @@
 {{ 
     config(
         materialized="table", 
-        snowflake_warehouse="ARBITRUM_MD"
+        snowflake_warehouse="ETHEREUM"
     ) 
 }}
 
-with wallet_fundamental_data as ({{ get_wallet_fundamental_metrics_v2("arbitrum") }})
+with wallet_fundamental_data as ({{ get_wallet_fundamental_metrics_v2("ethereum") }})
 select
     address,
     app_used,
@@ -25,8 +25,8 @@ select
     first_native_transfer,
     first_native_received,
     first_bridge_used,
+    number_of_bridge_txns,
     top_from_address,
     first_from_address,
     funded_by_wallet_seeder_date,
-    funded_by_wallet_seeder_tx_hash
 from wallet_fundamental_data
