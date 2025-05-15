@@ -69,6 +69,7 @@
                 to_address as address,
                 min(block_timestamp) as funded_by_wallet_seeder_date,
             from {{ ref("fact_" ~ chain ~ "_wallet_seeder_funding_recipients") }}
+            where transfer_type = 'native'
             group by 1
         )
 
