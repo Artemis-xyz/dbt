@@ -42,6 +42,8 @@ select
     , 'starkware' as chain
     , trading_volume_data.trading_volume
     , unique_traders_data.unique_traders
+    , NULL as txn_fees
+    , NULL AS trading_fees
     -- standardize metrics
     , trading_volume_data.trading_volume as perp_volume
     , unique_traders_data.unique_traders as perp_dau
@@ -55,6 +57,8 @@ select
     , 'dydx' as chain
     , trading_volume
     , unique_traders
+    , txn_fees
+    , trading_fees
     -- standardize metrics
     , trading_volume as perp_volume
     , unique_traders as perp_dau

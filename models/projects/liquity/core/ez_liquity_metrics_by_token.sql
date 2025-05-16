@@ -119,8 +119,8 @@ select
     , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
 
     -- Cash Flow Metrics
-    , fr.revenue_usd as gross_protocol_revenue
-    , fr.revenue_native as gross_protocol_revenue_native
+    , fr.revenue_usd as ecosystem_revenue
+    , fr.revenue_native as ecosystem_revenue_native
     , ti.token_incentives_native as fee_sharing_token_cash_flow_native
 
     -- Protocol Metrics

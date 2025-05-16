@@ -72,8 +72,8 @@ select
     , avg_txn_fee_native * price AS chain_avg_txn_fee
     -- Cash Flow Metrics
     , fees * price as chain_fees
-    , fees_native AS gross_protocol_revenue_native
-    , fees * price AS gross_protocol_revenue
+    , fees_native AS ecosystem_revenue_native
+    , fees * price AS ecosystem_revenue
     , fees_native / 2 AS burned_cash_flow_native
     , (fees_native / 2) * price AS burned_cash_flow
     , fees_native / 2 AS validator_cash_flow_native

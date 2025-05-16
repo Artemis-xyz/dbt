@@ -100,7 +100,7 @@ SELECT
     , coalesce(km_data.total_km, 0) as total_km
 
     -- Cash Flow Metrics
-    , coalesce(stats.fees, 0) as gross_protocol_revenue
+    , coalesce(stats.fees, 0) as ecosystem_revenue
     , coalesce(stats.supply_side_fees, 0) as service_cash_flow
     , coalesce(stats.fees, 0) as burned_cash_flow
     , coalesce(stats.burn_native, 0) as burned_cash_flow_native

@@ -10,15 +10,15 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  gross_protocol_revenue: &gross_protocol_revenue
-    name: gross_protocol_revenue
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
     description: "The total USD value generated through trading fees across Uniswap v2 and v3. Calculated as a variable take on each trade, depending on the pool, and protocol version."
     tags:
       - artemis_gaap
       - override
 
-  gross_protocol_revenue_native: &gross_protocol_revenue_native
-    name: gross_protocol_revenue_native
+  ecosystem_revenue_native: &ecosystem_revenue_native
+    name: ecosystem_revenue_native
     description: "The total native token value generated through trading fees across Uniswap v2 and v3. Calculated as a variable take on each trade, depending on the pool, and protocol version."
     tags:
       - artemis_gaap
@@ -98,8 +98,8 @@ models:
   - name: ez_uniswap_metrics_by_token
     description: "This table stores metrics for the UNISWAP protocol"
     columns:
-      - *gross_protocol_revenue
-      - *gross_protocol_revenue_native
+      - *ecosystem_revenue
+      - *ecosystem_revenue_native
       - *net_treasury
       - *own_token_treasury
       - *treasury
@@ -109,7 +109,7 @@ models:
     description: "This table stores metrics for the UNISWAP protocol"
     columns:
       - *fdmc
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *market_cap
       - *net_treasury
       - *own_token_treasury
@@ -127,7 +127,7 @@ models:
   - name: ez_uniswap_metrics_by_chain
     description: "This table stores metrics for the UNISWAP protocol"
     columns:
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *net_treasury
       - *own_token_treasury
       - *service_cash_flow
@@ -139,7 +139,7 @@ models:
   - name: ez_uniswap_metrics_by_pool
     description: "This table stores metrics for the UNISWAP protocol"
     columns:
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *service_cash_flow
       - *spot_dau
       - *spot_volume

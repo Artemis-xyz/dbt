@@ -10,8 +10,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  gross_protocol_revenue: &gross_protocol_revenue
-    name: gross_protocol_revenue
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
     description: "The total USD value generated via trading fees on Fraxswap."
     tags:
       - artemis_gaap
@@ -69,7 +69,7 @@ models:
   - name: ez_frax_metrics_by_chain
     description: "This table stores metrics for the FRAX protocol"
     columns:
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *spot_dau
       - *spot_volume
       - *tvl
@@ -90,7 +90,7 @@ models:
   - name: ez_frax_metrics_by_pool
     description: "This table stores metrics for the FRAX protocol"
     columns:
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *spot_dau
       - *spot_volume
       - *tvl

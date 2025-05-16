@@ -114,9 +114,9 @@ select
     , COALESCE(f.el_rewards_eth, 0) as mev_priority_fees_native
     , COALESCE(f.deposit_fees_native, 0) as lst_deposit_fees_native
     , COALESCE(f.cl_rewards_eth, 0) + COALESCE(f.el_rewards_eth, 0) as yield_generated_native
-    , COALESCE(f.fees_native, 0) as gross_protocol_revenue_native
-    , gross_protocol_revenue_native * 0.14 as validator_cash_flow_native
-    , gross_protocol_revenue_native * 0.86 as service_cash_flow_native
+    , COALESCE(f.fees_native, 0) as ecosystem_revenue_native
+    , ecosystem_revenue_native * 0.14 as validator_cash_flow_native
+    , ecosystem_revenue_native * 0.86 as service_cash_flow_native
 
 from staked_eth_metrics
 full join fees_revs_cte f using (date, token)

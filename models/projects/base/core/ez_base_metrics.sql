@@ -33,6 +33,10 @@ with
     base_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_base_daily_dex_volumes") }}
+    ),
+    adjusted_dau_metrics as (
+        select date, adj_daus as adjusted_dau
+        from {{ ref("ez_base_adjusted_dau") }}
     )
 
 select
@@ -40,6 +44,7 @@ select
     , fundamental_data.chain
     , txns
     , dau
+    , adjusted_dau
     , wau
     , mau
     , fees_native
@@ -77,8 +82,8 @@ select
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_base.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     -- Cashflow Metrics
-    , fees_native as gross_protocol_revenue_native
-    , fees as gross_protocol_revenue
+    , fees_native as ecosystem_revenue_native
+    , fees as ecosystem_revenue
     , l1_data_cost_native AS l1_cash_flow_native  -- fees paid to l1 by sequencer (L1 Fees)
     , l1_data_cost AS l1_cash_flow
     , coalesce(fees_native, 0) - coalesce(l1_data_cost_native, 0) as treasury_cash_flow_native
@@ -116,4 +121,5 @@ left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join base_dex_volumes as dune_dex_volumes_base on fundamental_data.date = dune_dex_volumes_base.date
+left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 where fundamental_data.date < to_date(sysdate())

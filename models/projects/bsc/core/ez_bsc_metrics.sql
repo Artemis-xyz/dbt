@@ -63,8 +63,8 @@ select
     , dune_dex_volumes_binance.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
     , fees as chain_fees
-    , fees_native AS gross_protocol_revenue_native
-    , fees AS gross_protocol_revenue
+    , fees_native AS ecosystem_revenue_native
+    , fees AS ecosystem_revenue
     , fees_native * .1 AS burned_cash_flow_native
     , fees * .1 AS burned_cash_flow
     -- Developer metrics

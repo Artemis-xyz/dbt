@@ -85,7 +85,7 @@ select
 
     -- Money Metrics
     , trading_volume.trading_fees as spot_fees
-    , trading_volume.trading_fees as gross_protocol_revenue
+    , trading_volume.trading_fees as ecosystem_revenue
     , trading_volume.trading_fees * 0.5 as fee_sharing_token_cash_flow
     , trading_volume.trading_fees * 0.5 as service_cash_flow
     , trading_volume.gas_cost_native

@@ -114,7 +114,7 @@ select
     , coalesce(perp_data.perp_liquidation_fees, 0) as perp_liquidation_fees
     , coalesce(perp_data.perp_trading_fees, 0) as perp_trading_fees
     , coalesce(perp_data.perp_fees, 0) as perp_fees
-    , coalesce(spot_data.spot_fees, 0) + coalesce(perp_data.perp_fees, 0) as gross_protocol_revenue
+    , coalesce(spot_data.spot_fees, 0) + coalesce(perp_data.perp_fees, 0) as ecosystem_revenue
     , coalesce(spot_data.spot_lp_cash_flow, 0) + coalesce(perp_data.perp_lp_cash_flow, 0) as service_cash_flow
     , coalesce(spot_data.spot_stakers_cash_flow, 0) + coalesce(perp_data.perp_stakers_cash_flow, 0) as fee_sharing_token_cash_flow
     , coalesce(spot_data.spot_oracle_cash_flow, 0) + coalesce(perp_data.perp_oracle_cash_flow, 0) as other_cash_flow

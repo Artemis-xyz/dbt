@@ -81,7 +81,7 @@ select
 
     -- Cashflow metrics
     , fees.fees_usd AS chain_fees
-    , fees.fees_usd AS gross_protocol_revenue
+    , fees.fees_usd AS ecosystem_revenue
 
     --FLR Token Supply Data
     , daily_supply_data.gross_emissions_native

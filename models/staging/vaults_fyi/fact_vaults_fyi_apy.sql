@@ -24,15 +24,15 @@ flattened as (
 
 extracted as (
   select
-    pool:address::string as id,
-    pool:apy:"1day":total::float as apy,
-    pool:network:name::string as chain,
-    pool:protocol:name::string as protocol,
-    pool:name::string as name,
-    pool:lendUrl::string as source,
-    pool:protocolVaultUrl::string as vault_url,
-    pool:tvl:usd::float as tvl,
-    pool:tags[0]::string as type,
+    pool:response:address::string as id,
+    pool:response:apy:"1day":total::float as apy,
+    pool:response:network:name::string as chain,
+    pool:response:protocol:name::string as protocol,
+    pool:response:name::string as name,
+    pool:response:lendUrl::string as source,
+    pool:response:protocolVaultUrl::string as vault_url,
+    pool:response:tvl:usd::float as tvl,
+    pool:response:tags[0]::string as type,
     extraction_date
   from flattened
 )

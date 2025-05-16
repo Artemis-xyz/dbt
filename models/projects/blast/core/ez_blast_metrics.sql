@@ -71,8 +71,8 @@ select
     -- , dau_over_100 AS dau_over_100_balance
     , dune_dex_volumes_blast.dex_volumes as chain_spot_volume
     -- Cashflow metrics
-    , fees_native AS gross_protocol_revenue_native
-    , fees AS gross_protocol_revenue
+    , fees_native AS ecosystem_revenue_native
+    , fees AS ecosystem_revenue
     , revenue_native AS burned_cash_flow_native
     , revenue AS burned_cash_flow
     , l1_data_cost_native AS l1_cash_flow_native

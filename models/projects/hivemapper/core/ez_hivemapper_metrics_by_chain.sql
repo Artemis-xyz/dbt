@@ -23,7 +23,7 @@ select
     , chain_dau
     
     -- Cash Flow Metrics
-    , gross_protocol_revenue
+    , ecosystem_revenue
     , service_cash_flow
     , burned_cash_flow
     , burned_cash_flow_native

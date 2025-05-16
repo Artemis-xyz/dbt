@@ -40,7 +40,7 @@ select
     
     -- Cash Flow Metrics
     , chain_fees
-    , chain_fees as gross_protocol_revenue
+    , chain_fees as ecosystem_revenue
     , chain_fees as burned_cash_flow
 
     -- Other Metrics

@@ -47,7 +47,7 @@ select
     , fundamentals.txns AS chain_txns
     , sonic_dex_volumes.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
-    , fundamentals.fees AS gross_protocol_revenue
+    , fundamentals.fees AS ecosystem_revenue
     -- Supply Metrics
     , supply_data.emissions_native
     , supply_data.premine_unlocks_native

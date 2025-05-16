@@ -18,9 +18,9 @@
                     '2023-01-01'
                 )
             )
-            -- scanning last 210 days of balance changes for these select addresses since largest rolling avg is 180d; including extra 30d as buffer
+            -- scanning last 120 days of balance changes for these select addresses since largest rolling avg is 90d; including extra 30d as buffer
             and date >= coalesce(
-                (select dateadd('day', -210, max(date)) from {{ this }}),
+                (select dateadd('day', -120, max(date)) from {{ this }}),
                 '2023-01-01'
             )
         {% endif %}
@@ -29,7 +29,11 @@
     , date_spine as (
         select date 
         from {{ ref('dim_date_spine') }}
-        where date between current_date - interval '210 days' and current_date
+        {% if is_incremental() %}
+            where date between current_date - interval '120 days' and current_date -- for incremental runs, only need last 120 days
+        {% else %}
+            where date between (select min(date) from balances) and current_date -- when running full build, need to start at beginning
+        {% endif %}
     )
 
     , addresses_per_date as (
@@ -84,6 +88,11 @@
             , address
             , balance_usd
             , case 
+                when count(*) over (partition by address order by date rows between 7 preceding and current row) >= 7 
+                then avg(balance_usd) over (partition by address order by date rows between 7 preceding and current row) 
+                else null 
+              end as balance_usd_7d_avg
+            , case 
                 when count(*) over (partition by address order by date rows between 30 preceding and current row) >= 30 
                 then avg(balance_usd) over (partition by address order by date rows between 30 preceding and current row) 
                 else null 
@@ -93,28 +102,28 @@
                 then avg(balance_usd) over (partition by address order by date rows between 90 preceding and current row) 
                 else null 
               end as balance_usd_90d_avg
-            , case 
-                when count(*) over (partition by address order by date rows between 180 preceding and current row) >= 180 
-                then avg(balance_usd) over (partition by address order by date rows between 180 preceding and current row) 
-                else null 
-              end as balance_usd_180d_avg
             , native_token_balance
+            , case 
+                when count(*) over (partition by address order by date rows between 7 preceding and current row) >= 7 
+                then avg(native_token_balance) over (partition by address order by date rows between 7 preceding and current row) 
+                else null 
+              end as native_token_balance_7d_avg
             , case 
                 when count(*) over (partition by address order by date rows between 30 preceding and current row) >= 30 
                 then avg(native_token_balance) over (partition by address order by date rows between 30 preceding and current row) 
                 else null 
-              end as native_token_balance_30d_avg
+              end as native_token_balance_30d_avg 
             , case 
                 when count(*) over (partition by address order by date rows between 90 preceding and current row) >= 90 
                 then avg(native_token_balance) over (partition by address order by date rows between 90 preceding and current row) 
                 else null 
-              end as native_token_balance_90d_avg 
-            , case 
-                when count(*) over (partition by address order by date rows between 180 preceding and current row) >= 180 
-                then avg(native_token_balance) over (partition by address order by date rows between 180 preceding and current row) 
-                else null 
-              end as native_token_balance_180d_avg
+              end as native_token_balance_90d_avg
             , stablecoin_balance
+            , case 
+                when count(*) over (partition by address order by date rows between 7 preceding and current row) >= 7 
+                then avg(stablecoin_balance) over (partition by address order by date rows between 7 preceding and current row) 
+                else null 
+              end as stablecoin_balance_7d_avg
             , case 
                 when count(*) over (partition by address order by date rows between 30 preceding and current row) >= 30 
                 then avg(stablecoin_balance) over (partition by address order by date rows between 30 preceding and current row) 
@@ -125,11 +134,6 @@
                 then avg(stablecoin_balance) over (partition by address order by date rows between 90 preceding and current row) 
                 else null 
               end as stablecoin_balance_90d_avg
-            , case 
-                when count(*) over (partition by address order by date rows between 180 preceding and current row) >= 180 
-                then avg(stablecoin_balance) over (partition by address order by date rows between 180 preceding and current row) 
-                else null 
-              end as stablecoin_balance_180d_avg
         from last_values_carried_forward
     )
 
@@ -138,17 +142,17 @@
         , a.address 
         , '{{ chain }}' as chain
         , a.balance_usd 
-        , a.balance_usd_30d_avg 
+        , a.balance_usd_7d_avg 
+        , a.balance_usd_30d_avg
         , a.balance_usd_90d_avg
-        , a.balance_usd_180d_avg
         , a.native_token_balance
+        , a.native_token_balance_7d_avg 
         , a.native_token_balance_30d_avg 
-        , a.native_token_balance_90d_avg 
-        , a.native_token_balance_180d_avg
+        , a.native_token_balance_90d_avg
         , a.stablecoin_balance 
+        , a.stablecoin_balance_7d_avg 
         , a.stablecoin_balance_30d_avg 
-        , a.stablecoin_balance_90d_avg 
-        , a.stablecoin_balance_180d_avg
+        , a.stablecoin_balance_90d_avg
     from addresses_with_balance_rolling_avgs a
     join balances b -- join balances back in to limit table to rows in fact_arbitrum_daily_balances tables; will just include averages now as well; otherwise table will be massive depending on chain if we include full cross joined table
         on a.date = b.date

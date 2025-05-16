@@ -69,8 +69,8 @@ select
 
     -- Cashflow Metrics
     , fd.fees as chain_fees
-    , fd.fees as gross_protocol_revenue
-    , fd.fees_native as gross_protocol_revenue_native
+    , fd.fees as ecosystem_revenue
+    , fd.fees_native as ecosystem_revenue_native
     , avg_txn_fee as chain_avg_txn_fee
     , fd.median_txn_fee as chain_median_txn_fee
     , fd.l1_data_cost as l1_cash_flow

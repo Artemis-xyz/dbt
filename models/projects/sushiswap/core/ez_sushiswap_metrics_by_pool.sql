@@ -59,7 +59,7 @@ select
     , tvl_by_pool.tvl
 
     -- Revenue Metrics
-    , tvp.trading_fees as gross_protocol_revenue
+    , tvp.trading_fees as ecosystem_revenue
     , case
         when tvp.date between '2023-01-23' and '2024-01-23' THEN
             tvp.trading_fees * 0.0030

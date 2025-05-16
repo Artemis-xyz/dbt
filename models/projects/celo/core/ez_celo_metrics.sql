@@ -49,7 +49,7 @@ select
     , celo_dex_volumes.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
     , fees AS chain_fees
-    , fees AS gross_protocol_revenue
+    , fees AS ecosystem_revenue
     , revenue AS burned_cash_flow
     -- Developer Metrics
     , weekly_commits_core_ecosystem

@@ -38,8 +38,8 @@ select
     , daa as chain_dau
     , dune_dex_volumes_unichain.dex_volumes as chain_spot_volume
     -- Cash Flow Metrics
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
     , cost as l1_cash_flow
     , cost_native as l1_cash_flow_native
     , revenue as foundation_cash_flow

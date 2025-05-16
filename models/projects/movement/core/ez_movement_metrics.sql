@@ -37,7 +37,7 @@ select
     -- Cash Flow Metrics
     , gas_native as chain_fees_native
     , gas as chain_fees
-    , gas as gross_protocol_revenue
+    , gas as ecosystem_revenue
 
     -- Market Metrics
     , price

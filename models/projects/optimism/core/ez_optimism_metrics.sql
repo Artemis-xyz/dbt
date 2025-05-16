@@ -35,6 +35,10 @@ with
     optimism_dex_volumes as (
         select date, daily_volume as dex_volumes
         from {{ ref("fact_optimism_daily_dex_volumes") }}
+    ),
+    adjusted_dau_metrics as (
+        select date, adj_daus as adjusted_dau
+        from {{ ref("ez_optimism_adjusted_dau") }}
     )
 
 select
@@ -50,6 +54,7 @@ select
     'optimism' as chain
     , txns
     , dau
+    , adjusted_dau
     , wau
     , mau
     , fees_native
@@ -92,8 +97,8 @@ select
     , dune_dex_volumes_optimism.dex_volumes AS chain_spot_volume
     -- Cashflow Metrics
     , fees AS chain_fees
-    , fees_native AS gross_protocol_revenue_native
-    , fees AS gross_protocol_revenue
+    , fees_native AS ecosystem_revenue_native
+    , fees AS ecosystem_revenue
     , l1_data_cost_native AS l1_cash_flow_native
     , l1_data_cost AS l1_cash_flow
     , coalesce(fees_native, 0) - l1_data_cost_native as treasury_cash_flow_native
@@ -137,4 +142,5 @@ left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join optimism_dex_volumes as dune_dex_volumes_optimism on fundamental_data.date = dune_dex_volumes_optimism.date
+left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 where fundamental_data.date < to_date(sysdate())

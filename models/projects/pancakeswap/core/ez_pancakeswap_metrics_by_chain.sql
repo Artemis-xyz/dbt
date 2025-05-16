@@ -71,12 +71,12 @@ select
     , trading_volume_by_chain.trading_fees
     , trading_volume_by_chain.unique_traders
     , trading_volume_by_chain.gas_cost_usd
-
+    , NULL AS token_incentives
     -- Standardized Metrics
     , trading_volume_by_chain.unique_traders as spot_dau
     , trading_volume_by_chain.trading_volume as spot_volume
     , trading_volume_by_chain.trading_fees as spot_fees
-    , trading_volume_by_chain.trading_fees as gross_protocol_revenue
+    , trading_volume_by_chain.trading_fees as ecosystem_revenue
     , trading_volume_by_chain.trading_fees * .68 as service_cash_flow
     -- TODO: see comment in ez_pancakeswap_metrics re: remaining fees
 

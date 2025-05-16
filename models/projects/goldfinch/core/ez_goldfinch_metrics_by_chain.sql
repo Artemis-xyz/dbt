@@ -44,7 +44,7 @@ select
     , tvl_net_change
 
     -- Cash Flow
-    , gross_protocol_revenue
+    , ecosystem_revenue
     , service_cash_flow
     , token_cash_flow
 

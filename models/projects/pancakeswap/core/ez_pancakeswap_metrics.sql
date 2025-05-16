@@ -76,7 +76,7 @@ select
     , trading_volume.unique_traders as spot_dau
     
     , trading_volume.trading_fees as spot_fees
-    , trading_volume.trading_fees as gross_protocol_revenue
+    , trading_volume.trading_fees as ecosystem_revenue
     -- About 68% of fees go to LPs
     , trading_volume.trading_fees * .68 as service_cash_flow
     -- TODO: the remaining 32% of fees are distributed differently depending on the fee tier of the pool. We currently have the fee tier in

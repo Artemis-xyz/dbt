@@ -52,6 +52,6 @@ select
     
     -- Cash Flow Metrics (Interest goes to Liquidity Suppliers (Lenders) + Vaults Performance Fees)
     , fees as lending_interest_fees
-    , lending_interest_fees as gross_protocol_revenue
+    , lending_interest_fees as ecosystem_revenue
     
 from cumulative_metrics 

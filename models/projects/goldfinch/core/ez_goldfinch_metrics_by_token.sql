@@ -101,7 +101,7 @@ SELECT
     , coalesce(m.tvl,0) - LAG(coalesce(m.tvl,0)) OVER (ORDER BY date) as tvl_net_change
 
     -- Cash Flow
-    , coalesce(m.interest_fees,0) + coalesce(m.withdrawal_revenue,0) as gross_protocol_revenue
+    , coalesce(m.interest_fees,0) + coalesce(m.withdrawal_revenue,0) as ecosystem_revenue
     , coalesce(m.supply_side_fees,0) as service_cash_flow
     , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) as token_cash_flow
         -- This is cashflow to the DAO-controlled treasury

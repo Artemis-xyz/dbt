@@ -59,8 +59,8 @@ select
     , median_txn_fee as chain_median_txn_fee
     , avg_txn_fee as chain_avg_txn_fee
     -- Cash Flow Metrics
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
     , l1_data_cost as l1_cash_flow
     , l1_data_cost_native as l1_cash_flow_native
     , revenue as treasury_cash_flow

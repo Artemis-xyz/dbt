@@ -66,7 +66,7 @@ select
     , COALESCE(magiceden_metrics.daily_trading_volume, 0) AS nft_volume
 
     -- Cash Flow Metrics
-    , COALESCE(magiceden_metrics.fees, 0) AS gross_protocol_revenue
+    , COALESCE(magiceden_metrics.fees, 0) AS ecosystem_revenue
     , COALESCE(magiceden_metrics.supply_side_fees, 0) AS service_cash_flow
     , COALESCE(magiceden_metrics.revenue, 0) AS treasury_cash_flow
 

@@ -2,6 +2,7 @@
     config(
         materialized="incremental",
         snowflake_warehouse="RIPPLE",
+        unique_key="date"
     )
 }}
 
