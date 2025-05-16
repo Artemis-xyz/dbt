@@ -16,7 +16,7 @@ WITH consumption_and_gov_expenditure AS (
                 , COALESCE(nft_trading_volume, 0) AS nft_trading_volume -- consumption 
                 , COALESCE(gross_emissions, 0) AS gross_emissions -- gov expenditures
             {% endif %}
-        FROM ARTEMIS_ICEBERG.PROD_{{ chain }}.EZ_{{ chain }}_METRICS
+        FROM {{ ref('ez_' ~ chain ~ '_metrics') }}
     )
 
     -- need to add protocol revenue
