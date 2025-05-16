@@ -1,0 +1,7 @@
+models:
+  - name: fact_celo_token_transfers
+    columns:
+      - name: block_timestamp
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist

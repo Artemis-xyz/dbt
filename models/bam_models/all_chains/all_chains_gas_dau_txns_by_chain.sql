@@ -20,6 +20,7 @@ with
                     ref("ez_sui_metrics"),
                     ref("ez_tron_metrics"),
                     ref("ez_mantle_metrics"),
+                    ref("ez_celo_metrics"),
                 ]
             )
         }}
