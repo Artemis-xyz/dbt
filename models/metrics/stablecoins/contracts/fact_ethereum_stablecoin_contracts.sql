@@ -61,5 +61,6 @@ from
             ('TRYB', '0x2C537E5624e4af88A7ae4060C022609376C8D0EB', 6, 'bilira', 0),
             ('LVLUSD', '0x7c1156e515aa1a2e851674120074968c905aaf37', 18, 'level-usd', 0),
             ('USDFALCON', '0xfa2b947eec368f42195f24f36d2af29f7c24cec2', 18, 'falcon-finance', 0),
+            ('USD1', '0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d', 18, 'usd1-wlfi', 0),
             ('BUIDL', '0x7712c34205737192402172409a8f7ccef8aa2aec', 6, 'blackrock-usd-institutional-digital-liquidity-fund', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
