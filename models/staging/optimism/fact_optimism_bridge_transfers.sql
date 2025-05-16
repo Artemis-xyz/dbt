@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        unique_key=["tx_hash", "event_index"],
+        unique_key=["transaction_hash", "event_index"],
         snowflake_warehouse="BRIDGE_MD",
     )
 }}
