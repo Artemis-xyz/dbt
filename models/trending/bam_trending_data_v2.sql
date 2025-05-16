@@ -89,3 +89,9 @@ from {{ ref("mantle_trending_daily_v2") }}
 union all
 select *, 'mantle' as chain
 from {{ ref("mantle_trending_weekly_monthly_v2") }}
+union all
+select *, 'celo' as chain
+from {{ ref("celo_trending_daily_v2") }}
+union all
+select *, 'celo' as chain
+from {{ ref("celo_trending_weekly_monthly_v2") }}
