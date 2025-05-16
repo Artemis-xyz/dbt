@@ -31,7 +31,6 @@ select
     , bridge_volume
     , bridge_dau
     , bridge_txns
-    , ecosystem_revenue as ecosystem_revenue
     , price_data.price as price
     , price_data.market_cap as market_cap
     , price_data.fdmc as fdmc
