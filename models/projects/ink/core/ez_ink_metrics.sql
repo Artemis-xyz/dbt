@@ -10,7 +10,7 @@
 
 with 
     ink_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_ink_daily_dex_volumes") }}
     )
 select
@@ -20,6 +20,7 @@ select
     , fees_native
     , fees
     , ink_dex_volumes.dex_volumes
+    , ink_dex_volumes.adjusted_dex_volumes
     -- Standardized Metrics
     -- Chain Usage Metrics
     , txns AS chain_txns

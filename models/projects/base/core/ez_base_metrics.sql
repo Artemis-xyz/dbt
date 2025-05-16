@@ -31,7 +31,7 @@ with
         from {{ ref("fact_base_bridge_bridge_daa") }}
     ),
     base_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_base_daily_dex_volumes") }}
     ),
     adjusted_dau_metrics as (
@@ -58,6 +58,7 @@ select
     , dau_over_100
     , nft_trading_volume
     , dune_dex_volumes_base.dex_volumes AS dex_volumes
+    , dune_dex_volumes_base.adjusted_dex_volumes AS adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , tvl

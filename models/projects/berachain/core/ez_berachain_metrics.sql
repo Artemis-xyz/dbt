@@ -11,7 +11,7 @@
 with 
      price_data as ({{ get_coingecko_metrics('berachain-bera') }}),
      dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_berachain_daily_dex_volumes") }}
      ),
      supply_data as (
@@ -31,6 +31,7 @@ select
     , fees_native
     , fees
     , dex_volumes
+    , adjusted_dex_volumes
     , emission_native
     , burns_native
     -- Standardized Metrics

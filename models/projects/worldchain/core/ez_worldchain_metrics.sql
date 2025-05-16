@@ -11,7 +11,7 @@
 with 
      price_data as ({{ get_coingecko_metrics('worldcoin-wld') }})
     , worldchain_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_worldchain_daily_dex_volumes") }}
     )
 select
@@ -25,6 +25,7 @@ select
     , revenue
     , revenue_native
     , dex_volumes
+    , adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data
     , price

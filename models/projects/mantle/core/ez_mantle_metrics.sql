@@ -31,7 +31,7 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle", "v2") }})
 , stablecoin_data as ({{ get_stablecoin_metrics("mantle") }})
 , price_data as ({{ get_coingecko_metrics("mantle") }})
 , mantle_dex_volumes as (
-    select date, daily_volume as dex_volumes
+    select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
     from {{ ref("fact_mantle_daily_dex_volumes") }}
 )
 
@@ -52,6 +52,7 @@ select
     , treasury_data.treasury_value_native
     , treasury_data.treasury_value_native_change
     , dune_dex_volumes_mantle.dex_volumes
+    , dune_dex_volumes_mantle.adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price

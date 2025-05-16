@@ -29,7 +29,7 @@ with
     , defillama_data as ({{ get_defillama_metrics("linea") }})
     , rolling_metrics as ({{ get_rolling_active_address_metrics("linea") }})
     , linea_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_linea_daily_dex_volumes") }}
     )
     
@@ -48,6 +48,7 @@ select
     , l1_data_cost
     , l1_data_cost_native
     , dune_dex_volumes_linea.dex_volumes
+    , dune_dex_volumes_linea.adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , tvl

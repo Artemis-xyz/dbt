@@ -36,7 +36,7 @@ with
         from {{ ref("fact_zksync_era_bridge_bridge_daa") }}
     ),
     zksync_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_zksync_daily_dex_volumes") }}
     )
     , supply_data as (
@@ -55,6 +55,7 @@ with
 select
     f.date
     , dune_dex_volumes_zksync.dex_volumes
+    , dune_dex_volumes_zksync.adjusted_dex_volumes
     -- Old metrics needed for compatibility
     , f.chain
     , dau

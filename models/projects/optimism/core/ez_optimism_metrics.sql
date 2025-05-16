@@ -33,7 +33,7 @@ with
         from {{ ref("fact_optimism_bridge_bridge_daa") }}
     ),
     optimism_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_optimism_daily_dex_volumes") }}
     ),
     adjusted_dau_metrics as (
@@ -68,6 +68,7 @@ select
     , coalesce(fees, 0) - l1_data_cost as revenue
     , nft_trading_volume
     , dune_dex_volumes_optimism.dex_volumes
+    , dune_dex_volumes_optimism.adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
