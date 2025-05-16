@@ -1,13 +1,21 @@
-{% macro get_chain_gdp(chain, granularity) %}
+{% macro get_chain_gdp(chain) %}
 
 WITH consumption_and_gov_expenditure AS (
     WITH gas_blob_fees_and_nft_volume AS (
         SELECT
             date
-            , COALESCE(fees, 0) as gas
-            , COALESCE(nft_trading_volume, 0) AS nft_trading_volume -- consumption 
-            , COALESCE(blob_fees, 0) AS blob_fees
-            , COALESCE(gross_emissions, 0) AS gross_emissions -- gov expenditures
+            {% if chain == "ethereum" %}
+                , COALESCE(fees, 0) as gas
+                , COALESCE(nft_trading_volume, 0) AS nft_trading_volume -- consumption 
+                , COALESCE(blob_fees, 0) AS blob_fees
+                , COALESCE(priority_fee_usd, 0) AS priority_fees
+                , COALESCE(gross_emissions, 0) AS gross_emissions -- gov expenditures
+            {% endif %}
+            {% if chain == "solana" %}
+                , COALESCE(rev, 0) as rev 
+                , COALESCE(nft_trading_volume, 0) AS nft_trading_volume -- consumption 
+                , COALESCE(gross_emissions, 0) AS gross_emissions -- gov expenditures
+            {% endif %}
         FROM ARTEMIS_ICEBERG.PROD_{{ chain }}.EZ_{{ chain }}_METRICS
     )
 
@@ -23,12 +31,15 @@ WITH consumption_and_gov_expenditure AS (
 
     SELECT 
         g.date 
-        , g.gas
-        , g.nft_trading_volume
-        , g.blob_fees
         , COALESCE(p.gross_protocol_revenue, 0) AS protocol_revenue
-        , g.gross_emissions
-        , g.gas + g.nft_trading_volume + g.blob_fees + protocol_revenue as consumption
+        {% if chain == "ethereum" %}
+            , g.gross_emissions
+            , g.gas + g.nft_trading_volume + g.blob_fees + protocol_revenue + g.priority_fees as consumption
+        {% endif %}
+        {% if chain == "solana" %}
+            , g.gross_emissions
+            , g.rev + g.nft_trading_volume + protocol_revenue as consumption
+        {% endif %}
     FROM gas_blob_fees_and_nft_volume g 
     LEFT JOIN protocol_revenue p
         ON g.date = p.date
@@ -97,7 +108,7 @@ WITH consumption_and_gov_expenditure AS (
 )
 
 SELECT 
-    DATE_TRUNC({{ granularity }}, date) AS date 
+    date 
     , SUM(consumption) AS consumption
     , SUM(expenditures) AS expenditures
     , SUM(exports) AS exports

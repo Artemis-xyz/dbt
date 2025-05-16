@@ -7,4 +7,4 @@
     )
 }}
 
-{{ get_chain_gdp("ethereum", "quarter") }}
+{{ get_chain_gdp("ethereum") }}
