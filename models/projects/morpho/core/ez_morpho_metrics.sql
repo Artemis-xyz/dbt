@@ -52,9 +52,9 @@ select
     date
     , dau
     , txns
-    , borrows as daily_borrows_usd
+    , borrows
     , supplies as total_available_supply
-    , deposits as daily_supply_usd
+    , deposits
     , fees
 
     -- Standardized metrics
