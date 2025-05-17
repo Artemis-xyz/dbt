@@ -35,16 +35,20 @@ with swap_metrics as (
 , token_incentives as (
     SELECT
         date,
-        'ethereum' as chain,
+        case
+            when chain ilike '%ethereum%' then 'ethereum'
+            else chain 
+        end as chain,
         sum(amount_usd) as token_incentives
-    FROM {{ ref('fact_balancer_token_incentives') }}
+    FROM {{ ref('fact_balancer_token_incentives_all_chains') }}
     group by 1,2
 )
 
 , treasury_by_chain as (
     SELECT
         date,
-        'ethereum' as chain,
+        case when chain ilike '%ethereum%' then 'ethereum'
+        else chain end as chain,
         sum(usd_balance) as usd_balance
     FROM {{ ref('fact_balancer_treasury_by_token') }}
     group by 1,2
