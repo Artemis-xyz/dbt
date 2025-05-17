@@ -5,17 +5,20 @@ with
         {{
             dbt_utils.union_relations(
                 relations=[
+                    ref("fact_base_bridge_transfers"),
+                    ref("fact_optimism_bridge_transfers"),
+                    ref("fact_soneium_bridge_transfers"),
                     ref("fact_unichain_bridge_transfers"),
-                    ref("fact_base_bridge_transfers")
+                    ref("fact_worldchain_bridge_transfers"),
                 ]
             )
         }}
     )
 select
-    null as src_messaging_contract_address -- need to add
-    , src_block_timestamp -- need to add
+    src_messaging_contract_address
+    , src_block_timestamp
     , src_transaction_hash as src_tx_hash
-    , src_event_index -- need to add
+    , src_event_index
     , amount_native as src_amount
     , amount_native as amount_sent_native
     , amount_adjusted as amount_sent_adjusted
@@ -25,10 +28,10 @@ select
     , source_chain as src_chain
     , null as origin_chain_id
     , origin_token
-    , null as dst_messaging_contract_address -- need to add
-    , dst_block_timestamp -- need to add
+    , dst_messaging_contract_address
+    , dst_block_timestamp
     , dst_transaction_hash as dst_tx_hash
-    , dst_event_index -- need to add
+    , dst_event_index
     , amount_native as dst_amount
     , amount_native as amount_received_native
     , amount_adjusted as amount_received_adjusted
