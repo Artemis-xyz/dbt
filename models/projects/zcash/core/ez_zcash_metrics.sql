@@ -4,7 +4,8 @@
         snowflake_warehouse="ZCASH",
         database="zcash",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics",
+        enabled=false,
     )
 }}
 
@@ -20,7 +21,7 @@ with
     , github_data as ({{ get_github_metrics("zcash") }})
     , price_data as ({{ get_coingecko_metrics('zcash') }})
 
-select 
+select
     f.date
 
     -- Standardized Metrics
