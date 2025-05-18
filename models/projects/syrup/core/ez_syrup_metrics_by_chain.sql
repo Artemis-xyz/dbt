@@ -1,6 +1,6 @@
 {{
     config(
-        materialized = 'view',
+        materialized = 'table',
         snowflake_warehouse = 'SYRUP',
         database = 'SYRUP',
         schema = 'core',
