@@ -64,7 +64,7 @@ SELECT
     block_timestamp,
     tx_hash,
     from_address as usr
-FROM ethereum_flipside.core.fact_token_transfers
+FROM ethereum_flipside.core.ez_token_transfers
 where to_address = '0x0000000000000000000000000000000000000000'
 and lower(contract_address) = lower('0x6B175474E89094C44Da98b954EedeAC495271d0F')
 ),  __dbt__cte__dim_dao_wallet as (
@@ -695,7 +695,7 @@ SELECT
     tx_hash,
     to_address as usr,
     raw_amount_precise as wad
-FROM ethereum_flipside.core.fact_token_transfers
+FROM ethereum_flipside.core.ez_token_transfers
 where from_address = '0x0000000000000000000000000000000000000000'
 and lower(contract_address) = lower('0x6B175474E89094C44Da98b954EedeAC495271d0F')
 ),  __dbt__cte__fact_opex_suck_hashes as (
@@ -893,7 +893,7 @@ WITH treasury_flows_preunioned AS (
         evt.tx_hash AS hash,
         t.token,
         SUM(evt.RAW_AMOUNT_PRECISE / POW(10, t.decimals)) AS value
-    FROM ethereum_flipside.core.fact_token_transfers evt
+    FROM ethereum_flipside.core.ez_token_transfers evt
     JOIN __dbt__cte__dim_treasury_erc20s t
         ON evt.contract_address = t.contract_address
     WHERE evt.to_address = '0xbe8e3e3618f7474f8cb1d074a26affef007e98fb'
@@ -906,7 +906,7 @@ WITH treasury_flows_preunioned AS (
         evt.tx_hash AS hash,
         t.token,
         -SUM(evt.RAW_AMOUNT_PRECISE / POW(10, t.decimals)) AS value
-    FROM ethereum_flipside.core.fact_token_transfers evt
+    FROM ethereum_flipside.core.ez_token_transfers evt
     JOIN __dbt__cte__dim_treasury_erc20s t
         ON evt.contract_address = t.contract_address
     WHERE evt.from_address = '0xbe8e3e3618f7474f8cb1d074a26affef007e98fb'
@@ -1227,7 +1227,7 @@ SELECT
     tx_hash AS hash,
     CAST(raw_amount_precise AS DOUBLE) AS expense,
     to_address AS address
-FROM ethereum_flipside.core.fact_token_transfers
+FROM ethereum_flipside.core.ez_token_transfers
 WHERE contract_address = '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2' -- MKR token address
   AND from_address = '0xbe8e3e3618f7474f8cb1d074a26affef007e98fb' -- pause proxy
   AND to_address != '0xbe8e3e3618f7474f8cb1d074a26affef007e98fb' -- excluding transfers to itself
@@ -1239,7 +1239,7 @@ SELECT
     tx_hash AS hash,
     -CAST(raw_amount_precise AS DOUBLE) AS expense,
     from_address AS address
-FROM ethereum_flipside.core.fact_token_transfers
+FROM ethereum_flipside.core.ez_token_transfers
 WHERE contract_address = '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2' -- MKR token address
   AND to_address = '0xbe8e3e3618f7474f8cb1d074a26affef007e98fb' -- pause proxy
     AND from_address NOT IN ('0x8ee7d9235e01e6b42345120b5d270bdb763624c7', '0xbe8e3e3618f7474f8cb1d074a26affef007e98fb') -- excluding initial transfers in and transfers from itself
@@ -1723,7 +1723,7 @@ WITH token_transfers AS (
         from_address,
         to_address,
         raw_amount_precise::number / 1e18 AS amount
-    FROM ethereum_flipside.core.fact_token_transfers
+    FROM ethereum_flipside.core.ez_token_transfers
     WHERE contract_address = LOWER('0x517F9dD285e75b599234F7221227339478d0FcC8')
 ),
 daily_mints AS (

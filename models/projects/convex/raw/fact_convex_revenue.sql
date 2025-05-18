@@ -14,7 +14,7 @@ with transfers as (
         contract_address,
         sum(RAW_AMOUNT_PRECISE) as claimed
     from
-        {{ source('ETHEREUM_FLIPSIDE', 'fact_token_transfers') }}
+        {{ source('ETHEREUM_FLIPSIDE', 'ez_token_transfers') }}
     where
         contract_address = lower('0xD533a949740bb3306d119CC777fa900bA034cd52')
         and from_address = lower('0x0000000000000000000000000000000000000000')
@@ -28,7 +28,7 @@ with transfers as (
         contract_address,
         sum(RAW_AMOUNT_PRECISE) as claimed
     from
-        {{ source('ETHEREUM_FLIPSIDE', 'fact_token_transfers') }}
+        {{ source('ETHEREUM_FLIPSIDE', 'ez_token_transfers') }}
     where
         contract_address = lower('0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490')
         and to_address = lower('0x7091dbb7fcbA54569eF1387Ac89Eb2a5C9F6d2EA')

@@ -65,7 +65,7 @@ sources:
     database: ethereum_flipside
     tables:
       - name: ez_native_transfers
-      - name: fact_token_transfers
+      - name: ez_token_transfers
       - name: fact_transactions
       - name: ez_decoded_event_logs
       - name: fact_event_logs
