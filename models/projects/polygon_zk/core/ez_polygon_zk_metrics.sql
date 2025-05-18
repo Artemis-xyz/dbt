@@ -5,6 +5,7 @@
         database="polygon_zk",
         schema="core",
         alias="ez_metrics",
+        enabled=false,
     )
 }}
 
