@@ -1,5 +1,5 @@
 {{ config(
-    materialized='table',
+    materialized='incremental',
     unique_key='unique_id',
     snowflake_warehouse='LITECOIN'
 ) }}
@@ -23,9 +23,12 @@ with raw_transactions as (
         parquet_raw:fee::bigint as fee,
         parquet_raw:inputs as inputs,
         parquet_raw:outputs as outputs,
-        -- Generate a unique ID for each transaction
-        md5(transaction_hash) as unique_id
+        md5(parquet_raw:hash::string) as unique_id
     from {{ source('PROD_LANDING', 'raw_litecoin_transactions_parquet') }}
+    where 1=1
+    {% if is_incremental() %}
+      and parquet_raw:block_number::bigint > (select max(block_number) from {{ this }})
+    {% endif %}
 )
 
 select *
