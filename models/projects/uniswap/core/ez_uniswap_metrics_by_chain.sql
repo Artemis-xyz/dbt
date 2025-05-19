@@ -114,6 +114,7 @@ select
     , 0 as secondary_supply_side_revenue
     , 0 as protocol_revenue
     , 0 as operating_expenses
+    , token_incentives_usd + operating_expenses as total_expenses
     , token_incentives_usd as token_incentives
     , -token_incentives_usd as protocol_earnings
     , tvl_by_chain.tvl
