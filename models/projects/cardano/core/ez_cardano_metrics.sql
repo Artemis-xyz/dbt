@@ -33,7 +33,7 @@ with
     price_data as ({{ get_coingecko_metrics("cardano") }}),
     defillama_data as ({{ get_defillama_metrics("cardano") }}),
     github_data as ({{ get_github_metrics("cardano") }}),
-    nft_data as ({{ get_nft_metrics("cardano") }})  
+    nft_metrics as ({{ get_nft_metrics("cardano") }})  
 
 select
     f.date
