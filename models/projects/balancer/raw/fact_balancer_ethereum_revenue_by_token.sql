@@ -17,7 +17,7 @@ select
     sum(raw_amount_precise::number / 1e18) as amount_native,
     sum(raw_amount_precise::number / 1e18 * p.price) as amount_usd
 from
-    ethereum_flipside.core.fact_token_transfers t
+    ethereum_flipside.core.ez_token_transfers t
     left join ethereum_flipside.price.ez_prices_hourly p on p.token_address = t.contract_address
     and p.hour = t.block_timestamp::date
 where
