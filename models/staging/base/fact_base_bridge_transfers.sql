@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        unique_key=["transaction_hash", "event_index"],
+        unique_key=["transaction_hash", "event_index", "src_messaging_contract_address", "dst_messaging_contract_address"],
         snowflake_warehouse="BRIDGE_MD",
     )
 }}
