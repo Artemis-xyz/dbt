@@ -8,7 +8,7 @@
     )
 }}
 with corn_dex_volumes as (
-    select date, daily_volume as dex_volumes
+    select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_corn_daily_dex_volumes") }}
 )
 , corn_market_data as (
@@ -18,7 +18,7 @@ with corn_dex_volumes as (
 select
     date
     , dex_volumes
-
+    , adjusted_dex_volumes
     -- Standardized Metrics
     , dex_volumes as chain_spot_volume
 

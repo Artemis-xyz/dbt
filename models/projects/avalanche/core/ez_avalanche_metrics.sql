@@ -35,7 +35,7 @@ with
         from {{ ref("fact_avalanche_bridge_bridge_daa") }}
     ), 
     avalanche_c_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_avalanche_c_daily_dex_volumes") }}
     )
     , date_spine as (
@@ -59,6 +59,7 @@ select
     , fees as revenue
     , dau_over_100
     , dune_dex_volumes_avalanche_c.dex_volumes
+    , dune_dex_volumes_avalanche_c.adjusted_dex_volumes
     , nft_trading_volume
     , total_staked_usd
     , issuance

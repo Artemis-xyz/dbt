@@ -24,7 +24,7 @@ with
     )  -- supply side revenue and fees
     , rolling_metrics as ({{ get_rolling_active_address_metrics("blast") }})
     , blast_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_blast_daily_dex_volumes") }}
     )
     , premine_emissions as (
@@ -52,6 +52,7 @@ select
     , coalesce(fees, 0) - l1_data_cost as revenue
     -- , dau_over_100 omitting balances for blast
     , dune_dex_volumes_blast.dex_volumes as dex_volumes
+    , dune_dex_volumes_blast.adjusted_dex_volumes as adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price_data.price

@@ -33,7 +33,7 @@ with
         from {{ ref("fact_arbitrum_one_bridge_bridge_daa") }}
     ),
     arbitrum_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_arbitrum_daily_dex_volumes") }}
     ),
     adjusted_dau_metrics as (
@@ -59,6 +59,7 @@ select
     , dau_over_100
     , nft_trading_volume
     , dune_dex_volumes_arbitrum.dex_volumes
+    , dune_dex_volumes_arbitrum.adjusted_dex_volumes
     , bridge_daa
     -- Standardized Metrics
     -- Market Data Metrics

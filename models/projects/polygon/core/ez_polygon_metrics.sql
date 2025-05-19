@@ -42,7 +42,7 @@ with
         from {{ ref("fact_polygon_pos_bridge_bridge_daa") }}
     ),
     polygon_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_polygon_daily_dex_volumes") }}
     )
 

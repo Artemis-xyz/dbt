@@ -48,7 +48,7 @@ with
         GROUP BY 1
     ),
     ethereum_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_ethereum_daily_dex_volumes") }}
     ),
     block_rewards_data as (
@@ -83,6 +83,7 @@ select
     , percent_semi_censored
     , percent_non_censored
     , dune_dex_volumes_ethereum.dex_volumes
+    , dune_dex_volumes_ethereum.adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price

@@ -31,12 +31,13 @@ with
     , defillama_data as ({{ get_defillama_metrics("zora") }})
     , rolling_metrics as ({{ get_rolling_active_address_metrics("zora") }})
     , zora_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_zora_daily_dex_volumes") }}
     )
 select
     fundamental_data.date
     , dune_dex_volumes_zora.dex_volumes
+    , dune_dex_volumes_zora.adjusted_dex_volumes
     , 'zora' as chain
     , txns
     , dau
