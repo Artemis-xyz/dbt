@@ -21,7 +21,7 @@ with source_data as (
         PARQUET_RAW:count_outputs::integer as count_outputs,
         -- Generate a unique ID for each record
         md5(concat(tx_hash)) as unique_id
-    from {{ source('PROD_LANDING', '`raw_cardano_tx_parquet`') }}
+    from {{ source('PROD_LANDING', 'raw_cardano_tx_parquet') }}
 )
 
 select 
@@ -34,12 +34,11 @@ select
     fee,
     deposit,
     size,
-    invalid_before,
-    invalid_after,
     valid_script,
     script_size,
     count_inputs,
     count_outputs,
     unique_id
 from source_data
+where block_time is not null
 qualify row_number() over (partition by unique_id order by block_time desc) = 1 

@@ -8,34 +8,42 @@ with
     tx_times as (
         select
             tx_hash,
-            block_time
-        from {{ ref('fact_cardano_transactions') }}
+            block_time,
+            epoch_no,
+            slot_no,
+            txidx
+        from {{ ref('fact_cardano_tx') }}
     ),
     -- Get input addresses from tx_in_out
     input_addresses as (
         select
             date_trunc('day', t.block_time) as date,
-            f.value:address::string as address
+            prev_out.value:out_address::string as address
         from {{ ref('fact_cardano_tx_in_out') }} txio
         inner join tx_times t 
             on txio.epoch_no = t.epoch_no 
             and txio.slot_no = t.slot_no 
-            and txio.txidx = t.txidx,
-        lateral flatten(input => txio.inputs) f
-        where f.value:address is not null
+            and txio.txidx = t.txidx
+        , lateral flatten(input => PARSE_JSON(txio.inputs)) inp
+        inner join {{ ref('fact_cardano_tx_in_out') }} prev_txio
+            on prev_txio.slot_no = inp.value:in_slot_no::integer
+            and prev_txio.txidx = inp.value:in_txidx::integer
+        , lateral flatten(input => PARSE_JSON(prev_txio.outputs)) prev_out
+        where prev_out.value:out_idx::integer = inp.value:in_idx::integer
+          and prev_out.value:out_address is not null
     ),
     -- Get output addresses from tx_in_out
     output_addresses as (
         select
             date_trunc('day', t.block_time) as date,
-            f.value:address::string as address
+            f.value:out_address::string as address
         from {{ ref('fact_cardano_tx_in_out') }} txio
         inner join tx_times t 
             on txio.epoch_no = t.epoch_no 
             and txio.slot_no = t.slot_no 
-            and txio.txidx = t.txidx,
-        lateral flatten(input => txio.outputs) f
-        where f.value:address is not null
+            and txio.txidx = t.txidx
+        , lateral flatten(input => PARSE_JSON(txio.outputs)) f
+        where f.value:out_address is not null
     ),
     -- Combine unique addresses for each day
     unique_daily_addresses as (

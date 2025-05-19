@@ -8,7 +8,7 @@ with daily_transactions as (
         date_trunc('day', block_time) as date,
         count(distinct tx_hash) as txns,
         'cardano' as chain
-    from {{ ref('fact_cardano_transactions') }}
+    from {{ ref('fact_cardano_tx') }}
     group by 1
 )
 
