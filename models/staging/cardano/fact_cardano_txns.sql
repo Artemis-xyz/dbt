@@ -1,5 +1,6 @@
 {{ config(
-    materialized='table',
+    materialized='incremental',
+    unique_key='date',
     snowflake_warehouse='CARDANO'
 ) }}
 
@@ -18,4 +19,7 @@ select
     chain
 from daily_transactions
 where date < current_date()
+{% if is_incremental() %}
+  and date > (select coalesce(max(date), '1900-01-01') from {{ this }})
+{% endif %}
 order by date desc

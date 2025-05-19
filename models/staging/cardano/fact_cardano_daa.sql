@@ -14,6 +14,10 @@ with
             slot_no,
             txidx
         from {{ ref('fact_cardano_tx') }}
+        where date < current_date()
+        {% if is_incremental() %}
+            and block_time > (select coalesce(max(block_time), '1900-01-01') from {{ this }})
+        {% endif %}
     ),
     -- Get input addresses from tx_in_out
     input_addresses as (
@@ -69,8 +73,5 @@ select
     daa,
     chain
 from daily_active_addresses
-where date < current_date()
-{% if is_incremental() %}
-  and date > (select coalesce(max(date), '1900-01-01') from {{ this }})
-{% endif %}
+
 order by date desc

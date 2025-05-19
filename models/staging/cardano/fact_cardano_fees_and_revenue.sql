@@ -1,4 +1,8 @@
-{{ config(materialized="view") }}
+{{ config(
+    materialized='incremental',
+    unique_key='date',
+    snowflake_warehouse='CARDANO'
+) }}
 
 with
     tx_daily as (
@@ -19,3 +23,7 @@ select
     0 as revenue
 from tx_daily
 left join cardano_prices on tx_daily.date = cardano_prices.date
+where tx_daily.date < current_date()
+{% if is_incremental() %}
+  and tx_daily.date > (select coalesce(max(date), '1900-01-01') from {{ this }})
+{% endif %}

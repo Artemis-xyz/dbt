@@ -1,5 +1,5 @@
 {{ config(
-    materialized='table',
+    materialized='incremental',
     unique_key='unique_id',
     snowflake_warehouse='CARDANO'
 ) }}
@@ -19,6 +19,10 @@ with source_data as (
         -- Generate a unique ID for each record
         md5(concat(block_hash)) as unique_id
     from {{ source('PROD_LANDING', 'raw_cardano_block_parquet') }}
+    where 1=1
+    {% if is_incremental() %}
+      and to_timestamp(PARQUET_RAW:block_time::number / 1000000) > (select coalesce(max(block_time), '1900-01-01') from {{ this }})
+    {% endif %}
 )
 
 select 
