@@ -39,6 +39,9 @@ with
         , lateral flatten(input => PARSE_JSON(prev_txio.outputs)) prev_out
         where prev_out.value:out_idx::integer = inp.value:in_idx::integer
           and prev_out.value:out_address is not null
+        {% if is_incremental() %}
+          and date_trunc('day', t.block_time) > (select max_date from max_date)
+        {% endif %}
     ),
     -- Get output addresses from tx_in_out
     output_addresses as (
@@ -52,6 +55,9 @@ with
             and txio.txidx = t.txidx
         , lateral flatten(input => PARSE_JSON(txio.outputs)) f
         where f.value:out_address is not null
+        {% if is_incremental() %}
+          and date_trunc('day', t.block_time) > (select max_date from max_date)
+        {% endif %}
     ),
     -- Combine unique addresses for each day
     unique_daily_addresses as (
