@@ -5,6 +5,9 @@
 ) }}
 
 with 
+    max_date as (
+        select coalesce(max(date), '1900-01-01') as max_date from {{ this }}
+    ),
     -- Get transaction timestamps
     tx_times as (
         select
@@ -14,9 +17,9 @@ with
             slot_no,
             txidx
         from {{ ref('fact_cardano_tx') }}
-        where date < current_date()
+        where block_time < current_date()
         {% if is_incremental() %}
-            and block_time > (select coalesce(max(block_time), '1900-01-01') from {{ this }})
+          and block_time >= dateadd(day, 1, (select max_date from max_date))
         {% endif %}
     ),
     -- Get input addresses from tx_in_out

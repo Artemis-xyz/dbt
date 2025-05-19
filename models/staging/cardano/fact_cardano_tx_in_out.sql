@@ -16,7 +16,12 @@ with source_data as (
     from {{ source('PROD_LANDING', 'raw_cardano_tx_in_out_parquet') }}
     where 1=1
     {% if is_incremental() %}
-      and (PARQUET_RAW:epoch_no::integer, PARQUET_RAW:slot_no::integer) > (select coalesce(max(epoch_no), 0), coalesce(max(slot_no), 0) from {{ this }})
+      and (
+        PARQUET_RAW:epoch_no::integer * 1000000000 + PARQUET_RAW:slot_no::integer
+      ) > (
+        select coalesce(max(epoch_no), 0) * 1000000000 + coalesce(max(slot_no), 0)
+        from {{ this }}
+      )
     {% endif %}
 )
 

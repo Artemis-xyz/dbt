@@ -22,7 +22,7 @@ with source_data as (
         -- Generate a unique ID for each record
         md5(concat(tx_hash)) as unique_id
     from {{ source('PROD_LANDING', 'raw_cardano_tx_parquet') }}
-    where 1=1
+    where PARQUET_RAW:block_time is not null
     {% if is_incremental() %}
       and to_timestamp(PARQUET_RAW:block_time::integer / 1000000) > (select coalesce(max(block_time), '1900-01-01') from {{ this }})
     {% endif %}
