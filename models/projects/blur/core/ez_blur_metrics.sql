@@ -47,7 +47,7 @@ select
     , coalesce(blur_fees.fees, 0) as nft_fees
 
     -- Cash Flow Metrics
-    , coalesce(blur_fees.fees, 0) as gross_protocol_revenue
+    , coalesce(blur_fees.fees, 0) as ecosystem_revenue
     , coalesce(blur_fees.fees, 0) as service_cash_flow
 
     -- Supply Metrics

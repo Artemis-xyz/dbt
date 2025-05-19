@@ -107,7 +107,7 @@ SELECT
 
     --Cashflow Metrics
     , dex_data.spot_fees as spot_fees
-    , spot_fees as gross_protocol_revenue
+    , spot_fees as ecosystem_revenue
 
     -- Other Metrics
     , dex_data.gas_cost_native

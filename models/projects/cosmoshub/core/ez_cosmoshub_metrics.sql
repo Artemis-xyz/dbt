@@ -61,7 +61,7 @@ select
     , avg_txn_fee as chain_avg_txn_fee
     -- Cash Flow Metrics
     , fees as chain_fees
-    , fees as gross_protocol_revenue
+    , fees as ecosystem_revenue
     , revenue as treasury_cash_flow
     -- Crypto Metrics
     , tvl

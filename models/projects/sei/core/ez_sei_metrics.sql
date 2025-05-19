@@ -20,7 +20,7 @@ with
     , sei_evm_avg_block_time as (select * from {{ ref("fact_sei_evm_avg_block_time_silver") }})
     , sei_emissions as (select date, rewards_amount as mints_native from {{ ref("fact_sei_emissions") }})
     , sei_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_sei_daily_dex_volumes") }}
     )
     , sei_supply as (
@@ -44,6 +44,7 @@ select
     , 0 as evm_revenue
     , 0 as wasm_revenue
     , dune_dex_volumes_sei.dex_volumes AS dex_volumes
+    , dune_dex_volumes_sei.adjusted_dex_volumes AS adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -81,8 +82,8 @@ select
     , wasm_avg_tps as wasm_avg_tps
     -- Cashflow Metrics
     , combined.fees as chain_fees
-    , combined.fees_native as gross_protocol_revenue_native
-    , combined.fees as gross_protocol_revenue
+    , combined.fees_native as ecosystem_revenue_native
+    , combined.fees as ecosystem_revenue
     , 0 as evm_cash_flow_native
     , 0 as wasm_cash_flow_native
     -- Supply Metrics

@@ -10,8 +10,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  gross_protocol_revenue: &gross_protocol_revenue
-    name: gross_protocol_revenue
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
     description: "The total fees paid by users to Lido's liquid staking protocol"
     tags:
       - artemis_gaap
@@ -99,7 +99,7 @@ models:
   - name: ez_lido_metrics_by_token
     description: "This table stores metrics for the LIDO protocol"
     columns:
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *service_cash_flow
       - *treasury
       - *treasury_cash_flow
@@ -112,7 +112,7 @@ models:
     description: "This table stores metrics for the LIDO protocol"
     columns:
       - *fdmc
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *market_cap
       - *service_cash_flow
       - *token_turnover_circulating
@@ -130,7 +130,7 @@ models:
   - name: ez_lido_metrics_by_chain
     description: "This table stores metrics for the LIDO protocol"
     columns:
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *service_cash_flow
       - *treasury
       - *treasury_cash_flow

@@ -84,7 +84,7 @@ select
     , coalesce(tax_usd, 0) + coalesce(fee_fun_usd, 0) as spot_fees
 
     -- Cash Flow Metrics
-    , coalesce(fee_fun_usd,0)  + coalesce(tax_usd,0) as gross_protocol_revenue
+    , coalesce(fee_fun_usd,0)  + coalesce(tax_usd,0) as ecosystem_revenue
     , coalesce(fee_fun_usd,0) as service_cash_flow
     , coalesce(tax_usd,0) as treasury_cash_flow
 

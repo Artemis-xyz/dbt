@@ -80,7 +80,7 @@ select
     
     -- Cashflow metrics
     , fees AS chain_fees
-    , fees_usd AS gross_protocol_revenue
+    , fees_usd AS ecosystem_revenue
     , revenue AS burned_cash_flow
     , burns_native AS burned_cash_flow_native
     

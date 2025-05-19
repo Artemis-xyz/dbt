@@ -33,7 +33,7 @@ SELECT
     -- Standardized Metrics
 
     -- Cash Flow Metrics
-    , coalesce(fees, 0) as gross_protocol_revenue
+    , coalesce(fees, 0) as ecosystem_revenue
     
     -- Bridge Metrics
     , coalesce(d.dau, 0) as bridge_dau

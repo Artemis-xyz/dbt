@@ -14,7 +14,7 @@ WITH token_transfers AS (
         from_address,
         to_address,
         raw_amount_precise::number / 1e18 AS amount
-    FROM ethereum_flipside.core.fact_token_transfers
+    FROM ethereum_flipside.core.ez_token_transfers
     WHERE contract_address = LOWER('0x517F9dD285e75b599234F7221227339478d0FcC8')
 ),
 daily_mints AS (

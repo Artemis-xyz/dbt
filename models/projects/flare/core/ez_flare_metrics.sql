@@ -29,7 +29,8 @@ with fees as (
 , dex_volumes as (
     select
         date,
-        daily_volume as dex_volumes
+        daily_volume as dex_volumes,
+        daily_volume_adjusted as adjusted_dex_volumes
     from {{ref("fact_flare_daily_dex_volumes")}}
 )
 , defillama_tvl as (
@@ -64,7 +65,7 @@ select
     , txns.txns
     , fees.fees_usd as fees
     , dex_volumes.dex_volumes
-
+    , dex_volumes.adjusted_dex_volumes
     -- Standardized Metrics
 
     -- Market Metrics
@@ -81,7 +82,7 @@ select
 
     -- Cashflow metrics
     , fees.fees_usd AS chain_fees
-    , fees.fees_usd AS gross_protocol_revenue
+    , fees.fees_usd AS ecosystem_revenue
 
     --FLR Token Supply Data
     , daily_supply_data.gross_emissions_native

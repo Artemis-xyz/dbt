@@ -117,7 +117,7 @@ select
     , COALESCE(f.el_rewards_usd, 0) as mev_priority_fees
     , COALESCE(f.deposit_fees, 0) as lst_deposit_fees
     , COALESCE(f.cl_rewards_usd, 0) + COALESCE(f.el_rewards_usd, 0) as yield_generated
-    , COALESCE(f.fees, 0) as gross_protocol_revenue
+    , COALESCE(f.fees, 0) as ecosystem_revenue
     , yield_generated * 0.14 as validator_cash_flow
     , yield_generated * 0.86 as service_cash_flow
 

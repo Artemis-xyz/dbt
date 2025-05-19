@@ -120,7 +120,7 @@ select
     -- Money Metrics
     , bfp.buyback / 0.12 as spot_fees
     , coalesce(c.pool_creation_fees_native * pc.price, 0) as pool_creation_fees -- pool creation
-    , spot_fees + coalesce(c.pool_creation_fees_native * pc.price, 0) as gross_protocol_revenue
+    , spot_fees + coalesce(c.pool_creation_fees_native * pc.price, 0) as ecosystem_revenue
     , bfp.buyback as buyback_cash_flow
     , bfp.treasury_cash_flow as treasury_cash_flow
     , bfp.lp_cash_flow as service_cash_flow

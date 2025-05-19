@@ -85,7 +85,7 @@ select
     , 'DeFi' as category
     , COALESCE(stability_fees,0) as stability_fees
     , COALESCE(trading_fees, 0) AS trading_fees
-    , COALESCE(fees, 0) AS gross_protocol_revenue
+    , COALESCE(fees, 0) AS ecosystem_revenue
 
     , COALESCE(primary_revenue, 0) AS interest_rate_cash_flow
     , COALESCE(liquidation_revenue, 0) AS liquidation_cash_flow

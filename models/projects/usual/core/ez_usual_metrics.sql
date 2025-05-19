@@ -73,7 +73,7 @@ select
     , (ubm.burns_native * mm.price) as burned_cash_flow
     , ubm.burns_native as burned_cash_flow_native
     -- Gross Protocol Revenue
-    , (usual.usualx_unstake_fees_daily) + (usual.treasury_fee) + (yield_generated) + (burned_cash_flow) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as gross_protocol_revenue
+    , (usual.usualx_unstake_fees_daily) + (usual.treasury_fee) + (yield_generated) + (burned_cash_flow) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as ecosystem_revenue
     -- Cash Flow Buckets
     , (usual.collateral_yield * mm.price) + (usual.treasury_fee) as treasury_cash_flow
     , (usual.usualx_unstake_fees_daily) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as fee_sharing_token_cash_flow

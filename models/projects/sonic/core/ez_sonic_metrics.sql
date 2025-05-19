@@ -10,7 +10,7 @@
 
 with 
     sonic_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_sonic_daily_dex_volumes") }}
     )
     , fundamentals as (
@@ -37,6 +37,7 @@ select
     , fundamentals.txns
     , fundamentals.dau
     , sonic_dex_volumes.dex_volumes
+    , sonic_dex_volumes.adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price_data.price
@@ -47,7 +48,7 @@ select
     , fundamentals.txns AS chain_txns
     , sonic_dex_volumes.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
-    , fundamentals.fees AS gross_protocol_revenue
+    , fundamentals.fees AS ecosystem_revenue
     -- Supply Metrics
     , supply_data.emissions_native
     , supply_data.premine_unlocks_native

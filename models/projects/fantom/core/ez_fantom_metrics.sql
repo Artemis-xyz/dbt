@@ -28,7 +28,7 @@ with
     contract_data as ({{ get_contract_metrics("fantom") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("fantom") }}),
     fantom_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_fantom_daily_dex_volumes") }}
     ),
     price_data as ({{ get_coingecko_metrics("fantom") }})
@@ -57,10 +57,11 @@ select
     , mau as chain_mau
     , avg_txn_fee as chain_avg_txn_fee
     , dex_volumes as chain_spot_volume
+    , adjusted_dex_volumes as chain_spot_volume_adjusted
     -- Cash Flow Metrics
     , fees as chain_fees
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
     , revenue as foundation_cash_flow
     -- Developer Metrics
     , weekly_contracts_deployed

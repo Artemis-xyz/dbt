@@ -36,6 +36,6 @@ SELECT
 
     --Cash Flow Metrics
     , 0 as oracle_fees
-    , 0 as gross_protocol_revenue
+    , 0 as ecosystem_revenue
 FROM date_spine
 LEFT JOIN dau_txns USING (date)

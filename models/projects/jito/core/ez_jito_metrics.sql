@@ -105,7 +105,7 @@ SELECT
     -- Cashflow Metrics
     , coalesce(withdraw_management_fees, 0) as lst_fees
     , coalesce(tip_fees, 0) as block_infra_fees
-    , coalesce(withdraw_management_fees, 0) + coalesce(tip_fees, 0) as gross_protocol_revenue
+    , coalesce(withdraw_management_fees, 0) + coalesce(tip_fees, 0) as ecosystem_revenue
     , coalesce(jito_dau_txns_fees_cash_flow.equity_cash_flow, 0) as equity_cash_flow
     , coalesce(jito_dau_txns_fees_cash_flow.treasury_cash_flow, 0) as treasury_cash_flow
     , coalesce(jito_dau_txns_fees_cash_flow.strategy_cash_flow, 0) as strategy_cash_flow

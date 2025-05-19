@@ -36,7 +36,7 @@ with
         from {{ ref("fact_zksync_era_bridge_bridge_daa") }}
     ),
     zksync_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_zksync_daily_dex_volumes") }}
     )
     , supply_data as (
@@ -55,6 +55,7 @@ with
 select
     f.date
     , dune_dex_volumes_zksync.dex_volumes
+    , dune_dex_volumes_zksync.adjusted_dex_volumes
     -- Old metrics needed for compatibility
     , f.chain
     , dau
@@ -86,8 +87,8 @@ select
     , median_txn_fee as chain_median_txn_fee
     , dune_dex_volumes_zksync.dex_volumes as chain_spot_volume
     -- Cash Flow Metrics
-    , gas_usd as gross_protocol_revenue
-    , gas as gross_protocol_revenue_native
+    , gas_usd as ecosystem_revenue
+    , gas as ecosystem_revenue_native
     , l1_data_cost as l1_cash_flow
     , l1_data_cost_native as l1_cash_flow_native
     , revenue as foundation_cash_flow

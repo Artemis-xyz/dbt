@@ -269,3 +269,21 @@ select
     null as avg_token_price,
     'solana' as chain
 from {{ ref("ez_solana_metrics_by_contract_v2") }}
+union
+select
+    LOWER(contract_address) AS contract_address,
+    date,
+    name,
+    null as symbol,
+    app as namespace,
+    friendly_name,
+    category,
+    gas as total_gas,
+    gas_usd as total_gas_usd,
+    txns as transactions,
+    dau,
+    null as token_transfer_usd,
+    null as token_transfer,
+    null as avg_token_price,
+    'celo' as chain
+from {{ ref("ez_celo_metrics_by_contract_v2") }}

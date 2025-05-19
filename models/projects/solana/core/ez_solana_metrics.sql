@@ -190,8 +190,8 @@ select
     end as priority_fee
     -- Cashflow Metrics
     , gas_usd + vote_tx_fee_native * price as chain_fees
-    , gas + vote_tx_fee_native as gross_protocol_revenue_native
-    , gas_usd + vote_tx_fee_native * price as gross_protocol_revenue
+    , gas + vote_tx_fee_native as ecosystem_revenue_native
+    , gas_usd + vote_tx_fee_native * price as ecosystem_revenue
     , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, ((base_fee_native + vote_tx_fee_native) * .5) + priority_fee_native) as validator_cash_flow_native
     , IFF(fundamental_usage.date < '2025-02-13', fees * .5, ((base_fee_native * price  + vote_tx_fee_native * price) * .5) + priority_fee) as validator_cash_flow
     , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as burned_cash_flow_native

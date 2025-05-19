@@ -10,7 +10,7 @@
 
 with 
     ink_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_ink_daily_dex_volumes") }}
     )
 select
@@ -20,14 +20,15 @@ select
     , fees_native
     , fees
     , ink_dex_volumes.dex_volumes
+    , ink_dex_volumes.adjusted_dex_volumes
     -- Standardized Metrics
     -- Chain Usage Metrics
     , txns AS chain_txns
     , dau AS chain_dau
     , ink_dex_volumes.dex_volumes AS chain_spot_volume
     -- Cashflow Metrics
-    , fees AS gross_protocol_revenue
-    , fees_native AS gross_protocol_revenue_native
+    , fees AS ecosystem_revenue
+    , fees_native AS ecosystem_revenue_native
 from {{ ref("fact_ink_fundamental_metrics") }}
 left join ink_dex_volumes using (date)
 where date < to_date(sysdate())
