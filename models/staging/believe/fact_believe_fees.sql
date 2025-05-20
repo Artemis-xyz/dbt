@@ -3,7 +3,7 @@
         materialized = 'incremental',
         unique_key = 'date',
         incremental_strategy = 'merge',
-        snowflake_warehouse = 'SOLANA_XLG',
+        snowflake_warehouse = 'BELIEVE',
     )
 }}
 
