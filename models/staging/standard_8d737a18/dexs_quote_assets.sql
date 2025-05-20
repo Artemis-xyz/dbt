@@ -24,7 +24,7 @@ SELECT
   --Filter out High volume MEV address: 0xf14149bde6f7e2573f38aceda6220d7dfff66592
   where origin_from_address not in ('0xf14149bde6f7e2573f38aceda6220d7dfff66592')
   {% if is_incremental() %}
-    where block_timestamp >= (select DATEADD('day', -3, max(date_day)) from {{ this }})
+    and block_timestamp >= (select DATEADD('day', -3, max(date_day)) from {{ this }})
   {% endif %}
   group by 1,2,3,4
 
