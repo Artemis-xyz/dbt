@@ -43,7 +43,7 @@ with
         SELECT
             date
             , chain
-            , sum(amount_usd) as tvl
+            , sum(tvl_usd) as tvl
         FROM
             {{ref('fact_pendle_tvl_by_token_and_chain')}}
         GROUP BY 1, 2
