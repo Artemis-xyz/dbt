@@ -33,7 +33,8 @@ with
         SELECT
             date
             , symbol as token
-            , sum(amount_native) as tvl
+            , sum(tvl_native) as tvl_native
+            , sum(tvl_usd) as tvl
         FROM
             {{ref('fact_pendle_tvl_by_token_and_chain')}}
         GROUP BY 1, 2
@@ -68,6 +69,7 @@ SELECT
     -- Standardized Metrics
     
     -- Usage/Sector Metrics
+    , COALESCE(t.tvl_native, 0) as tvl_native
     , COALESCE(t.tvl, 0) as tvl
 
     , f.swap_fees as spot_fees

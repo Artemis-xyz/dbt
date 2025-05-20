@@ -48,8 +48,8 @@ with
     , tvl as (
         SELECT
             date
-            , SUM(amount_usd) as tvl
-            , SUM(amount_usd) as net_deposits
+            , SUM(tvl_usd) as tvl
+            , SUM(tvl_usd) as net_deposits
         FROM
             {{ref('fact_pendle_tvl_by_token_and_chain')}}
         GROUP BY 1
