@@ -1,16 +1,14 @@
 -- depends_on: {{ source("PROD_LANDING", "raw_eigenpie_restaked_eth_count") }}
 {{ config(materialized="table") }}
-with
-extracted_raw_data as (
-    {{raw_partitioned_array_to_fact_table_many_columns(
-        "landing_database.prod_landing.raw_eigenpie_restaked_eth_count",
-        "date",
-        ("mLRT_address", "total_supply")
-    )}}
-)
-select
-    date,
-    sum(total_supply::float) as total_supply,
-    'ethereum' as chain
-from extracted_raw_data
-group by 1
+SELECT
+    a.value:date::date as date,
+    a.value:mLRT_address::string as contract_address,
+    a.value:total_supply::number as amount_native,
+    extraction_date,
+    ROW_NUMBER() OVER (PARTITION BY date, contract_address ORDER BY date DESC) as rn
+FROM
+    {{ source("PROD_LANDING", "raw_eigenpie_restaked_eth_count") }},
+    LATERAL FLATTEN (input => parse_json(source_json)) a
+QUALIFY rn = 1
+ORDER BY
+    extraction_date DESC, date desc, amount_native desc
