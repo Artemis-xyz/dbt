@@ -92,6 +92,14 @@ with
         from tvl_metrics
         group by 1, 2
     ),
+    token_incentives as (
+        select
+            claim_date as date,
+            chain,
+            MAX(token_incentive_usd) as token_incentives
+        from {{ref('fact_gmx_token_incentives')}}
+        group by 1, 2
+    ),
     date_spine as (
         select date, chain
         from {{ ref("dim_date_spine") }}
@@ -119,12 +127,14 @@ select
     , coalesce(spot_data.spot_stakers_cash_flow, 0) + coalesce(perp_data.perp_stakers_cash_flow, 0) as fee_sharing_token_cash_flow
     , coalesce(spot_data.spot_oracle_cash_flow, 0) + coalesce(perp_data.perp_oracle_cash_flow, 0) as other_cash_flow
     , coalesce(spot_data.spot_treasury_cash_flow, 0) + coalesce(perp_data.perp_treasury_cash_flow, 0) as treasury_cash_flow
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
     , coalesce(spot_data.spot_volume, 0) as spot_volume
     , coalesce(perp_data.perp_volume, 0) as perp_volume
     , coalesce(tvl_metrics_grouped.tvl, 0) as tvl
 
 from date_spine
 left join tvl_metrics_grouped using(date, chain)
+left join token_incentives using(date, chain)
 left join spot_data using(date, chain)
 left join perp_data using(date, chain)
 left join combined_data using(date, chain)
