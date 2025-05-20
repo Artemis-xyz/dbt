@@ -22,7 +22,7 @@ with ldo_prices as (
 )
 select
     date(p.hour) as date
-    , symbol as token
+    , p.symbol as token
     , sum(coalesce(t.raw_amount_precise::number / 1e18,0)) as amount_native
     , sum(coalesce(t.raw_amount_precise::number / 1e18 * p.price,0)) as amount_usd
 from ldo_prices p
