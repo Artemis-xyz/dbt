@@ -1,0 +1,9 @@
+models:
+  - name: ez_balancer_metrics_by_pool_iceberg
+    meta:
+      snowflake_tags:
+        - tag_name: duckdb
+          tag_value: true
+        - tag_name: order_by
+          tag_value: date, pool
+          
