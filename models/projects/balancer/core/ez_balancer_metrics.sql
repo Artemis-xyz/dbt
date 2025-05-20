@@ -32,7 +32,7 @@ with date_spine as (
     SELECT
         date,
         sum(amount_usd) as token_incentives_usd
-    FROM {{ ref('fact_balancer_token_incentives') }}
+    FROM {{ ref('fact_balancer_token_incentives_all_chains') }}
     group by 1
 )
 , all_tvl as (
