@@ -23,7 +23,7 @@ WITH consumption_and_gov_expenditure AS (
     , protocol_revenue AS (
         SELECT 
             DATE_TRUNC(DAY, date) AS date 
-            , SUM(gross_protocol_revenue) AS gross_protocol_revenue
+            , SUM(ecosystem_revenue) AS ecosystem_revenue
         FROM {{ ref("ez_protocol_datahub_by_chain") }}
         WHERE chain = '{{ chain }}'
         GROUP BY 1
@@ -31,7 +31,7 @@ WITH consumption_and_gov_expenditure AS (
 
     SELECT 
         g.date 
-        , COALESCE(p.gross_protocol_revenue, 0) AS protocol_revenue
+        , COALESCE(p.ecosystem_revenue, 0) AS protocol_revenue
         {% if chain == "ethereum" %}
             , g.gross_emissions
             , g.gas + g.nft_trading_volume + g.blob_fees + protocol_revenue + g.priority_fees as consumption
