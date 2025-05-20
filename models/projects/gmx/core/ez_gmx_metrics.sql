@@ -134,8 +134,9 @@ with
     , token_incentives as (
         select
             claim_date as date,
-            token_incentive_usd as token_incentives
+            SUM(token_incentive_usd) as token_incentives
         from {{ref('fact_gmx_token_incentives')}}
+        group by 1
     )
     
     , market_metrics as ({{ get_coingecko_metrics("gmx") }})
