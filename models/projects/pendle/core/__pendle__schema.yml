@@ -78,7 +78,9 @@ column_definitions:
 
   spot_volume: &spot_volume
     name: spot_volume
-    description: "The total volume on a spot dex"
+    description: "Currently only includes volume on Pendle's AMM Markets via Swap events, and does not include anything related to PendleRouter or PendleLimitRouter."
+    tags:
+      - override
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
