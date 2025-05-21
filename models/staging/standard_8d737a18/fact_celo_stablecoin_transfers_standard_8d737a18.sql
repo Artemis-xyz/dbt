@@ -9,7 +9,8 @@ select
     stablecoin_transfers.date_day,
     stablecoin_transfers.block_number,
     stablecoin_transfers.transfer_index,
-    transactions.transaction_index as transaction_position,
+    -- -1 if the transfer is an epoch rewards transfer
+    coalesce(transactions.transaction_index, -1) as transaction_position,
     stablecoin_transfers.transaction_hash,
     stablecoin_transfers.sender_address,
     stablecoin_transfers.receiver_address,
