@@ -6,6 +6,7 @@
         schema="TEST",
         external_volume="ICEBERG_EXTERNAL_VOLUME_INTERNAL",
         alias="EZ_TEST_METRICS",
+        enabled=false
     )
 }}
 
