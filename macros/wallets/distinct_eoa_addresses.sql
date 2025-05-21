@@ -1,7 +1,8 @@
 {% macro distinct_eoa_addresses(chain) %}
     {% if chain == "tron" %}
-        select distinct from_address as address, 'eoa' as address_type
-        from tron_allium.raw.transactions
+        select distinct trx_from_address as address, 'eoa' as address_type
+        from sonarx_tron.tron_share.transactions
+        where trx_from_address is not null 
     {% elif chain == "sui" %}
         select distinct from_address as address, 'eoa' as address_type
         from {{ref('fact_sui_token_transfers')}}
