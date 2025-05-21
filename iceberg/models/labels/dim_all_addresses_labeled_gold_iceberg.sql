@@ -7,10 +7,10 @@
         external_volume="ICEBERG_EXTERNAL_VOLUME_INTERNAL",
         alias="dim_all_addresses_labeled_gold",
         partition_by=["chain"],
-        post_hook = merge_tags_dict({
+        post_hook = "{{ merge_tags_dict({
             'duckdb': 'true',
             'order_by': 'chain, artemis_application_id, address'
-        })
+        }) }}"
     )
 }}
 

@@ -7,11 +7,11 @@
         external_volume="ICEBERG_EXTERNAL_VOLUME_INTERNAL",
         alias="all_chains_gas_dau_txns_by_contract_v2",
         partition_by=["chain", "date", "namespace"],
-        post_hook = merge_tags_dict({
+        post_hook = "{{ merge_tags_dict({
             'duckdb': 'true',
             'order_by': 'date, namespace, contract_address',
             'partitioned_order_by': 'chain'
-        })
+        }) }}"
     )
 }}
 

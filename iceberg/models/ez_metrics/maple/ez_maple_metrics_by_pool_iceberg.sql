@@ -6,10 +6,10 @@
         schema="MAPLE",
         external_volume="ICEBERG_EXTERNAL_VOLUME_INTERNAL",
         alias="EZ_METRICS_BY_POOL",
-        post_hook = merge_tags_dict({
+        post_hook = "{{ merge_tags_dict({
             'duckdb': 'true',
             'order_by': 'date, pool'
-        })
+        }) }}"
     )
 }}
 
