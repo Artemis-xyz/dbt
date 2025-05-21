@@ -10,7 +10,7 @@ WITH vault_balances AS (
         (COALESCE(vault_a_amount, 0) * COALESCE(price_a, 0)) AS vault_a_tvl,
         (COALESCE(vault_b_amount, 0) * COALESCE(price_b, 0)) AS vault_b_tvl,
         (COALESCE(vault_a_amount, 0) * COALESCE(price_a, 0)) + (COALESCE(vault_b_amount, 0) * COALESCE(price_b, 0)) AS pool_tvl
-    FROM {{ ref('fact_bluefin_dex_swaps') }}
+    FROM {{ ref('fact_raw_bluefin_spot_swaps') }}
     GROUP BY 1, 2
 ), 
 
