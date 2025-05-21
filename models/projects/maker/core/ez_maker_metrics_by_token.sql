@@ -93,6 +93,7 @@ select
     , COALESCE(protocol_revenue - total_expenses, 0) AS protocol_earnings
     , COALESCE(treasury, 0) as treasury_value
     , COALESCE(net_treasury, 0) as net_treasury
+    , COALESCE(treasury_native, 0) AS treasury_native
     , COALESCE(tvl, 0) as net_deposits
     , COALESCE(outstanding_supply,0) as outstanding_supply
 
@@ -110,7 +111,7 @@ select
     , COALESCE(protocol_revenue, 0) AS token_cash_flow 
     
     , COALESCE(treasury, 0) AS treasury
-    , COALESCE(treasury_native, 0) AS treasury_native
+    , COALESCE(treasury_native, 0) AS own_token_treasury_native
 
     , COALESCE(tvl, 0) AS lending_deposits
     , COALESCE(outstanding_supply, 0) AS lending_loans
