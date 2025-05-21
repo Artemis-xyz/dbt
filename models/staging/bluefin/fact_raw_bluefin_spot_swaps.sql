@@ -11,6 +11,7 @@ WITH coingecko_prices AS (
     SELECT *
     FROM raw_coingecko_prices
     WHERE contract_address != '0x53b7015c996f22c026fa320cff2110002771e55dd36307221c2a0f473107869b::blue::BLUE'
+        --There is an additional BLUE token that is not the Bluefin token
 )
 
 SELECT
