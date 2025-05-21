@@ -6,6 +6,10 @@
         schema="TRADER_JOE",
         external_volume="ICEBERG_EXTERNAL_VOLUME_INTERNAL",
         alias="EZ_METRICS_BY_POOL",
+        post_hook = merge_tags_dict({
+            'duckdb': 'true',
+            'order_by': 'date, pool'
+        })
     )
 }}
 
@@ -13,5 +17,3 @@ SELECT
     * EXCLUDE(DATE),
     DATE::TIMESTAMP_NTZ(6) AS DATE
 FROM trader_joe.prod_core.ez_metrics_by_pool
-
-{% do apply_snowflake_tags(this, meta=snowflake_tags) %}
