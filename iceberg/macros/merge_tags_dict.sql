@@ -1,6 +1,5 @@
 {% macro merge_tags_dict(tag_dict) %}
   {% set m = model %}
-  {% do run_query("create schema if not exists artemis_iceberg.metadata") %}
   {% do run_query("create table if not exists artemis_iceberg.metadata.table_tags (
         database_name string,
         schema_name string,
