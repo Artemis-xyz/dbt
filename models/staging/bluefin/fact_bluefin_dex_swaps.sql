@@ -19,7 +19,8 @@ SELECT
     parquet_raw:a_to_b::boolean AS a_to_b,
     parquet_raw:pool::string AS pool_address,     
     parquet_raw:fee_amount::float AS fee_amount,     
-    parquet_raw:fee_symbol::string AS fee_symbol,     
+    parquet_raw:fee_symbol::string AS fee_symbol,    
+    coingecko_prices_fee.price AS price_fee,
     parquet_raw:amount_a_swapped::float AS amount_a_swapped,     
     parquet_raw:vault_a_amount::float AS vault_a_amount,     
     parquet_raw:symbol_a::string AS symbol_a,   
@@ -35,3 +36,6 @@ LEFT JOIN coingecko_prices AS coingecko_prices_a
 LEFT JOIN coingecko_prices AS coingecko_prices_b
     ON coingecko_prices_b.date = parquet_raw:date::date
     AND lower(coingecko_prices_b.symbol) = lower(parquet_raw:symbol_b::string)
+LEFT JOIN coingecko_prices AS coingecko_prices_fee
+    ON coingecko_prices_fee.date = parquet_raw:date::date
+    AND lower(coingecko_prices_fee.symbol) = lower(parquet_raw:fee_symbol::string)
