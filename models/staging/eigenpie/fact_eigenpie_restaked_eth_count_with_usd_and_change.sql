@@ -21,6 +21,6 @@ select
     'ethereum' as chain,
     amount_native as num_restaked_eth,
     amount as amount_restaked_usd,
-    amount_native - lag(amount_native) over (order by date) as num_restaked_eth_net_change,
-    amount - lag(amount) over (order by date) as amount_restaked_usd_net_change
+    coalesce(amount_native - lag(amount_native) over (order by date), 0) as num_restaked_eth_net_change,
+    coalesce(amount - lag(amount) over (order by date), 0) as amount_restaked_usd_net_change
 from processed_data
