@@ -8,7 +8,7 @@
         alias="EZ_METRICS_BY_POOL",
         post_hook = "{{ merge_tags_dict({
             'duckdb': 'true',
-            'order_by': 'date, pool'
+            'order_by': 'date, pool_name'
         }) }}"
     )
 }}
