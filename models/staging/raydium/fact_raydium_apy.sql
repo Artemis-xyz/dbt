@@ -1,10 +1,4 @@
-{{ config(
-    materialized="incremental",
-    unique_key=[
-      'id',
-      'extraction_timestamp',
-    ],
-) }}
+{{ config(materialized="table") }}
 
 with base as (
   select
@@ -12,11 +6,6 @@ with base as (
     extraction_date,
     source_url
   from {{ source("PROD_LANDING", "raw_raydium_pools") }}
-  {% if is_incremental() %}
-    where extraction_date > (
-      select dateadd('day', -1, max(extraction_timestamp)) from {{ this }}
-    )
-  {% endif %}
 ),
 
 flattened as (
