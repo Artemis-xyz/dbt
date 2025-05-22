@@ -41,7 +41,7 @@ with prices as (
         date,
         'UNI' as token,
         sum(amount_native) as reward_native
-    FROM {{ ref('fact_uniswap_token_incentives_2025') }}
+    FROM {{ ref('fact_uniswap_v4_token_incentives') }}
     GROUP BY
         1,
         2
