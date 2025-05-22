@@ -10,17 +10,21 @@
 
 WITH market_data as ({{ get_coingecko_metrics("walrus-2") }})
 
-SELECT 
+SELECT DISTINCT
     parquet_raw:date::date AS date
     , parquet_raw:active_blobs::int AS active_blobs
     , parquet_raw:dau::int AS dau
-    , parquet_raw:fees::float AS fees
-    , parquet_raw:revenue::float AS revenue
+    , (COALESCE(parquet_raw:fees::float, 0) / 1e9) AS fees_native
+    , (COALESCE(parquet_raw:revenue::float, 0) / 1e9) AS revenue_native
+    , (COALESCE(parquet_raw:fees::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS fees_usd
+    , (COALESCE(parquet_raw:revenue::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS revenue_usd
     , parquet_raw:txns::int AS txns
 
     -- Standardized Metrics
-    , COALESCE(parquet_raw:fees::float, 0) AS gross_protocol_revenue
-    , COALESCE(parquet_raw:revenue::float, 0) AS service_cash_flow
+    , (COALESCE(parquet_raw:fees::float, 0) / 1e9) AS gross_protocol_revenue_native
+    , (COALESCE(parquet_raw:revenue::float, 0) / 1e9) AS service_cash_flow_native
+    , (COALESCE(parquet_raw:fees::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS gross_protocol_revenue_usd
+    , (COALESCE(parquet_raw:revenue::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS service_cash_flow_usd
     
     -- Token Metrics
     , COALESCE(market_data.price, 0) AS price
@@ -29,8 +33,10 @@ SELECT
     , COALESCE(market_data.token_volume, 0) AS token_volume
 
     -- Crypto Metrics
-    , COALESCE(parquet_raw:tvl::float, 0) AS tvl
-    , COALESCE(parquet_raw:tvl_net_change::float, 0) AS tvl_net_change
+    , (COALESCE(parquet_raw:tvl::float, 0) / 1e9) AS tvl_native
+    , (COALESCE(parquet_raw:tvl_net_change::float, 0) / 1e9) AS tvl_net_change_native
+    , (COALESCE(parquet_raw:tvl::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS tvl
+    , (COALESCE(parquet_raw:tvl_net_change::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS tvl_net_change
 
     --Turnover Metrics
     , COALESCE(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
