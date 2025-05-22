@@ -6,19 +6,43 @@
 WITH vault_balances AS (
     SELECT
         date,
+        timestamp,
         pool_address,
-        (COALESCE(vault_a_amount, 0) * COALESCE(price_a, 0)) AS vault_a_tvl,
-        (COALESCE(vault_b_amount, 0) * COALESCE(price_b, 0)) AS vault_b_tvl,
-        (COALESCE(vault_a_amount, 0) * COALESCE(price_a, 0)) + (COALESCE(vault_b_amount, 0) * COALESCE(price_b, 0)) AS pool_tvl
+        symbol_a,
+        symbol_b,
+        vault_a_amount_native,
+        vault_b_amount_native,
+        vault_a_amount_usd,
+        vault_b_amount_usd,
+        COALESCE(vault_a_amount_usd, 0) + COALESCE(vault_b_amount_usd, 0) AS pool_tvl
     FROM {{ ref('fact_raw_bluefin_spot_swaps') }}
-    GROUP BY 1, 2
+    GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9
 ), 
 
 partitioned_vault_balances AS (
     SELECT
         date,
-        ROW_NUMBER() OVER (PARTITION BY pool_address ORDER BY date DESC) AS rn,
+        pool_address,
+        symbol_a,
+        symbol_b,
+        vault_a_amount_native,
+        vault_b_amount_native,
+        vault_a_amount_usd,
+        vault_b_amount_usd,
+        pool_tvl,
+        ROW_NUMBER() OVER (PARTITION BY pool_address ORDER BY timestamp DESC) AS rn
     FROM vault_balances
 )
 
-SELECT * FROM partitioned_vault_balances
+SELECT
+    date,
+    pool_address,
+    symbol_a,
+    symbol_b,
+    vault_a_amount_native,
+    vault_b_amount_native,
+    vault_a_amount_usd,
+    vault_b_amount_usd,
+    pool_tvl
+FROM partitioned_vault_balances 
+WHERE rn = 1
