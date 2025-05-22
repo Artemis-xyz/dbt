@@ -1,6 +1,4 @@
-{{ config(
-    materialized="table"
-) }}
+{{ config(materialized="table") }}
 
 with base as (
   select
@@ -8,17 +6,13 @@ with base as (
     extraction_date,
     source_url
   from {{ source("PROD_LANDING", "raw_raydium_pools") }}
-  where extraction_date = (
-    select max(extraction_date)
-    from {{ source("PROD_LANDING", "raw_raydium_pools") }}
-  )
 ),
 
 flattened as (
   select
     value as pool,
     base.extraction_date
-  from base,
+    from base,
   lateral flatten(input => parse_json(base.source_json))
 ),
 
@@ -30,8 +24,11 @@ extracted as (
     pool:feeRate::float as fees,
     pool:day:apr::float as apr,
     pool:tvl::float as tvl,
+    p.link,
     extraction_date
   from flattened
+  inner join {{ ref("raydium_stablecoin_pool_ids") }} p
+  on pool:id::string = p.id
 )
 
 select
@@ -40,12 +37,10 @@ select
   (power(1 + ((apr / 100) / 365), 365) - 1) as apy,
   tvl,
   fees,
-  array_construct(
-    case when mintA_symbol = 'WSOL' then 'SOL' else mintA_symbol end,
-    case when mintB_symbol = 'WSOL' then 'SOL' else mintB_symbol end
-  ) as symbol,
+  array_construct( mintA_symbol, mintB_symbol ) as symbol,
   'raydium' as protocol,
   'Pool' as type,
   'solana' as chain,
+  link,
   extraction_date as extraction_timestamp
 from extracted

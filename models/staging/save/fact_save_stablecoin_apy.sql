@@ -4,26 +4,27 @@
 
 with latest as (
   select
-    id,
-    max(extraction_timestamp) as max_timestamp
+    id
+    , extraction_timestamp 
   from {{ ref("fact_save_apy") }}
-  group by id
+  qualify row_number() over (partition by id order by extraction_timestamp desc) = 1
 )
 
 select
-    f.extraction_timestamp as timestamp,
-    f.id,
-    f.name,
-    f.apy,
-    f.tvl,
-    f.symbol,
-    f.protocol,
-    f.type,
-    f.chain,
-    p.link
+  f.extraction_timestamp as timestamp
+  , f.id
+  , f.name
+  , f.apy
+  , f.tvl
+  , f.symbol
+  , f.protocol
+  , f.type
+  , f.chain
+  , f.link
+  , a.tvl_score
 from {{ ref("fact_save_apy") }} f
 join latest l
 on f.id = l.id
-    and f.extraction_timestamp = l.max_timestamp
-join {{ ref("save_stablecoin_lending_ids") }} p
-on f.id = p.id
+  and f.extraction_timestamp = l.extraction_timestamp
+join {{ ref("agg_save_stablecoin_apy") }} a
+on f.id = a.id
