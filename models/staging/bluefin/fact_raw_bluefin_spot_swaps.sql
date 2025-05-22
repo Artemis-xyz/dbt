@@ -3,15 +3,9 @@
     database = 'bluefin'
 )}}
 
+/*
 WITH coingecko_prices AS (
-    WITH raw_coingecko_prices AS (
-        {{get_multiple_coingecko_price_with_latest('sui')}}
-    )
-
-    SELECT *
-    FROM raw_coingecko_prices
-    WHERE contract_address != '0x53b7015c996f22c026fa320cff2110002771e55dd36307221c2a0f473107869b::blue::BLUE'
-        --There is an additional BLUE token that is not the Bluefin token
+    {{get_multiple_coingecko_price_with_latest('sui')}}
 )
 
 SELECT
@@ -40,3 +34,29 @@ LEFT JOIN coingecko_prices AS coingecko_prices_b
 LEFT JOIN coingecko_prices AS coingecko_prices_fee
     ON coingecko_prices_fee.date = parquet_raw:date::date
     AND lower(coingecko_prices_fee.symbol) = lower(parquet_raw:fee_symbol::string)
+*/ 
+
+-- Run this check to see if the coingecko prices are correct
+
+WITH coingecko_prices AS (
+    {{get_multiple_coingecko_price_with_latest('sui')}}
+)
+
+SELECT DISTINCT
+    parquet_raw:symbol_a::string AS parquet_symbol_a,   
+    parquet_raw:symbol_b::string AS parquet_symbol_b, 
+    parquet_raw:token_address_a::string AS parquet_token_address_a,
+    parquet_raw:token_address_b::string AS parquet_token_address_b, 
+    coingecko_prices_a.price AS coingecko_price_a,
+    coingecko_prices_b.price AS coingecko_price_b, 
+    coingecko_prices_a.contract_address AS coingecko_contract_address_a,
+    coingecko_prices_b.contract_address AS coingecko_contract_address_b, 
+    coingecko_prices_a.symbol AS coingecko_symbol_a,
+    coingecko_prices_b.symbol AS coingecko_symbol_b
+FROM {{ source('PROD_LANDING', 'raw_sui_fact_bluefin_dex_swaps_parquet') }}
+LEFT JOIN coingecko_prices AS coingecko_prices_a
+    ON coingecko_prices_a.date = parquet_raw:date::date
+    AND lower(coingecko_prices_a.contract_address) = lower(parquet_raw:token_address_a::string)
+LEFT JOIN coingecko_prices AS coingecko_prices_b
+    ON coingecko_prices_b.date = parquet_raw:date::date
+    AND lower(coingecko_prices_b.contract_address) = lower(parquet_raw:token_address_b::string)
