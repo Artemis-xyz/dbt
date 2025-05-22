@@ -4,7 +4,7 @@
         snowflake_warehouse="TON",
         database="ton",
         schema="core",
-        alias="ez_metrics",
+        alias="ez_metrics_by_chain",
         unique_key="date"
     )
 }}
@@ -46,6 +46,7 @@ with
     )
 select
     ton.date
+    , 'ton' as chain
     , dau
     , wau
     , mau
