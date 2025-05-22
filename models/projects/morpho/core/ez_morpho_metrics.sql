@@ -63,6 +63,13 @@ with morpho_data as (
     from {{ ref("fact_morpho_supply_data") }}
 )
 
+, date_spine as (
+    select
+        date
+    from {{ ref("dim_date_spine") }}
+    where date < to_date(sysdate()) and date >= (select min(date) from morpho_token_incentives)
+)
+
 select
     date
     , dau
@@ -99,7 +106,8 @@ select
 
     , token_incentives_native
     , token_incentives
-from cumulative_metrics
+from date_spine
+left join cumulative_metrics using (date)
 left join morpho_market_data mdd using (date)
 left join morpho_supply_data msd using (date)
 left join morpho_token_incentives using (date)

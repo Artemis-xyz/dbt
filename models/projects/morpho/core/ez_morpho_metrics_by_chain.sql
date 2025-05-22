@@ -52,9 +52,16 @@ with deposits as (
     group by 1, 2
 )
 
+, date_spine as (
+    select
+        date
+    from {{ ref("dim_date_spine") }}
+    where date < to_date(sysdate()) and date >= (select min(date) from morpho_token_incentives)
+)
+
 select
-    date
-    , chain
+    ds.date
+    , coalesce(mti.chain, cm.chain) as chain
     , dau
     , txns
     , borrows
@@ -75,5 +82,7 @@ select
     , token_incentives_native
     , token_incentives
     
-from cumulative_metrics 
-left join morpho_token_incentives using (date)
+from date_spine ds 
+left join morpho_token_incentives mti on ds.date = mti.date 
+left join cumulative_metrics cm on mti.date = cm.date
+                                    and mti.chain = cm.chain
