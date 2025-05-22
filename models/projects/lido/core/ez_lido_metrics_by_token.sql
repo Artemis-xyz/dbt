@@ -106,7 +106,7 @@ SELECT
     , COALESCE(f.mev_priority_fees_native, 0) as mev_priority_fees
     , COALESCE(f.block_rewards_native, 0) as block_rewards
     , COALESCE(f.fees, 0) as yield_generated
-    , COALESCE(f.fees, 0) as gross_protocol_revenue
+    , COALESCE(f.fees, 0) as ecosystem_revenue
     , COALESCE(f.fees, 0) * .90 as service_cash_flow
     , COALESCE(f.fees, 0) * .05 as treasury_cash_flow
     , COALESCE(f.fees, 0) * .05 as validator_cash_flow

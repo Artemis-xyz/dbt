@@ -52,8 +52,8 @@ select
     
     -- Cash Flow Metrics
     , coalesce(fees, 0) as chain_fees
-    , coalesce(fees, 0) as gross_protocol_revenue
-    , coalesce(fees_native, 0) as gross_protocol_revenue_native
+    , coalesce(fees, 0) as ecosystem_revenue
+    , coalesce(fees_native, 0) as ecosystem_revenue_native
     , coalesce(avg_txn_fee, 0) as chain_avg_txn_fee
     , coalesce(burns.burns_native, 0) as burned_cashflow_native
     , coalesce(burns.burns_native, 0) * price as burned_cashflow

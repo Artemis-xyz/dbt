@@ -71,7 +71,7 @@ select
     , gd.unique_traders as perp_dau
     , gf.referral_fees
     , gf.nft_bot_fees
-    , gf.fees as gross_protocol_revenue
+    , gf.fees as ecosystem_revenue
     , gf.buybacks as buyback_cash_flow
     , gf.foundation_cash_flow
     , gf.fee_sharing_token_cash_flow

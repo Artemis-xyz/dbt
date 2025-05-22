@@ -77,7 +77,7 @@ SELECT
     -- Cashflow Metrics
     , (coalesce(compute_fees_total_usd.compute_fees_total_usd, 0))/ 1e6 AS compute_fees
     , coalesce(validator_fees.validator_fees, 0) AS gas_fees
-    , compute_fees + gas_fees AS gross_protocol_revenue
+    , compute_fees + gas_fees AS ecosystem_revenue
     , validator_fees AS validator_cash_flow
     , revenue.revenue AS treasury_cash_flow
     , compute_fees - treasury_cash_flow AS service_cash_flow

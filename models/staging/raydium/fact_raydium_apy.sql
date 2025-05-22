@@ -40,9 +40,12 @@ select
   (power(1 + ((apr / 100) / 365), 365) - 1) as apy,
   tvl,
   fees,
-  array_construct(mintA_symbol, mintB_symbol) as symbol,
+  array_construct(
+    case when mintA_symbol = 'WSOL' then 'SOL' else mintA_symbol end,
+    case when mintB_symbol = 'WSOL' then 'SOL' else mintB_symbol end
+  ) as symbol,
   'raydium' as protocol,
-  'pool' as type,
+  'Pool' as type,
   'solana' as chain,
   extraction_date as extraction_timestamp
 from extracted

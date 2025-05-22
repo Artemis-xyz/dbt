@@ -17,8 +17,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  gross_protocol_revenue: &gross_protocol_revenue
-    name: gross_protocol_revenue
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
     description: "Sum of all trading fees paid on Curve's AMM."
     tags:
       - artemis_gaap
@@ -81,7 +81,7 @@ models:
     description: "This table stores metrics for the CURVE protocol"
     columns:
       - *fee_sharing_token_cash_flow
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *service_cash_flow
       - *spot_dau
       - *spot_volume
@@ -92,7 +92,7 @@ models:
     columns:
       - *fdmc
       - *fee_sharing_token_cash_flow
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *market_cap
       - *price
       - *service_cash_flow
@@ -107,7 +107,7 @@ models:
     description: "This table stores metrics for the CURVE protocol"
     columns:
       - *fee_sharing_token_cash_flow
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *service_cash_flow
       - *spot_dau
       - *spot_volume

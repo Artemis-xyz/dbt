@@ -19,7 +19,7 @@ treasury_data as (
         date
         , 'wallet' as protocol
         , treasury_data.contract_address
-        , symbol
+        , t1.symbol
         , balance_native
         , balance
     from treasury_data

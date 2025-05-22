@@ -59,6 +59,13 @@ with
         from tvl_by_pool
         group by tvl_by_pool.date
     )
+    , token_incentives as (
+        select
+            date,
+            sum(amount_usd) as token_incentives_usd
+        from {{ ref('fact_pancakeswap_token_incentives') }}
+        group by date
+    )
 select
     tvl.date
     , 'pancakeswap' as app
@@ -69,7 +76,7 @@ select
     , trading_volume.unique_traders as spot_dau
     
     , trading_volume.trading_fees as spot_fees
-    , trading_volume.trading_fees as gross_protocol_revenue
+    , trading_volume.trading_fees as ecosystem_revenue
     -- About 68% of fees go to LPs
     , trading_volume.trading_fees * .68 as service_cash_flow
     -- TODO: the remaining 32% of fees are distributed differently depending on the fee tier of the pool. We currently have the fee tier in
@@ -77,8 +84,10 @@ select
     -- The remaining fees are distributed among CAKE burns, Treasury, and Fixed Term CAKE Stakers
     -- https://docs.pancakeswap.finance/products/pancakeswap-exchange/pancakeswap-pools
     
+    , token_incentives.token_incentives_usd as token_incentives
     , trading_volume.gas_cost_native as gas_cost_native
     , trading_volume.gas_cost_usd as gas_cost
 from tvl
 left join trading_volume using(date)
+left join token_incentives using(date)
 where tvl.date < to_date(sysdate())

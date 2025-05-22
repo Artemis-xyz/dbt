@@ -19,7 +19,7 @@ select
     , dau as chain_dau
     , txns as chain_txns
     -- Cashflow metrics
-    , fees_native AS gross_protocol_revenue_native
-    , fees AS gross_protocol_revenue
+    , fees_native AS ecosystem_revenue_native
+    , fees AS ecosystem_revenue
 from {{ ref("fact_soneium_fundamental_metrics") }}
 where date < to_date(sysdate())

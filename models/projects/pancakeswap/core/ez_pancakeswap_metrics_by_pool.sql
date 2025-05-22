@@ -62,7 +62,7 @@ select
     , trading_volume_pool.unique_traders as spot_dau
     , trading_volume_pool.trading_volume as spot_volume
     , trading_volume_pool.trading_fees as spot_fees
-    , trading_volume_pool.trading_fees as gross_protocol_revenue
+    , trading_volume_pool.trading_fees as ecosystem_revenue
     , trading_volume_pool.trading_fees * .68 as service_cash_flow
     -- TODO: see comment in ez_pancakeswap_metrics re: remaining fees
 

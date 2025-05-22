@@ -4,7 +4,6 @@
 -- contracts in `fact_{{ chain }}_stablecoin_contracts` are decoded
 -- 3. The table `{{ chain }}_flipside.core.fact_transactions` exists
 {% macro agg_chain_stablecoin_transfers(chain, new_stablecoin_address) %}
-    -- TRON Special case - comes from Allium
     {% if chain in ("tron") %}
         select
             block_timestamp,
@@ -238,10 +237,10 @@
             )
             and transfer_type = 'nep141'
 
-    {% elif chain in ("celo") %}
+    {% elif chain in ("celo", "kaia", "aptos") %}
         select
             block_timestamp,
-            trunc(block_timestamp, 'day') as date,
+            block_timestamp::date as date,
             block_number,
             event_index as index,
             transaction_hash as tx_hash,

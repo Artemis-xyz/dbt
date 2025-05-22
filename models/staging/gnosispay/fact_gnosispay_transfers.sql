@@ -10,7 +10,7 @@ select
     from_address,
     'EURe' as token,
     to_decimal(RAW_AMOUNT_PRECISE, 38, 0) / 1e18 AS transfer_volume
-from gnosis_flipside.core.fact_token_transfers
+from gnosis_flipside.core.ez_token_transfers
 where lower(contract_address) in (
     lower('0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430')
 )
@@ -25,7 +25,7 @@ select
     from_address,
     'EURe' as token,
     to_decimal(RAW_AMOUNT_PRECISE, 38, 0) / 1e18 AS transfer_volume
-from gnosis_flipside.core.fact_token_transfers
+from gnosis_flipside.core.ez_token_transfers
 where lower(contract_address) in (
     lower('0xcB444e90D8198415266c6a2724b7900fb12FC56E')
 )
@@ -40,7 +40,7 @@ select
     from_address,
     'GBPe' as token,
     to_decimal(RAW_AMOUNT_PRECISE, 38, 0) / 1e18 AS transfer_volume
-from gnosis_flipside.core.fact_token_transfers
+from gnosis_flipside.core.ez_token_transfers
 where lower(contract_address) in (
     lower('0x5Cb9073902F2035222B9749F8fB0c9BFe5527108')
 )

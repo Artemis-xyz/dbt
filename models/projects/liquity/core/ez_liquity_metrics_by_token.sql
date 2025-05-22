@@ -79,7 +79,17 @@ with  fees_and_revs as (
                 union
                 select distinct token from outstanding_supply
                 union
-                select distinct token from fees_and_revs)
+                select distinct token from fees_and_revs
+                union
+                select distinct token from token_incentives
+                union
+                select distinct token from treasury_by_token
+                union
+                select distinct token from net_treasury
+                union
+                select distinct token from treasury_native
+                union
+                select distinct token from tvl)
     where date between '2021-04-05' and to_date(sysdate())
 )
 
@@ -109,8 +119,8 @@ select
     , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
 
     -- Cash Flow Metrics
-    , fr.revenue_usd as gross_protocol_revenue
-    , fr.revenue_native as gross_protocol_revenue_native
+    , fr.revenue_usd as ecosystem_revenue
+    , fr.revenue_native as ecosystem_revenue_native
     , ti.token_incentives_native as fee_sharing_token_cash_flow_native
 
     -- Protocol Metrics

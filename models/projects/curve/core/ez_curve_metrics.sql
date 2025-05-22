@@ -32,7 +32,7 @@ with
             sum(trading_volume_by_pool.gas_cost_usd) as gas_cost_usd
         from trading_volume_by_pool
         group by trading_volume_by_pool.date
-    ),
+    )
     , ez_dex_swaps as (
         SELECT
             block_timestamp::date as date,
@@ -62,6 +62,14 @@ with
         from tvl_by_pool
         group by tvl_by_pool.date
     )
+    , token_incentives as (
+        select
+            date,
+            sum(minted_amount) as token_incentives_native,
+            sum(minted_usd) as token_incentives
+        from {{ ref('fact_curve_token_incentives') }}
+        group by 1
+    )
     , market_metrics as (
         {{ get_coingecko_metrics('curve-dao-token')}}
     )
@@ -85,9 +93,11 @@ select
 
     -- Money Metrics
     , trading_volume.trading_fees as spot_fees
-    , trading_volume.trading_fees as gross_protocol_revenue
+    , trading_volume.trading_fees as ecosystem_revenue
     , trading_volume.trading_fees * 0.5 as fee_sharing_token_cash_flow
     , trading_volume.trading_fees * 0.5 as service_cash_flow
+    , token_incentives.token_incentives_native
+    , token_incentives.token_incentives
     , trading_volume.gas_cost_native
     , trading_volume.gas_cost_usd as gas_cost
 
@@ -99,4 +109,5 @@ from tvl
 left join trading_volume using(date)
 left join market_metrics using(date)
 left join ez_dex_swaps using(date)
+left join token_incentives using(date)
 where tvl.date < to_date(sysdate())

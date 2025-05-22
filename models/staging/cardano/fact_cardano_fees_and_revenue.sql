@@ -1,22 +1,29 @@
-{{ config(materialized="view") }}
+{{ config(
+    materialized='incremental',
+    unique_key='date',
+    snowflake_warehouse='CARDANO'
+) }}
+
 with
-    max_extraction as (
-        select max(extraction_date) as max_date
-        from {{ source("PROD_LANDING", "raw_cardano_fees") }}
+    tx_daily as (
+        select
+            date_trunc('day', block_time) as date,
+            sum(fee) as total_fee_lovelace
+        from {{ ref('fact_cardano_tx') }}
+        where block_time is not null
+        group by 1
     ),
-    cardano_prices as ({{ get_coingecko_price_with_latest("cardano") }}),
-    raw as (
-        select date(value:date) as date, value:"fees_usd"::int as fees_usd, value as source
-        from
-            {{ source("PROD_LANDING", "raw_cardano_fees") }},
-            lateral flatten(input => parse_json(source_json))
-        where extraction_date = (select max_date from max_extraction)
-    )
+    cardano_prices as ({{ get_coingecko_price_with_latest('cardano') }} )
+
 select
-    raw.date,
+    tx_daily.date,
     'cardano' as chain,
-    fees_usd / coalesce(price, 0) as gas,
-    fees_usd as gas_usd,
+    total_fee_lovelace / 1e6 as gas, -- ADA
+    (total_fee_lovelace / 1e6) * coalesce(cardano_prices.price, 0) as gas_usd,
     0 as revenue
-from raw
-left join cardano_prices on raw.date = cardano_prices.date
+from tx_daily
+left join cardano_prices on tx_daily.date = cardano_prices.date
+where tx_daily.date < current_date()
+{% if is_incremental() %}
+  and tx_daily.date > (select coalesce(max(date), '1900-01-01') from {{ this }})
+{% endif %}

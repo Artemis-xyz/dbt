@@ -1,7 +1,12 @@
 {% macro distinct_eoa_addresses(chain) %}
     {% if chain == "tron" %}
-        select distinct from_address as address, 'eoa' as address_type
-        from tron_allium.raw.transactions
+        select trx_from_address as address, 'eoa' as address_type, max(datetime) as last_updated_at
+        from sonarx_tron.tron_share.transactions
+        where trx_from_address is not null 
+        {% if is_incremental() %}
+            and datetime > (select max(last_updated_at) from {{this}})
+        {% endif %}
+        group by 1
     {% elif chain == "sui" %}
         select distinct from_address as address, 'eoa' as address_type
         from {{ref('fact_sui_token_transfers')}}

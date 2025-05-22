@@ -52,9 +52,9 @@ select
     date
     , dau
     , txns
-    , borrows as daily_borrows_usd
+    , borrows
     , supplies as total_available_supply
-    , deposits as daily_supply_usd
+    , deposits
     , fees
 
     -- Standardized metrics
@@ -67,7 +67,7 @@ select
     
     -- Cash Flow Metrics (Interest goes to Liquidity Suppliers (Lenders) + Vaults Performance Fees)
     , fees as lending_interest_fees
-    , lending_interest_fees as gross_protocol_revenue
+    , lending_interest_fees as ecosystem_revenue
     
     -- Supply Metrics
     , msd.premine_unlocks_native
