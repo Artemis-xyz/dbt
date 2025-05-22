@@ -24,6 +24,6 @@ select
     , txns as chain_txns
     , daa as chain_dau
     -- Cash Flow Metrics
-    , coalesce(fees_native, 0) as gross_protocol_revenue_native
+    , coalesce(fees_native, 0) as ecosystem_revenue_native
 from fundamental_data
 where fundamental_data.date < to_date(sysdate())

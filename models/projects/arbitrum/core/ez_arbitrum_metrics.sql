@@ -33,14 +33,19 @@ with
         from {{ ref("fact_arbitrum_one_bridge_bridge_daa") }}
     ),
     arbitrum_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_arbitrum_daily_dex_volumes") }}
+    ),
+    adjusted_dau_metrics as (
+        select date, adj_daus as adjusted_dau
+        from {{ ref("ez_arbitrum_adjusted_dau") }}
     )
 select
     fundamental_data.date
     , fundamental_data.chain
     , txns
     , dau
+    , adjusted_dau
     , wau
     , mau
     , fees_native
@@ -54,6 +59,7 @@ select
     , dau_over_100
     , nft_trading_volume
     , dune_dex_volumes_arbitrum.dex_volumes
+    , dune_dex_volumes_arbitrum.adjusted_dex_volumes
     , bridge_daa
     -- Standardized Metrics
     -- Market Data Metrics
@@ -84,8 +90,8 @@ select
     , coalesce(dune_dex_volumes_arbitrum.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     -- Cashflow Metrics
     , fees_native AS chain_fees
-    , fees_native AS gross_protocol_revenue_native -- Total gas fees paid on L2 by users (L2 Fees)
-    , fees AS gross_protocol_revenue
+    , fees_native AS ecosystem_revenue_native -- Total gas fees paid on L2 by users (L2 Fees)
+    , fees AS ecosystem_revenue
     , coalesce(fees_native, 0) - l1_data_cost_native as treasury_cash_flow_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     , coalesce(fees, 0) - l1_data_cost as treasury_cash_flow
     , l1_data_cost_native AS l1_cash_flow_native -- fees paid to l1 by sequencer (L1 Fees)
@@ -129,4 +135,5 @@ left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join arbitrum_dex_volumes as dune_dex_volumes_arbitrum on fundamental_data.date = dune_dex_volumes_arbitrum.date
+left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 where fundamental_data.date < to_date(sysdate())

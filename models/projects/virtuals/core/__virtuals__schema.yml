@@ -15,8 +15,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  gross_protocol_revenue: &gross_protocol_revenue
-    name: gross_protocol_revenue
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
     description: "The sum of all taxes, 1% fee on all trades, and agent fees(in USD) paid on Virtuals protocol"
     tags:
       - artemis_gaap
@@ -103,7 +103,7 @@ models:
     columns:
       - *circulating_supply_native
       - *fdmc
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *market_cap
       - *net_supply_change_native
       - *premine_unlocks_native

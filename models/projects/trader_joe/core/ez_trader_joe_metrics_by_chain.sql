@@ -67,6 +67,7 @@ select
     , trading_volume_by_chain.unique_traders
     , trading_volume_by_chain.gas_cost_usd
     , daily_txns_data.daily_txns as number_of_swaps
+    , NULL AS token_incentives
 
     -- Standardized Metrics
     , trading_volume_by_chain.unique_traders as spot_dau
@@ -74,7 +75,7 @@ select
     , trading_volume_by_chain.trading_volume as spot_volume
     , trading_volume_by_chain.trading_fees as spot_fees
     , tvl_by_chain.tvl as tvl
-    , trading_volume_by_chain.trading_fees as gross_protocol_revenue
+    , trading_volume_by_chain.trading_fees as ecosystem_revenue
     , trading_volume_by_chain.gas_cost_native
     , trading_volume_by_chain.gas_cost_usd as gas_cost
 from tvl_by_chain

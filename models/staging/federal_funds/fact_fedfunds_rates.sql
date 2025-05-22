@@ -25,7 +25,7 @@ flattened as (
 select
   date as timestamp,
   extraction_date,
-  'Fed Funds' as name,
+  'Fed Funds Rate' as name,
   value / 100 as apy,
   null as tvl,
   [] as symbol,

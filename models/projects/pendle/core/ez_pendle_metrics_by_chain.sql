@@ -43,7 +43,7 @@ with
         SELECT
             date
             , chain
-            , sum(amount_usd) as tvl
+            , sum(tvl_usd) as tvl
         FROM
             {{ref('fact_pendle_tvl_by_token_and_chain')}}
         GROUP BY 1, 2
@@ -78,6 +78,7 @@ SELECT
     , COALESCE(ti.token_incentives, 0) as total_expenses
     , protocol_revenue - total_expenses as protocol_earnings
     , COALESCE(t.tvl, 0) as net_deposits
+    , 0 as outstanding_supply
 
     -- Standardized Metrics
     -- Usage/Sector Metrics
@@ -88,7 +89,7 @@ SELECT
     -- Money Metrics
     , COALESCE(yf.yield_revenue, 0) as yield_generated
     , COALESCE(f.swap_fees, 0) as spot_fees
-    , COALESCE(f.swap_fees, 0) + COALESCE(yf.yield_revenue, 0) as gross_protocol_revenue
+    , COALESCE(f.swap_fees, 0) + COALESCE(yf.yield_revenue, 0) as ecosystem_revenue
     , COALESCE(f.swap_revenue, 0) + COALESCE(yf.yield_revenue, 0) as fee_sharing_token_cash_flow
     , COALESCE(f.swap_revenue, 0) as spot_fee_sharing_token_cash_flow
     , COALESCE(yf.yield_revenue, 0) as yield_fee_sharing_token_cash_flow

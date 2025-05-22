@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key=["address", "tx_id", "contract_address", "index"],
-        snowflake_warehouse="STABLECOIN_LG",
+        snowflake_warehouse="SOLANA_XLG",
     )
 }}
 -- Solana Token Balances

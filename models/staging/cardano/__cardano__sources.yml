@@ -7,3 +7,31 @@ sources:
       - name: raw_cardano_fees
       - name: raw_cardano_txns
       - name: raw_cardano_nft_trading_volume
+      - name: raw_cardano_block_parquet
+        description: Raw Cardano block data loaded from S3 parquet files
+        columns:
+          - name: PARQUET_RAW
+            description: Raw block data in VARIANT format
+            tests:
+              - not_null
+      - name: raw_cardano_tx_parquet
+        description: Raw Cardano transaction data loaded from S3 parquet files
+        columns:
+          - name: PARQUET_RAW
+            description: Raw transaction data in VARIANT format
+            tests:
+              - not_null
+      - name: raw_cardano_tx_in_out_parquet
+        description: Raw Cardano transaction inputs/outputs loaded from S3 parquet files
+        columns:
+          - name: PARQUET_RAW
+            description: Raw inputs/outputs data in VARIANT format
+            tests:
+              - not_null
+      - name: raw_cardano_epoch_stake_parquet
+        description: Raw Cardano epoch stake data loaded from S3 parquet files
+        columns:
+          - name: PARQUET_RAW
+            description: Raw stake data in VARIANT format
+            tests:
+              - not_null

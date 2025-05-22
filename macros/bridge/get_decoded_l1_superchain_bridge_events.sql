@@ -43,12 +43,22 @@ with
     , eth_deposits as (
         select
             block_timestamp
+            , contract_address as src_messaging_contract_address
+            , null as dst_messaging_contract_address
+            , block_timestamp as src_block_timestamp
+            , null as dst_block_timestamp
             {% if decoding_type == 'artemis' %}
                 , transaction_hash
+                , transaction_hash as src_transaction_hash
+                , null as dst_transaction_hash
             {% else %}
                 , tx_hash as transaction_hash
+                , tx_hash as src_transaction_hash
+                , null as dst_transaction_hash
             {% endif %}
             , event_index
+            , event_index as src_event_index
+            , null as dst_event_index
             , decoded_log:"from"::string as depositor
             , decoded_log:"to"::string as recipient
             , decoded_log:"amount"::bigint as amount
@@ -80,12 +90,22 @@ with
     , eth_withdraws as (
         select
             block_timestamp
+            , null as src_messaging_contract_address
+            , contract_address as dst_messaging_contract_address
+            , null as src_block_timestamp
+            , block_timestamp as dst_block_timestamp
             {% if decoding_type == 'artemis' %}
                 , transaction_hash
+                , null as src_transaction_hash
+                , transaction_hash as dst_transaction_hash
             {% else %}
                 , tx_hash as transaction_hash
+                , null as src_transaction_hash
+                , tx_hash as dst_transaction_hash
             {% endif %}
             , event_index
+            , null as src_event_index
+            , event_index as dst_event_index
             , decoded_log:"from"::string as depositor
             , decoded_log:"to"::string as recipient
             , decoded_log:"amount"::bigint as amount
@@ -119,12 +139,22 @@ with
     , erc20_deposits as (
         select
             block_timestamp
+            , contract_address as src_messaging_contract_address
+            , null as dst_messaging_contract_address
+            , block_timestamp as src_block_timestamp
+            , null as dst_block_timestamp
             {% if decoding_type == 'artemis' %}
                 , transaction_hash
+                , transaction_hash as src_transaction_hash
+                , null as dst_transaction_hash
             {% else %}
                 , tx_hash as transaction_hash
+                , tx_hash as src_transaction_hash
+                , null as dst_transaction_hash
             {% endif %}
             , event_index
+            , event_index as src_event_index
+            , null as dst_event_index
             , decoded_log:"from"::string as depositor
             , decoded_log:"to"::string as recipient
             , decoded_log:"amount"::bigint as amount
@@ -154,12 +184,22 @@ with
     , erc20_withdraws as (
         select
             block_timestamp
+            , null as src_messaging_contract_address
+            , contract_address as dst_messaging_contract_address
+            , null as src_block_timestamp
+            , block_timestamp as dst_block_timestamp
             {% if decoding_type == 'artemis' %}
                 , transaction_hash
+                , null as src_transaction_hash
+                , transaction_hash as dst_transaction_hash
             {% else %}
                 , tx_hash as transaction_hash
+                , null as src_transaction_hash
+                , tx_hash as dst_transaction_hash
             {% endif %}
             , event_index
+            , null as src_event_index
+            , event_index as dst_event_index
             , decoded_log:"from"::string as depositor
             , decoded_log:"to"::string as recipient
             , decoded_log:"amount"::bigint as amount
@@ -199,8 +239,16 @@ with
     )
     select
         block_timestamp
+        , src_messaging_contract_address
+        , dst_messaging_contract_address
+        , src_block_timestamp
+        , dst_block_timestamp
         , transaction_hash
+        , src_transaction_hash
+        , dst_transaction_hash
         , event_index
+        , src_event_index
+        , dst_event_index
         , depositor
         , recipient
         , amount as amount_native 

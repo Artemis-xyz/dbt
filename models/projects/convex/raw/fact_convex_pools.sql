@@ -16,8 +16,8 @@
     decoded_input_data:_gauge::string as gauge,
     decoded_input_data:_stashVersion::number as stash_version,
     ROW_NUMBER() OVER (ORDER BY block_number) - 1 as pid
-  FROM {{ source('ETHEREUM_FLIPSIDE', 'fact_decoded_traces') }}
+  FROM {{ source('ETHEREUM_FLIPSIDE', 'ez_decoded_traces') }}
   WHERE to_address = lower('0xF403C135812408BFbE8713b5A23a04b3D48AAE31')
     AND function_name = 'addPool'
     -- Will be replaced by trace_succeeded = TRUE on 2025-05-05
-    AND trace_status = 'SUCCESS'
+    AND trace_succeeded = TRUE

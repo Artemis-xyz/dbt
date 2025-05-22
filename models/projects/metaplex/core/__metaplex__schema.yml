@@ -29,8 +29,8 @@ column_definitions:
     name: gross_emissions_native
     description: "The amount of native tokens emitted"
 
-  gross_protocol_revenue: &gross_protocol_revenue
-    name: gross_protocol_revenue
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
     description: "Total fees (USD) paid by NFT minters and individuals who swap tokens and NFTs on Metaplex."
     tags:
       - artemis_gaap
@@ -112,7 +112,7 @@ models:
     columns:
       - *buyback_cash_flow
       - *buybacks
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *nft_dau
       - *nft_fees
       - *nft_txns
@@ -126,7 +126,7 @@ models:
       - *circulating_supply_native
       - *fdmc
       - *gross_emissions_native
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *market_cap
       - *net_supply_change_native
       - *nft_dau

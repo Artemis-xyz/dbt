@@ -121,7 +121,7 @@ SELECT
 
     -- Money Metrics
     , fees as spot_fees
-    , fees as gross_protocol_revenue
+    , fees as ecosystem_revenue
     , fees as service_cash_flow
     , token_incentives_usd as token_incentives
 

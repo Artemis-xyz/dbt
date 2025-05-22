@@ -3,3 +3,4 @@ packages:
     version: 1.1.0
   - package: metaplane/dbt_expectations
     version: 0.10.8
+  - local: iceberg/

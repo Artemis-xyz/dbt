@@ -62,7 +62,7 @@ with date_spine as (
 , protocol_revenue as (
     select
         date
-        , sum(gross_protocol_revenue) as gross_protocol_revenue
+        , sum(ecosystem_revenue) as ecosystem_revenue
     from {{ ref("fact_reserve_protocol_revenue") }}
     group by date
 )
@@ -72,7 +72,7 @@ select
     , dau
 
     -- Standardized Metrics
-    , coalesce(gross_protocol_revenue, 0) as gross_protocol_revenue
+    , coalesce(ecosystem_revenue, 0) as ecosystem_revenue
 
     -- Token Metrics
     , coalesce(price, 0) as price

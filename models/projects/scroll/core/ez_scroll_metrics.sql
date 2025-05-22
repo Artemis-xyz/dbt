@@ -31,7 +31,7 @@ with
     , defillama_data as ({{ get_defillama_metrics("scroll") }})
     , rolling_metrics as ({{ get_rolling_active_address_metrics("scroll") }})
     , scroll_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_scroll_daily_dex_volumes") }}
     )
     , price_data as ({{ get_coingecko_metrics("scroll") }})
@@ -49,6 +49,7 @@ select
     , fd.revenue
     , fd.revenue_native
     , dsv.dex_volumes
+    , dsv.adjusted_dex_volumes
     , fd.l1_data_cost
     , fd.l1_data_cost_native
 
@@ -69,8 +70,8 @@ select
 
     -- Cashflow Metrics
     , fd.fees as chain_fees
-    , fd.fees as gross_protocol_revenue
-    , fd.fees_native as gross_protocol_revenue_native
+    , fd.fees as ecosystem_revenue
+    , fd.fees_native as ecosystem_revenue_native
     , avg_txn_fee as chain_avg_txn_fee
     , fd.median_txn_fee as chain_median_txn_fee
     , fd.l1_data_cost as l1_cash_flow

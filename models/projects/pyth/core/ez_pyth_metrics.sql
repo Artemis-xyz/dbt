@@ -59,7 +59,7 @@ SELECT
 
     --Cash Flow Metrics
     , 0 as oracle_fees
-    , 0 as gross_protocol_revenue
+    , 0 as ecosystem_revenue
 
     --Supply Metrics
     , supply_data.premine_unlocks_native as premine_unlocks_native

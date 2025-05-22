@@ -28,7 +28,7 @@ with market_data as (
         , sum(spot_volume) as spot_volume
         , sum(tvl) as tvl
         , sum(trading_fees) as trading_fees
-        , sum(gross_protocol_revenue) as gross_protocol_revenue
+        , sum(ecosystem_revenue) as ecosystem_revenue
         , sum(gas_cost_native) as gas_cost_native
         , sum(gas_cost) as gas_cost
 
@@ -84,9 +84,9 @@ SELECT
     , spot_volume
     , tvl
 
-    -- Money Metrics
+    -- Cashflow Metrics
     , trading_fees as spot_fees
-    , gross_protocol_revenue
+    , ecosystem_revenue
     , token_incentives
     , gas_cost_native
     , gas_cost

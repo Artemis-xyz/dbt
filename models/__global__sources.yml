@@ -17,6 +17,14 @@ sources:
     tables:
       - name: ez_token_transfers
 
+# BSC
+
+  - name: BSC_FLIPSIDE
+    schema: CORE
+    database: BSC_FLIPSIDE
+    tables:
+      - name: ez_token_transfers
+
 # SOLANA
 
   - name: SOLANA_FLIPSIDE_NFT
@@ -37,14 +45,14 @@ sources:
       - name: fact_decoded_instructions
       - name: fact_events_inner
       - name: fact_token_account_owners
-  
+
   - name: SOLANA_FLIPSIDE_PRICE
     schema: PRICE
     database: SOLANA_FLIPSIDE
     tables:
       - name: ez_prices_hourly
       - name: ez_asset_metadata
-    
+
   - name: SOLANA_FLIPSIDE_DEFI
     schema: DEFI
     database: SOLANA_FLIPSIDE
@@ -57,7 +65,6 @@ sources:
     database: ethereum_flipside
     tables:
       - name: ez_native_transfers
-      - name: fact_token_transfers
       - name: fact_transactions
       - name: ez_decoded_event_logs
       - name: fact_event_logs
@@ -66,7 +73,8 @@ sources:
       - name: ez_token_transfers
       - name: ez_decoded_traces
       - name: dim_contracts
-  
+      - name: fact_traces
+
 
   - name: ETHEREUM_FLIPSIDE_PRICE
     schema: price
@@ -80,12 +88,12 @@ sources:
     database: ethereum_flipside
     tables:
       - name: fact_validators
-  
+
 # DUNE
   - name: DUNE_DEX_VOLUMES
     schema: dex
     database: zksync_dune
-    tables: 
+    tables:
       - name: trades
 
 # ARBITRUM
@@ -95,7 +103,7 @@ sources:
     database: arbitrum_flipside
     tables:
       - name: ez_prices_hourly
-  
+
   - name: ARBITRUM_FLIPSIDE
     schema: core
     database: arbitrum_flipside
@@ -107,7 +115,7 @@ sources:
       - name: ez_native_transfers
       - name: fact_traces
       - name: dim_contracts
-  
+
 
 # POLYGON
 

@@ -24,7 +24,7 @@ with steth_prices as (
         , sum(raw_amount_precise::number / 1e18 * 20) as total_staking_yield_native
         , sum(raw_amount_precise::number / 1e18 * p.price * 20) as total_staking_yield_usd
     from
-        ethereum_flipside.core.fact_token_transfers t
+        ethereum_flipside.core.ez_token_transfers t
     left join steth_prices p on date_trunc('hour', t.block_timestamp) = p.hour
     where
         contract_address = lower('0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84')

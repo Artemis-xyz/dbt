@@ -39,8 +39,8 @@ select
     , dex_volumes AS chain_spot_volume
     -- Cashflow Metrics
     , total_native_fees * price AS chain_fees
-    , total_native_fees AS gross_protocol_revenue_native -- total transaction fees
-    , total_native_fees * price AS gross_protocol_revenue
+    , total_native_fees AS ecosystem_revenue_native -- total transaction fees
+    , total_native_fees * price AS ecosystem_revenue
     , icp_burned AS burned_cash_flow_native
     , icp_burned * price AS burned_cash_flow
     -- Bespoke metrics

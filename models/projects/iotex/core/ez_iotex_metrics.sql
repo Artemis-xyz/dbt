@@ -95,7 +95,7 @@ select
     , defillama_tvl.tvl as chain_tvl
 
     -- Cashflow Metrics
-    , metrics.fees AS gross_protocol_revenue
+    , metrics.fees AS ecosystem_revenue
     , metrics.primary_supply_side_revenue AS validator_cash_flow
     , metrics.secondary_supply_side_revenue AS service_cash_flow
     , supply.burn_usd AS burned_cash_flow

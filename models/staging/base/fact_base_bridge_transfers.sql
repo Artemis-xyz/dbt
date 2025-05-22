@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        unique_key=["tx_hash", "event_index"],
+        unique_key=["transaction_hash", "event_index", "src_messaging_contract_address", "dst_messaging_contract_address"],
         snowflake_warehouse="BRIDGE_MD",
     )
 }}
@@ -14,8 +14,16 @@ with
     , portal_transfers as (
         select
             block_timestamp
+            , '0x49048044d57e1c92a77f79988d21fa8faf74e97e' as src_messaging_contract_address
+            , null as dst_messaging_contract_address
+            , block_timestamp as src_block_timestamp
+            , null as dst_block_timestamp
             , tx_hash as transaction_hash
+            , tx_hash as src_transaction_hash
+            , null as dst_transaction_hash
             , trace_index as event_index
+            , trace_index as src_event_index
+            , null as dst_event_index
             , origin_from_address::string as depositor
             , origin_from_address::string as recipient
             , amount_precise_raw::bigint as amount_native
@@ -48,8 +56,16 @@ with
         union all
         select
             block_timestamp
+            , null as src_messaging_contract_address
+            , '0x49048044d57e1c92a77f79988d21fa8faf74e97e' as dst_messaging_contract_address
+            , null as src_block_timestamp
+            , block_timestamp as dst_block_timestamp
             , tx_hash as transaction_hash
+            , null as src_transaction_hash
+            , tx_hash as dst_transaction_hash
             , trace_index as event_index
+            , null as src_event_index
+            , trace_index as dst_event_index
             , origin_to_address::string as depositor
             , origin_to_address::string as recipient
             , amount_precise_raw::bigint as amount_native

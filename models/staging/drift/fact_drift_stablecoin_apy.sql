@@ -1,21 +1,61 @@
 {{ config(materialized="table") }}
 
-with latest_date as (
-  select max(date) as max_date from {{ ref("fact_drift_daily_spot_data") }}
+with stableconin_lending as (
+  select
+    l.timestamp
+    , l.market as id
+    , concat(l.market, ' Main Pool') as name
+    , l.apy
+    , l.tvl
+    , array_construct(p.symbol) as symbol
+    , l.protocol
+    , l.type
+    , l.chain
+    , p.link
+  from {{ ref("fact_drift_lending_apy") }} l
+  join {{ ref("drift_stablecoin_pool_ids") }} p
+    on l.market = p.name
+),
+
+stablecoin_iv as (
+  select
+    i.timestamp
+    , i.market as id
+    , concat(i.market, ' ', p.market) as name
+    , i.apy
+    , i.tvl
+    , array_construct(p.symbol) as symbol
+    , i.protocol
+    , i.type
+    , i.chain
+    , p.link
+  from {{ ref("fact_drift_insurance_vault_apy") }} i
+  join {{ ref("drift_stablecoin_pool_ids") }} p
+    on i.market = p.name
 )
 
 select
-    d.date as timestamp,
-    d.market as id,
-    concat(d.market, ' ', p.market) as name,
-    d.daily_avg_deposit_rate / 100 as apy,
-    d.daily_avg_user_balance + d.daily_avg_protocol_balance as tvl,
-    array_construct(p.symbol) as symbol,
-    'drift' as protocol,
-    'Lending' as type,
-    'solana' as chain,
-    p.link
-from {{ ref("fact_drift_daily_spot_data") }} d
-join latest_date ld on d.date = ld.max_date
-inner join {{ ref("drift_stablecoin_pool_ids") }} p
-    on d.market = p.name
+  timestamp
+  , id
+  , name
+  , apy
+  , tvl
+  , symbol
+  , protocol
+  , type
+  , chain
+  , link
+from stableconin_lending
+union all
+select
+  timestamp
+  , id
+  , name
+  , apy
+  , tvl
+  , symbol
+  , protocol
+  , type
+  , chain
+  , link
+from stablecoin_iv

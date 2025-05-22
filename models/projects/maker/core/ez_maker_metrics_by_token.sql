@@ -70,8 +70,9 @@ WITH
         SELECT
             date,
             symbol as token,
-            total_amount_native as tvl
-        FROM {{ ref('fact_maker_tvl_by_asset') }}
+            sum(balance_native) as tvl
+        FROM {{ ref('fact_maker_tvl_by_address_balance') }}
+        GROUP BY 1,2
     )
     , outstanding_supply AS (
         SELECT date, 'DAI' as token, outstanding_supply FROM {{ ref('fact_dai_supply') }}
@@ -100,7 +101,7 @@ select
     , 'DeFi' as category
     , COALESCE(stability_fees,0) as stability_fees
     , COALESCE(trading_fees, 0) AS trading_fees
-    , COALESCE(fees, 0) AS gross_protocol_revenue
+    , COALESCE(fees, 0) AS ecosystem_revenue
 
     , COALESCE(primary_revenue, 0) AS interest_rate_cash_flow
     , COALESCE(liquidation_revenue, 0) AS liquidation_cash_flow

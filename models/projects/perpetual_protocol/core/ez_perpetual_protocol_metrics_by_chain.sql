@@ -45,7 +45,7 @@ select
     , unique_traders as perp_dau
     , tvl
     , {{ daily_pct_change('tvl') }} as tvl_pct_change
-    , fees as gross_protocol_revenue
+    , fees as ecosystem_revenue
     , fees * .2 * .8 as fee_sharing_token_cash_flow
     , fees * .8 as service_cash_flow
     , fees * .2 * .2 as treasury_cash_flow

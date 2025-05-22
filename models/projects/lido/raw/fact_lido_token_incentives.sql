@@ -22,11 +22,11 @@ with ldo_prices as (
 )
 select
     date(p.hour) as date
-    , symbol as token
+    , p.symbol as token
     , sum(coalesce(t.raw_amount_precise::number / 1e18,0)) as amount_native
     , sum(coalesce(t.raw_amount_precise::number / 1e18 * p.price,0)) as amount_usd
 from ldo_prices p
-LEFT JOIN ethereum_flipside.core.fact_token_transfers t 
+LEFT JOIN ethereum_flipside.core.ez_token_transfers t 
     ON p.hour = DATE_TRUNC('hour', t.block_timestamp)
     AND p.token_address = t.contract_address
     AND t.from_address IN (
