@@ -83,9 +83,8 @@ ethereum,egETH,ethereum,0x18f313Fc6Afc9b5FD6f0908c1b3D476E3feA1DD9,18
 redstone-oracles,mRED,ethereum,0xD48067f122AFC3a58f0F79611f5F1AfAe0d7f25B,18
 sui,stSUI,sui,0xd1b72982e40348d069bb1ff701e634c117bb5f741f44dff91e472d3b01461e55::stsui::STSUI,9
 solana,wSOL,sui,0xb7844e289a8410e50fb3ca48d69eb9cf29e27d223ef90353fe1bd8e27ff8f3f8::coin::COIN,8
-meta-usd,mUSD,sui,0xe44df51c0b21a27ab915fa1fe2ca610cd3eaa6d9666fe5e62b988bf7f0bd8722::musd::MUSD,9
+usd-coin,mUSD,sui,0xe44df51c0b21a27ab915fa1fe2ca610cd3eaa6d9666fe5e62b988bf7f0bd8722::musd::MUSD,9
 bluefin,BLUE,sui,0x4d3316408aef9adb11618a13e21614a213b9a1bedd327723a58f0d40b1d8f501::blue::BLUE,9
 usd-coin,USDC,sui,0x47f2036c3c8af983ae365866e1b6b6e11b4777619b0e84d842da3d4b341caebf::usdc::USDC,6
-alphafi-staked-sui,stSUI,sui,0xd1b72982e40348d069bb1ff701e634c117bb5f741f44dff91e472d3b01461e55::stsui::STSUI,9
 ethereum,ETH,sui,0xd0e89b2af5e4910726fbcd8b8dd37bb79b29e5f83f7491bca830e94f7f226d29::eth::ETH, 8
 
