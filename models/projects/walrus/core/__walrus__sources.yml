@@ -3,8 +3,5 @@ sources:
     schema: PROD_LANDING
     database: LANDING_DATABASE
     tables:
-      - name: fact_walrus_active_blobs_bigquery
-      - name: fact_walrus_fees_bigquery
-      - name: fact_walrus_tvl_bigquery
-      - name: fact_walrus_txns_dau_bigquery
+      - name: raw_sui_ez_walrus_metrics_parquet
       
