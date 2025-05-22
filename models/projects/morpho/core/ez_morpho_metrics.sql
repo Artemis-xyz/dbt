@@ -21,6 +21,21 @@ with morpho_data as (
     group by 1
 )
 
+, all_token_incentives as (
+    select date, chain, amount_native, amount_usd from {{ ref('fact_morpho_base_token_incentives') }}
+    union all
+    select date, chain, amount_native, amount_usd from {{ ref('fact_morpho_ethereum_token_incentives') }}
+)
+
+, morpho_token_incentives as (
+    select
+        date
+        , sum(amount_native) as token_incentives_native
+        , sum(amount_usd) as token_incentives
+    from all_token_incentives
+    group by 1
+)
+
 , cumulative_metrics as (
     select
         d.date
@@ -81,6 +96,10 @@ select
     , mdd.token_turnover_circulating
     , mdd.token_turnover_fdv
     , mdd.token_volume
+
+    , token_incentives_native
+    , token_incentives
 from cumulative_metrics
 left join morpho_market_data mdd using (date)
 left join morpho_supply_data msd using (date)
+left join morpho_token_incentives using (date)

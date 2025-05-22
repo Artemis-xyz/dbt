@@ -19,8 +19,9 @@ with deposits as (
         , fees_usd
         , chain
     from {{ ref("fact_morpho_data") }}
-),
-cumulative_metrics as (
+)
+
+, cumulative_metrics as (
     select
         d.date
         , d.dau
@@ -34,6 +35,23 @@ cumulative_metrics as (
         , d.chain
     from deposits d
 )
+
+, all_token_incentives as (
+    select date, chain, amount_native, amount_usd from {{ ref('fact_morpho_base_token_incentives') }}
+    union all
+    select date, chain, amount_native, amount_usd from {{ ref('fact_morpho_ethereum_token_incentives') }}
+)
+
+, morpho_token_incentives as (
+    select
+        date
+        , chain
+        , sum(amount_native) as token_incentives_native
+        , sum(amount_usd) as token_incentives
+    from all_token_incentives
+    group by 1, 2
+)
+
 select
     date
     , chain
@@ -53,5 +71,9 @@ select
     -- Cash Flow Metrics (Interest goes to Liquidity Suppliers (Lenders) + Vaults Performance Fees)
     , fees as lending_interest_fees
     , lending_interest_fees as ecosystem_revenue
+
+    , token_incentives_native
+    , token_incentives
     
 from cumulative_metrics 
+left join morpho_token_incentives using (date)
