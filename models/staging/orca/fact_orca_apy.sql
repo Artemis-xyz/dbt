@@ -1,5 +1,9 @@
 {{ config(
-    materialized="table"
+    materialized="incremental",
+    unique_key=[
+        'id',
+        'extraction_timestamp',
+    ],
 ) }}
 
 with base as (
@@ -8,7 +12,13 @@ with base as (
     extraction_date,
     source_url
   from {{ source("PROD_LANDING", "raw_orca_pools") }}
+  {% if is_incremental() %}
+      where extraction_date > (
+        select dateadd('day', -1, max(extraction_timestamp)) from {{ this }}
+      )
+  {% endif %}
 ),
+
 flattened as (
   select
     value as pool,
@@ -16,6 +26,7 @@ flattened as (
   from base,
   lateral flatten(input => parse_json(base.source_json))
 ),
+
 extracted as (
   select
     pool:address::string as id,
@@ -24,8 +35,11 @@ extracted as (
     pool:tokenB:symbol::string as tokenB_symbol,
     pool:tvlUsdc::float as tvl,
     pool:yieldOverTvl::float as yield,
+    p.link,
     extraction_date
   from flattened
+  inner join {{ ref("orca_stablecoin_pool_ids") }} p
+  on pool:address::string = p.id
 )
 select
     id,
@@ -37,5 +51,6 @@ select
     'orca' as protocol,
     'Pool' as type,
     'solana' as chain,
+    link,
     extraction_date as extraction_timestamp
 from extracted

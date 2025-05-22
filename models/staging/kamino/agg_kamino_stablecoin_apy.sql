@@ -27,6 +27,7 @@ vaults_score as (
         f.extraction_timestamp
     from {{ ref("fact_kamino_vaults_apy") }} f
     left join avg_vaults_tvl a on a.id = f.id
+    and f.extraction_timestamp = a.extraction_timestamp
     qualify row_number() over (partition by f.id order by extraction_timestamp desc) = 1
 ),
 
@@ -57,6 +58,7 @@ lending_score as (
         f.extraction_timestamp
     from {{ ref("fact_kamino_lending_apy") }} f
     left join avg_lending_tvl a on a.id = f.id
+    and f.extraction_timestamp = a.extraction_timestamp
     qualify row_number() over (partition by f.id order by extraction_timestamp desc) = 1
 )
 
