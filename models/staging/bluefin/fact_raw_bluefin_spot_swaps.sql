@@ -3,39 +3,46 @@
     database = 'bluefin'
 )}}
 
-/*
 WITH coingecko_prices AS (
     {{get_multiple_coingecko_price_with_latest('sui')}}
 )
 
+
 SELECT
-    parquet_raw:date::date AS date,  
-    parquet_raw:transaction_digest::string AS transaction_digest,     
-    parquet_raw:a_to_b::boolean AS a_to_b,
-    parquet_raw:pool::string AS pool_address,     
-    parquet_raw:fee_amount::float AS fee_amount,     
-    parquet_raw:fee_symbol::string AS fee_symbol,    
-    coingecko_prices_fee.price AS price_fee,
-    parquet_raw:amount_a_swapped::float AS amount_a_swapped,     
-    parquet_raw:vault_a_amount::float AS vault_a_amount,     
-    parquet_raw:symbol_a::string AS symbol_a,   
-    coingecko_prices_a.price AS price_a,
-    parquet_raw:amount_b_swapped::float AS amount_b_swapped,     
-    parquet_raw:vault_b_amount::float AS vault_b_amount,     
-    parquet_raw:symbol_b::string AS symbol_b,    
-    coingecko_prices_b.price AS price_b,
+    parquet_raw:date::date AS date
+    , parquet_raw:transaction_digest::string AS transaction_digest
+    , parquet_raw:pool::string AS pool_address
+    , parquet_raw:sender::string AS sender
+
+    , coingecko_prices_fee.symbol AS fee_symbol
+    , parquet_raw:fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) AS fee_amount_native
+    , parquet_raw:fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_fee.price AS fee_amount_usd
+    , parquet_raw:protocol_fee_share_amount_raw::float / POW(10, coingecko_prices_fee.decimals) AS revenue_native
+    , parquet_raw:protocol_fee_share_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_fee.price AS revenue_usd
+
+    , coingecko_prices_a.symbol AS symbol_a
+    , parquet_raw:amount_a_swapped_raw::float / POW(10, coingecko_prices_a.decimals) AS amount_a_swapped_native
+    , parquet_raw:amount_a_swapped_raw::float / POW(10, coingecko_prices_a.decimals) * coingecko_prices_a.price AS amount_a_swapped_usd
+    , parquet_raw:vault_a_amount_raw::float / POW(10, coingecko_prices_a.decimals) AS vault_a_amount_native
+    , parquet_raw:vault_a_amount_raw::float / POW(10, coingecko_prices_a.decimals) * coingecko_prices_a.price AS vault_a_amount_usd
+
+    , coingecko_prices_b.symbol AS symbol_b
+    , parquet_raw:amount_b_swapped_raw::float / POW(10, coingecko_prices_b.decimals) AS amount_b_swapped_native
+    , parquet_raw:amount_b_swapped_raw::float / POW(10, coingecko_prices_b.decimals) * coingecko_prices_b.price AS amount_b_swapped_usd
+    , parquet_raw:vault_b_amount_raw::float / POW(10, coingecko_prices_b.decimals) AS vault_b_amount_native
+    , parquet_raw:vault_b_amount_raw::float / POW(10, coingecko_prices_b.decimals) * coingecko_prices_b.price AS vault_b_amount_usd
 FROM {{ source('PROD_LANDING', 'raw_sui_fact_bluefin_dex_swaps_parquet') }}
 LEFT JOIN coingecko_prices AS coingecko_prices_a
     ON coingecko_prices_a.date = parquet_raw:date::date
-    AND lower(coingecko_prices_a.symbol) = lower(parquet_raw:symbol_a::string)
-LEFT JOIN coingecko_prices AS coingecko_prices_b
-    ON coingecko_prices_b.date = parquet_raw:date::date
-    AND lower(coingecko_prices_b.symbol) = lower(parquet_raw:symbol_b::string)
+    AND lower(coingecko_prices_a.contract_address) = lower(parquet_raw:token_address_a::string)
 LEFT JOIN coingecko_prices AS coingecko_prices_fee
     ON coingecko_prices_fee.date = parquet_raw:date::date
-    AND lower(coingecko_prices_fee.symbol) = lower(parquet_raw:fee_symbol::string)
-*/ 
+    AND lower(coingecko_prices_fee.contract_address) = lower(parquet_raw:fee_token_address::string)
+LEFT JOIN coingecko_prices AS coingecko_prices_b
+    ON coingecko_prices_b.date = parquet_raw:date::date
+    AND lower(coingecko_prices_b.contract_address) = lower(parquet_raw:token_address_b::string)
 
+/*
 -- Run this check to see if the coingecko prices are correct
 
 WITH coingecko_prices AS (
@@ -60,3 +67,4 @@ LEFT JOIN coingecko_prices AS coingecko_prices_a
 LEFT JOIN coingecko_prices AS coingecko_prices_b
     ON coingecko_prices_b.date = parquet_raw:date::date
     AND lower(coingecko_prices_b.contract_address) = lower(parquet_raw:token_address_b::string)
+*/
