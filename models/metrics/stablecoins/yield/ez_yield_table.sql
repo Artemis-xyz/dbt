@@ -10,7 +10,7 @@ select
     , type
     , chain
     , link
-    , tvl_score as risk score
+    , tvl_score as risk_score
 from {{ ref("fact_stablecoin_apy") }}
 union all
 select
@@ -23,6 +23,6 @@ select
     , type
     , chain
     , link
-    , null as tvl_score
+    , null as risk_score
 from {{ ref("fact_fedfunds_rates") }}
 qualify row_number() over (partition by name, protocol, link order by timestamp desc) = 1
