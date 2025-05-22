@@ -6,10 +6,6 @@ with base as (
     extraction_date,
     source_url
   from {{ source("PROD_LANDING", "raw_drift_lending_market_data") }}
-  where extraction_date = (
-    select max(extraction_date)
-    from {{ source("PROD_LANDING", "raw_drift_lending_market_data") }}
-  )
 ),
 
 flattened as (
@@ -25,16 +21,22 @@ extracted as (
     pool:market_name::string as market,
     pool:supply_apy::float as apy,
     pool:tvl::float as tvl,
+    p.symbol,
+    p.link,
     extraction_date
   from flattened
+  inner join {{ ref("drift_stablecoin_pool_ids") }} p
+  on pool:market_name::string = p.name
 )
 
 select
-  extraction_date as timestamp
-  , market
+  market
   , apy / 100 as apy
   , tvl
+  , array_construct(symbol) as symbol
   , 'drift' as protocol
   , 'Lending' as type
   , 'solana' as chain
+  , link
+  , extraction_date as extraction_timestamp
 from extracted

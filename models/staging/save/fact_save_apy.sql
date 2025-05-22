@@ -1,21 +1,10 @@
-{{ config(
-    materialized="incremental",
-    unique_key=[
-        'id',
-        'extraction_timestamp',
-    ],
-) }}
+{{ config(materialized="table") }}
 
 with base as (
   select
     parse_json(source_json) as json,
     extraction_date
   from {{ source("PROD_LANDING", "raw_save_lending") }}
-  {% if is_incremental() %}
-      where extraction_date > (
-        select dateadd('day', -1, max(extraction_timestamp)) from {{ this }}
-      )
-  {% endif %}
 ),
 
 flattened as (

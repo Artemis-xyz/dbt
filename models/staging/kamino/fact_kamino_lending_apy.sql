@@ -1,21 +1,10 @@
-{{ config(
-    materialized="incremental",
-    unique_key=[
-        'id',
-        'extraction_timestamp',
-    ],
-) }}
+{{ config(materialized="table") }}
 
 with base as (
   select
     parse_json(source_json) as json,
     extraction_date
   from {{ source("PROD_LANDING", "raw_kamino_lending") }}
-  {% if is_incremental() %}
-    where extraction_date > (
-      select dateadd('day', -1, max(extraction_timestamp)) from {{ this }}
-    )
-  {% endif %}
 ),
 
 historical as (
@@ -35,8 +24,8 @@ historical as (
     partition by
       market_id,
       reserve_id,
-      b.extraction_date
-    order by timestamp desc
+      timestamp
+    order by b.extraction_date desc
   ) = 1
 ),
 
@@ -48,7 +37,7 @@ extracted as (
     h.supply_interest_apy,
     h.deposit_tvl,
     h.borrow_tvl,
-    h.extraction_date,
+    h.timestamp,
     l.link
   from historical h
   inner join {{ ref("kamino_stablecoin_lending_ids") }} l
@@ -72,5 +61,5 @@ select
     'Lending' as type,
     'solana' as chain,
     link,
-    extraction_date as extraction_timestamp
+    timestamp as extraction_timestamp
 from extracted

@@ -1,18 +1,18 @@
 {{ config(materialized="table") }}
 
-with avg_vaults_tvl as (
+with avg_if_tvl as (
     select
-        id,
+        market,
         avg(tvl) as avg_tvl_l7d
-    from {{ ref("fact_kamino_vaults_apy") }}
+    from {{ ref("fact_drift_insurance_vault_apy") }}
     where extraction_timestamp >= dateadd(day, -7, current_date)
-    group by id
+    group by market
 ),
 
-vaults_score as (
+if_score as (
     select
-        f.id,
-        f.name,
+        f.market,
+        f.type,
         case 
             when a.avg_tvl_l7d >= 1e9 then 5.0
             when a.avg_tvl_l7d >= 5e8 then 4.5
@@ -25,24 +25,24 @@ vaults_score as (
             else 1.0
         end as tvl_score,
         f.extraction_timestamp
-    from {{ ref("fact_kamino_vaults_apy") }} f
-    left join avg_vaults_tvl a on a.id = f.id
-    qualify row_number() over (partition by f.id order by extraction_timestamp desc) = 1
+    from {{ ref("fact_drift_insurance_vault_apy") }} f
+    left join avg_if_tvl a on a.market = f.market
+    qualify row_number() over (partition by f.market order by extraction_timestamp desc) = 1
 ),
 
 avg_lending_tvl as (
     select
-        id,
+        market,
         avg(tvl) as avg_tvl_l7d
-    from {{ ref("fact_kamino_lending_apy") }}
+    from {{ ref("fact_drift_lending_apy") }}
     where extraction_timestamp >= dateadd(day, -7, current_date)
-    group by id
+    group by market
 ),
 
 lending_score as (
     select
-        f.id,
-        f.name,
+        f.market,
+        f.type,
         case 
             when a.avg_tvl_l7d >= 1e9 then 5.0
             when a.avg_tvl_l7d >= 5e8 then 4.5
@@ -55,21 +55,21 @@ lending_score as (
             else 1.0
         end as tvl_score,
         f.extraction_timestamp
-    from {{ ref("fact_kamino_lending_apy") }} f
-    left join avg_lending_tvl a on a.id = f.id
-    qualify row_number() over (partition by f.id order by extraction_timestamp desc) = 1
+    from {{ ref("fact_drift_lending_apy") }} f
+    left join avg_lending_tvl a on a.market = f.market
+    qualify row_number() over (partition by f.market order by extraction_timestamp desc) = 1
 )
 
 select
-    v.id,
-    v.name,
-    v.tvl_score,
-    v.extraction_timestamp
-from vaults_score v
+    i.market,
+    i.type,
+    i.tvl_score,
+    i.extraction_timestamp
+from if_score i
 union all
 select
-    l.id,
-    l.name,
+    l.market,
+    l.type,
     l.tvl_score,
     l.extraction_timestamp
 from lending_score l
