@@ -38,16 +38,17 @@ join {{ ref("agg_kamino_stablecoin_apy") }} a
 on v.id = a.id
 union all
 select
-    extraction_timestamp
+    l.extraction_timestamp as timestamp
     , l.id
-    , name
-    , apy
-    , tvl
-    , symbol
-    , protocol
-    , type
-    , chain
-    , link
+    , l.name
+    , l.apy
+    , l.tvl
+    , l.symbol
+    , l.protocol
+    , l.type
+    , l.chain
+    , l.link
+    , a.tvl_score
 from {{ ref("fact_kamino_lending_apy") }} l
 join latest_lending ll
 on l.id = ll.id
