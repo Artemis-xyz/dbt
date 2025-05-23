@@ -10,6 +10,7 @@
 
 WITH market_data as ({{ get_coingecko_metrics("walrus-2") }})
 
+-- Have to filter out parquet rows where tvl_net_change is not null because it caused duplicates
 , clean_parquet AS (
     SELECT *
     FROM {{source('PROD_LANDING', 'raw_sui_ez_walrus_metrics_parquet')}}
