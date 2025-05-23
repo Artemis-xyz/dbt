@@ -32,7 +32,6 @@ select
     receipts_root,
     sha3_uncles,
     size,
-    total_difficulty,
     tx_count,
     uncle_blocks,
     withdrawals,
