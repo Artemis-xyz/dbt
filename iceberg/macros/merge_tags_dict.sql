@@ -30,10 +30,10 @@
             '{{ v }}' as tag_value,
             current_timestamp as tagged_at
     ) s
-    on t.database_name = s.database_name
-       and t.schema_name = s.schema_name
-       and t.table_name = s.table_name
-       and t.tag_key = s.tag_key
+    on lower(t.database_name) = lower(s.database_name)
+       and lower(t.schema_name) = lower(s.schema_name)
+       and lower(t.table_name) = lower(s.table_name)
+       and lower(t.tag_key) = lower(s.tag_key)
     when matched then update set
         tag_value = s.tag_value,
         tagged_at = s.tagged_at
