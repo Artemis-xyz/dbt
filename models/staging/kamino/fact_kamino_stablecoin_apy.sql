@@ -30,6 +30,7 @@ select
     , v.chain
     , v.link
     , a.tvl_score
+    , a.daily_avg_apy_l7d
 from {{ ref("fact_kamino_vaults_apy") }} v
 join latest_vaults lv
 on v.id = lv.id
@@ -49,6 +50,7 @@ select
     , l.chain
     , l.link
     , a.tvl_score
+    , a.daily_avg_apy_l7d
 from {{ ref("fact_kamino_lending_apy") }} l
 join latest_lending ll
 on l.id = ll.id

@@ -22,6 +22,7 @@ select
   , f.chain
   , f.link
   , a.tvl_score
+  , a.daily_avg_apy_l7d
 from {{ ref("fact_save_apy") }} f
 join latest l
 on f.id = l.id
