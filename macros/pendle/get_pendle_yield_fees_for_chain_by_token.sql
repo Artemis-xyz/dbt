@@ -3,49 +3,91 @@
     with
         yt_addresses as (
             SELECT
-                DECODED_LOG:YT::STRING as yt_address
-                , DECODED_LOG:SY::STRING as sy_address
+                DECODED_LOG:YT::STRING as yt_address,
+                DECODED_LOG:SY::STRING as sy_address
             FROM
                 {{ chain }}_flipside.core.ez_decoded_event_logs
             WHERE event_name = 'CreateYieldContract'
-        )
-        , fees as (
+        ),
+        
+        -- Get SY tokens with their metadata and exchange rates
+        sy_tokens as (
+            SELECT 
+                date(s.date) as date,
+                s.sy_address,
+                s.assetinfo_type,
+                s.assetinfo_address as underlying_address,
+                s.exchange_rate / pow(10, decimals) as exchange_rate  -- Normalize the exchange rate 
+            FROM {{ ref("fact_pendle_sy_info") }} s
+            WHERE s.chain = '{{ chain }}'
+            {% if is_incremental() %}
+                AND s.date > (select max(date)-1 from {{ this }})
+            {% endif %}
+        ),
+        
+        -- Raw yield fees
+        raw_fees as (
             SELECT
-                block_timestamp
-                , tx_hash
-                , contract_address as yt_address
-                , yt.sy_address
-                , decoded_log:amountInterestFee::number /1e18 as fee_sy_amount
+                block_timestamp,
+                tx_hash,
+                contract_address as yt_address,
+                yt.sy_address,
+                decoded_log:amountInterestFee::number /1e18 as fee_sy_amount
             FROM
-            {{ chain }}_flipside.core.ez_decoded_event_logs l
-            LEFT JOIN yt_addresses yt ON yt.yt_address = l.contract_address
+                {{ chain }}_flipside.core.ez_decoded_event_logs l
+                LEFT JOIN yt_addresses yt ON yt.yt_address = l.contract_address
             WHERE event_name = 'CollectInterestFee'
-            and contract_address in (SELECT distinct yt_address FROM yt_addresses)
+                AND contract_address in (SELECT distinct yt_address FROM yt_addresses)
             {% if is_incremental() %}
                 AND block_timestamp > (select max(date) from {{ this }})
             {% endif %}
-        )
-        , market_metadata as (
+        ),
+        
+        -- Apply exchange rate conversion to yield fees
+        converted_fees as (
             SELECT
-                market_address,
-                pt_address,
-                sy_address,
-                underlying_address
-            FROM
-                {{ ref("dim_pendle_" ~ chain ~ "_market_metadata") }}
+                r.block_timestamp,
+                r.tx_hash,
+                r.yt_address,
+                r.sy_address,
+                s.assetinfo_type,
+                s.underlying_address,
+                s.exchange_rate,
+                -- Apply exchange rate conversion based on asset type
+                CASE 
+                    WHEN s.assetinfo_type = '0' THEN r.fee_sy_amount * s.exchange_rate
+                    ELSE r.fee_sy_amount
+                END as yield_fee_converted
+            FROM 
+                raw_fees r
+                JOIN sy_tokens s ON s.sy_address = r.sy_address AND date(r.block_timestamp) = s.date
+        ),
+        
+        -- Add price data to convert to USD
+        fees_with_prices as (
+            SELECT
+                date(f.block_timestamp) as date,
+                f.tx_hash,
+                f.underlying_address as token_address,
+                p.symbol as token,
+                f.yield_fee_converted as yield_fee_native,
+                f.yield_fee_converted * p.price as yield_fee_usd
+            FROM 
+                converted_fees f
+                LEFT JOIN {{ chain }}_flipside.price.ez_prices_hourly p 
+                    ON p.hour = date_trunc('hour', f.block_timestamp) 
+                    AND lower(p.token_address) = lower(f.underlying_address)
         )
-        SELECT
-            distinct
-            date(block_timestamp) as date
-            , tx_hash
-            , underlying_address as token_address
-            , p.symbol as token
-            , fee_sy_amount * p.price as yield_fee_usd
-            , fee_sy_amount as yield_fee_native
-        FROM
-            fees f
-        LEFT JOIN market_metadata m ON f.sy_address = m.sy_address
-        LEFT JOIN {{ chain }}_flipside.price.ez_prices_hourly p ON p.hour = date_trunc('hour', f.block_timestamp) AND lower(p.token_address) = lower(m.underlying_address)
-        WHERE fee_sy_amount * p.price < 1e7 -- Less than 10M USD
-
+        
+    -- Final result
+    SELECT
+        date,
+        tx_hash,
+        token_address,
+        token,
+        yield_fee_usd,
+        yield_fee_native
+    FROM fees_with_prices
+    WHERE yield_fee_usd < 1e7 -- Less than 10M USD
+    
 {% endmacro %}
