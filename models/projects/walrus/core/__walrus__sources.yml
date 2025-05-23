@@ -6,5 +6,5 @@ sources:
       - name: raw_sui_ez_walrus_metrics_parquet
         meta: 
           dagster: 
-            asset_key: ["bulk_load_ez_walrus_metrics"]
+            asset_key: ["PROD_LANDING", "bulk_load_ez_walrus_metrics"]
       
