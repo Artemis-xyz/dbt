@@ -34,10 +34,10 @@ SELECT DISTINCT
 
     -- Crypto Metrics
     , (COALESCE(parquet_raw:tvl::float, 0) / 1e9) AS tvl_native
-    , (COALESCE(parquet_raw:tvl_net_change::float, 0) / 1e9) AS tvl_net_change_native
+    , (COALESCE(parquet_raw:tvl::float, 0) / 1e9) - lag(COALESCE(parquet_raw:tvl::float, 0) / 1e9) over (order by parquet_raw:date::date) AS tvl_net_change_native
     , (COALESCE(parquet_raw:tvl::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS tvl
-    , (COALESCE(parquet_raw:tvl_net_change::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS tvl_net_change
-
+    , (COALESCE(parquet_raw:tvl::float, 0) / 1e9) * COALESCE(market_data.price, 0) - lag((COALESCE(parquet_raw:tvl::float, 0) / 1e9) * COALESCE(market_data.price, 0)) over (order by parquet_raw:date::date) AS tvl_net_change
+    
     --Turnover Metrics
     , COALESCE(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
     , COALESCE(market_data.token_turnover_fdv, 0) AS token_turnover_fdv
