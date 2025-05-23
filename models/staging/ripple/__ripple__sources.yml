@@ -4,3 +4,8 @@ sources:
     schema: xrp_share
     tables:
       - name: transactions
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_ripple_supply_data
