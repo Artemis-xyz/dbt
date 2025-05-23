@@ -21,18 +21,11 @@ SELECT DISTINCT
     parquet_raw:date::date AS date
     , parquet_raw:active_blobs::int AS active_blobs
     , parquet_raw:dau::int AS dau
-    , (COALESCE(parquet_raw:fees::float, 0) / 1e9) AS fees_native
-    , (COALESCE(parquet_raw:revenue::float, 0) / 1e9) AS revenue_native
-    , (COALESCE(parquet_raw:fees::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS fees_usd
-    , (COALESCE(parquet_raw:revenue::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS revenue_usd
     , parquet_raw:txns::int AS txns
 
     -- Standardized Metrics
-    , (COALESCE(parquet_raw:fees::float, 0) / 1e9) AS gross_protocol_revenue_native
-    , (COALESCE(parquet_raw:revenue::float, 0) / 1e9) AS service_cash_flow_native
     , (COALESCE(parquet_raw:fees::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS gross_protocol_revenue_usd
-    , (COALESCE(parquet_raw:revenue::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS service_cash_flow_usd
-    
+
     -- Token Metrics
     , COALESCE(market_data.price, 0) AS price
     , COALESCE(market_data.market_cap, 0) AS market_cap
