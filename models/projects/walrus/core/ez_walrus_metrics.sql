@@ -10,6 +10,12 @@
 
 WITH market_data as ({{ get_coingecko_metrics("walrus-2") }})
 
+, clean_parquet AS (
+    SELECT *
+    FROM {{source('PROD_LANDING', 'raw_sui_ez_walrus_metrics_parquet')}}
+    WHERE parquet_raw:tvl_net_change::float IS NULL
+)
+
 SELECT DISTINCT
     parquet_raw:date::date AS date
     , parquet_raw:active_blobs::int AS active_blobs
@@ -34,10 +40,12 @@ SELECT DISTINCT
 
     -- Crypto Metrics
     , (COALESCE(parquet_raw:tvl::float, 0) / 1e9) AS tvl_native
+    , (COALESCE(parquet_raw:tvl::float, 0) / 1e9) - lag(COALESCE(parquet_raw:tvl::float, 0) / 1e9) over (order by parquet_raw:date::date) AS tvl_net_change_native
     , (COALESCE(parquet_raw:tvl::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS tvl
+    , (COALESCE(parquet_raw:tvl::float, 0) / 1e9) * COALESCE(market_data.price, 0) - lag((COALESCE(parquet_raw:tvl::float, 0) / 1e9) * COALESCE(market_data.price, 0)) over (order by parquet_raw:date::date) AS tvl_net_change
     
     --Turnover Metrics
     , COALESCE(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
     , COALESCE(market_data.token_turnover_fdv, 0) AS token_turnover_fdv
-FROM {{source('PROD_LANDING', 'raw_sui_ez_walrus_metrics_parquet')}}
+FROM clean_parquet
 LEFT JOIN market_data ON parquet_raw:date::date = market_data.date
