@@ -81,5 +81,5 @@ select
     , type
     , chain
     , link
-    , null as tvl_score
+    , tvl_score
 from {{ ref("fact_vaults_fyi_stablecoin_apy") }}

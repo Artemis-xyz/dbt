@@ -23,6 +23,6 @@ select
     , type
     , chain
     , link
-    , null as risk_score
+    , tvl_score risk_score
 from {{ ref("fact_fedfunds_rates") }}
 qualify row_number() over (partition by name, protocol, link order by timestamp desc) = 1
