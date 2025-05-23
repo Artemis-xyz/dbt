@@ -9,8 +9,15 @@
 }}
 
 SELECT
-    date
-    , chain
-    , fee_usd as fees
+    date,
+    chain,
+    fee_usd,
+    fee_native,
+    volume_usd,
+    volume_native,
+    revenue_usd,
+    revenue_native,
+    supply_side_fees_usd,
+    supply_side_fees_native
 FROM
     {{ ref('fact_pendle_optimism_fees_silver') }}
