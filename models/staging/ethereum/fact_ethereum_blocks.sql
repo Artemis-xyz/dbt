@@ -6,7 +6,7 @@ with
             block_number,
             block_timestamp,
             gas_used * base_fee_per_gas as block_burn,
-            hash,
+            block_hash AS hash,
             case when t2.name is null then 'Unknown' else t2.name end as builder_name,
             case
                 when t2.censors is null then 'Non-Censoring' else t2.censors
@@ -27,7 +27,6 @@ with
             receipts_root,
             sha3_uncles,
             size,
-            total_difficulty,
             tx_count,
             uncle_blocks,
             withdrawals,
@@ -60,7 +59,6 @@ select
     receipts_root,
     sha3_uncles,
     size,
-    total_difficulty,
     tx_count,
     uncle_blocks,
     withdrawals,
