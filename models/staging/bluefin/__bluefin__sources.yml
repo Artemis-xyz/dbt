@@ -4,3 +4,4 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_bluefin_trading_volume
+      - name: raw_sui_fact_bluefin_dex_swaps_parquet

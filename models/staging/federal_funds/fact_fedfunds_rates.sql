@@ -32,6 +32,7 @@ select
   'fed_funds' as protocol,
   'fed_fund_rates' as type,
   null as chain,
-  null as link
+  null as link,
+  5.0 as tvl_score
 from flattened
 where date = (select max(date) from flattened)
