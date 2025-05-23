@@ -1,6 +1,4 @@
-{{ config(
-    materialized="table"
-) }}
+{{ config(materialized="table") }}
 
 with base as (
   select
@@ -22,23 +20,27 @@ flattened as (
 extracted as (
     select
         reserve_id,
-        symbol,
+        f.symbol,
         data:rates:supplyInterest::float as apy,
         data:reserve:liquidity:availableAmount::float as available_amount,
         data:reserve:liquidity:borrowedAmountWads::float / 1e18 as borrow_amount,
         data:reserve:liquidity:mintDecimals::int as mint_decimals,
+        p.link,
         extraction_date
-    from flattened
+    from flattened f
+    inner join {{ ref("save_stablecoin_lending_ids") }} p
+    on reserve_id = p.id
 )
 
 select
     reserve_id as id,
+    concat(symbol, ' Main Pool') as name,
     apy * 0.01 as apy,
     available_amount / pow(10, mint_decimals) as tvl,
-    extraction_date as extraction_timestamp,
-    concat(symbol, ' Main Pool') as name,
-    'Lending' as type,
+    array_construct(symbol) as symbol,
     'save' as protocol,
+    'Lending' as type,
     'solana' as chain,
-    array_construct(symbol) as symbol
+    link,
+    extraction_date as extraction_timestamp
 from extracted

@@ -16,13 +16,13 @@ with prices as (
     GROUP BY 1
 )
 
-, logs as (
+, incentives_v1 as (
     SELECT
         date(l.block_timestamp) as date,
         'UNI' as token,
         sum(l.decoded_log:reward::number / 1e18) as reward_native
     FROM
-        ethereum_flipside.core.ez_decoded_event_logs l
+        {{ source('ETHEREUM_FLIPSIDE', 'ez_decoded_event_logs') }} l
     WHERE
         contract_address in (
             lower('0xca35e32e7926b96a9988f61d510e038108d8068e')
@@ -35,10 +35,39 @@ with prices as (
         1,
         2
 )
+
+, incentives_v4 as (
+    SELECT
+        date,
+        'UNI' as token,
+        sum(amount_native) as reward_native
+    FROM {{ ref('fact_uniswap_v4_token_incentives') }}
+    GROUP BY
+        1,
+        2
+)
+, total_incentives as (
+    SELECT
+        date,
+        token,
+        reward_native as reward_native_historic,
+        0 as reward_native_2025
+    FROM incentives_v1
+    
+    UNION ALL
+    
+    SELECT 
+        date, 
+        token, 
+        0 as reward_native_historic,
+        reward_native as reward_native_2025
+    FROM incentives_v4
+)
 SELECT
     p.date
     , token
-    , coalesce(l.reward_native, 0) as token_incentives_native
-    , coalesce(reward_native * p.price, 0) as token_incentives_usd
+    , sum(coalesce(l.reward_native_historic, 0) + coalesce(l.reward_native_2025, 0)) as token_incentives_native
+    , sum(coalesce((l.reward_native_historic + l.reward_native_2025) * p.price, 0)) as token_incentives_usd
 FROM prices p
-left join logs l on p.date = l.date
+left join total_incentives l on p.date = l.date
+GROUP BY 1,2

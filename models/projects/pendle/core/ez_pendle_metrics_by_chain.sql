@@ -14,8 +14,8 @@ with
             date
             , chain
             , SUM(fees_usd) as swap_fees
-            , SUM(supply_side_fees) as supply_side_fees
-            , SUM(revenue) as swap_revenue
+            , SUM(supply_side_fees_usd) as supply_side_fees
+            , SUM(revenue_usd) as swap_revenue
         FROM
             {{ ref('fact_pendle_swap_fees') }}
         GROUP BY 1, 2
