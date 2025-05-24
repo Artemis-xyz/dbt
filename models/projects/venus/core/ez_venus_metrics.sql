@@ -26,6 +26,13 @@ with
         from venus_by_chain
         group by 1
     )
+
+    , token_incentives as (
+        select
+            date,
+            token_incentives as token_incentives
+        from {{ref('fact_venus_token_incentives')}}
+    )
     , price_data as ({{ get_coingecko_metrics("venus") }})
 
 select
@@ -40,7 +47,10 @@ select
     , price_data.price
     , price_data.market_cap
     , price_data.fdmc
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
 from venus_metrics
+left join token_incentives
+    on venus_metrics.date = token_incentives.date
 left join price_data
     on venus_metrics.date = price_data.date
 where venus_metrics.date < to_date(sysdate())
