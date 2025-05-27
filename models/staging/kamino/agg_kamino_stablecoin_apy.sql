@@ -19,27 +19,17 @@ daily_avg_vaults as (
   group by id, date_trunc('day', extraction_timestamp)
 ),
 
-with_array_vaults as (
+l7d_vaults as (
   select
     id,
-    array_agg(
-      array_construct(
-        date_part(epoch_second, day::timestamp_ntz),
-        round(daily_avg_apy::number(38, 18), 6)
+    ARRAY_AGG(
+      ARRAY_CONSTRUCT(
+        DATE_PART(EPOCH_SECOND, day::TIMESTAMP_NTZ),
+        ROUND(daily_avg_apy::NUMBER(38, 18), 6)
       )
-    ) over (
-      partition by id
-      order by day
-      rows between unbounded preceding and unbounded following
-    ) as daily_avg_apy_l7d,
-    row_number() over (partition by id order by day desc) as rn
+    ) WITHIN GROUP (ORDER BY day ASC) AS daily_avg_apy_l7d
   from daily_avg_vaults
-),
-
-l7d_vaults as (
-  select distinct id, daily_avg_apy_l7d
-  from with_array_vaults
-  where rn = 1
+  group by id
 ),
 
 vaults_score as (
@@ -84,27 +74,17 @@ daily_avg_lending as (
   group by id, date_trunc('day', extraction_timestamp)
 ),
 
-with_array_lending as (
+l7d_lending as (
   select
     id,
-    array_agg(
-      array_construct(
-        date_part(epoch_second, day::timestamp_ntz),
-        round(daily_avg_apy::number(38, 18), 6)
+    ARRAY_AGG(
+      ARRAY_CONSTRUCT(
+        DATE_PART(EPOCH_SECOND, day::TIMESTAMP_NTZ),
+        ROUND(daily_avg_apy::NUMBER(38, 18), 6)
       )
-    ) over (
-      partition by id
-      order by day
-      rows between unbounded preceding and unbounded following
-    ) as daily_avg_apy_l7d,
-    row_number() over (partition by id order by day desc) as rn
+    ) WITHIN GROUP (ORDER BY day ASC) AS daily_avg_apy_l7d
   from daily_avg_lending
-),
-
-l7d_lending as (
-  select distinct id, daily_avg_apy_l7d
-  from with_array_lending
-  where rn = 1
+  group by id
 ),
 
 lending_score as (
