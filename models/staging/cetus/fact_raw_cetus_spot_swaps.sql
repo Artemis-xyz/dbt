@@ -1,3 +1,8 @@
+{{config(
+    materialized = 'table',
+    database = 'cetus'
+)}}
+
 WITH coingecko_prices AS (
     {{get_multiple_coingecko_price_with_latest('sui')}}
 )
