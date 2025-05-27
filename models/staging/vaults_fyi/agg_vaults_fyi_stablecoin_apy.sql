@@ -15,7 +15,7 @@ daily_avg as (
     id,
     chain,
     date_trunc('day', extraction_timestamp) as day,
-    avg(apy) as daily_avg_apy
+    avg(apy) * 100 as daily_avg_apy
   from {{ ref("fact_vaults_fyi_apy") }}
   where extraction_timestamp >= dateadd(day, -7, current_date)
   group by id, chain, date_trunc('day', extraction_timestamp)

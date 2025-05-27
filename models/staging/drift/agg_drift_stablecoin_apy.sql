@@ -13,7 +13,7 @@ daily_avg_if as (
   select
     market,
     date_trunc('day', extraction_timestamp) as day,
-    avg(apy) as daily_avg_apy
+    avg(apy) * 100 as daily_avg_apy
   from {{ ref("fact_drift_insurance_vault_apy") }}
   where extraction_timestamp >= dateadd(day, -7, current_date)
   group by market, date_trunc('day', extraction_timestamp)
@@ -68,7 +68,7 @@ daily_avg_lending as (
   select
     market,
     date_trunc('day', extraction_timestamp) as day,
-    avg(apy) as daily_avg_apy
+    avg(apy) * 100 as daily_avg_apy
   from {{ ref("fact_drift_lending_apy") }}
   where extraction_timestamp >= dateadd(day, -7, current_date)
   group by market, date_trunc('day', extraction_timestamp)
