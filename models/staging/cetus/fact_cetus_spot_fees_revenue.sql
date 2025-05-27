@@ -8,6 +8,7 @@
 
 SELECT
     date,
+    transaction_digest,
     pool_address,
     fee_symbol,
     symbol_a,
@@ -19,4 +20,4 @@ SELECT
     0.8 * SUM(fee_amount_native) AS service_cash_flow_native, 
     0.8 * SUM(fee_amount_usd) AS service_cash_flow
 FROM {{ ref('fact_raw_cetus_spot_swaps') }}
-GROUP BY 1, 2, 3, 4, 5
+GROUP BY 1, 2, 3, 4, 5, 6
