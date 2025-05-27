@@ -7,9 +7,6 @@ WITH coingecko_prices AS (
     {{get_multiple_coingecko_price_with_latest('sui')}}
 )
 
---To maintain a healthy economic model that is beneficial to the project's sustainable project treasury for its long term development, 
---a certain percentage (20% by default) will be taken from swap fees of every transaction on Cetus as the protocol fee.
-
 SELECT
     parquet_raw:date::date AS date
     , parquet_raw:timestamp_ms::timestamp AS timestamp
