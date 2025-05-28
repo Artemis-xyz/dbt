@@ -1,4 +1,4 @@
-{{ config(materialized="incremental", snowflake_warehouse="WORLDCHAIN", unique_key=["transaction_hash", "event_index"]) }}
+{{ config(materialized="incremental", snowflake_warehouse="ETHEREUM_LG", unique_key=["transaction_hash", "event_index"]) }}
 
 
-{{ clean_goldsky_events('worldchain') }}
+{{ clean_goldsky_events_v2('worldchain') }}
