@@ -4,7 +4,7 @@
         snowflake_warehouse="MOMENTUM",
         database="momentum",
         schema="core",
-        alias="ez_momentum_metrics",
+        alias="ez_metrics",
     )
 }}
 
