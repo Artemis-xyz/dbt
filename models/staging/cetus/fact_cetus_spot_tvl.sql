@@ -7,6 +7,8 @@ WITH vault_balances AS (
     SELECT 
         date, 
         pool_address, 
+        symbol_a,
+        symbol_b,
         vault_a_amount_usd, 
         vault_b_amount_usd,
         CASE 
@@ -30,6 +32,8 @@ filled_forward AS (
     SELECT 
         date,
         pool_address,
+        symbol_a,
+        symbol_b,
         vault_a_amount_usd,
         vault_b_amount_usd,
         -- forward fill the TVL per pool
@@ -43,7 +47,11 @@ filled_forward AS (
 
 SELECT 
     date,
-    SUM(COALESCE(filled_tvl, 0)) AS daily_tvl
+    pool_address,
+    symbol_a,
+    symbol_b,
+    vault_a_amount_usd,
+    vault_b_amount_usd,
+    SUM(COALESCE(filled_tvl, 0)) AS tvl
 FROM filled_forward
-GROUP BY date
-ORDER BY date DESC
+GROUP BY 1, 2, 3, 4, 5, 6
