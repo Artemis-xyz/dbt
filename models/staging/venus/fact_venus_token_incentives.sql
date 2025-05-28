@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="ANALYTICS_XL") }}
+{{ config(materialized="table", snowflake_warehouse="VENUS") }}
 
 
 with venus_token_incentives as (
