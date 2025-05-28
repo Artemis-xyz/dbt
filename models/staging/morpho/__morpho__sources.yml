@@ -10,3 +10,13 @@ sources:
     database: pc_dbt_db
     tables:
       - name: morpho_daily_supply_data
+  - name: ethereum_flipside
+    schema: core
+    database: ethereum_flipside
+    tables:
+      - name: ez_token_transfers
+  - name: base_flipside
+    schema: core
+    database: base_flipside
+    tables:
+      - name: ez_token_transfers

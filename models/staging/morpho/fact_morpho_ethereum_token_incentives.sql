@@ -1,13 +1,13 @@
 {{ config(materialized='table', snowflake_warehouse='MORPHO') }}
 
-with 
-    token_incentives_txns as (
+with
+    legacy_token_incentives_txns as (
         select
             date(block_timestamp) as date
             , tx_hash
             , cast(raw_amount_precise as string)::float / 1e18 as amount_native
             , contract_address
-        from ethereum_flipside.core.ez_token_transfers
+        from {{ source('ethereum_flipside', 'ez_token_transfers') }}
         where 1=1
             and lower(from_address) in (lower('0x3B14E5C73e0A56D607A8688098326fD4b4292135'),
                                         lower('0x60345417a227ad7E312eAa1B5EC5CD1Fe5E2Cdc6'))
@@ -37,12 +37,12 @@ with
             ti.date as date
             , sum(amount_native) as amount_native
             , sum(amount_native) * max(price) as amount_usd
-        from token_incentives_txns ti
+        from legacy_token_incentives_txns ti
         left join morpho_migration_date_price on true
         group by 1
     )
 
-    , morpho_token_incentives as (
+    , legacy_morpho_token_incentives as (
         select
             block_timestamp
             , tx_hash
@@ -50,7 +50,7 @@ with
             , to_address
             , contract_address
             , cast(raw_amount_precise as string)::float / 1e18 as amount_native
-        from ethereum_flipside.core.ez_token_transfers
+        from {{ source('ethereum_flipside', 'ez_token_transfers') }}
         where 1=1
             and lower(from_address) = lower('0x330eefa8a787552DC5cAd3C3cA644844B1E61Ddb')
             and lower(contract_address) = lower('0x58D97B57BB95320F9a05dC918Aef65434969c2B2')            
@@ -58,23 +58,23 @@ with
 
     , agg_morpho_token_incentives as (
         select
-            date(mti.block_timestamp) as date,
-            sum(mti.amount_native) as amount_native,
-            sum(mti.amount_native) * max(mm.price) as amount_usd
-        from morpho_token_incentives mti
+            date(old.block_timestamp) as date,
+            sum(old.amount_native) as amount_native,
+            sum(old.amount_native) * max(mm.price) as amount_usd
+        from legacy_morpho_token_incentives old
         left join morpho_prices mm
-            on date(mti.block_timestamp) = mm.date
+            on date(old.block_timestamp) = mm.date
         group by 1
     )
 
     , morpho_ethereum_token_incentives as (
         select
-            coalesce(mti.date, aomti.date) as date
-            , coalesce(mti.amount_native, 0) + coalesce(aomti.amount_native, 0) as amount_native
-            , coalesce(mti.amount_usd, 0) + coalesce(aomti.amount_usd, 0) as amount_usd
-        from agg_morpho_token_incentives mti
-        full outer join agg_old_morpho_token_incentives aomti
-            on mti.date = aomti.date
+            coalesce(new_morpho.date, old_morpho.date) as date
+            , coalesce(new_morpho.amount_native, 0) + coalesce(old_morpho.amount_native, 0) as amount_native
+            , coalesce(new_morpho.amount_usd, 0) + coalesce(old_morpho.amount_usd, 0) as amount_usd
+        from agg_morpho_token_incentives new_morpho
+        full outer join agg_old_morpho_token_incentives old_morpho
+            on new_morpho.date = old_morpho.date
     )
 
 select
