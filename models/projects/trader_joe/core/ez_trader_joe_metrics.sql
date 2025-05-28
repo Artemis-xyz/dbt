@@ -8,11 +8,8 @@
     )
 }}
 
-with market_data as (
-    {{ get_coingecko_metrics("joe") }}
-)
-, protocol_data as (
-    SELECT
+with protocol_data as (
+    select
         date
         , app
         , category
@@ -31,10 +28,10 @@ with market_data as (
         , sum(ecosystem_revenue) as ecosystem_revenue
         , sum(gas_cost_native) as gas_cost_native
         , sum(gas_cost) as gas_cost
-    FROM {{ ref("ez_trader_joe_metrics_by_chain") }}
-    GROUP BY 1, 2, 3
-)
 
+    from {{ ref("ez_trader_joe_metrics_by_chain") }}
+    group by 1, 2, 3
+)
 , supply_data as (
     select
         date
@@ -45,47 +42,70 @@ with market_data as (
         , circulating_supply_native
     from {{ ref("fact_trader_joe_supply_data") }}
 )
-SELECT
-    date(date) as date
-    , app
-    , category
-    , trading_volume
-    , trading_fees
-    , unique_traders
-    , number_of_swaps
-    , gas_cost_usd
+, token_incentives as (
+    select
+        date
+        , sum(amount_usd) as token_incentives
+    from {{ ref("fact_trader_joe_token_incentives") }}
+    group by date
+)
+, date_spine as (
+    select
+        date
+    from {{ ref('dim_date_spine') }}
+    where date between (select min(date) from protocol_data) and to_date(sysdate())
+)
+, market_metrics as (
+    {{ get_coingecko_metrics("joe") }}
+)
+
+select
+    date_spine.date
+    , protocol_data.app
+    , protocol_data.category
+
+    -- Old Metrics needed for compatibility
+    , protocol_data.trading_volume
+    , protocol_data.trading_fees
+    , protocol_data.unique_traders
+    , protocol_data.number_of_swaps
+    , protocol_data.gas_cost_usd
 
     -- Standardized Metrics
 
-    -- Supply Metrics
-    , premine_unlocks_native
-    , gross_emissions_native
-    , burns_native
-    , net_supply_change_native
-    , circulating_supply_native
+    -- Market Metrics
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
 
-    -- Token Metrics
-    , market_data.price
-    , market_data.market_cap
-    , market_data.fdmc
-    , market_data.token_volume
+    -- Usage Metrics
+    , protocol_data.spot_dau
+    , protocol_data.spot_txns
+    , protocol_data.spot_volume
+    , protocol_data.tvl
 
-    -- Usage/Sector Metrics
-    , spot_dau
-    , spot_txns
-    , spot_volume
-    , tvl
+    -- Cashflow Metrics
+    , protocol_data.spot_fees
+    , protocol_data.ecosystem_revenue
+    , token_incentives.token_incentives
+    , protocol_data.gas_cost_native
+    , protocol_data.gas_cost
 
-    -- Money Metrics
-    , trading_fees as spot_fees
-    , ecosystem_revenue
-    , gas_cost_native
-    , gas_cost
+    -- LFJ Token Supply Data
+    , supply_data.premine_unlocks_native
+    , supply_data.gross_emissions_native
+    , supply_data.burns_native
+    , supply_data.net_supply_change_native
+    , supply_data.circulating_supply_native
 
     -- Other Metrics
-    , market_data.token_turnover_circulating
-    , market_data.token_turnover_fdv
-FROM protocol_data
-LEFT JOIN market_data using(date)
-LEFT JOIN supply_data using(date)
-WHERE date < to_date(sysdate())
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
+
+from date_spine
+left join protocol_data using(date)
+left join market_metrics using(date)
+left join token_incentives using(date)
+left join supply_data using(date)
+where date_spine.date < to_date(sysdate())

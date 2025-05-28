@@ -20,7 +20,7 @@ with
             and event_type = 'transferChecked' -- Event Type for Transfer Checked
             and succeeded = true -- Success Indicator
             {% if is_incremental() %}
-                and date(block_timestamp) >= (select dateadd('day', -3, max(date)) from {{ this }})
+                and date(block_timestamp) >= (select dateadd('day', -1, max(date)) from {{ this }})
             {% endif %}
     )
 
