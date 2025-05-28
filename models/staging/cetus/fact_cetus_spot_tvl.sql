@@ -46,4 +46,4 @@ SELECT
     SUM(COALESCE(filled_tvl, 0)) AS daily_tvl
 FROM filled_forward
 GROUP BY date
-ORDER BY date DESC;
+ORDER BY date DESC
