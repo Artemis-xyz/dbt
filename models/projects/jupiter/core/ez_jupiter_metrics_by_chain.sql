@@ -31,5 +31,8 @@ select
     token_turnover_circulating,
     token_turnover_fdv,
     token_volume,
-    treasury_cash_flow
+    treasury_cash_flow,
+    unique_traders,
+    aggregator_unique_traders,
+    aggregator_revenue
 from {{ref("ez_jupiter_metrics")}}

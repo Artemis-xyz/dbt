@@ -28,6 +28,7 @@ select
   , l.chain
   , l.link
   , a.tvl_score
+  , a.daily_avg_apy_l7d
 from {{ ref("fact_drift_lending_apy") }} l
 join latest_stableconin_lending ll
   on l.market = ll.market
@@ -48,6 +49,7 @@ select
   , i.chain
   , i.link
   , a.tvl_score
+  , a.daily_avg_apy_l7d
 from {{ ref("fact_drift_insurance_vault_apy") }} i
 join latest_stablecoin_iv li
   on i.market = li.market

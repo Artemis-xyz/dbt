@@ -21,6 +21,7 @@ select
   , f.chain
   , f.link
   , a.tvl_score
+  , a.daily_avg_apy_l7d
 from {{ ref("fact_raydium_apy") }} f
 join latest_per_group l
   on f.name = l.name

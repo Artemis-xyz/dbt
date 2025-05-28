@@ -5,3 +5,6 @@ sources:
     tables:
       - name: raw_bluefin_trading_volume
       - name: raw_sui_fact_bluefin_dex_swaps_parquet
+        meta:
+          dagster:
+            asset_key: ["PROD_LANDING", "bulk_load_fact_bluefin_dex_swaps"]
