@@ -17,7 +17,9 @@ SELECT
 
     , coingecko_prices_fee.symbol AS fee_symbol
     , parquet_raw:fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) AS fee_amount_native
+    , parquet_raw:protocol_fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) AS protocol_fee_amount_native
     , parquet_raw:fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_fee.price AS fee_amount_usd
+    , parquet_raw:protocol_fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_fee.price AS protocol_fee_amount_usd
 
     , coingecko_prices_a.symbol AS symbol_a
     , parquet_raw:amount_a_swapped_raw::float / POW(10, coingecko_prices_a.decimals) AS amount_a_swapped_native
