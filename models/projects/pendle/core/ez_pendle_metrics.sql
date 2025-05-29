@@ -107,7 +107,6 @@ SELECT
     , tn.treasury_value_native
     , nt.net_treasury_value
     , t.net_deposits
-    , 0 as outstanding_supply
 
 
     -- Standardized Metrics
@@ -126,7 +125,7 @@ SELECT
     , {{ daily_pct_change('t.tvl') }} as tvl_pct_change
 
     -- Money Metrics
-    , coalesce(yf.yield_revenue, 0) as yield_generated
+    , coalesce(yf.yield_revenue, 0) as yield_fees
     , coalesce(f.swap_fees, 0) as spot_fees
     , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as ecosystem_revenue
     , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as fee_sharing_token_cash_flow
