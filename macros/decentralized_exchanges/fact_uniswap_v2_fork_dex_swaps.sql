@@ -140,6 +140,7 @@
                 )
                 < 2
                 and abs( -- Necessary for filtering swaps where there is both a token0in and a token1in such as https://bscscan.com/tx/0x8c517b96974c7632627758e92675c984599b57fdced30cf00e4fef9095bf348a#eventlog#1009
+                    -- more context here: https://github.com/Artemis-xyz/dbt/pull/1467
                     ln(abs(coalesce(nullif(abs_token0_net_amount_usd, 0), 1))) / ln(10)
                     - ln(abs(coalesce(nullif(abs_token1_net_amount_usd, 0), 1))) / ln(10)
                 )
