@@ -1,7 +1,7 @@
 select
     date(block_timestamp) as date,
     sum(
-        TRY_TO_NUMBER(NULLIF(decoded_log:jlpplus_amount :: string, '')) / 1e18
+        CAST(decoded_log:jlpplus_amount AS INT) / 1e21
     ) as collateral_fee
 from {{ref('fact_ethereum_decoded_events')}}
 where
