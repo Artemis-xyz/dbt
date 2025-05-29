@@ -11,34 +11,60 @@
 WITH
     spot_volumes AS(
         SELECT
-            date, LOWER(symbol_a) AS token, SUM(amount_a_swapped_native) AS volume_native, SUM(amount_a_swapped_usd) AS volume_usd
+            date, 
+            LOWER(symbol_a) AS token, 
+            SUM(amount_a_swapped_native) AS volume_native, 
+            SUM(amount_a_swapped_usd) AS volume_usd,
+            SUM(GREATEST(COALESCE(amount_a_swapped_usd, 0), COALESCE(amount_b_swapped_usd, 0))) AS spot_volume
         FROM {{ ref("fact_momentum_spot_volume") }}
         GROUP BY 1, 2
 
         UNION ALL
         
         SELECT
-            date, LOWER(symbol_b) AS token, SUM(amount_b_swapped_native) AS volume_native, SUM(amount_b_swapped_usd) AS volume_usd
+            date, 
+            LOWER(symbol_b) AS token, 
+            SUM(amount_b_swapped_native) AS volume_native, 
+            SUM(amount_b_swapped_usd) AS volume_usd,
+            SUM(GREATEST(COALESCE(amount_a_swapped_usd, 0), COALESCE(amount_b_swapped_usd, 0))) AS spot_volume
         FROM {{ ref("fact_momentum_spot_volume") }}
         GROUP BY 1, 2
 
     )
 
     , spot_dau_txns AS (
-        SELECT date, LOWER(token_sold) AS token, SUM(dau) AS dau, SUM(txns) AS txns
+        SELECT 
+            date, 
+            LOWER(token_sold) AS token, 
+            SUM(dau) AS dau, 
+            SUM(txns) AS txns,
+            SUM(GREATEST(COALESCE(dau, 0), COALESCE(txns, 0))) AS spot_dau
         FROM {{ ref("fact_momentum_spot_dau_txns") }}
         GROUP BY 1, 2
 
         UNION ALL
 
-        SELECT date, LOWER(token_bought) AS token, SUM(dau) AS dau, SUM(txns) AS txns
+        SELECT 
+            date, 
+            LOWER(token_bought) AS token, 
+            SUM(dau) AS dau, 
+            SUM(txns) AS txns,
+            SUM(GREATEST(COALESCE(dau, 0), COALESCE(txns, 0))) AS spot_dau
         FROM {{ ref("fact_momentum_spot_dau_txns") }}
         GROUP BY 1, 2
 
     )
 
     , spot_fees_revenue AS (
-        SELECT date, LOWER(symbol_a) AS token, SUM(fees_native) AS fees_native, SUM(fees_usd) AS fees_usd, SUM(service_cash_flow) AS service_cash_flow, SUM(service_cash_flow_native) AS service_cash_flow_native, SUM(foundation_cash_flow) AS foundation_cash_flow, SUM(foundation_cash_flow_native) AS foundation_cash_flow_native
+        SELECT 
+            date, 
+            LOWER(symbol_a) AS token, 
+            SUM(fees_native) AS fees_native, 
+            SUM(fees_usd) AS fees_usd, 
+            SUM(service_cash_flow) AS service_cash_flow, 
+            SUM(service_cash_flow_native) AS service_cash_flow_native, 
+            SUM(foundation_cash_flow) AS foundation_cash_flow, 
+            SUM(foundation_cash_flow_native) AS foundation_cash_flow_native,
         FROM {{ ref("fact_momentum_spot_fees_revenue") }}
         GROUP BY 1, 2
 
@@ -50,13 +76,23 @@ WITH
     )
 
     , tvl AS (
-        SELECT date, LOWER(symbol_a) AS token, SUM(vault_a_amount_native) AS tvl_native, SUM(vault_a_amount_usd) AS tvl
+        SELECT 
+            date, 
+            LOWER(symbol_a) AS token, 
+            SUM(vault_a_amount_native) AS tvl_native, 
+            SUM(vault_a_amount_usd) AS tvl,
+            SUM(GREATEST(COALESCE(vault_a_amount_usd, 0), COALESCE(vault_b_amount_usd, 0))) AS tvl
         FROM {{ ref("fact_momentum_spot_tvl") }}
         GROUP BY 1, 2
 
         UNION ALL
 
-        SELECT date, LOWER(symbol_b) AS token, SUM(vault_b_amount_native) AS tvl_native, SUM(vault_b_amount_usd) AS tvl
+        SELECT 
+            date, 
+            LOWER(symbol_b) AS token, 
+            SUM(vault_b_amount_native) AS tvl_native, 
+            SUM(vault_b_amount_usd) AS tvl,
+            SUM(GREATEST(COALESCE(vault_a_amount_usd, 0), COALESCE(vault_b_amount_usd, 0))) AS tvl
         FROM {{ ref("fact_momentum_spot_tvl") }}
         GROUP BY 1, 2
     )

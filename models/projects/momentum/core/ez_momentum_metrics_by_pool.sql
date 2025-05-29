@@ -11,7 +11,7 @@
 WITH
     spot_volumes AS(
         SELECT
-            date, pool_address, SUM(amount_a_swapped_usd) AS volume_usd
+            date, pool_address, SUM(volume_usd) AS spot_volume
         FROM {{ ref("fact_momentum_spot_volume") }}
         GROUP BY 1, 2
     )
@@ -38,7 +38,7 @@ WITH
         spot_volumes.pool_address AS pool, 
         tvl.symbol_a,
         tvl.symbol_b,
-        spot_volumes.volume_usd AS spot_volume,
+        spot_volumes.spot_volume,
         spot_dau_txns.dau AS spot_dau, 
         spot_dau_txns.txns AS spot_txns, 
         spot_fees_revenue.fees_usd AS ecosystem_revenue, 
