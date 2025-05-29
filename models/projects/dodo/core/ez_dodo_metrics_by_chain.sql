@@ -52,7 +52,7 @@ select
     -- Usage Metrics
     , coalesce(swap_metrics.txns, 0) as spot_txns
     , coalesce(swap_metrics.dau, 0) as spot_dau
-    , coalesce(swap_metrics.volume_usd, 0) as spot_volume
+    --, coalesce(swap_metrics.volume_usd, 0) as spot_volume
 
     -- Cashflow Metrics
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
