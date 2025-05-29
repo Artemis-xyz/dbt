@@ -1,7 +1,14 @@
 {% macro token_transfer_events(chain) %}
 with 
     prices as ({{get_multiple_coingecko_price_with_latest(chain)}})
-    , token_transfers as (
+    , contract_addresses as (
+        select 
+            distinct 
+            contract_address,
+            symbol,
+            decimals
+        from prices
+    ), token_transfers as (
         select
             block_timestamp,
             block_number,
@@ -50,12 +57,14 @@ select
     , from_address
     , to_address
     , amount_raw
-    , amount_raw / pow(10, decimals) as amount_native
-    , amount_native * price as amount
-    , price
+    , amount_raw / pow(10, contract_addresses.decimals) as amount_native
+    , amount_native * prices.price as amount
+    , prices.price
 from token_transfers
 left join prices
     on token_transfers.block_timestamp::date = prices.date
     and lower(token_transfers.contract_address) = lower(prices.contract_address)
+left join contract_addresses 
+    on lower(token_transfers.contract_address) = lower(contract_addresses.contract_address)
 where amount_raw > 0
 {% endmacro %}
