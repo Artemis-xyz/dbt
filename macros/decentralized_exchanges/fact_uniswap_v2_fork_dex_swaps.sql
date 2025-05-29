@@ -123,7 +123,9 @@
                         end
                 end as token_fee_amount_native_symbol,
                 token0_in_amount_usd + token1_in_amount_usd as total_in,
-                token0_out_amount_usd + token1_out_amount_usd as total_out
+                token0_out_amount_usd + token1_out_amount_usd as total_out,
+                abs(token0_in_amount_usd - token0_out_amount_usd) as abs_token0_net_amount_usd,
+                abs(token1_in_amount_usd - token1_out_amount_usd) as abs_token1_net_amount_usd,
             from swaps t1
             left join
                 {{ chain }}_flipside.price.ez_prices_hourly t2
@@ -135,6 +137,11 @@
                 and abs(
                     ln(abs(coalesce(nullif(total_in, 0), 1))) / ln(10)
                     - ln(abs(coalesce(nullif(total_out, 0), 1))) / ln(10)
+                )
+                < 2
+                and abs( -- Necessary for filtering swaps where there is both a token0in and a token1in such as https://bscscan.com/tx/0x8c517b96974c7632627758e92675c984599b57fdced30cf00e4fef9095bf348a#eventlog#1009
+                    ln(abs(coalesce(nullif(abs_token0_net_amount_usd, 0), 1))) / ln(10)
+                    - ln(abs(coalesce(nullif(abs_token1_net_amount_usd, 0), 1))) / ln(10)
                 )
                 < 2
         ),
