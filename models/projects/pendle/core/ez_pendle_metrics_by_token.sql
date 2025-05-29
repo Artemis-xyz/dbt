@@ -33,7 +33,7 @@ with
         SELECT
             date
             , symbol as token
-            , sum(amount_native) as tvl
+            , sum(tvl_native) as tvl
         FROM
             {{ref('fact_pendle_tvl_by_token_and_chain')}}
         GROUP BY 1, 2
@@ -72,7 +72,7 @@ SELECT
 
     , f.swap_fees as spot_fees
     , COALESCE(yf.yield_revenue, 0) as yield_generated
-    , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as gross_protocol_revenue
+    , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as ecosystem_revenue
     , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as fee_sharing_token_cash_flow
     , coalesce(f.swap_revenue, 0) as spot_fee_sharing_token_cash_flow
     , coalesce(yf.yield_revenue, 0) as yield_fee_sharing_token_cash_flow

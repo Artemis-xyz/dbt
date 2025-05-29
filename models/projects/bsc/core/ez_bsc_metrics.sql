@@ -19,7 +19,7 @@ with
     nft_metrics as ({{ get_nft_metrics("bsc") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("bsc") }}),
     binance_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_binance_daily_dex_volumes") }}
     )
 select
@@ -38,6 +38,7 @@ select
     , dau_over_100
     , nft_trading_volume
     , dune_dex_volumes_binance.dex_volumes
+    , dune_dex_volumes_binance.adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -62,8 +63,8 @@ select
     , dune_dex_volumes_binance.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
     , fees as chain_fees
-    , fees_native AS gross_protocol_revenue_native
-    , fees AS gross_protocol_revenue
+    , fees_native AS ecosystem_revenue_native
+    , fees AS ecosystem_revenue
     , fees_native * .1 AS burned_cash_flow_native
     , fees * .1 AS burned_cash_flow
     -- Developer metrics

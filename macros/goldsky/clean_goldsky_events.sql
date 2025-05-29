@@ -43,7 +43,7 @@ collapsed_events as (
 )
 SELECT
     topic_data
-    , SUBSTRING(data, 3) as data
+    , data
     , block_number
     , block_hash
     , block_timestamp

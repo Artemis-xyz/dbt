@@ -16,7 +16,7 @@ SELECT
     , new_leases
     , compute_fees
     , gas_fees
-    , gross_protocol_revenue
+    , ecosystem_revenue
     , validator_cash_flow
     , treasury_cash_flow
     , service_cash_flow

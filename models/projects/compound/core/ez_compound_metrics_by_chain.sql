@@ -20,6 +20,14 @@ with
                 ],
             )
         }}
+    ),
+    token_incentives as (
+        select
+            day as date,
+            'ethereum' as chain,
+            sum(total_usd_value) as token_incentives
+        from {{ ref('fact_compound_token_incentives') }}
+        group by 1, 2
     )
 select
     compound_by_chain.date
@@ -31,5 +39,10 @@ select
     -- Standardized metrics
     , compound_by_chain.daily_borrows_usd as lending_loans
     , compound_by_chain.daily_supply_usd as lending_deposits
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
+
 from compound_by_chain
+left join token_incentives
+    on compound_by_chain.date = token_incentives.date
+   and compound_by_chain.chain = token_incentives.chain
 where compound_by_chain.date < to_date(sysdate())

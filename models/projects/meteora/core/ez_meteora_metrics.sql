@@ -69,7 +69,7 @@ select
     , coalesce(amm_metrics.fees, 0) as amm_spot_fees
     , coalesce(dlmm_metrics.dlmm_spot_fees, 0) as dlmm_spot_fees
     , coalesce(amm_metrics.fees, 0) + coalesce(dlmm_metrics.dlmm_spot_fees, 0) as spot_fees
-    , coalesce(amm_metrics.fees, 0) + coalesce(dlmm_metrics.dlmm_spot_fees, 0) as gross_protocol_revenue
+    , coalesce(amm_metrics.fees, 0) + coalesce(dlmm_metrics.dlmm_spot_fees, 0) as ecosystem_revenue
     , (coalesce(dlmm_metrics.dlmm_spot_fees, 0) * .05) + coalesce(amm_metrics.fees, 0) * .20 as treasury_cash_flow
     , (coalesce(dlmm_metrics.dlmm_spot_fees, 0) * .95) + coalesce(amm_metrics.fees, 0) * .80 as service_cash_flow
 

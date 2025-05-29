@@ -20,7 +20,7 @@ with
     stablecoin_data as ({{ get_stablecoin_metrics("celo") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("celo") }}),
     celo_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_celo_daily_dex_volumes") }}
     )
 select
@@ -34,6 +34,7 @@ select
     , revenue
     , avg_txn_fee
     , celo_dex_volumes.dex_volumes
+    , celo_dex_volumes.adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -49,7 +50,7 @@ select
     , celo_dex_volumes.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
     , fees AS chain_fees
-    , fees AS gross_protocol_revenue
+    , fees AS ecosystem_revenue
     , revenue AS burned_cash_flow
     -- Developer Metrics
     , weekly_commits_core_ecosystem

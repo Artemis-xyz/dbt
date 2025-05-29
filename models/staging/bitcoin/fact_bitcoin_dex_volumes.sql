@@ -27,10 +27,11 @@ with
     )
 select
     coalesce(bisq.date, lnexchange.date) as date,
-    (coalesce(bisq.bisq_volume_btc, 0) * eph.price) + coalesce(lnexchange_volume, 0) as volume_usd
+    sum((coalesce(bisq.bisq_volume_btc, 0) * eph.price) + coalesce(lnexchange_volume, 0)) as volume_usd
 from bisq
 full join lnexchange on bisq.date = lnexchange.date
 left join {{source('BITCOIN_FLIPSIDE_PRICE', 'ez_prices_hourly')}} eph 
     on bisq.date = eph.hour and lower(eph.symbol) = 'btc'
 where eph.name = 'bitcoin'
+group by 1
 order by date desc

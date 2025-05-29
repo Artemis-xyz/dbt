@@ -17,6 +17,7 @@ select
     , total_supply_side_revenue
     , number_of_swaps
     , unique_traders
+    , trading_fees
 
     -- Standardized Metrics
     -- Usage/Sector Metrics
@@ -27,7 +28,7 @@ select
 
     -- Money Metrics
     , treasury_cash_flow
-    , gross_protocol_revenue
+    , ecosystem_revenue
     , service_cash_flow
     , other_cash_flow
 from {{ ref("ez_orca_metrics") }}

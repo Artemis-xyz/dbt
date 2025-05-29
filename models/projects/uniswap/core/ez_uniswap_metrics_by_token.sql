@@ -119,9 +119,9 @@ SELECT
 
     -- Money Metrics
     , spot_fees
-    , spot_fees as gross_protocol_revenue
+    , spot_fees as ecosystem_revenue
     , fees_native as spot_fees_native
-    , fees_native as gross_protocol_revenue_native
+    , fees_native as ecosystem_revenue_native
     , token_incentives_native
     , token_incentives_usd as token_incentives
 

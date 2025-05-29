@@ -71,8 +71,8 @@ select
     , new_users
     -- Cashflow Metrics
     , fees as chain_fees
-    , fees AS gross_protocol_revenue
-    , fees_data.fees_native AS gross_protocol_revenue_native
+    , fees AS ecosystem_revenue
+    , fees_data.fees_native AS ecosystem_revenue_native
     , median_txn_fee AS chain_median_txn_fee
     , coalesce(fees_data.fees_native, 0) - l1_data_cost_native as equity_cash_flow_native
     , coalesce(fees, 0) -  l1_data_cost as equity_cash_flow

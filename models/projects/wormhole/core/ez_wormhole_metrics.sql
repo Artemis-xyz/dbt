@@ -43,7 +43,7 @@ select
     , coalesce(daa.bridge_daa, 0) as bridge_dau
     , coalesce(bridge_volume.bridge_volume, 0) as bridge_volume
     , coalesce(bridge_volume.fees, 0) as bridge_fees
-    , coalesce(bridge_volume.fees, 0) as gross_protocol_revenue
+    , coalesce(bridge_volume.fees, 0) as ecosystem_revenue
     , price_data.price as price
     , price_data.market_cap as market_cap
     , price_data.fdmc as fdmc

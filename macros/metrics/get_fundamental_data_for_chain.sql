@@ -57,7 +57,7 @@
             where raw_date::date < to_date(sysdate())
             group by t.raw_date
         )
-        {% if (chain not in ("near", "starknet", "blast")) %}
+        {% if (chain not in ("near", "starknet", "blast", "tron")) %}
             ,
             users_over_100 as (
                 select
@@ -91,7 +91,7 @@
             null as sybil_users,
             null as non_sybil_users
         {% endif %}
-        {% if (chain not in ("near", "starknet", "blast")) %}, dau_over_100
+        {% if (chain not in ("near", "starknet", "blast", "tron")) %}, dau_over_100
         {% else %}, null as dau_over_100
         {% endif %}
     from chain_agg
@@ -100,7 +100,7 @@
         left join bot on date = bot.raw_date
         left join sybil on date = sybil.raw_date
     {% endif %}
-    {% if (chain not in ("near", "starknet", "blast")) %}
+    {% if (chain not in ("near", "starknet", "blast", "tron")) %}
         left join users_over_100 on date = users_over_100.balance_date
     {% endif %}
 {% endmacro %}

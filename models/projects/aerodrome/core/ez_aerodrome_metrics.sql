@@ -46,6 +46,12 @@ with swap_metrics as (
         cumulative_count
     FROM {{ ref('fact_aerodrome_pools') }}
 )
+, token_incentives as (
+        select
+            day as date,
+            usd_value as token_incentives
+        from {{ref('fact_aerodrome_token_incentives')}}
+)
 , date_spine as (
     SELECT
         ds.date
@@ -90,7 +96,7 @@ SELECT
 
     -- Cash Flow Metrics
     , coalesce(sm.daily_fees_usd, 0) as spot_fees
-    , coalesce(sm.daily_fees_usd, 0) as gross_protocol_revenue
+    , coalesce(sm.daily_fees_usd, 0) as ecosystem_revenue
     , coalesce(sm.daily_fees_usd, 0) as fee_sharing_token_cash_flow
     , coalesce(sp.buybacks_native, 0) as buybacks_native
     , coalesce(sp.buybacks, 0) as buybacks
@@ -108,10 +114,13 @@ SELECT
     , coalesce(mm.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(mm.token_turnover_fdv, 0) as token_turnover_fdv
     , coalesce(pm.cumulative_count, 0) as total_pools
+    , coalesce(ti.token_incentives, 0) as token_incentives
+
 FROM date_spine ds
 LEFT JOIN swap_metrics sm using (date)
 LEFT JOIN tvl_metrics tm using (date)
 LEFT JOIN market_metrics mm using (date)
 LEFT JOIN supply_metrics sp using (date)
 LEFT JOIN pools_metrics pm using (date)
+LEFT JOIN token_incentives ti using (date)
 WHERE ds.date < to_date(sysdate())

@@ -66,7 +66,7 @@ select
     , unlocks.outflows as unlocks
     , mints.mints as gross_emissions_native
     , COALESCE(revenue.revenue, 0) AS revenue
-    , fundamental_data.fees_native as gross_protocol_revenue_native
+    , fundamental_data.fees_native as ecosystem_revenue_native
     , coalesce(revenue.revenue_native, 0) as burned_cash_flow_native
     
     -- Standardized Metrics
@@ -94,7 +94,7 @@ select
     -- Cashflow Metrics
     , coalesce(fundamental_data.fees, 0) as chain_fees
     , coalesce(revenue.spot_fees, 0) as spot_fees
-    , (coalesce(revenue.spot_fees, 0) + coalesce(fundamental_data.fees, 0)) as gross_protocol_revenue
+    , (coalesce(revenue.spot_fees, 0) + coalesce(fundamental_data.fees, 0)) as ecosystem_revenue
     , coalesce(revenue.auction_fees, 0) as burned_cash_flow
     , coalesce(fundamental_data.fees, 0) as validator_cash_flow
     , coalesce(revenue.dapp_fees, 0) as dapp_cash_flow

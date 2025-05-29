@@ -138,8 +138,8 @@ select
     , coalesce(tvl_native - lag(tvl_native) over (order by date), 0) as tvl_native_net_change
 
     -- Cash Flow Metrics
-    , coalesce(fees.fees, 0) as gross_protocol_revenue
-    , coalesce(fees.fees_native, 0) as gross_protocol_revenue_native
+    , coalesce(fees.fees, 0) as ecosystem_revenue
+    , coalesce(fees.fees_native, 0) as ecosystem_revenue_native
     , coalesce(token_cashflow, 0) as token_cashflow
     , coalesce(service_cashflow, 0) as service_cashflow
     , coalesce(treasury_cashflow, 0) as treasury_cashflow

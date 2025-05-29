@@ -176,3 +176,48 @@ FROM
 WHERE
     src_timestamp <= to_date(sysdate())
     and (source_chain is not null and destination_chain is not null)
+union all
+select
+-- unique ids 
+    src_messaging_contract_address
+    , src_block_timestamp
+    , src_tx_hash
+    , src_event_index
+    , src_amount
+-- amounts
+    , amount_sent_native
+    , amount_sent_adjusted
+    , amount_sent
+    , src_decimals
+    , src_symbol
+    , src_chain
+    , origin_chain_id
+    , origin_token
+    , dst_messaging_contract_address
+    , dst_block_timestamp
+    , dst_tx_hash
+    , dst_event_index
+-- amounts
+    , dst_amount
+    , amount_received_native
+    , amount_received_adjusted
+    , amount_received
+    , dst_decimals
+    , dst_symbol
+-- src / dst amount
+    , depositor
+    , recipient
+    , destination_chain_id
+    , destination_token
+    , dst_chain
+    , token_address
+    , token_chain
+    , protocol_fee
+    , bridge_message_app
+    , version
+    , app
+from {{ ref('fact_superchain_bridge_transfers') }}
+where
+    (src_block_timestamp <= to_date(sysdate()) or src_block_timestamp is null)
+    and (dst_block_timestamp <= to_date(sysdate()) or dst_block_timestamp is null)
+    and (src_chain is not null and dst_chain is not null)

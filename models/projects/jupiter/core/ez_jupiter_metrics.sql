@@ -149,7 +149,7 @@ select
     , all_trade_metrics.aggregator_fees
     , all_trade_metrics.dca_fees
     , all_trade_metrics.limit_order_fees
-    , all_trade_metrics.fees as gross_protocol_revenue
+    , all_trade_metrics.fees as ecosystem_revenue
     , all_trade_metrics.aggregator_fees - all_trade_metrics.aggregator_revenue as integrator_cash_flow
     , perp_supply_side_revenue as service_cash_flow
     , all_trade_metrics.revenue as treasury_cash_flow

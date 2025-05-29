@@ -13,7 +13,7 @@ with
             , max(icon) as icon
             , chain
             , symbol
-            , coalesce(application, address) as app_or_address
+            , coalesce(friendly_name, address) as app_or_address
             , sum(stablecoin_transfer_volume) as stablecoin_transfer_volume
             -- Hide DQ issues with the stablecoin supply field
             , sum(case when stablecoin_supply < 0 then 0 else stablecoin_supply end) as stablecoin_supply

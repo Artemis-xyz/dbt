@@ -114,6 +114,7 @@ select
     , 0 as secondary_supply_side_revenue
     , 0 as protocol_revenue
     , 0 as operating_expenses
+    , token_incentives_usd + operating_expenses as total_expenses
     , token_incentives_usd as token_incentives
     , -token_incentives_usd as protocol_earnings
     , tvl_by_chain.tvl
@@ -131,7 +132,7 @@ select
     , trading_volume_by_chain.unique_traders as spot_dau
     , trading_volume_by_chain.trading_volume as spot_volume
     , trading_volume_by_chain.trading_fees as spot_fees
-    , trading_volume_by_chain.trading_fees as gross_protocol_revenue
+    , trading_volume_by_chain.trading_fees as ecosystem_revenue
     , trading_volume_by_chain.trading_fees as service_cash_flow
 
     -- Treasury Metrics

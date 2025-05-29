@@ -10,7 +10,6 @@ SELECT
     'ethereum' AS chain,
     SUM(price_usd) AS trading_volume,
     COUNT(DISTINCT seller_address) + COUNT(DISTINCT buyer_address) AS active_wallets,
-    COUNT(DISTINCT project_name) AS collections_transacted,
     COUNT(*) AS total_trades,
     SUM(total_fees_usd) AS total_fees_usd,
     SUM(platform_fee_usd) AS total_platform_fees,

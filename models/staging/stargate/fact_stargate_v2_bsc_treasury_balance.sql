@@ -19,11 +19,11 @@ treasury_data as (
     select
         date
         , case 
-            when substr(symbol, 0, 2) = 'S*' then 'stargate'
+            when substr(t1.symbol, 0, 2) = 'S*' then 'stargate'
             else 'wallet'
         end as protocol        
         , treasury_data.contract_address
-        , upper(replace(symbol, 'S*', '')) as symbol
+        , upper(replace(t1.symbol, 'S*', '')) as symbol
         , balance_native
         , balance
     from treasury_data

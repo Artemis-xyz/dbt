@@ -4,7 +4,8 @@
         snowflake_warehouse="ZCASH",
         database="zcash",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics",
+        enabled=false,
     )
 }}
 
@@ -20,7 +21,7 @@ with
     , github_data as ({{ get_github_metrics("zcash") }})
     , price_data as ({{ get_coingecko_metrics('zcash') }})
 
-select 
+select
     f.date
 
     -- Standardized Metrics
@@ -31,8 +32,8 @@ select
     , token_volume
     --chain metrics
     , txns as chain_txns
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

@@ -2,41 +2,30 @@
 
 with latest_per_group as (
   select
-    name,
-    fees,
-    max(extraction_timestamp) as max_timestamp
+    name
+    , fees
+    , extraction_timestamp
   from {{ ref("fact_orca_apy") }}
-  group by name, fees
-),
-latest_apy as (
-  select
-    f.extraction_timestamp as timestamp,
-    f.id,
-    concat(f.name, ' (', f.fees, '%)') as name,
-    f.apy,
-    f.tvl,
-    f.symbol,
-    f.protocol,
-    f.type,
-    f.chain
-  from {{ ref("fact_orca_apy") }} f
-  join latest_per_group l
-    on f.name = l.name
-   and f.fees = l.fees
-   and f.extraction_timestamp = l.max_timestamp
+  qualify row_number() over (partition by id order by extraction_timestamp desc) = 1
 )
 
 select
-  l.timestamp
-  , l.id
-  , l.name
-  , l.apy
-  , l.tvl
-  , l.symbol
-  , l.protocol
-  , l.type
-  , l.chain
-  , p.link
-from latest_apy l
-join {{ ref("orca_stablecoin_pool_ids") }} p
-  on l.id = p.id
+  f.extraction_timestamp as timestamp
+  , f.id
+  , concat(f.name, ' (', f.fees, '%)') as name
+  , f.apy
+  , f.tvl
+  , f.symbol
+  , f.protocol
+  , f.type
+  , f.chain
+  , f.link
+  , a.tvl_score
+  , a.daily_avg_apy_l7d
+from {{ ref("fact_orca_apy") }} f
+join latest_per_group l
+  on f.name = l.name
+  and f.fees = l.fees
+  and f.extraction_timestamp = l.extraction_timestamp
+join {{ ref("agg_orca_stablecoin_apy") }} a
+  on f.id = a.id

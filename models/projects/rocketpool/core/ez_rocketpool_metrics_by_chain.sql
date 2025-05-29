@@ -55,9 +55,9 @@ select
     , COALESCE(el_rewards_usd, 0) as mev_priority_fees
     , COALESCE(lst_deposit_fees, 0) as lst_deposit_fees
     , COALESCE(fees, 0) as yield_generated
-    , COALESCE(fees, 0) as gross_protocol_revenue
-    , gross_protocol_revenue * 0.14 as validator_cash_flow
-    , gross_protocol_revenue * 0.86 as service_cash_flow
+    , COALESCE(fees, 0) as ecosystem_revenue
+    , ecosystem_revenue * 0.14 as validator_cash_flow
+    , ecosystem_revenue * 0.86 as service_cash_flow
     
     
 from staked_eth_metrics s

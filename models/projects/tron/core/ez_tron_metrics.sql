@@ -36,7 +36,6 @@ select
     , fees AS revenue
     , avg_txn_fee
     , median_txn_fee
-    , dau_over_100
     , dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
@@ -53,7 +52,6 @@ select
     , median_txn_fee AS chain_median_txn_fee
     , returning_users
     , new_users
-    , dau_over_100 AS dau_over_100_balance
     , p2p_native_transfer_volume
     , p2p_token_transfer_volume
     , p2p_transfer_volume
@@ -62,8 +60,8 @@ select
     , coalesce(dex_volumes, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     -- Cash Flow Metrics
     , fees as chain_fees
-    , fees_native AS gross_protocol_revenue_native
-    , fees AS gross_protocol_revenue
+    , fees_native AS ecosystem_revenue_native
+    , fees AS ecosystem_revenue
     , fees_native AS burned_cash_flow_native
     , fees AS burned_cash_flow
     -- Developer Metrics

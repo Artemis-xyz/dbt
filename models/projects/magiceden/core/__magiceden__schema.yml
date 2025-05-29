@@ -4,16 +4,24 @@
 version: 2
 
 column_definitions:
-  fdmc: &fdmc
-    name: fdmc
-    description: "The fully diluted market cap of $ME in USD"
+  burns_native: &burns_native
+    name: burns_native
+    description: "The amount of native tokens burned"
+
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
+
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
+    description: "The USD value of the sum of platform fees, maker and taker fees, and royalties, paid to the protocol by NFT traders"
     tags:
       - artemis_gaap
       - override
 
-  gross_protocol_revenue: &gross_protocol_revenue
-    name: gross_protocol_revenue
-    description: "The USD value of the sum of platform fees, maker and taker fees, and royalties, paid to the protocol by NFT traders"
+  fdmc: &fdmc
+    name: fdmc
+    description: "The fully diluted market cap of $ME in USD"
     tags:
       - artemis_gaap
       - override
@@ -24,6 +32,10 @@ column_definitions:
     tags:
       - artemis_gaap
       - override
+
+  net_supply_change_native: &net_supply_change_native
+    name: net_supply_change_native
+    description: "The net change in the circulating supply of a token in native tokens"
 
   nft_collections_transacted: &nft_collections_transacted
     name: nft_collections_transacted
@@ -61,6 +73,10 @@ column_definitions:
     tags:
       - override
 
+  premine_unlocks_native: &premine_unlocks_native
+    name: premine_unlocks_native
+    description: "The amount of native tokens unlocked from premine"
+
   price: &price
     name: price
     description: "The price of $ME in USD"
@@ -96,11 +112,17 @@ column_definitions:
       - artemis_gaap
       - override
 
+  treasury_cash_flow: &treasury_cash_flow
+    name: treasury_cash_flow
+    description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
+    tags:
+      - artemis_gaap
+
 models:
   - name: ez_magiceden_metrics_by_chain
     description: "This table stores metrics for the MAGICEDEN protocol"
     columns:
-      - *gross_protocol_revenue
+      - *ecosystem_revenue
       - *nft_collections_transacted
       - *nft_dau
       - *nft_fees
@@ -108,22 +130,27 @@ models:
       - *nft_txns
       - *nft_volume
       - *service_cash_flow
+      - *treasury_cash_flow
 
   - name: ez_magiceden_metrics
     description: "This table stores metrics for the MAGICEDEN protocol"
     columns:
+      - *burns_native
+      - *circulating_supply_native
+      - *ecosystem_revenue
       - *fdmc
-      - *gross_protocol_revenue
       - *market_cap
+      - *net_supply_change_native
       - *nft_collections_transacted
       - *nft_dau
-      - *nft_fees
       - *nft_royalties
       - *nft_txns
       - *nft_volume
+      - *premine_unlocks_native
       - *price
       - *service_cash_flow
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
+      - *treasury_cash_flow
 

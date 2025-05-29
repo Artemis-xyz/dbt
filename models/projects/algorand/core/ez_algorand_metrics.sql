@@ -19,6 +19,7 @@ SELECT
     , txns
     , fees_native
     , fees_native * price AS fees
+    , fees AS revenue
     , rewards_algo
     , rewards_algo * price AS rewards_usd
     -- Standardized Metrics
@@ -31,8 +32,8 @@ SELECT
     , txns AS chain_txns
     -- Cashflow Metrics
     , fees_native * price AS chain_fees
-    , fees_native * price AS gross_protocol_revenue_native
-    , fees_native AS gross_protocol_revenue
+    , fees_native * price AS ecosystem_revenue
+    , fees_native AS ecosystem_revenue_native
     , rewards_algo * price AS validator_cash_flow_usd
     , rewards_algo AS validator_cash_flow_native
     -- Bespoke metrics

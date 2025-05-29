@@ -302,8 +302,8 @@ select
     , gho_revenue_nominal as gho_fees_native
     , gho_revenue as gho_fees
 
-    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as gross_protocol_revenue
-    , coalesce(interest_rate_fees_nominal, 0) + coalesce(flashloan_fees_nominal, 0) + coalesce(gho_fees_nominal, 0) as gross_protocol_revenue_native
+    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as ecosystem_revenue
+    , coalesce(interest_rate_fees_nominal, 0) + coalesce(flashloan_fees_nominal, 0) + coalesce(gho_fees_nominal, 0) as ecosystem_revenue_native
 
     , supply_side_deposit_revenue + flashloan_fees as service_cash_flow
     , supply_side_deposit_revenue_nominal + flashloan_fees_nominal as service_cash_flow_native
