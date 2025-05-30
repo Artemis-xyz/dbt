@@ -25,9 +25,9 @@ max_extraction as (
         ,value:governance_total_locked_e8s::int / 10e7 as nns_tvl
         ,value:proposals_count::int as total_proposals_count
         ,value:registered_canisters_count::int as total_registered_canister_count
-        ,floor(value:average_transactions_per_second::float) * 18400 as icp_txns
-        ,floor(value:average_update_transactions_per_second::float) * 18400  as update_txns
-        ,floor(value:average_update_transactions_per_second::float) * 18400 + floor(value:average_query_transactions_per_second::float) * 18400 as txns
+        ,floor(value:average_transactions_per_second::float) * 86400 as icp_txns
+        ,floor(value:average_update_transactions_per_second::float) * 86400  as update_txns
+        ,floor(value:average_update_transactions_per_second::float) * 86400 + floor(value:average_query_transactions_per_second::float) * 18400 as txns
         -- DQ issues where estimated returns are sometimes >> 1 Trillion
         , case 
             when 
