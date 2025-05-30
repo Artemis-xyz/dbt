@@ -19,7 +19,7 @@ WITH vault_balances AS (
             PARTITION BY date, pool_address 
             ORDER BY timestamp DESC
         ) AS rn    
-    FROM cetus.prod.fact_raw_cetus_spot_swaps
+    FROM {{ ref('fact_raw_cetus_spot_swaps') }}
 ),
 
 latest_per_day AS (
