@@ -25,9 +25,9 @@ max_extraction as (
         ,value:governance_total_locked_e8s::int / 10e7 as nns_tvl
         ,value:proposals_count::int as total_proposals_count
         ,value:registered_canisters_count::int as total_registered_canister_count
-        ,value:total_transactions::int as total_transactions
-        ,value:total_update_transactions_till_date::int as update_transactions
-        ,value:total_update_transactions_till_date::int + value:total_query_transactions_till_date::int as new_total_transactions
+        ,floor(value:average_transactions_per_second::float) * 86400 as icp_txns
+        ,floor(value:average_update_transactions_per_second::float) * 86400  as update_txns
+        ,floor(value:average_update_transactions_per_second::float) * 86400 + floor(value:average_query_transactions_per_second::float) * 18400 as txns
         -- DQ issues where estimated returns are sometimes >> 1 Trillion
         , case 
             when 
@@ -52,11 +52,11 @@ max_extraction as (
 )
 select 
     date
-    , total_transactions
+    , sum(icp_txns) over (order by date) as total_transactions
     , dau
-    , total_transactions - LAG(total_transactions, 1, null) OVER (ORDER BY date) as icp_txns
-    , new_total_transactions - LAG(NEW_TOTAL_TRANSACTIONS, 1, null) OVER (ORDER BY date) as txns
-    , update_transactions - LAG(update_transactions, 1, null) OVER (ORDER BY date) as update_txns
+    , icp_txns
+    , txns
+    , update_txns
     , neurons_total
     , avg_tps
     , avg_blocks_per_second
