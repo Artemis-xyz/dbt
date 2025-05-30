@@ -5,6 +5,7 @@
 
 SELECT
     date, 
+    transaction_digest,
     pool_address,
     symbol_a,
     symbol_b, 

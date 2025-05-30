@@ -1,0 +1,9 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_sui_fact_cetus_dex_swaps_parquet
+        meta:
+          dagster:
+            asset_key: ["PROD_LANDING", "bulk_load_fact_cetus_dex_swaps"]
