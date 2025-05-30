@@ -15,34 +15,24 @@ daily_avg as (
     id,
     chain,
     date_trunc('day', extraction_timestamp) as day,
-    avg(apy) as daily_avg_apy
+    avg(apy) * 100 as daily_avg_apy
   from {{ ref("fact_vaults_fyi_apy") }}
   where extraction_timestamp >= dateadd(day, -7, current_date)
   group by id, chain, date_trunc('day', extraction_timestamp)
 ),
 
-with_array as (
+l7d as (
   select
     id,
     chain,
-    array_agg(
-      array_construct(
-        date_part(epoch_second, day::timestamp_ntz),
-        round(daily_avg_apy::number(38, 18), 6)
+    ARRAY_AGG(
+      ARRAY_CONSTRUCT(
+        DATE_PART(EPOCH_SECOND, day::TIMESTAMP_NTZ),
+        ROUND(daily_avg_apy::NUMBER(38, 18), 6)
       )
-    ) over (
-      partition by id, chain
-      order by day
-      rows between unbounded preceding and unbounded following
-    ) as daily_avg_apy_l7d,
-    row_number() over (partition by id, chain order by day desc) as rn
+    ) WITHIN GROUP (ORDER BY day ASC) AS daily_avg_apy_l7d
   from daily_avg
-),
-
-l7d as (
-  select distinct id, chain, daily_avg_apy_l7d
-  from with_array
-  where rn = 1
+  group by id,chain
 )
 
 select

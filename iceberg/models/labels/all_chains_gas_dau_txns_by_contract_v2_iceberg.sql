@@ -10,7 +10,8 @@
         post_hook = "{{ merge_tags_dict({
             'duckdb': 'true',
             'order_by': 'date, namespace, contract_address',
-            'partitioned_order_by': 'chain'
+            'partitioned_order_by': 'chain',
+            'partitioned_order_by_breakdown': 'discrete'
         }) }}"
     )
 }}
