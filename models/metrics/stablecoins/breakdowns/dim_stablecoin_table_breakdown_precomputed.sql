@@ -5,13 +5,13 @@ WITH chain_ranking AS (
     *,
     ROW_NUMBER() OVER (PARTITION BY chain ORDER BY stablecoin_supply DESC) as rank
   FROM 
-    dim_stablecoin_table_breakdown
+    {{ ref('dim_stablecoin_table_breakdown') }}
 ), symbol_ranking AS (
   SELECT 
     *,
     ROW_NUMBER() OVER (PARTITION BY symbol ORDER BY stablecoin_supply DESC) as rank
   FROM 
-    dim_stablecoin_table_breakdown
+    {{ ref('dim_stablecoin_table_breakdown') }}
 )
 SELECT 
     * exclude(rank)
