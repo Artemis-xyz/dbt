@@ -29,7 +29,16 @@ with
         select date, tvl, chain
         from {{ ref("fact_perpetual_protocol_tvl") }}
         where chain is not null
+    ), 
+    token_incentives as (
+        select
+            date,
+            chain,
+            SUM(total_token_incentives) as token_incentives
+        from {{ref('fact_perpetual_token_incentives')}}
+        group by date, chain
     )
+
 select
     date as date
     , 'perpetual_protocol' as app
@@ -49,8 +58,10 @@ select
     , fees * .2 * .8 as fee_sharing_token_cash_flow
     , fees * .8 as service_cash_flow
     , fees * .2 * .2 as treasury_cash_flow
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
 from unique_traders_data
 left join trading_volume_data using(date, chain)
 left join fees_data using(date, chain)
 left join tvl_data using(date, chain)
+left join token_incentives using(date, chain)
 where date < to_date(sysdate())
