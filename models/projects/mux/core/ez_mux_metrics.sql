@@ -19,6 +19,13 @@ with
         group by 1
     )
     , price as ({{ get_coingecko_metrics("mcdex") }})
+    , token_incentives as (
+        select
+            date,
+            sum(token_incentives) as token_incentives
+        from {{ ref("fact_mux_token_incentives") }}
+        group by 1
+    )
 select
     date
     , 'mux' as app
@@ -33,6 +40,8 @@ select
     , token_turnover_circulating
     , token_turnover_fdv
     , token_volume
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
 from mux_data
 left join price using(date)
+left join token_incentives using(date)
 where date < to_date(sysdate())
