@@ -55,7 +55,7 @@
         decoded_log
     from {{ ref("fact_" ~ chain  ~ "_decoded_events") }}
     where
-        ((event_name = 'FilledRelay' and block_timestamp >= '2025-02-07') or (event_name = 'V3FilledRelay'))
+        ((event_name = 'FilledRelay' and block_timestamp >= '2025-02-07') or (event_name = 'FilledV3Relay'))
         and
         lower(contract_address) = lower('{{ spot_fee_contract }}')
     {% if is_incremental() %}
