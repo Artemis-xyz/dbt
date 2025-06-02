@@ -39,11 +39,14 @@ with fundamental_data as (
     from {{ ref("fact_injective_unlocks") }}
 )
 , defillama_metrics as (
+    with dfl as (
+        {{ get_defillama_metrics("injective") }}
+    )
     select
-        date,
-        tvl as defillama_tvl,
-        dex_volumes as defillama_dex_volumes
-    from {{ ref("fact_injective_defillama_tvl_and_dexvolumes") }}
+        dfl.date,
+        dfl.tvl as defillama_tvl,
+        dfl.dex_volumes as defillama_dex_volumes
+    from dfl
 )
 , date_spine as (
     select * from {{ ref('dim_date_spine') }}
