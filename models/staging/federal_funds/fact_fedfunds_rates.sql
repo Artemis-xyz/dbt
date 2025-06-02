@@ -30,7 +30,7 @@ select
   null as tvl,
   [] as symbol,
   'fed_funds' as protocol,
-  'fed_fund_rates' as type,
+  'Fed Fund Rates' as type,
   null as chain,
   null as link,
   5.0 as tvl_score
