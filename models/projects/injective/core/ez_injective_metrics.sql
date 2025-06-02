@@ -88,7 +88,7 @@ select
     , fundamental_data.new_users
     , fundamental_data.fees / fundamental_data.txns as chain_avg_txn_fee
     , defillama_metrics.defillama_tvl as tvl
-    , defillama_metrics.defillama_dex_volumes as spot_volume
+    , defillama_metrics.defillama_dex_volumes as chain_spot_volume
     , null as low_sleep_users
     , null as high_sleep_users
     , null as sybil_users
