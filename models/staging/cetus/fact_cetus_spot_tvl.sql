@@ -63,4 +63,4 @@ SELECT
     SUM(COALESCE(filled_tvl, 0)) AS tvl,
     SUM(COALESCE(filled_tvl_native, 0)) AS tvl_native
 FROM filled_forward
-GROUP BY 1, 2, 3, 4, 5, 6, 7
+GROUP BY 1, 2, 3, 4, 5, 6, 7, 8
