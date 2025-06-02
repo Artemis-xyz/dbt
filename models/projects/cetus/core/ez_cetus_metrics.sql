@@ -32,7 +32,7 @@ WITH
         GROUP BY 1
     )
     , tvl AS (
-        SELECT date, SUM(pool_tvl) AS tvl
+        SELECT date, SUM(tvl) AS tvl
         FROM {{ ref("fact_cetus_spot_tvl") }}
         GROUP BY 1
     )

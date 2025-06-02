@@ -33,7 +33,7 @@ WITH
         GROUP BY 1, 2
     )
     , tvl AS (
-        SELECT date, 'sui' AS chain, SUM(pool_tvl) AS tvl
+        SELECT date, 'sui' AS chain, SUM(tvl) AS tvl
         FROM {{ ref("fact_cetus_spot_tvl") }}
         GROUP BY 1, 2
     )

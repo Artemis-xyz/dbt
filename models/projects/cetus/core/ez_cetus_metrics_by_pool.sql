@@ -29,7 +29,7 @@ WITH
     )
 
     , tvl AS (
-        SELECT date, pool_address, symbol_a, symbol_b, pool_tvl AS tvl
+        SELECT date, pool_address, symbol_a, symbol_b, tvl
         FROM {{ ref("fact_cetus_spot_tvl") }}
     )
 

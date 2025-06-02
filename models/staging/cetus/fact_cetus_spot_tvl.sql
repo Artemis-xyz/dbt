@@ -11,10 +11,16 @@ WITH vault_balances AS (
         symbol_b,
         vault_a_amount_usd, 
         vault_b_amount_usd,
+        vault_a_amount_native,
+        vault_b_amount_native,
         CASE 
             WHEN date = '2024-11-12' THEN NULL
             ELSE (vault_a_amount_usd + vault_b_amount_usd)
         END AS tvl,
+        CASE 
+            WHEN date = '2024-11-12' THEN NULL
+            ELSE (vault_a_amount_native + vault_b_amount_native)
+        END AS tvl_native,
         ROW_NUMBER() OVER (
             PARTITION BY date, pool_address 
             ORDER BY timestamp DESC
@@ -52,6 +58,9 @@ SELECT
     symbol_b,
     vault_a_amount_usd,
     vault_b_amount_usd,
-    SUM(COALESCE(filled_tvl, 0)) AS tvl
+    vault_a_amount_native,
+    vault_b_amount_native,
+    SUM(COALESCE(filled_tvl, 0)) AS tvl,
+    SUM(COALESCE(filled_tvl_native, 0)) AS tvl_native
 FROM filled_forward
-GROUP BY 1, 2, 3, 4, 5, 6
+GROUP BY 1, 2, 3, 4, 5, 6, 7
