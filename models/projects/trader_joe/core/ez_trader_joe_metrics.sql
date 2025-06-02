@@ -14,13 +14,13 @@ with protocol_data as (
         , app
         , category
         , sum(trading_volume) as trading_volume
-        , sum(trading_fees) as trading_fees
         , sum(unique_traders) as unique_traders
         , sum(number_of_swaps) as number_of_swaps
         , sum(gas_cost_usd) as gas_cost_usd
 
         -- Standardized Metrics
         , sum(spot_dau) as spot_dau
+        , sum(spot_fees) as spot_fees
         , sum(spot_txns) as spot_txns
         , sum(spot_volume) as spot_volume
         , sum(tvl) as tvl
