@@ -38,12 +38,15 @@
         ),
         real_users as (
             select
-                category,
-                sub_category,
+                -- Define a grouping key depending on whether app is null
+                CASE 
+                    WHEN app IS NOT NULL THEN app
+                    ELSE contract_address
+                END AS group_key,
                 from_address
             from {{ ref(model_name) }}
                 where raw_date < to_date(sysdate())
-                group by category, sub_category, from_address
+                group by from_address, group_key
                 having count(*) >= 2 and sum(gas_usd) > 0.0001
             ),
         agg_data as (
@@ -61,8 +64,11 @@
             from {{ ref(model_name) }} m
             left join real_users ru
                 on m.from_address = ru.from_address
-                and m.category = ru.category
-                and m.sub_category = ru.sub_category
+                and (
+                    (m.app is not null and m.app = ru.group_key)
+                    or
+                    (m.app is null and m.contract_address = ru.group_key)
+                )
             where raw_date < to_date(sysdate())
             group by raw_date, m.category, m.sub_category
         )
