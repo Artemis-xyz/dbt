@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="incremental",
+        materialized="table",
         unique_key=["transaction_hash", "event_index"],
         snowflake_warehouse="BRIDGE_MD",
     )

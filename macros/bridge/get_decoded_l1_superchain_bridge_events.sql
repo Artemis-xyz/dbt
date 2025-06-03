@@ -59,9 +59,9 @@ with
             , event_index
             , event_index as src_event_index
             , null as dst_event_index
-            , decoded_log:"from"::string as depositor
-            , decoded_log:"to"::string as recipient
-            , decoded_log:"amount"::bigint as amount
+            , coalesce(decoded_log:"_from" , decoded_log:"from"::string) as depositor
+            , coalesce(decoded_log:"_to" , decoded_log:"to"::string) as recipient
+            , coalesce(decoded_log:"_amount" , decoded_log:"amount"::bigint) as amount
             , null as fee
             -- wrapped eth address on ethereum
             , '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' as origin_token
@@ -106,9 +106,9 @@ with
             , event_index
             , null as src_event_index
             , event_index as dst_event_index
-            , decoded_log:"from"::string as depositor
-            , decoded_log:"to"::string as recipient
-            , decoded_log:"amount"::bigint as amount
+            , coalesce(decoded_log:"_from" , decoded_log:"from"::string) as depositor
+            , coalesce(decoded_log:"_to" , decoded_log:"to"::string) as recipient
+            , coalesce(decoded_log:"_amount" , decoded_log:"amount"::bigint) as amount
             , null as fee
             -- wrapped eth address on ethereum
             , '0x4200000000000000000000000000000000000006' as origin_token
@@ -155,14 +155,14 @@ with
             , event_index
             , event_index as src_event_index
             , null as dst_event_index
-            , decoded_log:"from"::string as depositor
-            , decoded_log:"to"::string as recipient
-            , decoded_log:"amount"::bigint as amount
+            , coalesce(decoded_log:"_from" , decoded_log:"from"::string) as depositor
+            , coalesce(decoded_log:"_to" , decoded_log:"to"::string) as recipient
+            , coalesce(decoded_log:"_amount" , decoded_log:"amount"::bigint) as amount
             , null as fee
-            , decoded_log:"l1Token" as origin_token
+            , coalesce(decoded_log:"_l1Token" , decoded_log:"l1Token") as origin_token
             -- wrapped eth address on l2
-            , decoded_log:"l2Token" as destination_token
-            , decoded_log:"l1Token" as token_address
+            , coalesce(decoded_log:"_l2Token" , decoded_log:"l2Token") as destination_token
+            , coalesce(decoded_log:"_l1Token" , decoded_log:"l1Token") as token_address
             , 'ethereum' as source_chain
             , '{{ chain }}' as destination_chain
         {% if decoding_type == 'artemis' %}
@@ -200,13 +200,13 @@ with
             , event_index
             , null as src_event_index
             , event_index as dst_event_index
-            , decoded_log:"from"::string as depositor
-            , decoded_log:"to"::string as recipient
-            , decoded_log:"amount"::bigint as amount
+            , coalesce(decoded_log:"_from" , decoded_log:"from"::string) as depositor
+            , coalesce(decoded_log:"_to" , decoded_log:"to"::string) as recipient
+            , coalesce(decoded_log:"_amount" , decoded_log:"amount"::bigint) as amount
             , null as fee
-            , decoded_log:"l2Token" as origin_token
-            , decoded_log:"l1Token" as destination_token
-            , decoded_log:"l1Token" as token_address
+            , coalesce(decoded_log:"_l2Token" , decoded_log:"l2Token") as origin_token
+            , coalesce(decoded_log:"_l1Token" , decoded_log:"l1Token") as destination_token
+            , coalesce(decoded_log:"_l1Token" , decoded_log:"l1Token") as token_address
             , '{{ chain }}' as source_chain
             , 'ethereum' as destination_chain
         {% if decoding_type == 'artemis' %}
