@@ -29,7 +29,7 @@ SELECT
     , parquet_raw:amount_b_swapped_raw::float / POW(10, coingecko_prices_b.decimals) * coingecko_prices_b.price AS amount_b_swapped_usd
     , parquet_raw:vault_b_amount_raw::float / POW(10, coingecko_prices_b.decimals) AS vault_b_amount_native
     , parquet_raw:vault_b_amount_raw::float / POW(10, coingecko_prices_b.decimals) * coingecko_prices_b.price AS vault_b_amount_usd
-FROM {{ source('PROD_LANDING', 'raw_sui_fact_cetus_dex_swaps_parquet') }}
+FROM {{ source('PROD_LANDING', 'raw_sui_fact_cetus_dex_swaps_gold_parquet') }}
 LEFT JOIN coingecko_prices AS coingecko_prices_a
     ON coingecko_prices_a.date = parquet_raw:date::date
     AND lower(coingecko_prices_a.contract_address) = lower(parquet_raw:token_address_a::string)
