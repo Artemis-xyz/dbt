@@ -274,7 +274,29 @@ merged_results AS (
     -- Use new data for chains with up-to-date information
     SELECT 
         CONCAT(s.app_or_address, '|', s.chain) AS unique_id,
-        s.*,
+        s.app_or_address,
+        s.app_name,
+        s.icon,
+        s.type,
+        s.chain,
+        s.date,
+        s.dau,
+        s.dau_30d_avg,
+        s.dau_1d_change,
+        s.dau_7d_change,
+        s.dau_30d_change,
+        s.dau_30d_historical,
+        s.real_users,
+        s.real_users_30d_avg,
+        s.fees,
+        s.fees_30d_total,
+        s.fees_1d_change,
+        s.fees_7d_change,
+        s.fees_30d_change,
+        s.chain_rank,
+        s.global_rank,
+        s.category,
+        s.sub_category,
         ft.fees_total
     FROM final_result s
     LEFT JOIN fees_all_time ft 
@@ -285,7 +307,32 @@ merged_results AS (
     UNION ALL
     
     -- Use existing data for chains with outdated information
-    SELECT *
+    SELECT 
+        unique_id,
+        app_or_address,
+        app_name,
+        icon,
+        type,
+        chain,
+        date,
+        dau,
+        dau_30d_avg,
+        dau_1d_change,
+        dau_7d_change,
+        dau_30d_change,
+        dau_30d_historical,
+        real_users,
+        real_users_30d_avg,
+        fees,
+        fees_30d_total,
+        fees_1d_change,
+        fees_7d_change,
+        fees_30d_change,
+        chain_rank,
+        global_rank,
+        category,
+        sub_category,
+        fees_total
     FROM {{ this }}
     WHERE chain IN (SELECT chain FROM outdated_chains)
 ),
