@@ -9,9 +9,8 @@ WITH coingecko_prices AS (
 
 SELECT
     parquet_raw:date::date AS date
-    , parquet_raw:timestamp_ms::timestamp AS timestamp
     , parquet_raw:transaction_digest::string AS transaction_digest
-    , parquet_raw:pool::string AS pool_address
+    , parquet_raw:pool_address::string AS pool_address
     , parquet_raw:sender::string AS sender
 
     , coingecko_prices_fee.symbol AS fee_symbol
