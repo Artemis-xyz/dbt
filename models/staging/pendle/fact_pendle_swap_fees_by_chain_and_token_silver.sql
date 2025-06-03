@@ -8,6 +8,10 @@
 with agg as (
     select * from {{ref('fact_pendle_arbitrum_fees_silver')}}
     union all
+    select * from {{ref('fact_pendle_base_fees_silver')}}
+    union all
+    select * from {{ref('fact_pendle_bsc_fees_silver')}}
+    union all
     select * from {{ref('fact_pendle_ethereum_fees_silver')}}
     union all
     select * from {{ref('fact_pendle_optimism_fees_silver')}}
