@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="PENDLE",
     )
 }}
 
@@ -15,5 +15,20 @@ with limit_orders as (
     select * from {{ref('fact_pendle_ethereum_limit_orders')}}
 )
 select
-    block_timestamp
+    chain,
+    block_timestamp,
+    transaction_hash,
+    event_index,
+    order_type,
+    yt_address,
+    token_address,
+    symbol,
+    volume_native,
+    fee_native,
+    volume_usd,
+    fee_usd,
+    net_input_from_maker,
+    net_output_to_maker,
+    maker,
+    taker
 from limit_orders

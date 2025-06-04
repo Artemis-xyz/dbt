@@ -16,6 +16,8 @@ with
             , SUM(fees_native) as swap_fees
             , SUM(supply_side_fees_native) as supply_side_fees
             , SUM(revenue_native) as swap_revenue
+            , SUM(volume_usd) as swap_volume
+            , SUM(volume_native) as swap_volume_native
         FROM
             {{ ref('fact_pendle_swap_fees') }}
         GROUP BY 1, 2
@@ -69,7 +71,9 @@ SELECT
     
     -- Usage/Sector Metrics
     , COALESCE(t.tvl, 0) as tvl
-
+    , coalesce(f.swap_volume, 0) as spot_volume
+    , coalesce(f.swap_volume_native, 0) as spot_volume_native
+    
     , f.swap_fees as spot_fees
     , COALESCE(yf.yield_revenue, 0) as yield_generated
     , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as ecosystem_revenue

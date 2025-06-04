@@ -1,10 +1,11 @@
 -- depends_on: {{ ref('fact_ethereum_decoded_events') }}
+
 {{
     config(
         materialized="incremental",
-        snowflake_warehouse="PENDLE",
+        snowflake_warehouse="ANALYTICS_XL",
         unique_key = ["tx_hash", "event_index"]
     )
 }}
 
-{{ get_pendle_limit_order_events_for_chain('ethereum') }}
+{{ get_pendle_yt_mint_burn_events_for_chain('ethereum') }}
