@@ -5,6 +5,7 @@ sources:
     tables:
       - name: raw_morpho_data
       - name: raw_morpho_fees
+      - name: raw_morpho_vaults
   - name: MANUAL_STATIC_TABLES
     schema: prod
     database: pc_dbt_db

@@ -41,5 +41,6 @@ select
     gas,
     gas_usd,
     txns,
-    dau
+    dau,
+    null AS real_users
 from contract_data

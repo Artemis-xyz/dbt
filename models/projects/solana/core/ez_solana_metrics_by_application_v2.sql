@@ -65,6 +65,8 @@ select
     gas_usd,
     txns,
     dau,
+    null AS contract_count,
+    null AS real_users,
     (dau - new_users) as returning_users,
     new_users,
     low_sleep_users,
