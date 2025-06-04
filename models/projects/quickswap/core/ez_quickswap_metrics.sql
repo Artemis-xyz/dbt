@@ -30,6 +30,13 @@ with
     , market_metrics as (
         {{ get_coingecko_metrics('quickswap') }}
     )
+    , token_incentives as (
+        select
+            day as date,
+            sum(TOTAL_DAILY_TOKEN_INCENTIVE) as token_incentives
+        from {{ ref("fact_quickswap_polygon_token_incentives") }}
+        group by 1
+    )
 SELECT
     dex_swaps.date
     , 'quickswap' as app
@@ -46,7 +53,9 @@ SELECT
     , dex_swaps.trading_fees as ecosystem_revenue
     -- We only track v2 where all fees go to LPs
     , dex_swaps.trading_fees as service_cash_flow
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
 from dex_swaps
 left join tvl using(date)
 left join market_metrics using(date)
+left join token_incentives using(date)
 where dex_swaps.date < to_date(sysdate())
