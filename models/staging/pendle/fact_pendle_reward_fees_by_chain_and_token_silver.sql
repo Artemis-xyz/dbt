@@ -6,11 +6,11 @@
 }}
 
 with agg as (
-    select *, 'arbitrum' as chain from {{ref('fact_pendle_ethereum_reward_fees')}}
+    select *, 'arbitrum' as chain from {{ref('fact_pendle_arbitrum_reward_fees')}}
     union all
     select *, 'ethereum' as chain from {{ref('fact_pendle_ethereum_reward_fees')}}
     union all
-    select *, 'optimism' as chain from {{ref('fact_pendle_ethereum_reward_fees')}}
+    select *, 'base' as chain from {{ref('fact_pendle_base_reward_fees')}}
 )
 SELECT
     block_timestamp::date as date
