@@ -5,3 +5,16 @@ sources:
     tables:
       - name: raw_tron_erc20_transfer_logs
       - name: raw_tron_erc20_transfer_decoded_logs
+
+  - name: TRON_ALLIUM
+    schema: raw
+    database: TRON_ALLIUM
+    tables:
+      - name: blocks
+      - name: transactions
+
+  - name: TRON_ALLIUM_ASSETS
+    schema: assets
+    database: TRON_ALLIUM
+    tables:
+      - name: trx_token_transfers

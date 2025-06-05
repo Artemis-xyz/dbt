@@ -39,11 +39,14 @@ with fundamental_data as (
     from {{ ref("fact_injective_unlocks") }}
 )
 , defillama_metrics as (
+    with dfl as (
+        {{ get_defillama_metrics("injective") }}
+    )
     select
-        date,
-        tvl as defillama_tvl,
-        dex_volumes as defillama_dex_volumes
-    from {{ ref("fact_injective_defillama_tvl_and_dexvolumes") }}
+        dfl.date,
+        dfl.tvl as defillama_tvl,
+        dfl.dex_volumes as defillama_dex_volumes
+    from dfl
 )
 , date_spine as (
     select * from {{ ref('dim_date_spine') }}
@@ -85,7 +88,7 @@ select
     , fundamental_data.new_users
     , fundamental_data.fees / fundamental_data.txns as chain_avg_txn_fee
     , defillama_metrics.defillama_tvl as tvl
-    , defillama_metrics.defillama_dex_volumes as spot_volume
+    , defillama_metrics.defillama_dex_volumes as chain_spot_volume
     , null as low_sleep_users
     , null as high_sleep_users
     , null as sybil_users
