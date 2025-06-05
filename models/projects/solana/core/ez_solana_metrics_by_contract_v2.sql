@@ -19,8 +19,8 @@ with
             max(friendly_name) as friendly_name,
             sum(case when index = 0 then tx_fee else 0 end) gas,
             sum(case when index = 0 then gas_usd else 0 end) gas_usd,
-            sum(case when index = 0 then tx_fee + jito_tips else 0 end) rev,
-            sum(case when index = 0 then gas_usd + jito_tips_usd else 0 end) rev_usd,
+            sum(case when index = 0 then tx_fee + COALESCE(jito_tips, 0) else 0 end) rev,
+            sum(case when index = 0 then gas_usd + COALESCE(jito_tips_usd, 0) else 0 end) rev_usd,
             count_if(index = 0 and succeeded = 'TRUE') as txns,
             count(distinct(case when succeeded = 'TRUE' then value else null end)) dau,
             max(category) category
@@ -42,13 +42,13 @@ select
     case when category = 'Tokens' then 'Token' else category end as category,
     gas,
     CASE 
-        WHEN gas = 0 OR gas IS NULL THEN NULL
-        ELSE dau / gas
+        WHEN dau = 0 OR dau IS NULL THEN NULL
+        ELSE gas / dau
     END AS avg_gas_per_address,
     gas_usd,
     CASE 
-        WHEN gas_usd = 0 OR gas_usd IS NULL THEN NULL
-        ELSE dau / gas_usd
+        WHEN dau = 0 OR dau IS NULL THEN NULL
+        ELSE gas_usd / dau
     END AS avg_gas_usd_per_address,
     rev,
     rev_usd,
