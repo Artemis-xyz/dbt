@@ -45,6 +45,19 @@
             HAVING COUNT(*) >= 2 
             AND SUM(gas_usd) > 0.0001
         ),
+        additional_real_users_category AS (
+            select
+                m.* EXCLUDE(category),
+                CASE
+                    WHEN m.category is null and ru.from_address is not null THEN 'untagged_real_users'
+                    ELSE m.category
+                END as category
+            from {{ ref(model_name) }} m
+            left join real_users ru
+                on m.from_address = ru.from_address
+                and coalesce(m.app, m.contract_address) = ru.group_key
+            where raw_date < to_date(sysdate())
+        ),
         agg_data as (
             select
                 raw_date,
@@ -56,7 +69,7 @@
                 count(distinct m.from_address) dau,
                 count(distinct contract_address) contract_count,
                 count(distinct ru.from_address) real_users
-            from {{ ref(model_name) }} m
+            from additional_real_users_category m
             left join real_users ru
                 on m.from_address = ru.from_address
                 and coalesce(m.app, m.contract_address) = ru.group_key
