@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="incremental",
+        materialized="table",
         snowflake_warehouse="PENDLE",
     )
 }}
@@ -17,18 +17,21 @@ with limit_orders as (
 select
     chain,
     block_timestamp,
-    transaction_hash,
+    origin_from_address,
+    tx_hash,
     event_index,
     order_type,
     yt_address,
+    pt_address,
     token_address,
+    sy_address,
     symbol,
     volume_native,
     fee_native,
-    volume_usd,
-    fee_usd,
-    net_input_from_maker,
-    net_output_to_maker,
+    volume,
+    fee,
+    net_input_from_maker_native,
+    net_output_to_maker_native,
     maker,
     taker
 from limit_orders

@@ -2,7 +2,7 @@
 {{
     config(
         materialized="incremental",
-        snowflake_warehouse="PENDLE",
+        snowflake_warehouse="ANALYTICS_XL",
         unique_key = ["tx_hash", "event_index"]
     )
 }}
