@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="incremental",
+        materialized="table",
         snowflake_warehouse="PENDLE",
         unique_key = ["tx_hash", "event_index"]
     )

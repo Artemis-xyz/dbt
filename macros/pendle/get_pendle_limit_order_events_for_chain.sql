@@ -23,7 +23,7 @@
             AND lower(contract_address) = lower('{{ router_address }}')
             AND DECODED_LOG:notionalVolume IS NOT NULL
             {% if is_incremental() %}
-                AND block_timestamp > (select max(date(block_timestamp))-1 from {{ this }})
+                AND block_timestamp > (select dateadd('day', -1, max(date(block_timestamp))) from {{ this }})
             {% endif %}
         ),
         
@@ -48,7 +48,7 @@
             FROM {{ ref("fact_pendle_sy_info") }} s
             WHERE s.chain = '{{ chain }}'
             {% if is_incremental() %}
-                AND s.date > (select max(date(block_timestamp))-1 from {{ this }})
+                AND s.date > (select dateadd('day', -1, max(date(block_timestamp))) from {{ this }})
             {% endif %}
         ),
         
@@ -165,5 +165,6 @@
         FROM converted_volumes v
         LEFT JOIN prices p ON p.date = date(v.block_timestamp) AND lower(p.contract_address) = lower(v.underlying_address)
         LEFT JOIN {{ ref("dim_pendle_" ~ chain ~ "_market_metadata") }} m ON m.pt_address = v.pt_address
+        QUALIFY ROW_NUMBER() OVER (PARTITION BY v.tx_hash, v.event_index ORDER BY v.block_timestamp DESC) = 1
 
 {% endmacro %}
