@@ -4,10 +4,18 @@ WITH
 prices as (
     {{ get_coingecko_prices_on_chains(['solana', 'berachain', 'ethereum', 'aptos', 'sui', 'bsc', 'polygon', 'arbitrum', 'base', 'avalanche', 'celo', 'terra', 'terra-2']) }}
 ),
-chain_ids as ( 
+wormhole_chain_ids as ( 
     select id, chain from {{ref('fact_wormhole_chain_ids') }}
+),
+chain_ids as (
+    select 
+        wormhole_chain_ids.chain 
+        , wormhole_chain_ids.id as wormhole_chain_id
+        , dim_chain_ids.id as evm_chain_id
+    from wormhole_chain_ids
+    left join {{ ref('dim_chain_ids') }} as dim_chain_ids 
+        on wormhole_chain_ids.chain = dim_chain_ids.chain
 )
-
 select
     ops.id,
     src_timestamp,
@@ -90,8 +98,10 @@ select
     fee_chain.chain as fee_chain,
     from_address,
     f_chain.chain as source_chain,
+    f_chain.evm_chain_id as src_chain_id,
     to_address,
     t_chain.chain as destination_chain,
+    t_chain.evm_chain_id as dst_chain_id,
     token_address,
     token_chain.chain as token_chain,
     normalized_decimals,
@@ -101,10 +111,10 @@ select
     extraction_date,
     case when contains(coalesce(lower(prices.symbol), lower(ops.symbol)), 'usd') then 'Stablecoin' else 'Token' end as category
 from {{ref('fact_wormhole_operations')}} as ops
-left join chain_ids as f_chain on f_chain.id = ops.from_chain
-left join chain_ids as t_chain on t_chain.id = ops.to_chain
-left join chain_ids as token_chain on token_chain.id = ops.token_chain
-left join chain_ids as fee_chain on fee_chain.id = ops.fee_chain
+left join chain_ids as f_chain on f_chain.wormhole_chain_id = ops.from_chain
+left join chain_ids as t_chain on t_chain.wormhole_chain_id = ops.to_chain
+left join chain_ids as token_chain on token_chain.wormhole_chain_id = ops.token_chain
+left join chain_ids as fee_chain on fee_chain.wormhole_chain_id = ops.fee_chain
 left join prices on lower(ops.token_address) = lower(prices.contract_address) and prices.date = date_trunc('day', ops.src_timestamp) and prices.chain = token_chain.chain
 left join prices as fee_prices on lower(ops.fee_address) = lower(fee_prices.contract_address) and fee_prices.date = date_trunc('day', ops.src_timestamp) and fee_prices.chain = fee_chain.chain
 where token_address is not null and lower(ops.token_address) <> lower('0xcc8fa225d80b9c7d42f96e9570156c65d6caaa25')
