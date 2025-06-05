@@ -4,6 +4,9 @@ python3 -m venv venv
 pip install uv==0.2.15
 uv pip sync requirements.txt
 
+# Install dbt fusion
+curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh | sh -s -- --update
+
 chmod +x dbt_scripts/run_sqlfluff_on_changed_files.sh
 
 source .env.local
