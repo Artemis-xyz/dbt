@@ -1,5 +1,6 @@
 {{config(
-    materialized = 'table'
+    materialized = 'table',
+    database = 'flowx'
 )}}
 
 SELECT
