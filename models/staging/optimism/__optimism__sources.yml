@@ -12,3 +12,8 @@ sources:
       - name: raw_optimism_genesis_usdce_stablecoin_balances
       - name: raw_optimism_genesis_usdt_stablecoin_balances
       - name: raw_optimism_genesis_s_usd_stablecoin_balances
+  - name: OPTIMISM_FLIPSIDE
+    schema: core
+    database: OPTIMISM_FLIPSIDE
+    tables:
+      - name: ez_token_transfers
