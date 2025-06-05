@@ -36,19 +36,34 @@
             and raw_date < to_date(sysdate())
             group by engagement_type, raw_date, category, sub_category
         ),
+        real_users as (
+            select
+                -- Define a grouping key depending on whether app is null
+                COALESCE(app, contract_address) AS group_key,
+                from_address
+            from {{ ref(model_name) }}
+                where raw_date < to_date(sysdate())
+                group by from_address, group_key
+                having count(*) >= 2 and sum(gas_usd) > 0.0001
+            ),
         agg_data as (
             select
                 raw_date,
-                category,
-                sub_category,
+                m.category,
+                m.sub_category,
                 max(chain) as chain,
                 sum(tx_fee) gas,
                 sum(gas_usd) gas_usd,
                 count(*) txns,
-                count(distinct from_address) dau
-            from {{ ref(model_name) }}
+                count(distinct m.from_address) dau,
+                count(distinct contract_address) contract_count,
+                count(distinct ru.from_address) real_users
+            from {{ ref(model_name) }} m
+            left join real_users ru
+                on m.from_address = ru.from_address
+                and coalesce(m.app, m.contract_address) = ru.group_key
             where raw_date < to_date(sysdate())
-            group by raw_date, category, sub_category
+            group by raw_date, m.category, m.sub_category
         )
     select
         agg_data.raw_date as date,
@@ -59,6 +74,8 @@
         gas_usd,
         txns,
         dau,
+        contract_count,
+        real_users,
         (dau - coalesce(new_users, 0)) as returning_users,
         coalesce(new_users, 0) as new_users,
         low_sleep_users,

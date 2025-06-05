@@ -35,6 +35,37 @@ with
             >= (select dateadd('month', -1, max(block_timestamp)) from {{ this }})
         {% endif %}
     ),
+    incremental_solana_transfer_rows as (
+        select * from solana_flipside.core.fact_transfers
+        -- Chunking required here for backfills
+        {% if is_incremental() %}
+            where block_timestamp
+            >= (select dateadd('day', CASE WHEN DAYOFWEEK(CURRENT_DATE) = 7 THEN -90 ELSE -30 END, max(block_timestamp)) from {{ this }})
+        {% else %}
+        -- Making code not compile on purpose. Full refresh of entire history
+        -- takes too long, doing last month will wipe out backfill
+        -- TODO: Figure out a workaround.
+        and
+            block_timestamp
+            >= (select dateadd('month', -1, max(block_timestamp)) from {{ this }})
+        {% endif %}
+    ),
+    grouped_transfer_tips AS (
+        SELECT
+            tx_id,
+            sum(amount) AS amount
+        FROM incremental_solana_transfer_rows
+        WHERE tx_to IN ('96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5' -- all the tip payment accounts from: https://jito-foundation.gitbook.io/mev/mev-payment-and-distribution/on-chain-addresses#mainnet
+                    ,'HFqU5x63VTqvQss8hp11i4wVV8bD44PvwucfZ2bU7gRe'
+                    ,'Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY'
+                    ,'ADaUMid9yfUytqMBgopwjb2DTLSokTSzL1zt6iGPaS49'
+                    ,'DfXygSm4jCyNCybVYYK6DwvWqjKee8pbDmJGcLWNDXjh'
+                    ,'ADuUkR4vqLUMWXxW9gh6D6L8pMSawimctcNZ5pGwDcEt'
+                    ,'DttWaMuVvTiduZRnguLF7jNxTgiMBZ1hyAumKUiL2KRL'
+                    ,'3AVi9Tg9Uo68tJfuvoKvqKNWKkC5wPdSSdeBnizKZ6jT')
+        and mint = 'So11111111111111111111111111111111111111111'
+        group by tx_id
+    ),
     solana_transfers as (
         select
             tx_id,
@@ -103,6 +134,8 @@ with
             'solana' as chain,
             fee / 1e9 as tx_fee,
             (fee / 1e9) * price as gas_usd,
+            grouped_transfer_tips.amount / 1e9 as jito_tips,
+            (grouped_transfer_tips.amount / 1e9) * price as jito_tips_usd,
             succeeded,
             case
                 when program_id = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
@@ -139,6 +172,7 @@ with
         left join app_contracts on lower(t.program_id) = lower(app_contracts.address)
         left join app_contracts as token on lower(token_address) = lower(token.address)
         left join collapsed_prices on raw_date = collapsed_prices.date
+        left join grouped_transfer_tips on t.tx_id = grouped_transfer_tips.tx_id
     )
 select
     tx_hash,
@@ -149,6 +183,8 @@ select
     max(chain) as chain,
     max(tx_fee) as tx_fee,
     max(gas_usd) as gas_usd,
+    max(jito_tips) as jito_tips,
+    max(jito_tips_usd) as jito_tips_usd,
     max(succeeded) as succeeded,
     max(token_address) as token_address,
     max(token_name) as token_name,

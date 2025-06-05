@@ -54,7 +54,8 @@ select
     , token_turnover_circulating
 
     -- Usage Metrics
-    , tvl
+    , dd.tvl as tvl
+    , dd.dex_volumes as chain_spot_volume
 
     -- Chain Metrics
     , dau as chain_dau

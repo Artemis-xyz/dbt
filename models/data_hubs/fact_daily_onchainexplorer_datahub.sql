@@ -7,6 +7,7 @@ WITH last_30_days AS (
         namespace,
         date,
         dau,
+        real_users,
         total_gas_usd
     FROM {{ ref('all_chains_gas_dau_txns_by_contract_v2') }}
     WHERE date >= DATEADD(DAY, -30, CURRENT_DATE)
@@ -34,6 +35,7 @@ aggregated AS (
         chain,
         date,
         SUM(dau) AS dau,
+        SUM(real_users) AS real_users,
         SUM(total_gas_usd) AS total_gas_usd
     FROM last_30_days_name_augmented
     WHERE namespace IS NOT NULL
@@ -52,6 +54,7 @@ aggregated AS (
         chain,
         date,
         dau,
+        real_users,
         total_gas_usd
     FROM last_30_days_name_augmented
     WHERE namespace IS NULL AND contract_address IS NOT NULL AND TRIM(contract_address) <> ''
@@ -82,6 +85,7 @@ final_aggregated AS (
         d.chain,
         d.date,
         COALESCE(ag.dau, NULL) AS dau,
+        COALESCE(ag.real_users, NULL) AS real_users,
         COALESCE(ag.total_gas_usd, NULL) AS total_gas_usd
     FROM all_dates d
     LEFT JOIN aggregated ag 
@@ -93,8 +97,6 @@ ranked_unique_ids AS (
         unique_id,
         app_name,
         chain,
-        AVG(dau) AS avg_dau,
-        SUM(total_gas_usd) AS avg_total_gas_usd,
         ROW_NUMBER() OVER (
             PARTITION BY chain 
             ORDER BY SUM(total_gas_usd) DESC NULLS LAST, unique_id
@@ -130,6 +132,7 @@ clean_datahub AS (
         LAG(a.dau, 1) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS t_minus_one_dau,
         LAG(a.dau, 7) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS t_minus_seven_dau,
         LAG(a.dau, 29) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS t_minus_thirty_dau,
+        a.real_users,
         a.total_gas_usd,
         LAG(a.total_gas_usd, 0) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS latest_fees,
         LAG(a.total_gas_usd, 1) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS t_minus_one_fees,
@@ -145,6 +148,7 @@ grouped_stats AS (
         app_or_address,
         chain,
         AVG(dau) AS dau_30d_avg,
+        AVG(real_users) AS real_users_30d_avg,
         SUM(total_gas_usd) AS fees_30d_total,
         ARRAY_AGG(OBJECT_CONSTRUCT('date', date, 'val', COALESCE(dau, 0))) 
             WITHIN GROUP (ORDER BY date ASC) AS dau_30d_historical
@@ -162,6 +166,7 @@ individual_stats AS (
         chain,
         date,
         dau,
+        real_users,
         latest_dau,
         t_minus_one_dau,
         t_minus_seven_dau,
@@ -238,6 +243,8 @@ final_result AS (
         s.dau_7d_change,
         s.dau_30d_change,
         gs.dau_30d_historical,
+        s.real_users,
+        gs.real_users_30d_avg,
         s.total_gas_usd AS fees,
         gs.fees_30d_total,
         s.fees_1d_change,
@@ -267,7 +274,29 @@ merged_results AS (
     -- Use new data for chains with up-to-date information
     SELECT 
         CONCAT(s.app_or_address, '|', s.chain) AS unique_id,
-        s.*,
+        s.app_or_address,
+        s.app_name,
+        s.icon,
+        s.type,
+        s.chain,
+        s.date,
+        s.dau,
+        s.dau_30d_avg,
+        s.dau_1d_change,
+        s.dau_7d_change,
+        s.dau_30d_change,
+        s.dau_30d_historical,
+        s.real_users,
+        s.real_users_30d_avg,
+        s.fees,
+        s.fees_30d_total,
+        s.fees_1d_change,
+        s.fees_7d_change,
+        s.fees_30d_change,
+        s.chain_rank,
+        s.global_rank,
+        s.category,
+        s.sub_category,
         ft.fees_total
     FROM final_result s
     LEFT JOIN fees_all_time ft 
@@ -278,7 +307,32 @@ merged_results AS (
     UNION ALL
     
     -- Use existing data for chains with outdated information
-    SELECT *
+    SELECT 
+        unique_id,
+        app_or_address,
+        app_name,
+        icon,
+        type,
+        chain,
+        date,
+        dau,
+        dau_30d_avg,
+        dau_1d_change,
+        dau_7d_change,
+        dau_30d_change,
+        dau_30d_historical,
+        real_users,
+        real_users_30d_avg,
+        fees,
+        fees_30d_total,
+        fees_1d_change,
+        fees_7d_change,
+        fees_30d_change,
+        chain_rank,
+        global_rank,
+        category,
+        sub_category,
+        fees_total
     FROM {{ this }}
     WHERE chain IN (SELECT chain FROM outdated_chains)
 ),
@@ -312,6 +366,8 @@ all_including_apps_with_no_30d_activity AS (
         mr.dau_7d_change,
         mr.dau_30d_change,
         mr.dau_30d_historical,
+        mr.real_users,
+        mr.real_users_30d_avg,
         mr.fees,
         mr.fees_30d_total,
         mr.fees_1d_change,
