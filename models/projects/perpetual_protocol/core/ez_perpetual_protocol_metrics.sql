@@ -35,6 +35,14 @@ WITH
     )
     , price as ({{ get_coingecko_metrics("perpetual-protocol") }})
 
+    , token_incentives as (
+        select
+            date,
+            SUM(total_token_incentives) as token_incentives
+        from {{ref('fact_perpetual_token_incentives')}}
+        group by 1
+    )
+
 SELECT
     date
     , app
@@ -60,6 +68,8 @@ SELECT
     , token_turnover_circulating
     , token_turnover_fdv
     , token_volume
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
 FROM perp_data
 LEFT JOIN price USING(date)
+LEFT JOIN token_incentives USING(date)
 WHERE date < to_date(sysdate())
