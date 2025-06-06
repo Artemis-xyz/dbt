@@ -2,7 +2,8 @@
     config(
         materialized="incremental",
         snowflake_warehouse="PENDLE",
+        unique_key = ["tx_hash", "event_index"]
     )
 }}
 
-{{ get_pendle_swap_fees_for_chain_by_token('optimism') }}
+{{ get_pendle_amm_swaps_for_chain('base') }}
