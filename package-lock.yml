@@ -1,9 +1,13 @@
 packages:
-  - package: dbt-labs/dbt_utils
-    version: 1.1.0
-  - package: metaplane/dbt_expectations
-    version: 0.10.8
-  - local: iceberg/
-  - package: godatadriven/dbt_date
-    version: 0.13.0
-sha1_hash: 855fe3f193d15725d23355830fa1e08937c2f32c
+- local: iceberg
+  name: artemis_dbt_iceberg
+- package: godatadriven/dbt_date
+  name: dbt_date
+  version: 0.14.0
+- package: metaplane/dbt_expectations
+  name: dbt_expectations
+  version: 0.10.8
+- package: dbt-labs/dbt_utils
+  name: dbt_utils
+  version: 1.1.0
+sha1_hash: d0875472a5cd279ece40b2f9c0537fb4b55512bd

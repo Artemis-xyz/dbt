@@ -5,9 +5,6 @@ sources:
     tables:
       - name: raw_dune_contracts
       - name: raw_chain_scanner_contracts
-  - name: SDO_DEV_LANDING
-    schema: SDO_DEV_LANDING  
-    database: LANDING_DATABASE  
   - name: SIGMA
     schema: PROD
     database: SIGMA
