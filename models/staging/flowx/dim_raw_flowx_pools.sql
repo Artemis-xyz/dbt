@@ -27,8 +27,10 @@ SELECT
     , parquet_raw:epoch::number AS epoch
     , parquet_raw:pool_address::string AS pool_address
     , COALESCE(parquet_raw:swap_fee_percent::float, 0) AS swap_fee_percent
-    , parquet_raw:token_address_a::string AS token_address_a
-    , parquet_raw:token_address_b::string AS token_address_b
+    , coingecko_prices_a.symbol AS symbol_a
+    , coingecko_prices_b.symbol AS symbol_b
+    , '0x' || parquet_raw:token_address_a::string AS token_address_a
+    , '0x' || parquet_raw:token_address_b::string AS token_address_b
     , parquet_raw:vault_a_amount_raw::float AS vault_a_amount_raw
     , parquet_raw:vault_b_amount_raw::float AS vault_b_amount_raw
     , parquet_raw:vault_a_amount_raw::float / POW(10, coingecko_prices_a.decimals) AS vault_a_amount_native
