@@ -14,11 +14,11 @@ SELECT
     , src_block_timestamp
     , src_tx_hash
     , src_event_index
-    , amount_sent_native as src_amount
+    , amount_sent_native::number as src_amount
     , amount_sent as src_amount_usd
-    , amount_sent_native as src_amount_native
+    , amount_sent_native::number as src_amount_native
     , amount_sent_adjusted as src_amount_adjusted
-    , amount_sent_native
+    , amount_sent_native::number as amount_sent_native
     , amount_sent_adjusted
     , amount_sent
     , src_decimals
@@ -32,11 +32,11 @@ SELECT
     , dst_block_timestamp
     , dst_tx_hash
     , dst_event_index
-    , amount_received_native as dst_amount
+    , amount_received_native::number as dst_amount
     , amount_received as dst_amount_usd
-    , amount_received_native as dst_amount_native
+    , amount_received_native::number as dst_amount_native
     , amount_received_adjusted as dst_amount_adjusted
-    , amount_received_native
+    , amount_received_native::number as amount_received_native
     , amount_received_adjusted
     , amount_received
     , dst_decimals
@@ -66,11 +66,11 @@ SELECT
     , src_block_timestamp
     , src_tx_hash
     , src_event_index
-    , amount_sent_native as src_amount
+    , amount_sent_native::number as src_amount
     , amount_sent as src_amount_usd
-    , amount_sent_native as src_amount_native
+    , amount_sent_native::number as src_amount_native
     , amount_sent_adjusted as src_amount_adjusted
-    , amount_sent_native
+    , amount_sent_native::number as amount_sent_native
     , amount_sent_adjusted
     , amount_sent
     , src_decimals
@@ -84,11 +84,11 @@ SELECT
     , dst_block_timestamp
     , dst_tx_hash
     , dst_event_index
-    , amount_received_native as dst_amount
+    , amount_received_native::number as dst_amount
     , amount_received as dst_amount_usd
-    , amount_received_native as dst_amount_native
+    , amount_received_native::number as dst_amount_native
     , amount_received_adjusted as dst_amount_adjusted
-    , amount_received_native
+    , amount_received_native::number as amount_received_native
     , amount_received_adjusted
     , amount_received
     , dst_decimals
@@ -171,11 +171,11 @@ SELECT
     , src_timestamp as src_block_timestamp
     , source_tx_hash as src_tx_hash
     , null as src_event_index
-    , amount_sent_native as src_amount
+    , amount_sent_native::number as src_amount
     , amount_sent_adjusted as src_amount_usd
-    , amount_sent_native as src_amount_native
+    , amount_sent_native::number as src_amount_native
     , amount_sent_adjusted as src_amount_adjusted
-    , amount_sent_native
+    , amount_sent_native::number as amount_sent_native
     , amount_sent_adjusted
     , amount_sent
     , source_token_decimals as src_decimals
@@ -189,11 +189,11 @@ SELECT
     , dst_block_timestamp
     , null as dst_tx_hash
     , null as dst_event_index
-    , amount_received_native as dst_amount
+    , amount_received_native::number as dst_amount
     , amount_received as dst_amount_usd
-    , amount_received_native as dst_amount_native
+    , amount_received_native::number as dst_amount_native
     , amount_received_adjusted as dst_amount_adjusted
-    , amount_received_native
+    , amount_received_native::number as amount_received_native
     , amount_received_adjusted
     , amount_received
     , destination_token_decimals as dst_decimals
@@ -222,11 +222,11 @@ select
     , src_block_timestamp
     , src_tx_hash
     , src_event_index
-    , amount_sent_native as src_amount
+    , amount_sent_native::number as src_amount
     , amount_sent as src_amount_usd
-    , amount_sent_native as src_amount_native
+    , amount_sent_native::number as src_amount_native
     , amount_sent_adjusted as src_amount_adjusted
-    , amount_sent_native
+    , amount_sent_native::number as amount_sent_native
     , amount_sent_adjusted
     , amount_sent
     , src_decimals
@@ -240,11 +240,11 @@ select
     , dst_block_timestamp
     , dst_tx_hash
     , dst_event_index
-    , amount_received_native as dst_amount
+    , amount_received_native::number as dst_amount
     , amount_received as dst_amount_usd
-    , amount_received_native as dst_amount_native
+    , amount_received_native::number as dst_amount_native
     , amount_received_adjusted as dst_amount_adjusted
-    , amount_received_native
+    , amount_received_native::number as amount_received_native
     , amount_received_adjusted
     , amount_received
     , dst_decimals
