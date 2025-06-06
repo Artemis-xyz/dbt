@@ -1,8 +1,14 @@
 {% macro stablecoin_breakdown(breakdowns=[], granularity='day') %}
+
+with max_date as (
+    select max(date) as max_date
+    from {{ ref("agg_daily_stablecoin_breakdown_with_labels_silver") }}
+)
+
 select
     date_trunc('{{granularity}}', date) as date_granularity
     {% for breakdown in breakdowns %}
-        {% if breakdown in ('application') %}
+        {% if breakdown == 'application' %}
             , coalesce(application, 'Unlabeled') as {{ breakdown }}
         {% elif breakdown == 'category' %}
             , coalesce(artemis_category_id, 'Unlabeled') as {{ breakdown }}
@@ -39,8 +45,20 @@ select
         , sum(stablecoin_supply) as stablecoin_supply
         , sum(case when is_wallet::number = 1 then stablecoin_supply else 0 end) as p2p_stablecoin_supply
     {% else %}
-        , sum(case when date = date_trunc('{{granularity}}', date) then stablecoin_supply else 0 end) as stablecoin_supply
-        , sum(case when is_wallet::number = 1 and date = date_trunc('{{granularity}}', date) then stablecoin_supply else 0 end) as p2p_stablecoin_supply
+        , sum(case when date = 
+            case
+                when date_trunc('{{granularity}}', date) = date_trunc('{{granularity}}', (select max_date from max_date))
+                    then (select max_date from max_date)
+                else last_day(date, '{{granularity}}')
+            end 
+        then stablecoin_supply else 0 end) as stablecoin_supply
+        , sum(case when is_wallet::number = 1 and date = 
+            case
+                when date_trunc('{{granularity}}', date) = date_trunc('{{granularity}}', (select max_date from max_date))
+                    then (select max_date from max_date)
+                else last_day(date, '{{granularity}}')
+            end
+        then stablecoin_supply else 0 end) as p2p_stablecoin_supply
     {% endif %}
 from {{ ref("agg_daily_stablecoin_breakdown_with_labels_silver") }}
 {% if is_incremental() %}
