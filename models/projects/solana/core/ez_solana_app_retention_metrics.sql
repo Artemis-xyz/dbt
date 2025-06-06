@@ -48,7 +48,7 @@ with solana_table as (
         al.app is not null and
         date_trunc('month', raw_date) < date_trunc('month', sysdate())
     group by 1,2,3
-), user_cohorts as ( -- for each address, first month that it appeared
+), user_cohorts as (
     select
         address, 
         app,
@@ -78,15 +78,15 @@ with solana_table as (
         bt.address,
         bt.app,
         month_number
-), retention_data as( -- this is already same as the end, every single month PLUS every single month number
+), retention_data as(
     select
         uc.app,
         uc.cohort_month as cohort_month, 
         fm.month_number, 
         count(distinct(fm.address)) as retained_user_count
     from
-        following_months as fm -- for each address, month number from first month that it appeared to latest 
-        inner join user_cohorts as uc on fm.address = uc.address and fm.app = uc.app -- for each address, first month that it appeared
+        following_months as fm
+        inner join user_cohorts as uc on fm.address = uc.address and fm.app = uc.app
         left join min_date md on fm.app = md.app
     where
         cohort_month >= md.first_month
