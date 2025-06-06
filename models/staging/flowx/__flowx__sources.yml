@@ -7,3 +7,7 @@ sources:
         meta:
           dagster:
             asset_key: ["PROD_LANDING", "bulk_load_fact_flowx_dex_swaps"]
+      - name: raw_sui_dim_flowx_pools_parquet
+        meta:
+          dagster:
+            asset_key: ["PROD_LANDING", "bulk_load_dim_flowx_pools"]
