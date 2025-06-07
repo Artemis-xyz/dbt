@@ -8,21 +8,21 @@ WITH coingecko_prices AS (
 )
 
 /*
-{
-  "amount_a_swapped_raw": "75630",
-  "amount_b_swapped_raw": "9",
-  "date": "2025-06-02",
-  "fee_percentage": 1.000000000000000e-03,
-  "pool_address": "0x30ddd58a67dd3a0bf2f948d60e67cdf9e93022cc26288e6d7a0b1830c46255c7",
-  "protocol_fee_percentage": 5.000000000000000e-05,
-  "sender": "0xf913a4a3ec2ee0aa6504f9926f14df971d112196ceb8ff55b4d0fdd2fdc24e47",
+  "amount_a_swapped_raw": 2.633519534700000e+10,
+  "amount_b_swapped_raw": 1.586478172700000e+10,
+  "date": "2023-08-04",
+  "epoch": 113,
+  "fee_amount_raw": 7.900558604100001e+07,
+  "fee_token_address": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+  "pool_address": "0xdeacf7ab460385d4bcb567f183f916367f7d43666a2c72323013822eb3c57026",
+  "protocol_fee_amount_raw": 1.316759767350000e+06,
+  "sender": "0x48b6cc0c7afa46f107b45ae2e5774e900df4ceb890bf278b26b91cbef0191fee",
   "token_address_a": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
-  "token_address_b": "0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN",
-  "transaction_digest": "H6YxFWic9koBpU84ct9JH9cKCKZkfhoEmg5eVpMCCXcT",
-  "unique_id": "H6YxFWic9koBpU84ct9JH9cKCKZkfhoEmg5eVpMCCXcT-{\"amounts_in\":[\"9\"],\"amounts_out\":[\"75630\"],\"issuer\":\"0xf913a4a3ec2ee0aa6504f9926f14df971d112196ceb8ff55b4d0fdd2fdc24e47\",\"pool_id\":\"0x30ddd58a67dd3a0bf2f948d60e67cdf9e93022cc26288e6d7a0b1830c46255c7\",\"referrer\":null,\"reserves\":[\"17369104\",\"61\",\"477965263\",\"131693103\",\"318658\",\"32046319114\",\"58511\",\"437412\"],\"types_in\":[\"027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN\"],\"types_out\":[\"deeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP\"]}",
-  "vault_a_amount_raw": 2.391024800000000e+25,
-  "vault_b_amount_raw": 5.300000000000000e+19
-}
+  "token_address_b": "0xce7ff77a83ea0cb6fd39bd8748e2ec89a3f41e8efdc3f4eb123e0ca37b184db2::buck::BUCK",
+  "transaction_digest": "Dzu14WCPfXU1RmqmYbUJv783vAyuma1vS81XAVVev5gT",
+  "unique_id": "Dzu14WCPfXU1RmqmYbUJv783vAyuma1vS81XAVVev5gT-{\"amounts_in\":[\"26335195347\"],\"amounts_out\":[\"15864781727\"],\"issuer\":\"0x48b6cc0c7afa46f107b45ae2e5774e900df4ceb890bf278b26b91cbef0191fee\",\"pool_id\":\"0xdeacf7ab460385d4bcb567f183f916367f7d43666a2c72323013822eb3c57026\",\"referrer\":null,\"types_in\":[\"0000000000000000000000000000000000000000000000000000000000000002::sui::SUI\"],\"types_out\":[\"ce7ff77a83ea0cb6fd39bd8748e2ec89a3f41e8efdc3f4eb123e0ca37b184db2::buck::BUCK\"]}",
+  "vault_a_amount_raw": 1.846813493393920e+32,
+  "vault_b_amount_raw": 1.102952356217940e+32
 */
 
 SELECT
@@ -34,21 +34,44 @@ SELECT
     , coingecko_prices_fee.symbol AS fee_symbol
     , parquet_raw:fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) AS fee_amount_native
     , parquet_raw:fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_fee.price AS fee_amount_usd
-    , parquet_raw:protocol_fee_share_amount_raw::float / POW(10, coingecko_prices_fee.decimals) AS protocol_fee_share_amount_native
-    , parquet_raw:protocol_fee_share_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_fee.price AS protocol_fee_share_amount_usd
+    , parquet_raw:protocol_fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) AS protocol_fee_share_amount_native
+    , parquet_raw:protocol_fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_fee.price AS protocol_fee_share_amount_usd
 
     , coingecko_prices_a.symbol AS symbol_a
-    , parquet_raw:amount_a_swapped_raw::float / POW(10, coingecko_prices_a.decimals) AS amount_a_swapped_native
-    , parquet_raw:amount_a_swapped_raw::float / POW(10, coingecko_prices_a.decimals) * coingecko_prices_a.price AS amount_a_swapped_usd
-    , parquet_raw:vault_a_amount_raw::float / POW(10, coingecko_prices_a.decimals) AS vault_a_amount_native
-    , parquet_raw:vault_a_amount_raw::float / POW(10, coingecko_prices_a.decimals) * coingecko_prices_a.price AS vault_a_amount_usd
+    , coingecko_prices_a.contract_address AS coingecko_token_address_a
+    , CASE 
+        WHEN parquet_raw:token_address_a::string = '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN' THEN NULL
+        ELSE parquet_raw:amount_a_swapped_raw::float / POW(10, coingecko_prices_a.decimals) 
+    END AS amount_a_swapped_native
+    , CASE 
+        WHEN parquet_raw:token_address_a::string = '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN' THEN NULL
+        ELSE parquet_raw:amount_a_swapped_raw::float / POW(10, coingecko_prices_a.decimals) * coingecko_prices_a.price 
+    END AS amount_a_swapped_usd
+    , CASE 
+        WHEN parquet_raw:token_address_a::string = '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN' THEN NULL
+        ELSE parquet_raw:vault_a_amount_raw::float / POW(10, coingecko_prices_a.decimals) 
+    END AS vault_a_amount_native
+    , CASE 
+        WHEN parquet_raw:token_address_a::string = '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN' THEN NULL
+        ELSE parquet_raw:vault_a_amount_raw::float / POW(10, coingecko_prices_a.decimals) * coingecko_prices_a.price 
+    END AS vault_a_amount_usd
 
     , coingecko_prices_b.symbol AS symbol_b
-    , parquet_raw:amount_b_swapped_raw::float / POW(10, coingecko_prices_b.decimals) AS amount_b_swapped_native
-    , parquet_raw:amount_b_swapped_raw::float / POW(10, coingecko_prices_b.decimals) * coingecko_prices_b.price AS amount_b_swapped_usd
-    , parquet_raw:vault_b_amount_raw::float / POW(10, coingecko_prices_b.decimals) AS vault_b_amount_native
+    , coingecko_prices_b.contract_address AS coingecko_token_address_b
+    , CASE 
+        WHEN parquet_raw:token_address_b::string = '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN' THEN NULL
+        ELSE parquet_raw:amount_b_swapped_raw::float / POW(10, coingecko_prices_b.decimals) 
+    END AS amount_b_swapped_native
+    , CASE 
+        WHEN parquet_raw:token_address_b::string = '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN' THEN NULL
+        ELSE parquet_raw:amount_b_swapped_raw::float / POW(10, coingecko_prices_b.decimals) * coingecko_prices_b.price 
+    END AS amount_b_swapped_usd
+    , CASE 
+        WHEN parquet_raw:token_address_b::string = '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN' THEN NULL
+        ELSE parquet_raw:vault_b_amount_raw::float / POW(10, coingecko_prices_b.decimals) 
+    END AS vault_b_amount_native
     , parquet_raw:vault_b_amount_raw::float / POW(10, coingecko_prices_b.decimals) * coingecko_prices_b.price AS vault_b_amount_usd
-FROM {{ source('PROD_LANDING', 'raw_sui_fact_bluefin_dex_swaps_parquet') }}
+FROM {{ source('PROD_LANDING', 'raw_sui_fact_aftermath_dex_swaps_gold_parquet') }}
 LEFT JOIN coingecko_prices AS coingecko_prices_a
     ON coingecko_prices_a.date = parquet_raw:date::date
     AND lower(coingecko_prices_a.contract_address) = lower(parquet_raw:token_address_a::string)
