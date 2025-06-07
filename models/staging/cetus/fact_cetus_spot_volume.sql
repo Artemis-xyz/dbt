@@ -21,6 +21,6 @@ WITH unfiltered_data AS (
 
 SELECT *
 FROM unfiltered_data
-WHERE amount_a_swapped_usd / NULLIF(amount_b_swapped_usd, 0) BETWEEN 0.5 AND 2.5
+WHERE amount_a_swapped_usd / NULLIF(amount_b_swapped_usd, 0) BETWEEN 0.4 AND 2.5
 
 
