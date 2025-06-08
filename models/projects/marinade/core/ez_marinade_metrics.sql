@@ -68,7 +68,7 @@ select
     , fees_native
     -- v1 fees (2024-08-17 and before) - commission + unstaking fees, v2 fees (2024-08-18 and after) - validator bids
     -- v2 fees - 100% goes to the protocol
-    , fees_native * price as fees
+    , (unstaking_fees_native * price) + (fees_native * price) as fees
     -- v1 - unstaking fees 75% goes to LP (Fees to Suppliers), 25% goes to treasury (Fees to Holders)
     , unstaking_fees_native * 0.75 * price as supply_side_fee
     , case when 
