@@ -165,6 +165,7 @@ select
     , market_cap
     , fdmc
     , tvl
+
     -- Chain Usage Metrics
     , txns AS chain_txns
     , dau AS chain_dau
@@ -188,6 +189,7 @@ select
     , case
         when (gas_usd - base_fee_native * price ) < 0.001 then 0 else (gas_usd - base_fee_native * price )
     end as priority_fee
+
     -- Cashflow Metrics
     , gas_usd + vote_tx_fee_native * price as chain_fees
     , gas + vote_tx_fee_native as ecosystem_revenue_native
@@ -201,9 +203,17 @@ select
     , vote_tx_fee_native
     , vote_tx_fee_native * price AS vote_tx_fee
     , chain_fees + jito_tips.tip_fees as rev -- Blockworks' REV
+
+    -- Financial Statement Metrics
+    , chain_fees as fees
+    , ecosystem_revenue as revenue
+    , issuance * price as token_incentives
+    , revenue - token_incentives as earnings
+    
     -- Supply Metrics
     , issuance AS gross_emissions_native
     , issuance * price AS gross_emissions
+
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
