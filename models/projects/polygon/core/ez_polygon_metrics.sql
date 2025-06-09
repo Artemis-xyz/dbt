@@ -44,6 +44,12 @@ with
     polygon_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_polygon_daily_dex_volumes") }}
+    ),
+    token_incentives as (
+        select
+            date,
+            token_incentives
+        from {{ref('fact_polygon_token_incentives')}}
     )
 
 select
@@ -92,6 +98,7 @@ select
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_polygon.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     , dune_dex_volumes_polygon.dex_volumes AS chain_spot_volume
+    , coalesce(ti.token_incentives, 0) as token_incentives
     -- Cashflow Metrics
     , fees AS chain_fees
     , fees_native AS gross_fees_native
@@ -141,4 +148,5 @@ left join l1_cost_data on fundamental_data.date = l1_cost_data.date
 left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join polygon_dex_volumes as dune_dex_volumes_polygon on fundamental_data.date = dune_dex_volumes_polygon.date
+left join token_incentives ti on fundamental_data.date = ti.date
 where fundamental_data.date < to_date(sysdate())
