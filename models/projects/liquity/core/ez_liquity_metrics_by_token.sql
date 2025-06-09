@@ -121,7 +121,7 @@ select
     -- Cash Flow Metrics
     , fr.revenue_usd as ecosystem_revenue
     , fr.revenue_native as ecosystem_revenue_native
-    , ti.token_incentives_native as staking_cash_flow_native
+    , ti.token_incentives_native as staking_fee_allocation_native
 
     -- Protocol Metrics
     , coalesce(treasury_by_token.treasury, 0) as treasury

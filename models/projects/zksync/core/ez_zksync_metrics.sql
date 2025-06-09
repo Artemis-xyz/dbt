@@ -89,10 +89,10 @@ select
     -- Cash Flow Metrics
     , gas_usd as ecosystem_revenue
     , gas as ecosystem_revenue_native
-    , l1_data_cost as l1_cash_flow
-    , l1_data_cost_native as l1_cash_flow_native
-    , revenue as foundation_cash_flow
-    , revenue_native as foundation_cash_flow_native
+    , l1_data_cost as l1_fee_allocation
+    , l1_data_cost_native as l1_fee_allocation_native
+    , revenue as foundation_fee_allocation
+    , revenue_native as foundation_fee_allocation_native
     -- Bridge Metrics
     , bridge_volume_metrics.bridge_volume as bridge_volume
     , bridge_daa_metrics.bridge_daa as bridge_dau

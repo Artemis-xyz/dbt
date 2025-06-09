@@ -63,7 +63,7 @@ with
     , token_cashflow as (
         select
             date,
-            sum(cash_flow) as token_cashflow
+            sum(fee_allocation) as token_cashflow
         from {{ ref("fact_synthetix_token_cashflow_by_token_and_chain") }}
         group by 1
     )
@@ -84,7 +84,7 @@ with
     , fee_sharing_cashflow as (
         select
             date,
-            sum(fee_sharing_cash_flow) as fee_sharing_cashflow
+            sum(fee_sharing_fee_allocation) as fee_sharing_cashflow
         from {{ ref("fact_synthetix_fee_sharing_cashflow_by_token_and_chain") }}
         group by 1
     )
@@ -111,7 +111,7 @@ select
     , coalesce(fees.fees_native, 0) as fees_native
     , coalesce(fees.fees, 0) as revenue
     , coalesce(token_incentives, 0) as expenses
-    , coalesce(revenue, 0) - coalesce(expenses,0) as earnings
+    , coalesce(revenue, 0) - coalesce(expenses,0) as protocol_earnings
     , coalesce(token_incentives, 0) as token_incentives
     , coalesce(treasury.treasury, 0) as treasury_value
     , coalesce(treasury.own_token_treasury, 0) as treasury_value_native

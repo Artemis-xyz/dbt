@@ -17,8 +17,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  staking_cash_flow: &staking_cash_flow
-    name: staking_cash_flow
+  staking_fee_allocation: &staking_fee_allocation
+    name: staking_fee_allocation
     description: "Share of gross protocol revenue distributed to vePENDLE voters, 80% of explicit swap fees plus yield fees."
     tags:
       - artemis_gaap
@@ -53,8 +53,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "LPs get 20% of explicit swap fees on Pendle AMM (https://docs.pendle.finance/ProtocolMechanics/PendleMarketAPYCalculation#swapfeeapy--voterapr)"
     tags:
       - artemis_gaap
@@ -117,8 +117,8 @@ models:
     description: "This table stores metrics for the PENDLE protocol"
     columns:
       - *ecosystem_revenue
-      - *staking_cash_flow
-      - *service_cash_flow
+      - *staking_fee_allocation
+      - *service_fee_allocation
       - *spot_fees
       - *tvl
       - *yield_generated
@@ -128,14 +128,14 @@ models:
     columns:
       - *ecosystem_revenue
       - *fdmc
-      - *staking_cash_flow
+      - *staking_fee_allocation
       - *gross_emissions
       - *gross_emissions_native
       - *market_cap
       - *net_treasury
       - *own_token_treasury
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_dau
       - *spot_fees
       - *spot_txns
@@ -151,10 +151,10 @@ models:
     description: "This table stores metrics for the PENDLE protocol"
     columns:
       - *ecosystem_revenue
-      - *staking_cash_flow
+      - *staking_fee_allocation
       - *gross_emissions
       - *gross_emissions_native
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_dau
       - *spot_fees
       - *spot_txns

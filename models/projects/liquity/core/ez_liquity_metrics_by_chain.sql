@@ -106,7 +106,7 @@ select
 
     -- Cash Flow Metrics
     , coalesce(fr.revenue_usd, 0) as ecosystem_revenue
-    , coalesce(ti.token_incentives, 0) as staking_cash_flow
+    , coalesce(ti.token_incentives, 0) as staking_fee_allocation
 
     -- Protocol Metrics
     , coalesce(treasury.treasury, 0) as treasury

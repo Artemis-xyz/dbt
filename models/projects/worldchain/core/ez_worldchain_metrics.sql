@@ -39,10 +39,10 @@ select
     -- Cash Flow Metrics
     , fees as ecosystem_revenue
     , fees_native as ecosystem_revenue_native
-    , cost as l1_cash_flow
-    , cost_native as l1_cash_flow_native
-    , revenue as foundation_cash_flow
-    , revenue_native as foundation_cash_flow_native
+    , cost as l1_fee_allocation
+    , cost_native as l1_fee_allocation_native
+    , revenue as foundation_fee_allocation
+    , revenue_native as foundation_fee_allocation_native
     , token_turnover_circulating
     , token_turnover_fdv
 from {{ ref("fact_worldchain_fundamental_metrics") }} as f

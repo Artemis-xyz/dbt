@@ -99,14 +99,14 @@ column_definitions:
     name: inflow
     description: "The amount (in USD) flowing into a chain"
 
-  l1_cash_flow: &l1_cash_flow
-    name: l1_cash_flow
+  l1_fee_allocation: &l1_fee_allocation
+    name: l1_fee_allocation
     description: "The total USD value of L1 cash flow on a chain"
     tags:
       - artemis_gaap
 
-  l1_cash_flow_native: &l1_cash_flow_native
-    name: l1_cash_flow_native
+  l1_fee_allocation_native: &l1_fee_allocation_native
+    name: l1_fee_allocation_native
     description: "The total native value of L1 cash flow on a chain fees paid to l1 by sequencer (L1 Fees)"
     tags:
       - override
@@ -234,8 +234,8 @@ column_definitions:
     name: sybil_users
     description: "The number of sybil users on a chain"
 
-  treasury_cash_flow: &treasury_cash_flow
-    name: treasury_cash_flow
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
     description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance. Supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)"
     tags:
       - override
@@ -318,8 +318,8 @@ models:
       - *ecosystem_revenue
       - *ecosystem_revenue_native
       - *high_sleep_users
-      - *l1_cash_flow
-      - *l1_cash_flow_native
+      - *l1_fee_allocation
+      - *l1_fee_allocation_native
       - *low_sleep_users
       - *market_cap
       - *new_users
@@ -343,7 +343,7 @@ models:
       - *stablecoin_transfer_volume
       - *stablecoin_txns
       - *sybil_users
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *tvl
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem

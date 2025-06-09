@@ -85,8 +85,8 @@ select
 
     -- Cash Flow Metrics
     , coalesce(fee_fun_usd,0)  + coalesce(tax_usd,0) as ecosystem_revenue
-    , coalesce(fee_fun_usd,0) as service_cash_flow
-    , coalesce(tax_usd,0) as treasury_cash_flow
+    , coalesce(fee_fun_usd,0) as service_fee_allocation
+    , coalesce(tax_usd,0) as treasury_fee_allocation
 
     -- Turnover Metrics
     , coalesce(token_turnover_circulating, 0) as token_turnover_circulating

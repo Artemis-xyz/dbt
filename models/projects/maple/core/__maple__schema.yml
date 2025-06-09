@@ -24,8 +24,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  staking_cash_flow: &staking_cash_flow
-    name: staking_cash_flow
+  staking_fee_allocation: &staking_fee_allocation
+    name: staking_fee_allocation
     description: "Revenue distributed to users who commit tokens (e.g., stake, lock, vote-escrow) to receive a share of protocol fees."
     tags:
       - artemis_gaap
@@ -84,14 +84,14 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "The share of protocol revenue accrued to service providers of the protocol."
     tags:
       - artemis_gaap
 
-  token_cash_flow: &token_cash_flow
-    name: token_cash_flow
+  token_fee_allocation: &token_fee_allocation
+    name: token_fee_allocation
     description: "The share of protocol revenue accrued to token holders of the protocol."
     tags:
       - artemis_gaap
@@ -118,8 +118,8 @@ column_definitions:
     name: treasury
     description: "The USD value in the protocol treasury"
 
-  treasury_cash_flow: &treasury_cash_flow
-    name: treasury_cash_flow
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
     description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
     tags:
       - artemis_gaap
@@ -165,7 +165,7 @@ models:
       - *buybacks_native
       - *circulating_supply_native
       - *fdmc
-      - *staking_cash_flow
+      - *staking_fee_allocation
       - *gross_emissions
       - *gross_emissions_native
       - *ecosystem_revenue
@@ -178,13 +178,13 @@ models:
       - *own_token_treasury_native
       - *premine_unlocks_native
       - *price
-      - *service_cash_flow
-      - *token_cash_flow
+      - *service_fee_allocation
+      - *token_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
       - *treasury
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *treasury_native
       - *tvl
       - *tvl_net_change

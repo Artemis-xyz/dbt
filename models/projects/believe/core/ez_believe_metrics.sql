@@ -61,8 +61,8 @@ select
     , bcm.coins_minted
     , bf.ecosystem_revenue
     , bf.fees_native
-    , bf.ecosystem_revenue * 0.5 as foundation_cash_flow
-    , bf.ecosystem_revenue * 0.5 as service_cash_flow
+    , bf.ecosystem_revenue * 0.5 as foundation_fee_allocation
+    , bf.ecosystem_revenue * 0.5 as service_fee_allocation
 
 from believe_swap_trades bst
 left join believe_coins_minted bcm

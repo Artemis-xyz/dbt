@@ -103,10 +103,10 @@ select
     , fees AS chain_fees
     , fees_native AS ecosystem_revenue_native
     , fees AS ecosystem_revenue
-    , revenue_native AS validator_cash_flow_native
-    , revenue AS validator_cash_flow
-    , l1_data_cost_native AS l1_cash_flow_native
-    , l1_data_cost AS l1_cash_flow
+    , revenue_native AS validator_fee_allocation_native
+    , revenue AS validator_fee_allocation
+    , l1_data_cost_native AS l1_fee_allocation_native
+    , l1_data_cost AS l1_fee_allocation
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

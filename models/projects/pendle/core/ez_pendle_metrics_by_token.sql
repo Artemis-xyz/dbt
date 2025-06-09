@@ -80,10 +80,10 @@ SELECT
     , f.swap_fees as spot_fees
     , COALESCE(yf.yield_revenue, 0) as yield_generated
     , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as ecosystem_revenue
-    , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as staking_cash_flow
-    , coalesce(f.swap_revenue, 0) as spot_staking_cash_flow
-    , coalesce(yf.yield_revenue, 0) as yield_staking_cash_flow
-    , f.supply_side_fees as service_cash_flow
+    , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as staking_fee_allocation
+    , coalesce(f.swap_revenue, 0) as spot_staking_fee_allocation
+    , coalesce(yf.yield_revenue, 0) as yield_staking_fee_allocation
+    , f.supply_side_fees as service_fee_allocation
     , COALESCE(ti.token_incentives, 0) as token_incentives
 
 FROM swap_fees f

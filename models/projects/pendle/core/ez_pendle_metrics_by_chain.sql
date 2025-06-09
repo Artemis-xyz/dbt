@@ -90,10 +90,10 @@ SELECT
     , COALESCE(yf.yield_revenue, 0) as yield_generated
     , COALESCE(f.swap_fees, 0) as spot_fees
     , COALESCE(f.swap_fees, 0) + COALESCE(yf.yield_revenue, 0) as ecosystem_revenue
-    , COALESCE(f.swap_revenue, 0) + COALESCE(yf.yield_revenue, 0) as staking_cash_flow
-    , COALESCE(f.swap_revenue, 0) as spot_staking_cash_flow
-    , COALESCE(yf.yield_revenue, 0) as yield_staking_cash_flow
-    , COALESCE(f.supply_side_fees, 0) as service_cash_flow
+    , COALESCE(f.swap_revenue, 0) + COALESCE(yf.yield_revenue, 0) as staking_fee_allocation
+    , COALESCE(f.swap_revenue, 0) as spot_staking_fee_allocation
+    , COALESCE(yf.yield_revenue, 0) as yield_staking_fee_allocation
+    , COALESCE(f.supply_side_fees, 0) as service_fee_allocation
     , COALESCE(ti.token_incentives, 0) as token_incentives
     , COALESCE(ti.token_incentives, 0) as gross_emissions
     , COALESCE(ti.token_incentives_native, 0) as gross_emissions_native

@@ -40,20 +40,20 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  l1_cash_flow: &l1_cash_flow
-    name: l1_cash_flow
+  l1_fee_allocation: &l1_fee_allocation
+    name: l1_fee_allocation
     description: "The total USD value of L1 cash flow on a chain"
     tags:
       - artemis_gaap
 
-  l1_cash_flow_native: &l1_cash_flow_native
-    name: l1_cash_flow_native
+  l1_fee_allocation_native: &l1_fee_allocation_native
+    name: l1_fee_allocation_native
     description: "The total native value of L1 cash flow on a chain"
     tags:
       - artemis_gaap
 
-  treasury_cash_flow: &treasury_cash_flow
-    name: treasury_cash_flow
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
     description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
     tags:
       - artemis_gaap
@@ -110,9 +110,9 @@ models:
       - *chain_wau
       - *ecosystem_revenue
       - *ecosystem_revenue_native
-      - *l1_cash_flow
-      - *l1_cash_flow_native
-      - *treasury_cash_flow
+      - *l1_fee_allocation
+      - *l1_fee_allocation_native
+      - *treasury_fee_allocation
       - *tvl
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem

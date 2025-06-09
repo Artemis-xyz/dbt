@@ -77,7 +77,7 @@ with
         select
             date
             , token
-            , sum(cash_flow) as token_cashflow
+            , sum(fee_allocation) as token_cashflow
         from {{ ref("fact_synthetix_token_cashflow_by_token_and_chain") }}
         group by 1,2
     )
@@ -101,7 +101,7 @@ with
         select
             date
             , token
-            , sum(fee_sharing_cash_flow) as fee_sharing_cashflow
+            , sum(fee_sharing_fee_allocation) as fee_sharing_cashflow
         from {{ ref("fact_synthetix_fee_sharing_cashflow_by_token_and_chain") }}
         group by 1,2
     )

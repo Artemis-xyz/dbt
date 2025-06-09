@@ -61,10 +61,10 @@ select
         then 0.125
         else 0
     end as vebal_fee_pct,
-    fee_usd * protocol_fee_pct as treasury_cash_flow,
-    fee_native * protocol_fee_pct as treasury_cash_flow_native,
-    fee_usd * vebal_fee_pct as vebal_cash_flow,
-    fee_native * vebal_fee_pct as vebal_cash_flow_native,
-    fee_usd * (1 - (protocol_fee_pct + vebal_fee_pct)) as service_cash_flow,
-    fee_native * (1 - (protocol_fee_pct + vebal_fee_pct)) as service_cash_flow_native
+    fee_usd * protocol_fee_pct as treasury_fee_allocation,
+    fee_native * protocol_fee_pct as treasury_fee_allocation_native,
+    fee_usd * vebal_fee_pct as vebal_fee_allocation,
+    fee_native * vebal_fee_pct as vebal_fee_allocation_native,
+    fee_usd * (1 - (protocol_fee_pct + vebal_fee_pct)) as service_fee_allocation,
+    fee_native * (1 - (protocol_fee_pct + vebal_fee_pct)) as service_fee_allocation_native
 from unioned_swaps

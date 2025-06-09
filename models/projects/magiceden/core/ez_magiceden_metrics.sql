@@ -64,8 +64,8 @@ select
 
     -- Cash Flow Metrics
     , COALESCE(magiceden_metrics.fees, 0) AS ecosystem_revenue
-    , COALESCE(magiceden_metrics.supply_side_fees, 0) AS service_cash_flow
-    , COALESCE(magiceden_metrics.revenue, 0) AS treasury_cash_flow
+    , COALESCE(magiceden_metrics.supply_side_fees, 0) AS service_fee_allocation
+    , COALESCE(magiceden_metrics.revenue, 0) AS treasury_fee_allocation
 
     -- Turnover Metrics
     , COALESCE(market_metrics.token_turnover_circulating, 0) AS token_turnover_circulating
