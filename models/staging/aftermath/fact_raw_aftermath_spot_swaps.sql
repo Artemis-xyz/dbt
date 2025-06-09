@@ -38,39 +38,29 @@ SELECT
     , parquet_raw:protocol_fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_fee.price AS protocol_fee_share_amount_usd
 
     , coingecko_prices_a.symbol AS symbol_a
+    , coingecko_prices_a.price AS price_a
     , coingecko_prices_a.contract_address AS coingecko_token_address_a
-    , CASE 
-        WHEN parquet_raw:token_address_a::string = '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN' THEN NULL
-        ELSE parquet_raw:amount_a_swapped_raw::float / POW(10, coingecko_prices_a.decimals) 
-    END AS amount_a_swapped_native
-    , CASE 
-        WHEN parquet_raw:token_address_a::string = '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN' THEN NULL
-        ELSE parquet_raw:amount_a_swapped_raw::float / POW(10, coingecko_prices_a.decimals) * coingecko_prices_a.price 
-    END AS amount_a_swapped_usd
-    , CASE 
-        WHEN parquet_raw:token_address_a::string = '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN' THEN NULL
-        ELSE parquet_raw:vault_a_amount_raw::float / POW(10, coingecko_prices_a.decimals) 
-    END AS vault_a_amount_native
-    , CASE 
-        WHEN parquet_raw:token_address_a::string = '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN' THEN NULL
-        ELSE parquet_raw:vault_a_amount_raw::float / POW(10, coingecko_prices_a.decimals) * coingecko_prices_a.price 
-    END AS vault_a_amount_usd
+    , parquet_raw:amount_a_swapped_raw::float / POW(10, coingecko_prices_a.decimals) AS amount_a_swapped_native
+    , parquet_raw:amount_a_swapped_raw::float / POW(10, coingecko_prices_a.decimals) * coingecko_prices_a.price AS amount_a_swapped_usd
+    , (parquet_raw:vault_a_amount_raw::float / 1e18) / POW(10, coingecko_prices_a.decimals) AS vault_a_amount_native
+    , (parquet_raw:vault_a_amount_raw::float / 1e18) / POW(10, coingecko_prices_a.decimals) * coingecko_prices_a.price AS vault_a_amount_usd
 
     , coingecko_prices_b.symbol AS symbol_b
+    , CASE 
+        WHEN parquet_raw:date::date = '2024-11-12' THEN coingecko_prices_a.price
+        ELSE coingecko_prices_b.price 
+    END AS price_b
     , coingecko_prices_b.contract_address AS coingecko_token_address_b
-    , CASE 
-        WHEN parquet_raw:token_address_b::string = '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN' THEN NULL
-        ELSE parquet_raw:amount_b_swapped_raw::float / POW(10, coingecko_prices_b.decimals) 
-    END AS amount_b_swapped_native
-    , CASE 
-        WHEN parquet_raw:token_address_b::string = '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN' THEN NULL
+    , parquet_raw:amount_b_swapped_raw::float / POW(10, coingecko_prices_b.decimals) AS amount_b_swapped_native
+    , CASE
+        WHEN parquet_raw:date::date = '2024-11-12' AND parquet_raw:token_address_b::string = '0xf325ce1300e8dac124071d3152c5c5ee6174914f8bc2161e88329cf579246efc::afsui::AFSUI' THEN parquet_raw:amount_b_swapped_raw::float / POW(10, coingecko_prices_b.decimals) * coingecko_prices_a.price
         ELSE parquet_raw:amount_b_swapped_raw::float / POW(10, coingecko_prices_b.decimals) * coingecko_prices_b.price 
     END AS amount_b_swapped_usd
-    , CASE 
-        WHEN parquet_raw:token_address_b::string = '0x027792d9fed7f9844eb4839566001bb6f6cb4804f66aa2da6fe1ee242d896881::coin::COIN' THEN NULL
-        ELSE parquet_raw:vault_b_amount_raw::float / POW(10, coingecko_prices_b.decimals) 
-    END AS vault_b_amount_native
-    , parquet_raw:vault_b_amount_raw::float / POW(10, coingecko_prices_b.decimals) * coingecko_prices_b.price AS vault_b_amount_usd
+    , (parquet_raw:vault_b_amount_raw::float / 1e18) / POW(10, coingecko_prices_b.decimals) AS vault_b_amount_native
+    , CASE
+        WHEN parquet_raw:date::date = '2024-11-12' AND parquet_raw:token_address_b::string = '0xf325ce1300e8dac124071d3152c5c5ee6174914f8bc2161e88329cf579246efc::afsui::AFSUI' THEN (parquet_raw:vault_b_amount_raw::float / 1e18) / POW(10, coingecko_prices_b.decimals) * coingecko_prices_a.price
+        ELSE (parquet_raw:vault_b_amount_raw::float / 1e18) / POW(10, coingecko_prices_b.decimals) * coingecko_prices_b.price 
+    END AS vault_b_amount_usd
 FROM {{ source('PROD_LANDING', 'raw_sui_fact_aftermath_dex_swaps_gold_parquet') }}
 LEFT JOIN coingecko_prices AS coingecko_prices_a
     ON coingecko_prices_a.date = parquet_raw:date::date
