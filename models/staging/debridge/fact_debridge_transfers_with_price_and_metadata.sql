@@ -31,6 +31,7 @@ select
     , coalesce(percentage_fee,0) + coalesce(fix_fee,0) as protocol_fee
     , source_chain_ids.id as src_chain_id 
     , destination_chain_ids.id as dst_chain_id
+    , concat(coalesce(transfers.order_id, 'null'), '|', 'debridge') as unique_id
 from {{ref('fact_debridge_transfers_with_prices')}} as transfers
 left join {{ ref('fact_debridge_order_metadata') }} as metadata 
 on transfers.order_id = metadata.order_id
