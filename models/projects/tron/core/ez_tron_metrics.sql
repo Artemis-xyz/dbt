@@ -79,7 +79,12 @@ select
     , fees AS ecosystem_revenue
     , fees_native AS burned_cash_flow_native
     , fees AS burned_cash_flow
-    , token_incentives.token_incentives 
+
+    -- Financial Statement Metrics
+    , fees as fees
+    , burned_cash_flow as revenue
+    , token_incentives.token_incentives as token_incentives
+    , revenue - token_incentives as earnings
 
     -- Developer Metrics
     , weekly_commits_core_ecosystem
@@ -103,6 +108,8 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
+
+
 from fundamental_data
 left join market_metrics on fundamental_data.date = market_metrics.date
 left join defillama_data on fundamental_data.date = defillama_data.date

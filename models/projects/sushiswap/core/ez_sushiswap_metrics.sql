@@ -118,7 +118,12 @@ select
     , cashflow_metrics.ecosystem_revenue as ecosystem_revenue
     , cashflow_metrics.service_cash_flow as service_cash_flow
     , cashflow_metrics.fee_sharing_token_cash_flow as fee_sharing_token_cash_flow
-    , token_incentives.token_incentives
+
+    -- Financial Statement Metrics
+    , cashflow_metrics.ecosystem_revenue as fees
+    , cashflow_metrics.fee_sharing_token_cash_flow as revenue
+    , token_incentives.token_incentives as token_incentives
+    , revenue - token_incentives as earnings
 
 from date_spine
 left join tvl_data tvl using(date)
