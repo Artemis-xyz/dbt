@@ -19,7 +19,7 @@ with
             sum(spot_stakers_fee_allocation) as spot_stakers_fee_allocation,
             sum(spot_oracle_fee_allocation) as spot_oracle_fee_allocation,
             sum(spot_treasury_fee_allocation) as spot_treasury_fee_allocation
-        from {{ ref("fact_gmx_all_versions_dex_fee_allocations") }}
+        from {{ ref("fact_gmx_all_versions_dex_cash_flows") }}
         group by 1, 2
     ),
     perp_data as (
@@ -34,7 +34,7 @@ with
             sum(perp_stakers_fee_allocation) as perp_stakers_fee_allocation,
             sum(perp_oracle_fee_allocation) as perp_oracle_fee_allocation,
             sum(perp_treasury_fee_allocation) as perp_treasury_fee_allocation
-        from {{ ref("fact_gmx_all_versions_perp_fee_allocations") }}
+        from {{ ref("fact_gmx_all_versions_perp_cash_flows") }}
         group by 1, 2
     ),
     tvl_metrics as (

@@ -18,17 +18,17 @@ with swap_metrics as (
         sum(trading_volume_native) as trading_volume_native,
         sum(fee_usd) as trading_fees,
         sum(fee_native) as trading_fees_native,
-        sum(service_fee_allocation) as primary_supply_side_revenue,
-        sum(service_fee_allocation_native) as primary_supply_side_revenue_native,
-        sum(vebal_fee_allocation + treasury_fee_allocation) as revenue,
-        sum(vebal_fee_allocation_native + treasury_fee_allocation_native) as revenue_native,
+        sum(service_cash_flow) as primary_supply_side_revenue,
+        sum(service_cash_flow_native) as primary_supply_side_revenue_native,
+        sum(treasury_cash_flow + vebal_cash_flow) as revenue,
+        sum(treasury_cash_flow_native + vebal_cash_flow_native) as revenue_native,
 
-        sum(service_fee_allocation) as service_fee_allocation,
-        sum(service_fee_allocation_native) as service_fee_allocation_native,
-        sum(treasury_fee_allocation) as treasury_fee_allocation,
-        sum(treasury_fee_allocation_native) as treasury_fee_allocation_native,
-        sum(vebal_fee_allocation) as staking_fee_allocation,
-        sum(vebal_fee_allocation_native) as staking_fee_allocation_native,
+        sum(service_cash_flow) as service_fee_allocation,
+        sum(service_cash_flow_native) as service_fee_allocation_native,
+        sum(treasury_cash_flow) as treasury_fee_allocation,
+        sum(treasury_cash_flow_native) as treasury_fee_allocation_native,
+        sum(vebal_cash_flow) as staking_fee_allocation,
+        sum(vebal_cash_flow_native) as staking_fee_allocation_native,
 
     FROM {{ ref('ez_balancer_dex_swaps') }}
     group by 1,2

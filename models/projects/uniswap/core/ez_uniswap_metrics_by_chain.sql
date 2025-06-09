@@ -116,7 +116,7 @@ select
     , 0 as operating_expenses
     , token_incentives_usd + operating_expenses as total_expenses
     , token_incentives_usd as token_incentives
-    , -token_incentives_usd as protocol_earnings
+    , -token_incentives_usd as earnings
     , tvl_by_chain.tvl
     , treasury_value
     , treasury_native_value

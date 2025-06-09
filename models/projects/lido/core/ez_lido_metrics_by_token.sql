@@ -92,7 +92,7 @@ SELECT
     , COALESCE(operating_expenses_native, 0) AS operating_expenses
     , COALESCE(ti.token_incentives_native, 0) AS token_incentives
     , token_incentives + operating_expenses as total_expenses
-    , protocol_revenue - total_expenses as protocol_earnings
+    , protocol_revenue - total_expenses as earnings
     , COALESCE(t.treasury_value_native, 0) AS treasury_value
     , COALESCE(s.num_staked_eth, 0) AS net_deposits
     , COALESCE(sto.outstanding_supply_native, 0) AS outstanding_supply

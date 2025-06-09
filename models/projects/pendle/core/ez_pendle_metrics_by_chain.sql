@@ -76,7 +76,7 @@ SELECT
     , 0 as protocol_revenue
     , 0 as operating_expenses
     , COALESCE(ti.token_incentives, 0) as total_expenses
-    , protocol_revenue - total_expenses as protocol_earnings
+    , protocol_revenue - total_expenses as earnings
     , COALESCE(t.tvl, 0) as net_deposits
     , 0 as outstanding_supply
 

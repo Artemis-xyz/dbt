@@ -16,12 +16,12 @@ with all_swaps as (
                 ref('fact_balancer_v2_swaps')
             ],
             column_override = {
-                "TREASURY_fee_allocation": "float",
-                "TREASURY_fee_allocation_NATIVE": "float",
-                "VEBAL_fee_allocation": "float",
-                "VEBAL_fee_allocation_NATIVE": "float",
-                "SERVICE_fee_allocation": "float",
-                "SERVICE_fee_allocation_NATIVE": "float"
+                "TREASURY_CASH_FLOW": "float",
+                "TREASURY_CASH_FLOW_NATIVE": "float",
+                "VEBAL_CASH_FLOW": "float",
+                "VEBAL_CASH_FLOW_NATIVE": "float",
+                "SERVICE_CASH_FLOW": "float",
+                "SERVICE_CASH_FLOW_NATIVE": "float"
             }
         )
     }}
@@ -71,33 +71,33 @@ select
         else NULL
     end as fee_native,
     case 
-        when treasury_fee_allocation < 1e5
-            then treasury_fee_allocation
+        when treasury_cash_flow < 1e5
+            then treasury_cash_flow
         else NULL
-    end as treasury_fee_allocation,
+    end as treasury_cash_flow,
     case 
-        when treasury_fee_allocation < 1e5
-            then treasury_fee_allocation_native
+        when treasury_cash_flow < 1e5
+            then treasury_cash_flow_native
         else NULL
-    end as treasury_fee_allocation_native,
+    end as treasury_cash_flow_native,
     case 
-        when vebal_fee_allocation < 1e5
-            then vebal_fee_allocation
+        when vebal_cash_flow < 1e5
+            then vebal_cash_flow
         else NULL
-    end as vebal_fee_allocation,
+    end as vebal_cash_flow,
     case 
-        when vebal_fee_allocation < 1e5
-            then vebal_fee_allocation_native
+        when vebal_cash_flow < 1e5
+            then vebal_cash_flow_native
         else NULL
-    end as vebal_fee_allocation_native,
+    end as vebal_cash_flow_native,
     case 
-        when service_fee_allocation < 1e5
-            then service_fee_allocation
+        when service_cash_flow < 1e5
+            then service_cash_flow
         else NULL
-    end as service_fee_allocation,
+    end as service_cash_flow,
     case 
-        when service_fee_allocation < 1e5
-            then service_fee_allocation_native
+        when service_cash_flow < 1e5
+            then service_cash_flow_native
         else NULL
-    end as service_fee_allocation_native
+    end as service_cash_flow_native
 from all_swaps

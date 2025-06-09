@@ -20,11 +20,11 @@ with date_spine as (
         count(*) as number_of_swaps,
         sum(trading_volume) as trading_volume,
         sum(fee_usd) as trading_fees,
-        sum(service_fee_allocation) as primary_supply_side_revenue,
-        sum(treasury_fee_allocation + vebal_fee_allocation) as revenue,
-        sum(service_fee_allocation) as service_fee_allocation,
-        sum(treasury_fee_allocation) as treasury_fee_allocation,
-        sum(vebal_fee_allocation) as vebal_fee_allocation
+        sum(service_cash_flow) as primary_supply_side_revenue,
+        sum(treasury_cash_flow + vebal_cash_flow) as revenue,
+        sum(service_cash_flow) as service_fee_allocation,
+        sum(treasury_cash_flow) as treasury_fee_allocation,
+        sum(vebal_cash_flow) as vebal_fee_allocation
     FROM {{ ref('ez_balancer_dex_swaps') }}
     group by 1
 )
