@@ -131,14 +131,22 @@ select
     , avg_cost_per_mib
     , submitters
     , dune_dex_volumes_ethereum.dex_volumes AS chain_spot_volume
+
     -- Cashflow metrics
     , fees as chain_fees
     , fees_native AS ecosystem_revenue_native
-    , fees AS ecosystem_revenue
+    , fees AS gross_fees
     , revenue_native AS burned_cash_flow_native
-    , revenue AS burned_cash_flow
+    , revenue AS protocol_revenue
     , fees_native - revenue_native as priority_fee_native
     , priority_fee_usd AS priority_fee
+
+    -- Financial Statement Metrics
+    , fees AS fees
+    , revenue AS revenue
+    , block_rewards_native  * price AS token_incentives
+    , protocol_revenue - token_incentives AS earnings
+    
     -- Developer metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -146,9 +154,11 @@ select
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
+
     -- Supply metrics
     , block_rewards_native AS gross_emissions_native
     , block_rewards_native * price AS gross_emissions
+
     -- Stablecoin metrics
     , stablecoin_total_supply
     , stablecoin_txns
