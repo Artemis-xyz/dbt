@@ -10,8 +10,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
-    name: fee_sharing_token_cash_flow
+  staking_cash_flow: &staking_cash_flow
+    name: staking_cash_flow
     description: "Revenue distributed to veBAL holders. Beginning in February 2022, this calculated as 37.5% of trading fees."
     tags:
       - artemis_gaap
@@ -115,7 +115,7 @@ models:
   - name: ez_balancer_metrics_by_token
     description: "This table stores metrics for the BALANCER protocol"
     columns:
-      - *fee_sharing_token_cash_flow
+      - *staking_cash_flow
       - *ecosystem_revenue
       - *net_treasury
       - *net_treasury_native
@@ -134,7 +134,7 @@ models:
   - name: ez_balancer_metrics_by_chain
     description: "This table stores metrics for the BALANCER protocol"
     columns:
-      - *fee_sharing_token_cash_flow
+      - *staking_cash_flow
       - *ecosystem_revenue
       - *net_treasury
       - *own_token_treasury
@@ -150,7 +150,7 @@ models:
   - name: ez_balancer_metrics_by_pool
     description: "This table stores metrics for the BALANCER protocol"
     columns:
-      - *fee_sharing_token_cash_flow
+      - *staking_cash_flow
       - *ecosystem_revenue
       - *service_cash_flow
       - *spot_dau
@@ -163,7 +163,7 @@ models:
     description: "This table stores metrics for the BALANCER protocol"
     columns:
       - *fdmc
-      - *fee_sharing_token_cash_flow
+      - *staking_cash_flow
       - *ecosystem_revenue
       - *market_cap
       - *net_treasury

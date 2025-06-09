@@ -27,8 +27,8 @@ with swap_metrics as (
         sum(service_cash_flow_native) as service_cash_flow_native,
         sum(treasury_cash_flow) as treasury_cash_flow,
         sum(treasury_cash_flow_native) as treasury_cash_flow_native,
-        sum(vebal_cash_flow) as fee_sharing_token_cash_flow,
-        sum(vebal_cash_flow_native) as fee_sharing_token_cash_flow_native,
+        sum(vebal_cash_flow) as staking_cash_flow,
+        sum(vebal_cash_flow_native) as staking_cash_flow_native,
 
     FROM {{ ref('ez_balancer_dex_swaps') }}
     group by 1,2
@@ -138,8 +138,8 @@ select
     , coalesce(swap_metrics.service_cash_flow_native, 0) as service_cash_flow_native
     , coalesce(swap_metrics.treasury_cash_flow, 0) as treasury_cash_flow
     , coalesce(swap_metrics.treasury_cash_flow_native, 0) as treasury_cash_flow_native
-    , coalesce(swap_metrics.fee_sharing_token_cash_flow, 0) as fee_sharing_token_cash_flow
-    , coalesce(swap_metrics.fee_sharing_token_cash_flow_native, 0) as fee_sharing_token_cash_flow_native
+    , coalesce(swap_metrics.staking_cash_flow, 0) as staking_cash_flow
+    , coalesce(swap_metrics.staking_cash_flow_native, 0) as staking_cash_flow_native
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
     , coalesce(token_incentives.token_incentives_native, 0) as token_incentives_native
 

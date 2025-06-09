@@ -38,8 +38,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
-    name: fee_sharing_token_cash_flow
+  staking_cash_flow: &staking_cash_flow
+    name: staking_cash_flow
     description: "Revenue distributed to users who commit tokens (e.g., stake, lock, vote-escrow) to receive a share of protocol fees."
     tags:
       - artemis_gaap
@@ -130,7 +130,7 @@ models:
       - *bridge_wau
       - *circulating_supply_native
       - *fdmc
-      - *fee_sharing_token_cash_flow
+      - *staking_cash_flow
       - *gross_emissions_native
       - *ecosystem_revenue
       - *market_cap

@@ -101,7 +101,7 @@ select
     -- Cashflow Metrics
     , trading_volume.trading_fees as spot_fees
     , trading_volume.trading_fees as ecosystem_revenue
-    , trading_volume.trading_fees * 0.5 as fee_sharing_token_cash_flow
+    , trading_volume.trading_fees * 0.5 as staking_cash_flow
     , trading_volume.trading_fees * 0.5 as service_cash_flow
     , token_incentives.token_incentives_native
     , token_incentives.token_incentives

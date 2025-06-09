@@ -97,7 +97,7 @@ SELECT
     -- Cash Flow Metrics
     , coalesce(sm.daily_fees_usd, 0) as spot_fees
     , coalesce(sm.daily_fees_usd, 0) as ecosystem_revenue
-    , coalesce(sm.daily_fees_usd, 0) as fee_sharing_token_cash_flow
+    , coalesce(sm.daily_fees_usd, 0) as staking_cash_flow
     , coalesce(sp.buybacks_native, 0) as buybacks_native
     , coalesce(sp.buybacks, 0) as buybacks
 

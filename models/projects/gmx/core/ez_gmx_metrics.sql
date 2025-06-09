@@ -161,7 +161,7 @@ select
     , coalesce(perp_data.perp_fees, 0) as perp_fees
     , coalesce(spot_data.spot_fees, 0) + coalesce(perp_data.perp_fees, 0) as ecosystem_revenue
     , coalesce(spot_data.spot_lp_cash_flow, 0) + coalesce(perp_data.perp_lp_cash_flow, 0) as service_cash_flow
-    , coalesce(spot_data.spot_stakers_cash_flow, 0) + coalesce(perp_data.perp_stakers_cash_flow, 0) as fee_sharing_token_cash_flow
+    , coalesce(spot_data.spot_stakers_cash_flow, 0) + coalesce(perp_data.perp_stakers_cash_flow, 0) as staking_cash_flow
     , coalesce(spot_data.spot_oracle_cash_flow, 0) + coalesce(perp_data.perp_oracle_cash_flow, 0) as other_cash_flow
     , coalesce(spot_data.spot_treasury_cash_flow, 0) + coalesce(perp_data.perp_treasury_cash_flow, 0) as treasury_cash_flow
     , coalesce(token_incentives.token_incentives, 0) as token_incentives

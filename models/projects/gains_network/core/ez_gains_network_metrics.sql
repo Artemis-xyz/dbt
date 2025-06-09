@@ -43,7 +43,7 @@ with date_spine as (
             , fees
             , revenue
             , treasury_cash_flow
-            , case when date <= '2024-07-12' then (gns_stakers + dai_stakers) else dai_stakers end as fee_sharing_token_cash_flow
+            , case when date <= '2024-07-12' then (gns_stakers + dai_stakers) else dai_stakers end as staking_cash_flow
             , case when date > '2024-07-12' then gns_stakers else 0 end as buybacks
             , foundation_cash_flow
             , service_cash_flow
@@ -74,7 +74,7 @@ select
     , gf.fees as ecosystem_revenue
     , gf.buybacks as buyback_cash_flow
     , gf.foundation_cash_flow
-    , gf.fee_sharing_token_cash_flow
+    , gf.staking_cash_flow
     , gf.service_cash_flow
     , gf.treasury_cash_flow
 from date_spine ds

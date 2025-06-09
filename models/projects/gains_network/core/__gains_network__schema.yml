@@ -10,8 +10,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
-    name: fee_sharing_token_cash_flow
+  staking_cash_flow: &staking_cash_flow
+    name: staking_cash_flow
     description: "Revenue distributed to users who commit tokens (e.g., stake, lock, vote-escrow) to receive a share of protocol fees. This became zero after a proposal pass on July 12th 2024 to use this to burn GNS instead."
     tags:
       - artemis_gaap
@@ -71,7 +71,7 @@ models:
     description: "This table stores metrics for the GAINS_NETWORK protocol"
     columns:
       - *buybacks
-      - *fee_sharing_token_cash_flow
+      - *staking_cash_flow
       - *foundation_cash_flow
       - *ecosystem_revenue
       - *perp_dau

@@ -71,7 +71,7 @@ with trading_volume_by_pool as (
                 sum(0)
             else
                 sum(trading_fees * 0.0005 / 0.0030)
-        end as fee_sharing_token_cash_flow
+        end as staking_cash_flow
     from trading_volume_by_chain
     group by date, chain
 )
@@ -114,7 +114,7 @@ select
     -- Cashflow Metrics
     , cashflow_metrics.ecosystem_revenue as ecosystem_revenue
     , cashflow_metrics.service_cash_flow as service_cash_flow
-    , cashflow_metrics.fee_sharing_token_cash_flow as fee_sharing_token_cash_flow
+    , cashflow_metrics.staking_cash_flow as staking_cash_flow
     , token_incentives.token_incentives
 
 from sushiswap_metric_dates

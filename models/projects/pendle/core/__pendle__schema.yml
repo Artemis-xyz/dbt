@@ -17,8 +17,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
-    name: fee_sharing_token_cash_flow
+  staking_cash_flow: &staking_cash_flow
+    name: staking_cash_flow
     description: "Share of gross protocol revenue distributed to vePENDLE voters, 80% of explicit swap fees plus yield fees."
     tags:
       - artemis_gaap
@@ -117,7 +117,7 @@ models:
     description: "This table stores metrics for the PENDLE protocol"
     columns:
       - *ecosystem_revenue
-      - *fee_sharing_token_cash_flow
+      - *staking_cash_flow
       - *service_cash_flow
       - *spot_fees
       - *tvl
@@ -128,7 +128,7 @@ models:
     columns:
       - *ecosystem_revenue
       - *fdmc
-      - *fee_sharing_token_cash_flow
+      - *staking_cash_flow
       - *gross_emissions
       - *gross_emissions_native
       - *market_cap
@@ -151,7 +151,7 @@ models:
     description: "This table stores metrics for the PENDLE protocol"
     columns:
       - *ecosystem_revenue
-      - *fee_sharing_token_cash_flow
+      - *staking_cash_flow
       - *gross_emissions
       - *gross_emissions_native
       - *service_cash_flow

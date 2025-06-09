@@ -73,7 +73,7 @@ select
     , fr.revenue_usd as revenue
     , ti.token_incentives
     , ti.token_incentives as expenses
-    , fr.revenue_usd - ti.token_incentives as earnings
+    , fr.revenue_usd - ti.token_incentives as protocol_earnings
     , t.treasury as treasury_value
     , t.own_token_treasury as treasury_value_native
     , t.net_treasury as net_treasury_value
@@ -98,7 +98,7 @@ select
 
     -- Cash Flow Metrics
     , fr.revenue_usd as ecosystem_revenue
-    , ti.token_incentives as fee_sharing_token_cash_flow
+    , ti.token_incentives as staking_cash_flow
 
     -- Protocol Metrics
     , coalesce(t.treasury, 0) as treasury

@@ -71,7 +71,7 @@ select
             0
         else
             tvp.trading_fees * 0.0005 / 0.0030
-    end as fee_sharing_token_cash_flow
+    end as staking_cash_flow
 from tvl_by_pool
 left join trading_volume_pool tvp using(date, chain, version, pool)
 where tvl_by_pool.date < to_date(sysdate())

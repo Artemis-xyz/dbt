@@ -26,7 +26,7 @@ WITH
             , sum(ecosystem_revenue) as ecosystem_revenue
             , sum(tvl_pct_change) as tvl_pct_change
             , sum(treasury_cash_flow) as treasury_cash_flow
-            , sum(fee_sharing_token_cash_flow) as fee_sharing_token_cash_flow
+            , sum(staking_cash_flow) as staking_cash_flow
             , sum(treasury_cash_flow) as treasury_cash_flow
             , sum(service_cash_flow) as service_cash_flow
         FROM {{ ref("ez_perpetual_protocol_metrics_by_chain") }}
@@ -58,7 +58,7 @@ SELECT
     , tvl
     , tvl_pct_change
     , ecosystem_revenue
-    , fee_sharing_token_cash_flow
+    , staking_cash_flow
     , service_cash_flow
     , treasury_cash_flow
     -- Market Data

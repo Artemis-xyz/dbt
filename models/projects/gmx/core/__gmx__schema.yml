@@ -10,8 +10,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
-    name: fee_sharing_token_cash_flow
+  staking_cash_flow: &staking_cash_flow
+    name: staking_cash_flow
     description: "Revenue distributed to users who commit tokens (e.g., stake, lock, vote-escrow) to receive a share of protocol fees."
     tags:
       - artemis_gaap
@@ -123,7 +123,7 @@ models:
   - name: ez_gmx_metrics_by_version
     description: "This table stores metrics for the GMX protocol"
     columns:
-      - *fee_sharing_token_cash_flow
+      - *staking_cash_flow
       - *ecosystem_revenue
       - *other_cash_flow
       - *perp_fees
@@ -137,7 +137,7 @@ models:
   - name: ez_gmx_metrics_by_chain
     description: "This table stores metrics for the GMX protocol"
     columns:
-      - *fee_sharing_token_cash_flow
+      - *staking_cash_flow
       - *ecosystem_revenue
       - *other_cash_flow
       - *perp_fees
@@ -152,7 +152,7 @@ models:
     description: "This table stores metrics for the GMX protocol"
     columns:
       - *fdmc
-      - *fee_sharing_token_cash_flow
+      - *staking_cash_flow
       - *ecosystem_revenue
       - *market_cap
       - *net_treasury

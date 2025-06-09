@@ -118,7 +118,7 @@ select
     , coalesce(swap_metrics.trading_fees, 0) as ecosystem_revenue
     , coalesce(swap_metrics.service_cash_flow, 0) as service_cash_flow
     , coalesce(swap_metrics.treasury_cash_flow, 0) as treasury_cash_flow
-    , coalesce(swap_metrics.vebal_cash_flow, 0) as fee_sharing_token_cash_flow
+    , coalesce(swap_metrics.vebal_cash_flow, 0) as staking_cash_flow
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
 
     -- Treasury Metrics

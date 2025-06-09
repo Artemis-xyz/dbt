@@ -246,7 +246,7 @@ SELECT
     , d.cumulative_active_addresses as bridge_cumulative_dau
 
     , d.fees as ecosystem_revenue
-    , d.supply_side_fee as fee_sharing_token_cash_flow
+    , d.supply_side_fee as staking_cash_flow
     , d.revenue as token_cash_flow
     , d.token_rewards as third_party_token_incentives
 
