@@ -88,8 +88,8 @@ select
     , bitcoin_dex_volumes.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
     , fees as chain_fees
-    , fees_native AS ecosystem_revenue_native
-    , fees AS ecosystem_revenue
+    , fees_native AS gross_fees_native
+    , fees AS gross_fees
     -- Supply Metrics
     , issuance AS gross_emissions_native
     , issuance * price AS gross_emissions

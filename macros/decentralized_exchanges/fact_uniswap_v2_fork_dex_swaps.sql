@@ -50,7 +50,8 @@
                 token0_in_amount * fee as token0_in_fee,
                 token0_out_amount * fee as token0_out_fee,
                 token1_in_amount * fee as token1_in_fee,
-                token1_out_amount * fee as token1_out_fee
+                token1_out_amount * fee as token1_out_fee, 
+                fee as fee_percent
             from all_pool_events
         ),
         swaps_adjusted as (
@@ -126,6 +127,7 @@
                 token0_out_amount_usd + token1_out_amount_usd as total_out,
                 abs(token0_in_amount_usd - token0_out_amount_usd) as abs_token0_net_amount_usd,
                 abs(token1_in_amount_usd - token1_out_amount_usd) as abs_token1_net_amount_usd,
+                fee_percent
             from swaps t1
             left join
                 {{ chain }}_flipside.price.ez_prices_hourly t2
@@ -165,7 +167,8 @@
                 token_fee_amount_native,
                 token_fee_amount_native_symbol,
                 least(total_out, total_in) as trading_volume,
-                total_fees as trading_fees
+                total_fees as trading_fees,
+                fee_percent
             from swaps_adjusted
         ),
         events as (
@@ -188,6 +191,7 @@
                 token_fee_amount_native_symbol,
                 trading_volume,
                 trading_fees,
+                fee_percent,
                 ROW_NUMBER() OVER (PARTITION by tx_hash, pool ORDER BY event_index) AS row_number
             from filtered_pairs
         ),
@@ -228,6 +232,7 @@
         token_1_symbol,
         trading_volume,
         trading_fees,
+        fee_percent,
         {% if app == 'uniswap' %}
             token_0_volume_native,
             token_1_volume_native,
