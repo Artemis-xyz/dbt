@@ -126,7 +126,7 @@ SELECT
     , {{ daily_pct_change('t.tvl') }} as tvl_pct_change
 
     -- Money Metrics
-    , coalesce(yf.yield_revenue, 0) as yield_generated
+    , coalesce(yf.yield_revenue, 0) as yield_fees
     , coalesce(f.swap_fees, 0) as spot_fees
     , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as ecosystem_revenue
     , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as staking_fee_allocation
