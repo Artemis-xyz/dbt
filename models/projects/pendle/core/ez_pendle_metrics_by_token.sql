@@ -13,18 +13,23 @@ with
         SELECT
             date
             , token
-            , SUM(fees_native) as swap_fees
-            , SUM(supply_side_fees_native) as supply_side_fees
-            , SUM(revenue_native) as swap_revenue
+            , SUM(fees) as swap_fees
+            , SUM(fees_native) as swap_fees_native
+            , SUM(supply_side_fees) as supply_side_fees
+            , SUM(supply_side_fees_native) as supply_side_fees_native
+            , SUM(revenue) as swap_revenue
+            , SUM(revenue_native) as swap_revenue_native
+            , SUM(volume) as swap_volume
+            , SUM(volume_native) as swap_volume_native
         FROM
-            {{ ref('fact_pendle_swap_fees') }}
+            {{ ref('fact_pendle_trades') }}
         GROUP BY 1, 2
     )
     , yield_fees as (
         SELECT
             date
             , token
-            , SUM(yield_fees_native) as yield_revenue
+            , SUM(fees_native) as yield_revenue
         FROM
             {{ ref('fact_pendle_yield_fees') }}
         GROUP BY 1, 2
@@ -33,7 +38,7 @@ with
         SELECT
             date
             , symbol as token
-            , sum(tvl_native) as tvl
+            , SUM(tvl_usd) as tvl
         FROM
             {{ref('fact_pendle_tvl_by_token_and_chain')}}
         GROUP BY 1, 2
@@ -69,7 +74,9 @@ SELECT
     
     -- Usage/Sector Metrics
     , COALESCE(t.tvl, 0) as tvl
-
+    , coalesce(f.swap_volume, 0) as spot_volume
+    , coalesce(f.swap_volume_native, 0) as spot_volume_native
+    
     , f.swap_fees as spot_fees
     , COALESCE(yf.yield_revenue, 0) as yield_generated
     , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as ecosystem_revenue

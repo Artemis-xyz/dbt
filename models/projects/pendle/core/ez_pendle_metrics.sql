@@ -12,18 +12,18 @@ with
     swap_fees as (
         SELECT
             date
-            , SUM(fees_usd) as swap_fees
-            , SUM(supply_side_fees_usd) as supply_side_fees
-            , SUM(revenue_usd) as swap_revenue
-            , SUM(volume_usd) as swap_volume
+            , SUM(fees) as swap_fees
+            , SUM(supply_side_fees) as supply_side_fees
+            , SUM(revenue) as swap_revenue
+            , SUM(volume) as swap_volume
         FROM
-        {{ ref('fact_pendle_swap_fees') }}
+        {{ ref('fact_pendle_trades') }}
         GROUP BY 1
     )
     , yield_fees as (
         SELECT
             date
-            , SUM(yield_fees_usd) as yield_revenue
+            , SUM(fees) as yield_revenue
         FROM
             {{ ref('fact_pendle_yield_fees') }}
         GROUP BY 1

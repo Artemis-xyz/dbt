@@ -18,7 +18,7 @@ with a as (
         a.value:totalSupply::string as total_supply,
         a.value:exchangeRate::string as exchange_rate
     FROM
-        landing_database.prod_landing.raw_pendle_sy_info,
+        {{ source('PROD_LANDING', 'raw_pendle_sy_info') }},
         lateral flatten (input => parse_json(source_json)) a
 )
 SELECT
