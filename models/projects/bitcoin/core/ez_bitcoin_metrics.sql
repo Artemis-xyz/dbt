@@ -90,10 +90,12 @@ select
     , fees as chain_fees
     , fees_native AS gross_fees_native
     , fees AS gross_fees
+    , revenue - token_incentives AS earnings
     -- Supply Metrics
     , issuance AS gross_emissions_native
     , issuance * price AS gross_emissions
     , circulating_supply AS circulating_supply_native
+    , gross_emissions AS token_incentives
     -- Developer metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
