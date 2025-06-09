@@ -85,7 +85,7 @@ select
     coalesce(swap_metrics.primary_supply_side_revenue, 0) as primary_supply_side_revenue,
     coalesce(swap_metrics.revenue, 0) as revenue,
     coalesce(token_incentives.token_incentives_usd, 0) as expenses,
-    coalesce(swap_metrics.revenue, 0) - coalesce(token_incentives.token_incentives_usd, 0) as protocol_earnings,
+    coalesce(swap_metrics.revenue, 0) - coalesce(token_incentives.token_incentives_usd, 0) as earnings,
     coalesce(all_tvl.tvl_usd, 0) as net_deposits,
     coalesce(treasury.net_treasury_usd, 0) as treasury_value,
     coalesce(net_treasury.net_treasury_usd, 0) as net_treasury_value,

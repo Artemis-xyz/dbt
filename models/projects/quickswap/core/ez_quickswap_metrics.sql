@@ -44,8 +44,7 @@ SELECT
     , tvl.tvl
     , dex_swaps.trading_fees as spot_fees
     , dex_swaps.trading_fees as gross_fees
-    , 0 as revenue
-    , revenue - token_incentives.token_incentives as earnings
+    
     -- We only track v2 where all fees go to LPs
     , dex_swaps.trading_fees as service_cash_flow
 from dex_swaps

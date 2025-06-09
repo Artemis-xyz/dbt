@@ -101,7 +101,7 @@ SELECT
     , coalesce(sp.buybacks_native, 0) as buybacks_native
     , coalesce(sp.buybacks, 0) as buybacks
     , (coalesce(sm.daily_fees_usd, 0) + coalesce(sp.buybacks, 0)) as revenue
-    , (coalesce(sm.daily_fees_usd, 0) + coalesce(sp.buybacks, 0)) - token_incentives.token_incentives as earnings
+    , (coalesce(sm.daily_fees_usd, 0) + coalesce(sp.buybacks, 0)) - ti.token_incentives as earnings
     -- NOTE: We do not track bribes as a part of revenue here. 
 
     -- Supply Metrics

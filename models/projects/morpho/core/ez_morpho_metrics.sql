@@ -91,7 +91,7 @@ select
     , fees as lending_interest_fees
     , fees as gross_fees
     , 0 as revenue
-    , revenue - token_incentives.token_incentives as earnings
+    , revenue - token_incentives as earnings
     
     -- Supply Metrics
     , msd.premine_unlocks_native
