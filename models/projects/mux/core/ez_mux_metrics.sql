@@ -30,17 +30,22 @@ select
     date
     , 'mux' as app
     , 'DeFi' as category
-    -- standardize metrics
+
+    -- Usage Metrics
     , trading_volume as perp_volume
     , unique_traders as perp_dau
+
     -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
-    , token_volume
+    , price.price
+    , price.market_cap
+    , price.fdmc
+    , price.token_turnover_circulating
+    , price.token_turnover_fdv
+    , price.token_volume
+
+    -- Cashflow Metrics
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
+
 from mux_data
 left join price using(date)
 left join token_incentives using(date)
