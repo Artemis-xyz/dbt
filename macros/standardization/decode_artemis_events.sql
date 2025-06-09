@@ -4,8 +4,6 @@
         , block_timestamp
         , transaction_hash
         , transaction_index
-        , origin_from_address
-        , origin_to_address
         , event_index
         , contract_address
         , topic_data

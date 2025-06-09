@@ -4,8 +4,6 @@
         , block_timestamp
         , tx_hash as transaction_hash
         , tx_position as transaction_index 
-        , origin_from_address
-        , origin_to_address
         , event_index
         , contract_address
         , topic_0 as topic_zero
