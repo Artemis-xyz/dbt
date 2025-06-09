@@ -245,7 +245,7 @@ SELECT
     , m.monthly_active_addresses as bridge_mau
     , d.cumulative_active_addresses as bridge_cumulative_dau
 
-    , d.fees as ecosystem_revenue
+    , d.fees as fees
     , d.supply_side_fee as staking_fee_allocation
     , d.revenue as token_fee_allocation
     , d.token_rewards as third_party_token_incentives
