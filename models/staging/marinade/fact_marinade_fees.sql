@@ -1,7 +1,6 @@
 {{ config(
-    materialized="incremental",
-    snowflake_warehouse="SOLANA_XLG",
-    unique_key="date"
+    materialized="table",
+    snowflake_warehouse="MARINADE"
 ) }}
 
 with stake_auction_marketplace_bid_flows as (
