@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="SUSHISWAP",
+        snowflake_warehouse="SUSHISWAP_SM",
         database="sushiswap",
         schema="core",
         alias="ez_metrics",
