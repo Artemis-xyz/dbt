@@ -274,8 +274,8 @@ select
     , token_incentives_nominal as total_expenses_nominal
     , token_incentives as total_expenses 
 
-    , coalesce(protocol_revenue_nominal, 0) - coalesce(total_expenses_nominal, 0) as protocol_earnings_nominal
-    , coalesce(protocol_revenue, 0) - coalesce(total_expenses, 0) as protocol_earnings
+    , coalesce(protocol_revenue_nominal, 0) - coalesce(total_expenses_nominal, 0) as earnings_nominal
+    , coalesce(protocol_revenue, 0) - coalesce(total_expenses, 0) as earnings
 
     , outstanding_supply_nominal
     , outstanding_supply

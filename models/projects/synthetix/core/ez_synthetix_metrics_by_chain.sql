@@ -130,7 +130,7 @@ select
     , coalesce(fees.fees_native, 0) as fees_native
     , coalesce(token_incentives, 0) as token_incentives
     , coalesce(token_incentives, 0) as total_expenses
-    , fees - token_incentives AS protocol_earnings
+    , fees - token_incentives AS earnings
     , coalesce(token_holder_count, 0) as token_holder_count
     , coalesce(tvl.tvl, 0) as net_deposits
 

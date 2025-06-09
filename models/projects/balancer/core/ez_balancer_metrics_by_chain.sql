@@ -100,7 +100,7 @@ select
     , swap_metrics.primary_supply_side_revenue
     , swap_metrics.primary_supply_side_revenue as total_supply_side_revenue
     , swap_metrics.revenue
-    , swap_metrics.revenue - token_incentives.token_incentives as protocol_earnings
+    , swap_metrics.revenue - token_incentives.token_incentives as earnings
     , tvl.tvl_usd as net_deposits
     , treasury_by_chain.usd_balance as treasury_value
     , treasury_native.treasury_native as treasury_native

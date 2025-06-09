@@ -73,7 +73,7 @@ select
     , fr.revenue_usd as revenue
     , ti.token_incentives
     , ti.token_incentives as expenses
-    , fr.revenue_usd - ti.token_incentives as protocol_earnings
+    , fr.revenue_usd - ti.token_incentives as earnings
     , t.treasury as treasury_value
     , t.own_token_treasury as treasury_value_native
     , t.net_treasury as net_treasury_value

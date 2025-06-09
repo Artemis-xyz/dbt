@@ -17,7 +17,7 @@ SELECT
     revenue,
     token_incentives,
     total_expenses,
-    protocol_earnings,
+    earnings,
     treasury_value,
     treasury_value_native,
     net_treasury_value,

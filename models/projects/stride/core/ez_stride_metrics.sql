@@ -32,7 +32,7 @@ select
     fundamental_data.protocol_revenue_usd AS fees,
     fundamental_data.protocol_revenue_usd AS revenue,
     fundamental_data.operating_expenses_usd,
-    fundamental_data.protocol_earnings_usd
+    fundamental_data.protocol_earnings_usd AS earnings
 
     --Standardized Metrics
     --Market Metrics

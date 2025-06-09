@@ -39,7 +39,7 @@ select
     , token_incentives
     , operating_expenses
     , total_expenses
-    , protocol_earnings
+    , earnings
     , net_deposits
     , outstanding_supply
     , treasury_value

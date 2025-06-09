@@ -90,7 +90,7 @@ SELECT
     , coalesce(revenues.revenue, 0) as revenue
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
     , coalesce(token_incentives.token_incentives, 0) as total_expenses
-    , coalesce(revenue, 0) - coalesce(total_expenses, 0) as protocol_earnings
+    , coalesce(revenue, 0) - coalesce(total_expenses, 0) as earnings
     , coalesce(treasury.treasury, 0) as treasury_value
     , coalesce(treasury_native.own_token_treasury_native, 0) as treasury_value_native
     , coalesce(net_treasury.net_treasury, 0) as net_treasury_value

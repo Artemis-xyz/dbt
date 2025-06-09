@@ -81,7 +81,7 @@ SELECT
     , coalesce(ti.token_incentives,0) as token_incentives
     , 0 as operating_expenses
     , token_incentives + operating_expenses as total_expenses
-    , revenue - total_expenses as protocol_earnings
+    , revenue - total_expenses as earnings
     , m.net_deposits as net_deposits
     , 0 as outstanding_supply
     , treasury_by_token.treasury as treasury_value

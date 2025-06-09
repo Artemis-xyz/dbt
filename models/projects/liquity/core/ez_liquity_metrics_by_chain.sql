@@ -86,7 +86,7 @@ select
     , coalesce(fr.revenue_usd, 0) as revenue
     , coalesce(ti.token_incentives, 0) as token_incentives
     , coalesce(ti.token_incentives, 0) as expenses
-    , coalesce(fr.revenue_usd, 0) - coalesce(ti.token_incentives, 0) as protocol_earnings
+    , coalesce(fr.revenue_usd, 0) - coalesce(ti.token_incentives, 0) as earnings
     , coalesce(treasury.treasury, 0) as treasury_value
     , coalesce(treasury_native.own_token_treasury, 0) as treasury_value_native
     , coalesce(net_treasury.net_treasury, 0) as net_treasury_value

@@ -102,7 +102,7 @@ SELECT
     , 0 as protocol_revenue
     , 0 as operating_expenses
     , token_incentives + operating_expenses as total_expenses
-    , protocol_revenue - total_expenses as protocol_earnings
+    , protocol_revenue - total_expenses as earnings
     , tv.treasury_value
     , tn.treasury_value_native
     , nt.net_treasury_value
