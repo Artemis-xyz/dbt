@@ -70,8 +70,10 @@ WITH
         SUM(spot_dau_txns.txns) AS spot_txns, 
         SUM(spot_fees_revenue.fees_native) AS spot_fees_native, 
         SUM(spot_fees_revenue.fees_usd) AS spot_fees, 
-        SUM(spot_fees_revenue.protocol_fee_share_native) AS spot_protocol_fee_share_native, 
-        SUM(spot_fees_revenue.protocol_fee_share_usd) AS spot_protocol_fee_share, 
+        SUM(spot_fees_revenue.protocol_fee_share_native) AS spot_foundation_cash_flow_native, 
+        SUM(spot_fees_revenue.protocol_fee_share_usd) AS spot_foundation_cash_flow, 
+        SUM(spot_fees_revenue.fees_native - spot_fees_revenue.protocol_fee_share_native) AS spot_service_cash_flow_native, 
+        SUM(spot_fees_revenue.fees_usd - spot_fees_revenue.protocol_fee_share_usd) AS spot_service_cash_flow, 
         SUM(tvl.tvl_native) AS spot_tvl_native, 
         SUM(tvl.tvl) AS spot_tvl
     FROM spot_volumes
