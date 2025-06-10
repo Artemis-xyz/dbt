@@ -12,10 +12,17 @@ with
             , address
             {% if chain in ('solana') %}
                 , amount as rwa_supply_native
+            {% elif chain in ('plume') %}
+                , balance_raw / pow(10, num_decimals) as rwa_supply_native
             {% else %}
                 , balance_token / pow(10, num_decimals) as rwa_supply_native
             {% endif %}
-        from {{ ref("fact_" ~ chain ~ "_address_balances_by_token")}} t1
+
+        {% if chain in ('plume') %}
+            from {{ ref("fact_" ~ chain ~ "_address_balances")}} t1
+        {% else %}
+            from {{ ref("fact_" ~ chain ~ "_address_balances_by_token")}} t1
+        {% endif %}
         inner join {{ ref("fact_" ~ chain ~ "_rwa_addresses")}} t2
             on lower(t1.contract_address) = lower(t2.contract_address)
         where block_timestamp < to_date(sysdate())
