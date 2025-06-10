@@ -33,10 +33,17 @@ SELECT
 
     , coingecko_prices_fee.symbol AS fee_symbol
     , parquet_raw:fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) AS fee_amount_native
-    , parquet_raw:fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_fee.price AS fee_amount_usd
+    , CASE
+        WHEN parquet_raw:date::date = '2024-11-12' AND parquet_raw:token_address_b::string = '0xf325ce1300e8dac124071d3152c5c5ee6174914f8bc2161e88329cf579246efc::afsui::AFSUI' THEN parquet_raw:fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_a.price
+        WHEN parquet_raw:date::date = '2024-11-12' AND parquet_raw:token_address_a::string = '0xf325ce1300e8dac124071d3152c5c5ee6174914f8bc2161e88329cf579246efc::afsui::AFSUI' THEN parquet_raw:fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_b.price
+        ELSE parquet_raw:fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_fee.price 
+    END AS fee_amount_usd
     , parquet_raw:protocol_fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) AS protocol_fee_share_amount_native
-    , parquet_raw:protocol_fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_fee.price AS protocol_fee_share_amount_usd
-
+    , CASE  
+        WHEN parquet_raw:date::date = '2024-11-12' AND parquet_raw:token_address_b::string = '0xf325ce1300e8dac124071d3152c5c5ee6174914f8bc2161e88329cf579246efc::afsui::AFSUI' THEN parquet_raw:protocol_fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_a.price
+        WHEN parquet_raw:date::date = '2024-11-12' AND parquet_raw:token_address_a::string = '0xf325ce1300e8dac124071d3152c5c5ee6174914f8bc2161e88329cf579246efc::afsui::AFSUI' THEN parquet_raw:protocol_fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_b.price
+        ELSE parquet_raw:protocol_fee_amount_raw::float / POW(10, coingecko_prices_fee.decimals) * coingecko_prices_fee.price 
+    END AS protocol_fee_share_amount_usd
     , coingecko_prices_a.symbol AS symbol_a
     , coingecko_prices_a.price AS price_a
     , coingecko_prices_a.contract_address AS coingecko_token_address_a
