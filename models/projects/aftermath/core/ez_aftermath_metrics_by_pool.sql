@@ -17,7 +17,7 @@ WITH
     )
 
     , spot_dau_txns AS (
-        SELECT date, pool_address, SUM(dau) AS dau, SUM(txns) AS txns
+        SELECT date, pool_address, SUM(pool_dau) AS dau, SUM(pool_txns) AS txns
         FROM {{ ref("fact_aftermath_spot_dau_txns") }}
         GROUP BY 1, 2
     )

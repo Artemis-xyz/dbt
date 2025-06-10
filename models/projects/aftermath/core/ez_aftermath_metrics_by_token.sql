@@ -25,13 +25,13 @@ WITH
     )
 
     , spot_dau_txns AS (
-        SELECT date, token_sold AS token, SUM(dau) AS dau, SUM(txns) AS txns
+        SELECT date, token_sold AS token, SUM(pool_dau) AS dau, SUM(pool_txns) AS txns
         FROM {{ ref("fact_aftermath_spot_dau_txns") }}
         GROUP BY 1, 2
 
         UNION ALL
 
-        SELECT date, token_bought AS token, SUM(dau) AS dau, SUM(txns) AS txns
+        SELECT date, token_bought AS token, SUM(pool_dau) AS dau, SUM(pool_txns) AS txns
         FROM {{ ref("fact_aftermath_spot_dau_txns") }}
         GROUP BY 1, 2
 

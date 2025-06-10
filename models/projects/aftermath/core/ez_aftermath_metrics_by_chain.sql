@@ -23,9 +23,9 @@ WITH
         GROUP BY 1, 2
     )
     , spot_dau_txns AS (
-        SELECT date, 'sui' AS chain, SUM(dau) AS dau, SUM(txns) AS txns
+        SELECT date, 'sui' AS chain, daily_dau AS dau, daily_txns AS txns
         FROM {{ ref("fact_aftermath_spot_dau_txns") }}
-        GROUP BY 1, 2
+        QUALIFY ROW_NUMBER() OVER (PARTITION BY date ORDER BY date DESC) = 1
     )
     , spot_fees_revenue AS (
         SELECT date, 'sui' AS chain, SUM(fees) AS fees, SUM(service_cash_flow) AS service_cash_flow, SUM(foundation_cash_flow) AS foundation_cash_flow
