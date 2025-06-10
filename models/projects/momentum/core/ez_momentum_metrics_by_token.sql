@@ -81,7 +81,6 @@ WITH
             LOWER(symbol_a) AS token, 
             SUM(vault_a_amount_native) AS tvl_native, 
             SUM(vault_a_amount_usd) AS tvl,
-            SUM(GREATEST(COALESCE(vault_a_amount_usd, 0), COALESCE(vault_b_amount_usd, 0))) AS tvl
         FROM {{ ref("fact_momentum_spot_tvl") }}
         GROUP BY 1, 2
 
@@ -92,7 +91,6 @@ WITH
             LOWER(symbol_b) AS token, 
             SUM(vault_b_amount_native) AS tvl_native, 
             SUM(vault_b_amount_usd) AS tvl,
-            SUM(GREATEST(COALESCE(vault_a_amount_usd, 0), COALESCE(vault_b_amount_usd, 0))) AS tvl
         FROM {{ ref("fact_momentum_spot_tvl") }}
         GROUP BY 1, 2
     )
