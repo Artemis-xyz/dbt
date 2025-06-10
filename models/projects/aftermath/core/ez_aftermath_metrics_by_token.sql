@@ -85,13 +85,13 @@ WITH
         SUM(spot_dau_txns.dau) AS spot_dau, 
         SUM(spot_dau_txns.txns) AS spot_txns, 
         SUM(spot_fees_revenue.fees) AS spot_fees, 
-        SUM(spot_fees_revenue.service_cash_flow) AS spot_service_cash_flow, 
-        SUM(spot_fees_revenue.foundation_cash_flow) AS spot_foundation_cash_flow,
+        SUM(spot_fees_revenue.service_cash_flow) AS service_cash_flow, 
+        SUM(spot_fees_revenue.foundation_cash_flow) AS foundation_cash_flow,
         SUM(spot_fees_revenue.fees_native) AS spot_fees_native, 
-        SUM(spot_fees_revenue.service_cash_flow_native) AS spot_service_cash_flow_native, 
-        SUM(spot_fees_revenue.foundation_cash_flow_native) AS spot_foundation_cash_flow_native, 
-        SUM(tvl.tvl_native) AS spot_tvl_native, 
-        SUM(tvl.tvl) AS spot_tvl
+        SUM(spot_fees_revenue.service_cash_flow_native) AS service_cash_flow_native, 
+        SUM(spot_fees_revenue.foundation_cash_flow_native) AS foundation_cash_flow_native, 
+        SUM(tvl.tvl_native) AS tvl_native, 
+        SUM(tvl.tvl) AS tvl
     FROM spot_volumes
     LEFT JOIN spot_dau_txns ON spot_volumes.date = spot_dau_txns.date AND lower(spot_volumes.token) = lower(spot_dau_txns.token)
     LEFT JOIN spot_fees_revenue ON spot_volumes.date = spot_fees_revenue.date AND lower(spot_volumes.token) = lower(spot_fees_revenue.token)
