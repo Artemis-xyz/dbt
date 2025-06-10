@@ -18,13 +18,12 @@ with
         union all
 
         select
-            max(parse_json(source_json):daily_volume_total::double) as trading_volume
+            perps_trading_volume as trading_volume
             , null as market
-            , date(to_timestamp(parse_json(source_json):timestamp::number)) as date
-            , max(extraction_date) as extraction_date
-        from LANDING_DATABASE.PROD_LANDING.raw_hyperliquid_perps_trading_volume
-        where date(extraction_date) > '2025-05-24'
-        group by date(to_timestamp(parse_json(source_json):timestamp::number))
+            , date
+            , null as extraction_date
+        from {{ ref("fact_hyperliquid_perps_trading_volume") }}
+        where date > '2025-05-24'
     )
 select
     trading_volume
