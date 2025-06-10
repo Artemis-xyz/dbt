@@ -92,7 +92,6 @@ SELECT
     , d.daily_txns as txns
     , coalesce(yf.yield_revenue, 0) as yield_fees
     , f.swap_fees as swap_fees
-    , yield_fees + swap_fees as fees
     , f.supply_side_fees as primary_supply_side_revenue
     , 0 as secondary_supply_side_revenue
     , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
@@ -102,7 +101,6 @@ SELECT
     , 0 as protocol_revenue
     , 0 as operating_expenses
     , token_incentives + operating_expenses as total_expenses
-    , protocol_revenue - total_expenses as protocol_earnings
     , tv.treasury_value
     , tn.treasury_value_native
     , nt.net_treasury_value
@@ -125,7 +123,13 @@ SELECT
     , t.tvl as tvl
     , {{ daily_pct_change('t.tvl') }} as tvl_pct_change
 
-    -- Money Metrics
+    -- Financail Metrics
+    , yield_fees + swap_fees as fees
+    , swap_revenue_vependle + yield_revenue_vependle as staking_revenue
+    , 0 as revenue
+    , revenue - token_incentives as earnings
+
+    -- Fee Allocation Metrics
     , coalesce(yf.yield_revenue, 0) as yield_generated
     , coalesce(f.swap_fees, 0) as spot_fees
     , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as ecosystem_revenue
