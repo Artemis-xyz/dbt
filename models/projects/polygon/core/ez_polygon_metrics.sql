@@ -101,8 +101,6 @@ select
     , coalesce(ti.token_incentives, 0) as token_incentives
     -- Cashflow Metrics
     , fees AS chain_fees
-    , fees_native AS gross_fees_native
-    , fees AS gross_fees
     , revenue - token_incentives AS earnings
     , revenue_native AS validator_cash_flow_native
     , revenue AS validator_cash_flow

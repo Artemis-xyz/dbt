@@ -121,7 +121,6 @@ SELECT
 
     -- Money Metrics
     , fees as spot_fees
-    , fees as gross_fees
     , fees as service_cash_flow
     , token_incentives_usd as token_incentives
     , protocol_revenue - token_incentives as earnings

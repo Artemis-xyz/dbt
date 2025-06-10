@@ -109,7 +109,6 @@ SELECT
     , coalesce(tvl.tvl, 0) as lending_deposits
 
     --Cashflow Metrics
-    , coalesce(fees.platform_fees, 0) + coalesce(fees.delegate_fees, 0) + coalesce(fees.fees, 0) as gross_fees
     , (coalesce(interest_fees, 0) - coalesce(platform_fees, 0) - coalesce(delegate_fees, 0)) as fee_sharing_token_cash_flow
     , coalesce(fees.platform_fees, 0) as treasury_cash_flow
     , 0.33 * coalesce(fees.delegate_fees, 0) as service_cash_flow

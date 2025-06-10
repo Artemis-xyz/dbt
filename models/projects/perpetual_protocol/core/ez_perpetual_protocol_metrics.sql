@@ -23,7 +23,7 @@ WITH
             -- standardize metrics
             , sum(perp_volume) as perp_volume
             , sum(perp_dau) as perp_dau
-            , sum(ecosystem_revenue) as gross_fees
+            , sum(ecosystem_revenue) as fees
             , sum(tvl_pct_change) as tvl_pct_change
             , sum(treasury_cash_flow) as treasury_cash_flow
             , sum(fee_sharing_token_cash_flow) as fee_sharing_token_cash_flow
@@ -57,7 +57,7 @@ SELECT
     , perp_dau
     , tvl
     , tvl_pct_change
-    , gross_fees
+    , fees
     , fee_sharing_token_cash_flow
     , service_cash_flow
     , treasury_cash_flow

@@ -109,8 +109,6 @@ select
 
     -- Cashflow Metrics
     , fees AS chain_fees
-    , fees_native AS gross_fees_native
-    , fees AS gross_fees
     , revenue - token_incentives.token_incentives as earnings
     , l1_data_cost_native AS l1_cash_flow_native
     , l1_data_cost AS l1_cash_flow
