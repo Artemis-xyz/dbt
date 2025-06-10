@@ -51,7 +51,7 @@ select
     , unique_traders_data.unique_traders as perp_dau
 
     -- Cashflow Incentives
-    , token_incentives.token_incentives
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
 
     -- Turnover Metrics
     , market_metrics.token_turnover_circulating

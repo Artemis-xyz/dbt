@@ -5,3 +5,8 @@ models:
           combination_of_columns:
             - deposit_id
             - origin_chain_id
+    columns:
+      - name: unique_id
+        tests:
+          - not_null
+          - unique
