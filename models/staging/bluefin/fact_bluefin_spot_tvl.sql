@@ -107,12 +107,12 @@ fill_forward AS (
         LAST_VALUE(pool_tvl IGNORE NULLS) OVER (
             PARTITION BY pool_address ORDER BY date
             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-        ) AS pool_tvl
+        ) AS tvl
     FROM dense_matrix
 )
 
 -- Step 6: Final output
 SELECT *
 FROM fill_forward
-WHERE pool_tvl IS NOT NULL
+WHERE tvl IS NOT NULL
 ORDER BY date DESC, pool_address

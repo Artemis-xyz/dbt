@@ -25,26 +25,26 @@ WITH
     )
 
     , spot_dau_txns AS (
-        SELECT date, token_sold AS token, SUM(dau) AS dau, SUM(txns) AS txns
+        SELECT date, token_sold AS token, SUM(pool_dau) AS dau, SUM(pool_txns) AS txns
         FROM {{ ref("fact_bluefin_spot_dau_txns") }}
         GROUP BY 1, 2
 
         UNION ALL
 
-        SELECT date, token_bought AS token, SUM(dau) AS dau, SUM(txns) AS txns
+        SELECT date, token_bought AS token, SUM(pool_dau) AS dau, SUM(pool_txns) AS txns
         FROM {{ ref("fact_bluefin_spot_dau_txns") }}
         GROUP BY 1, 2
 
     )
 
     , spot_fees_revenue AS (
-        SELECT date, symbol_a AS token, SUM(fees_native) AS fees_native, SUM(fees_usd) AS fees_usd, SUM(protocol_fee_share_native) AS protocol_fee_share_native, SUM(protocol_fee_share_usd) AS protocol_fee_share_usd
+        SELECT date, symbol_a AS token, SUM(fees_native) AS fees_native, SUM(fees) AS fees, SUM(foundation_cash_flow_native) AS foundation_cash_flow_native, SUM(foundation_cash_flow) AS foundation_cash_flow, SUM(service_cash_flow_native) AS service_cash_flow_native, SUM(service_cash_flow) AS service_cash_flow
         FROM {{ ref("fact_bluefin_spot_fees_revenue") }}
         GROUP BY 1, 2
 
         UNION ALL
 
-        SELECT date, symbol_b AS token, SUM(fees_native) AS fees_native, SUM(fees_usd) AS fees_usd, SUM(protocol_fee_share_native) AS protocol_fee_share_native, SUM(protocol_fee_share_usd) AS protocol_fee_share_usd
+        SELECT date, symbol_b AS token, SUM(fees_native) AS fees_native, SUM(fees) AS fees, SUM(foundation_cash_flow_native) AS foundation_cash_flow_native, SUM(foundation_cash_flow) AS foundation_cash_flow, SUM(service_cash_flow_native) AS service_cash_flow_native, SUM(service_cash_flow) AS service_cash_flow
         FROM {{ ref("fact_bluefin_spot_fees_revenue") }}
         GROUP BY 1, 2
     )
@@ -69,9 +69,11 @@ WITH
         SUM(spot_dau_txns.dau) AS spot_dau, 
         SUM(spot_dau_txns.txns) AS spot_txns, 
         SUM(spot_fees_revenue.fees_native) AS spot_fees_native, 
-        SUM(spot_fees_revenue.fees_usd) AS spot_fees, 
-        SUM(spot_fees_revenue.protocol_fee_share_native) AS spot_protocol_fee_share_native, 
-        SUM(spot_fees_revenue.protocol_fee_share_usd) AS spot_protocol_fee_share, 
+        SUM(spot_fees_revenue.fees) AS spot_fees, 
+        SUM(spot_fees_revenue.foundation_cash_flow_native) AS spot_foundation_cash_flow_native, 
+        SUM(spot_fees_revenue.foundation_cash_flow) AS spot_foundation_cash_flow, 
+        SUM(spot_fees_revenue.service_cash_flow_native) AS spot_service_cash_flow_native, 
+        SUM(spot_fees_revenue.service_cash_flow) AS spot_service_cash_flow, 
         SUM(tvl.tvl_native) AS spot_tvl_native, 
         SUM(tvl.tvl) AS spot_tvl
     FROM spot_volumes

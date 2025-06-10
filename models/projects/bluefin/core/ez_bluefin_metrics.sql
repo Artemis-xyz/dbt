@@ -27,17 +27,17 @@ WITH
         GROUP BY 1
     )
     , spot_dau_txns AS (
-        SELECT date, SUM(dau) AS dau, SUM(txns) AS txns
+        SELECT date, daily_dau AS dau, daily_txns AS txns
         FROM {{ ref("fact_bluefin_spot_dau_txns") }}
-        GROUP BY 1
+        QUALIFY ROW_NUMBER() OVER (PARTITION BY date ORDER BY date DESC) = 1
     )
     , spot_fees_revenue AS (
-        SELECT date, SUM(fees_usd) AS fees_usd, SUM(protocol_fee_share_usd) AS protocol_fee_share_usd
+        SELECT date, SUM(fees) AS fees, SUM(foundation_cash_flow) AS foundation_cash_flow, SUM(service_cash_flow) AS service_cash_flow
         FROM {{ ref("fact_bluefin_spot_fees_revenue") }}
         GROUP BY 1
     )
     , tvl AS (
-        SELECT date, SUM(pool_tvl) AS tvl
+        SELECT date, SUM(tvl) AS tvl
         FROM {{ ref("fact_bluefin_spot_tvl") }}
         GROUP BY 1
     )
@@ -55,9 +55,9 @@ select
     , COALESCE(market_data.token_volume, 0) AS token_volume
 
     --Cashflow Metrics
-    , COALESCE(spot_fees_revenue.fees_usd, 0) AS ecosystem_revenue
-    , COALESCE(spot_fees_revenue.protocol_fee_share_usd, 0) AS foundation_cash_flow
-    , COALESCE((spot_fees_revenue.fees_usd - spot_fees_revenue.protocol_fee_share_usd), 0) AS service_cash_flow
+    , COALESCE(spot_fees_revenue.fees, 0) AS fees
+    , COALESCE(spot_fees_revenue.foundation_cash_flow, 0) AS foundation_cash_flow
+    , COALESCE(spot_fees_revenue.service_cash_flow, 0) AS service_cash_flow
     
     -- Perpetual Metrics
     , COALESCE(perp_trading_volume.trading_volume, 0) AS perp_volume
@@ -65,7 +65,7 @@ select
     -- Spot DEX Metrics
     , COALESCE(spot_dau_txns.dau, 0) AS spot_dau
     , COALESCE(spot_dau_txns.txns, 0) AS spot_txns
-    , COALESCE(spot_fees_revenue.fees_usd, 0) AS spot_fees
+    , COALESCE(spot_fees_revenue.fees, 0) AS spot_fees
     , COALESCE(spot_trading_volume.spot_dex_volumes, 0) AS spot_volume
 
     -- Crypto Metrics
