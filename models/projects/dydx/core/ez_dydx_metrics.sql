@@ -84,7 +84,9 @@ SELECT
     , coalesce(trading_volume_data.trading_volume, 0) + coalesce(trading_volume_data_v4.trading_volume, 0) as perp_volume
     , coalesce(unique_traders_data.unique_traders, 0) + coalesce(unique_traders_data_v4.unique_traders, 0) as perp_dau
     , coalesce(txn_fees, 0) + coalesce(fees, 0) as ecosystem_revenue
-    , case when date_spine.date >= '2022-03-25' then ecosystem_revenue * 0.25 else 0 end as buybacks    
+    , case when date_spine.date >= '2022-03-25' then ecosystem_revenue * 0.25 else 0 end as buybacks
+    , (coalesce(txn_fees, 0) + coalesce(fees, 0))
+            - COALESCE(token_incentives.token_incentives, 0) AS earnings     
 
     -- Supply Metrics
     , dydx_supply_data.circulating_supply_native - lag(dydx_supply_data.circulating_supply_native) over (order by date_spine.date) as net_supply_change_native
