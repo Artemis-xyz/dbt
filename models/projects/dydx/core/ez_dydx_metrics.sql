@@ -51,7 +51,15 @@ WITH
     , price_data as (
         {{ get_coingecko_metrics("dydx-chain") }}
     )
-select
+    , token_incentives as (
+        select
+            day as date,
+            sum(total_usd) as token_incentives
+        from {{ref('fact_dydx_token_incentives')}}
+        group by date
+    )
+
+SELECT
     date_spine.date as date
     , 'dydx' as app
     , 'DeFi' as category
@@ -77,11 +85,14 @@ select
     , coalesce(unique_traders_data.unique_traders, 0) + coalesce(unique_traders_data_v4.unique_traders, 0) as perp_dau
     , coalesce(txn_fees, 0) + coalesce(fees, 0) as ecosystem_revenue
     , case when date_spine.date >= '2022-03-25' then ecosystem_revenue * 0.25 else 0 end as buybacks
+    , COALESCE(fees_data_v4.fees, 0)
+            - COALESCE(token_incentives.token_incentives, 0) AS earnings     
 
     -- Supply Metrics
     , dydx_supply_data.circulating_supply_native - lag(dydx_supply_data.circulating_supply_native) over (order by date_spine.date) as net_supply_change_native
     , dydx_supply_data.premine_unlocks_native as premine_unlocks_native
     , dydx_supply_data.circulating_supply_native as circulating_supply_native
+    , token_incentives.token_incentives as token_incentives
 
 from date_spine
 left join trading_volume_data on date_spine.date = trading_volume_data.date
@@ -92,4 +103,5 @@ left join chain_data_v4 on date_spine.date = chain_data_v4.date
 left join unique_traders_data_v4 on date_spine.date = unique_traders_data_v4.date
 left join dydx_supply_data on date_spine.date = dydx_supply_data.date
 left join price_data on date_spine.date = price_data.date
+LEFT JOIN token_incentives ON date_spine.date = token_incentives.date
 where date_spine.date < to_date(sysdate())
