@@ -43,7 +43,7 @@ select
     -- Standardized Metrics
 
     --Cashflow Metrics
-    , COALESCE(spot_fees_revenue.fees, 0) AS gross_fees
+    , COALESCE(spot_fees_revenue.fees, 0) AS fees
     , COALESCE(spot_fees_revenue.foundation_cash_flow, 0) AS foundation_cash_flow
     , COALESCE(spot_fees_revenue.service_cash_flow, 0) AS service_cash_flow
 
