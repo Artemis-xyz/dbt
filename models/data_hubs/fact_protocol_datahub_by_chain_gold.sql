@@ -10,7 +10,7 @@ SELECT
     dau::number as dau,
     txns::number as txns,
     volume::number as volume,
-    ecosystem_revenue::number as ecosystem_revenue,
+    fees::number as fees,
     tvl::number as tvl,
     price::number as price,
     market_cap::number as market_cap,

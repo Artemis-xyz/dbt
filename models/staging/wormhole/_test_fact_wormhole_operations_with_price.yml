@@ -5,6 +5,10 @@ models:
         tests:
           - not_null
           - unique
+      - name: unique_id
+        tests:
+          - not_null
+          - unique
       - name: src_timestamp
         tests:
           - not_null
