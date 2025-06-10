@@ -84,7 +84,7 @@ with
     , fee_sharing_cashflow as (
         select
             date,
-            sum(fee_sharing_fee_allocation) as fee_sharing_cashflow
+            sum(fee_sharing_fee_allocation) as fee_sharing_fee_allocation
         from {{ ref("fact_synthetix_fee_sharing_cashflow_by_token_and_chain") }}
         group by 1
     )
@@ -143,7 +143,7 @@ select
     , coalesce(token_cashflow, 0) as token_fee_allocation
     , coalesce(service_cashflow, 0) as service_fee_allocation
     , coalesce(treasury_cashflow, 0) as treasury_fee_allocation
-    , coalesce(fee_sharing_cashflow, 0) as fee_sharing_fee_allocation
+    , coalesce(fee_sharing_fee_allocation, 0) as staking_fee_allocation
 
     -- Protocol Metrics
     , coalesce(treasury.treasury, 0) as treasury

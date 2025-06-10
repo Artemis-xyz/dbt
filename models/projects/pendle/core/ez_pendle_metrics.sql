@@ -90,7 +90,6 @@ SELECT
     p.date
     , d.daus as dau
     , d.daily_txns as txns
-    , coalesce(yf.yield_revenue, 0) as yield_fees
     , f.swap_fees as swap_fees
     , yield_fees + swap_fees as fees
     , f.supply_side_fees as primary_supply_side_revenue
