@@ -47,6 +47,7 @@ select
     , trading_volume_data.trading_volume
     , unique_traders_data.unique_traders
     , NULL as txn_fees
+    , NULL as trading_fees
     -- standardize metrics
     , trading_volume_data.trading_volume as perp_volume
     , unique_traders_data.unique_traders as perp_dau
@@ -61,6 +62,7 @@ select
     , trading_volume
     , unique_traders
     , txn_fees
+    , total_fees as trading_fees
     -- standardize metrics
     , trading_volume as perp_volume
     , unique_traders as perp_dau
@@ -68,4 +70,5 @@ from trading_volume_data_v4
 left join fees_data_v4 on trading_volume_data_v4.date = fees_data_v4.date
 left join chain_data_v4 on trading_volume_data_v4.date = chain_data_v4.date
 left join unique_traders_data_v4 on trading_volume_data_v4.date = unique_traders_data_v4.date
+left join trading_fees_v4 on trading_volume_data_v4.date = trading_fees_v4.date
 where unique_traders_data_v4.date < to_date(sysdate())
