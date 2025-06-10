@@ -91,3 +91,11 @@ sui-trump,SUITRUMP,sui,0xdeb831e796f16f8257681c0d5d4108fa94333060300b2459133a966
 usd-coin,sUSDC,sui,0x854950aa624b1df59fe64e630b2ba7c550642e9342267a33061d59fb31582da5::scallop_usdc::SCALLOP_USDC,6
 bluefin,tBLUE,sui,0x4d3316408aef9adb11618a13e21614a213b9a1bedd327723a58f0d40b1d8f501::blue::BLUE,9
 bitcoin,xbtc,sui,0x876a4b7bce8aeaef60464c11f4026903e9afacab79b9b142686158aa86560b50::xbtc::XBTC,8
+bitcoin,xbtc,sui,0x876a4b7bce8aeaef60464c11f4026903e9afacab79b9b142686158aa86560b50::xbtc::XBTC,8
+bitcoin,ebtc,ethereum,0x657e8c867d8b37dcc18fa4caead9c45eb088c642,8
+ethereum,eeth,ethereum,0x35fA164735182de50811E8e2E824cFb9B6118ac2,18
+ethereum,weeths,ethereum,0x917ceE801a67f933F2e6b33fC0cD1ED2d5909D88,18
+wrapped-steth,pzeth,ethereum,0x8c9532a60e0e7c6bbd2b2c1303f63ace1c3e9811,18
+ethereum,eeth,arbitrum,0x35fA164735182de50811E8e2E824cFb9B6118ac2,18
+staked-ether,wsteth,arbitrum,0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84,18
+resolv-usr,usr,base,0x35E5dB674D8e93a03d814FA0ADa70731efe8a4b9,18

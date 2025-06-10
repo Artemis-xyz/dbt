@@ -15,7 +15,7 @@ select
     dau,
     txns,
     volume,
-    ecosystem_revenue,
+    fees,
     tvl,
     price,
     market_cap,
