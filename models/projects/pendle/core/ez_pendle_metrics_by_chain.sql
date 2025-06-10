@@ -65,8 +65,6 @@ SELECT
     , COALESCE(d.daus, 0) as dau
     , COALESCE(d.daily_txns, 0) as daily_txns
     , COALESCE(f.swap_fees, 0) as swap_fees
-    , COALESCE(yf.yield_revenue, 0) as yield_fees
-    , COALESCE(swap_fees,0) + COALESCE(yield_fees,0) as fees
     , COALESCE(f.supply_side_fees, 0) as primary_supply_side_revenue
     , 0 as secondary_supply_side_revenue
     , COALESCE(f.supply_side_fees, 0) as total_supply_side_revenue
@@ -86,15 +84,22 @@ SELECT
     , COALESCE(d.daily_txns, 0) as spot_txns
     , COALESCE(t.tvl, 0) as tvl
 
-    -- Money Metrics
-    , COALESCE(yf.yield_revenue, 0) as yield_generated
+    -- Financial Metrics
+    , COALESCE(yf.yield_revenue, 0) as yield_fees
     , COALESCE(f.swap_fees, 0) as spot_fees
-    , COALESCE(f.swap_fees, 0) + COALESCE(yf.yield_revenue, 0) as ecosystem_revenue
-    , COALESCE(f.swap_revenue, 0) + COALESCE(yf.yield_revenue, 0) as fee_sharing_token_cash_flow
+    , COALESCE(f.swap_fees, 0) + COALESCE(yf.yield_revenue, 0) as fees
+    , 0 as revenue
+    , COALESCE(ti.token_incentives, 0) as token_incentives
+    , revenue - token_incentives as earnings
+    , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as staking_revenue
+
+    -- Fee Allocation Metrics
+    , COALESCE(f.swap_revenue, 0) + COALESCE(yf.yield_revenue, 0) as staking_fee_allocation
     , COALESCE(f.swap_revenue, 0) as spot_fee_sharing_token_cash_flow
     , COALESCE(yf.yield_revenue, 0) as yield_fee_sharing_token_cash_flow
     , COALESCE(f.supply_side_fees, 0) as service_cash_flow
-    , COALESCE(ti.token_incentives, 0) as token_incentives
+
+    -- Supply Metrics
     , COALESCE(ti.token_incentives, 0) as gross_emissions
     , COALESCE(ti.token_incentives_native, 0) as gross_emissions_native
     

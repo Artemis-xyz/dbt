@@ -90,7 +90,6 @@ SELECT
     p.date
     , d.daus as dau
     , d.daily_txns as txns
-    , coalesce(yf.yield_revenue, 0) as yield_fees
     , f.swap_fees as swap_fees
     , f.supply_side_fees as primary_supply_side_revenue
     , 0 as secondary_supply_side_revenue
@@ -124,16 +123,16 @@ SELECT
     , {{ daily_pct_change('t.tvl') }} as tvl_pct_change
 
     -- Financail Metrics
-    , yield_fees + swap_fees as fees
-    , swap_revenue_vependle + yield_revenue_vependle as staking_revenue
-    , 0 as revenue
-    , revenue - token_incentives as earnings
-
-    -- Fee Allocation Metrics
-    , coalesce(yf.yield_revenue, 0) as yield_generated
+    , coalesce(yf.yield_revenue, 0) as yield_fees
     , coalesce(f.swap_fees, 0) as spot_fees
     , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as fees
-    , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as fee_sharing_token_cash_flow
+    , 0 as revenue
+    , coalesce(ti.token_incentives, 0) as token_incentives
+    , revenue - token_incentives as earnings
+    , swap_revenue_vependle + yield_revenue_vependle as staking_revenue
+
+    -- Fee Allocation Metrics
+    , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as staking_fee_allocation
     , f.supply_side_fees as service_cash_flow
 
     -- Treasury Metrics
@@ -142,7 +141,6 @@ SELECT
     , nt.net_treasury_value as net_treasury
 
     -- Other Metrics
-    , coalesce(ti.token_incentives, 0) as token_incentives
     , coalesce(ti.token_incentives, 0) as gross_emissions
     , coalesce(ti.token_incentives_native, 0) as gross_emissions_native
 
