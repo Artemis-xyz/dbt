@@ -232,12 +232,14 @@
         token_1_symbol,
         trading_volume,
         trading_fees,
-        fee_percent,
         {% if app == 'uniswap' %}
             token_0_volume_native,
             token_1_volume_native,
             token_fee_amount_native,
             token_fee_amount_native_symbol,
+        {% endif %}
+        {% if app == 'pancakeswap' %}
+            fee_percent,
         {% endif %}
         gas_price * gas_used as raw_gas_cost_native,
         raw_gas_cost_native / 1e9 as gas_cost_native
