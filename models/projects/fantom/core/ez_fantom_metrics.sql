@@ -62,7 +62,7 @@ select
     , fees as chain_fees
     , fees as ecosystem_revenue
     , fees_native as ecosystem_revenue_native
-    , revenue as foundation_cash_flow
+    , revenue as foundation_fee_allocation
     -- Developer Metrics
     , weekly_contracts_deployed
     , weekly_contract_deployers

@@ -1,5 +1,5 @@
 models:
-- name: fact_dydx_v4_txn_and_trading_fees
+- name: fact_dydx_v4_txn_fees
   tests:
   - 'dbt_expectations.expect_table_row_count_to_be_between:':
       min_value: 1
@@ -20,7 +20,11 @@ models:
     tests:
     - not_null
     - dbt_expectations.expect_column_to_exist
-  - name: TRADING_FEES
+  - name: MAKER_FEES
+    tests:
+    - not_null
+    - dbt_expectations.expect_column_to_exist
+  - name: MAKER_REBATES
     tests:
     - not_null
     - dbt_expectations.expect_column_to_exist

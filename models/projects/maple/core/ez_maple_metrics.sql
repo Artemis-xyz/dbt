@@ -109,10 +109,11 @@ SELECT
     , coalesce(tvl.tvl, 0) as lending_deposits
 
     --Cashflow Metrics
-    , (coalesce(interest_fees, 0) - coalesce(platform_fees, 0) - coalesce(delegate_fees, 0)) as fee_sharing_token_cash_flow
-    , coalesce(fees.platform_fees, 0) as treasury_cash_flow
-    , 0.33 * coalesce(fees.delegate_fees, 0) as service_cash_flow
-    , 0.66 * coalesce(fees.delegate_fees, 0) as token_cash_flow
+    , (coalesce(interest_fees, 0) - coalesce(platform_fees, 0) - coalesce(delegate_fees, 0)) as staking_fee_allocation
+    , coalesce(fees.platform_fees, 0) as treasury_fee_allocation
+    , 0.33 * coalesce(fees.delegate_fees, 0) as service_fee_allocation
+    , 0.66 * coalesce(fees.delegate_fees, 0) as token_fee_allocation
+
     , coalesce(supply_data.buybacks_native, 0) as buybacks_native
     , coalesce(supply_data.buybacks, 0) as buybacks
 

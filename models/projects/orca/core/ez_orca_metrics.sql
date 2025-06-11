@@ -78,9 +78,9 @@ select
     -- Money Metrics
     , coalesce(fees_and_volume.total_fees, 0) as spot_fees
     , coalesce(fees_and_volume.total_fees, 0) as ecosystem_revenue
-    , coalesce(fees_and_volume.lp_fees, 0) as service_cash_flow
-    , coalesce(fees_and_volume.dao_treasury_fees, 0) as treasury_cash_flow
-    , coalesce(fees_and_volume.climate_fund_fees, 0) as other_cash_flow
+    , coalesce(fees_and_volume.lp_fees, 0) as service_fee_allocation
+    , coalesce(fees_and_volume.dao_treasury_fees, 0) as treasury_fee_allocation
+    , coalesce(fees_and_volume.climate_fund_fees, 0) as other_fee_allocation
 
     -- Supply Metrics
     , coalesce(supply_data.premine_unlocks_native, 0) as premine_unlocks_native

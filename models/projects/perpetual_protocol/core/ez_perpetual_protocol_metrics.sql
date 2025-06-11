@@ -25,10 +25,10 @@ WITH
             , sum(perp_dau) as perp_dau
             , sum(ecosystem_revenue) as fees
             , sum(tvl_pct_change) as tvl_pct_change
-            , sum(treasury_cash_flow) as treasury_cash_flow
-            , sum(fee_sharing_token_cash_flow) as fee_sharing_token_cash_flow
-            , sum(treasury_cash_flow) as treasury_cash_flow
-            , sum(service_cash_flow) as service_cash_flow
+            , sum(treasury_fee_allocation) as treasury_fee_allocation
+            , sum(staking_fee_allocation) as staking_fee_allocation
+            , sum(treasury_fee_allocation) as treasury_fee_allocation
+            , sum(service_fee_allocation) as service_fee_allocation
         FROM {{ ref("ez_perpetual_protocol_metrics_by_chain") }}
         WHERE date < to_date(sysdate())
         GROUP BY 1, 2, 3
@@ -57,11 +57,13 @@ SELECT
     , perp_dau
     , tvl
     , tvl_pct_change
+
     , fees
-    , fee_sharing_token_cash_flow
-    , service_cash_flow
-    , treasury_cash_flow
+    , staking_fee_allocation
+    , service_fee_allocation
+    , treasury_fee_allocation
     , coalesce(revenue, 0) - coalesce(token_incentives.token_incentives, 0) as earnings
+
     -- Market Data
     , price
     , market_cap

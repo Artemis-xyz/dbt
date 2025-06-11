@@ -103,12 +103,12 @@ select
         date < '2024-08-18' then unstaking_fees * 0.25 + lst_fees
     -- when v2 fees are active, 100% goes to the protocol
         else unstaking_fees + lst_fees 
-    end as treasury_cash_flow
+    end as treasury_fee_allocation
     , case when 
         date < '2024-08-18' then unstaking_fees * 0.75
     -- when v2 fees are active, 100% goes to the protocol
         else 0 
-    end as service_cash_flow
+    end as service_fee_allocation
     
     --Other Metrics
     , market_metrics.token_turnover_circulating

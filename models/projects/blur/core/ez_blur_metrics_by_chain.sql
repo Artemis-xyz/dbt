@@ -38,7 +38,7 @@ select
 
     -- Cash Flow Metrics
     , blur_fees.fees as ecosystem_revenue
-    , blur_fees.fees as service_cash_flow
+    , blur_fees.fees as service_fee_allocation
 
 from blur_fees
 left join blur_daus using (date, chain)

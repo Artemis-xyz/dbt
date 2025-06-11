@@ -42,14 +42,14 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  l1_cash_flow: &l1_cash_flow
-    name: l1_cash_flow
+  l1_fee_allocation: &l1_fee_allocation
+    name: l1_fee_allocation
     description: "The total USD value of L1 cash flow on a chain"
     tags:
       - artemis_gaap
 
-  l1_cash_flow_native: &l1_cash_flow_native
-    name: l1_cash_flow_native
+  l1_fee_allocation_native: &l1_fee_allocation_native
+    name: l1_fee_allocation_native
     description: "The total native value of L1 cash flow on a chain"
     tags:
       - artemis_gaap
@@ -66,15 +66,15 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "The share of protocol revenue accrued to service providers of the protocol. Aggregation rewards on Polygon ZK https://docs.polygon.technology/zkEVM/architecture/protocol/incentive-mechanism/#aggregation-reward"
     tags:
       - override
       - artemis_gaap
 
-  service_cash_flow_native: &service_cash_flow_native
-    name: service_cash_flow_native
+  service_fee_allocation_native: &service_fee_allocation_native
+    name: service_fee_allocation_native
     description: "The share of protocol revenue accrued to service providers of the protocol in native tokens. Aggregation rewards on Polygon ZK https://docs.polygon.technology/zkEVM/architecture/protocol/incentive-mechanism/#aggregation-reward"
     tags:
       - override
@@ -120,12 +120,12 @@ models:
       - *fdmc
       - *ecosystem_revenue
       - *ecosystem_revenue_native
-      - *l1_cash_flow
-      - *l1_cash_flow_native
+      - *l1_fee_allocation
+      - *l1_fee_allocation_native
       - *market_cap
       - *price
-      - *service_cash_flow
-      - *service_cash_flow_native
+      - *service_fee_allocation
+      - *service_fee_allocation_native
       - *tvl
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem

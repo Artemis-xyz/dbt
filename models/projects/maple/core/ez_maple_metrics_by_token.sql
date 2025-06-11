@@ -81,7 +81,7 @@ SELECT
     revenues.revenue_native,
     token_incentives.token_incentives_native,
     token_incentives.token_incentives_native as expenses_native,
-    revenues.revenue_native - token_incentives.token_incentives_native as protocol_earnings_native
+    revenues.revenue_native - token_incentives.token_incentives_native as earnings_native
     -- , tvl.tvl_native
     -- , tvl.tvl_native as net_deposits_native
     , treasury.treasury_value_native

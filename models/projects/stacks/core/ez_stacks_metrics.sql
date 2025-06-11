@@ -68,7 +68,7 @@ select
     , fees_native as ecosystem_revenue_native
     , fees as ecosystem_revenue
     , avg_txn_fee as chain_avg_txn_fee
-    , ecosystem_revenue as validator_cash_flow
+    , ecosystem_revenue as validator_fee_allocation
     
     -- Developer Metrics
     , weekly_commits_core_ecosystem

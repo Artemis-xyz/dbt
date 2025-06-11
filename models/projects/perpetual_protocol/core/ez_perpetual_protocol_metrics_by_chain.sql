@@ -66,9 +66,9 @@ select
     , coalesce(tvl_data.tvl, 0) as tvl
     , (coalesce(tvl_data.tvl, 0) - LAG(coalesce(tvl_data.tvl, 0)) OVER (PARTITION BY base.chain ORDER BY base.date)) / NULLIF(LAG(coalesce(tvl_data.tvl, 0)) OVER (PARTITION BY base.chain ORDER BY base.date), 0) * 100 as tvl_pct_change
     , coalesce(fd.fees, 0) as ecosystem_revenue
-    , coalesce(fd.fees, 0) * 0.2 * 0.8 as fee_sharing_token_cash_flow
-    , coalesce(fd.fees, 0) * 0.8 as service_cash_flow
-    , coalesce(fd.fees, 0) * 0.2 * 0.2 as treasury_cash_flow
+    , coalesce(fd.fees, 0) * 0.2 * 0.8 as staking_fee_allocation
+    , coalesce(fd.fees, 0) * 0.8 as service_fee_allocation
+    , coalesce(fd.fees, 0) * 0.2 * 0.2 as treasury_fee_allocation
     , coalesce(ti.token_incentives, 0) as token_incentives
 from all_date_chain_combinations base
 left join trading_volume_data tvd on tvd.date = base.date and tvd.chain = base.chain

@@ -74,12 +74,12 @@ select
     -- Cashflow metrics
     , fees_native AS ecosystem_revenue_native
     , fees AS ecosystem_revenue
-    , revenue_native AS burned_cash_flow_native
-    , revenue AS burned_cash_flow
-    , l1_data_cost_native AS l1_cash_flow_native
-    , l1_data_cost AS l1_cash_flow
-    , revenue_native AS foundation_cash_flow_native
-    , revenue AS foundation_cash_flow
+    , revenue_native AS burned_fee_allocation_native
+    , revenue AS burned_fee_allocation
+    , l1_data_cost_native AS l1_fee_allocation_native
+    , l1_data_cost AS l1_fee_allocation
+    , revenue_native AS foundation_fee_allocation_native
+    , revenue AS foundation_fee_allocation
     -- Developer metrics
     , weekly_contracts_deployed
     , weekly_contract_deployers

@@ -34,8 +34,8 @@ SELECT
     , fees_native * price AS chain_fees
     , fees_native * price AS ecosystem_revenue
     , fees_native AS ecosystem_revenue_native
-    , rewards_algo * price AS validator_cash_flow_usd
-    , rewards_algo AS validator_cash_flow_native
+    , rewards_algo * price AS validator_fee_allocation_usd
+    , rewards_algo AS validator_fee_allocation_native
     -- Bespoke metrics
     , unique_eoas
     , unique_senders
