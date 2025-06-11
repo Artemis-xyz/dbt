@@ -33,7 +33,7 @@ WITH
         FROM {{ ref("fact_cetus_spot_tvl") }}
     )
 
-    SELECT DISTINCT
+    SELECT
         spot_volumes.date, 
         spot_volumes.pool_address AS pool, 
         tvl.symbol_a,
