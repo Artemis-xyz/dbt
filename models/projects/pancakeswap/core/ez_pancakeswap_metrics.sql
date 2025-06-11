@@ -67,7 +67,7 @@ with trading_volume_pool as (
 )
 , fees_revenue as (
     select
-        date
+        block_timestamp::date as date
         , sum(trading_fees) as fees
     -- This distribution is outlined here https://docs.pancakeswap.finance/products/pancakeswap-exchange/pancakeswap-pools
         , sum(
