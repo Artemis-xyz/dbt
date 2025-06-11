@@ -1,7 +1,7 @@
 {{ 
     config(
         materialized="table",
-        snowflake_warehouse="solana_2xlg",
+        snowflake_warehouse="solana_xlg",
         database="solana",
         schema="core",
         alias="ez_app_cohort_retention",
