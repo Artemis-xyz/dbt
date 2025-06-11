@@ -37,7 +37,7 @@ event_logs as (
     select 
         block_timestamp
         , case 
-            when '{{chain}}' = 'etherum' then '0x4da27a545c0c5B758a6BA100e3a049001de870f5' 
+            when '{{chain}}' = 'ethereum' then '0x4da27a545c0c5B758a6BA100e3a049001de870f5' 
             when '{{chain}}' = 'avalanche' then '0x63a72806098Bd3D9520cC43356dD78afe5D386D9'
             else '0x63a72806098Bd3D9520cC43356dD78afe5D386D9'
         end as asset

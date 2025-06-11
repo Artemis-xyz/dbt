@@ -4,3 +4,9 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_manta_daily_txns_and_daa
+  
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: manta_daily_supply_data

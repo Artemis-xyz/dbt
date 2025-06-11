@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_solana_transactions_v2") }}
+-- depends_on {{ ref('fact_solana_transactions_v2') }}
 {{
     config(
         materialized="table",
@@ -17,7 +17,7 @@ with
             value as signer,
             case when category = 'Tokens' then 'Token' else category end as category,
             sub_category
-        from {{ ref("ez_solana_transactions_v2") }}, lateral flatten(input => signers)
+        from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         where succeeded = 'TRUE'
         group by category, sub_category, signer
     ),
@@ -33,7 +33,7 @@ with
             sub_category,
             count(distinct signers[0]) as low_sleep_users,
             count(*) as tx_n
-        from {{ ref("ez_solana_transactions_v2") }}
+        from {{ ref('fact_solana_transactions_v2') }}
         where user_type = 'LOW_SLEEP'
         group by user_type, raw_date, category, sub_category
     ),
@@ -44,7 +44,7 @@ with
             sub_category,
             count(distinct signers[0]) as sybil_users,
             count(*) as tx_n
-        from {{ ref("ez_solana_transactions_v2") }}
+        from {{ ref('fact_solana_transactions_v2') }}
         where engagement_type = 'sybil'
         group by engagement_type, raw_date, category, sub_category
     ),
@@ -58,9 +58,11 @@ with
             sub_category,
             sum(case when index = 0 then tx_fee else 0 end) gas,
             sum(case when index = 0 then gas_usd else 0 end) gas_usd,
+            sum(case when index = 0 then tx_fee + COALESCE(jito_tips, 0) else 0 end) rev,
+            sum(case when index = 0 then gas_usd + COALESCE(jito_tips_usd, 0) else 0 end) rev_usd,
             count_if(index = 0 and succeeded = 'TRUE') as txns,
             count(distinct(case when succeeded = 'TRUE' then value else null end)) dau
-        from {{ ref("ez_solana_transactions_v2") }}, lateral flatten(input => signers)
+        from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         group by raw_date, updated_category, sub_category
     )
 select
@@ -69,9 +71,21 @@ select
     ifnull(agg_data.sub_category, 'Unlabeled') as sub_category,
     agg_data.chain,
     gas,
+    CASE 
+        WHEN dau = 0 OR dau IS NULL THEN NULL
+        ELSE gas / dau
+    END AS avg_gas_per_address,
     gas_usd,
+    CASE 
+        WHEN dau = 0 OR dau IS NULL THEN NULL
+        ELSE gas_usd / dau
+    END AS avg_gas_usd_per_address,
+    rev,
+    rev_usd,
     txns,
     dau,
+    null AS contract_count,
+    null AS real_users,
     (dau - new_users) as returning_users,
     new_users,
     low_sleep_users,

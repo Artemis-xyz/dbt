@@ -4,7 +4,7 @@ with
             from_address,
             date(block_timestamp) as received_date,
             'optimism_1' as airdrop
-        from pc_dbt_db.prod.fact_optimism_transactions_gold
+        from pc_dbt_db.prod.fact_optimism_transactions_v2
         where
             contract_address like '0xfedfaf1a10335448b7fa0268f56d2b44dbd357de'
             and date(block_timestamp) >= date('2022-06-01')
@@ -13,7 +13,7 @@ with
     ethereum_airdrop as (
 
         select from_address, date(block_timestamp) as received_date, app as airdrop
-        from pc_dbt_db.prod.fact_ethereum_transactions_gold
+        from pc_dbt_db.prod.fact_ethereum_transactions_v2
         where
             contract_address in (
                 '0xf2d15c0a89428c9251d71a0e29b39ff1e86bce25',

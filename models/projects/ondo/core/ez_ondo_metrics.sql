@@ -26,13 +26,36 @@ with date_spine as (
     from {{ ref("ez_ondo_metrics_by_chain") }}
     group by 1
 )
+, ff_defillama_metrics as (
+    select
+        date,
+        avg(tvl) as tvl
+    from {{ ref("fact_defillama_protocol_tvls") }}
+    where defillama_protocol_id = 2537
+    group by 1
+)
+
+, supply as (
+    select
+        date,
+        premine_unlocks_native,
+        net_supply_change_native,
+        circulating_supply_native
+    from {{ ref("fact_ondo_daily_supply") }}
+)
 
 select
     ds.date,
     coalesce(fees.fees, 0) as fees,
     coalesce(tvl.tokenized_mcap_change, 0) as tokenized_mcap_change,
-    coalesce(tvl.tokenized_mcap, 0) as tokenized_mcap
+    coalesce(tvl.tokenized_mcap, 0) as tokenized_mcap,
+    coalesce(ff_defillama_metrics.tvl, 0) as flux_finance_tvl,
+    coalesce(supply.premine_unlocks_native, 0) as premine_unlocks_native,
+    coalesce(supply.net_supply_change_native, 0) as net_supply_change_native,
+    coalesce(supply.circulating_supply_native, 0) as circulating_supply_native
 from date_spine ds
-left join fees on ds.date = fees.date
-left join tvl on ds.date = tvl.date
+left join fees using (date)
+left join tvl using (date)
+left join ff_defillama_metrics using (date)
+left join supply using (date)
 where ds.date < to_date(sysdate())

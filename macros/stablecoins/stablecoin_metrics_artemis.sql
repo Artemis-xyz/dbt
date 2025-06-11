@@ -25,7 +25,13 @@ with
         {% endif %}
     ),
     filtered_contracts as (
-        select * from {{ ref("dim_contracts_gold")}} where chain = '{{ chain }}'
+        select 
+            address, 
+            artemis_application_id as app, 
+            artemis_category_id as category,
+            artemis_sub_category_id as sub_category 
+        from {{ ref("dim_all_addresses_labeled_gold")}} 
+        where chain = '{{ chain }}'
     ),
     artemis_mev_filtered as (
         select
@@ -45,7 +51,7 @@ with
         select distinct tx_hash
         from artemis_mev_filtered
         where from_app = to_app
-            and lower(from_sub_category) in ('cex', 'market maker') 
+            and lower(from_sub_category) in ('cex', 'market_maker') 
     ),
     artemis_ranked_transfer_filter as (
         select 

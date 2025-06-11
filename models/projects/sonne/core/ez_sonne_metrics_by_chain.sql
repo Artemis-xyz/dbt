@@ -20,11 +20,14 @@ with
         }}
     )
 select
-    sonne_by_chain.date,
-    'sonne' as app,
-    'DeFi' as category,
-    sonne_by_chain.chain,
-    sonne_by_chain.daily_borrows_usd,
-    sonne_by_chain.daily_supply_usd
+    sonne_by_chain.date
+    , 'sonne' as app
+    , 'DeFi' as category
+    , sonne_by_chain.chain
+    , sonne_by_chain.daily_borrows_usd
+    , sonne_by_chain.daily_supply_usd
+    -- Standardized metrics
+    , sonne_by_chain.daily_borrows_usd as lending_loans
+    , sonne_by_chain.daily_supply_usd as lending_deposits
 from sonne_by_chain
 where sonne_by_chain.date < to_date(sysdate())

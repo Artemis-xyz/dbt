@@ -1,0 +1,26 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_litecoin_transactions_parquet
+        description: Raw Litecoin transaction data loaded from S3 parquet files
+        columns:
+          - name: PARQUET_RAW
+            description: Raw transaction data in VARIANT format
+            tests:
+              - not_null 
+      - name: raw_litecoin_blocks_parquet
+        description: Raw Litecoin block data loaded from S3 parquet files
+        columns:
+          - name: PARQUET_RAW
+            description: Raw block data in VARIANT format
+            tests:
+              - not_null 
+      - name: raw_litecoin_inputs_parquet
+        description: Raw Litecoin input data loaded from S3 parquet files
+        columns:
+          - name: PARQUET_RAW
+            description: Raw input data in VARIANT format
+            tests:
+              - not_null 

@@ -1,0 +1,19 @@
+models:
+  - name: fact_wormhole_operations_with_price
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+      - name: unique_id
+        tests:
+          - not_null
+          - unique
+      - name: src_timestamp
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+              severity: warn

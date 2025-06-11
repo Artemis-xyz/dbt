@@ -1,77 +1,77 @@
-ARTEMIS_CATEGORY_ID,ARTEMIS_SUB_CATEGORY_ID
-asset_management,index
-asset_management,farming
-asset_management,yield
-asset_management,yield_aggregator
-asset_management,managed_token_pool
-asset_management,leveraged_farming
-blockchain,l1
-blockchain,l2
-blockchain,l3
-blockchain,superchain
-blockchain,rollup
-blockchain,dinochain
-bridge,cross_chain_bridge
-bridge,messaging_protocol
-bridge,router
-bridge,cross_chain_oracle
-cefi,cex
-cefi,market_maker
-cefi,foundation
-cefi,centralized_derivative
-depin,physical_resource_network
-depin,digital_resource_network
-derivative,perpetuals
-derivative,options
-derivative,synthetics
-derivative,basis_trading
-derivative,options_vault
-dex,spot
-dex,aggregator
-dex,amm
-gaming,metaverse
-gaming,gambling
-gaming,prediction_market
-gaming,sports
-infrastructure,smart_contract_wallet
-infrastructure,eoa
-infrastructure,shared_sequencing
-infrastructure,indexing
-infrastructure,storage
-infrastructure,name_service_tool
-infrastructure,privacy
-infrastructure,token_locker
-infrastructure,data_availability
-lending,uncollateralized_lending
-lending,collateralized_lending
-mev,
-nft_app,nft_marketplace
-nft_app,nft_fi
-nft_app,nft_launchpad
-nft_app,collectible
-nft_app,nft_lending
-oracle,
-other,ai_agent
-other,memecoin
-other,social
-other,social_media
-other,music
-other,creator
-other,insurance
-other,governance_incentives
-other,so_fi
-payments,on_ramp
-payments,off_ramp
-rwa,real_estate
-rwa,tokenized_treasury_bill
-rwa,tokenized_bond
-rwa,tokenized_equity
-rwa,rwa_lending
-stablecoin,algorithmic_stablecoin
-stablecoin,fiat_backed_stablecoin
-stablecoin,payments
-staking,liquid_staking
-staking,liquid_restaking
-staking,restaking
-staking,restaked_btc
-staking,staking_pool
+ARTEMIS_CATEGORY_ID,ARTEMIS_SUB_CATEGORY_ID,CATEGORY_DISPLAY_NAME,SUB_CATEGORY_DISPLAY_NAME
+asset_management,index,Asset Management,Index
+asset_management,farming,Asset Management,Farming
+asset_management,yield,Asset Management,Yield
+asset_management,yield_aggregator,Asset Management,Yield Aggregator
+asset_management,managed_token_pool,Asset Management,Managed Token Pool
+asset_management,leveraged_farming,Asset Management,Leveraged Farming
+blockchain,l1,Blockchain,L1
+blockchain,l2,Blockchain,L2
+blockchain,l3,Blockchain,L3
+blockchain,superchain,Blockchain,Superchain
+blockchain,rollup,Blockchain,Rollup
+blockchain,dinochain,Blockchain,DinoChain
+bridge,cross_chain_bridge,Bridge,Cross-chain bridge
+bridge,messaging_protocol,Bridge,Messaging Protocol
+bridge,router,Bridge,Router
+bridge,cross_chain_oracle,Bridge,Cross-chain oracle
+cefi,cex,CeFi,CEX
+cefi,market_maker,CeFi,Market Maker
+cefi,foundation,CeFi,Foundation
+cefi,centralized_derivative,CeFi,Centralized Derivative
+defi,perpetuals,DeFi,Perpetuals
+defi,options,DeFi,Options
+defi,synthetics,DeFi,Synthetics
+defi,basis_trading,DeFi,Basis Trading
+defi,options_vault,DeFi,Options Vault
+defi,spot,DeFi,Spot
+defi,aggregator,DeFi,Aggregator
+defi,amm,DeFi,AMM
+defi,uncollateralized_lending,DeFi,Uncollateralized Lending
+defi,collateralized_lending,DeFi,Collateralized Lending
+depin,physical_resource_network,DePIN,Physical Resource Network
+depin,digital_resource_network,DePIN,Digital Resource Network
+gaming,metaverse,Gaming,Metaverse
+gaming,gambling,Gaming,Gambling
+gaming,prediction_market,Gaming,Prediction Market
+gaming,sports,Gaming,Sports
+infrastructure,smart_contract_wallet,Infrastructure,Smart-contract Wallet
+infrastructure,eoa,Infrastructure,EOA
+infrastructure,shared_sequencing,Infrastructure,Shared Sequencing
+infrastructure,indexing,Infrastructure,Indexing
+infrastructure,storage,Infrastructure,Storage
+infrastructure,name_service_tool,Infrastructure,Name Service Tool
+infrastructure,privacy,Infrastructure,Privacy
+infrastructure,token_locker,Infrastructure,Token Locker
+infrastructure,data_availability,Infrastructure,Data Availability
+mev,,MEV,
+nft_app,nft_marketplace,NFT App,NFT Marketplace
+nft_app,nft_fi,NFT App,NftFi
+nft_app,nft_launchpad,NFT App,NFT Launchpad
+nft_app,collectible,NFT App,Collectible
+nft_app,nft_lending,NFT App,NFT Lending
+oracle,,Oracle,
+other,ai_agent,Other,AI Agent
+other,memecoin,Other,Memecoin
+other,social,Other,Social
+other,social_media,Other,Social Media
+other,music,Other,Music
+other,creator,Other,Creator
+other,insurance,Other,Insurance
+other,governance_incentives,Other,Governance Inventives
+other,so_fi,Other,SoFi
+payments,on_ramp,Payments,On-ramp
+payments,off_ramp,Payments,Off-ramp
+rwa,real_estate,RWA,Real Estate
+rwa,tokenized_treasury_bill,RWA,Tokenized Treasury Bill
+rwa,tokenized_bond,RWA,Tokenized Bond
+rwa,tokenized_equity,RWA,Tokenized Equity
+rwa,rwa_lending,RWA,RWA Lending
+stablecoin,algorithmic_stablecoin,Stablecoin,Algorithmic Stablecoin
+stablecoin,fiat_backed_stablecoin,Stablecoin,Fiat-backed Stablecoin
+staking,liquid_staking,Staking,Liquid staking
+staking,liquid_restaking,Staking,Liquid re-staking
+staking,restaking,Staking,Restaking
+staking,restaked_btc,Staking,Restaked BTC
+staking,staking_pool,Staking,Staking Pool
+token,,Token,

@@ -1,3 +1,10 @@
+{{
+    config(
+        materialized='table',
+        snowflake_warehouse='USUAL',
+    )
+}}
+
 WITH date_spine AS (
     SELECT date 
     FROM pc_dbt_db.prod.dim_date_spine
@@ -18,8 +25,8 @@ eod_balances_filled AS (
     SELECT 
         ds.date,
         COALESCE(bl.eod_balance, 
-                 LAST_VALUE(bl.eod_balance IGNORE NULLS) 
-                     OVER (PARTITION BY 1 ORDER BY ds.date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+                LAST_VALUE(bl.eod_balance IGNORE NULLS) 
+                    OVER (PARTITION BY 1 ORDER BY ds.date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
         ) AS eod_balance
     FROM date_spine ds
     LEFT JOIN eod_balances_raw bl ON ds.date = bl.date
@@ -28,10 +35,11 @@ eod_balances_filled AS (
 daily_prices_raw AS (
     SELECT 
         DATEADD(seconds, decoded_log:updatedAt, '1970-01-01'::timestamp_ntz)::date AS date,
-        decoded_log:price / 1e8 AS price
+        AVG(decoded_log:price / 1e8) AS price
     FROM ethereum_flipside.core.ez_decoded_event_logs
     WHERE event_name = 'BalanceReported'
       AND lower(contract_address) = lower('0x4c48bcb2160F8e0aDbf9D4F3B034f1e36d1f8b3e')
+    GROUP BY 1
 ),
 
 daily_prices_filled AS (
@@ -67,7 +75,7 @@ treasury_revenue_calculation AS (
 usd0pp_unstaking_fees AS (
     SELECT
         DATE(block_timestamp) AS date,
-        (CAST(decoded_log:"usd0ppAmount" AS NUMERIC) - CAST(decoded_log:"usd0Amount" AS NUMERIC)) / 1e18 AS usd0pp_unstaking_fees
+        (CAST(decoded_log:"usd0ppAmount" AS NUMERIC) - CAST(decoded_log:"usd0Amount" AS NUMERIC)) / 1e18 AS treasury_fee
     FROM ethereum_flipside.core.ez_decoded_event_logs
     WHERE event_name = 'Usd0ppUnlockedFloorPrice'
 ),
@@ -75,7 +83,7 @@ usd0pp_unstaking_fees AS (
 agg_usd0pp_unstaking_fees AS (
     SELECT 
         date,
-        SUM(usd0pp_unstaking_fees) AS usd0pp_unstaking_fees
+        SUM(treasury_fee) AS treasury_fee
     FROM usd0pp_unstaking_fees
     GROUP BY date
 ),
@@ -109,7 +117,7 @@ usualx_withdraw_deposit_combined AS (
         COALESCE(d.assets, 0) AS deposit_assets,
         -COALESCE(w.shares, 0) AS withdraw_shares,
         -COALESCE(w.assets, 0) AS withdraw_assets,
-        0.1/0.9 * COALESCE(w.assets, 0) AS usualx_unstake_fees
+        0.1 * COALESCE(w.assets, 0) AS usualx_unstake_fees
     FROM usualx_deposits_raw d
     FULL OUTER JOIN usualx_withdraws_raw w ON w.tx_hash = d.tx_hash
 ),
@@ -127,7 +135,7 @@ final_agg_data AS (
         tre.date,
         COALESCE(tre.daily_treasury_revenue, 0) AS daily_treasury_revenue,
         COALESCE(usualx.usualx_unstake_fees_daily, 0) AS usualx_unstake_fees_daily,
-        COALESCE(usd0pp.usd0pp_unstaking_fees, 0) AS usd0pp_unstaking_fees
+        COALESCE(usd0pp.treasury_fee, 0) AS treasury_fee
     FROM treasury_revenue_calculation tre
     LEFT JOIN agg_usd0pp_unstaking_fees usd0pp ON tre.date = usd0pp.date
     LEFT JOIN usualx_aggregated_data_deposits_withdraw usualx ON tre.date = usualx.date
@@ -138,8 +146,8 @@ SELECT
     fa.daily_treasury_revenue,
     SUM(fa.daily_treasury_revenue) OVER (ORDER BY fa.date) AS cumulative_treasury_revenue,
     fa.usualx_unstake_fees_daily,
-    fa.usd0pp_unstaking_fees,
-    fa.usualx_unstake_fees_daily + fa.usd0pp_unstaking_fees AS fees,
-    SUM(fa.usualx_unstake_fees_daily + fa.usd0pp_unstaking_fees) OVER (ORDER BY fa.date) AS cumulative_fees
+    fa.treasury_fee,
+    fa.usualx_unstake_fees_daily + fa.treasury_fee AS fees,
+    SUM(fa.usualx_unstake_fees_daily + fa.treasury_fee) OVER (ORDER BY fa.date) AS cumulative_fees
 FROM final_agg_data fa
 ORDER BY fa.date DESC

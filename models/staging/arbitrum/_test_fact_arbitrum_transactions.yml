@@ -1,5 +1,5 @@
 models:
-- name: fact_arbitrum_transactions
+- name: fact_arbitrum_transactions_v2
   columns:
   - name: GAS_USD
     tests:

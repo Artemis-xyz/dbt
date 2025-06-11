@@ -38,25 +38,42 @@ with
     defillama_data as ({{ get_defillama_metrics("cosmos") }}),
     github_data as ({{ get_github_metrics("cosmos") }})
 select
-    fundamental_data.date,
-    fundamental_data.chain,
-    txns,
-    dau,
-    wau,
-    mau,
-    fees,
-    fees / txns as avg_txn_fee,
-    revenue,
-    price,
-    market_cap,
-    fdmc,
-    tvl,
-    weekly_commits_core_ecosystem,
-    weekly_commits_sub_ecosystem,
-    weekly_developers_core_ecosystem,
-    weekly_developers_sub_ecosystem
-from fundamental_data
-left join price_data on fundamental_data.date = price_data.date
-left join defillama_data on fundamental_data.date = defillama_data.date
-left join github_data on fundamental_data.date = github_data.date
-where fundamental_data.date < to_date(sysdate())
+    f.date
+    , f.chain
+    , txns
+    , dau
+    , wau
+    , mau
+    , fees
+    , fees / txns as avg_txn_fee
+    , revenue
+    -- Standardized Metrics
+    -- Market Data
+    , price
+    , market_cap
+    , fdmc
+    , token_volume
+    -- Chain Metrics
+    , txns as chain_txns
+    , dau as chain_dau
+    , wau as chain_wau
+    , mau as chain_mau
+    , avg_txn_fee as chain_avg_txn_fee
+    -- Cash Flow Metrics
+    , fees as chain_fees
+    , fees as ecosystem_revenue
+    , revenue as treasury_fee_allocation
+    -- Crypto Metrics
+    , tvl
+    -- Developer Metrics
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
+    , token_turnover_circulating
+    , token_turnover_fdv
+from fundamental_data f
+left join price_data on f.date = price_data.date
+left join defillama_data on f.date = defillama_data.date
+left join github_data on f.date = github_data.date
+where f.date < to_date(sysdate())

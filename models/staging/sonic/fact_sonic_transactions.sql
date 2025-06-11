@@ -41,5 +41,5 @@ where 1=1
     {% if is_incremental() %}
         -- this filter will only be applied on an incremental run 
         and block_time
-        >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+        >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}

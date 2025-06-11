@@ -25,23 +25,31 @@ with fees_and_revs as (
     group by 1, 2
 )
 , treasury as (
-    SELECT
+    select
         date,
         chain,
-        sum(native_balance) as treasury_value,
-        SUM(
-            CASE WHEN token = 'LQTY'
-                THEN native_balance
-            END
-        ) AS treasury_value_native,
-        SUM(
-            CASE WHEN token <> 'LQTY'
-                THEN native_balance
-            END
-        ) AS net_treasury_value
-    FROM {{ ref('fact_liquity_treasury') }}
-    GROUP BY 1, 2
+        sum(usd_balance) as treasury
+    from {{ ref('fact_liquity_treasury') }}
+    group by 1, 2
 )
+, net_treasury as (
+    select
+        date,
+        chain,
+        sum(usd_balance) as net_treasury
+    from {{ ref('fact_liquity_treasury') }}
+    where token != 'LQTY'
+    group by 1, 2
+)
+, treasury_native as (
+    select
+        date,
+        chain,
+        sum(usd_balance) as own_token_treasury
+    from {{ ref('fact_liquity_treasury') }}
+    where token = 'LQTY'
+    group by 1, 2
+)  
 , tvl as (
     select
         date,
@@ -72,27 +80,43 @@ with fees_and_revs as (
 )
 
 select
-    dcs.date,
-    dcs.chain,
-    
-    -- Fees and revenue
-    fr.revenue_usd as fees,
-    fr.revenue_usd as revenue,
-    ti.token_incentives,
-    ti.token_incentives as expenses,
-    fr.revenue_usd - ti.token_incentives as protocol_earnings,
+    dcs.date
+    , dcs.chain
+    , coalesce(fr.revenue_usd, 0) as fees
+    , coalesce(fr.revenue_usd, 0) as revenue
+    , coalesce(ti.token_incentives, 0) as token_incentives
+    , coalesce(ti.token_incentives, 0) as expenses
+    , coalesce(fr.revenue_usd, 0) - coalesce(ti.token_incentives, 0) as earnings
+    , coalesce(treasury.treasury, 0) as treasury_value
+    , coalesce(treasury_native.own_token_treasury, 0) as treasury_value_native
+    , coalesce(net_treasury.net_treasury, 0) as net_treasury_value
+    , coalesce(os.outstanding_supply, 0) as outstanding_supply
+    , coalesce(tvl.tvl, 0) as net_deposits
 
-    -- Treasury
-    treasury.treasury_value,
-    treasury.treasury_value_native,
-    treasury.net_treasury_value,
+    -- Standardized Metrics
 
-    -- TVL
-    tvl.tvl,
-    os.outstanding_supply
+    -- Lending Metrics
+    , coalesce(tvl.tvl, 0) as lending_deposits
+    , coalesce(fr.revenue_usd, 0) as lending_fees
+    , coalesce(os.outstanding_supply, 0) as lending_loans
+
+    -- Crypto Metrics
+    , coalesce(tvl.tvl, 0) as tvl
+    , coalesce(tvl.tvl, 0) - lag(coalesce(tvl.tvl, 0)) over (order by date) as tvl_net_change
+
+    -- Cash Flow Metrics
+    , coalesce(fr.revenue_usd, 0) as ecosystem_revenue
+    , coalesce(ti.token_incentives, 0) as staking_fee_allocation
+
+    -- Protocol Metrics
+    , coalesce(treasury.treasury, 0) as treasury
+    , coalesce(treasury_native.own_token_treasury, 0) as treasury_native
+    , coalesce(net_treasury.net_treasury, 0) as net_treasury
 from date_chain_spine dcs
 left join tvl using (date, chain)
 left join outstanding_supply os using (date, chain)
 left join fees_and_revs fr using (date, chain)  
 left join treasury using (date, chain)
+left join net_treasury using (date, chain)
+left join treasury_native using (date, chain)
 left join token_incentives ti using (date, chain)

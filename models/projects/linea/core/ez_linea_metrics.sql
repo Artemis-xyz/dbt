@@ -29,7 +29,7 @@ with
     , defillama_data as ({{ get_defillama_metrics("linea") }})
     , rolling_metrics as ({{ get_rolling_active_address_metrics("linea") }})
     , linea_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_linea_daily_dex_volumes") }}
     )
     
@@ -47,14 +47,32 @@ select
     , revenue_native
     , l1_data_cost
     , l1_data_cost_native
+    , dune_dex_volumes_linea.dex_volumes
+    , dune_dex_volumes_linea.adjusted_dex_volumes
+    -- Standardized Metrics
+    -- Market Data Metrics
     , tvl
+    -- Chain Usage Metrics
+    , txns AS chain_txns
+    , dau AS chain_dau
+    , wau AS chain_wau
+    , mau AS chain_mau
+    , dune_dex_volumes_linea.dex_volumes AS chain_spot_volume
+    , fees / txns as chain_avg_txn_fee
+    -- Cashflow Metrics
+    , fees AS ecosystem_revenue
+    , fees_native AS ecosystem_revenue_native
+    , revenue AS treasury_fee_allocation
+    , revenue_native AS treasury_fee_allocation_native
+    , l1_data_cost_native AS l1_fee_allocation_native
+    , l1_data_cost AS l1_fee_allocation
+    -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
-    , dune_dex_volumes_linea.dex_volumes
 from fundamental_data
 left join github_data using (date)
 left join contract_data using (date)

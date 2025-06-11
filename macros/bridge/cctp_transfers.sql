@@ -59,7 +59,7 @@
             decoded_log:destinationDomain::number as destination_domain_id
         from {{ chain }}_flipside.core.ez_decoded_event_logs 
         where lower(contract_address) = lower('{{ contract_address }}') and event_name in ('DepositForBurn')
-        and tx_status = 'SUCCESS'
+        and tx_succeeded = TRUE
         {% if is_incremental() %}
             and block_timestamp > (select dateadd('day', -1, max(block_timestamp)) from {{ this }} where source_domain_id = {{ source_domain_id }})
         {% endif %}

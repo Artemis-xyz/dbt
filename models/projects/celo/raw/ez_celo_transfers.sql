@@ -5,41 +5,46 @@
         database="celo",
         schema="raw",
         alias="ez_transfers",
+        unique_key=["transaction_hash", "event_index", "trace_index"]
     )
 }}
 
 select
-    block_timestamp,
-    block_number,
-    transaction_hash,
-    index::string as event_index,
-    contract_address,
-    from_address,
-    to_address,
-    amount::number as amount_raw,
-    amount_adjusted as amount_native, 
-    amount_usd as amount,
-    tx_status
+    block_timestamp
+    , block_number
+    , transaction_hash
+    , transaction_index
+    , trace_index
+    , -1 as event_index
+    , contract_address
+    , from_address
+    , to_address
+    , amount_raw
+    , amount_native
+    , amount
+    , price
 from {{ref('fact_celo_native_token_transfers')}}
 {% if is_incremental() %}
     where block_timestamp >= (select max(block_timestamp) from {{ this }})
-    and contract_address = 'native-token:42220'
+    and contract_address = 'eip155:42220:native'
 {% endif %}
 union all
 select
-    block_timestamp,
-    block_number,
-    transaction_hash,
-    event_index::string as event_index,
-    contract_address,
-    from_address,
-    to_address,
-    amount_raw,
-    amount_native,
-    amount,
-    1 as tx_status
+    block_timestamp
+    , block_number
+    , transaction_hash
+    , transaction_index
+    , '-1' as trace_index
+    , event_index
+    , contract_address
+    , from_address
+    , to_address
+    , amount_raw
+    , amount_native
+    , amount
+    , price
 from {{ref('fact_celo_token_transfers')}}
 {% if is_incremental() %}
     where block_timestamp >= (select max(block_timestamp) from {{ this }})
-    and contract_address <> 'native-token:42220'
+    and contract_address <> 'eip155:42220:native'
 {% endif %}

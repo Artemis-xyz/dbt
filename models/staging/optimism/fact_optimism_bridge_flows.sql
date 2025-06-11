@@ -1,32 +1,28 @@
-with
-    dim_contracts as (
-        select distinct address, chain, category
-        from {{ ref("dim_contracts_gold") }} 
-        where category is not null and chain is not null
-    ),
+{{
+    config(
+        materialized="table",
+        snowflake_warehouse="OPTIMISM",
+    )
+}}
 
+with
     volume_and_fees_by_chain_and_symbol as (
         select
-            date_trunc('hour', block_timestamp) as hour,
-            source_chain,
-            destination_chain,
-            coalesce(c.category, 'Not Categorized') as category,
-            coalesce((amount / power(10, p.decimals)) * price, 0) as amount_usd
+            date_trunc('day', block_timestamp) as date
+            , source_chain
+            , destination_chain
+            , case when contains(coalesce(lower(t.source_token_symbol), lower(t.destination_token_symbol)), 'usd') then 'Stablecoin' else 'Token' end as category
+            , amount_usd
         from {{ ref("fact_optimism_bridge_transfers") }} t
-        left join
-            ethereum_flipside.price.ez_prices_hourly p
-            on date_trunc('hour', t.block_timestamp) = p.hour
-            and t.token_address = p.token_address
-        left join dim_contracts c on lower(t.token_address) = lower(c.address) and c.chain = 'ethereum' --only using l1token
     )
 
 select
-    date_trunc('day', hour) as date,
+    date,
     'optimism' as app,
     source_chain,
     destination_chain,
     category,
-    sum(amount_usd) as amount_usd,
+    coalesce(sum(amount_usd), 0) as amount_usd,
     null as fee_usd
 from volume_and_fees_by_chain_and_symbol
 group by 1, 2, 3, 4, 5

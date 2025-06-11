@@ -35,26 +35,49 @@ with
     github_data as ({{ get_github_metrics("stacks") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("stacks") }})
 select
-    fundamental_data.date,
-    fundamental_data.chain,
-    txns,
-    dau,
-    wau,
-    mau,
-    fees_native,
-    fees,
-    fees / txns as avg_txn_fee,
-    price,
-    market_cap,
-    fdmc,
-    tvl,
-    weekly_commits_core_ecosystem,
-    weekly_commits_sub_ecosystem,
-    weekly_developers_core_ecosystem,
-    weekly_developers_sub_ecosystem
+    fundamental_data.date
+    , fundamental_data.chain
+    , txns
+    , dau
+    , wau
+    , mau
+    , fees_native
+    , fees
+    , fees / txns as avg_txn_fee
+
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , token_volume
+    , token_turnover_circulating
+
+    -- Usage Metrics
+    , dd.tvl as tvl
+    , dd.dex_volumes as chain_spot_volume
+
+    -- Chain Metrics
+    , dau as chain_dau
+    , wau as chain_wau
+    , mau as chain_mau
+    , txns as chain_txns
+    
+    -- Cashflow Metrics
+    , fees as chain_fees
+    , fees_native as ecosystem_revenue_native
+    , fees as ecosystem_revenue
+    , avg_txn_fee as chain_avg_txn_fee
+    , ecosystem_revenue as validator_fee_allocation
+    
+    -- Developer Metrics
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
 from fundamental_data
-left join price_data on fundamental_data.date = price_data.date
-left join defillama_data on fundamental_data.date = defillama_data.date
-left join github_data on fundamental_data.date = github_data.date
-left join rolling_metrics on fundamental_data.date = rolling_metrics.date
+left join price_data pd on fundamental_data.date = pd.date
+left join defillama_data dd on fundamental_data.date = dd.date
+left join github_data gd on fundamental_data.date = gd.date
+left join rolling_metrics rm on fundamental_data.date = rm.date
 where fundamental_data.date < to_date(sysdate())

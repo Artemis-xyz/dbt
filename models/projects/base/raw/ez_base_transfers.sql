@@ -37,7 +37,7 @@ token_transfers as (
     from base_flipside.core.ez_native_transfers 
     {% if is_incremental() %}
         where block_timestamp >= (
-            select dateadd('day', -7, max(block_timestamp)) 
+            select DATEADD('day', -3, max(block_timestamp)) 
             from {{ this }}
             where contract_address = 'eip:8453:native'
         )
@@ -57,12 +57,12 @@ token_transfers as (
         , raw_amount_precise as amount
         , raw_amount_precise / pow(10, c.num_decimals) as amount_adjusted
         , amount_usd
-        , position as tx_index
+        , tx_position as tx_index
         , -1 as trace_index
         , event_index
         , CONCAT(
             LPAD(block_number::TEXT, 16, '0'), 
-            '-', LPAD(position::TEXT, 8, '0'), 
+            '-', LPAD(tx_position::TEXT, 8, '0'), 
             '-', CASE WHEN trace_index = -1 THEN 'FFFFFFFF' ELSE LPAD(trace_index::TEXT, 8, '0') END,
             '-', CASE WHEN event_index = -1 THEN 'FFFFFFFF' ELSE LPAD(event_index::TEXT, 8, '0') END
         ) AS index
@@ -71,7 +71,7 @@ token_transfers as (
     left join base_flipside.core.fact_transactions txn using(tx_hash)
     {% if is_incremental() %}
         where block_timestamp >= (
-            select dateadd('day', -7, max(block_timestamp)) 
+            select DATEADD('day', -3, max(block_timestamp)) 
             from {{ this }}
             where contract_address <> 'eip:8453:native'
         )

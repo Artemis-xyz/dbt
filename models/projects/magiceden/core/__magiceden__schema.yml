@@ -1,0 +1,156 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  burns_native: &burns_native
+    name: burns_native
+    description: "The amount of native tokens burned"
+
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
+
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
+    description: "The USD value of the sum of platform fees, maker and taker fees, and royalties, paid to the protocol by NFT traders"
+    tags:
+      - artemis_gaap
+      - override
+
+  fdmc: &fdmc
+    name: fdmc
+    description: "The fully diluted market cap of $ME in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  market_cap: &market_cap
+    name: market_cap
+    description: "The market cap of $ME in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  net_supply_change_native: &net_supply_change_native
+    name: net_supply_change_native
+    description: "The net change in the circulating supply of a token in native tokens"
+
+  nft_collections_transacted: &nft_collections_transacted
+    name: nft_collections_transacted
+    description: "The number of NFT collections transacted on Magic Eden"
+    tags:
+      - override
+
+  nft_dau: &nft_dau
+    name: nft_dau
+    description: "The number of daily active NFT traders on Magic Eden"
+    tags:
+      - override
+
+  nft_fees: &nft_fees
+    name: nft_fees
+    description: "The total amount of fees (in USD) paid to Magic Eden by NFT traders"
+    tags:
+      - override
+
+  nft_royalties: &nft_royalties
+    name: nft_royalties
+    description: "The total amount of royalties (in USD) distributed to creators on Magic Eden"
+    tags:
+      - override
+
+  nft_txns: &nft_txns
+    name: nft_txns
+    description: "The number of NFT transactions on Magic Eden"
+    tags:
+      - override
+
+  nft_volume: &nft_volume
+    name: nft_volume
+    description: "The total volume of NFTs traded on Magic Eden"
+    tags:
+      - override
+
+  premine_unlocks_native: &premine_unlocks_native
+    name: premine_unlocks_native
+    description: "The amount of native tokens unlocked from premine"
+
+  price: &price
+    name: price
+    description: "The price of $ME in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
+    description: "The royalties distributed to NFT creators on Magic Eden."
+    tags:
+      - artemis_gaap
+      - override
+
+  token_turnover_circulating: &token_turnover_circulating
+    name: token_turnover_circulating
+    description: "The turnover of $ME in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  token_turnover_fdv: &token_turnover_fdv
+    name: token_turnover_fdv
+    description: "The turnover of $ME in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of $ME in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
+    description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
+    tags:
+      - artemis_gaap
+
+models:
+  - name: ez_magiceden_metrics_by_chain
+    description: "This table stores metrics for the MAGICEDEN protocol"
+    columns:
+      - *ecosystem_revenue
+      - *nft_collections_transacted
+      - *nft_dau
+      - *nft_fees
+      - *nft_royalties
+      - *nft_txns
+      - *nft_volume
+      - *service_fee_allocation
+      - *treasury_fee_allocation
+
+  - name: ez_magiceden_metrics
+    description: "This table stores metrics for the MAGICEDEN protocol"
+    columns:
+      - *burns_native
+      - *circulating_supply_native
+      - *ecosystem_revenue
+      - *fdmc
+      - *market_cap
+      - *net_supply_change_native
+      - *nft_collections_transacted
+      - *nft_dau
+      - *nft_royalties
+      - *nft_txns
+      - *nft_volume
+      - *premine_unlocks_native
+      - *price
+      - *service_fee_allocation
+      - *token_turnover_circulating
+      - *token_turnover_fdv
+      - *token_volume
+      - *treasury_fee_allocation
+

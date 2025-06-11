@@ -1,0 +1,30 @@
+models:
+- name: fact_gains_trading_volume_unique_traders
+  tests:
+  - 'dbt_expectations.expect_table_row_count_to_be_between:':
+      min_value: 1
+      max_value: 1000000
+  columns:
+  - name: DATE
+    tests:
+    - not_null
+    - dbt_expectations.expect_column_to_exist
+    # Upstream source deprecated in favor of fact_gains_data_v8_v9
+    # - dbt_expectations.expect_row_values_to_have_recent_data:
+    #     datepart: day
+    #     interval: 3
+    #     severity: warn
+  - name: UNIQUE_TRADERS
+    tests:
+    - not_null
+    - dbt_expectations.expect_column_to_exist
+  - name: CHAIN
+    tests:
+    - dbt_expectations.expect_column_to_exist
+  - name: TRADING_VOLUME
+    tests:
+    - not_null
+    - dbt_expectations.expect_column_to_exist
+  - name: APP
+    tests:
+    - dbt_expectations.expect_column_to_exist

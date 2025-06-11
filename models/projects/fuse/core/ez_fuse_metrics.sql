@@ -29,15 +29,31 @@ select
     , fees
     , case when txns > 0 then fees / txns end as avg_txn_fee
     , fees_native
-    , tvl
     , dex_volumes
+    -- Standardized Metrics
+    -- Market Data
+    , price
+    , market_cap
+    , fdmc
+    , token_volume
+    -- Chain Metrics
+    , txns as chain_txns
+    , dau as chain_dau
+    , avg_txn_fee as chain_avg_txn_fee
+    , dex_volumes as chain_spot_volume
+    -- Cash Flow Metrics
+    , fees as chain_fees
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
+    -- Crypto Metrics
+    , tvl
+    -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
-    , price
-    , market_cap
-    , fdmc
+    , token_turnover_circulating
+    , token_turnover_fdv
 from fundamental_data
 left join github_data using (date)
 left join defillama_data using (date)

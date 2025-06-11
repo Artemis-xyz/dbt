@@ -1,0 +1,7 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_pendle_sy_info
+      - name: raw_pendle_sy

@@ -14,6 +14,7 @@ with
             date
             , 'ETH' as token
             , num_staked_eth
+            , amount_staked_usd
         from {{ ref('fact_rocketpool_staked_eth_count_with_USD_and_change') }}
     )
     , fees_revs_cte as (
@@ -22,11 +23,11 @@ with
             , 'ETH' as token
             , cl_rewards_eth
             , el_rewards_eth
-            , deposit_fee_eth as deposit_fees
-            , cl_rewards_eth + el_rewards_eth + deposit_fees as fees
-            , cl_rewards_eth + el_rewards_eth as primary_supply_side_revenue
-            , deposit_fees as secondary_supply_side_revenue
-            , fees as total_supply_side_revenue
+            , deposit_fee_eth as deposit_fees_native
+            , cl_rewards_eth + el_rewards_eth + deposit_fee_eth as fees_native
+            , cl_rewards_eth + el_rewards_eth as primary_supply_side_revenue_native
+            , deposit_fee_eth as secondary_supply_side_revenue_native
+            , fees_native as total_supply_side_revenue_native
         from {{ ref('fact_rocketpool_fees_revs') }}
         left join {{ ref('fact_rocketpool_deposit_fees') }} using(date)
     )
@@ -85,25 +86,38 @@ with
 select
     coalesce(staked_eth_metrics.date, f.date, ti.date, t.date, nt.date, tn.date, os.date, th.date) as date
     , token
+
+    --Old metrics needed for compatibility
     , COALESCE(f.cl_rewards_eth, 0) as cl_rewards_eth
     , COALESCE(f.el_rewards_eth, 0) as el_rewards_eth
-    , COALESCE(f.deposit_fees, 0) as deposit_fees
-    , COALESCE(f.fees, 0) as fees
-    , COALESCE(f.primary_supply_side_revenue, 0) as primary_supply_side_revenue
-    , COALESCE(f.secondary_supply_side_revenue, 0) as secondary_supply_side_revenue
-    , COALESCE(f.total_supply_side_revenue, 0) as total_supply_side_revenue
+    , COALESCE(f.deposit_fees_native, 0) as deposit_fees_native
+    , COALESCE(f.fees_native, 0) as fees_native
+    , COALESCE(f.primary_supply_side_revenue_native, 0) as primary_supply_side_revenue_native
+    , COALESCE(f.secondary_supply_side_revenue_native, 0) as secondary_supply_side_revenue_native
+    , COALESCE(f.total_supply_side_revenue_native, 0) as total_supply_side_revenue_native
     , 0 as protocol_revenue
     , COALESCE(ti.token_incentives, 0) as token_incentives
     , 0 as operating_expenses
     , COALESCE(token_incentives, 0) as total_expenses
-    , coalesce(protocol_revenue,0) - coalesce(token_incentives,0) as protocol_earnings
+    , coalesce(protocol_revenue,0) - coalesce(token_incentives,0) as earnings
     , coalesce(staked_eth_metrics.num_staked_eth, 0) as net_deposits
     , coalesce(os.reth_supply, 0) as outstanding_supply
-    , coalesce(staked_eth_metrics.num_staked_eth, 0) as tvl
     , COALESCE(t.treasury_value, 0) as treasury_value
-    , COALESCE(tn.treasury_native, 0) as treasury_value_native
-    , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
-    , COALESCE(th.token_holder_count, 0) as token_holder_count
+
+    --Standardized Metrics
+
+    --Usage Metrics
+    , staked_eth_metrics.num_staked_eth as tvl_native
+    , staked_eth_metrics.amount_staked_usd as tvl
+
+    , COALESCE(f.cl_rewards_eth, 0) as block_rewards_native
+    , COALESCE(f.el_rewards_eth, 0) as mev_priority_fees_native
+    , COALESCE(f.deposit_fees_native, 0) as lst_deposit_fees_native
+    , COALESCE(f.cl_rewards_eth, 0) + COALESCE(f.el_rewards_eth, 0) as yield_generated_native
+    , COALESCE(f.fees_native, 0) as ecosystem_revenue_native
+    , ecosystem_revenue_native * 0.14 as validator_fee_allocation_native
+    , ecosystem_revenue_native * 0.86 as service_fee_allocation_native
+
 from staked_eth_metrics
 full join fees_revs_cte f using (date, token)
 full join token_incentives_cte ti using (date, token)

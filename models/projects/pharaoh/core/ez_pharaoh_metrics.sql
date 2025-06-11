@@ -16,15 +16,19 @@ with pharaoh_tvl as (
 )
 
 select
-    pharaoh_tvl.date,
-    'Defillama' as source,
-    pharaoh_tvl.tvl,
-    pharaoh_market_data.price,
-    pharaoh_market_data.market_cap,
-    pharaoh_market_data.fdmc,
-    pharaoh_market_data.token_turnover_circulating,
-    pharaoh_market_data.token_turnover_fdv,
-    pharaoh_market_data.token_volume
+    pharaoh_tvl.date
+    , 'Defillama' as source
+
+    -- Standardized Metrics
+    , pharaoh_tvl.tvl
+
+    -- Market Metrics
+    , pmd.price
+    , pmd.market_cap
+    , pmd.fdmc
+    , pmd.token_turnover_circulating
+    , pmd.token_turnover_fdv
+    , pmd.token_volume
 from pharaoh_tvl
-left join pharaoh_market_data using (date)
+left join pharaoh_market_data pmd using (date)
 where pharaoh_tvl.date < to_date(sysdate())

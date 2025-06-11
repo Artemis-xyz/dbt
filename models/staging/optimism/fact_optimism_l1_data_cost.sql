@@ -2,7 +2,7 @@
 with
     opt_data as (
         select raw_date as date, sum(tx_fee) as fees_native, sum(gas_usd) as fees
-        from {{ ref("ez_ethereum_transactions") }}
+        from {{ ref("fact_ethereum_transactions_v2") }}
         where
             lower(contract_address) in (
                 lower('0x4BF681894abEc828B212C906082B444Ceb2f6cf6'),
@@ -24,7 +24,7 @@ from opt_data
 where opt_data.date < to_date(sysdate()) and l1_data_cost_native is not null
 {% if is_incremental() %} 
     and opt_data.date >= (
-        select dateadd('day', -5, max(date))
+        select dateadd('day', -3, max(date))
         from {{ this }}
     )
 {% endif %}

@@ -1,7 +1,12 @@
 sources:
+  - name: MANUAL_STATIC_TABLES
+    schema: PROD
+    database: pc_dbt_db
+    tables:
+      - name: jupiter_daily_premine_unlocks
   - name: PROD_LANDING
     schema: PROD_LANDING
     database: LANDING_DATABASE
     tables:
       - name: raw_jupiter_aggregator_metrics
-      - name: raw_jupiter_aggregator_unique_traders
+      - name: raw_jupiter_aggregator_volume

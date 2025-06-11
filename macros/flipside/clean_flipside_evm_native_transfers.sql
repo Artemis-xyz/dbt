@@ -1,4 +1,4 @@
-{% macro clean_flipside_evm_transactions(chain, native_token_coingecko_id='ethereum') %}
+{% macro clean_flipside_evm_native_token_transfers(chain, native_token_coingecko_id='ethereum') %}
 
 with
     prices as ({{ get_coingecko_price_with_latest(native_token_coingecko_id)}})
@@ -20,6 +20,8 @@ with
                 where block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
             {% endif %}
             union all
+        -- Block Rewards
+        -- TODO: Add block rewards
         {% endif %}
         --Native Transfers
         select
@@ -30,8 +32,8 @@ with
             , trace_index
             , from_address
             , to_address
-            , value::float as value_raw
-            , value / 1e18 as value_native
+            , value_precise_raw::float as value_raw
+            , value_raw / 1e18 as value_native
         from {{ chain }}_flipside.core.fact_traces
         where tx_succeeded
             and trace_succeeded
@@ -69,11 +71,20 @@ select
     , to_address
     , value_raw::float as amount_raw
     , value_native::float as amount_native
-    , value_native::float * price as amount
-    , price
+    , case 
+        -- No pricing for Ethereum Genesis transactions
+        when '{{chain}}' = 'ethereum' and block_timestamp::date <= '2015-07-29' then value_native::float * coalesce(price, .31) 
+        else value_raw::float * price
+    end as amount
+    , case 
+        -- No pricing for Ethereum Genesis transactions
+        when '{{chain}}' = 'ethereum' and block_timestamp::date <= '2015-07-29' then coalesce(price, .31) 
+        else price
+    end as price
 from native_transfers
 left join prices 
     on native_transfers.block_timestamp::date = prices.date
 left join {{ref("dim_chain_id_mapping")}} on chain_name = '{{chain}}'
+where block_timestamp::date < to_date(sysdate()) and amount_raw > 0
 {% endmacro %}
 

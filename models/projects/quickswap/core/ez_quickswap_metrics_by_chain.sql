@@ -30,16 +30,28 @@ with
         group by date, chain
     )
 select
-    tvl_by_chain.date,
-    'quickswap' as app,
-    'DeFi' as category,
-    tvl_by_chain.chain,
-    tvl_by_chain.tvl,
-    trading_volume_by_chain.trading_volume,
-    trading_volume_by_chain.trading_fees,
-    trading_volume_by_chain.unique_traders,
-    trading_volume_by_chain.gas_cost_native,
-    trading_volume_by_chain.gas_cost_usd
+    tvl_by_chain.date
+    , 'quickswap' as app
+    , 'DeFi' as category
+    , tvl_by_chain.chain
+    , trading_volume_by_chain.trading_volume
+    , trading_volume_by_chain.trading_fees
+    , trading_volume_by_chain.unique_traders
+    , trading_volume_by_chain.gas_cost_usd
+
+    -- Standardized Metrics
+    -- Usage/Sector Metrics
+    , trading_volume_by_chain.unique_traders as spot_dau
+    , trading_volume_by_chain.trading_volume as spot_volume
+    , tvl_by_chain.tvl
+    
+    -- Money Metrics
+    , trading_volume_by_chain.trading_fees as spot_fees
+    , trading_volume_by_chain.trading_fees as ecosystem_revenue
+    -- We only track v2 where all fees go to LPs
+    , trading_volume_by_chain.trading_fees as service_fee_allocation
+    , trading_volume_by_chain.gas_cost_native
+    , trading_volume_by_chain.gas_cost_usd as gas_cost
 from tvl_by_chain
 left join trading_volume_by_chain using(date, chain)
 where tvl_by_chain.date < to_date(sysdate())

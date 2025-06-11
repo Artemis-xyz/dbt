@@ -1,0 +1,6 @@
+sources:
+  - name: MANUAL_STATIC_TABLES
+    schema: PROD
+    database: pc_dbt_db
+    tables:
+      - name: magiceden_daily_premine_unlocks

@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_avalanche_transactions") }}
+-- depends_on {{ ref("fact_avalanche_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -7,7 +7,7 @@
 -- TODO: Track already minted tokens for rewards to validators to calcualte
 -- circulating_supply: SEE AVA Labs chat
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("avalanche") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("avalanche", "v2") }}),
     burns_data as (
         select date, sum(fees_native) over (order by date) as cumulative_burns
         from fundamental_data

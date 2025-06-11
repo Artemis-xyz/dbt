@@ -12,9 +12,9 @@ WITH transaction_data AS (
     SELECT
         DATE(t.block_timestamp) AS date,
         t.tx_id,
-        n.sales_amount,
-        n.seller,
-        n.purchaser,
+        n.price,
+        n.seller_address AS seller,
+        n.buyer_address AS purchaser,
         m.nft_collection_name,
         -- Extract platform and maker fees
         COALESCE(
@@ -40,7 +40,7 @@ WITH transaction_data AS (
     FROM 
         solana_flipside.core.fact_transactions t
     JOIN 
-        solana_flipside.nft.fact_nft_sales n
+        solana_flipside.nft.ez_nft_sales n
     ON 
         t.tx_id = n.tx_id
     LEFT JOIN 
@@ -62,7 +62,7 @@ converted_data AS (
     SELECT
         td.date,
         td.tx_id,
-        td.sales_amount,
+        td.price,
         td.seller,
         td.purchaser,
         td.nft_collection_name,
@@ -71,7 +71,7 @@ converted_data AS (
         td.royalty_sol,
         td.price_sol,
         sr.price,
-        td.sales_amount * sr.price AS sales_amount_usd,
+        td.price * sr.price AS sales_amount_usd,
         td.maker_fee_sol * sr.price AS maker_fee_usd,
         td.platform_fee_sol * sr.price AS platform_fee_usd,
         td.royalty_sol * sr.price AS royalty_usd,

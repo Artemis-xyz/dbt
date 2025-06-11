@@ -20,5 +20,7 @@ select
     'DeFi' as category,
     chain,
     trading_volume
+    -- standardize metrics
+    , trading_volume as perp_volume
 from trading_volume_data
 where date < to_date(sysdate())

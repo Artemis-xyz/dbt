@@ -1,0 +1,75 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
+    description: "Equivalent to total trading fees generated on Orca Whirpool."
+    tags:
+      - artemis_gaap
+      - override
+
+  other_fee_allocation: &other_fee_allocation
+    name: other_fee_allocation
+    description: "Revenue distributed to Orca's climate fund, equal to 1% of total trading fees."
+    tags:
+      - artemis_gaap
+      - override
+
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
+    description: "The share of gross protocol revenue accrued to LPs of the protocol. Equal to 87% of gross protocol revenue."
+    tags:
+      - artemis_gaap
+      - override
+
+  spot_dau: &spot_dau
+    name: spot_dau
+    description: "The number of daily active traders on a spot dex"
+
+  spot_txns: &spot_txns
+    name: spot_txns
+    description: "The number of daily trades on a spot dex"
+
+  spot_volume: &spot_volume
+    name: spot_volume
+    description: "The total volume on a spot dex"
+
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
+    description: "12% of gross protocol revenue is allocated to the protocol's treasury for future use, including development, growth, or governance."
+    tags:
+      - artemis_gaap
+      - override
+
+  tvl: &tvl
+    name: tvl
+    description: "The total value locked in a protocol"
+
+models:
+  - name: ez_orca_metrics
+    description: "This table stores metrics for the ORCA protocol"
+    columns:
+      - *ecosystem_revenue
+      - *other_fee_allocation
+      - *service_fee_allocation
+      - *spot_dau
+      - *spot_txns
+      - *spot_volume
+      - *treasury_fee_allocation
+      - *tvl
+
+  - name: ez_orca_metrics_by_chain
+    description: "This table stores metrics for the ORCA protocol"
+    columns:
+      - *ecosystem_revenue
+      - *other_fee_allocation
+      - *service_fee_allocation
+      - *spot_dau
+      - *spot_txns
+      - *spot_volume
+      - *treasury_fee_allocation
+      - *tvl
+

@@ -6,13 +6,13 @@ decoded_debridge_data as (
     select 
         value:"orderId":"stringValue"::string as order_id
         , value:"creationTimestamp"::timestamp as src_timestamp
-        , value:"giveOfferWithMetadata":"amount":"bigIntegerValue"::number as amount_sent_native
+        , value:"giveOfferWithMetadata":"amount":"bigIntegerValue"::string as amount_sent_native
         , value:"giveOfferWithMetadata":"chainId":"bigIntegerValue"::number as source_chain_id
         , value:"giveOfferWithMetadata":"decimals"::number as source_token_decimals
         , value:"giveOfferWithMetadata":"symbol"::string as source_token_symbol
         , value:"giveOfferWithMetadata":"tokenAddress":"stringValue"::string as source_token_address
         , value:"createEventTransactionHash":"stringValue"::string as source_tx_hash
-        , value:"takeOfferWithMetadata":"amount":"bigIntegerValue"::number as amount_received_native
+        , value:"takeOfferWithMetadata":"amount":"bigIntegerValue"::string  amount_received_native
         , value:"takeOfferWithMetadata":"chainId":"bigIntegerValue"::number as destination_chain_id
         , value:"takeOfferWithMetadata":"decimals"::number as destination_token_decimals
         , value:"takeOfferWithMetadata":"symbol"::string as destination_token_symbol
@@ -42,20 +42,22 @@ latest_data as (
         max_by(fix_fee_native, extraction_date) as fix_fee_native,
         max_by(percentage_fee_native, extraction_date) as percentage_fee_native,
         max_by(state, extraction_date) as state,
-        extraction_date
+        max(extraction_date) as extraction_date
     from decoded_debridge_data t1
-    GROUP BY order_id, extraction_date
+    GROUP BY order_id
 )
 select 
     order_id,
     src_timestamp,
-    amount_sent_native,
+    IFF(length(amount_sent_native) < 38, amount_sent_native::number, SUBSTRING(amount_sent_native, 1, 39)::number) as amount_sent_native,
+    IFF(length(amount_sent_native) < 38, null, SUBSTRING(amount_sent_native, 39)::number) as amount_sent_native_remainder,
     src_chain.chain as source_chain,
     source_token_decimals,
     source_token_symbol,
     source_token_address,
     source_tx_hash,
-    amount_received_native,
+    IFF(length(amount_received_native) < 38, amount_received_native::number, SUBSTRING(amount_received_native, 1, 39)::number) as amount_received_native,
+    IFF(length(amount_received_native) < 38, null, SUBSTRING(amount_received_native, 39)::number) as amount_received_native_remainder,
     dst_chain.chain as destination_chain,
     destination_token_decimals,
     destination_token_symbol,

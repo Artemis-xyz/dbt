@@ -12,7 +12,7 @@ with
         {% if is_incremental() %}
             where
                 extraction_date >= (
-                    select dateadd('day', -5, max(trunc(block_timestamp, 'day')))
+                    select dateadd('day', -3, max(trunc(block_timestamp, 'day')))
                     from {{ this }}
                 )
         {% endif %}

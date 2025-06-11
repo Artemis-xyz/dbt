@@ -17,12 +17,17 @@ with
             , t1.contract_address
             , symbol
             , address
-            {% if chain in ('solana') %}
-                , amount as stablecoin_supply_native
-            {% else %}
-                , balance_token / pow(10, num_decimals) as stablecoin_supply_native
-            {% endif %}
+    {% if chain in ('solana') %}
+            , amount as stablecoin_supply_native
         from {{ ref("fact_" ~ chain ~ "_address_balances_by_token")}} t1
+    {% elif chain in ('celo', 'base', 'sonic', 'tron', 'kaia', 'aptos') %}
+            , balance_raw / pow(10, num_decimals) as stablecoin_supply_native
+        from {{ ref("fact_"~chain~"_address_balances")}} t1
+    {% else %}
+            , balance_token / pow(10, num_decimals) as stablecoin_supply_native
+        from {{ ref("fact_" ~ chain ~ "_address_balances_by_token")}} t1
+    {% endif %}
+    
         inner join {{ ref("fact_" ~ chain ~ "_stablecoin_contracts")}} t2
             on lower(t1.contract_address) = lower(t2.contract_address)
         where block_timestamp < to_date(sysdate())

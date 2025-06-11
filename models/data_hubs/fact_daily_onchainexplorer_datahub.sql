@@ -7,6 +7,7 @@ WITH last_30_days AS (
         namespace,
         date,
         dau,
+        real_users,
         total_gas_usd
     FROM {{ ref('all_chains_gas_dau_txns_by_contract_v2') }}
     WHERE date >= DATEADD(DAY, -30, CURRENT_DATE)
@@ -15,7 +16,9 @@ last_30_days_name_augmented AS (
     SELECT
         l.*,
         ag.app_name,
-        ag.icon
+        ag.icon,
+        ag.artemis_category_id,
+        ag.artemis_sub_category_id
     FROM last_30_days l
     LEFT JOIN {{ ref('dim_all_apps_gold') }} ag
      ON l.namespace = ag.artemis_application_id
@@ -27,9 +30,12 @@ aggregated AS (
         app_name,
         icon,
         'application' AS type,
+        MAX(artemis_category_id) AS category,
+        MAX(artemis_sub_category_id) AS sub_category,
         chain,
         date,
         SUM(dau) AS dau,
+        SUM(real_users) AS real_users,
         SUM(total_gas_usd) AS total_gas_usd
     FROM last_30_days_name_augmented
     WHERE namespace IS NOT NULL
@@ -43,9 +49,12 @@ aggregated AS (
         NULL AS app_name,
         NULL AS icon,
         'address' AS type,
+        NULL AS category,
+        NULL AS sub_category,
         chain,
         date,
         dau,
+        real_users,
         total_gas_usd
     FROM last_30_days_name_augmented
     WHERE namespace IS NULL AND contract_address IS NOT NULL AND TRIM(contract_address) <> ''
@@ -56,7 +65,7 @@ date_range AS (
     FROM TABLE(GENERATOR(ROWCOUNT => 30))
 ),
 unique_ids AS (
-    SELECT DISTINCT unique_id, app_or_address, app_name, icon, type, chain
+    SELECT DISTINCT unique_id, app_or_address, app_name, icon, type, category, sub_category, chain
     FROM aggregated
 ),
 all_dates AS (
@@ -71,9 +80,12 @@ final_aggregated AS (
         d.app_name,
         d.icon,
         d.type,
+        d.category,
+        d.sub_category,
         d.chain,
         d.date,
         COALESCE(ag.dau, NULL) AS dau,
+        COALESCE(ag.real_users, NULL) AS real_users,
         COALESCE(ag.total_gas_usd, NULL) AS total_gas_usd
     FROM all_dates d
     LEFT JOIN aggregated ag 
@@ -83,19 +95,18 @@ final_aggregated AS (
 ranked_unique_ids AS (
     SELECT 
         unique_id,
+        app_name,
         chain,
-        AVG(dau) AS avg_dau,
-        SUM(total_gas_usd) AS avg_total_gas_usd,
         ROW_NUMBER() OVER (
             PARTITION BY chain 
-            ORDER BY SUM(total_gas_usd) DESC, unique_id
+            ORDER BY SUM(total_gas_usd) DESC NULLS LAST, unique_id
         ) AS chain_rank,
         ROW_NUMBER() OVER (
-            ORDER BY SUM(total_gas_usd) DESC, unique_id
+            ORDER BY SUM(total_gas_usd) DESC NULLS LAST, unique_id
         ) AS global_rank
     FROM final_aggregated
     WHERE app_or_address IS NOT NULL AND app_or_address != 'Unlabeled'
-    GROUP BY unique_id, chain
+    GROUP BY unique_id, app_name, chain
 ),
 filtered_ids AS (
     SELECT 
@@ -103,7 +114,7 @@ filtered_ids AS (
         chain_rank, 
         global_rank 
     FROM ranked_unique_ids 
-    WHERE chain_rank <= 10000 OR global_rank <= 10000
+    WHERE chain_rank <= 10000 OR global_rank <= 10000 OR app_name IS NOT NULL
 ),
 clean_datahub AS (
     SELECT DISTINCT
@@ -112,6 +123,8 @@ clean_datahub AS (
         a.app_name,
         a.icon,
         a.type,
+        a.category,
+        a.sub_category,
         a.chain,
         a.date,
         a.dau,
@@ -119,6 +132,7 @@ clean_datahub AS (
         LAG(a.dau, 1) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS t_minus_one_dau,
         LAG(a.dau, 7) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS t_minus_seven_dau,
         LAG(a.dau, 29) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS t_minus_thirty_dau,
+        a.real_users,
         a.total_gas_usd,
         LAG(a.total_gas_usd, 0) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS latest_fees,
         LAG(a.total_gas_usd, 1) OVER (PARTITION BY a.app_or_address, a.chain ORDER BY date ASC) AS t_minus_one_fees,
@@ -134,6 +148,7 @@ grouped_stats AS (
         app_or_address,
         chain,
         AVG(dau) AS dau_30d_avg,
+        AVG(real_users) AS real_users_30d_avg,
         SUM(total_gas_usd) AS fees_30d_total,
         ARRAY_AGG(OBJECT_CONSTRUCT('date', date, 'val', COALESCE(dau, 0))) 
             WITHIN GROUP (ORDER BY date ASC) AS dau_30d_historical
@@ -146,9 +161,12 @@ individual_stats AS (
         app_name,
         icon,
         type,
+        category,
+        sub_category,
         chain,
         date,
         dau,
+        real_users,
         latest_dau,
         t_minus_one_dau,
         t_minus_seven_dau,
@@ -225,13 +243,17 @@ final_result AS (
         s.dau_7d_change,
         s.dau_30d_change,
         gs.dau_30d_historical,
+        s.real_users,
+        gs.real_users_30d_avg,
         s.total_gas_usd AS fees,
         gs.fees_30d_total,
         s.fees_1d_change,
         s.fees_7d_change,
         s.fees_30d_change,
         s.chain_rank,
-        s.global_rank
+        s.global_rank,
+        s.category,
+        s.sub_category,
     FROM individual_stats s
     JOIN grouped_stats gs ON s.app_or_address = gs.app_or_address AND s.chain = gs.chain
 ),
@@ -252,7 +274,29 @@ merged_results AS (
     -- Use new data for chains with up-to-date information
     SELECT 
         CONCAT(s.app_or_address, '|', s.chain) AS unique_id,
-        s.*,
+        s.app_or_address,
+        s.app_name,
+        s.icon,
+        s.type,
+        s.chain,
+        s.date,
+        s.dau,
+        s.dau_30d_avg,
+        s.dau_1d_change,
+        s.dau_7d_change,
+        s.dau_30d_change,
+        s.dau_30d_historical,
+        s.real_users,
+        s.real_users_30d_avg,
+        s.fees,
+        s.fees_30d_total,
+        s.fees_1d_change,
+        s.fees_7d_change,
+        s.fees_30d_change,
+        s.chain_rank,
+        s.global_rank,
+        s.category,
+        s.sub_category,
         ft.fees_total
     FROM final_result s
     LEFT JOIN fees_all_time ft 
@@ -263,8 +307,80 @@ merged_results AS (
     UNION ALL
     
     -- Use existing data for chains with outdated information
-    SELECT *
+    SELECT 
+        unique_id,
+        app_or_address,
+        app_name,
+        icon,
+        type,
+        chain,
+        date,
+        dau,
+        dau_30d_avg,
+        dau_1d_change,
+        dau_7d_change,
+        dau_30d_change,
+        dau_30d_historical,
+        real_users,
+        real_users_30d_avg,
+        fees,
+        fees_30d_total,
+        fees_1d_change,
+        fees_7d_change,
+        fees_30d_change,
+        chain_rank,
+        global_rank,
+        category,
+        sub_category,
+        fees_total
     FROM {{ this }}
     WHERE chain IN (SELECT chain FROM outdated_chains)
+),
+all_apps_for_all_chains AS (
+    SELECT DISTINCT 
+        CONCAT(ac.namespace, '|', ac.chain) AS unique_id,
+        ac.namespace AS app_or_address,
+        ag.app_name,
+        ag.icon,
+        'application' AS type,
+        ag.artemis_category_id AS category,
+        ag.artemis_sub_category_id AS sub_category,
+        ac.chain
+    FROM {{ ref('all_chains_gas_dau_txns_by_contract_v2') }} ac
+    LEFT JOIN {{ ref('dim_all_apps_gold') }} ag
+        ON ac.namespace = ag.artemis_application_id
+    WHERE ac.namespace IS NOT NULL
+),
+all_including_apps_with_no_30d_activity AS (
+    SELECT 
+        COALESCE(mr.unique_id, aac.unique_id) AS unique_id,
+        COALESCE(mr.app_or_address, aac.app_or_address) AS app_or_address,
+        COALESCE(mr.app_name, aac.app_name) AS app_name,
+        COALESCE(mr.icon, aac.icon) AS icon,
+        COALESCE(mr.type, aac.type) AS type,
+        COALESCE(mr.chain, aac.chain) AS chain,
+        mr.date,
+        mr.dau,
+        mr.dau_30d_avg,
+        mr.dau_1d_change,
+        mr.dau_7d_change,
+        mr.dau_30d_change,
+        mr.dau_30d_historical,
+        mr.real_users,
+        mr.real_users_30d_avg,
+        mr.fees,
+        mr.fees_30d_total,
+        mr.fees_1d_change,
+        mr.fees_7d_change,
+        mr.fees_30d_change,
+        mr.chain_rank,
+        mr.global_rank,
+        COALESCE(mr.category, aac.category) AS category,
+        COALESCE(mr.sub_category, aac.sub_category) AS sub_category,
+        mr.fees_total
+    FROM merged_results mr
+    FULL OUTER JOIN all_apps_for_all_chains aac
+        ON mr.app_or_address = aac.app_or_address
+        AND mr.chain = aac.chain
 )
-SELECT DISTINCT * FROM merged_results
+SELECT DISTINCT * FROM all_including_apps_with_no_30d_activity

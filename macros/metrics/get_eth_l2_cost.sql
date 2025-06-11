@@ -9,7 +9,7 @@
             {% endfor %}
         )
         {% if is_incremental() %}
-            and block_timestamp >= dateadd(day, -5, (select min(date) from {{ this }}))
+            and block_timestamp >= dateadd(day, -3, (select min(date) from {{ this }}))
         {% endif %}
         and block_timestamp < date(sysdate())
         and block_timestamp >= '{{ start_date }}'

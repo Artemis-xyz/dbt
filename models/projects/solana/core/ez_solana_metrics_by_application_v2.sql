@@ -11,7 +11,7 @@
 with
     min_date as (
         select min(raw_date) as start_date, value as signer, app
-        from {{ ref("ez_solana_transactions_v2") }}, lateral flatten(input => signers)
+        from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         where not equal_null(category, 'EOA') and app is not null and succeeded = 'TRUE'
         group by app, signer
     ),
@@ -26,7 +26,7 @@ with
             app,
             count(distinct signers[0]) as low_sleep_users,
             count(*) as tx_n
-        from {{ ref("ez_solana_transactions_v2") }}
+        from {{ ref('fact_solana_transactions_v2') }}
         where user_type = 'LOW_SLEEP' and app is not null
         group by user_type, raw_date, app
     ),
@@ -36,7 +36,7 @@ with
             app,
             count(distinct signers[0]) as sybil_users,
             count(*) as tx_n
-        from {{ ref("ez_solana_transactions_v2") }}
+        from {{ ref('fact_solana_transactions_v2') }}
         where engagement_type = 'sybil'
         group by engagement_type, raw_date, app
     ),
@@ -49,9 +49,11 @@ with
             max(category) category,
             sum(case when index = 0 then tx_fee else 0 end) gas,
             sum(case when index = 0 then gas_usd else 0 end) gas_usd,
+            sum(case when index = 0 then tx_fee + COALESCE(jito_tips, 0) else 0 end) rev,
+            sum(case when index = 0 then gas_usd + COALESCE(jito_tips_usd, 0) else 0 end) rev_usd,
             count_if(index = 0 and succeeded = 'TRUE') as txns,
             count(distinct(case when succeeded = 'TRUE' then value else null end)) dau
-        from {{ ref("ez_solana_transactions_v2") }}, lateral flatten(input => signers)
+        from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         where not equal_null(category, 'EOA') and app is not null
         group by raw_date, app
     )
@@ -62,9 +64,21 @@ select
     friendly_name,
     case when category = 'Tokens' then 'Token' else category end as category,
     gas,
+    CASE 
+        WHEN dau = 0 OR dau IS NULL THEN NULL
+        ELSE gas / dau
+    END AS avg_gas_per_address,
     gas_usd,
+    CASE 
+        WHEN dau = 0 OR dau IS NULL THEN NULL
+        ELSE gas_usd / dau
+    END AS avg_gas_usd_per_address,
+    rev,
+    rev_usd,
     txns,
     dau,
+    null AS contract_count,
+    null AS real_users,
     (dau - new_users) as returning_users,
     new_users,
     low_sleep_users,

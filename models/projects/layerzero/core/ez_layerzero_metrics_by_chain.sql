@@ -25,11 +25,20 @@ with fees as (
 )
 
 SELECT
-    coalesce(f.date, d.date) as date,
-    f.chain,
-    f.fees,
-    d.dau as bridge_daa,
-    d.txns as bridge_txns
+    coalesce(f.date, d.date) as date
+    , d.chain
+    , coalesce(d.dau, 0) as bridge_daa
+    , coalesce(f.fees, 0) as fees
+
+    -- Standardized Metrics
+
+    -- Cash Flow Metrics
+    , coalesce(fees, 0) as ecosystem_revenue
+    
+    -- Bridge Metrics
+    , coalesce(d.dau, 0) as bridge_dau
+    , coalesce(f.fees, 0) as bridge_fees
+    , coalesce(d.txns, 0) as bridge_txns
 FROM dau_txns d
 LEFT JOIN  fees f using (date, chain)
 WHERE coalesce(f.date, d.date) < to_date(sysdate())

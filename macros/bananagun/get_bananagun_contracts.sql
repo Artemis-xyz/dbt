@@ -3,6 +3,7 @@ WITH all_contracts AS (
     SELECT
         '{{ chain }}' AS source,
         TO_ADDRESS AS to_address,
+        sysdate() as last_updated_timestamp
     FROM
         {{ chain }}_FLIPSIDE.CORE.FACT_TRACES
     WHERE
@@ -18,10 +19,14 @@ WITH all_contracts AS (
             )
             {% endif %}
         )
+    {% if is_incremental() %}
+        AND block_timestamp > (SELECT dateadd('day', -3, MAX(last_updated_timestamp)) FROM {{ this }})
+    {% endif %}
 )
 SELECT
     source,
     to_address as contract_address,
+    last_updated_timestamp
 FROM
     all_contracts 
     

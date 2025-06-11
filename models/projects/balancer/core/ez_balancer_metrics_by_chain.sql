@@ -16,8 +16,11 @@ with swap_metrics as (
         count(*) as number_of_swaps,
         sum(trading_volume) as trading_volume,
         sum(fee_usd) as trading_fees,
-        sum(revenue) as revenue,
-        sum(supply_side_revenue_usd) as primary_supply_side_revenue
+        sum(service_cash_flow) as primary_supply_side_revenue,
+        sum(treasury_cash_flow + vebal_cash_flow) as revenue,
+        sum(service_cash_flow) as service_fee_allocation,
+        sum(treasury_cash_flow) as treasury_fee_allocation,
+        sum(vebal_cash_flow) as vebal_fee_allocation
     FROM {{ ref('ez_balancer_dex_swaps') }}
     group by 1,2
 )
@@ -32,16 +35,20 @@ with swap_metrics as (
 , token_incentives as (
     SELECT
         date,
-        'ethereum' as chain,
-        sum(amount_usd) as token_incentives_usd
-    FROM {{ ref('fact_balancer_token_incentives') }}
+        case
+            when chain ilike '%ethereum%' then 'ethereum'
+            else chain 
+        end as chain,
+        sum(amount_usd) as token_incentives
+    FROM {{ ref('fact_balancer_token_incentives_all_chains') }}
     group by 1,2
 )
 
 , treasury_by_chain as (
     SELECT
         date,
-        'ethereum' as chain,
+        case when chain ilike '%ethereum%' then 'ethereum'
+        else chain end as chain,
         sum(usd_balance) as usd_balance
     FROM {{ ref('fact_balancer_treasury_by_token') }}
     group by 1,2
@@ -59,7 +66,8 @@ with swap_metrics as (
     SELECT
         date,
         chain,
-        sum(native_balance) as treasury_native
+        sum(native_balance) as treasury_native,
+        sum(usd_balance) as own_token_treasury
     FROM {{ ref('fact_balancer_treasury_by_token') }}
     where token = 'BAL'
     group by 1,2
@@ -92,15 +100,32 @@ select
     , swap_metrics.primary_supply_side_revenue
     , swap_metrics.primary_supply_side_revenue as total_supply_side_revenue
     , swap_metrics.revenue
-    , token_incentives.token_incentives_usd as token_incentives
-    , swap_metrics.revenue - token_incentives.token_incentives_usd as protocol_earnings
-    , tvl.tvl_usd as tvl
+    , swap_metrics.revenue - token_incentives.token_incentives as earnings
     , tvl.tvl_usd as net_deposits
     , treasury_by_chain.usd_balance as treasury_value
     , treasury_native.treasury_native as treasury_native
     , net_treasury.net_treasury_usd as net_treasury_value
+
+    -- Standardized Metrics
+    -- Usage/Sector Metrics
+    , coalesce(swap_metrics.unique_traders, 0) as spot_dau
+    , coalesce(swap_metrics.number_of_swaps, 0) as spot_txns
+    , coalesce(swap_metrics.trading_volume, 0) as spot_volume
+    , coalesce(tvl.tvl_usd, 0) as tvl
+
+    -- Money Metrics
+    , coalesce(swap_metrics.trading_fees, 0) as spot_fees
+    , coalesce(swap_metrics.trading_fees, 0) as ecosystem_revenue
+    , coalesce(swap_metrics.service_fee_allocation, 0) as service_fee_allocation
+    , coalesce(swap_metrics.treasury_fee_allocation, 0) as treasury_fee_allocation
+    , coalesce(swap_metrics.vebal_fee_allocation, 0) as staking_fee_allocation
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
+
+    -- Treasury Metrics
+    , coalesce(net_treasury.net_treasury_usd, 0) as treasury
+    , coalesce(net_treasury.net_treasury_usd, 0) as net_treasury
+    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
 from date_chain_spine
---left join all_tvl_by_chain using (date, chain)
 left join treasury_by_chain using (date, chain)
 left join treasury_native using (date, chain)
 left join net_treasury using (date, chain)

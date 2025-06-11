@@ -14,7 +14,7 @@
                 min(block_timestamp) as first_transaction_timestamp,
                 mode(app) as top_app,
                 mode(contract_address) as top_to_address
-            from {{ ref("ez_" ~ chain ~ "_transactions") }}
+            from {{ ref("fact_" ~ chain ~ "_transactions_v2") }}
             group by from_address
         ),
         -- First occurance of native token transfer
@@ -38,13 +38,13 @@
             select
                 from_address as address,
                 min_by(app, block_timestamp) as first_bridge_used
-            from {{ ref("ez_" ~ chain ~ "_transactions") }}
+            from {{ ref("fact_" ~ chain ~ "_transactions_v2") }}
             where category = 'Bridge'
             group by from_address
         ),
         first_app as (
             select from_address as address, min_by(app, block_timestamp) as first_app
-            from {{ ref("ez_" ~ chain ~ "_transactions") }}
+            from {{ ref("fact_" ~ chain ~ "_transactions_v2") }}
             where app is not null
             group by from_address
         ),

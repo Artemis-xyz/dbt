@@ -9,3 +9,8 @@ sources:
     database: PC_DBT_DB
     tables:
       - name: dim_sei_current_balances
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: sei_daily_supply_data

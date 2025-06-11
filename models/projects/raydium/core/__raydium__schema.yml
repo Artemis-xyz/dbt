@@ -1,0 +1,119 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  buyback_fee_allocation: &buyback_fee_allocation
+    name: buyback_fee_allocation
+    description: "Portion of revenue allocated to buy back RAY tokens."
+    tags:
+      - artemis_gaap
+      - override
+
+  buybacks: &buybacks
+    name: buybacks
+    description: "The USD value of RAY tokens actually bought back by the protocol (USD)."
+    tags:
+      - artemis_gaap
+      - override
+
+  fdmc: &fdmc
+    name: fdmc
+    description: "The fully diluted market cap of RAY in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
+    description: "The total USD value generated from all user-paid fees on Raydium's CPMM, AMM, and CLMM, prior to the split with network participants."
+    tags:
+      - artemis_gaap
+      - override
+
+  market_cap: &market_cap
+    name: market_cap
+    description: "The market cap of RAY in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  price: &price
+    name: price
+    description: "The price of RAY in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
+    description: "The share of protocol revenue accrued to Raydium LPs. On Raydium's AMM, that is 88% of fees, while on the CPMM and CLMM it is 84% of fees."
+    tags:
+      - artemis_gaap
+      - override
+
+  spot_dau: &spot_dau
+    name: spot_dau
+    description: "The number of daily active traders on Raydium's CPMM, AMM v4, and CLMM."
+    tags:
+      - override
+
+  spot_txns: &spot_txns
+    name: spot_txns
+    description: "The number of daily trades on Raydium's CPMM, AMM v4, and CLMM."
+    tags:
+      - override
+
+  spot_volume: &spot_volume
+    name: spot_volume
+    description: "The total volume on Raydium's CPMM, AMM v4, and CLMM."
+    tags:
+      - override
+
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of RAY in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
+    description: "Revenue allocated to the protocol's treasury. For Raydium's CPMM and CLMM that is 4% of fees, and 0% for AMM v4."
+    tags:
+      - artemis_gaap
+      - override
+
+  tvl: &tvl
+    name: tvl
+    description: "The total value locked in Raydium's AMM, CPMM, and CLMM pools."
+    tags:
+      - override
+
+models:
+  - name: ez_raydium_metrics_by_chain
+    description: "This table stores metrics for the RAYDIUM protocol"
+    columns:
+      - *buyback_fee_allocation
+      - *buybacks
+      - *ecosystem_revenue
+      - *service_fee_allocation
+      - *spot_dau
+      - *spot_txns
+      - *spot_volume
+      - *treasury_fee_allocation
+      - *tvl
+
+  - name: ez_raydium_metrics
+    description: "This table stores metrics for the RAYDIUM protocol"
+    columns:
+      - *fdmc
+      - *market_cap
+      - *price
+      - *spot_dau
+      - *spot_txns
+      - *spot_volume
+      - *token_volume
+      - *tvl
+

@@ -13,7 +13,9 @@ with veax_tvl as (
 )
 
 select
-    veax_tvl.date,
-    'Defillama' as source,
-    veax_tvl.tvl
+    veax_tvl.date
+    , 'Defillama' as source
+
+    -- Standardized Metrics
+    , veax_tvl.tvl    
 from veax_tvl

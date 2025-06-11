@@ -6,6 +6,10 @@ sources:
       - name: raw_celo_blocks_receipts
       - name: raw_celo_epoch_rewards
       - name: raw_celo_traces_parquet
+      - name: raw_celo_logs_parquet
+      - name: raw_celo_transactions_parquet
+      - name: raw_celo_blocks_parquet
+      - name: raw_celo_l1_transactions_31056500_parquet
   - name: BALANCES
     schema: PROD
     database: PC_DBT_DB

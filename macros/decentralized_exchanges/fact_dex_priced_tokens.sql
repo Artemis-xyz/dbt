@@ -28,7 +28,7 @@
             --TODO: this is a temporary fix, we need to find a better way to filter out dust swaps
             and token0_amount > .00001 and token1_amount > .00001
             {% if is_incremental() %}
-                and block_timestamp >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+                and block_timestamp >= (select DATEADD('day', -3, max(block_timestamp)) from {{ this }})
             {% endif %}
         )
 

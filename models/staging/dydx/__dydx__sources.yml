@@ -6,8 +6,15 @@ sources:
       - name: raw_dydx_trading_volume
       - name: raw_dydx_unique_traders
       - name: raw_dydx_v4_trading_volume
-      - name: raw_dydx_v4_txn_and_trading_fees
+      - name: raw_dydx_v4_txn_fees
+      - name: raw_dydx_v4_trading_fees
       - name: raw_dydx_v4_unique_traders
       - name: raw_dydx_v4_fees
       - name: raw_dydx_v4_perpetuals_markets_metadata
       - name: raw_dydx_v4_price
+
+  - name: MANUAL_STATIC_TABLES
+    schema: PROD
+    database: pc_dbt_db
+    tables:
+      - name: dydx_daily_supply_data 

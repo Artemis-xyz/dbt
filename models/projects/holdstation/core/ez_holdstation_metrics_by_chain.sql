@@ -19,12 +19,15 @@ with
         from {{ ref("fact_holdstation_unique_traders") }}
     )
 select
-    date,
-    'holdstation' as app,
-    'DeFi' as category,
-    chain,
-    trading_volume,
-    unique_traders
+    date
+    , 'holdstation' as app
+    , 'DeFi' as category
+    , chain
+    , trading_volume
+    , unique_traders
+    -- standardize metrics
+    , trading_volume as perp_volume
+    , unique_traders as perp_dau
 from unique_traders_data
 left join trading_volume_data using(date, chain)
 where date < to_date(sysdate())

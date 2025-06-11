@@ -13,6 +13,7 @@ WITH fundamental_data AS (
         TO_TIMESTAMP_NTZ(date) AS date
     FROM {{ source('PROD_LANDING', 'ez_stellar_metrics_by_contract_v2') }}
 ), prices as ({{ get_coingecko_price_with_latest("stellar") }})
+, price_data as ({{ get_coingecko_metrics("stellar") }})
 SELECT
     fundamental_data.date,
     fundamental_data.chain,
@@ -27,5 +28,21 @@ SELECT
     fundamental_data.daily_fees * price as gas_usd,
     fundamental_data.operations as operations,
     fundamental_data.dau as dau
+    -- Standardized Metrics
+    -- Market Data
+    , price_data.price
+    , price_data.market_cap
+    , price_data.fdmc
+    , price_data.token_volume
+    -- Chain Metrics
+    , txns as chain_txns
+    , dau as chain_dau
+    -- Cash Flow Metrics
+    , gas as ecosystem_revenue_native
+    , gas_usd as ecosystem_revenue
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
+    , null AS real_users
 FROM fundamental_data
 LEFT JOIN prices USING(date)
+LEFT JOIN price_data USING(date)

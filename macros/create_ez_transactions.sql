@@ -74,7 +74,7 @@
                 and last_updated_timestamp > (select max(last_updated_timestamp) from {{ this }})
             {% else %}
                 and (block_timestamp
-                >= (select dateadd('day', -5, max(block_timestamp)) from {{ this }})
+                >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
                 or app is not null)
             {% endif %}
         {% endif %}

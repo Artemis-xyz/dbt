@@ -1,0 +1,7 @@
+models:
+  - name: fact_debridge_transfers
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique

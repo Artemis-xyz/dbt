@@ -9,12 +9,27 @@
 }}
 
 select
-    date,
-    'solana' as chain,
-    fees,
-    primary_supply_side_revenue,
-    revenue,
-    mints_native,
-    burns_native,
-    dau
+    date
+    , 'solana' as chain
+    , fees
+    , primary_supply_side_revenue
+    , revenue
+    , burns_native
+    , dau
+
+    -- Standardized Metrics
+
+    -- Chain Metrics
+    , chain_dau
+    
+    -- Cash Flow Metrics
+    , ecosystem_revenue
+    , service_fee_allocation
+    , burned_fee_allocation
+    , burned_fee_allocation_native
+
+    -- Supply Metrics
+    , gross_emissions_native
+    , gross_emissions
+    , net_supply_change_native
 from {{ ref('ez_hivemapper_metrics') }}

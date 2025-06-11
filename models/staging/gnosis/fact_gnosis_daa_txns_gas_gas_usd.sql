@@ -1,7 +1,7 @@
 {{ config(materialized="view") }}
 with
     min_date as (
-        select dateadd(day, -5, min(to_timestamp(block_timestamp))::date) date
+        select dateadd(day, -3, min(to_timestamp(block_timestamp))::date) date
         from gnosis_flipside.core.fact_transactions
     ),
     prices as (

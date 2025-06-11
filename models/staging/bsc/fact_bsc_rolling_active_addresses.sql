@@ -6,4 +6,4 @@
     )
 }}
 
-{{ rolling_active_addresses("bsc") }}
+{{ rolling_active_addresses("bsc", "_v2") }}

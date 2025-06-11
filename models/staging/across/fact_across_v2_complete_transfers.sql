@@ -1,4 +1,4 @@
-{{config(materialized='table', unique_key=['deposit_id', 'origin_chain_id', 'dst_tx_hash'], snowflake_warehouse="ACROSS_V2")}}
+{{config(materialized='table', snowflake_warehouse="ACROSS_V2")}}
 
 with filled_relay_events as (
     select

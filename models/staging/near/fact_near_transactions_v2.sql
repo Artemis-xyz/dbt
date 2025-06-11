@@ -73,6 +73,11 @@ select distinct
     bots.cur_total_txns,
     bots.cur_distinct_to_address_count,
     tx_succeeded,
+    null as balance_usd,
+    null as native_token_balance,
+    null as stablecoin_balance,
+    null as probability,
+    null as engagement_type,
     CAST(current_timestamp() AS TIMESTAMP_NTZ) AS last_updated_timestamp
 from near_transactions as t
 left join new_contracts on lower(t.contract_address) = lower(new_contracts.address)
@@ -80,8 +85,8 @@ left join {{ ref("dim_near_bots") }} as bots on t.from_address = bots.from_addre
 {% if is_incremental() %}
     -- this filter will only be applied on an incremental run 
     where block_timestamp
-    >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+    >= (select DATEADD('day', -3, max(block_timestamp)) from {{ this }})
     or 
     new_contracts.last_updated
-        >= (select dateadd('day', -7, max(last_updated_timestamp)) from {{ this }})
+        >= (select DATEADD('day', -3, max(last_updated_timestamp)) from {{ this }})
 {% endif %}

@@ -36,6 +36,15 @@ WITH
         FROM fees
         GROUP BY 1
     )
+    , dau_txns_volume as (
+        SELECT
+            block_timestamp::date as date
+            , count(distinct sender) as spot_dau
+            , count( distinct tx_hash) as spot_txns
+            , sum(trading_volume) as spot_volume
+        FROM {{ ref('ez_uniswap_dex_swaps') }}
+        GROUP BY 1
+    )
     , token_incentives_cte as (
         SELECT
             date,
@@ -45,15 +54,18 @@ WITH
     , treasury_usd_cte AS (
         SELECT
             date,
-            treasury_usd
+            SUM(treasury_usd) as treasury_usd
         FROM {{ ref('fact_uniswap_treasury_usd') }}
+        GROUP BY 1
     )
     , treasury_native_cte AS(
         SELECT
             date,
-            treasury_native
+            sum(treasury_native) as treasury_native,
+            sum(usd_balance) as own_token_treasury
         FROM {{ ref('fact_uniswap_treasury_by_token') }}
         WHERE token = 'UNI'
+        GROUP BY 1
     )
     , net_treasury_cte AS (
         SELECT
@@ -70,48 +82,66 @@ WITH
         FROM {{ ref('ez_uniswap_metrics_by_chain') }}
         GROUP BY 1
     )
-    , token_turnover_metrics_cte as (
-        select
-            date
-            , token_turnover_circulating
-            , token_turnover_fdv
-            , token_volume
-        from {{ ref("fact_uniswap_fdv_and_turnover")}}
-    )
     , price_data_cte as ({{ get_coingecko_metrics("uniswap") }})
     , tokenholder_cte as (
         SELECT * FROM {{ ref('fact_uni_tokenholder_count') }}
     )
 SELECT
     date
+    , dau_txns_volume.spot_dau as dau
+    , dau_txns_volume.spot_txns as txns
     , fees as trading_fees
     , fees
     , fees as primary_supply_side_revenue
     , 0 as secondary_supply_side_revenue
     , fees as total_supply_side_revenue
     , 0 as protocol_revenue
-    , token_incentives_usd as token_incentives
     , 0 as operating_expenses
-    , token_incentives + operating_expenses as total_expenses
-    , protocol_revenue - total_expenses as protocol_earnings
+    , token_incentives_usd + operating_expenses as total_expenses
+    , protocol_revenue - total_expenses as earnings
     , treasury_usd as treausry_value
     , treasury_native as treasury_native_value
     , net_treasury_usd as net_treasury_value
     , tvl as net_deposits
+
+    -- Standardized Metrics
+    
+    -- Market Metrics
+    , price_data_cte.price
+    , price_data_cte.market_cap
+    , price_data_cte.fdmc
+    , price_data_cte.token_volume
+    
+    -- Usage/Sector Metrics
+    , dau_txns_volume.spot_dau
+    , dau_txns_volume.spot_txns
+    , dau_txns_volume.spot_volume
     , tvl
-    , fdmc
-    , market_cap
-    , token_volume
-    , token_turnover_fdv
-    , token_turnover_circulating
-    , token_holder_count
+
+
+    -- Money Metrics
+    , fees as spot_fees
+    , fees as ecosystem_revenue
+    , fees as service_fee_allocation
+    , token_incentives_usd as token_incentives
+
+    -- Treasury Metrics
+    , treasury_usd as treasury
+    , own_token_treasury as own_token_treasury
+    , net_treasury_usd as net_treasury
+
+    -- Other Metrics
+    , price_data_cte.token_turnover_fdv
+    , price_data_cte.token_turnover_circulating
+    , tokenholder_cte.token_holder_count
+
 FROM fees_agg
+LEFT JOIN dau_txns_volume using(date)
 LEFT JOIN token_incentives_cte using(date)
 LEFT JOIN treasury_usd_cte using(date)
 LEFT JOIN treasury_native_cte using(date)
 LEFT JOIN net_treasury_cte using(date)
 LEFT JOIN tvl_cte using(date)
-LEFT JOIN token_turnover_metrics_cte using(date)
 LEFT JOIN price_data_cte using(date)
 LEFT JOIN tokenholder_cte using(date)
 WHERE date < to_date(sysdate())

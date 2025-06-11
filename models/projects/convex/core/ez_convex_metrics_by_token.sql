@@ -41,8 +41,8 @@ with
         select
             date,
             token,
-            sum(usd_balance) as treasury_value,
-            sum(native_balance) as treasury_value_native
+            sum(usd_balance) as treasury,
+            sum(native_balance) as treasury_native
         from {{ ref('fact_convex_treasury_balance') }}
         group by 1, 2
     )
@@ -50,7 +50,7 @@ with
         select
             date,
             token,
-            sum(usd_balance) as net_treasury_value,
+            sum(usd_balance) as net_treasury,
             sum(native_balance) as net_treasury_native
         from {{ ref('fact_convex_treasury_balance') }}
         where token != 'CVX'
@@ -60,50 +60,63 @@ with
         select
             date,
             token,
-            sum(native_balance) as treasury_native,
-            sum(usd_balance) as treasury_native_value
+            sum(usd_balance) as own_token_treasury,
+            sum(native_balance) as own_token_treasury_native
         from {{ ref('fact_convex_treasury_balance') }}
         where token = 'CVX'
         group by 1, 2
-    )   
-
-
-, date_token_spine as (
-    SELECT
-        distinct
-        date,
-        token
-    from {{ ref('dim_date_spine') }}
-    CROSS JOIN (
-                SELECT distinct token from treasury_by_token
-                UNION
-                SELECT distinct token from net_treasury
-                UNION
-                SELECT distinct token from treasury_native
-                UNION
-                SELECT distinct token from token_incentives
-                UNION
-                SELECT distinct token from tvl
-                )
-    where date between '2020-03-01' and to_date(sysdate())
-)
+    )  
+    , date_token_spine as (
+        SELECT
+            distinct
+            date,
+            token
+        from {{ ref('dim_date_spine') }}
+        CROSS JOIN (
+                    SELECT distinct token from treasury_by_token
+                    UNION
+                    SELECT distinct token from net_treasury
+                    UNION
+                    SELECT distinct token from treasury_native
+                    UNION
+                    SELECT distinct token from token_incentives
+                    UNION
+                    SELECT distinct token from tvl
+                    )
+        where date between '2020-03-01' and to_date(sysdate())
+    )
 
 select
-    date_token_spine.date,
-    token,
-    fees_and_revenue.fees,
-    fees_and_revenue.revenue,
-    fees_and_revenue.primary_supply_side_fees,
-    treasury_by_token.treasury_value,
-    net_treasury.net_treasury_value,
-    treasury_by_token.treasury_value_native,
-    net_treasury.net_treasury_native,
-    treasury_native.treasury_native,
-    treasury_native.treasury_native_value,
-    token_incentives.token_incentives,
-    token_incentives.token_incentives_native,
-    tvl.tvl,
-    tvl.tvl_native
+    date_token_spine.date
+    , token
+    , fees_and_revenue.fees
+    , fees_and_revenue.revenue
+    , fees_and_revenue.primary_supply_side_fees
+    , net_treasury.net_treasury as net_treasury_value
+    , treasury_by_token.treasury_native as treasury_value_native
+    , treasury_native.own_token_treasury_native as treasury_native_value
+    , token_incentives.token_incentives
+    , token_incentives.token_incentives_native
+
+   -- Standardized Metrics
+
+    -- Crypto Metrics
+    , tvl.tvl
+    , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
+
+    -- Cash Flow Metrics
+    , coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0) as ecosystem_revenue
+    , coalesce(fees_and_revenue.primary_supply_side_fees, 0) + 0.005 * (coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0)) as service_fee_allocation
+    , 0.145 * (coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0)) as staking_fee_allocation
+    , 0.02 * (coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0)) as treasury_fee_allocation
+    
+    -- Protocol Metrics
+    , coalesce(treasury_by_token.treasury, 0) as treasury
+    , coalesce(treasury_by_token.treasury_native, 0) as treasury_native
+    , coalesce(net_treasury.net_treasury, 0) as net_treasury
+    , coalesce(net_treasury.net_treasury_native, 0) as net_treasury_native
+    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
+    , coalesce(treasury_native.own_token_treasury_native, 0) as own_token_treasury_native
 from date_token_spine
 full outer join treasury_by_token using (date, token)
 full outer join net_treasury using (date, token)

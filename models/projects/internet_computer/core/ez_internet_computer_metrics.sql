@@ -17,22 +17,43 @@ with
     , defillama_data as ({{ get_defillama_metrics("icp") }})
 select
     coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_total_canister_state.date, icp_neuron_funds.date, icp_blocks.date) as date
-    , total_transactions
-    , update_txns
-    , icp_txns
+    , 'internet_computer' as chain
     , dau
     , txns
-    , neurons_total -- accounts that are staking ICP
-    , avg_tps
-    , avg_blocks_per_second
     , icp_burned
     , icp_burned * price as fees
     , icp_burned * price as revenue
     , icp_transaction_fees / txns as avg_txn_fee
     , total_native_fees -- total transaction fees
+    , dex_volumes
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Chain Usage Metrics
+    , dau AS chain_dau
+    , txns AS chain_txns
+    , icp_transaction_fees / txns AS chain_avg_txn_fee
+    , dex_volumes AS chain_spot_volume
+    -- Cashflow Metrics
+    , total_native_fees * price AS chain_fees
+    , total_native_fees AS ecosystem_revenue_native -- total transaction fees
+    , total_native_fees * price AS ecosystem_revenue
+    , icp_burned AS burned_fee_allocation_native
+    , icp_burned * price AS burned_fee_allocation
+    -- Bespoke metrics
+    , total_transactions
+    , update_txns
+    , icp_txns
+    , neurons_total -- accounts that are staking ICP
+    , avg_tps
+    , avg_blocks_per_second
     , nns_tvl_native * price as nns_tvl -- same as total icp staked in NNS
     , nns_tvl_native 
     , nns_proposal_count
+    , neuron_funds_staked_native as neuron_funds_staked_native
     , neuron_funds_staked_native * price as neuron_funds_staked
     , total_canister_state_tib
     , total_icp_burned as total_burned_native
@@ -42,13 +63,7 @@ select
     , ckbtc_total_supply
     , cycle_burn_rate_average
     , total_internet_identity_user_count
-    , 'internet_computer' as chain
     , icp_blocks.block_count
-    , price
-    , market_cap
-    , fdmc
-    , tvl
-    , dex_volumes
     , 5 as storage_cost
 from price_data
 left join icp_metrics on price_data.date = icp_metrics.date

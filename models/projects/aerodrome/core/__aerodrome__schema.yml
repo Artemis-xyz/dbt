@@ -1,0 +1,150 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  buybacks: &buybacks
+    name: buybacks
+    description: "The amount tokens actually bought back by the protocol (USD)."
+
+  buybacks_native: &buybacks_native
+    name: buybacks_native
+    description: "The amount tokens actually bought back by the protocol (USD)."
+    tags:
+      - artemis_gaap
+
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
+
+  fdmc: &fdmc
+    name: fdmc
+    description: "The fully diluted market cap of a token in USD"
+    tags:
+      - artemis_gaap
+
+  staking_fee_allocation: &staking_fee_allocation
+    name: staking_fee_allocation
+    description: "In Aerodrome 100% of trading fees are directed to veAERO voters."
+    tags:
+      - artemis_gaap
+      - override
+
+  gross_emissions: &gross_emissions
+    name: gross_emissions
+    description: "The amount of USD value emitted"
+
+  gross_emissions_native: &gross_emissions_native
+    name: gross_emissions_native
+    description: "The amount of native tokens emitted"
+
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
+    description: "The total USD value generated through trading fees on Aerodrome's AMM."
+    tags:
+      - artemis_gaap
+      - override
+
+  market_cap: &market_cap
+    name: market_cap
+    description: "The market cap of a token in USD"
+    tags:
+      - artemis_gaap
+
+  net_supply_change_native: &net_supply_change_native
+    name: net_supply_change_native
+    description: "The net change in the circulating supply of a token in native tokens"
+
+  premine_unlocks_native: &premine_unlocks_native
+    name: premine_unlocks_native
+    description: "The amount of native tokens unlocked from premine"
+
+  price: &price
+    name: price
+    description: "The price of a token in USD"
+    tags:
+      - artemis_gaap
+
+  spot_dau: &spot_dau
+    name: spot_dau
+    description: "The number of daily active traders on Aerodrome V1 and Aerodrome Slipstream"
+    tags:
+      - override
+
+  spot_fees: &spot_fees
+    name: spot_fees
+    description: "The total amount of fees (in USD) on Aerodrome V1 and Aerodrome Slipstream"
+    tags:
+      - override
+
+  spot_txns: &spot_txns
+    name: spot_txns
+    description: "The number of daily trades on Aerodrome V1 and Aerodrome Slipstream"
+    tags:
+      - override
+
+  spot_volume: &spot_volume
+    name: spot_volume
+    description: "The total volume on Aerodrome V1 and Aerodrome Slipstream"
+    tags:
+      - override
+
+  token_turnover_circulating: &token_turnover_circulating
+    name: token_turnover_circulating
+    description: "The turnover of a token in USD, based on the token's circulating supply."
+    tags:
+      - artemis_gaap
+
+  token_turnover_fdv: &token_turnover_fdv
+    name: token_turnover_fdv
+    description: "The turnover of a token in USD, based on the token's fully diluted supply."
+    tags:
+      - artemis_gaap
+
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of a token in USD"
+    tags:
+      - artemis_gaap
+
+  tvl: &tvl
+    name: tvl
+    description: "The total value locked in a protocol"
+
+models:
+  - name: ez_aerodrome_metrics
+    description: "This table stores metrics for the AERODROME protocol"
+    columns:
+      - *buybacks
+      - *buybacks_native
+      - *circulating_supply_native
+      - *fdmc
+      - *staking_fee_allocation
+      - *gross_emissions
+      - *gross_emissions_native
+      - *ecosystem_revenue
+      - *market_cap
+      - *net_supply_change_native
+      - *premine_unlocks_native
+      - *price
+      - *spot_dau
+      - *spot_fees
+      - *spot_txns
+      - *spot_volume
+      - *token_turnover_circulating
+      - *token_turnover_fdv
+      - *token_volume
+      - *tvl
+
+  - name: ez_aerodrome_metrics_by_chain
+    description: "This table stores metrics for the AERODROME protocol"
+    columns:
+      - *staking_fee_allocation
+      - *ecosystem_revenue
+      - *spot_dau
+      - *spot_fees
+      - *spot_txns
+      - *spot_volume
+      - *tvl
+

@@ -49,12 +49,27 @@ select
     staked_eth_metrics.amount_staked_usd,
     staked_eth_metrics.num_staked_eth_net_change,
     staked_eth_metrics.amount_staked_usd_net_change,
-    tvl_by_chain.tvl,
     trading_volume_by_chain.trading_volume,
     trading_volume_by_chain.trading_fees,
     trading_volume_by_chain.unique_traders,
-    trading_volume_by_chain.gas_cost_native,
     trading_volume_by_chain.gas_cost_usd
+
+    -- Standardized Metrics
+    
+    -- Usage/Sector Metrics
+    , trading_volume_by_chain.unique_traders as spot_dau
+    , trading_volume_by_chain.trading_volume as spot_volume
+    , tvl_by_chain.tvl as spot_tvl
+    , staked_eth_metrics.amount_staked_usd as lst_tvl
+    , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
+    , tvl_by_chain.tvl + staked_eth_metrics.amount_staked_usd as tvl
+    
+
+    -- Money Metrics
+    , trading_volume_by_chain.trading_fees as spot_fees
+    , trading_volume_by_chain.trading_fees as ecosystem_revenue
+    , trading_volume_by_chain.gas_cost_native
+    , trading_volume_by_chain.gas_cost_usd as gas_cost
 from tvl_by_chain 
 left join trading_volume_by_chain using(date, chain)
 left join staked_eth_metrics using(date, chain)

@@ -6,3 +6,4 @@ sources:
       - name: raw_hydration_fees_parquet
       - name: raw_hydration_transactions_parquet
       - name: raw_hydration_evm_transactions_parquet
+      - name: raw_hydration_evm_transactions_fees_parquet

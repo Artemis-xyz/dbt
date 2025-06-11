@@ -12,11 +12,11 @@ decoded_wormhole_data as (
         value:"targetChain":"transaction":"txHash"::string as dst_tx_hash,
         value:"targetChain":"from"::string as dst_from_address,
         value:"targetChain":"to"::string as dst_to_address,
-        TRY_TO_NUMERIC(value:"content":"standarizedProperties":"amount"::string) as amount,
-        TRY_TO_NUMERIC(value:"data":"tokenAmount"::string) as amount_adjusted,
-        TRY_TO_NUMERIC(value:"data":"usdAmount"::string) as amount_usd,
+        TRY_TO_DOUBLE(value:"content":"standarizedProperties":"amount"::string) as amount,
+        TRY_TO_DOUBLE(value:"data":"tokenAmount"::string) as amount_adjusted,
+        TRY_TO_DOUBLE(value:"data":"usdAmount"::string) as amount_usd,
         value:"content":"standarizedProperties":"appIds" as app_ids,
-        TRY_TO_NUMERIC(value:"content":"standarizedProperties":"fee"::string) as fee,
+        TRY_TO_DOUBLE(value:"content":"standarizedProperties":"fee"::string) as fee,
         value:"content":"standarizedProperties":"feeAddress"::string as fee_address,
         value:"content":"standarizedProperties":"feeChain"::string as fee_chain,
         case 
@@ -69,6 +69,6 @@ select
     max_by(src_status, extraction_date) as src_status,
     max_by(dst_status, extraction_date) as dst_status,
     max_by(payload, extraction_date) as payload,
-    extraction_date
+    max(extraction_date) as extraction_date
 from decoded_wormhole_data t1
-GROUP BY id, extraction_date
+GROUP BY id

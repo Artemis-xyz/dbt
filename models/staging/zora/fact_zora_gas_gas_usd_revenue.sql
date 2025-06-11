@@ -19,7 +19,7 @@ with
             -- proposer from L2 beat
             lower(from_address) = lower('0x625726c858dBF78c0125436C943Bf4b4bE9d9033')
             or lower(from_address) = lower('0x48247032092e7b0ecf5dEF611ad89eaf3fC888Dd')
-            and block_timestamp >= dateadd(day, -5, (select min(date) from gas))
+            and block_timestamp >= dateadd(day, -3, (select min(date) from gas))
         group by 1
     )
 select

@@ -13,9 +13,11 @@ with pharaoh_tvl as (
 )
 
 select
-    pharaoh_tvl.date,
-    'Defillama' as source,
-    'avalanche' as chain,
-    pharaoh_tvl.tvl
+    pharaoh_tvl.date
+    , 'Defillama' as source
+    , 'avalanche' as chain
+
+    -- Standardized Metrics
+    , pharaoh_tvl.tvl
 from pharaoh_tvl
 where pharaoh_tvl.date < to_date(sysdate())

@@ -16,16 +16,28 @@ with
     ),
     price_data as ({{ get_coingecko_metrics("defi-kingdoms") }})
 select
-    fundamental_data.date,
-    chain,
-    dau,
-    txns,
-    fees_native,
-    fees_native * price as fees,
-    fees / txns as avg_txn_fee,
-    price,
-    market_cap,
-    fdmc
-from fundamental_data
-left join price_data on fundamental_data.date = price_data.date
-where fundamental_data.date < to_date(sysdate())
+    f.date
+    , chain
+    , dau
+    , txns
+    , fees_native
+    , fees_native * price as fees
+    , fees / txns as avg_txn_fee
+    -- Standardized Metrics
+    -- Market Data
+    , price
+    , market_cap
+    , fdmc
+    , token_volume
+    -- Chain Metrics
+    , txns as chain_txns
+    , dau as chain_dau
+    , avg_txn_fee as chain_avg_txn_fee
+    -- Cash Flow Metrics
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
+    , token_turnover_circulating
+    , token_turnover_fdv
+from fundamental_data f
+left join price_data on f.date = price_data.date
+where f.date < to_date(sysdate())

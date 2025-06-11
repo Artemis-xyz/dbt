@@ -3,7 +3,7 @@ with
     prices as ({{ get_coingecko_price_with_latest("ethereum") }}),
     linea_submission_and_finalization_transactions as (
         select distinct tx_hash,
-        from ethereum_flipside.core.fact_decoded_event_logs
+        from ethereum_flipside.core.ez_decoded_event_logs
         where
             lower(contract_address)
             = lower('0xd19d4B5d358258f05D7B411E21A1460D11B0876F')

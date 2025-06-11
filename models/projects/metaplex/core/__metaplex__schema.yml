@@ -1,0 +1,141 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  buyback_fee_allocation: &buyback_fee_allocation
+    name: buyback_fee_allocation
+    description: "Portion of revenue allocated to buy back tokens of the protocol."
+    tags:
+      - artemis_gaap
+
+  buybacks: &buybacks
+    name: buybacks
+    description: "The amount tokens actually bought back by the protocol (USD)."
+
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
+
+  fdmc: &fdmc
+    name: fdmc
+    description: "The fully diluted market cap of $MPLX in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  gross_emissions_native: &gross_emissions_native
+    name: gross_emissions_native
+    description: "The amount of native tokens emitted"
+
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
+    description: "Total fees (USD) paid by NFT minters and individuals who swap tokens and NFTs on Metaplex."
+    tags:
+      - artemis_gaap
+      - override
+
+  market_cap: &market_cap
+    name: market_cap
+    description: "The market cap of $MPLX in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  net_supply_change_native: &net_supply_change_native
+    name: net_supply_change_native
+    description: "The net change in the circulating supply of $MPLX in native tokens"
+    tags:
+      - override
+
+  nft_dau: &nft_dau
+    name: nft_dau
+    description: "The number of daily active NFT creators on Metaplex"
+    tags:
+      - override
+
+  nft_fees: &nft_fees
+    name: nft_fees
+    description: "Total fees (USD) paid by NFT minters and individuals who swap tokens and NFTs on Metaplex."
+    tags:
+      - override
+
+  nft_txns: &nft_txns
+    name: nft_txns
+    description: "The number of NFT transactions on Metaplex"
+    tags:
+      - override
+
+  premine_unlocks_native: &premine_unlocks_native
+    name: premine_unlocks_native
+    description: "The amount of native tokens unlocked from premine"
+
+  price: &price
+    name: price
+    description: "The price of $MPLX in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  token_turnover_circulating: &token_turnover_circulating
+    name: token_turnover_circulating
+    description: "The turnover of $MPLX in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  token_turnover_fdv: &token_turnover_fdv
+    name: token_turnover_fdv
+    description: "The turnover of $MPLX in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of $MPLX in USD"
+    tags:
+      - artemis_gaap
+      - override
+
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
+    description: "50% of gross protocol revenue is allocated to the Metaplex treasury for future use, including development, growth, or governance."
+    tags:
+      - artemis_gaap
+      - override
+
+models:
+  - name: ez_metaplex_metrics_by_chain
+    description: "This table stores metrics for the METAPLEX protocol"
+    columns:
+      - *buyback_fee_allocation
+      - *buybacks
+      - *ecosystem_revenue
+      - *nft_dau
+      - *nft_fees
+      - *nft_txns
+      - *treasury_fee_allocation
+
+  - name: ez_metaplex_metrics
+    description: "This table stores metrics for the METAPLEX protocol"
+    columns:
+      - *buyback_fee_allocation
+      - *buybacks
+      - *circulating_supply_native
+      - *fdmc
+      - *gross_emissions_native
+      - *ecosystem_revenue
+      - *market_cap
+      - *net_supply_change_native
+      - *nft_dau
+      - *nft_fees
+      - *nft_txns
+      - *premine_unlocks_native
+      - *price
+      - *token_turnover_circulating
+      - *token_turnover_fdv
+      - *token_volume
+      - *treasury_fee_allocation
+

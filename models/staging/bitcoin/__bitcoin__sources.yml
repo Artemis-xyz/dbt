@@ -15,6 +15,8 @@ sources:
       - name: raw_bitcoin_etf_metadata
       - name: raw_bitcoin_fidelity_outflows
       - name: raw_etf_update_thresholds
+      - name: raw_bisq_daily_volume 
+      - name: raw_lnexchange_daily_volume
 
   - name: BITCOIN_FLIPSIDE
     schema: core
@@ -22,3 +24,9 @@ sources:
     tables:
       - name: fact_outputs
       - name: fact_inputs
+
+  - name: BITCOIN_FLIPSIDE_PRICE
+    schema: price
+    database: bitcoin_flipside
+    tables:
+      - name: ez_prices_hourly

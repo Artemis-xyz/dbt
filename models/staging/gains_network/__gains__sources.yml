@@ -1,0 +1,7 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_gains_fees
+      - name: raw_gains_trading_volume_unique_traders_v8_v9

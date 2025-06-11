@@ -5,4 +5,4 @@
     )
 }}
 
-{{ rolling_active_addresses("polygon") }}
+{{ rolling_active_addresses("polygon", "_v2") }}

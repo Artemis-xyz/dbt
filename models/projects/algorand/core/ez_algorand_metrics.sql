@@ -11,22 +11,38 @@
 WITH
     -- Alternative fundamental source from BigQuery, preferred when possible over Snowflake data
     fundamental_data AS (SELECT * EXCLUDE date, TO_TIMESTAMP_NTZ(date) AS date FROM {{ source('PROD_LANDING', 'ez_algorand_metrics') }}),
-    prices AS ({{ get_coingecko_price_with_latest("algorand") }})
+    price as ({{ get_coingecko_metrics("algorand") }})
 SELECT
-    DATE(DATE_TRUNC('DAY', fundamental_data.date)) AS date,
-    'algorand' as chain,
-    fundamental_data.txns,
-    fundamental_data.fees_native,
-    fundamental_data.fees_native * prices.price as fees,
-    fundamental_data.rewards_algo,
-    fundamental_data.rewards_algo * prices.price as rewards_usd,
-    fundamental_data.dau,
-    fundamental_data.unique_eoas,
-    fundamental_data.unique_senders,
-    fundamental_data.unique_receivers,
-    fundamental_data.new_eoas,
-    fundamental_data.unique_pairs,
-    fundamental_data.unique_eoa_pairs,
-    fundamental_data.unique_tokens
+    DATE(DATE_TRUNC('DAY', fundamental_data.date)) AS date
+    ,'algorand' as chain
+    , dau
+    , txns
+    , fees_native
+    , fees_native * price AS fees
+    , fees AS revenue
+    , rewards_algo
+    , rewards_algo * price AS rewards_usd
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    -- Chain Usage Metrics
+    , dau AS chain_dau
+    , txns AS chain_txns
+    -- Cashflow Metrics
+    , fees_native * price AS chain_fees
+    , fees_native * price AS ecosystem_revenue
+    , fees_native AS ecosystem_revenue_native
+    , rewards_algo * price AS validator_fee_allocation_usd
+    , rewards_algo AS validator_fee_allocation_native
+    -- Bespoke metrics
+    , unique_eoas
+    , unique_senders
+    , unique_receivers
+    , new_eoas
+    , unique_pairs
+    , unique_eoa_pairs
+    , unique_tokens
 FROM fundamental_data
-LEFT JOIN prices USING (date)
+LEFT JOIN price USING (date)

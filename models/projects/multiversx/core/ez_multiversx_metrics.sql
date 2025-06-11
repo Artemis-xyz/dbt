@@ -26,24 +26,39 @@ with
     , price_data as ({{ get_coingecko_metrics("elrond-erd-2") }})
 
 select
-    fundamental_data.date
+    f.date
     , 'multiversx' as chain
     , txns
     , dau
     , fees
     , fees_native
     , avg_txn_fee
-    , tvl
     , dex_volumes
+    -- Standardized Metrics
+    -- Market Data
+    , price
+    , market_cap
+    , fdmc
+    , token_volume
+    -- Chain Metrics
+    , txns as chain_txns
+    , dau::number as chain_dau
+    , avg_txn_fee as chain_avg_txn_fee
+    , dex_volumes as chain_spot_volume
+    -- Cash Flow Metrics
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
+    -- Crypto Metrics
+    , tvl
+    -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
-    , price
-    , market_cap
-    , fdmc
-from fundamental_data
-left join github_data using (date)
-left join defillama_data using (date)
-left join price_data using (date)
-where fundamental_data.date < to_date(sysdate())
+    , token_turnover_circulating
+    , token_turnover_fdv
+from fundamental_data f
+left join github_data using (f.date)
+left join defillama_data using (f.date)
+left join price_data using (f.date)
+where f.date < to_date(sysdate())

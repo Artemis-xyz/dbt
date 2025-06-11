@@ -13,7 +13,7 @@
         decoded_log:"originToken"::string as origin_token,
         decoded_log:"relayerFeePct"::integer / 1e18 as relayer_fee_pct,
         '{{ chain }}' as chain
-    from {{ chain }}_flipside.core.fact_decoded_event_logs
+    from {{ chain }}_flipside.core.ez_decoded_event_logs
     where block_timestamp < '2025-02-07' and event_name = 'FundsDeposited'
         and
         contract_address = '{{ spot_fee_contract }}'

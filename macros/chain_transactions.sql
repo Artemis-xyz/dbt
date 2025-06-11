@@ -40,7 +40,7 @@
             {% endif %}
                 {% if is_incremental() %}
                     and hour
-                    >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+                    >= (select DATEADD('day', -3, max(block_timestamp)) from {{ this }})
                 {% endif %}
             group by 1
         )

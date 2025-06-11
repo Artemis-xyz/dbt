@@ -92,10 +92,10 @@ with
             new_contracts as t3
             ON LOWER(t1.contract_address) = LOWER(t3.address)
         {% if is_incremental() %}
-            WHERE inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
+            WHERE inserted_timestamp >= (select dateadd('day', -3, max(inserted_timestamp)) from {{ this }})
             or 
             t3.last_updated
-                >= (select dateadd('day', -5, max(last_updated_timestamp)) from {{ this }})
+                >= (select dateadd('day', -3, max(last_updated_timestamp)) from {{ this }})
         {% endif %}
     ),
     sei_transactions as (
@@ -127,10 +127,10 @@ with
             t1.block_timestamp < date(sysdate())
             {% if is_incremental() %}
             AND 
-            (t2.inserted_timestamp >= (select dateadd('day', -5, max(inserted_timestamp)) from {{ this }})
+            (t2.inserted_timestamp >= (select dateadd('day', -3, max(inserted_timestamp)) from {{ this }})
                 or 
                 t1.last_updated
-                >= (select dateadd('day', -5, max(last_updated_timestamp)) from {{ this }}))
+                >= (select dateadd('day', -3, max(last_updated_timestamp)) from {{ this }}))
             {% endif %}
             AND tx_id NOT IN (
                 SELECT tx_id

@@ -8,7 +8,7 @@ with
 
     extracted_unique_traders as (
         select
-            value:daily_unique_users as unique_traders,
+            value:daily_unique_users::number as unique_traders,
             'hyperliquid' as app,
             'hyperliquid' as chain,
             'DeFi' as category,

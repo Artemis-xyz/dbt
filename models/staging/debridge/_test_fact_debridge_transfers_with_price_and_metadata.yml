@@ -1,0 +1,7 @@
+models:
+  - name: fact_debridge_transfers_with_price_and_metadata
+    columns:
+      - name: unique_id
+        tests:
+          - not_null
+          - unique

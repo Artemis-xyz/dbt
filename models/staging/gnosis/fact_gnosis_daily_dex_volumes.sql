@@ -5,4 +5,4 @@
     )
 }}
 
-{{ extract_dune_dex_volumes("gnosis") }}
+{{ dune_dex_volumes("gnosis") }}

@@ -6,3 +6,4 @@ sources:
       - name: raw_moonbeam_fees_parquet
       - name: raw_moonbeam_transactions_parquet
       - name: raw_moonbeam_evm_transactions_parquet
+      - name: raw_moonbeam_evm_transactions_fees_parquet

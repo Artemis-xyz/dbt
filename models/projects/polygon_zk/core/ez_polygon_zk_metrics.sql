@@ -5,12 +5,13 @@
         database="polygon_zk",
         schema="core",
         alias="ez_metrics",
+        enabled=false,
     )
 }}
 
 with
     fundamental_data as (
-        select date, chain, daa as dau, txns, gas_usd as fees
+        select date, chain, daa as dau, txns, gas as fees_native, gas_usd as fees
         from {{ ref("fact_polygon_zk_daa_txns_gas_usd") }}
     ),
     price_data as ({{ get_coingecko_metrics("matic-network") }}),
@@ -28,24 +29,40 @@ with
         from {{ ref("fact_polygon_zk_daily_dex_volumes") }}
     )
 select
-    fundamental_data.date,
-    fundamental_data.chain,
-    txns,
-    dau,
-    l1_data_cost_native,
-    l1_data_cost,
-    fees,
-    fees / txns as avg_txn_fee,
-    coalesce(fees, 0) - l1_data_cost as revenue,
-    price,
-    market_cap,
-    fdmc,
-    tvl,
-    dune_dex_volumes_polygon_zk.dex_volumes,
-    weekly_commits_core_ecosystem,
-    weekly_commits_sub_ecosystem,
-    weekly_developers_core_ecosystem,
-    weekly_developers_sub_ecosystem
+    fundamental_data.date
+    , fundamental_data.chain
+    , txns
+    , dau
+    , l1_data_cost_native
+    , l1_data_cost
+    , fees
+    , fees / txns as avg_txn_fee
+    , coalesce(fees, 0) - l1_data_cost as revenue
+    , dune_dex_volumes_polygon_zk.dex_volumes
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Chain Usage Metrics
+    , txns AS chain_txns
+    , dau AS chain_dau
+    , fees / txns as chain_avg_txn_fee
+    , dune_dex_volumes_polygon_zk.dex_volumes AS chain_spot_volume
+    -- Cash Flow Metrics
+    , fees AS chain_fees
+    , fees_native AS ecosystem_revenue_native
+    , fees AS ecosystem_revenue
+    , coalesce(fees_native, 0) - l1_data_cost_native as service_fee_allocation_native
+    , coalesce(fees, 0) - l1_data_cost as service_fee_allocation
+    , l1_data_cost_native AS l1_fee_allocation_native
+    , l1_data_cost AS l1_fee_allocation
+    -- Developer Metrics
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date

@@ -1,5 +1,5 @@
 models:
-  - name: fact_near_transactions
+  - name: fact_near_transactions_v2
     columns:
       - name: GAS_USD
         tests:

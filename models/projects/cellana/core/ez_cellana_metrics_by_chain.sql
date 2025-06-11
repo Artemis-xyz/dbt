@@ -13,9 +13,11 @@ with cellana_tvl as (
 )
 
 select
-    cellana_tvl.date,
-    'Defillama' as source,
-    'aptos' as chain,
-    cellana_tvl.tvl
+    cellana_tvl.date
+    , 'Defillama' as source
+    , 'aptos' as chain
+
+    -- Standardized Metrics
+    , cellana_tvl.tvl
 from cellana_tvl
 where cellana_tvl.date < to_date(sysdate())

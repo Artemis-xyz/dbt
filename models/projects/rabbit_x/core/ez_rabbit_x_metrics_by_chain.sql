@@ -20,12 +20,15 @@ with
         from {{ ref("fact_rabbitx_unique_traders") }}
     )
 select 
-    date,
-    'rabbit-x' as app,
-    'DeFi' as category,
-    chain,
-    trading_volume,
-    unique_traders
+    date
+    , 'rabbit-x' as app
+    , 'DeFi' as category
+    , chain
+    , trading_volume
+    , unique_traders
+    -- standardize metrics
+    , trading_volume as perp_volume
+    , unique_traders as perp_dau
 from trading_volume_data
 left join unique_traders_data using(date, chain)
 where date < to_date(sysdate())

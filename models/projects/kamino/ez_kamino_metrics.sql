@@ -33,7 +33,7 @@ with
         tvl,
         fees,
         revenue,
-        txn,
+        txn as txns,
         dau,
         coalesce(market_data.price, 0) as price,
         coalesce(market_data.market_cap, 0) as market_cap,

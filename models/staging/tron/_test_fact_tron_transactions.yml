@@ -1,5 +1,5 @@
 models:
-- name: fact_tron_transactions
+- name: fact_tron_transactions_v2
   columns:
   - name: RAW_DATE
     tests:

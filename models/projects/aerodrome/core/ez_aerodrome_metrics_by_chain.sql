@@ -25,6 +25,12 @@ with swap_metrics as (
     FROM {{ ref('fact_aerodrome_tvl') }}
     GROUP BY date
 )
+, token_incentives as (
+        select
+            day as date,
+            usd_value as token_incentives
+        from {{ref('fact_aerodrome_token_incentives')}}
+)
 , date_spine as (
     SELECT
         ds.date
@@ -40,13 +46,28 @@ with swap_metrics as (
         and to_date(sysdate())
 )
 SELECT
-    ds.date,
-    'base' as chain,
-    sm.unique_traders,
-    sm.total_swaps,
-    sm.daily_volume_usd as trading_volume,
-    sm.daily_fees_usd as trading_fees,
-    tm.tvl_usd as tvl
+    ds.date
+    , 'base' as chain
+
+    -- Old metrics needed for compatibility
+    , sm.unique_traders
+    , sm.total_swaps
+    , sm.daily_volume_usd as trading_volume
+    , sm.daily_fees_usd as trading_fees
+
+    -- Standardized Metrics
+    -- Usage/Sector Metrics
+    , sm.unique_traders as spot_dau
+    , sm.total_swaps as spot_txns
+    , sm.daily_volume_usd as spot_volume
+    , tm.tvl_usd as tvl
+
+    -- Money Metrics
+    , sm.daily_fees_usd as spot_fees
+    , sm.daily_fees_usd as ecosystem_revenue
+    , sm.daily_fees_usd as staking_fee_allocation
+    , coalesce(ti.token_incentives, 0) as token_incentives
 FROM date_spine ds
 LEFT JOIN swap_metrics sm using (date)
 LEFT JOIN tvl_metrics tm using (date)
+LEFT JOIN token_incentives ti using (date)

@@ -3,14 +3,14 @@
 min_date as (
     select 
         date_trunc('month', min(raw_date)) as first_month
-    from {{ ref( "ez_" ~ chain ~ "_transactions") }}
+    from {{ ref( "fact_" ~ chain ~ "_transactions_v2") }}
     where app = '{{ app }}'
 ),
 base_table as(
     select
         date_trunc('month', raw_date) as base_month,
         from_address as address
-    from {{ ref( "ez_" ~ chain ~ "_transactions") }}
+    from {{ ref( "fact_" ~ chain ~ "_transactions_v2") }}
     where app = '{{ app }}'
     group by 1,2
 ),

@@ -27,7 +27,7 @@ daa_txns as (
     from sei_flipside.core_evm.fact_transactions as t
     where date < date(sysdate()) and status = 'SUCCESS'
     {% if is_incremental() %}
-        and t.block_timestamp >= (select dateadd('day', -5, max(date)) from {{ this }})
+        and t.block_timestamp >= (select dateadd('day', -3, max(date)) from {{ this }})
     {% endif %}
     group by date
 ),
@@ -38,7 +38,7 @@ tx_fee as (
     from sei_flipside.core_evm.fact_transactions as t
     where date < date(sysdate())
     {% if is_incremental() %}
-        and t.block_timestamp >= (select dateadd('day', -5, max(date)) from {{ this }})
+        and t.block_timestamp >= (select dateadd('day', -3, max(date)) from {{ this }})
     {% endif %}
     group by date
 ),

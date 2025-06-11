@@ -73,25 +73,40 @@ with
     github_data as ({{ get_github_metrics("polkadot") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("polkadot") }})
 select
-    fundamental_data.date,
-    fundamental_data.chain,
-    coalesce(fundamental_data.txns,0) + coalesce(collectives_fundamental_data.txns,0) + coalesce(people_fundamental_data.txns, 0) + coalesce(coretime_fundamental_data.txns, 0) + coalesce(bridgehub_fundamental_data.txns, 0) + coalesce(asset_hub_fundamental_data.txns, 0) as txns,
-    coalesce(fundamental_data.dau,0) + coalesce(collectives_fundamental_data.dau,0) + coalesce(people_fundamental_data.dau,0) + coalesce(coretime_fundamental_data.dau,0) + coalesce(bridgehub_fundamental_data.dau,0) + coalesce(asset_hub_fundamental_data.dau,0) as dau,
-    coalesce(fundamental_data.fees_native,0) + coalesce(collectives_fundamental_data.fees_native,0) + coalesce(people_fundamental_data.fees_native,0) + coalesce(coretime_fundamental_data.fees_native,0) + coalesce(bridgehub_fundamental_data.fees_native,0) + coalesce(asset_hub_fundamental_data.fees_native,0) as fees_native,
-    coalesce(fundamental_data.fees,0) + coalesce(collectives_fundamental_data.fees,0) + coalesce(people_fundamental_data.fees,0) + coalesce(coretime_fundamental_data.fees,0) + coalesce(bridgehub_fundamental_data.fees,0) + coalesce(asset_hub_fundamental_data.fees,0) as fees,
-    (coalesce(fundamental_data.fees,0) + coalesce(collectives_fundamental_data.fees,0) + coalesce(people_fundamental_data.fees,0) + coalesce(coretime_fundamental_data.fees,0) + coalesce(bridgehub_fundamental_data.fees,0) + coalesce(asset_hub_fundamental_data.fees,0)) / (coalesce(fundamental_data.txns,0) + coalesce(collectives_fundamental_data.txns,0) + coalesce(people_fundamental_data.txns, 0) + coalesce(coretime_fundamental_data.txns, 0) + coalesce(bridgehub_fundamental_data.txns, 0) + coalesce(asset_hub_fundamental_data.txns, 0)) as avg_txn_fee,
-    revenue_native,
-    revenue,
-    price,
-    market_cap,
-    fdmc,
-    tvl,
-    weekly_commits_core_ecosystem,
-    weekly_commits_sub_ecosystem,
-    weekly_developers_core_ecosystem,
-    weekly_developers_sub_ecosystem,
-    wau,
-    mau
+    fundamental_data.date
+    , fundamental_data.chain
+    , coalesce(fundamental_data.txns,0) + coalesce(collectives_fundamental_data.txns,0) + coalesce(people_fundamental_data.txns, 0) + coalesce(coretime_fundamental_data.txns, 0) + coalesce(bridgehub_fundamental_data.txns, 0) + coalesce(asset_hub_fundamental_data.txns, 0) as txns
+    , coalesce(fundamental_data.dau,0) + coalesce(collectives_fundamental_data.dau,0) + coalesce(people_fundamental_data.dau,0) + coalesce(coretime_fundamental_data.dau,0) + coalesce(bridgehub_fundamental_data.dau,0) + coalesce(asset_hub_fundamental_data.dau,0) as dau
+    , wau
+    , mau
+    , coalesce(fundamental_data.fees_native,0) + coalesce(collectives_fundamental_data.fees_native,0) + coalesce(people_fundamental_data.fees_native,0) + coalesce(coretime_fundamental_data.fees_native,0) + coalesce(bridgehub_fundamental_data.fees_native,0) + coalesce(asset_hub_fundamental_data.fees_native,0) as fees_native
+    , coalesce(fundamental_data.fees,0) + coalesce(collectives_fundamental_data.fees,0) + coalesce(people_fundamental_data.fees,0) + coalesce(coretime_fundamental_data.fees,0) + coalesce(bridgehub_fundamental_data.fees,0) + coalesce(asset_hub_fundamental_data.fees,0) as fees
+    , revenue_native
+    , revenue
+    , (coalesce(fundamental_data.fees,0) + coalesce(collectives_fundamental_data.fees,0) + coalesce(people_fundamental_data.fees,0) + coalesce(coretime_fundamental_data.fees,0) + coalesce(bridgehub_fundamental_data.fees,0) + coalesce(asset_hub_fundamental_data.fees,0)) / (coalesce(fundamental_data.txns,0) + coalesce(collectives_fundamental_data.txns,0) + coalesce(people_fundamental_data.txns, 0) + coalesce(coretime_fundamental_data.txns, 0) + coalesce(bridgehub_fundamental_data.txns, 0) + coalesce(asset_hub_fundamental_data.txns, 0)) as avg_txn_fee
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Chain Usage Metrics
+    ,coalesce(fundamental_data.dau,0) + coalesce(collectives_fundamental_data.dau,0) + coalesce(people_fundamental_data.dau,0) + coalesce(coretime_fundamental_data.dau,0) + coalesce(bridgehub_fundamental_data.dau,0) + coalesce(asset_hub_fundamental_data.dau,0) as chain_dau
+    , wau AS chain_wau
+    , mau AS chain_mau
+    , coalesce(fundamental_data.txns,0) + coalesce(collectives_fundamental_data.txns,0) + coalesce(people_fundamental_data.txns, 0) + coalesce(coretime_fundamental_data.txns, 0) + coalesce(bridgehub_fundamental_data.txns, 0) + coalesce(asset_hub_fundamental_data.txns, 0) as chain_txns
+    , (coalesce(fundamental_data.fees,0) + coalesce(collectives_fundamental_data.fees,0) + coalesce(people_fundamental_data.fees,0) + coalesce(coretime_fundamental_data.fees,0) + coalesce(bridgehub_fundamental_data.fees,0) + coalesce(asset_hub_fundamental_data.fees,0)) / (coalesce(fundamental_data.txns,0) + coalesce(collectives_fundamental_data.txns,0) + coalesce(people_fundamental_data.txns, 0) + coalesce(coretime_fundamental_data.txns, 0) + coalesce(bridgehub_fundamental_data.txns, 0) + coalesce(asset_hub_fundamental_data.txns, 0)) as chain_avg_txn_fee 
+    -- Cash Flow Metrics
+    , coalesce(fundamental_data.fees,0) + coalesce(collectives_fundamental_data.fees,0) + coalesce(people_fundamental_data.fees,0) + coalesce(coretime_fundamental_data.fees,0) + coalesce(bridgehub_fundamental_data.fees,0) + coalesce(asset_hub_fundamental_data.fees,0) as chain_fees
+    , coalesce(fundamental_data.fees_native,0) + coalesce(collectives_fundamental_data.fees_native,0) + coalesce(people_fundamental_data.fees_native,0) + coalesce(coretime_fundamental_data.fees_native,0) + coalesce(bridgehub_fundamental_data.fees_native,0) + coalesce(asset_hub_fundamental_data.fees_native,0) as ecosystem_revenue_native
+    , chain_fees as ecosystem_revenue
+    , revenue_native AS treasury_fee_allocation_native
+    , revenue AS treasury_fee_allocation
+    -- Developer Metrics
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
 from fundamental_data
 left join collectives_fundamental_data on fundamental_data.date = collectives_fundamental_data.date
 left join people_fundamental_data on fundamental_data.date = people_fundamental_data.date

@@ -19,5 +19,7 @@ from
             ('USDY', 'A1KLoBrKBde8Ty9qtNQUtq3C2ortoC3u7twggz7sEto6', 6, 'ondo-us-dollar-yield', 0),
             ('USD*', 'BenJy1n3WTx9mTjEvy63e8Q1j4RqUc6E4VBMz3ir4Wo6', 6, 'perena-usd', 0), -- coingecko id is a placeholder until updated
             ('AUSD', 'AUSD1jCcCyPLybk1YnvPWsHQSrZ46dxwoMniN4N2UEB9', 6, 'agora-dollar', 0),
-            ('sUSD', 'susdabGDNbhrnCa6ncrYo81u4s9GM8ecK2UwMyZiq4X', 6, 'solayer-usd', 0)
+            ('sUSD', 'susdabGDNbhrnCa6ncrYo81u4s9GM8ecK2UwMyZiq4X', 6, 'solayer-usd', 0),
+            ('USDG', '2u1tszSeqZ3qBWF3uNGPFc8TzMk2tdiwknnRMWGWjGWH', 6, 'global-dollar', 0),
+            ('BUIDL', 'GyWgeqpy5GueU2YbkE8xqUeVEokCMMCEeUrfbtMw6phr', 6, 'blackrock-usd-institutional-digital-liquidity-fund', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)

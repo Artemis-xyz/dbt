@@ -31,7 +31,7 @@ with
             , 'factory/osmo1pfyxruwvtwk00y8z06dh2lqjdj82ldvy74wzm3/WOSMO'
         )
         {% if is_incremental() %}
-            and block_date::date >= (select dateadd('day', -5, max(date)) from {{ this }})
+            and block_date::date >= (select dateadd('day', -3, max(date)) from {{ this }})
         {% endif %}
         group by date, currency
     ),

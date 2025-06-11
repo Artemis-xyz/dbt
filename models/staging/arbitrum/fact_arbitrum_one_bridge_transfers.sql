@@ -2,7 +2,7 @@
     config(
         materialized="table",
         unique_key=["tx_hash", "event_index"],
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="ARBITRUM",
     )
 }}
 
@@ -45,7 +45,7 @@ with
         where
             contract_address = lower('0x8315177aB297bA92A06054cE80a67Ed4DBd7ed3a')
             and event_name = 'BridgeCallTriggered'
-            and tx_status = 'SUCCESS'
+            and tx_succeeded = TRUE
             {% if is_incremental() %}
 
                 and block_timestamp
@@ -99,7 +99,7 @@ with
                     != lower('0xd92023E9d9911199a6711321D1277285e6d4e2db')
             )
             and event_name = 'DepositInitiated'
-            and tx_status = 'SUCCESS'
+            and tx_succeeded = TRUE
             {% if is_incremental() %}
 
                 and block_timestamp
@@ -153,7 +153,7 @@ with
                     != lower('0x6c411ad3e74de3e7bd422b94a27770f5b86c623b')
             )
             and event_name = 'WithdrawalInitiated'
-            and tx_status = 'SUCCESS'
+            and tx_succeeded = TRUE
             {% if is_incremental() %}
 
                 and block_timestamp

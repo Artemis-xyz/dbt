@@ -1,0 +1,6 @@
+sources:
+  - name: SONARX_XRP
+    database: sonarx_xrp
+    schema: xrp_share
+    tables:
+      - name: transactions

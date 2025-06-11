@@ -10,7 +10,7 @@ with
         from ethereum_flipside.price.ez_prices_hourly
         where
             token_address = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-            and hour >= dateadd(day, -5, (select min(date) from gas))
+            and hour >= dateadd(day, -3, (select min(date) from gas))
         group by 1
     ),
     expenses as (
@@ -23,7 +23,7 @@ with
                 lower('0xa8CB082A5a689E0d594d7da1E2d72A3D63aDc1bD'),
                 lower('0x32400084C286CF3E17e7B677ea9583e60a000324')
             ) 
-            and block_timestamp >= dateadd(day, -5, (select min(date) from gas))
+            and block_timestamp >= dateadd(day, -3, (select min(date) from gas))
         group by 1
     )
 select gas.*, gas.gas - coalesce(expenses.gas, 0) as revenue_native, (gas.gas - coalesce(expenses.gas, 0)) * price as revenue, expenses.gas * price as l1_data_cost, expenses.gas as l1_data_cost_native

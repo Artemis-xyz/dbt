@@ -5,3 +5,4 @@ sources:
     tables:
       - name: raw_synthetix_trading_volume
       - name: raw_synthetix_unique_traders
+      - name: raw_synthetix_total_value_locked

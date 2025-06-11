@@ -12,16 +12,19 @@ SELECT
       WHEN symbol_out = 'USDT' THEN 'USDT'
       -- Then handle other major assets
       WHEN symbol_in IN ('USDC') THEN 'USDC'
-      WHEN symbol_in IN ('WBTC', 'BTC') then 'WBTC'
+      WHEN symbol_in IN ('WBTC', 'BTC', 'cbBTC') then 'WBTC'
       WHEN symbol_in IN ('WETH', 'ETH') then 'WETH'
-      WHEN symbol_in IN ('SOL') then 'WETH'
+      WHEN symbol_in IN ('SOL') then 'SOL'
+      when symbol_in in ('USDe', 'USDS', 'DAI', 'FDUSD', 'BUIDL', 'USDTB', 'USD0', 'PYUSD', 'sUSD', 'USDY') then 'Other Stablecoins'
       ELSE 'Other crypto'
     END as quote_asset,
-    sum(amount_out_usd) as volume,
+    sum(coalesce(amount_out_usd, amount_in_usd)) as volume,
     count(distinct tx_hash) as trades
   FROM base_flipside.defi.ez_dex_swaps
+  --Filter out High volume MEV address: 0xf14149bde6f7e2573f38aceda6220d7dfff66592
+  where origin_from_address not in ('0xf14149bde6f7e2573f38aceda6220d7dfff66592')
   {% if is_incremental() %}
-    where block_timestamp >= (select dateadd('day', -7, max(date_day)) from {{ this }})
+    and block_timestamp >= (select DATEADD('day', -3, max(date_day)) from {{ this }})
   {% endif %}
   group by 1,2,3,4
 
@@ -37,16 +40,17 @@ SELECT
       WHEN symbol_out = 'USDT' THEN 'USDT'
       -- Then handle other major assets
       WHEN symbol_in IN ('USDC') THEN 'USDC'
-      WHEN symbol_in IN ('WBTC', 'BTC') then 'WBTC'
+      WHEN symbol_in IN ('WBTC', 'BTC', 'cbBTC') then 'WBTC'
       WHEN symbol_in IN ('WETH', 'ETH') then 'WETH'
-      WHEN symbol_in IN ('SOL') then 'WETH'
+      WHEN symbol_in IN ('SOL') then 'SOL'
+      when symbol_in in ('USDe', 'USDS', 'DAI', 'FDUSD', 'BUIDL', 'USDTB', 'USD0', 'PYUSD', 'sUSD', 'USDY') then 'Other Stablecoins'
       ELSE 'Other crypto'
     END as quote_asset,
-    sum(amount_out_usd) as volume,
+    sum(coalesce(amount_out_usd, amount_in_usd)) as volume,
     count(distinct tx_hash) as trades
   FROM ethereum_flipside.defi.ez_dex_swaps
   {% if is_incremental() %}
-    where block_timestamp >= (select dateadd('day', -7, max(date_day)) from {{ this }})
+    where block_timestamp >= (select DATEADD('day', -3, max(date_day)) from {{ this }})
   {% endif %}
   group by 1,2,3,4
 
@@ -62,16 +66,17 @@ SELECT
       WHEN symbol_out = 'USDT' THEN 'USDT'
       -- Then handle other major assets
       WHEN symbol_in IN ('USDC') THEN 'USDC'
-      WHEN symbol_in IN ('WBTC', 'BTC') then 'WBTC'
+      WHEN symbol_in IN ('WBTC', 'BTC', 'cbBTC') then 'WBTC'
       WHEN symbol_in IN ('WETH', 'ETH') then 'WETH'
-      WHEN symbol_in IN ('SOL') then 'WETH'
+      WHEN symbol_in IN ('SOL') then 'SOL'
+      when symbol_in in ('USDe', 'USDS', 'DAI', 'FDUSD', 'BUIDL', 'USDTB', 'USD0', 'PYUSD', 'sUSD', 'USDY') then 'Other Stablecoins'
       ELSE 'Other crypto'
     END as quote_asset,
-    sum(amount_out_usd) as volume,
+    sum(coalesce(amount_out_usd, amount_in_usd)) as volume,
     count(distinct tx_hash) as trades
   FROM arbitrum_flipside.defi.ez_dex_swaps
   {% if is_incremental() %}
-    where block_timestamp >= (select dateadd('day', -7, max(date_day)) from {{ this }})
+    where block_timestamp >= (select DATEADD('day', -3, max(date_day)) from {{ this }})
   {% endif %}
   group by 1,2,3,4
 
@@ -89,16 +94,17 @@ SELECT
       WHEN symbol_out = 'USDT' THEN 'USDT'
       -- Then handle other major assets
       WHEN symbol_in IN ('USDC') THEN 'USDC'
-      WHEN symbol_in IN ('WBTC', 'BTC') then 'WBTC'
+      WHEN symbol_in IN ('WBTC', 'BTC', 'cbBTC') then 'WBTC'
       WHEN symbol_in IN ('WETH', 'ETH') then 'WETH'
-      WHEN symbol_in IN ('SOL') then 'WETH'
+      WHEN symbol_in IN ('SOL') then 'SOL'
+      when symbol_in in ('USDe', 'USDS', 'DAI', 'FDUSD', 'BUIDL', 'USDTB', 'USD0', 'PYUSD', 'sUSD', 'USDY') then 'Other Stablecoins'
       ELSE 'Other crypto'
     END as quote_asset,
-    sum(amount_out_usd) as volume,
+    sum(coalesce(amount_out_usd, amount_in_usd)) as volume,
     count(distinct tx_hash) as trades
   FROM bsc_flipside.defi.ez_dex_swaps
   {% if is_incremental() %}
-    where block_timestamp >= (select dateadd('day', -7, max(date_day)) from {{ this }})
+    where block_timestamp >= (select DATEADD('day', -3, max(date_day)) from {{ this }})
   {% endif %}
   group by 1,2,3,4
 
@@ -114,16 +120,17 @@ SELECT
       WHEN swap_from_symbol = 'USDT' THEN 'USDT'
       -- Then handle other major assets
       WHEN swap_from_symbol IN ('USDC') THEN 'USDC'
-      WHEN swap_from_symbol IN ('WBTC', 'BTC') then 'WBTC'
+      WHEN swap_from_symbol IN ('WBTC', 'BTC', 'cbBTC') then 'WBTC'
       WHEN swap_from_symbol IN ('WETH', 'ETH') then 'WETH'
       WHEN swap_from_symbol IN ('SOL') then 'SOL'
+      when swap_from_symbol in ('USDe', 'USDS', 'DAI', 'FDUSD', 'BUIDL', 'USDTB', 'USD0', 'PYUSD', 'sUSD', 'USDY') then 'Other Stablecoins'
       ELSE 'Other crypto'
     END as quote_asset,
-    sum(swap_from_amount_usd) as volume,
+    sum(coalesce(swap_from_amount_usd, swap_to_amount_usd)) as volume,
     count(distinct tx_id) as trades
   FROM solana_flipside.defi.ez_dex_swaps
   {% if is_incremental() %}
-    where block_timestamp >= (select dateadd('day', -7, max(date_day)) from {{ this }})
+    where block_timestamp >= (select DATEADD('day', -3, max(date_day)) from {{ this }})
   {% endif %}
   group by 1,2,3,4
   )

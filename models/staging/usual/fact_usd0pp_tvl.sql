@@ -1,3 +1,10 @@
+{{
+    config(
+        materialized='table',
+        snowflake_warehouse='USUAL'
+    )
+}}
+
 WITH user_balance AS (
   SELECT 
     date,
@@ -14,7 +21,7 @@ WITH user_balance AS (
       LOWER(contract_address) AS contract_address,
       -CAST(decoded_log:"value" AS NUMERIC) / 1e18 AS amount
     FROM 
-      ethereum_flipside.core.fact_decoded_event_logs
+      ethereum_flipside.core.ez_decoded_event_logs
     WHERE 
       LOWER(decoded_log:"from") != '0x0000000000000000000000000000000000000000'
       AND LOWER(contract_address) IN ('0x73a15fed60bf67631dc6cd7bc5b6e8da8190acf5', '0x35d8949372d46b7a3d5a56006ae77b215fc69bc0')
@@ -29,7 +36,7 @@ WITH user_balance AS (
       LOWER(contract_address) AS contract_address,
       CAST(decoded_log:"value" AS NUMERIC) / 1e18 AS amount
     FROM 
-      ethereum_flipside.core.fact_decoded_event_logs
+      ethereum_flipside.core.ez_decoded_event_logs
     WHERE 
       LOWER(decoded_log:"to") != '0x0000000000000000000000000000000000000000'
       AND LOWER(contract_address) IN ('0x73a15fed60bf67631dc6cd7bc5b6e8da8190acf5', '0x35d8949372d46b7a3d5a56006ae77b215fc69bc0')

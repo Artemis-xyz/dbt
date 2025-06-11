@@ -43,15 +43,30 @@ select
     , fees_native
     , revenue
     , revenue as revenue_native
+    , dune_dex_volumes_gnosis.dex_volumes
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    -- Chain Usage Metrics
+    , txns AS chain_txns
+    , dau AS chain_dau
+    , mau AS chain_mau
+    , wau AS chain_wau
+    , fees / txns AS chain_avg_txn_fee
+    , dune_dex_volumes_gnosis.dex_volumes AS chain_spot_volume
+    -- Cashflow metrics
+    , fees as chain_fees
+    , fees AS ecosystem_revenue
+    , fees_native AS ecosystem_revenue_native
+    , revenue AS burned_fee_allocation
+    , revenue_native AS burned_fee_allocation_native
+    -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
-    , dune_dex_volumes_gnosis.dex_volumes
-    , price
-    , market_cap
-    , fdmc
-
 from fundamental_data
 left join github_data using (date)
 left join defillama_data using (date)

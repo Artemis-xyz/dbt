@@ -27,7 +27,7 @@ with all_transfers as(
     where tx_to in ('H3vkQqNVWySTD4c1Y91wtoT5iwxKSVtVLfC2rD8SgwTN', 'GNSHYrJmjwYXnWLy3esF5VjWa1AKMhzAru1pTeQDY8w3')
     {% if is_incremental() %}
         -- this filter will only be applied on an incremental run 
-        and block_timestamp::date >= (select dateadd('day', -7, max(date)) from {{ this }})
+        and block_timestamp::date >= (select DATEADD('day', -3, max(date)) from {{ this }})
     {% else %}
         and block_timestamp::date > '2022-10-14'
     {% endif %}

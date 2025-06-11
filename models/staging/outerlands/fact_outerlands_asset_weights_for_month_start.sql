@@ -12,14 +12,9 @@
         coingecko_id,
         DATE(CONVERT_TIMEZONE('UTC', added_date)) as added_date,
         DATE(CONVERT_TIMEZONE('UTC', deleted_date)) as deleted_date,
+        sector
      FROM " ~ source('SIGMA', 'dim_outerlands_fundamental_index_assets')
 ) -%}
-
-{%- set stablecoin_assets = ['ethena']-%}
-{%- set bridge_assets =  ['wormhole', 'layerzero', 'axelar']-%}
-{%- set da_assets = ['celestia'] -%}
-{%- set dex_assets = ['trader_joe', 'raydium', 'aerodrome'] -%}
-{%- set perps_assets = ['jupiter', 'hyperliquid'] -%}
 
 {%- set MINIMUM_MCAP = 30000000 -%}
 
@@ -41,6 +36,7 @@ WITH
     {%- set coingecko_id = sigma_assets['COINGECKO_ID'][i] -%}
     {%- set added_date = sigma_assets['ADDED_DATE'][i] -%}
     {%- set deleted_date = sigma_assets['DELETED_DATE'][i] %}
+    {%- set sector = sigma_assets['SECTOR'][i] %}
 
     SELECT 
         m.date, 
@@ -48,35 +44,13 @@ WITH
         '{{ coingecko_id }}' AS coingecko_id,
         
         -- TXNS
-        {%- if artemis_id in stablecoin_assets %}
-            stablecoin_txns as txns,
-        {%- elif artemis_id in bridge_assets %}
-            bridge_txns as txns,
-        {%- elif artemis_id in dex_assets %}
-            number_of_swaps as txns,
-        {%- else %}
-            txns as txns,
-        {%- endif %}
+        {{ sector }}_txns as txns,
 
         -- DAU
-        {%- if artemis_id in stablecoin_assets %}
-            stablecoin_dau as dau,
-        {%- elif artemis_id in bridge_assets %}
-            bridge_daa as dau,
-        {%- elif artemis_id in da_assets %}
-            submitters as dau,
-        {%- elif artemis_id in dex_assets or artemis_id in perps_assets %}
-            unique_traders as dau,
-        {%- else %}
-            dau as dau, 
-        {%- endif %}
+        {{ sector }}_dau as dau,
 
         -- FEES
-        {%- if artemis_id in dex_assets %}
-            trading_fees as fees
-        {%- else %}
-            fees as fees
-        {%- endif %}
+        fees as fees
 
         FROM {{ artemis_id }}.prod_core.ez_metrics m
 

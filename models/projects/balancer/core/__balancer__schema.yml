@@ -1,0 +1,182 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  fdmc: &fdmc
+    name: fdmc
+    description: "The fully diluted market cap of a token in USD"
+    tags:
+      - artemis_gaap
+
+  staking_fee_allocation: &staking_fee_allocation
+    name: staking_fee_allocation
+    description: "Revenue distributed to veBAL holders. Beginning in February 2022, this calculated as 37.5% of trading fees."
+    tags:
+      - artemis_gaap
+      - override
+
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
+    description: "The total value generated through trading fees on Balancer v1 and v2."
+    tags:
+      - artemis_gaap
+      - override
+
+  market_cap: &market_cap
+    name: market_cap
+    description: "The market cap of a token in USD"
+    tags:
+      - artemis_gaap
+
+  net_treasury: &net_treasury
+    name: net_treasury
+    description: "The USD value in the protocol's treasury excluding the protocol's own tokens"
+
+  net_treasury_native: &net_treasury_native
+    name: net_treasury_native
+    description: "The native value of tokens in the protocol's treasury excluding the protocol's own tokens"
+
+  own_token_treasury: &own_token_treasury
+    name: own_token_treasury
+    description: "The USD value of the protocol's own tokens in the protocol treasury"
+
+  own_token_treasury_native: &own_token_treasury_native
+    name: own_token_treasury_native
+    description: "The native value of the protocol's own tokens in the protocol treasury"
+
+  price: &price
+    name: price
+    description: "The price of a token in USD"
+    tags:
+      - artemis_gaap
+
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
+    description: "The share of protocol revenue accrued to LPs of the protocol. Before February 2022, this was 90% of trading fees, after this date, it is 50% of trading fees."
+    tags:
+      - artemis_gaap
+      - override
+
+  spot_dau: &spot_dau
+    name: spot_dau
+    description: "The number of daily active traders on a spot dex"
+
+  spot_txns: &spot_txns
+    name: spot_txns
+    description: "The number of daily trades on a spot dex"
+
+  spot_volume: &spot_volume
+    name: spot_volume
+    description: "The total volume on a spot dex"
+
+  token_turnover_circulating: &token_turnover_circulating
+    name: token_turnover_circulating
+    description: "The turnover of a token in USD"
+    tags:
+      - artemis_gaap
+
+  token_turnover_fdv: &token_turnover_fdv
+    name: token_turnover_fdv
+    description: "The turnover of a token in USD"
+    tags:
+      - artemis_gaap
+
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of a token in USD"
+    tags:
+      - artemis_gaap
+
+  treasury: &treasury
+    name: treasury
+    description: "The USD value in the protocol treasury"
+
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
+    description: "Portion of revenue allocated to the protocol treasury. Before February 2022, this was 10% of fees, after this date, it is 12.5% of fees."
+    tags:
+      - artemis_gaap
+
+  treasury_native: &treasury_native
+    name: treasury_native
+    description: "The native value of tokens in the protocol treasury"
+
+  tvl: &tvl
+    name: tvl
+    description: "The total value locked in a protocol"
+
+  tvl_native: &tvl_native
+    name: tvl_native
+    description: "The total value locked in a protocol in the native currency of the protocol"
+
+models:
+  - name: ez_balancer_metrics_by_token
+    description: "This table stores metrics for the BALANCER protocol"
+    columns:
+      - *staking_fee_allocation
+      - *ecosystem_revenue
+      - *net_treasury
+      - *net_treasury_native
+      - *own_token_treasury
+      - *own_token_treasury_native
+      - *service_fee_allocation
+      - *spot_dau
+      - *spot_txns
+      - *spot_volume
+      - *treasury
+      - *treasury_fee_allocation
+      - *treasury_native
+      - *tvl
+      - *tvl_native
+
+  - name: ez_balancer_metrics_by_chain
+    description: "This table stores metrics for the BALANCER protocol"
+    columns:
+      - *staking_fee_allocation
+      - *ecosystem_revenue
+      - *net_treasury
+      - *own_token_treasury
+      - *service_fee_allocation
+      - *spot_dau
+      - *spot_txns
+      - *spot_volume
+      - *treasury
+      - *treasury_fee_allocation
+      - *treasury_native
+      - *tvl
+
+  - name: ez_balancer_metrics_by_pool
+    description: "This table stores metrics for the BALANCER protocol"
+    columns:
+      - *staking_fee_allocation
+      - *ecosystem_revenue
+      - *service_fee_allocation
+      - *spot_dau
+      - *spot_txns
+      - *spot_volume
+      - *treasury_fee_allocation
+      - *tvl
+
+  - name: ez_balancer_metrics
+    description: "This table stores metrics for the BALANCER protocol"
+    columns:
+      - *fdmc
+      - *staking_fee_allocation
+      - *ecosystem_revenue
+      - *market_cap
+      - *net_treasury
+      - *own_token_treasury
+      - *price
+      - *service_fee_allocation
+      - *spot_dau
+      - *spot_txns
+      - *spot_volume
+      - *token_turnover_circulating
+      - *token_turnover_fdv
+      - *token_volume
+      - *treasury
+      - *treasury_fee_allocation
+      - *tvl
+

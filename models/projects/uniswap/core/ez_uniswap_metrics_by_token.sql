@@ -35,6 +35,7 @@ WITH
             , chain
             , token_fee_amount_native_symbol as token
             , SUM(token_fee_amount_native) as fees_native
+            , SUM(trading_fees) as spot_fees
         FROM fees_cte
         GROUP BY 1, 2, 3
     )
@@ -44,6 +45,7 @@ WITH
             , 'ethereum' as chain
             , token
             , token_incentives_native
+            , token_incentives_usd
         FROM {{ ref('fact_uniswap_token_incentives') }}
     )
     , treasury_cte AS(
@@ -68,9 +70,11 @@ WITH
             date
             , 'ethereum' as chain
             , token
-            , treasury_native as net_treasury_value
+            , sum(treasury_native) as net_treasury_value
+            , sum(usd_balance) as own_token_treasury
         FROM {{ ref('fact_uniswap_treasury_by_token') }}
         WHERE token <> 'UNI'
+        GROUP BY 1, 2, 3
     )
     , tvl_cte AS (
         SELECT * FROM {{ ref('fact_uniswap_bsc_tvl_by_token') }}
@@ -100,15 +104,31 @@ WITH
         GROUP BY 1,2,3
     )
 SELECT
-    date,
-    token,
-    chain,
-    fees_native as trading_fees,
-    token_incentives_native,
-    treasury_value,
-    treasury_native_value,
-    net_treasury_value,
-    tvl
+    date
+    , token
+    , chain
+    , fees_native as trading_fees
+    , treasury_value
+    , treasury_native_value
+    , net_treasury_value
+
+    -- Standardized Metrics
+
+    -- Usage/Sector Metrics
+    , tvl
+
+    -- Money Metrics
+    , spot_fees
+    , spot_fees as ecosystem_revenue
+    , fees_native as spot_fees_native
+    , fees_native as ecosystem_revenue_native
+    , token_incentives_native
+    , token_incentives_usd as token_incentives
+
+    -- Treasury Metrics
+    , treasury_native_value as treasury
+    , net_treasury_value as net_treasury
+    , own_token_treasury
 FROM
     fees_agg
 LEFT JOIN token_incentives_cte using(date, chain, token)

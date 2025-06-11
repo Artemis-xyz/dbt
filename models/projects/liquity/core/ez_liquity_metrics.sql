@@ -11,8 +11,9 @@
 with tvl as (
     select
         date,
-        tvl_usd as tvl
+        sum(tvl_usd) as tvl
     from {{ ref('fact_liquity_tvl') }}
+    group by 1
 )
 , outstanding_supply as (
     select
@@ -36,21 +37,16 @@ with tvl as (
     group by 1
 )
 , treasury as (
-    SELECT
-        date,
-        sum(native_balance) as treasury_value,
-        SUM(
-            CASE WHEN token = 'LQTY'
-                THEN native_balance
-            END
-        ) AS treasury_value_native,
-        SUM(
-            CASE WHEN token <> 'LQTY'
-                THEN native_balance
-            END
-        ) AS net_treasury_value
-    FROM {{ ref('fact_liquity_treasury') }}
-    GROUP BY 1
+    select 
+        date
+        , sum(treasury) as treasury
+        , sum(treasury_native) as treasury_native
+        , sum(net_treasury) as net_treasury
+        , sum(net_treasury_native) as net_treasury_native
+        , sum(own_token_treasury) as own_token_treasury
+        , sum(own_token_treasury_native) as own_token_treasury_native
+    from {{ ref('ez_liquity_metrics_by_token') }}
+    group by 1
 )
 , token_holders as (
     select
@@ -69,33 +65,52 @@ with tvl as (
 )
 
 select
-    ds.date,
-    
-    -- Fees, Revenue, Earnings
-    fr.revenue_usd as fees,
-    fr.revenue_usd as revenue,
-    ti.token_incentives,
-    ti.token_incentives as expenses,
-    fr.revenue_usd - ti.token_incentives as protocol_earnings,
+    ds.date
+    , th.token_holder_count
+    , tvl.tvl as net_deposits
+    , os.outstanding_supply
+    , fr.revenue_usd as fees
+    , fr.revenue_usd as revenue
+    , ti.token_incentives
+    , ti.token_incentives as expenses
+    , fr.revenue_usd - ti.token_incentives as earnings
+    , t.treasury as treasury_value
+    , t.own_token_treasury as treasury_value_native
+    , t.net_treasury as net_treasury_value
 
-    -- TVL
-    tvl.tvl,
-    tvl.tvl as net_deposits,
-    os.outstanding_supply,
 
-    -- Treasury
-    t.net_treasury_value as net_treasury_value,
-    t.treasury_value_native as treasury_native_value,
-    t.treasury_value as treasury_value,
+    -- Standardized Metrics
 
-    -- Market Data
-    md.price,
-    md.market_cap,
-    md.fdmc,
-    md.token_turnover_circulating,
-    md.token_turnover_fdv,
-    md.token_volume,
-    th.token_holder_count
+    -- Token Metrics
+    , md.price
+    , md.market_cap
+    , md.fdmc
+    , md.token_volume
+
+    -- Lending Metrics
+    , tvl.tvl as lending_deposits
+    , fr.revenue_usd as lending_fees
+    , os.outstanding_supply as lending_loans
+
+    -- Crypto Metrics
+    , tvl.tvl
+    , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
+
+    -- Cash Flow Metrics
+    , fr.revenue_usd as ecosystem_revenue
+    , ti.token_incentives as staking_fee_allocation
+
+    -- Protocol Metrics
+    , coalesce(t.treasury, 0) as treasury
+    , coalesce(t.treasury_native, 0) as treasury_native
+    , coalesce(t.net_treasury, 0) as net_treasury
+    , coalesce(t.net_treasury_native, 0) as net_treasury_native
+    , coalesce(t.own_token_treasury, 0) as own_token_treasury  
+    , coalesce(t.own_token_treasury_native, 0) as own_token_treasury_native
+
+    -- Turnover Metrics
+    , md.token_turnover_circulating
+    , md.token_turnover_fdv
 from date_spine ds
 left join tvl using (date)
 left join outstanding_supply os using (date)

@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="PENDLE"
+        snowflake_warehouse="PENDLE",
     )
 }}
 

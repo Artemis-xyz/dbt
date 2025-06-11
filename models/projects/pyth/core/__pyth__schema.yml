@@ -1,0 +1,91 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  fdmc: &fdmc
+    name: fdmc
+    description: "The fully diluted market cap of a token in USD"
+    tags:
+      - artemis_gaap
+
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
+    description: "Pyth's Oracle currently charges fees equivalent to 1 of the smallest denomination of the blockchain's native token (e.g., 1 wei on Ethereum)"
+    tags:
+      - override
+
+  market_cap: &market_cap
+    name: market_cap
+    description: "The market cap of a token in USD"
+    tags:
+      - artemis_gaap
+
+  oracle_dau: &oracle_dau
+    name: oracle_dau
+    description: "The total number of unique users interacting with the Pyth Oracle protocol"
+    tags:
+      - artemis_gaap
+      - override
+
+  oracle_fees: &oracle_fees
+    name: oracle_fees
+    description: "Pyth's Oracle currently charges fees equivalent to 1 of the smallest denomination of the blockchain's native token (e.g., 1 wei on Ethereum)"
+    tags:
+      - override
+
+  oracle_txns: &oracle_txns
+    name: oracle_txns
+    description: "The total number of transactions made interacting with the Pyth Oracle protocol"
+    tags:
+      - artemis_gaap
+      - override
+
+  price: &price
+    name: price
+    description: "The price of a token in USD"
+    tags:
+      - artemis_gaap
+
+  token_turnover_circulating: &token_turnover_circulating
+    name: token_turnover_circulating
+    description: "The turnover of a token in USD, based on the token's circulating supply."
+    tags:
+      - artemis_gaap
+
+  token_turnover_fdv: &token_turnover_fdv
+    name: token_turnover_fdv
+    description: "The turnover of a token in USD, based on the token's fully diluted supply."
+    tags:
+      - artemis_gaap
+
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of a token in USD"
+    tags:
+      - artemis_gaap
+
+models:
+  - name: ez_pyth_metrics
+    description: "This table stores metrics for the PYTH protocol"
+    columns:
+      - *fdmc
+      - *ecosystem_revenue
+      - *market_cap
+      - *oracle_dau
+      - *oracle_fees
+      - *oracle_txns
+      - *price
+      - *token_turnover_circulating
+      - *token_turnover_fdv
+      - *token_volume
+
+  - name: ez_pyth_metrics_by_chain
+    description: "This table stores metrics for the PYTH protocol"
+    columns:
+      - *ecosystem_revenue
+      - *oracle_dau
+      - *oracle_fees
+      - *oracle_txns
+

@@ -23,21 +23,24 @@ WITH raw_addresses AS (
         {"table": "dim_sei_all_addresses", "chain": "sei"},
         {"table": "dim_solana_all_addresses", "chain": "solana"},
         {"table": "dim_sui_all_addresses", "chain": "sui"},
-        {"table": "dim_tron_all_addresses", "chain": "tron"}
+        {"table": "dim_tron_all_addresses", "chain": "tron"},
+        {"table": "dim_mantle_all_addresses", "chain": "mantle"}
     ] %}
 
     {% for sourc in sources %}
         {% if sourc.chain in ['injective', 'stellar']  %}
-            SELECT LOWER(address) AS address, transaction_trace_type, address_type::STRING, chain, last_updated
+            SELECT address AS address, transaction_trace_type, address_type::STRING, chain, last_updated
             FROM  {{ source("PROD_LANDING", sourc.table) }}
         {% else %}
-            SELECT LOWER(address) AS address, transaction_trace_type, address_type, chain, last_updated FROM {{ ref(sourc.table) }}
+            SELECT address AS address, transaction_trace_type, address_type, chain, last_updated FROM {{ ref(sourc.table) }}
         {% endif %}
 
         {% if is_incremental() %}
-            WHERE last_updated > (SELECT MAX(last_updated) FROM {{ this }} WHERE chain = '{{ sourc.chain }}')
+            WHERE last_updated > COALESCE(
+                (SELECT MAX(last_updated) FROM {{ this }} WHERE chain = '{{ sourc.chain }}'),
+                '1970-01-01'::TIMESTAMP_NTZ
+            )
         {% endif %}
-
         {% if not loop.last %} UNION ALL {% endif %}
     {% endfor %}
 ),
@@ -58,7 +61,7 @@ labeled_name_metadata AS (
 -- This contains deduped labeled_name_metadata
 deduped_labeled_name_metadata AS (
     SELECT 
-        LOWER(address) AS address,
+        address,
         namespace,
         LOWER(REPLACE(raw_external_category, ' ', '_')) AS raw_external_category,
         LOWER(REPLACE(raw_external_sub_category, ' ', '_')) AS raw_external_sub_category,
@@ -92,13 +95,13 @@ deduped_labeled_name_metadata_with_types AS (
 -- This aggreates all_chains_gas_dau_txns_by_contract by distinct address + chain
 distinct_all_chains AS (
     SELECT
-        LOWER(contract_address) AS address,
+        contract_address AS address,
         chain,
         SUM(total_gas) AS total_gas,
         SUM(total_gas_usd) AS total_gas_usd,
         SUM(transactions) AS total_transactions,
         ROUND(AVG(dau), 2) AS average_dau
-    FROM {{ ref("all_chains_gas_dau_txns_by_contract") }}
+    FROM pc_dbt_db.prod.all_chains_gas_dau_txns_by_contract_v2
     GROUP BY contract_address, chain
 ),
 deduped_manual_labeled_addresses AS (
@@ -107,8 +110,12 @@ deduped_manual_labeled_addresses AS (
     QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated DESC) = 1
 )
 
+, all_addresses as (
 SELECT 
-    COALESCE(ua.address, TRIM(ra.address)) AS address,
+    CASE
+        WHEN substr(COALESCE(ua.address, TRIM(ra.address)), 1, 2) = '0x' THEN LOWER(COALESCE(ua.address, TRIM(ra.address)))
+        ELSE COALESCE(ua.address, TRIM(ra.address))
+    END AS address,
     ra.transaction_trace_type AS transaction_trace_type,
     ra.address_type AS address_type,
     COALESCE(OBJECT_CONSTRUCT('name', ua.name), nm.metadata, NULL) AS metadata,
@@ -126,11 +133,31 @@ SELECT
     COALESCE(ua.last_updated, ra.last_updated) AS last_updated
 FROM raw_addresses ra
 LEFT JOIN distinct_all_chains ac
-    ON ra.address = ac.address AND ra.chain = ac.chain
+    ON LOWER(ra.address) = LOWER(ac.address) AND ra.chain = ac.chain
 LEFT JOIN pc_dbt_db.prod.dim_geo_labels geo
     ON LOWER(ra.address) = LOWER(geo.address) AND ra.chain = geo.chain
 LEFT JOIN deduped_labeled_name_metadata_with_types nm
-    ON ra.address = nm.address AND ra.chain = nm.chain
+    ON LOWER(ra.address) = LOWER(nm.address) AND ra.chain = nm.chain
 FULL OUTER JOIN deduped_manual_labeled_addresses ua
-    ON ra.address = ua.address AND ra.chain = ua.chain
+    ON LOWER(ra.address) = LOWER(ua.address) AND ra.chain = ua.chain
+)
 
+select 
+    address,
+    transaction_trace_type,
+    address_type,
+    metadata,
+    namespace,
+    raw_external_category,
+    raw_external_sub_category,
+    chain,
+    total_gas,
+    total_gas_usd,
+    total_transactions,
+    average_dau,
+    country,
+    region,
+    subregion,
+    last_updated
+from all_addresses
+qualify row_number() over (partition by address, chain order by last_updated desc) = 1

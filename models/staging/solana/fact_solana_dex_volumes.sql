@@ -110,11 +110,11 @@ lifinity_volume as (
 
 select
     coalesce(sd.date, pump.date, margin.date, orca.date, lifinity.date) as date, 
-    (coalesce(sd.trading_volume,0) + 
+    sum((coalesce(sd.trading_volume,0) + 
         coalesce(pump.trading_volume,0) + 
         coalesce(margin.trading_volume,0) + 
         coalesce(orca.trading_volume,0) + 
-        coalesce(lifinity.trading_volume,0)) as daily_volume_usd
+        coalesce(lifinity.trading_volume,0))) as daily_volume_usd
 from scaled_down_volume as sd
 full join pump_fun_volume as pump
     on sd.date = pump.date
@@ -124,4 +124,5 @@ full join orca_volume as orca
     on sd.date = orca.date
 full join lifinity_volume as lifinity
     on sd.date = lifinity.date
+group by 1
 order by date asc

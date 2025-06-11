@@ -1,0 +1,51 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  price: &price
+    name: price
+    description: "The price of a token in USD"
+    tags:
+      - artemis_gaap
+
+  tokenized_market_cap: &tokenized_market_cap
+    name: tokenized_market_cap
+    description: "The market cap of PAXG in USD on Ethereum."
+    tags:
+      - override
+
+  tokenized_market_cap_native: &tokenized_market_cap_native
+    name: tokenized_market_cap_native
+    description: "The market cap of PAXG in native tokens on Ethereum."
+    tags:
+      - override
+
+  tokenized_market_cap_native_net_change: &tokenized_market_cap_native_net_change
+    name: tokenized_market_cap_native_net_change
+    description: "The net change in the market cap of PAXG in native tokens on Ethereum."
+    tags:
+      - override
+
+  tokenized_market_cap_net_change: &tokenized_market_cap_net_change
+    name: tokenized_market_cap_net_change
+    description: "The net change in the market cap of PAXG in USD on Ethereum."
+    tags:
+      - override
+
+models:
+  - name: ez_paxos_metrics_by_chain
+    description: "This table stores metrics for the PAXOS protocol"
+    columns:
+      - *price
+      - *tokenized_market_cap
+      - *tokenized_market_cap_native
+      - *tokenized_market_cap_native_net_change
+      - *tokenized_market_cap_net_change
+
+  - name: ez_paxos_metrics_by_product
+    description: "This table stores metrics for the PAXOS protocol"
+    columns:
+      - *price
+

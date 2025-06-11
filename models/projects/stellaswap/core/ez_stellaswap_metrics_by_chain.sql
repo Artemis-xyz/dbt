@@ -16,6 +16,8 @@ select
     stellaswap_tvl.date,
     'Defillama' as source,
     'moonbeam' as chain,
+
+    -- Standardized Metrics
     stellaswap_tvl.tvl
 from stellaswap_tvl
 where stellaswap_tvl.date < to_date(sysdate())  

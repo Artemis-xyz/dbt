@@ -20,8 +20,11 @@ with date_spine as (
         count(*) as number_of_swaps,
         sum(trading_volume) as trading_volume,
         sum(fee_usd) as trading_fees,
-        sum(supply_side_revenue_usd) as primary_supply_side_revenue,
-        sum(revenue) as revenue
+        sum(service_cash_flow) as primary_supply_side_revenue,
+        sum(treasury_cash_flow + vebal_cash_flow) as revenue,
+        sum(service_cash_flow) as service_fee_allocation,
+        sum(treasury_cash_flow) as treasury_fee_allocation,
+        sum(vebal_cash_flow) as vebal_fee_allocation
     FROM {{ ref('ez_balancer_dex_swaps') }}
     group by 1
 )
@@ -29,7 +32,7 @@ with date_spine as (
     SELECT
         date,
         sum(amount_usd) as token_incentives_usd
-    FROM {{ ref('fact_balancer_token_incentives') }}
+    FROM {{ ref('fact_balancer_token_incentives_all_chains') }}
     group by 1
 )
 , all_tvl as (
@@ -49,7 +52,8 @@ with date_spine as (
 , treasury_native as (
     SELECT
         date,
-        sum(native_balance) as treasury_native
+        sum(native_balance) as treasury_native,
+        sum(usd_balance) as own_token_treasury
     FROM {{ ref('fact_balancer_treasury_by_token') }}
     where token = 'BAL'
     group by 1
@@ -80,21 +84,44 @@ select
     coalesce(swap_metrics.trading_fees, 0) as fees,
     coalesce(swap_metrics.primary_supply_side_revenue, 0) as primary_supply_side_revenue,
     coalesce(swap_metrics.revenue, 0) as revenue,
-    coalesce(token_incentives.token_incentives_usd, 0) as token_incentives,
     coalesce(token_incentives.token_incentives_usd, 0) as expenses,
-    coalesce(swap_metrics.revenue, 0) - coalesce(token_incentives.token_incentives_usd, 0) as protocol_earnings,
-    coalesce(all_tvl.tvl_usd, 0) as tvl,
+    coalesce(swap_metrics.revenue, 0) - coalesce(token_incentives.token_incentives_usd, 0) as earnings,
     coalesce(all_tvl.tvl_usd, 0) as net_deposits,
     coalesce(treasury.net_treasury_usd, 0) as treasury_value,
     coalesce(net_treasury.net_treasury_usd, 0) as net_treasury_value,
-    coalesce(treasury_native.treasury_native, 0) as treasury_value_native,
-    coalesce(market_data.price, 0) as price,
-    coalesce(market_data.market_cap, 0) as market_cap,
-    coalesce(market_data.fdmc, 0) as fdmc,
-    coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating,
-    coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv,
-    coalesce(market_data.token_volume, 0) as token_volume,
-    coalesce(token_holders.token_holder_count, 0) as tokenholder_count
+    coalesce(treasury_native.treasury_native, 0) as treasury_value_native
+
+    -- Standardized Metrics
+    -- Market Metrics
+    , coalesce(market_data.price, 0) as price
+    , coalesce(market_data.market_cap, 0) as market_cap
+    , coalesce(market_data.fdmc, 0) as fdmc
+    , coalesce(market_data.token_volume, 0) as token_volume
+
+    -- Usage/Sector Metrics
+    , coalesce(swap_metrics.unique_traders, 0) as spot_dau
+    , coalesce(swap_metrics.number_of_swaps, 0) as spot_txns
+    , coalesce(swap_metrics.trading_volume, 0) as spot_volume
+    , coalesce(all_tvl.tvl_usd, 0) as tvl
+
+    -- Money Metrics
+    , coalesce(swap_metrics.trading_fees, 0) as spot_fees
+    , coalesce(swap_metrics.trading_fees, 0) as ecosystem_revenue
+    , coalesce(swap_metrics.service_fee_allocation, 0) as service_fee_allocation
+    , coalesce(swap_metrics.treasury_fee_allocation, 0) as treasury_fee_allocation
+    , coalesce(swap_metrics.vebal_fee_allocation, 0) as staking_fee_allocation
+    , coalesce(token_incentives.token_incentives_usd, 0) as token_incentives
+
+    -- Treasury Metrics
+    , coalesce(treasury.net_treasury_usd, 0) as treasury
+    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
+    , coalesce(net_treasury.net_treasury_usd, 0) as net_treasury
+
+    -- Other Metrics
+    , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
+    , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
+    , coalesce(token_holders.token_holder_count, 0) as tokenholder_count
+
 from date_spine
 left join all_tvl using (date)
 left join treasury using (date)

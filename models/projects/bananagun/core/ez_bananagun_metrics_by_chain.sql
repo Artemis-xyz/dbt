@@ -8,8 +8,27 @@
     )
 }}
 
-SELECT *
-FROM {{ ref('fact_bananagun_all_metrics') }}
+with metrics as (
+    SELECT *
+    FROM {{ ref('fact_bananagun_all_metrics') }}
+)
 
+SELECT
+    date
+    , chain
+    , coalesce(metrics.trading_volume, 0) as trading_volume
 
+    --Standardized Metrics
+
+    -- Aggregator Metrics
+    , coalesce(metrics.dau, 0) AS aggregator_dau
+    , coalesce(metrics.daily_txns, 0) AS aggregator_txns
+    , coalesce(metrics.fees_usd, 0) AS aggregator_revenue
+    , coalesce(metrics.trading_volume, 0) AS aggregator_volume
+
+    -- Cash Flow Metrics
+    , coalesce(metrics.fees_usd, 0) AS ecosystem_revenue
+    , coalesce(metrics.fees_usd, 0) * 0.6 AS treasury_fee_allocation
+    , coalesce(metrics.fees_usd, 0) * 0.4 AS token_fee_allocation
+FROM metrics
 ORDER BY date DESC

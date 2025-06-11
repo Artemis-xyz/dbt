@@ -25,14 +25,18 @@ with dim_date_spine as (
 )
 
 select
-    ds.date,
-    th.token_holder_count,
-    md.price,
-    md.market_cap,
-    md.fdmc,
-    md.token_turnover_circulating,
-    md.token_turnover_fdv,
-    md.token_volume
+    ds.date
+    , th.token_holder_count
+
+    -- Token Metrics
+    , md.price
+    , md.market_cap
+    , md.fdmc
+    , md.token_volume
+
+    -- Turnover Metrics
+    , md.token_turnover_circulating
+    , md.token_turnover_fdv
 from dim_date_spine ds
 left join token_holders th using (date)
 left join market_data md using (date)

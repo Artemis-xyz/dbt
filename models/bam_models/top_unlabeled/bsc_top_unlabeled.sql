@@ -7,7 +7,7 @@ select t.to_address address
 from bsc_flipside.core.fact_transactions as t
 left join contracts on lower(t.to_address) = lower(contracts.address)
 where
-    t.block_timestamp > dateadd(day, -7, current_date())
+    t.block_timestamp > dateadd(day, -3, current_date())
     and contracts.name is null
     and to_address is not null
 group by t.to_address

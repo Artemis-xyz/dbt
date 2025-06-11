@@ -42,7 +42,7 @@ with
             '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' as token_address,
             'zksync' as source_chain,
             'ethereum' as destination_chain
-        from ethereum_flipside.core.fact_decoded_event_logs
+        from ethereum_flipside.core.ez_decoded_event_logs
         where
             contract_address = lower('0x32400084C286CF3E17e7B677ea9583e60a000324')
             and event_name = 'EthWithdrawalFinalized'
@@ -66,7 +66,7 @@ with
             decoded_log:"l1Token" as token_address,
             'ethereum' as source_chain,
             'zksync' as destination_chain
-        from ethereum_flipside.core.fact_decoded_event_logs
+        from ethereum_flipside.core.ez_decoded_event_logs
         where
             contract_address = lower('0x57891966931Eb4Bb6FB81430E6cE0A03AAbDe063')
             and event_name = 'DepositInitiated'
@@ -90,7 +90,7 @@ with
             decoded_log:"l1Token" as token_address,
             'zksync' as source_chain,
             'ethereum' as destination_chain
-        from ethereum_flipside.core.fact_decoded_event_logs
+        from ethereum_flipside.core.ez_decoded_event_logs
         where
             contract_address = lower('0x57891966931Eb4Bb6FB81430E6cE0A03AAbDe063')
             and event_name = 'WithdrawalFinalized'

@@ -18,6 +18,8 @@ with velodrome_tvl as (
 select
     velodrome_tvl.date,
     'Defillama' as source,
+
+    -- Standardized Metrics
     velodrome_tvl.tvl,
     velodrome_market_data.price,
     velodrome_market_data.market_cap,

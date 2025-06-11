@@ -59,5 +59,5 @@ where coalesce(t1.sender_address_hex, t1.contract_address_hex) is not null
     {% if is_incremental() %}
         -- this filter will only be applied on an incremental run 
         and t1.block_time
-        >= (select dateadd('day', -7, max(block_timestamp)) from {{ this }})
+        >= (select DATEADD('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}

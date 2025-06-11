@@ -16,15 +16,19 @@ with deepbook_tvl as (
 )
 
 select
-    deepbook_tvl.date,
-    'Defillama' as source,
-    deepbook_tvl.tvl,
-    deepbook_market_data.price,
-    deepbook_market_data.market_cap,
-    deepbook_market_data.fdmc,
-    deepbook_market_data.token_turnover_circulating,
-    deepbook_market_data.token_turnover_fdv,
-    deepbook_market_data.token_volume
+    deepbook_tvl.date
+    , 'Defillama' as source
+
+    -- Standardized Metrics
+    , deepbook_tvl.tvl
+
+    -- Market Metrics
+    , dmd.price
+    , dmd.market_cap
+    , dmd.fdmc
+    , dmd.token_turnover_circulating
+    , dmd.token_turnover_fdv
+    , dmd.token_volume
 from deepbook_tvl
-left join deepbook_market_data using (date)
+left join deepbook_market_data dmd using (date)
 where deepbook_tvl.date < to_date(sysdate())

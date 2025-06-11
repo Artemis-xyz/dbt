@@ -4,3 +4,15 @@ sources:
     database: PC_DBT_DB
     tables:
       - name: dim_blast_current_balances
+
+  - name: MANUAL_STATIC_TABLES
+    schema: PROD
+    database: pc_dbt_db
+    tables:
+      - name: blast_daily_supply_data
+
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_blast_transactions_parquet

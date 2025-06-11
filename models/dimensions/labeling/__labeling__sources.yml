@@ -6,11 +6,12 @@ sources:
       - name: dim_injective_all_addresses
       - name: dim_stellar_all_addresses
       - name: raw_manually_labeled_addresses_csv
+      - name: raw_manually_labeled_addresses_parquet
+      - name: raw_manually_labeled_applications_parquet
   - name: PYTHON_LOGIC
     schema: PROD
     database: PC_DBT_DB
     tables:
-      - name: dim_namespace_to_application
+      - name: namespace_to_application
       - name: automatic_categories_map_seed
-      - name: dim_frontend_manual_applications
       - name: dim_frontend_manual_contracts

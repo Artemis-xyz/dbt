@@ -19,7 +19,7 @@ WITH c AS (
             END
         ) AS lusdSupplyChange
     FROM
-        ethereum_flipside.core.fact_token_transfers
+        ethereum_flipside.core.ez_token_transfers
     WHERE 1 = 1 
         AND contract_address = lower('0x5f98805a4e8be255a32880fdec7f6728c6568ba0')
         AND(

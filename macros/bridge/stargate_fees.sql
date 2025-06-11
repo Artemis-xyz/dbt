@@ -6,7 +6,7 @@ WITH dvn_fees AS (
         tx_hash,
         contract_address,
         max_by(decoded_log:"fees"[0] / 1e18, date) as dvnFees
-    FROM {{chain}}_flipside.core.fact_decoded_event_logs
+    FROM {{chain}}_flipside.core.ez_decoded_event_logs
     WHERE lower(contract_address) = lower('{{fees_contract_address}}') and decoded_log:"fees"[0] is not null
     GROUP BY 1, 2, 3
 
@@ -17,7 +17,7 @@ executor_fees AS (
         tx_hash,
         contract_address,
         max_by(decoded_log:"fee" / 1e18, date) as executorFees
-    FROM {{chain}}_flipside.core.fact_decoded_event_logs
+    FROM {{chain}}_flipside.core.ez_decoded_event_logs
     WHERE lower(contract_address) = lower('{{fees_contract_address}}') 
     AND event_name = 'ExecutorFeePaid' 
     AND decoded_log:"fee" / 1e18 < 10 -- To remove outliers

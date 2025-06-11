@@ -1,0 +1,9 @@
+sources:
+  - name: PROD_LANDING
+    database: LANDING_DATABASE
+    schema: PROD_LANDING
+    tables:
+      - name: raw_pumpswap_volume
+      - name: raw_pumpswap_fees
+      - name: raw_pumpswap_dau
+      - name: raw_pumpswap_txns

@@ -10,13 +10,15 @@ sources:
     tables:
       - name: raw_sui_contracts
       - name: ez_sui_metrics
-      - name: ez_sui_metrics_by_contract
       - name: ez_sui_metrics_by_contract_v2
-      - name: ez_sui_metrics_by_application
       - name: ez_sui_metrics_by_application_v2
-      - name: ez_sui_metrics_by_category
       - name: ez_sui_metrics_by_category_v2
       - name: ez_sui_metrics_by_subcategory
       - name: raw_sui_transfers_parquet
       - name: raw_sui_balances_parquet
       - name: raw_sui_epoch_data
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: sui_daily_supply_data

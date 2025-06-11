@@ -194,6 +194,16 @@ first_seen AS (
     from {{ ref("fact_stargate_circulating_supply") }}
     group by date
 )
+, supply_data as (
+    select 
+        date
+        , gross_emissions_native
+        , premine_unlocks_native
+        , burns_native
+        , net_supply_change_native
+        , circulating_supply_native
+    from {{ ref("fact_stargate_supply_data") }}
+)
 , price_data as ({{ get_coingecko_metrics("stargate-finance") }})
 , hydra_models as (
     {{
@@ -215,37 +225,51 @@ first_seen AS (
 -- Final output with simplified GROUP BY
 SELECT 
     t.date as date,
-    COALESCE(b.count_0_100, 0) AS TXN_SIZE_0_100,
-    COALESCE(b.count_100_1K, 0) AS TXN_SIZE_100_1K,
-    COALESCE(b.count_1K_10K, 0) AS TXN_SIZE_1K_10K,
-    COALESCE(b.count_10K_100K, 0) AS TXN_SIZE_10K_100K,
-    COALESCE(b.count_100K_plus, 0) AS TXN_SIZE_100K_PLUS,
-    d.avg_daily_transaction_size as avg_txn_size,
-    d.daily_active_addresses as bridge_daa,
+    COALESCE(b.count_0_100, 0) AS TXN_SIZE_0_100
+    , COALESCE(b.count_100_1K, 0) AS TXN_SIZE_100_1K
+    , COALESCE(b.count_1K_10K, 0) AS TXN_SIZE_1K_10K
+    , COALESCE(b.count_10K_100K, 0) AS TXN_SIZE_10K_100K
+    , COALESCE(b.count_100K_plus, 0) AS TXN_SIZE_100K_PLUS
+    , d.avg_daily_transaction_size as avg_txn_size
+    , d.daily_active_addresses as bridge_daa
+    
     --Add to BAM
-    COALESCE(n.new_addresses, 0) AS new_addresses,
-    COALESCE(r.returning_addresses, 0) AS returning_addresses,
+    , COALESCE(n.new_addresses, 0) AS new_addresses
+    , COALESCE(r.returning_addresses, 0) AS returning_addresses
     --Standardized Metrics
-    tvl_metrics.tvl,
-    d.daily_transactions as bridge_txns,
-    d.daily_volume as bridge_volume,
-    d.daily_active_addresses as bridge_dau,
-    w.weekly_active_addresses as bridge_wau,
-    m.monthly_active_addresses as bridge_mau,
-    d.cumulative_active_addresses as bridge_cumulative_dau,
+    , tvl_metrics.tvl
+    , d.daily_transactions as bridge_txns
+    , d.daily_volume as bridge_volume
+    , d.daily_active_addresses as bridge_dau
+    , w.weekly_active_addresses as bridge_wau
+    , m.monthly_active_addresses as bridge_mau
+    , d.cumulative_active_addresses as bridge_cumulative_dau
 
-    d.fees as ecosystem_revenue,
-    d.supply_side_fee as participating_token_revenue,
-    d.revenue as non_participating_token_revenue,
-    d.token_rewards as cost_of_goods_sold,
+    , d.fees as fees
+    , d.supply_side_fee as staking_fee_allocation
+    , d.revenue as token_fee_allocation
+    , d.token_rewards as third_party_token_incentives
 
-    t.treasury_usd as treasury,
-    ts.staked_usd as staked,
-    ts.staked_native,
-    pd.price as price,
-    cs.circulating_supply as circulating_supply,
-    pd.price * cs.circulating_supply as market_cap,
-    h.hydra_locked_assets as hydra_tvl
+    , t.treasury_usd as treasury
+    , ts.staked_usd as staked
+    , ts.staked_native
+    
+    , pd.price as price
+    , pd.price * sd.circulating_supply_native as market_cap
+    , h.hydra_locked_assets as hydra_tvl
+
+    -- Supply Data
+    , sd.gross_emissions_native
+    , sd.premine_unlocks_native
+    , sd.burns_native
+    , sd.net_supply_change_native
+    , sd.circulating_supply_native
+
+    -- Market Data
+    , pd.token_volume
+    , pd.fdmc
+    , pd.token_turnover_circulating
+    , pd.token_turnover_fdv
 FROM treasury_metrics t
 full outer join daily_growth d ON d.transaction_date = t.date
 LEFT JOIN new_addresses n ON t.date = n.transaction_date
@@ -255,6 +279,7 @@ LEFT JOIN monthly_metrics m ON t.date = DATE(m.month_start)
 LEFT JOIN transaction_bucket_counts b ON t.date = b.transaction_date
 LEFT JOIN tvl_metrics ON t.date = tvl_metrics.date
 LEFT JOIN total_stg_staked_metrics ts ON t.date = ts.date
+LEFT JOIN supply_data sd ON t.date = sd.date
 LEFT JOIN circulating_supply_metrics cs ON t.date = cs.date
 LEFT JOIN price_data pd ON t.date = pd.date
 LEFT JOIN hydra_metrics h ON t.date = h.date

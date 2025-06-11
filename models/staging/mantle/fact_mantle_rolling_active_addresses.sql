@@ -5,4 +5,4 @@
     )
 }}
 
-{{ rolling_active_addresses("mantle") }}
+{{ rolling_active_addresses("mantle", "_v2") }}

@@ -4,13 +4,12 @@
 -- contracts in `fact_{{ chain }}_stablecoin_contracts` are decoded
 -- 3. The table `{{ chain }}_flipside.core.fact_transactions` exists
 {% macro agg_chain_stablecoin_transfers(chain, new_stablecoin_address) %}
-    -- TRON Special case - comes from Allium
     {% if chain in ("tron") %}
         select
             block_timestamp,
-            trunc(block_timestamp, 'day') as date,
+            block_timestamp::date as date,
             block_number,
-            unique_id as index,
+            event_index as index,
             transaction_hash as tx_hash,
             from_address,
             to_address,
@@ -25,24 +24,24 @@
                 select distinct (lower(premint_address))
                 from {{ ref("fact_tron_stablecoin_bridge_addresses") }}
             ) as is_bridge_mint,
-            coalesce(amount, 0) as amount,
+            coalesce(amount_raw/ pow(10, num_decimals), 0) as amount,
             case
-                when is_mint or is_bridge_mint then amount when is_burn or is_bridge_burn then -1 * amount else 0
+                when is_mint or is_bridge_mint then coalesce(amount_raw/ pow(10, num_decimals), 0) 
+                when is_burn or is_bridge_burn then -1 * coalesce(amount_raw/ pow(10, num_decimals), 0) 
+                else 0
             end as inflow,
             case
-                when not is_mint and not is_burn then amount else 0
+                when not is_mint and not is_burn then coalesce(amount_raw/ pow(10, num_decimals), 0) 
             end as transfer_volume,
-            token_address as contract_address,
-            fact_{{ chain }}_stablecoin_contracts.symbol
-        from tron_allium.assets.trc20_token_transfers
-        join
-            fact_{{ chain }}_stablecoin_contracts
-            on lower(tron_allium.assets.trc20_token_transfers.token_address)
-            = lower(fact_{{ chain }}_stablecoin_contracts.contract_address)
+            stablecoin_transfers.contract_address,
+            contracts.symbol
+        from {{ ref("fact_tron_token_transfers") }} stablecoin_transfers
+        inner join {{ ref("fact_tron_stablecoin_contracts") }} contracts
+            on lower(stablecoin_transfers.contract_address) = lower(contracts.contract_address)
         where
-            lower(tron_allium.assets.trc20_token_transfers.token_address) in (
+            lower(stablecoin_transfers.contract_address) in (
                 select lower(contract_address)
-                from fact_{{ chain }}_stablecoin_contracts t1
+                from {{ ref("fact_tron_stablecoin_contracts") }}
             )
     -- TODO: Refactor to support native currencies. Currently assumes everything is $1
     -- b/c of perf issues when joining
@@ -238,10 +237,10 @@
             )
             and transfer_type = 'nep141'
 
-    {% elif chain in ("celo") %}
+    {% elif chain in ("celo", "kaia", "aptos") %}
         select
             block_timestamp,
-            trunc(block_timestamp, 'day') as date,
+            block_timestamp::date as date,
             block_number,
             event_index as index,
             transaction_hash as tx_hash,
@@ -275,7 +274,7 @@
                 select lower(contract_address)
                 from {{ref("fact_" ~chain~ "_stablecoin_contracts")}}
             )
-    {% elif chain in ("mantle") %}
+    {% elif chain in ("mantle", 'sonic') %}
         select
             block_timestamp
             , block_timestamp::date as date
@@ -311,10 +310,15 @@
             -- basic IERC20 interface does not require them to be implemented
             coalesce(
                 decoded_log:from,
+                decoded_log:_from,
                 -- DAI on ETH Mainnet does not follow the IERC20 interface
                 decoded_log:src
             ) as from_address,
-            coalesce(decoded_log:to, decoded_log:dst) as to_address,
+            coalesce(
+                decoded_log:to,
+                decoded_log:_to,
+                decoded_log:dst
+            ) as to_address,
             from_address = '0x0000000000000000000000000000000000000000'
                 or event_name = 'Issue' 
                 {% if chain in ("ethereum") %}
@@ -345,6 +349,7 @@
             {% endif %}
             coalesce(
                 decoded_log:value::float / pow(10, num_decimals),
+                decoded_log:_value::float / pow(10, num_decimals),
                 decoded_log:wad::float / pow(10, num_decimals),
                 -- USDT on ETH does not follow the IERC20 interface
                 decoded_log:amount::float / pow(10, num_decimals),
@@ -374,7 +379,7 @@
             )
             -- DO NOT include mint / burn events here - they will be duped
             and event_name in ('Transfer', 'Issue', 'Redeem')
-            and tx_status = 'SUCCESS'
+            and tx_succeeded = TRUE
     {% endif %}
     {% if is_incremental() and new_stablecoin_address == '' %} 
         and block_timestamp >= (

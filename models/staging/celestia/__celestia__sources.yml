@@ -7,3 +7,9 @@ sources:
       - name: raw_celestia_namespaces_and_blob_size
       - name: raw_celestia_txn_count_and_fees
       - name: raw_celestia_fees_for_blobs
+
+  - name: MANUAL_STATIC_TABLES
+    schema: PROD
+    database: pc_dbt_db
+    tables:
+      - name: celestia_premine_unlocks_data

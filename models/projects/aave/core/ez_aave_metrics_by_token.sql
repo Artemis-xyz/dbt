@@ -223,16 +223,11 @@ select
     , token_address
 
     , coalesce(interest_rate_fees_nominal, 0) as interest_rate_fees_nominal
-    , coalesce(interest_rate_fees, 0) as interest_rate_fees
-
     , coalesce(flashloan_fees_nominal, 0) as flashloan_fees_nominal
-    , flashloan_fees
-
     , gho_revenue_nominal as gho_fees_nominal
-    , gho_revenue as gho_fees
 
     , coalesce(interest_rate_fees_nominal, 0) + coalesce(flashloan_fees_nominal, 0) + coalesce(gho_fees_nominal, 0) as fees_nominal
-    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as fees
+    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_revenue, 0) as fees
 
     , supply_side_deposit_revenue_nominal
     , supply_side_deposit_revenue
@@ -279,8 +274,8 @@ select
     , token_incentives_nominal as total_expenses_nominal
     , token_incentives as total_expenses 
 
-    , coalesce(protocol_revenue_nominal, 0) - coalesce(total_expenses_nominal, 0) as protocol_earnings_nominal
-    , coalesce(protocol_revenue, 0) - coalesce(total_expenses, 0) as protocol_earnings
+    , coalesce(protocol_revenue_nominal, 0) - coalesce(total_expenses_nominal, 0) as earnings_nominal
+    , coalesce(protocol_revenue, 0) - coalesce(total_expenses, 0) as earnings
 
     , outstanding_supply_nominal
     , outstanding_supply
@@ -289,7 +284,6 @@ select
     , net_deposits
 
     , tvl_nominal
-    , tvl
 
     , treasury_value_nominal
     , treasury_value
@@ -299,6 +293,45 @@ select
 
     , treasury_value_native_nominal
     , treasury_value_native
+
+    -- Standardized metrics
+    , coalesce(interest_rate_fees_nominal, 0) as interest_rate_fees_native
+    , coalesce(interest_rate_fees, 0) as interest_rate_fees
+    , coalesce(flashloan_fees_nominal, 0) as flashloan_fees_native
+    , flashloan_fees
+    , gho_revenue_nominal as gho_fees_native
+    , gho_revenue as gho_fees
+
+    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as ecosystem_revenue
+    , coalesce(interest_rate_fees_nominal, 0) + coalesce(flashloan_fees_nominal, 0) + coalesce(gho_fees_nominal, 0) as ecosystem_revenue_native
+
+    , supply_side_deposit_revenue + flashloan_fees as service_fee_allocation
+    , supply_side_deposit_revenue_nominal + flashloan_fees_nominal as service_fee_allocation_native
+    
+    , liquidation_revenue as liquidator_fee_allocation
+    , liquidation_revenue_nominal as liquidator_fee_allocation_native
+
+    , reserve_factor_revenue as reserve_factor_treasury_fee_allocation
+    , reserve_factor_revenue_nominal as reserve_factor_treasury_fee_allocation_native
+    , dao_trading_revenue as dao_treasury_fee_allocation
+    , dao_trading_revenue_nominal as dao_treasury_fee_allocation_native
+    , gho_revenue as gho_treasury_fee_allocation
+    , gho_revenue_nominal as gho_treasury_fee_allocation_native
+    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as treasury_fee_allocation
+    , coalesce(reserve_factor_revenue_nominal, 0) + coalesce(dao_trading_revenue_nominal, 0) + coalesce(gho_revenue_nominal, 0) as treasury_fee_allocation_native
+    
+    , outstanding_supply as lending_loans
+    , outstanding_supply_nominal as lending_loans_native
+    , net_deposits as lending_deposits
+    , net_deposits_nominal as lending_deposits_native
+    , tvl
+    , tvl_nominal as tvl_native
+
+    , treasury_value as treasury
+    , treasury_value_native as treasury_native
+    
+    , net_treasury_value as net_treasury
+    , net_treasury_value_nominal as net_treasury_native
 
 from aave_outstanding_supply_net_deposits_deposit_revenue
 left join aave_flashloan_fees using (date, chain, token_address)

@@ -6,3 +6,4 @@ sources:
       - name: raw_neuroweb_fees_parquet
       - name: raw_neuroweb_transactions_parquet
       - name: raw_neuroweb_evm_transactions_parquet
+      - name: raw_neuroweb_evm_transactions_fees_parquet

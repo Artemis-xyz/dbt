@@ -1,4 +1,4 @@
-{% macro stargate_veSTGholders(chain) %} 
+{% macro stargate_veSTGholders(chain, token_contract_address) %} 
 
 with veSTG_txns as (
     select
@@ -48,26 +48,50 @@ STG_final_locked_sum_prev_locked as (
     select 
         s.from_address,
         s.locktime,
-        s.array_agg_value
+        s.array_agg_value,
     from STG_locked_sum_prev_locked s
     left join STG_locked_flatten_prev_locked f
         on lower(s.from_address) = lower(f.from_address) 
         and s.locktime >= f.max_locktime
-    where s.locktime >= f.max_locktime 
+    where s.locktime >= f.max_locktime
+),
+STG_min_ts as (
+    select 
+        locktime,
+        from_address,
+        min(ts) as min_ts
+    from veSTG_txns
+    group by locktime, from_address
+),
+STG_min_ts_values as (
+    select 
+        s.from_address,
+        s.locktime,
+        s.array_agg_value,
+        case 
+            when v.locktime is not null and lower(s.from_address) = lower(v.from_address) 
+            then v.min_ts
+            else null
+        end as ts
+    from STG_final_locked_sum_prev_locked s
+    left join STG_min_ts v
+        on s.locktime = v.locktime and lower(s.from_address) = lower(v.from_address)
 ),
 STG_lateral_flatten as (
     select
         from_address,
+        ts,
         value,
         locktime
-    from STG_final_locked_sum_prev_locked,
+    from STG_min_ts_values,
     lateral flatten(input => array_agg_value)
 ),
 STG_maxlocktime as (
     select 
         from_address, 
         sum(value) AS value, 
-        max(locktime) AS maxlocktime
+        max(locktime) AS maxlocktime,
+        min(ts) as minTS
     from STG_lateral_flatten
     group by from_address
     order by value desc
@@ -76,7 +100,8 @@ STG_locked_current_balance as (
     select
         from_address,
         maxlocktime AS locktime,
-        value AS stg_locked
+        value AS stg_locked,
+        floor((extract(epoch from current_timestamp()) - minTS) / 86400) as num_days_staked
     from STG_maxlocktime
     where to_timestamp(maxlocktime) > current_timestamp()
 ),
@@ -88,6 +113,7 @@ veSTG_balances as (
         v.from_address,
         sum(case when v.locktime > n.now_ts then v.stg_locked else 0 end) as stg_locked,
         sum(case when v.locktime > n.now_ts then v.stg_locked * (v.locktime - n.now_ts) / 94608000 else 0 end) as veSTG_balance,
+        min(v.num_days_staked) as num_days_staked,
         max(floor(greatest(0, (v.locktime - n.now_ts) / 86400))) as remaining_days,
         max(
             concat(
@@ -105,8 +131,8 @@ stg_balances as (
         address as from_address, 
         balance_token / 1e18 as stg_balance,
         row_number() over (partition by address order by block_timestamp desc) as rn
-    from pc_dbt_db.prod.fact_ethereum_address_balances_by_token
-    where lower(contract_address) = lower('0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6')
+    from {{ ref("fact_" ~ chain ~ "_address_balances_by_token") }}
+    where lower(contract_address) = lower('{{token_contract_address}}')
 ),
 current_stg as (
     select 
@@ -141,22 +167,6 @@ last_actions as (
     ) 
     where rn = 1
 ),
-circulating_supply as (
-    select 
-        try_cast(decoded_log:"supply"::STRING AS numeric) / 1e18 as total_supply
-    from {{chain}}_flipside.core.ez_decoded_event_logs
-    where lower(contract_address) = lower('0x0e42acbd23faee03249daff896b78d7e79fbd58e')
-      and tx_succeeded = true 
-      and event_name = 'Supply'
-    order by block_timestamp desc
-    limit 1
-),
-fees_received as (
-    select 
-        sum(fees) as total_fees
-    from {{ ref("fact_stargate_v2_transfers") }}
-    where src_chain = '{{chain}}'
-),
 summary as (
     select
         v.from_address,
@@ -169,15 +179,11 @@ summary as (
         vi.last_voted_timestamp,
         la.last_change_timestamp,
         la.last_action_type,
-        (v.veSTG_balance / nullif(cs.total_supply, 0)) * 100 AS percentage_of_total_supply,
-        coalesce(fr.total_fees, 0) * (1.0 / nullif(vt.total_veSTG, 0)) * (v.veSTG_balance / nullif(vt.total_veSTG, 0)) AS fees_received
+        v.num_days_staked,
     from veSTG_balances v
     left join current_stg s on v.from_address = s.from_address
     left join voting_data vi on lower(v.from_address) = vi.from_address
     left join last_actions la on v.from_address = la.from_address
-    left join circulating_supply cs on true
-    left join fees_received fr on true
-    left join (select sum(veSTG_balance) as total_veSTG from veSTG_balances where veSTG_balance > 0 and remaining_days > 0) vt on true
 )
 select 
     from_address,
@@ -186,15 +192,13 @@ select
     veSTG_balance,
     remaining_days,
     remaining_period_readable as remaining_staking_period,
-    percentage_of_total_supply,
     number_of_votes_cast,
     last_voted_timestamp,
     last_change_timestamp,
     last_action_type,
-    fees_received,
+    num_days_staked,
     '{{chain}}' as chain
 from summary
 order by veSTG_balance desc
-limit 100
 
 {% endmacro %}

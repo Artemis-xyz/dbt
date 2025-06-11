@@ -9,6 +9,7 @@ SELECT symbol, contract_address, num_decimals, coingecko_id, initial_supply FROM
     (
         VALUES
             ('BUIDL', '0x7712c34205737192402172409a8f7ccef8aa2aec', 6, 'blackrock-usd-institutional-digital-liquidity-fund', 0),
+            ('BUIDL', '0x6a9da2d710bb9b700acde7cb81f10f1ff8c89041', 6, 'blackrock-usd-institutional-digital-liquidity-fund', 0),
             ('OUSG', '0x1b19c19393e2d034d8ff31ff34c81252fcbbee92', 18, 'ousg', 0),
             ('USDY', '0x96f6ef951840721adbf46ac996b59e0235cb985c', 18, 'ondo-us-dollar-yield', 0),
             ('USDY', '0xe86845788d6e3e5c2393ade1a051ae617d974c09', 18, 'ondo-us-dollar-yield', 0),

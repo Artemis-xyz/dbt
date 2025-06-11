@@ -1,0 +1,69 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  fdmc: &fdmc
+    name: fdmc
+    description: "The fully diluted market cap of a token in USD"
+    tags:
+      - artemis_gaap
+
+  market_cap: &market_cap
+    name: market_cap
+    description: "The market cap of a token in USD"
+    tags:
+      - artemis_gaap
+
+  perp_dau: &perp_dau
+    name: perp_dau
+    description: "The number of unique traders on a perpetuals exchange"
+
+  perp_volume: &perp_volume
+    name: perp_volume
+    description: "The total trading volume on a perpetuals exchange"
+
+  price: &price
+    name: price
+    description: "The price of a token in USD"
+    tags:
+      - artemis_gaap
+
+  token_turnover_circulating: &token_turnover_circulating
+    name: token_turnover_circulating
+    description: "The turnover of a token in USD"
+    tags:
+      - artemis_gaap
+
+  token_turnover_fdv: &token_turnover_fdv
+    name: token_turnover_fdv
+    description: "The turnover of a token in USD"
+    tags:
+      - artemis_gaap
+
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of a token in USD"
+    tags:
+      - artemis_gaap
+
+models:
+  - name: ez_holdstation_metrics_by_chain
+    description: "This table stores metrics for the HOLDSTATION protocol"
+    columns:
+      - *perp_dau
+      - *perp_volume
+
+  - name: ez_holdstation_metrics
+    description: "This table stores metrics for the HOLDSTATION protocol"
+    columns:
+      - *fdmc
+      - *market_cap
+      - *perp_dau
+      - *perp_volume
+      - *price
+      - *token_turnover_circulating
+      - *token_turnover_fdv
+      - *token_volume
+

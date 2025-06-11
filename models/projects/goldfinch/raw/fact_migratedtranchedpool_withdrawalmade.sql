@@ -16,7 +16,7 @@ SELECT
     decoded_log:interestWithdrawn::number / 1e6 AS interest_withdrawn,
     decoded_log:principalWithdrawn::number / 1e6 AS principal_withdrawn
 FROM 
-    ethereum_flipside.core.fact_decoded_event_logs
+    ethereum_flipside.core.ez_decoded_event_logs
 WHERE 
     event_name = 'WithdrawalMade'
     AND (contract_address IN (SELECT migratedtranchepool_address FROM {{ref('dim_migratedtranchepools_addresses')}})

@@ -4,3 +4,10 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_ondo_ousg_fees
+
+  - name: MANUAL_STATIC_TABLE
+    schema: PROD
+    database: PC_DBT_DB
+    tables:
+      - name: ondo_daily_supply_data
+    

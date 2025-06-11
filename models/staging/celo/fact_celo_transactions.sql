@@ -1,43 +1,38 @@
--- depends_on: {{ ref('fact_celo_blocks') }}
 {{
     config(
         materialized="incremental",
         unique_key="transaction_hash",
+        snowflake_warehouse="CELO_LG"
     )
 }}
-{{
-    unpack_transactions_json(
-        "celo",
-        transaction_column_map=[
-            ("blockNumber", hex_to_number, "block_number"),
-            ("hash", to_string, "transaction_hash"),
-            ("from", to_address, "from_address"),
-            ("to", to_address, "to_address"),
-            ("nonce", hex_to_number, "nonce"),
-            ("value", hex_to_number, "msg_value"),
-            ("input", to_string, "input_data"),
-            ("transactionIndex", hex_to_number, "transaction_index"),
-            ("feeCurrency", to_string, "fee_currency"),
-            ("gas", hex_to_number, "gas"),
-            ("gasPrice", hex_to_number, "gas_price"),
-            ("gatewayFee", hex_to_number, "gateway_fee"),
-            ("gatewayFeeRecipient", to_string, "gateway_fee_recipient"),
-            ("v", to_string, "v"),
-            ("r", to_string, "r"),
-            ("s", to_string, "s"),
-            ("ethCompatible", to_string, "eth_compatible"),
-            ("type", hex_to_number, "type"),
-        ],
-        receipts_column_map=[
-            ("transactionHash", to_string, "transaction_hash"),
-            ("transactionIndex", hex_to_number, "transaction_index"),
-            ("contractAddress", to_address, "contract_address"),
-            ("gasUsed", hex_to_number, "gas_used"),
-            ("cumulativeGasUsed", hex_to_number, "cumulative_gas_used"),
-            ("effectiveGasPrice", hex_to_number, "effective_gas_price"),
-            ("status", hex_to_number, "status"),
-            ("logsBloom", to_string, "logs_bloom"),
-            ("logs", to_string, "logs"),
-        ],
+
+
+with 
+    celo_transactions as (
+        {{ clean_goldsky_transactions("celo") }}
     )
-}}
+select 
+     block_hash
+    , block_number
+    , block_timestamp
+    , transaction_hash
+    , transaction_index
+    , from_address
+    , to_address
+    , fee_currency
+    , coalesce(nullif(celo_transactions.gas, 0), celo_l1_transactions_31056500.gas, 0) as gas
+    , coalesce(nullif(celo_transactions.gas_price, 0), celo_l1_transactions_31056500.gas_price, 0) as gas_price
+    , input
+    , max_fee_per_gas
+    , max_priority_fee_per_gas
+    , nonce
+    , receipt_cumulative_gas_used
+    , receipt_effective_gas_price
+    , receipt_gas_used
+    , receipt_status
+    , transaction_type
+    , value
+    , id
+from celo_transactions
+left join {{ ref("fact_celo_l1_transactions_31056500") }} celo_l1_transactions_31056500
+    using (transaction_hash)

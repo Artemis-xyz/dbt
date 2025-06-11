@@ -1,4 +1,4 @@
--- depends_on {{ ref("ez_arbitrum_transactions") }}
+-- depends_on {{ ref("fact_arbitrum_transactions_v2") }}
 {{
     config(
         materialized="table",
@@ -10,7 +10,7 @@
 }}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("arbitrum") }}),
+    fundamental_data as ({{ get_fundamental_data_for_chain("arbitrum", "v2") }}),
     price_data as ({{ get_coingecko_metrics("arbitrum") }}),
     defillama_data as ({{ get_defillama_metrics("arbitrum") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("arbitrum") }}),
@@ -33,65 +33,95 @@ with
         from {{ ref("fact_arbitrum_one_bridge_bridge_daa") }}
     ),
     arbitrum_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_arbitrum_daily_dex_volumes") }}
+    ),
+    adjusted_dau_metrics as (
+        select date, adj_daus as adjusted_dau
+        from {{ ref("ez_arbitrum_adjusted_dau") }}
     )
 select
-    fundamental_data.date,
-    fundamental_data.chain,
-    txns,
-    dau,
-    wau,
-    mau,
-    fees_native,  -- total gas fees paid on l2 by users(L2 Fees)
-    fees,
-    l1_data_cost_native,  -- fees paid to l1 by sequencer (L1 Fees)
-    l1_data_cost,
-    coalesce(fees_native, 0) - l1_data_cost_native as revenue_native,  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    coalesce(fees, 0) - l1_data_cost as revenue,
-    avg_txn_fee,
-    median_txn_fee,
-    sybil_users,
-    non_sybil_users,
-    returning_users,
-    new_users,
-    low_sleep_users,
-    high_sleep_users,
-    dau_over_100,
-    price,
-    market_cap,
-    fdmc,
-    tvl,
-    weekly_commits_core_ecosystem,
-    weekly_commits_sub_ecosystem,
-    weekly_developers_core_ecosystem,
-    weekly_developers_sub_ecosystem,
-    weekly_contracts_deployed,
-    weekly_contract_deployers,
-    stablecoin_total_supply,
-    stablecoin_txns,
-    stablecoin_dau,
-    stablecoin_mau,
-    stablecoin_transfer_volume,
-    artemis_stablecoin_txns,
-    artemis_stablecoin_dau,
-    artemis_stablecoin_mau,
-    artemis_stablecoin_transfer_volume,
-    p2p_stablecoin_txns,
-    p2p_stablecoin_dau,
-    p2p_stablecoin_mau,
-    stablecoin_data.p2p_stablecoin_transfer_volume,
-    stablecoin_tokenholder_count,
-    p2p_stablecoin_tokenholder_count,
-    nft_trading_volume,
-    p2p_native_transfer_volume,
-    p2p_token_transfer_volume,
-    p2p_transfer_volume,
-    coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume,
-    coalesce(dune_dex_volumes_arbitrum.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume,
-    bridge_volume,
-    bridge_daa,
-    dune_dex_volumes_arbitrum.dex_volumes
+    fundamental_data.date
+    , fundamental_data.chain
+    , txns
+    , dau
+    , adjusted_dau
+    , wau
+    , mau
+    , fees_native
+    , fees
+    , l1_data_cost_native
+    , l1_data_cost
+    , coalesce(fees_native, 0) - l1_data_cost_native as revenue_native
+    , coalesce(fees, 0) - l1_data_cost as revenue
+    , avg_txn_fee
+    , median_txn_fee
+    , dau_over_100
+    , nft_trading_volume
+    , dune_dex_volumes_arbitrum.dex_volumes
+    , dune_dex_volumes_arbitrum.adjusted_dex_volumes
+    , bridge_daa
+    -- Standardized Metrics
+    -- Market Data Metrics
+    , price
+    , market_cap
+    , fdmc
+    , tvl
+    -- Chain Usage Metrics
+    , dau AS chain_dau
+    , wau AS chain_wau
+    , mau AS chain_mau
+    , txns AS chain_txns
+    , avg_txn_fee AS chain_avg_txn_fee  
+    , median_txn_fee AS chain_median_txn_fee
+    , dune_dex_volumes_arbitrum.dex_volumes AS chain_spot_volume
+    , returning_users
+    , new_users
+    , low_sleep_users
+    , high_sleep_users
+    , sybil_users
+    , non_sybil_users
+    , dau_over_100 AS dau_over_100_balance
+    , nft_trading_volume AS chain_nft_trading_volume
+    , p2p_native_transfer_volume
+    , p2p_token_transfer_volume
+    , p2p_transfer_volume
+    , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
+    , coalesce(dune_dex_volumes_arbitrum.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
+    -- Cashflow Metrics
+    , fees_native AS chain_fees
+    , fees_native AS ecosystem_revenue_native -- Total gas fees paid on L2 by users (L2 Fees)
+    , fees AS ecosystem_revenue
+    , coalesce(fees_native, 0) - l1_data_cost_native as treasury_fee_allocation_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(fees, 0) - l1_data_cost as treasury_fee_allocation
+    , l1_data_cost_native AS l1_fee_allocation_native -- fees paid to l1 by sequencer (L1 Fees)
+    , l1_data_cost AS l1_fee_allocation
+    -- Developer Metrics
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
+    , weekly_contracts_deployed
+    , weekly_contract_deployers
+    -- Stablecoin metrics
+    , stablecoin_total_supply
+    , stablecoin_txns
+    , stablecoin_dau
+    , stablecoin_mau
+    , stablecoin_transfer_volume
+    , stablecoin_tokenholder_count
+    , artemis_stablecoin_txns
+    , artemis_stablecoin_dau
+    , artemis_stablecoin_mau
+    , artemis_stablecoin_transfer_volume
+    , p2p_stablecoin_tokenholder_count
+    , p2p_stablecoin_txns
+    , p2p_stablecoin_dau
+    , p2p_stablecoin_mau
+    , stablecoin_data.p2p_stablecoin_transfer_volume
+    -- Bridge Metrics
+    , bridge_volume_metrics.bridge_volume as bridge_volume
+    , bridge_daa_metrics.bridge_daa as bridge_dau
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -105,4 +135,5 @@ left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join arbitrum_dex_volumes as dune_dex_volumes_arbitrum on fundamental_data.date = dune_dex_volumes_arbitrum.date
+left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 where fundamental_data.date < to_date(sysdate())

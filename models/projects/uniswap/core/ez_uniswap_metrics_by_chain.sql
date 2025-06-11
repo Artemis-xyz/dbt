@@ -57,11 +57,14 @@ with
     )
     , treasury_native_cte AS(
         SELECT
-            date
-            , 'ethereum' as chain
-            , treasury_native as treasury_native_value
+            date,
+            'ethereum' as chain,
+            sum(treasury_native) as treasury_native_value,
+            sum(usd_balance) as own_token_treasury
         FROM {{ ref('fact_uniswap_treasury_by_token') }}
         WHERE token = 'UNI'
+        GROUP BY 1, 2
+
     )
     , net_treasury_cte AS(
         SELECT
@@ -111,8 +114,9 @@ select
     , 0 as secondary_supply_side_revenue
     , 0 as protocol_revenue
     , 0 as operating_expenses
+    , token_incentives_usd + operating_expenses as total_expenses
     , token_incentives_usd as token_incentives
-    , -token_incentives_usd as protocol_earnings
+    , -token_incentives_usd as earnings
     , tvl_by_chain.tvl
     , treasury_value
     , treasury_native_value
@@ -120,8 +124,25 @@ select
     , tvl_by_chain.tvl as net_deposits
     , trading_volume_by_chain.trading_volume
     , trading_volume_by_chain.unique_traders
-    , trading_volume_by_chain.gas_cost_native
     , trading_volume_by_chain.gas_cost_usd
+
+    -- Standardized Metrics
+
+    -- Usage Metrics
+    , trading_volume_by_chain.unique_traders as spot_dau
+    , trading_volume_by_chain.trading_volume as spot_volume
+    , trading_volume_by_chain.trading_fees as spot_fees
+    , trading_volume_by_chain.trading_fees as ecosystem_revenue
+    , trading_volume_by_chain.trading_fees as service_fee_allocation
+
+    -- Treasury Metrics
+    , treasury_value as treasury
+    , own_token_treasury
+    , net_treasury_value as net_treasury
+
+    -- Protocol Metrics
+    , trading_volume_by_chain.gas_cost_usd as gas_cost
+    , trading_volume_by_chain.gas_cost_native
 from tvl_by_chain
 left join token_incentives_cte using(date, chain)
 left join trading_volume_by_chain using(date, chain)

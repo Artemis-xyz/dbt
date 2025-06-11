@@ -17,5 +17,10 @@ from
             ('crvUSD', '0xe2fb3f127f5450dee44afe054385d74c392bdef4', 18, 'crvusd', 0),
             ('LISUSD', '0x0782b6d8c4551B9760e74c0545a9bCD90bdc41E5', 18, 'helio-protocol-hay', 0),
             ('USDD', '0x392004BEe213F1FF580C867359C246924f21E6Ad', 18, 'usdd', 0),
-            ('AEUR', '0xA40640458FBc27b6EefEdeA1E9C9E17d4ceE7a21', 18, 'anchored-coins-eur', 0)
+            ('AEUR', '0xA40640458FBc27b6EefEdeA1E9C9E17d4ceE7a21', 18, 'anchored-coins-eur', 0),
+            ('IDRT', '0x66207E39bb77e6B99aaB56795C7c340C08520d83', 2, 'rupiah-token', 0),
+            ('TRYB', '0xC1fdbed7Dac39caE2CcC0748f7a80dC446F6a594', 6, 'bilira', 0),
+            ('IDRX', '0x649a2DA7B28E0D54c13D5eFf95d3A660652742cC', 0, 'idrx', 0),
+            ('USD1', '0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d', 18, 'usd1-wlfi', 0),
+            ('XUSD', '0xf81ac2e1a0373dde1bce01e2fe694a9b7e3bfcb9', 6, 'straitsx-xusd', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)

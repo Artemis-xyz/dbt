@@ -6,7 +6,7 @@ with
             count(distinct from_address) as dau,
             count(distinct transaction_hash) as txns
         from {{ ref("fact_celo_transactions") }}
-        where status = 1
+        where receipt_status = 1
         group by 1
     ),
     prices as (
@@ -31,7 +31,7 @@ with
             case
                 when fee_currency is null then 'celo' else fee_currency
             end as fee_currency,
-            sum((gas_used * gas_price) / 1E18) as gas
+            sum((receipt_gas_used * gas_price) / 1E18) as gas
         from {{ ref("fact_celo_transactions") }}
         group by 1, 2
     ),

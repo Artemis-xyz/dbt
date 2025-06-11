@@ -5,4 +5,4 @@
     )
 }}
 
-{{ rolling_active_addresses("avalanche") }}
+{{ rolling_active_addresses("avalanche", "_v2") }}

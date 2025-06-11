@@ -1,0 +1,64 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
+    description: "Total trading fees paid on PancakeSwap"
+    tags:
+      - artemis_gaap
+      - override
+
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
+    description: "About ~68% of gross protocol revenue is distributed to LPs of PancakeSwap."
+    tags:
+      - artemis_gaap
+      - override
+
+  spot_dau: &spot_dau
+    name: spot_dau
+    description: "The number of daily active traders on PancakeSwap"
+    tags:
+      - override
+
+  spot_volume: &spot_volume
+    name: spot_volume
+    description: "The total volume on PancakeSwap"
+    tags:
+      - override
+
+  tvl: &tvl
+    name: tvl
+    description: "The total value locked in a protocol"
+
+models:
+  - name: ez_pancakeswap_metrics_by_pool
+    description: "This table stores metrics for the PANCAKESWAP protocol"
+    columns:
+      - *ecosystem_revenue
+      - *service_fee_allocation
+      - *spot_dau
+      - *spot_volume
+      - *tvl
+
+  - name: ez_pancakeswap_metrics_by_chain
+    description: "This table stores metrics for the PANCAKESWAP protocol"
+    columns:
+      - *ecosystem_revenue
+      - *service_fee_allocation
+      - *spot_dau
+      - *spot_volume
+      - *tvl
+
+  - name: ez_pancakeswap_metrics
+    description: "This table stores metrics for the PANCAKESWAP protocol"
+    columns:
+      - *ecosystem_revenue
+      - *service_fee_allocation
+      - *spot_dau
+      - *spot_volume
+      - *tvl
+
