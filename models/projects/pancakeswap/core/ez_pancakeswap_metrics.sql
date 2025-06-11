@@ -113,6 +113,7 @@ select
     , fees_revenue.service_cash_flow as service_cash_flow
     , fees_revenue.burned_cash_flow as burned_cash_flow
     , fees_revenue.treasury_cash_flow as treasury_cash_flow
+    , burned_cash_flow as revenue
     -- TODO: the remaining 32% of fees are distributed differently depending on the fee tier of the pool. We currently have the fee tier in
     -- pancakeswap's ez_dex_swap. This needs to be pulled forward to the correct tables.
     -- The remaining fees are distributed among CAKE burns, Treasury, and Fixed Term CAKE Stakers
