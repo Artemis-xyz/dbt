@@ -43,7 +43,8 @@ SELECT
     , dex_swaps.trading_volume as spot_volume
     , tvl.tvl
     , dex_swaps.trading_fees as spot_fees
-    , dex_swaps.trading_fees as ecosystem_revenue
+    , dex_swaps.trading_fees as fees
+    
     -- We only track v2 where all fees go to LPs
     , dex_swaps.trading_fees as service_fee_allocation
 from dex_swaps

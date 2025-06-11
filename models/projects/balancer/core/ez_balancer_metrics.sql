@@ -106,10 +106,10 @@ select
 
     -- Money Metrics
     , coalesce(swap_metrics.trading_fees, 0) as spot_fees
-    , coalesce(swap_metrics.trading_fees, 0) as ecosystem_revenue
     , coalesce(swap_metrics.service_fee_allocation, 0) as service_fee_allocation
     , coalesce(swap_metrics.treasury_fee_allocation, 0) as treasury_fee_allocation
     , coalesce(swap_metrics.vebal_fee_allocation, 0) as staking_fee_allocation
+
     , coalesce(token_incentives.token_incentives_usd, 0) as token_incentives
 
     -- Treasury Metrics
