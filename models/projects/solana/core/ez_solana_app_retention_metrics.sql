@@ -1,7 +1,7 @@
 {{ 
     config(
         materialized="table",
-        snowflake_warehouse="solana_xlg",
+        snowflake_warehouse="solana_2xlg",
         database="solana",
         schema="core",
         alias="ez_app_cohort_retention",
@@ -17,7 +17,7 @@ with solana_table as (
       {{ ref("fact_solana_transactions_v2") }},
       LATERAL FLATTEN(input => signers)
     WHERE
-      raw_date >= DATEADD(month, -12, to_date(sysdate()))
+      raw_date >= DATEADD(month, -13, to_date(sysdate()))
       and succeeded = 'TRUE'
       AND value IS NOT NULL
 ), apps_to_cover as (

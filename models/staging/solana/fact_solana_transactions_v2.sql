@@ -32,7 +32,7 @@ with
         -- TODO: Figure out a workaround.
         and
             block_timestamp
-            >= (select dateadd('month', -1, max(block_timestamp)) from {{ this }})
+            >= (select dateadd('month', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
     ),
     incremental_solana_transfer_rows as (
@@ -47,7 +47,7 @@ with
         -- TODO: Figure out a workaround.
         and
             block_timestamp
-            >= (select dateadd('month', -1, max(block_timestamp)) from {{ this }})
+            >= (select dateadd('month', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
     ),
     grouped_transfer_tips AS (
