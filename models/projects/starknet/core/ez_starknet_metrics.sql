@@ -74,10 +74,10 @@ select
     , fees AS ecosystem_revenue
     , fees_data.fees_native AS ecosystem_revenue_native
     , median_txn_fee AS chain_median_txn_fee
-    , coalesce(fees_data.fees_native, 0) - l1_data_cost_native as equity_cash_flow_native
-    , coalesce(fees, 0) -  l1_data_cost as equity_cash_flow
-    , l1_data_cost_native AS l1_cash_flow_native
-    , l1_data_cost AS l1_cash_flow
+    , coalesce(fees_data.fees_native, 0) - l1_data_cost_native as equity_fee_allocation_native
+    , coalesce(fees, 0) -  l1_data_cost as equity_fee_allocation
+    , l1_data_cost_native AS l1_fee_allocation_native
+    , l1_data_cost AS l1_fee_allocation
     -- Bridge Metrics,
     , bridge_volume
     , bridge_daa

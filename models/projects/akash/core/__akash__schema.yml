@@ -48,8 +48,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "The share of ecosystem revenue accrued to compute providers"
     tags:
       - artemis_gaap
@@ -73,14 +73,14 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  treasury_cash_flow: &treasury_cash_flow
-    name: treasury_cash_flow
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
     description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
     tags:
       - artemis_gaap
 
-  validator_cash_flow: &validator_cash_flow
-    name: validator_cash_flow
+  validator_fee_allocation: &validator_fee_allocation
+    name: validator_fee_allocation
     description: "Portion of revenue allocated to validators who secure or operate the protocol."
     tags:
       - artemis_gaap
@@ -95,11 +95,11 @@ models:
       - *ecosystem_revenue
       - *market_cap
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *token_turnover_fdv
       - *token_volume
-      - *treasury_cash_flow
-      - *validator_cash_flow
+      - *treasury_fee_allocation
+      - *validator_fee_allocation
 
   - name: ez_akash_metrics
     description: "This table stores metrics for the AKASH protocol"
@@ -113,10 +113,10 @@ models:
       - *net_supply_change_native
       - *premine_unlocks_native
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-      - *treasury_cash_flow
-      - *validator_cash_flow
+      - *treasury_fee_allocation
+      - *validator_fee_allocation
 

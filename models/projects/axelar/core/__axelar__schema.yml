@@ -90,8 +90,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  validator_cash_flow: &validator_cash_flow
-    name: validator_cash_flow
+  validator_fee_allocation: &validator_fee_allocation
+    name: validator_fee_allocation
     description: "Portion of revenue allocated to validators who secure or operate the protocol."
     tags:
       - artemis_gaap
@@ -142,7 +142,7 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-      - *validator_cash_flow
+      - *validator_fee_allocation
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem
       - *weekly_developers_core_ecosystem

@@ -4,8 +4,8 @@
 version: 2
 
 column_definitions:
-  equity_cash_flow: &equity_cash_flow
-    name: equity_cash_flow
+  equity_fee_allocation: &equity_fee_allocation
+    name: equity_fee_allocation
     description: "Revenue distributed to EtherFi and Seven Seas teams. Calculated as 2% annually on EtherFi Liquid AUM."
     tags:
       - override
@@ -96,7 +96,7 @@ models:
   - name: ez_etherfi_metrics
     description: "This table stores metrics for the ETHERFI protocol"
     columns:
-      - *equity_cash_flow
+      - *equity_fee_allocation
       - *fdmc
       - *ecosystem_revenue
       - *market_cap

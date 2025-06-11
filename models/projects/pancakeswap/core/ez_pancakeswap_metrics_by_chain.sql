@@ -91,7 +91,7 @@ select
     -- Cashflow Metrics
     , trading_volume_by_chain.trading_fees as spot_fees
     , trading_volume_by_chain.trading_fees as ecosystem_revenue
-    , trading_volume_by_chain.trading_fees * .68 as service_cash_flow
+    , trading_volume_by_chain.trading_fees * .68 as service_fee_allocation
     , token_incentives.token_incentives_usd as token_incentives
 
 from tvl_by_chain

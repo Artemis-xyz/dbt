@@ -23,8 +23,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "The share of protocol revenue accrued to service providers of the protocol."
     tags:
       - artemis_gaap
@@ -54,8 +54,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  treasury_cash_flow: &treasury_cash_flow
-    name: treasury_cash_flow
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
     description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
     tags:
       - artemis_gaap
@@ -89,8 +89,8 @@ column_definitions:
     name: tvl_net_change
     description: "The net change in the total value locked in a protocol"
 
-  validator_cash_flow: &validator_cash_flow
-    name: validator_cash_flow
+  validator_fee_allocation: &validator_fee_allocation
+    name: validator_fee_allocation
     description: "Portion of revenue allocated to validators, sequencers, or provers who secure or operate the protocol."
     tags:
       - artemis_gaap
@@ -100,13 +100,13 @@ models:
     description: "This table stores metrics for the LIDO protocol"
     columns:
       - *ecosystem_revenue
-      - *service_cash_flow
+      - *service_fee_allocation
       - *treasury
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *treasury_native
       - *tvl
       - *tvl_native
-      - *validator_cash_flow
+      - *validator_fee_allocation
 
   - name: ez_lido_metrics
     description: "This table stores metrics for the LIDO protocol"
@@ -114,29 +114,29 @@ models:
       - *fdmc
       - *ecosystem_revenue
       - *market_cap
-      - *service_cash_flow
+      - *service_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
       - *treasury
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *treasury_native
       - *tvl
       - *tvl_native
       - *tvl_native_net_change
       - *tvl_net_change
-      - *validator_cash_flow
+      - *validator_fee_allocation
 
   - name: ez_lido_metrics_by_chain
     description: "This table stores metrics for the LIDO protocol"
     columns:
       - *ecosystem_revenue
-      - *service_cash_flow
+      - *service_fee_allocation
       - *treasury
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *treasury_native
       - *tvl
       - *tvl_native
       - *tvl_native_net_change
-      - *validator_cash_flow
+      - *validator_fee_allocation
 

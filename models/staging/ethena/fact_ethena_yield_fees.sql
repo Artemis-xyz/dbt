@@ -21,8 +21,8 @@ with yield_fees as (
 
 select
     date(yf.block_timestamp) as date, 
-    sum(case when lower(to_address) = lower('0xf2fa332bd83149c66b09b45670bce64746c6b439') then raw_amount/pow(10, decimals) else 0 end) as service_cash_flow, 
-    sum(case when lower(to_address) = lower('0x2b5ab59163a6e93b4486f6055d33ca4a115dd4d5') then raw_amount/pow(10, decimals) else 0 end) as foundation_cash_flow, 
+    sum(case when lower(to_address) = lower('0xf2fa332bd83149c66b09b45670bce64746c6b439') then raw_amount/pow(10, decimals) else 0 end) as service_fee_allocation, 
+    sum(case when lower(to_address) = lower('0x2b5ab59163a6e93b4486f6055d33ca4a115dd4d5') then raw_amount/pow(10, decimals) else 0 end) as foundation_fee_allocation, 
     sum(raw_amount/pow(10, decimals)) as fees
 from yield_fees as yf
 left join {{ref('dim_coingecko_token_map')}} as tm

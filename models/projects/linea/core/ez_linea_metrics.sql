@@ -62,10 +62,10 @@ select
     -- Cashflow Metrics
     , fees AS ecosystem_revenue
     , fees_native AS ecosystem_revenue_native
-    , revenue AS treasury_cash_flow
-    , revenue_native AS treasury_cash_flow_native
-    , l1_data_cost_native AS l1_cash_flow_native
-    , l1_data_cost AS l1_cash_flow
+    , revenue AS treasury_fee_allocation
+    , revenue_native AS treasury_fee_allocation_native
+    , l1_data_cost_native AS l1_fee_allocation_native
+    , l1_data_cost AS l1_fee_allocation
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

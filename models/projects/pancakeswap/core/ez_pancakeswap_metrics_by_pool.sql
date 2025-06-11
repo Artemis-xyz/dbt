@@ -63,7 +63,7 @@ select
     , trading_volume_pool.trading_volume as spot_volume
     , trading_volume_pool.trading_fees as spot_fees
     , trading_volume_pool.trading_fees as ecosystem_revenue
-    , trading_volume_pool.trading_fees * .68 as service_cash_flow
+    , trading_volume_pool.trading_fees * .68 as service_fee_allocation
     -- TODO: see comment in ez_pancakeswap_metrics re: remaining fees
 
     , trading_volume_pool.gas_cost_native

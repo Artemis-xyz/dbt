@@ -4,22 +4,22 @@
 version: 2
 
 column_definitions:
-  burned_cash_flow: &burned_cash_flow
-    name: burned_cash_flow
+  burned_fee_allocation: &burned_fee_allocation
+    name: burned_fee_allocation
     description: "The portion of protocol revenue that result in burns. On Hyperliquid, all transaction fees paid on the L1 are burned."
     tags:
       - artemis_gaap
       - override
 
-  burned_cash_flow_native: &burned_cash_flow_native
-    name: burned_cash_flow_native
+  burned_fee_allocation_native: &burned_fee_allocation_native
+    name: burned_fee_allocation_native
     description: "The portion of protocol revenue that result in burns. On Hyperliquid, all transaction fees paid on the L1 are burned."
     tags:
       - artemis_gaap
       - override
 
-  buyback_cash_flow: &buyback_cash_flow
-    name: buyback_cash_flow
+  buyback_fee_allocation: &buyback_fee_allocation
+    name: buyback_fee_allocation
     description: "A portion of protocol revenue is allocated to the Assistance Fund (AF) for HYPE buybacks — (97%). The 97% is based on confirmation from the Hyperliquid team and matches our observed fee data from assistancefund.top and asxn data."
     tags:
       - artemis_gaap
@@ -99,8 +99,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "A portion of protocol revenue is allocated to the Hyperliquidity Provider (HLP) — 3%. The 3% is based on 100% - 97% (HYPE buybacks - Assistance Fund) = 3%."
     tags:
       - artemis_gaap
@@ -141,9 +141,9 @@ models:
   - name: ez_hyperliquid_metrics_by_chain
     description: "This table stores metrics for the HYPERLIQUID protocol"
     columns:
-      - *burned_cash_flow
-      - *burned_cash_flow_native
-      - *buyback_cash_flow
+      - *burned_fee_allocation
+      - *burned_fee_allocation_native
+      - *buyback_fee_allocation
       - *buybacks_native
       - *chain_fees
       - *fdmc
@@ -154,7 +154,7 @@ models:
       - *perp_txns
       - *perp_volume
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_fees
       - *spot_volume
       - *token_turnover_circulating
@@ -163,9 +163,9 @@ models:
   - name: ez_hyperliquid_metrics
     description: "This table stores metrics for the HYPERLIQUID protocol"
     columns:
-      - *burned_cash_flow
-      - *burned_cash_flow_native
-      - *buyback_cash_flow
+      - *burned_fee_allocation
+      - *burned_fee_allocation_native
+      - *buyback_fee_allocation
       - *buybacks_native
       - *chain_fees
       - *circulating_supply_native
@@ -179,7 +179,7 @@ models:
       - *perp_volume
       - *premine_unlocks_native
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_fees
       - *token_turnover_circulating
       - *token_turnover_fdv

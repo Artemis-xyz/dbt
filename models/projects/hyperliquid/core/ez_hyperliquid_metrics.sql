@@ -109,11 +109,11 @@ select
     -- all l1 fees are burned
      , daily_burn * mm.price as chain_fees
      , trading_fees + (daily_burn * mm.price) as ecosystem_revenue
-     , trading_fees * 0.03 as service_cash_flow
-     , (daily_buybacks_native * mm.price) as buyback_cash_flow
+     , trading_fees * 0.03 as service_fee_allocation
+     , (daily_buybacks_native * mm.price) as buyback_fee_allocation
      , daily_buybacks_native as buybacks_native
-     , daily_burn as burned_cash_flow_native
-     , daily_burn * mm.price as burned_cash_flow
+     , daily_burn as burned_fee_allocation_native
+     , daily_burn * mm.price as burned_fee_allocation
 
     --HYPE Token Supply Data
     , coalesce(daily_supply_data.emissions_native, 0) as emissions_native

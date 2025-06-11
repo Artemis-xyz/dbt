@@ -84,8 +84,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "The royalties distributed to NFT creators on Magic Eden."
     tags:
       - artemis_gaap
@@ -112,8 +112,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  treasury_cash_flow: &treasury_cash_flow
-    name: treasury_cash_flow
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
     description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
     tags:
       - artemis_gaap
@@ -129,8 +129,8 @@ models:
       - *nft_royalties
       - *nft_txns
       - *nft_volume
-      - *service_cash_flow
-      - *treasury_cash_flow
+      - *service_fee_allocation
+      - *treasury_fee_allocation
 
   - name: ez_magiceden_metrics
     description: "This table stores metrics for the MAGICEDEN protocol"
@@ -148,9 +148,9 @@ models:
       - *nft_volume
       - *premine_unlocks_native
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
 

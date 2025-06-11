@@ -38,8 +38,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
-    name: fee_sharing_token_cash_flow
+  staking_fee_allocation: &staking_fee_allocation
+    name: staking_fee_allocation
     description: "Revenue distributed to users who commit tokens (e.g., stake, lock, vote-escrow) to receive a share of protocol fees."
     tags:
       - artemis_gaap
@@ -82,8 +82,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  token_cash_flow: &token_cash_flow
-    name: token_cash_flow
+  token_fee_allocation: &token_fee_allocation
+    name: token_fee_allocation
     description: "The share of protocol revenue accrued to token holders of the protocol."
     tags:
       - artemis_gaap
@@ -130,14 +130,14 @@ models:
       - *bridge_wau
       - *circulating_supply_native
       - *fdmc
-      - *fee_sharing_token_cash_flow
+      - *staking_fee_allocation
       - *gross_emissions_native
       - *ecosystem_revenue
       - *market_cap
       - *net_supply_change_native
       - *premine_unlocks_native
       - *price
-      - *token_cash_flow
+      - *token_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
