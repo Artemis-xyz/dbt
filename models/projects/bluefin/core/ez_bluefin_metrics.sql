@@ -32,7 +32,7 @@ WITH
         QUALIFY ROW_NUMBER() OVER (PARTITION BY date ORDER BY date DESC) = 1
     )
     , spot_fees_revenue AS (
-        SELECT date, SUM(fees) AS fees, SUM(foundation_cash_flow) AS foundation_cash_flow, SUM(service_cash_flow) AS service_cash_flow
+        SELECT date, SUM(fees) AS fees, SUM(foundation_fee_allocation) AS foundation_fee_allocation, SUM(service_fee_allocation) AS service_fee_allocation
         FROM {{ ref("fact_bluefin_spot_fees_revenue") }}
         GROUP BY 1
     )
@@ -56,8 +56,8 @@ select
 
     --Cashflow Metrics
     , COALESCE(spot_fees_revenue.fees, 0) AS fees
-    , COALESCE(spot_fees_revenue.foundation_cash_flow, 0) AS foundation_cash_flow
-    , COALESCE(spot_fees_revenue.service_cash_flow, 0) AS service_cash_flow
+    , COALESCE(spot_fees_revenue.foundation_fee_allocation, 0) AS foundation_fee_allocation
+    , COALESCE(spot_fees_revenue.service_fee_allocation, 0) AS service_fee_allocation
     
     -- Perpetual Metrics
     , COALESCE(perp_trading_volume.trading_volume, 0) AS perp_volume
