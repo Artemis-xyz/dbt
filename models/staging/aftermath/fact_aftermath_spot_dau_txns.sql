@@ -1,6 +1,6 @@
 {{config(
     materialized = 'table',
-    database = 'bluefin'
+    database = 'aftermath'
 )}}
 
 WITH daily_dau_txns AS (
@@ -8,9 +8,10 @@ WITH daily_dau_txns AS (
         date, 
         COUNT(DISTINCT sender) AS daily_dau, 
         COUNT(DISTINCT transaction_digest) AS daily_txns
-    FROM {{ ref('fact_raw_bluefin_spot_swaps') }}
+    FROM {{ ref('fact_raw_aftermath_spot_swaps') }}
     GROUP BY 1
 )
+
 SELECT
     date,
     pool_address,
@@ -23,6 +24,6 @@ SELECT
     daily_txns, 
     COUNT(DISTINCT sender) AS pool_dau, 
     COUNT(DISTINCT transaction_digest) AS pool_txns
-FROM {{ ref('fact_raw_bluefin_spot_swaps') }}
+FROM {{ ref('fact_raw_aftermath_spot_swaps') }}
 INNER JOIN daily_dau_txns USING(date)
 GROUP BY 1, 2, 3, 4, 5, 6

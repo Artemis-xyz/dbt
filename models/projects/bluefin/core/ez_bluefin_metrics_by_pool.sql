@@ -17,23 +17,23 @@ WITH
     )
 
     , spot_dau_txns AS (
-        SELECT date, pool_address, SUM(dau) AS dau, SUM(txns) AS txns
+        SELECT date, pool_address, SUM(pool_dau) AS dau, SUM(pool_txns) AS txns
         FROM {{ ref("fact_bluefin_spot_dau_txns") }}
         GROUP BY 1, 2
     )
 
     , spot_fees_revenue AS (
-        SELECT date, pool_address, SUM(fees_usd) AS fees_usd, SUM(protocol_fee_share_usd) AS protocol_fee_share_usd
+        SELECT date, pool_address, SUM(fees) AS fees, SUM(foundation_cash_flow) AS foundation_cash_flow, SUM(service_cash_flow) AS service_cash_flow
         FROM {{ ref("fact_bluefin_spot_fees_revenue") }}
         GROUP BY 1, 2
     )
 
     , tvl AS (
-        SELECT date, pool_address, symbol_a, symbol_b, pool_tvl AS tvl
+        SELECT date, pool_address, symbol_a, symbol_b, tvl
         FROM {{ ref("fact_bluefin_spot_tvl") }}
     )
 
-    SELECT DISTINCT
+    SELECT
         spot_volumes.date, 
         spot_volumes.pool_address AS pool, 
         tvl.symbol_a,
@@ -41,9 +41,9 @@ WITH
         spot_volumes.volume_usd AS spot_volume,
         spot_dau_txns.dau AS spot_dau, 
         spot_dau_txns.txns AS spot_txns, 
-        spot_fees_revenue.fees_usd AS spot_fees, 
-        spot_fees_revenue.protocol_fee_share_usd AS spot_foundation_cash_flow, 
-        spot_fees_revenue.fees_usd - spot_fees_revenue.protocol_fee_share_usd AS spot_service_cash_flow, 
+        spot_fees_revenue.fees AS spot_fees, 
+        spot_fees_revenue.foundation_cash_flow AS foundation_cash_flow, 
+        spot_fees_revenue.service_cash_flow AS service_cash_flow, 
         tvl.tvl AS spot_tvl
     FROM spot_volumes
     LEFT JOIN spot_dau_txns USING (date, pool_address)

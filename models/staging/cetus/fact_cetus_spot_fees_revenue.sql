@@ -14,7 +14,7 @@ SELECT
     symbol_a,
     symbol_b,
     SUM(fee_amount_native) AS fees_native, 
-    SUM(fee_amount_usd) AS fees_usd, 
+    SUM(fee_amount_usd) AS fees, 
     0.2 * SUM(fee_amount_native) AS foundation_cash_flow_native, 
     0.2 * SUM(fee_amount_usd) AS foundation_cash_flow, 
     0.8 * SUM(fee_amount_native) AS service_cash_flow_native, 
