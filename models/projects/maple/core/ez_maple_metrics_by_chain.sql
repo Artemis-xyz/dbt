@@ -1,6 +1,6 @@
 {{
     config(
-        materialized = 'view',
+        materialized = 'table',
         snowflake_warehouse = 'MAPLE',
         database = 'MAPLE',
         schema = 'core',
