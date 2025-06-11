@@ -57,8 +57,8 @@ select
     -- Cashflow Metrics
     , fees_usd as chain_fees
     , fees_usd as ecosystem_revenue
-    , fees_usd * 0.7 as validator_cash_flow
-    , fees_usd * 0.3 as other_cash_flow
+    , fees_usd * 0.7 as validator_fee_allocation
+    , fees_usd * 0.3 as other_fee_allocation
  
     -- Supply Metrics
     , premine_unlocks_native

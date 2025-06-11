@@ -58,9 +58,9 @@ select
     , COALESCE(market_data.token_volume, 0) AS token_volume
 
     --Cashflow Metrics
-    , COALESCE(spot_fees_revenue.fees_usd, 0) AS ecosystem_revenue
-    , COALESCE(spot_fees_revenue.protocol_fee_share_usd, 0) AS foundation_cash_flow
-    , COALESCE((spot_fees_revenue.fees_usd - spot_fees_revenue.protocol_fee_share_usd), 0) AS service_cash_flow
+    , COALESCE(spot_fees_revenue.fees_usd, 0) AS fees
+    , COALESCE(spot_fees_revenue.protocol_fee_share_usd, 0) AS foundation_fee_allocation
+    , COALESCE((spot_fees_revenue.fees_usd - spot_fees_revenue.protocol_fee_share_usd), 0) AS service_fee_allocation
     
     -- Perpetual Metrics
     , COALESCE(perp_trading_volume.trading_volume, 0) AS perp_volume

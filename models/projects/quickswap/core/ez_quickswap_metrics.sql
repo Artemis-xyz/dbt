@@ -52,7 +52,7 @@ SELECT
     , dex_swaps.trading_fees as spot_fees
     , dex_swaps.trading_fees as ecosystem_revenue
     -- We only track v2 where all fees go to LPs
-    , dex_swaps.trading_fees as service_cash_flow
+    , dex_swaps.trading_fees as service_fee_allocation
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
 from dex_swaps
 left join tvl using(date)

@@ -58,14 +58,14 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "The share of protocol revenue accrued to service providers of the protocol."
     tags:
       - artemis_gaap
 
-  service_cash_flow_native: &service_cash_flow_native
-    name: service_cash_flow_native
+  service_fee_allocation_native: &service_fee_allocation_native
+    name: service_fee_allocation_native
     description: "The share of protocol revenue accrued to service providers of the protocol in native tokens."
     tags:
       - artemis_gaap
@@ -102,15 +102,15 @@ models:
     columns:
       - *ecosystem_revenue
       - *oracle_fees
-      - *service_cash_flow
+      - *service_fee_allocation
 
   - name: ez_chainlink_metrics_by_token
     description: "This table stores metrics for the CHAINLINK protocol"
     columns:
       - *ecosystem_revenue
       - *ecosystem_revenue_native
-      - *service_cash_flow
-      - *service_cash_flow_native
+      - *service_fee_allocation
+      - *service_fee_allocation_native
 
   - name: ez_chainlink_metrics
     description: "This table stores metrics for the CHAINLINK protocol"
@@ -125,7 +125,7 @@ models:
       - *oracle_txns
       - *premine_unlocks_native
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume

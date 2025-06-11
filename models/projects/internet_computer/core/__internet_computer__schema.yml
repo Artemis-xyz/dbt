@@ -4,15 +4,15 @@
 version: 2
 
 column_definitions:
-  burned_cash_flow: &burned_cash_flow
-    name: burned_cash_flow
+  burned_fee_allocation: &burned_fee_allocation
+    name: burned_fee_allocation
     description: "On ICP, app developers have to add 'cycles' (gas) to their 'canisters' (smart contracts) so end users do not have to pay for the gas. Cycles are added to a canister by burning ICP."
     tags:
       - artemis_gaap
       - override
 
-  burned_cash_flow_native: &burned_cash_flow_native
-    name: burned_cash_flow_native
+  burned_fee_allocation_native: &burned_fee_allocation_native
+    name: burned_fee_allocation_native
     description: "The amount of native tokens burned"
     tags:
       - artemis_gaap
@@ -87,8 +87,8 @@ models:
   - name: ez_internet_computer_metrics
     description: "This table stores metrics for the INTERNET_COMPUTER protocol"
     columns:
-      - *burned_cash_flow
-      - *burned_cash_flow_native
+      - *burned_fee_allocation
+      - *burned_fee_allocation_native
       - *chain_avg_txn_fee
       - *chain_dau
       - *chain_fees

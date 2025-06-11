@@ -28,14 +28,14 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  burned_cash_flow: &burned_cash_flow
-    name: burned_cash_flow
+  burned_fee_allocation: &burned_fee_allocation
+    name: burned_fee_allocation
     description: "The USD value of tokens burned"
     tags:
       - artemis_gaap
 
-  burned_cash_flow_native: &burned_cash_flow_native
-    name: burned_cash_flow_native
+  burned_fee_allocation_native: &burned_fee_allocation_native
+    name: burned_fee_allocation_native
     description: "The amount of native tokens burned"
     tags:
       - artemis_gaap
@@ -224,8 +224,8 @@ models:
       - *artemis_stablecoin_mau
       - *artemis_stablecoin_transfer_volume
       - *artemis_stablecoin_txns
-      - *burned_cash_flow
-      - *burned_cash_flow_native
+      - *burned_fee_allocation
+      - *burned_fee_allocation_native
       - *chain_avg_txn_fee
       - *chain_dau
       - *chain_fees

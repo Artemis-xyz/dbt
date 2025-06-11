@@ -74,10 +74,10 @@ select
     , fees * price as chain_fees
     , fees_native AS ecosystem_revenue_native
     , fees * price AS ecosystem_revenue
-    , fees_native / 2 AS burned_cash_flow_native
-    , (fees_native / 2) * price AS burned_cash_flow
-    , fees_native / 2 AS validator_cash_flow_native
-    , (fees_native / 2) * price AS validator_cash_flow
+    , fees_native / 2 AS burned_fee_allocation_native
+    , (fees_native / 2) * price AS burned_fee_allocation
+    , fees_native / 2 AS validator_fee_allocation_native
+    , (fees_native / 2) * price AS validator_fee_allocation
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

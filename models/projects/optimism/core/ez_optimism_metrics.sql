@@ -40,6 +40,13 @@ with
         select date, adj_daus as adjusted_dau
         from {{ ref("ez_optimism_adjusted_dau") }}
     )
+    , token_incentives as (
+        select 
+            date, 
+            sum(token_incentives) as token_incentives
+        from {{ ref("fact_optimism_token_incentives") }}
+        group by 1
+    )
 
 select
     coalesce(
@@ -69,12 +76,15 @@ select
     , nft_trading_volume
     , dune_dex_volumes_optimism.dex_volumes
     , dune_dex_volumes_optimism.adjusted_dex_volumes
+
     -- Standardized Metrics
+
     -- Market Data Metrics
     , price
     , market_cap
     , fdmc
     , tvl
+
     -- Chain Usage Metrics
     , txns AS chain_txns
     , dau AS chain_dau
@@ -96,14 +106,17 @@ select
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_optimism.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     , dune_dex_volumes_optimism.dex_volumes AS chain_spot_volume
+
     -- Cashflow Metrics
     , fees AS chain_fees
     , fees_native AS ecosystem_revenue_native
     , fees AS ecosystem_revenue
-    , l1_data_cost_native AS l1_cash_flow_native
-    , l1_data_cost AS l1_cash_flow
-    , coalesce(fees_native, 0) - l1_data_cost_native as treasury_cash_flow_native
-    , coalesce(fees, 0) - l1_data_cost as treasury_cash_flow
+    , l1_data_cost_native AS l1_fee_allocation_native
+    , l1_data_cost AS l1_fee_allocation
+    , coalesce(fees_native, 0) - l1_data_cost_native as treasury_fee_allocation_native
+    , coalesce(fees, 0) - l1_data_cost as treasury_fee_allocation
+    , token_incentives.token_incentives
+
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -111,6 +124,7 @@ select
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
+
     -- Stablecoin metrics
     , stablecoin_total_supply
     , stablecoin_txns
@@ -127,9 +141,11 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
+
     -- Bridge Metrics
     , bridge_volume
     , bridge_daa
+
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -144,4 +160,5 @@ left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join optimism_dex_volumes as dune_dex_volumes_optimism on fundamental_data.date = dune_dex_volumes_optimism.date
 left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
+left join token_incentives on fundamental_data.date = token_incentives.date
 where fundamental_data.date < to_date(sysdate())

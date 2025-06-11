@@ -42,7 +42,8 @@ WITH
         spot_dau_txns.dau AS spot_dau, 
         spot_dau_txns.txns AS spot_txns, 
         spot_fees_revenue.fees_usd AS spot_fees, 
-        spot_fees_revenue.protocol_fee_share_usd AS spot_protocol_fee_share, 
+        spot_fees_revenue.protocol_fee_share_usd AS spot_foundation_cash_flow, 
+        spot_fees_revenue.fees_usd - spot_fees_revenue.protocol_fee_share_usd AS spot_service_cash_flow, 
         tvl.tvl AS spot_tvl
     FROM spot_volumes
     LEFT JOIN spot_dau_txns USING (date, pool_address)

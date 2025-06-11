@@ -65,8 +65,8 @@ select
     , fees as chain_fees
     , fees_native AS ecosystem_revenue_native
     , fees AS ecosystem_revenue
-    , fees_native * .1 AS burned_cash_flow_native
-    , fees * .1 AS burned_cash_flow
+    , fees_native * .1 AS burned_fee_allocation_native
+    , fees * .1 AS burned_fee_allocation
     -- Developer metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

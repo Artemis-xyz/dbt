@@ -57,7 +57,7 @@ select
     , trading_volume_by_chain.trading_fees as spot_fees
     , trading_volume_by_chain.trading_fees as ecosystem_revenue
     -- We only track v2 where all fees go to LPs
-    , trading_volume_by_chain.trading_fees as service_cash_flow
+    , trading_volume_by_chain.trading_fees as service_fee_allocation
     , trading_volume_by_chain.gas_cost_native
     , trading_volume_by_chain.gas_cost_usd as gas_cost
     , coalesce(token_incentives.token_incentives, 0) as token_incentives

@@ -92,10 +92,10 @@ select
     , fees_native AS chain_fees
     , fees_native AS ecosystem_revenue_native -- Total gas fees paid on L2 by users (L2 Fees)
     , fees AS ecosystem_revenue
-    , coalesce(fees_native, 0) - l1_data_cost_native as treasury_cash_flow_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    , coalesce(fees, 0) - l1_data_cost as treasury_cash_flow
-    , l1_data_cost_native AS l1_cash_flow_native -- fees paid to l1 by sequencer (L1 Fees)
-    , l1_data_cost AS l1_cash_flow
+    , coalesce(fees_native, 0) - l1_data_cost_native as treasury_fee_allocation_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(fees, 0) - l1_data_cost as treasury_fee_allocation
+    , l1_data_cost_native AS l1_fee_allocation_native -- fees paid to l1 by sequencer (L1 Fees)
+    , l1_data_cost AS l1_fee_allocation
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

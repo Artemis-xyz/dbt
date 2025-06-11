@@ -13,18 +13,18 @@ with
         SELECT
             date
             , chain
-            , SUM(fees_usd) as swap_fees
-            , SUM(supply_side_fees_usd) as supply_side_fees
-            , SUM(revenue_usd) as swap_revenue
+            , SUM(fees) as swap_fees
+            , SUM(supply_side_fees) as supply_side_fees
+            , SUM(revenue) as swap_revenue
         FROM
-            {{ ref('fact_pendle_swap_fees') }}
+            {{ ref('fact_pendle_trades') }}
         GROUP BY 1, 2
     )
     , yield_fees as (
         SELECT
             date
             , chain
-            , SUM(yield_fees_usd) as yield_revenue
+            , SUM(fees) as yield_revenue
         FROM
             {{ ref('fact_pendle_yield_fees') }}
         GROUP BY 1, 2
@@ -76,7 +76,7 @@ SELECT
     , 0 as protocol_revenue
     , 0 as operating_expenses
     , COALESCE(ti.token_incentives, 0) as total_expenses
-    , protocol_revenue - total_expenses as protocol_earnings
+    , protocol_revenue - total_expenses as earnings
     , COALESCE(t.tvl, 0) as net_deposits
     , 0 as outstanding_supply
 
@@ -90,10 +90,10 @@ SELECT
     , COALESCE(yf.yield_revenue, 0) as yield_generated
     , COALESCE(f.swap_fees, 0) as spot_fees
     , COALESCE(f.swap_fees, 0) + COALESCE(yf.yield_revenue, 0) as ecosystem_revenue
-    , COALESCE(f.swap_revenue, 0) + COALESCE(yf.yield_revenue, 0) as fee_sharing_token_cash_flow
-    , COALESCE(f.swap_revenue, 0) as spot_fee_sharing_token_cash_flow
-    , COALESCE(yf.yield_revenue, 0) as yield_fee_sharing_token_cash_flow
-    , COALESCE(f.supply_side_fees, 0) as service_cash_flow
+    , COALESCE(f.swap_revenue, 0) + COALESCE(yf.yield_revenue, 0) as staking_fee_allocation
+    , COALESCE(f.swap_revenue, 0) as spot_staking_fee_allocation
+    , COALESCE(yf.yield_revenue, 0) as yield_staking_fee_allocation
+    , COALESCE(f.supply_side_fees, 0) as service_fee_allocation
     , COALESCE(ti.token_incentives, 0) as token_incentives
     , COALESCE(ti.token_incentives, 0) as gross_emissions
     , COALESCE(ti.token_incentives_native, 0) as gross_emissions_native

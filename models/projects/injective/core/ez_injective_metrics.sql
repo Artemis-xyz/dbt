@@ -70,7 +70,7 @@ select
     , mints.mints as gross_emissions_native
     , COALESCE(revenue.revenue, 0) AS revenue
     , fundamental_data.fees_native as ecosystem_revenue_native
-    , coalesce(revenue.revenue_native, 0) as burned_cash_flow_native
+    , coalesce(revenue.revenue_native, 0) as burned_fee_allocation_native
     
     -- Standardized Metrics
 
@@ -98,9 +98,9 @@ select
     , coalesce(fundamental_data.fees, 0) as chain_fees
     , coalesce(revenue.spot_fees, 0) as spot_fees
     , (coalesce(revenue.spot_fees, 0) + coalesce(fundamental_data.fees, 0)) as ecosystem_revenue
-    , coalesce(revenue.auction_fees, 0) as burned_cash_flow
-    , coalesce(fundamental_data.fees, 0) as validator_cash_flow
-    , coalesce(revenue.dapp_fees, 0) as dapp_cash_flow
+    , coalesce(revenue.auction_fees, 0) as burned_fee_allocation
+    , coalesce(fundamental_data.fees, 0) as validator_fee_allocation
+    , coalesce(revenue.dapp_fees, 0) as dapp_fee_allocation
 
     -- INJ Token Supply Data
     , coalesce(mints.mints, 0) as emissions_native

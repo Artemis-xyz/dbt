@@ -4,14 +4,14 @@
 version: 2
 
 column_definitions:
-  burned_cash_flow: &burned_cash_flow
-    name: burned_cash_flow
+  burned_fee_allocation: &burned_fee_allocation
+    name: burned_fee_allocation
     description: "The USD value of tokens burned"
     tags:
       - artemis_gaap
 
-  burned_cash_flow_native: &burned_cash_flow_native
-    name: burned_cash_flow_native
+  burned_fee_allocation_native: &burned_fee_allocation_native
+    name: burned_fee_allocation_native
     description: "The amount of native tokens burned"
     tags:
       - artemis_gaap
@@ -102,8 +102,8 @@ models:
   - name: ez_gnosis_metrics
     description: "This table stores metrics for the GNOSIS protocol"
     columns:
-      - *burned_cash_flow
-      - *burned_cash_flow_native
+      - *burned_fee_allocation
+      - *burned_fee_allocation_native
       - *chain_avg_txn_fee
       - *chain_dau
       - *chain_fees

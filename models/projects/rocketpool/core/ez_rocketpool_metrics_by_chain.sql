@@ -39,7 +39,7 @@ select
     , token_incentives
     , operating_expenses
     , total_expenses
-    , protocol_earnings
+    , earnings
     , net_deposits
     , outstanding_supply
     , treasury_value
@@ -56,8 +56,8 @@ select
     , COALESCE(lst_deposit_fees, 0) as lst_deposit_fees
     , COALESCE(fees, 0) as yield_generated
     , COALESCE(fees, 0) as ecosystem_revenue
-    , ecosystem_revenue * 0.14 as validator_cash_flow
-    , ecosystem_revenue * 0.86 as service_cash_flow
+    , ecosystem_revenue * 0.14 as validator_fee_allocation
+    , ecosystem_revenue * 0.86 as service_fee_allocation
     
     
 from staked_eth_metrics s

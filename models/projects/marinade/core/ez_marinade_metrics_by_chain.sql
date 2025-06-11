@@ -69,7 +69,7 @@ select
     , fees_native
     -- v1 fees (2024-08-17 and before) - commission + unstaking fees, v2 fees (2024-08-18 and after) - validator bids
     -- v2 fees - 100% goes to the protocol
-    , fees_native * price as fees
+    , (unstaking_fees_native * price) + (fees_native * price) as fees
     -- v1 - unstaking fees 75% goes to LP (Fees to Suppliers), 25% goes to treasury (Fees to Holders)
     , unstaking_fees_native * 0.75 as supply_side_fee
     , case when 
@@ -97,12 +97,12 @@ select
         date < '2024-08-18' then unstaking_fees * 0.25 + lst_fees
     -- when v2 fees are active, 100% goes to the protocol
         else unstaking_fees + lst_fees 
-    end as treasury_cash_flow
+    end as treasury_fee_allocation
     ,  case when 
         date < '2024-08-18' then unstaking_fees * 0.75
     -- when v2 fees are active, 100% goes to the protocol
         else 0 
-    end as service_cash_flow    
+    end as service_fee_allocation    
     
 
 from tvl

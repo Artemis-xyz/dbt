@@ -98,7 +98,7 @@ SELECT
     , 0 as protocol_revenue
     , 0 as operating_expenses
     , token_incentives_usd + operating_expenses as total_expenses
-    , protocol_revenue - total_expenses as protocol_earnings
+    , protocol_revenue - total_expenses as earnings
     , treasury_usd as treausry_value
     , treasury_native as treasury_native_value
     , net_treasury_usd as net_treasury_value
@@ -122,7 +122,7 @@ SELECT
     -- Money Metrics
     , fees as spot_fees
     , fees as ecosystem_revenue
-    , fees as service_cash_flow
+    , fees as service_fee_allocation
     , token_incentives_usd as token_incentives
 
     -- Treasury Metrics

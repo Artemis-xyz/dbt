@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="view",
+        materialized="table",
         snowflake_warehouse="PERPETUAL_PROTOCOL",
         database="perpetual_protocol",
         schema="core",
@@ -25,15 +25,23 @@ WITH
             , sum(perp_dau) as perp_dau
             , sum(ecosystem_revenue) as ecosystem_revenue
             , sum(tvl_pct_change) as tvl_pct_change
-            , sum(treasury_cash_flow) as treasury_cash_flow
-            , sum(fee_sharing_token_cash_flow) as fee_sharing_token_cash_flow
-            , sum(treasury_cash_flow) as treasury_cash_flow
-            , sum(service_cash_flow) as service_cash_flow
+            , sum(treasury_fee_allocation) as treasury_fee_allocation
+            , sum(staking_fee_allocation) as staking_fee_allocation
+            , sum(treasury_fee_allocation) as treasury_fee_allocation
+            , sum(service_fee_allocation) as service_fee_allocation
         FROM {{ ref("ez_perpetual_protocol_metrics_by_chain") }}
         WHERE date < to_date(sysdate())
         GROUP BY 1, 2, 3
     )
     , price as ({{ get_coingecko_metrics("perpetual-protocol") }})
+
+    , token_incentives as (
+        select
+            date,
+            SUM(total_token_incentives) as token_incentives
+        from {{ref('fact_perpetual_token_incentives')}}
+        group by 1
+    )
 
 SELECT
     date
@@ -50,9 +58,9 @@ SELECT
     , tvl
     , tvl_pct_change
     , ecosystem_revenue
-    , fee_sharing_token_cash_flow
-    , service_cash_flow
-    , treasury_cash_flow
+    , staking_fee_allocation
+    , service_fee_allocation
+    , treasury_fee_allocation
     -- Market Data
     , price
     , market_cap
@@ -60,6 +68,8 @@ SELECT
     , token_turnover_circulating
     , token_turnover_fdv
     , token_volume
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
 FROM perp_data
 LEFT JOIN price USING(date)
+LEFT JOIN token_incentives USING(date)
 WHERE date < to_date(sysdate())
