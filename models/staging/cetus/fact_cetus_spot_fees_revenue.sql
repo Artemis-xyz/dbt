@@ -15,9 +15,9 @@ SELECT
     symbol_b,
     SUM(fee_amount_native) AS fees_native, 
     SUM(fee_amount_usd) AS fees, 
-    0.2 * SUM(fee_amount_native) AS foundation_cash_flow_native, 
-    0.2 * SUM(fee_amount_usd) AS foundation_cash_flow, 
-    0.8 * SUM(fee_amount_native) AS service_cash_flow_native, 
-    0.8 * SUM(fee_amount_usd) AS service_cash_flow
+    0.2 * SUM(fee_amount_native) AS foundation_fee_allocation_native, 
+    0.2 * SUM(fee_amount_usd) AS foundation_fee_allocation, 
+    0.8 * SUM(fee_amount_native) AS service_fee_allocation_native, 
+    0.8 * SUM(fee_amount_usd) AS service_fee_allocation
 FROM {{ ref('fact_raw_cetus_spot_swaps') }}
 GROUP BY 1, 2, 3, 4, 5, 6
