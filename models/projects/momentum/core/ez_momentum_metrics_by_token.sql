@@ -104,12 +104,14 @@ WITH
         SUM(spot_volumes.volume_usd) AS spot_volume,
         SUM(spot_dau_txns.dau) AS spot_dau, 
         SUM(spot_dau_txns.txns) AS spot_txns, 
-        SUM(spot_fees_revenue.fees_native) AS ecosystem_revenue_native, 
-        SUM(spot_fees_revenue.fees_usd) AS ecosystem_revenue, 
+
+        SUM(spot_fees_revenue.fees_native) AS fees_native, 
+        SUM(spot_fees_revenue.fees_usd) AS fees, 
         SUM(spot_fees_revenue.service_fee_allocation) AS service_fee_allocation, 
         SUM(spot_fees_revenue.service_fee_allocation_native) AS service_fee_allocation_native, 
         SUM(spot_fees_revenue.foundation_fee_allocation) AS foundation_fee_allocation, 
         SUM(spot_fees_revenue.foundation_fee_allocation_native) AS foundation_fee_allocation_native, 
+
         SUM(tvl.tvl_native) AS tvl_native, 
         SUM(tvl.tvl) AS tvl
     FROM spot_volumes

@@ -46,7 +46,7 @@ select
     -- Standardized Metrics
 
     --Cashflow Metrics
-    , COALESCE(spot_fees_revenue.fees_usd, 0) AS ecosystem_revenue
+    , COALESCE(spot_fees_revenue.fees_usd, 0) AS fees
     , COALESCE(spot_fees_revenue.service_fee_allocation, 0) AS service_fee_allocation
     , COALESCE(spot_fees_revenue.foundation_fee_allocation, 0) AS foundation_fee_allocation
 
