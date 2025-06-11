@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="view",
+        materialized="table",
         snowflake_warehouse="PERPETUAL_PROTOCOL",
         database="perpetual_protocol",
         schema="core",

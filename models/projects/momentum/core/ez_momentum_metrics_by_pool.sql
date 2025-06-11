@@ -41,7 +41,8 @@ WITH
         spot_volumes.spot_volume,
         spot_dau_txns.dau AS spot_dau, 
         spot_dau_txns.txns AS spot_txns, 
-        spot_fees_revenue.fees_usd AS ecosystem_revenue, 
+
+        spot_fees_revenue.fees_usd AS fees, 
         spot_fees_revenue.service_fee_allocation AS service_fee_allocation, 
         spot_fees_revenue.foundation_fee_allocation AS foundation_fee_allocation, 
         tvl.tvl AS tvl
