@@ -98,7 +98,6 @@ SELECT
     , 0 as protocol_revenue
     , 0 as operating_expenses
     , token_incentives_usd + operating_expenses as total_expenses
-    , protocol_revenue - total_expenses as earnings
     , treasury_usd as treausry_value
     , treasury_native as treasury_native_value
     , net_treasury_usd as net_treasury_value

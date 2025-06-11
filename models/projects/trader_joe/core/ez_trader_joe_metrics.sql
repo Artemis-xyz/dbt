@@ -87,7 +87,7 @@ select
 
     -- Cashflow Metrics
     , protocol_data.spot_fees
-    , protocol_data.fees 
+    , protocol_data.spot_fees as fees 
     , supply_data.burns_native as revenue
     , revenue - token_incentives.token_incentives as earnings
     , token_incentives.token_incentives

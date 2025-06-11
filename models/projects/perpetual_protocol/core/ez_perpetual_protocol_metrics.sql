@@ -58,7 +58,6 @@ SELECT
     , tvl
     , tvl_pct_change
 
-    , fees
     , staking_fee_allocation
     , service_fee_allocation
     , treasury_fee_allocation
