@@ -106,6 +106,7 @@ select
     , trading_volume.trading_volume as spot_volume
     , trading_volume.unique_traders as spot_dau
     
+    , trading_volume.trading_fees as trading_fees
     , fees_revenue.fees as spot_fees
     , fees_revenue.fees as fees
     -- About 68% of fees go to LPs
