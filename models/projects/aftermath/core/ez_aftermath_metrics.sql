@@ -48,8 +48,8 @@ select
 
     --Cashflow Metrics
     , COALESCE(spot_fees_revenue.fees, 0) AS fees
-    , COALESCE(spot_fees_revenue.foundation_cash_flow, 0) AS foundation_cash_flow
-    , COALESCE(spot_fees_revenue.service_cash_flow, 0) AS service_cash_flow
+    , COALESCE(spot_fees_revenue.foundation_cash_flow, 0) AS foundation_fee_allocation
+    , COALESCE(spot_fees_revenue.service_cash_flow, 0) AS service_fee_allocation
 
 
     -- Spot DEX Metrics
