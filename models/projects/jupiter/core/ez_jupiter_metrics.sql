@@ -150,14 +150,14 @@ select
     , all_trade_metrics.dca_fees
     , all_trade_metrics.limit_order_fees
     , all_trade_metrics.fees as ecosystem_revenue
-    , all_trade_metrics.aggregator_fees - all_trade_metrics.aggregator_revenue as integrator_cash_flow
-    , perp_supply_side_revenue as service_cash_flow
-    , all_trade_metrics.revenue as treasury_cash_flow
-    , all_trade_metrics.perp_revenue as perp_treasury_cash_flow
-    , all_trade_metrics.aggregator_revenue as aggregator_treasury_cash_flow
-    , all_trade_metrics.dca_revenue as dca_treasury_cash_flow
-    , all_trade_metrics.limit_order_revenue as limit_order_treasury_cash_flow
-    , all_trade_metrics.buyback as buyback_cash_flow
+    , all_trade_metrics.aggregator_fees - all_trade_metrics.aggregator_revenue as integrator_fee_allocation
+    , perp_supply_side_revenue as service_fee_allocation
+    , all_trade_metrics.revenue as treasury_fee_allocation
+    , all_trade_metrics.perp_revenue as perp_treasury_fee_allocation
+    , all_trade_metrics.aggregator_revenue as aggregator_treasury_fee_allocation
+    , all_trade_metrics.dca_revenue as dca_treasury_fee_allocation
+    , all_trade_metrics.limit_order_revenue as limit_order_treasury_fee_allocation
+    , all_trade_metrics.buyback as buyback_fee_allocation
 
     -- Token Turnover Metrics
     , market_metrics.token_turnover_circulating

@@ -12,8 +12,8 @@ column_definitions:
     name: chain_txns
     description: "Daily transactions on a chain"
 
-  foundation_cash_flow: &foundation_cash_flow
-    name: foundation_cash_flow
+  foundation_fee_allocation: &foundation_fee_allocation
+    name: foundation_fee_allocation
     description: "Revenue allocated to a foundation affiliated with the protocol, used for grants, partnerships, operations, or legal."
     tags:
       - artemis_gaap
@@ -30,14 +30,14 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  l1_cash_flow: &l1_cash_flow
-    name: l1_cash_flow
+  l1_fee_allocation: &l1_fee_allocation
+    name: l1_fee_allocation
     description: "The total USD value of L1 cash flow on a chain"
     tags:
       - artemis_gaap
 
-  l1_cash_flow_native: &l1_cash_flow_native
-    name: l1_cash_flow_native
+  l1_fee_allocation_native: &l1_fee_allocation_native
+    name: l1_fee_allocation_native
     description: "The total native value of L1 cash flow on a chain"
     tags:
       - artemis_gaap
@@ -48,9 +48,9 @@ models:
     columns:
       - *chain_dau
       - *chain_txns
-      - *foundation_cash_flow
+      - *foundation_fee_allocation
       - *ecosystem_revenue
       - *ecosystem_revenue_native
-      - *l1_cash_flow
-      - *l1_cash_flow_native
+      - *l1_fee_allocation
+      - *l1_fee_allocation_native
 

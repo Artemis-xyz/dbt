@@ -62,8 +62,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "The sum of all royalties paid to creators by traders on Blur."
     tags:
       - artemis_gaap
@@ -104,7 +104,7 @@ models:
       - *nft_txns
       - *premine_unlocks_native
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
@@ -116,5 +116,5 @@ models:
       - *nft_dau
       - *nft_fees
       - *nft_txns
-      - *service_cash_flow
+      - *service_fee_allocation
 

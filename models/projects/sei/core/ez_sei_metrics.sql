@@ -84,8 +84,8 @@ select
     , combined.fees as chain_fees
     , combined.fees_native as ecosystem_revenue_native
     , combined.fees as ecosystem_revenue
-    , 0 as evm_cash_flow_native
-    , 0 as wasm_cash_flow_native
+    , 0 as evm_fee_allocation_native
+    , 0 as wasm_fee_allocation_native
     -- Supply Metrics
     , sei_emissions.mints_native as gross_emissions_native
     , sei_supply.premine_unlocks_native

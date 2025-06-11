@@ -59,10 +59,10 @@ SELECT
 
     -- Cash Flow Metrics
     , coalesce(metrics.fees_usd, 0) AS ecosystem_revenue
-    , coalesce(metrics.fees_usd, 0) * 0.6 AS treasury_cash_flow
-    , coalesce(metrics.fees_usd, 0) * 0.4 AS token_cash_flow
-    , coalesce(coin_metrics.burns, 0) AS burned_cash_flow_native
-    , coalesce(coin_metrics.burns_usd, 0) AS burned_cash_flow
+    , coalesce(metrics.fees_usd, 0) * 0.6 AS treasury_fee_allocation
+    , coalesce(metrics.fees_usd, 0) * 0.4 AS token_fee_allocation
+    , coalesce(coin_metrics.burns, 0) AS burned_fee_allocation_native
+    , coalesce(coin_metrics.burns_usd, 0) AS burned_fee_allocation
 
     -- Supply Metrics
     , coalesce(coin_metrics.circulating_supply, 0) AS circulating_supply_native

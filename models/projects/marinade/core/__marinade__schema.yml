@@ -28,8 +28,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "The share of protocol revenue accrued to service providers of the protocol."
     tags:
       - artemis_gaap
@@ -52,8 +52,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  treasury_cash_flow: &treasury_cash_flow
-    name: treasury_cash_flow
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
     description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
     tags:
       - artemis_gaap
@@ -77,8 +77,8 @@ models:
     description: "This table stores metrics for the MARINADE protocol"
     columns:
       - *ecosystem_revenue
-      - *service_cash_flow
-      - *treasury_cash_flow
+      - *service_fee_allocation
+      - *treasury_fee_allocation
       - *tvl
       - *tvl_native
 
@@ -89,11 +89,11 @@ models:
       - *fdmc
       - *market_cap
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *tvl
       - *tvl_native
 

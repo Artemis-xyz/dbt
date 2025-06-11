@@ -86,7 +86,7 @@ select
     , COALESCE(f.operating_expenses, 0) as operating_expenses
     , COALESCE(ti.token_incentives, 0) as token_incentives
     , token_incentives + operating_expenses as total_expenses
-    , protocol_revenue - total_expenses as protocol_earnings
+    , protocol_revenue - total_expenses as earnings
     , COALESCE(t.treasury_value, 0) as treasury_value
     , COALESCE(tn.treasury_native, 0) as treasury_native
     , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
@@ -114,9 +114,9 @@ select
     , COALESCE(f.block_rewards, 0) as block_rewards
     , COALESCE(f.fees, 0) as yield_generated
     , COALESCE(f.fees, 0) as ecosystem_revenue
-    , COALESCE(f.fees, 0) * .90 as service_cash_flow
-    , COALESCE(f.fees, 0) * .05 as treasury_cash_flow
-    , COALESCE(f.fees, 0) * .05 as validator_cash_flow
+    , COALESCE(f.fees, 0) * .90 as service_fee_allocation
+    , COALESCE(f.fees, 0) * .05 as treasury_fee_allocation
+    , COALESCE(f.fees, 0) * .05 as validator_fee_allocation
 
     --Treasury Metrics
     , COALESCE(t.treasury_value, 0) as treasury

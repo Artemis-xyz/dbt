@@ -10,8 +10,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
-    name: fee_sharing_token_cash_flow
+  staking_fee_allocation: &staking_fee_allocation
+    name: staking_fee_allocation
     description: "Revenue distributed to users who commit tokens (e.g., stake, lock, vote-escrow) to receive a share of protocol fees."
     tags:
       - artemis_gaap
@@ -32,8 +32,8 @@ column_definitions:
     name: net_treasury
     description: "The USD value in the protocol's treasury excluding the protocol's own tokens"
 
-  other_cash_flow: &other_cash_flow
-    name: other_cash_flow
+  other_fee_allocation: &other_fee_allocation
+    name: other_fee_allocation
     description: "Revenue distributed to other parties of the protocol."
     tags:
       - artemis_gaap
@@ -64,8 +64,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "The share of ecosystem revenue accrued to LPs of the protocol"
     tags:
       - artemis_gaap
@@ -109,8 +109,8 @@ column_definitions:
     name: treasury
     description: "The USD value in the protocol treasury"
 
-  treasury_cash_flow: &treasury_cash_flow
-    name: treasury_cash_flow
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
     description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
     tags:
       - artemis_gaap
@@ -123,47 +123,47 @@ models:
   - name: ez_gmx_metrics_by_version
     description: "This table stores metrics for the GMX protocol"
     columns:
-      - *fee_sharing_token_cash_flow
+      - *staking_fee_allocation
       - *ecosystem_revenue
-      - *other_cash_flow
+      - *other_fee_allocation
       - *perp_fees
       - *perp_volume
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_fees
       - *spot_volume
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *tvl
 
   - name: ez_gmx_metrics_by_chain
     description: "This table stores metrics for the GMX protocol"
     columns:
-      - *fee_sharing_token_cash_flow
+      - *staking_fee_allocation
       - *ecosystem_revenue
-      - *other_cash_flow
+      - *other_fee_allocation
       - *perp_fees
       - *perp_volume
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_fees
       - *spot_volume
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *tvl
 
   - name: ez_gmx_metrics
     description: "This table stores metrics for the GMX protocol"
     columns:
       - *fdmc
-      - *fee_sharing_token_cash_flow
+      - *staking_fee_allocation
       - *ecosystem_revenue
       - *market_cap
       - *net_treasury
-      - *other_cash_flow
+      - *other_fee_allocation
       - *own_token_treasury
       - *perp_dau
       - *perp_fees
       - *perp_txns
       - *perp_volume
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_dau
       - *spot_fees
       - *spot_txns
@@ -172,6 +172,6 @@ models:
       - *token_turnover_fdv
       - *token_volume
       - *treasury
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *tvl
 

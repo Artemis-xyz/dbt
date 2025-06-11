@@ -77,7 +77,7 @@ select
     , trading_volume.trading_fees as spot_fees
     , trading_volume.trading_fees as ecosystem_revenue
     -- About 68% of fees go to LPs
-    , trading_volume.trading_fees * .68 as service_cash_flow
+    , trading_volume.trading_fees * .68 as service_fee_allocation
     -- TODO: the remaining 32% of fees are distributed differently depending on the fee tier of the pool. We currently have the fee tier in
     -- pancakeswap's ez_dex_swap. This needs to be pulled forward to the correct tables.
     -- The remaining fees are distributed among CAKE burns, Treasury, and Fixed Term CAKE Stakers

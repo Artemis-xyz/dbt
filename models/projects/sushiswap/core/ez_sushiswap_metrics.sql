@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="SUSHISWAP",
+        snowflake_warehouse="SUSHISWAP_SM",
         database="sushiswap",
         schema="core",
         alias="ez_metrics",
@@ -62,13 +62,13 @@ tvl_data as (
                 sum(trading_fees * 0.0030)
             else
                 sum(trading_fees * 0.0025 / 0.0030)
-        end as service_cash_flow
+        end as service_fee_allocation
         , case
             when date between '2023-01-23' and '2024-01-23' THEN
                 sum(0)
             else
                 sum(trading_fees * 0.0005 / 0.0030)
-        end as fee_sharing_token_cash_flow
+        end as staking_fee_allocation
     from trading_volume
     group by date
 )
@@ -116,8 +116,8 @@ select
 
     -- Cashflow Metrics
     , cashflow_metrics.ecosystem_revenue as ecosystem_revenue
-    , cashflow_metrics.service_cash_flow as service_cash_flow
-    , cashflow_metrics.fee_sharing_token_cash_flow as fee_sharing_token_cash_flow
+    , cashflow_metrics.service_fee_allocation as service_fee_allocation
+    , cashflow_metrics.staking_fee_allocation as staking_fee_allocation
     , token_incentives.token_incentives
 
 from date_spine
