@@ -98,11 +98,7 @@ SELECT
     vault_b_amount_native,
     vault_a_amount_usd,
     vault_b_amount_usd,
-    vault_a_amount_usd + vault_b_amount_usd AS tvl, 
-    ROW_NUMBER() OVER (
-        PARTITION BY date, pool_address 
-        ORDER BY date DESC
-    ) AS rn
+    vault_a_amount_usd + vault_b_amount_usd AS tvl
 FROM forward_filled
-QUALIFY rn = 1
+QUALIFY ROW_NUMBER() OVER (PARTITION BY date, pool_address ORDER BY date DESC, pool_address DESC) = 1
 ORDER BY date DESC, pool_address
