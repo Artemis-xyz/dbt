@@ -1,7 +1,7 @@
 {% macro clean_dune_evm_events(chain) %}
     select 
         block_number
-        , block_time::timestamp as block_timestamp
+        , CONVERT_TIMEZONE('America/Los_Angeles', 'UTC', block_time) as block_timestamp
         , tx_hash_hex as transaction_hash
         , tx_index as transaction_index
         , index as event_index
