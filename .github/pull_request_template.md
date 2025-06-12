@@ -2,7 +2,7 @@
 
 ## Testing
 
-- [ ] `dbt build` including downstream models screenshot
+- [ ] `dbt build model_name+` screenshot (must include downstream models)
 - [ ] Successful RETL screenshot
 - [ ] Ran make generate schema for changed assets
 
