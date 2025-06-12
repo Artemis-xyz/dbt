@@ -1,28 +1,12 @@
-## :pushpin: References
+## Testing
 
-## 🎄 Asset Checklist
+- [ ] `dbt build model_name+` screenshot (must include downstream models)
+- [ ] Successful RETL screenshot
+- [ ] Ran make generate schema for changed assets
 
-- [ ] Added new `fact` tables if necessary
-- [ ] Added a database and warehouse
-- [ ] Added an `ez_metrics` and `ez_metrics_by_chain` model
-- [ ] `ez_metrics` column names adhere to naming convention
-- [ ] `ez_metrics_by_chain` column names adhere to naming convention
+- [ ] Added clear and concise revenue definition + methodology to the admin dashboard
+- [ ] If methodology was changed, describe the changes in the 'Changelog' in the admin dashboard
 
-## 🧮 Final Checklist
-
-- [ ] Running all new models, and all downstream models compiles
-- [ ] Data in Snowflake matches expectations for what metric value should be
-
-## 📚 Documentation Checklist
-
-- [ ] Added clear asset and metric documentation to CAD
-- [ ] Added metric definitions to Terminal (if applicable)
-- [ ] Added references to metric sources to CAD
-
-## 📚 Testing Checklist
-
-- [ ] Add any relevant data screenshots below
+- [ ] Screenshots of changed data **in local frontend**
 
 ## Other
-
-- [ ] Any other relevant information that may be helpful
