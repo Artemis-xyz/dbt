@@ -82,7 +82,7 @@ with trading_volume_by_pool as (
                 when fee_percent = 0.0025 then trading_fees * 0.68
                 when fee_percent = 0.01 then trading_fees * 0.68
             end
-        ) as service_cash_flow 
+        ) as service_fee_allocation 
         , sum(
             case
                 when fee_percent = 0.0001 then trading_fees * 0.15
@@ -90,7 +90,7 @@ with trading_volume_by_pool as (
                 when fee_percent = 0.0025 then trading_fees * 0.23
                 when fee_percent = 0.01 then trading_fees * 0.23 
             end
-        ) as burned_cash_flow 
+        ) as burned_fee_allocation 
         , sum(
             case
                 when fee_percent = 0.0001 then trading_fees * 0.18
@@ -98,7 +98,7 @@ with trading_volume_by_pool as (
                 when fee_percent = 0.0025 then trading_fees * 0.09
                 when fee_percent = 0.01 then trading_fees * 0.09
             end
-        ) as treasury_cash_flow
+        ) as treasury_fee_allocation
     from {{ ref('ez_pancakeswap_dex_swaps') }}
     group by 1, 2
 )
@@ -124,9 +124,9 @@ select
     -- Cashflow Metrics
     , fees_revenue.fees as spot_fees
     , fees_revenue.fees as fees
-    , fees_revenue.service_cash_flow as service_cash_flow
-    , fees_revenue.burned_cash_flow as burned_cash_flow
-    , fees_revenue.treasury_cash_flow as treasury_cash_flow
+    , fees_revenue.service_fee_allocation
+    , fees_revenue.burned_fee_allocation
+    , fees_revenue.treasury_fee_allocation
     , token_incentives.token_incentives_usd as token_incentives
 
 from tvl_by_chain
