@@ -61,8 +61,8 @@ SELECT
     , COALESCE(f.total_staking_yield_usd, 0) - COALESCE(m.mev_priority_fees_amount_usd, 0) AS block_rewards
     , COALESCE(m.mev_priority_fees_amount_usd, 0) AS mev_priority_fees
     , COALESCE(f.total_staking_yield_usd, 0) AS total_staking_yield
-    , COALESCE(f.total_staking_yield_usd, 0) * 0.05 as operating_expenses
-    , COALESCE(f.total_staking_yield_usd, 0) * 0.10 as protocol_revenue
+    , COALESCE(f.total_staking_yield_usd, 0) * 0.10 * 0.4874 as operating_expenses
+    , COALESCE(f.total_staking_yield_usd, 0) * 0.10 * 0.5126 as revenue 
     , block_rewards * 0.90 as primary_supply_side_revenue
     , mev_priority_fees * 0.90 as secondary_supply_side_revenue
     , total_staking_yield * 0.90 as total_supply_side_revenue
