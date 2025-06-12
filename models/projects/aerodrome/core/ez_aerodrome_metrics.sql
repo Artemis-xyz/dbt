@@ -97,9 +97,12 @@ SELECT
     -- Cash Flow Metrics
     , coalesce(sm.daily_fees_usd, 0) as spot_fees
     , coalesce(sm.daily_fees_usd, 0) as fees
-    , coalesce(sm.daily_fees_usd, 0) as fee_sharing_token_cash_flow
+    , coalesce(sm.daily_fees_usd, 0) as staking_fee_allocation
     , coalesce(sp.buybacks_native, 0) as buybacks_native
     , coalesce(sp.buybacks, 0) as buybacks
+    , (coalesce(sm.daily_fees_usd, 0) + coalesce(sp.buybacks, 0)) as revenue
+    , (coalesce(sp.buybacks, 0)) - ti.token_incentives as earnings
+    -- NOTE: We do not track bribes as a part of revenue here. 
 
     -- Supply Metrics
     , coalesce(sp.emissions_native, 0) as gross_emissions_native

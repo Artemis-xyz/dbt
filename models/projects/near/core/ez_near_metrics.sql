@@ -64,8 +64,8 @@ select
     , fees_native as ecosystem_revenue_native
     , case when fees is null then fees_native * price else fees end as ecosystem_revenue
     , median_txn_fee AS chain_median_txn_fee
-    , revenue_native AS burned_cash_flow_native
-    , revenue AS burned_cash_flow
+    , revenue_native AS burned_fee_allocation_native
+    , revenue AS burned_fee_allocation
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

@@ -65,7 +65,7 @@ SELECT
     -- Money Metrics
     , sm.daily_fees_usd as spot_fees
     , sm.daily_fees_usd as fees
-    , sm.daily_fees_usd as fee_sharing_token_cash_flow
+    , sm.daily_fees_usd as staking_fee_allocation
     , coalesce(ti.token_incentives, 0) as token_incentives
 FROM date_spine ds
 LEFT JOIN swap_metrics sm using (date)

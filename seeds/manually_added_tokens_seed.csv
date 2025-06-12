@@ -81,6 +81,7 @@ ethereum,mwBETH,ethereum,0xE46a5E19B19711332e33F33c2DB3eA143e86Bc10,18
 ethereum,mstETH,ethereum,0x49446A0874197839D15395B908328a74ccc96Bc0,18
 ethereum,egETH,ethereum,0x18f313Fc6Afc9b5FD6f0908c1b3D476E3feA1DD9,18
 redstone-oracles,mRED,ethereum,0xD48067f122AFC3a58f0F79611f5F1AfAe0d7f25B,18
+usd-coin,USDC,sui,0x909cba62ce96d54de25bec9502de5ca7b4f28901747bbf96b76c2e63ec5f1cba::coin::COIN,18
 sui,stSUI,sui,0xd1b72982e40348d069bb1ff701e634c117bb5f741f44dff91e472d3b01461e55::stsui::STSUI,9
 bitcoin,wBTC,sui,0xaafb102dd0902f5055cadecd687fb5b71ca82ef0e0285d90afde828ec58ca96b::btc::BTC,8
 solana,wSOL,sui,0xb7844e289a8410e50fb3ca48d69eb9cf29e27d223ef90353fe1bd8e27ff8f3f8::coin::COIN,8

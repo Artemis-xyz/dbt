@@ -23,7 +23,7 @@ select
     , token_incentives
     , operating_expenses
     , total_expenses
-    , protocol_earnings
+    , earnings
     , net_deposits
     , outstanding_supply
     , treasury_value
@@ -45,8 +45,8 @@ select
 
     -- Cash Flow
     , ecosystem_revenue
-    , service_cash_flow
-    , token_cash_flow
+    , service_fee_allocation
+    , token_fee_allocation
 
     -- Protocol Metrics
     , treasury

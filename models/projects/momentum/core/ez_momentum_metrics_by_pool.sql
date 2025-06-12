@@ -17,13 +17,13 @@ WITH
     )
 
     , spot_dau_txns AS (
-        SELECT date, pool_address, SUM(dau) AS dau, SUM(txns) AS txns
+        SELECT date, pool_address, SUM(pool_dau) AS dau, SUM(pool_txns) AS txns
         FROM {{ ref("fact_momentum_spot_dau_txns") }}
         GROUP BY 1, 2
     )
 
     , spot_fees_revenue AS (
-        SELECT date, pool_address, SUM(fees_usd) AS fees_usd, SUM(service_cash_flow) AS service_cash_flow, SUM(foundation_cash_flow) AS foundation_cash_flow
+        SELECT date, pool_address, SUM(fees) AS fees, SUM(service_fee_allocation) AS service_fee_allocation, SUM(foundation_fee_allocation) AS foundation_fee_allocation
         FROM {{ ref("fact_momentum_spot_fees_revenue") }}
         GROUP BY 1, 2
     )
@@ -33,7 +33,7 @@ WITH
         FROM {{ ref("fact_momentum_spot_tvl") }}
     )
 
-    SELECT DISTINCT
+    SELECT
         spot_volumes.date, 
         spot_volumes.pool_address AS pool, 
         tvl.symbol_a,
@@ -41,9 +41,9 @@ WITH
         spot_volumes.spot_volume,
         spot_dau_txns.dau AS spot_dau, 
         spot_dau_txns.txns AS spot_txns, 
-        spot_fees_revenue.fees_usd AS fees, 
-        spot_fees_revenue.service_cash_flow AS service_cash_flow, 
-        spot_fees_revenue.foundation_cash_flow AS foundation_cash_flow, 
+        spot_fees_revenue.fees AS fees, 
+        spot_fees_revenue.service_fee_allocation AS service_fee_allocation, 
+        spot_fees_revenue.foundation_fee_allocation AS foundation_fee_allocation, 
         tvl.tvl AS tvl
     FROM spot_volumes
     LEFT JOIN spot_dau_txns USING (date, pool_address)

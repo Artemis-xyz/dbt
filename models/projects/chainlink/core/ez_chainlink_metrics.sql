@@ -236,7 +236,7 @@ select
     , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as oracle_fees
 
     , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as ecosystem_revenue
-    , ecosystem_revenue as service_cash_flow
+    , ecosystem_revenue as service_fee_allocation
 
     , token_incentives
 

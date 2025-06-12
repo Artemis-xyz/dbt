@@ -66,7 +66,7 @@ SELECT
     , 0 as protocol_revenue
     , 0 as operating_expenses
     , COALESCE(ti.token_incentives, 0) as total_expenses
-    , protocol_revenue - total_expenses as protocol_earnings
+    , protocol_revenue - total_expenses as earnings
 
     -- Standardized Metrics
     
@@ -86,9 +86,10 @@ SELECT
 
     -- Fee Allocation Metrics
     , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as staking_fee_allocation
-    , coalesce(f.swap_revenue, 0) as spot_fee_sharing_token_cash_flow
-    , coalesce(yf.yield_revenue, 0) as yield_fee_sharing_token_cash_flow
-    , f.supply_side_fees as service_cash_flow
+    , coalesce(f.swap_revenue, 0) as spot_staking_fee_allocation
+    , coalesce(yf.yield_revenue, 0) as yield_staking_fee_allocation
+    , f.supply_side_fees as service_fee_allocation
+    , COALESCE(ti.token_incentives, 0) as token_incentives
 
 FROM swap_fees f
 FULL JOIN yield_fees yf USING (date, token)

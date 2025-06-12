@@ -44,8 +44,9 @@ SELECT
     , tvl.tvl
     , dex_swaps.trading_fees as spot_fees
     , dex_swaps.trading_fees as fees
+    
     -- We only track v2 where all fees go to LPs
-    , dex_swaps.trading_fees as service_cash_flow
+    , dex_swaps.trading_fees as service_fee_allocation
 from dex_swaps
 left join tvl using(date)
 left join market_metrics using(date)

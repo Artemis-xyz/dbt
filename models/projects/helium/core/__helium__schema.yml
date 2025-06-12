@@ -4,15 +4,15 @@
 version: 2
 
 column_definitions:
-  burned_cash_flow: &burned_cash_flow
-    name: burned_cash_flow
+  burned_fee_allocation: &burned_fee_allocation
+    name: burned_fee_allocation
     description: "The amount of USD value of $HNT burned for Data Credits to use the Helium network"
     tags:
       - artemis_gaap
       - override
 
-  burned_cash_flow_native: &burned_cash_flow_native
-    name: burned_cash_flow_native
+  burned_fee_allocation_native: &burned_fee_allocation_native
+    name: burned_fee_allocation_native
     description: "The amount of native $HNT burned for Data Credits to use the Helium network"
     tags:
       - artemis_gaap
@@ -65,8 +65,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "The USD value of Data Credits minted that will be used to pay validators on the Helium network."
     tags:
       - artemis_gaap
@@ -97,15 +97,15 @@ models:
   - name: ez_helium_metrics_by_chain
     description: "This table stores metrics for the HELIUM protocol"
     columns:
-      - *burned_cash_flow
-      - *burned_cash_flow_native
+      - *burned_fee_allocation
+      - *burned_fee_allocation_native
       - *burns_native
       - *fdmc
       - *gross_emissions_native
       - *ecosystem_revenue
       - *market_cap
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
@@ -113,8 +113,8 @@ models:
   - name: ez_helium_metrics
     description: "This table stores metrics for the HELIUM protocol"
     columns:
-      - *burned_cash_flow
-      - *burned_cash_flow_native
+      - *burned_fee_allocation
+      - *burned_fee_allocation_native
       - *burns_native
       - *circulating_supply_native
       - *fdmc
@@ -124,7 +124,7 @@ models:
       - *net_supply_change_native
       - *premine_unlocks_native
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume

@@ -11,8 +11,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "About ~68% of gross protocol revenue is distributed to LPs of PancakeSwap."
     tags:
       - artemis_gaap
@@ -39,7 +39,7 @@ models:
     description: "This table stores metrics for the PANCAKESWAP protocol"
     columns:
       - *ecosystem_revenue
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_dau
       - *spot_volume
       - *tvl
@@ -48,7 +48,7 @@ models:
     description: "This table stores metrics for the PANCAKESWAP protocol"
     columns:
       - *ecosystem_revenue
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_dau
       - *spot_volume
       - *tvl
@@ -57,7 +57,7 @@ models:
     description: "This table stores metrics for the PANCAKESWAP protocol"
     columns:
       - *ecosystem_revenue
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_dau
       - *spot_volume
       - *tvl

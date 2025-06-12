@@ -74,7 +74,7 @@ SELECT
     , 0 as protocol_revenue
     , 0 as operating_expenses
     , COALESCE(ti.token_incentives, 0) as total_expenses
-    , protocol_revenue - total_expenses as protocol_earnings
+    , protocol_revenue - total_expenses as earnings
     , COALESCE(t.tvl, 0) as net_deposits
     , 0 as outstanding_supply
 
@@ -87,6 +87,7 @@ SELECT
     -- Financial Metrics
     , COALESCE(yf.yield_revenue, 0) as yield_fees
     , COALESCE(f.swap_fees, 0) as spot_fees
+
     , COALESCE(f.swap_fees, 0) + COALESCE(yf.yield_revenue, 0) as fees
     , 0 as revenue
     , COALESCE(ti.token_incentives, 0) as token_incentives
@@ -95,9 +96,12 @@ SELECT
 
     -- Fee Allocation Metrics
     , COALESCE(f.swap_revenue, 0) + COALESCE(yf.yield_revenue, 0) as staking_fee_allocation
-    , COALESCE(f.swap_revenue, 0) as spot_fee_sharing_token_cash_flow
-    , COALESCE(yf.yield_revenue, 0) as yield_fee_sharing_token_cash_flow
-    , COALESCE(f.supply_side_fees, 0) as service_cash_flow
+    , COALESCE(f.swap_revenue, 0) as spot_staking_fee_allocation
+    , COALESCE(yf.yield_revenue, 0) as yield_staking_fee_allocation
+    , COALESCE(f.supply_side_fees, 0) as service_fee_allocation
+    , COALESCE(ti.token_incentives, 0) as token_incentives
+    , 0 as revenue
+    , 0 - coalesce(ti.token_incentives, 0) as earnings
 
     -- Supply Metrics
     , COALESCE(ti.token_incentives, 0) as gross_emissions

@@ -42,3 +42,4 @@ LEFT JOIN coingecko_prices AS coingecko_prices_fee
 LEFT JOIN coingecko_prices AS coingecko_prices_b
     ON coingecko_prices_b.date = parquet_raw:date::date
     AND lower(coingecko_prices_b.contract_address) = lower(parquet_raw:token_address_b::string)
+QUALIFY ROW_NUMBER() OVER (PARTITION BY parquet_raw:transaction_digest::string ORDER BY coingecko_prices_a.price DESC, coingecko_prices_b.price DESC) = 1

@@ -24,9 +24,9 @@ select
     
     -- Cash Flow Metrics
     , ecosystem_revenue
-    , service_cash_flow
-    , burned_cash_flow
-    , burned_cash_flow_native
+    , service_fee_allocation
+    , burned_fee_allocation
+    , burned_fee_allocation_native
 
     -- Supply Metrics
     , gross_emissions_native

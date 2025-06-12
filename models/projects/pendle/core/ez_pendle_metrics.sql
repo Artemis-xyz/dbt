@@ -133,7 +133,7 @@ SELECT
 
     -- Fee Allocation Metrics
     , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as staking_fee_allocation
-    , f.supply_side_fees as service_cash_flow
+    , f.supply_side_fees as service_fee_allocation
 
     -- Treasury Metrics
     , tv.treasury_value as treasury

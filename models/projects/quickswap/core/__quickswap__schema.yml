@@ -29,8 +29,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "In Quickswap v2 all fees go to LPs."
     tags:
       - artemis_gaap
@@ -71,7 +71,7 @@ models:
       - *ecosystem_revenue
       - *market_cap
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_dau
       - *spot_txns
       - *spot_volume
@@ -82,7 +82,7 @@ models:
     description: "This table stores metrics for the QUICKSWAP protocol"
     columns:
       - *ecosystem_revenue
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_dau
       - *spot_volume
       - *tvl
@@ -91,7 +91,7 @@ models:
     description: "This table stores metrics for the QUICKSWAP protocol"
     columns:
       - *ecosystem_revenue
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_dau
       - *spot_volume
       - *tvl

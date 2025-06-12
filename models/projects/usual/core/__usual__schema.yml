@@ -4,14 +4,14 @@
 version: 2
 
 column_definitions:
-  burned_cash_flow: &burned_cash_flow
-    name: burned_cash_flow
+  burned_fee_allocation: &burned_fee_allocation
+    name: burned_fee_allocation
     description: "The USD value of tokens burned"
     tags:
       - artemis_gaap
 
-  burned_cash_flow_native: &burned_cash_flow_native
-    name: burned_cash_flow_native
+  burned_fee_allocation_native: &burned_fee_allocation_native
+    name: burned_fee_allocation_native
     description: "The amount of native tokens burned"
     tags:
       - artemis_gaap
@@ -26,8 +26,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
-    name: fee_sharing_token_cash_flow
+  staking_fee_allocation: &staking_fee_allocation
+    name: staking_fee_allocation
     description: "Revenue distributed to users who commit tokens (e.g., stake, lock, vote-escrow) to receive a share of protocol fees."
     tags:
       - artemis_gaap
@@ -88,8 +88,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  treasury_cash_flow: &treasury_cash_flow
-    name: treasury_cash_flow
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
     description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
     tags:
       - artemis_gaap
@@ -106,25 +106,25 @@ models:
   - name: ez_usual_metrics_by_chain
     description: "This table stores metrics for the USUAL protocol"
     columns:
-      - *burned_cash_flow
-      - *burned_cash_flow_native
+      - *burned_fee_allocation
+      - *burned_fee_allocation_native
       - *circulating_supply_native
-      - *fee_sharing_token_cash_flow
+      - *staking_fee_allocation
       - *ecosystem_revenue
       - *stablecoin_dau
       - *stablecoin_txns
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *tvl
       - *yield_generated
 
   - name: ez_usual_metrics
     description: "This table stores metrics for the USUAL protocol"
     columns:
-      - *burned_cash_flow
-      - *burned_cash_flow_native
+      - *burned_fee_allocation
+      - *burned_fee_allocation_native
       - *circulating_supply_native
       - *fdmc
-      - *fee_sharing_token_cash_flow
+      - *staking_fee_allocation
       - *gross_emissions_native
       - *ecosystem_revenue
       - *market_cap
@@ -135,7 +135,7 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *tvl
       - *yield_generated
 

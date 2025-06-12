@@ -37,8 +37,8 @@ SELECT
     -- Cashflow Metrics
     , fees as chain_fees
     , fees AS ecosystem_revenue
-    , case when date > '2024-09-30' then fees / 2 else fees end as equity_cash_flow
-    , case when date > '2024-09-30' then fees / 2 else 0 end as user_cash_flow
+    , case when date > '2024-09-30' then fees / 2 else fees end as equity_fee_allocation
+    , case when date > '2024-09-30' then fees / 2 else 0 end as user_fee_allocation
 
     -- Supply Data
     , gross_emissions_native
