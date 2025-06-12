@@ -10,6 +10,6 @@
 - [ ] Added clear and concise revenue definition + methodology to the admin dashboard
 - [ ] If methodology was changed, describe the changes in the 'Changelog' in the admin dashboard
 
-- [ ] Add any relevant data screenshots below
+- [ ] Screenshots of changed data **in local frontend**
 
 ## Other
