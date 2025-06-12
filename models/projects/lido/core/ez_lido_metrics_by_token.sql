@@ -23,7 +23,7 @@ WITH
             date
             , 'stETH' AS token
             , operating_expenses_native
-            , protocol_revenue_native
+            , revenue_native
             , primary_supply_side_revenue_native
             , secondary_supply_side_revenue_native
             , total_supply_side_revenue_native
@@ -88,11 +88,11 @@ SELECT
     , COALESCE(primary_supply_side_revenue_native, 0) AS primary_supply_side_revenue
     , COALESCE(secondary_supply_side_revenue_native, 0) AS secondary_supply_side_revenue
     , COALESCE(total_supply_side_revenue_native, 0) AS total_supply_side_revenue
-    , COALESCE(protocol_revenue_native, 0) AS protocol_revenue
+    , COALESCE(revenue_native, 0) AS revenue
     , COALESCE(operating_expenses_native, 0) AS operating_expenses
     , COALESCE(ti.token_incentives_native, 0) AS token_incentives
     , token_incentives + operating_expenses as total_expenses
-    , protocol_revenue - total_expenses as earnings
+    , revenue - total_expenses as earnings
     , COALESCE(t.treasury_value_native, 0) AS treasury_value
     , COALESCE(s.num_staked_eth, 0) AS net_deposits
     , COALESCE(sto.outstanding_supply_native, 0) AS outstanding_supply
