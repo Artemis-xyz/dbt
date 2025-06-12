@@ -122,7 +122,7 @@ SELECT
     , t.tvl as tvl
     , {{ daily_pct_change('t.tvl') }} as tvl_pct_change
 
-    -- Financail Metrics
+    -- Financial Metrics
     , coalesce(yf.yield_revenue, 0) as yield_fees
     , coalesce(f.swap_fees, 0) as spot_fees
     , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as fees
