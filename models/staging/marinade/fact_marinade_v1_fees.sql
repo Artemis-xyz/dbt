@@ -1,6 +1,6 @@
 {{ config(
     materialized="table",
-    snowflake_warehouse="MARINADE"
+    snowflake_warehouse="MARINADE_LG"
 ) }}
 
 with marinade_unstake_txns as (
