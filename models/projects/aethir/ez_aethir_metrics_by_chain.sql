@@ -12,5 +12,5 @@
 SELECT
     date,
     'arbitrum' as chain,
-    compute_revenue
+    compute_revenue as revenue
 FROM {{ ref("fact_aethir_compute_revenue") }}    

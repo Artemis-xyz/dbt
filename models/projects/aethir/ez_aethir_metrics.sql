@@ -19,7 +19,7 @@ with market_data as (
 )
 SELECT
     market_data.date,
-    revenue.compute_revenue,
+    revenue.compute_revenue as revenue,
     market_data.price,
     market_data.market_cap,
     market_data.fdmc,
