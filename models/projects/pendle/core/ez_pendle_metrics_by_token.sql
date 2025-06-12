@@ -57,8 +57,6 @@ SELECT
     f.date
     , f.token
     , COALESCE(f.swap_fees, 0) as swap_fees
-    , COALESCE(yf.yield_revenue, 0) as yield_fees
-    , COALESCE(swap_fees,0) + COALESCE(yield_fees,0) as fees
     , COALESCE(f.supply_side_fees, 0) as primary_supply_side_revenue
     , 0 as secondary_supply_side_revenue
     , COALESCE(f.supply_side_fees, 0) as total_supply_side_revenue
@@ -68,7 +66,6 @@ SELECT
     , 0 as protocol_revenue
     , 0 as operating_expenses
     , COALESCE(ti.token_incentives, 0) as total_expenses
-    , protocol_revenue - total_expenses as earnings
 
     -- Standardized Metrics
     
@@ -77,14 +74,20 @@ SELECT
     , coalesce(f.swap_volume, 0) as spot_volume
     , coalesce(f.swap_volume_native, 0) as spot_volume_native
     
+    -- Financial Metrics
     , f.swap_fees as spot_fees
-    , COALESCE(yf.yield_revenue, 0) as yield_generated
-    , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as ecosystem_revenue
+    , COALESCE(yf.yield_revenue, 0) as yield_fees
+    , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as fees
+    , 0 as revenue
+    , COALESCE(ti.token_incentives, 0) as token_incentives
+    , revenue - token_incentives as earnings
+    , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as staking_revenue
+
+    -- Fee Allocation Metrics
     , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as staking_fee_allocation
     , coalesce(f.swap_revenue, 0) as spot_staking_fee_allocation
     , coalesce(yf.yield_revenue, 0) as yield_staking_fee_allocation
     , f.supply_side_fees as service_fee_allocation
-    , COALESCE(ti.token_incentives, 0) as token_incentives
 
 FROM swap_fees f
 FULL JOIN yield_fees yf USING (date, token)

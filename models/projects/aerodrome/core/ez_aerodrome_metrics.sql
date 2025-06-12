@@ -98,7 +98,6 @@ SELECT
     , coalesce(sm.daily_fees_usd, 0) as spot_fees
     , coalesce(sm.daily_fees_usd, 0) as fees
     , coalesce(sm.daily_fees_usd, 0) as staking_fee_allocation
-
     , coalesce(sp.buybacks_native, 0) as buybacks_native
     , coalesce(sp.buybacks, 0) as buybacks
     , (coalesce(sm.daily_fees_usd, 0) + coalesce(sp.buybacks, 0)) as revenue

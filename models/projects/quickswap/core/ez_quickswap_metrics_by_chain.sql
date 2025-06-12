@@ -47,7 +47,7 @@ select
     
     -- Money Metrics
     , trading_volume_by_chain.trading_fees as spot_fees
-    , trading_volume_by_chain.trading_fees as ecosystem_revenue
+    , trading_volume_by_chain.trading_fees as fees
     -- We only track v2 where all fees go to LPs
     , trading_volume_by_chain.trading_fees as service_fee_allocation
     , trading_volume_by_chain.gas_cost_native
