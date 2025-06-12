@@ -1,5 +1,3 @@
-## :pushpin: References
-
 ## Testing
 
 - [ ] `dbt build model_name+` screenshot (must include downstream models)
