@@ -17,6 +17,27 @@ with
         from {{ source("PROD_LANDING", "raw_coingecko_token_data") }}
         where extraction_date = (select max_date from max_extraction)
     ),
+    max_extraction_circulating_supply as (
+        select max(extraction_date) as max_date
+        from {{ source("PROD_LANDING", "raw_coingecko_token_historical_circulating_supply") }}
+    ),
+    circulating_supply_data as (
+        select
+            parse_json(source_json) as data
+        from {{ source("PROD_LANDING", "raw_coingecko_token_historical_circulating_supply") }}
+        where extraction_date = (select max_date from max_extraction_circulating_supply)
+    ),
+    circulating_supply as (
+        select
+            data:id::string as coingecko_id,
+            date(to_timestamp(value[0]::number / 1000)) as date,
+            value[1]::float as circulating_supply,
+            row_number() over (
+                partition by coingecko_id, date(to_timestamp(value[0]::number / 1000))
+                order by to_timestamp(value[0]::number / 1000)
+            ) as rn
+        from circulating_supply_data, lateral flatten(input => data:circulating_supply)
+    ),
     prices as (
         select
             coingecko_id,
@@ -59,7 +80,9 @@ select
     p.coingecko_id,
     p.prices as token_price_usd,
     m.market_caps as token_market_cap,
-    t.h24_volume_usd as token_h24_volume_usd
+    t.h24_volume_usd as token_h24_volume_usd,
+    c.circulating_supply as token_circulating_supply
 from (select * from prices where rn = 1) p
 join (select * from market_caps where rn = 1) m using (coingecko_id, date)
 join (select * from total_volumes where rn = 1) t using (coingecko_id, date)
+join (select * from circulating_supply where rn = 1) c using (coingecko_id, date)
