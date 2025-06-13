@@ -133,4 +133,4 @@ select
     , link
     , tvl_score
     , daily_avg_apy_l7d
-from {{ ref("fact_stablecoin_apy") }}
+from {{ ref("fact_susdf_stablecoin_apy") }}
