@@ -1,57 +1,37 @@
--- This table is incremental to account for deleted contracts (from applications)
 {{
     config(
-        materialized="incremental",
+        materialized="table",
+        snowflake_warehouse="LABELING",
         unique_key=["address", "chain"],
-        incremental_strategy="merge",
-        on_schema_change="append_new_columns"
     )
 }}
 
-WITH addresses_with_namespace_and_category AS (
-    SELECT 
-        address, 
+WITH 
+externally_labeled_addresses AS (
+    select 
+        address,
         namespace,
+        artemis_application_id,
         chain,
         address_type,
+        is_token,
+        is_fungible,
         last_updated
-    FROM {{ ref("dim_all_addresses_gold") }}
-    WHERE namespace IS NOT NULL  
-    {% if is_incremental() %}
-        AND last_updated > (SELECT DATEADD('day', -3, MAX(last_updated)) FROM {{ this }})
-    {% endif %}
-), mapped_addresses AS (
-    select 
-        a.address,
-        a.namespace,
-        n.artemis_application_id,
-        a.chain,
-        a.address_type,
-        NULL AS is_token,
-        NULL AS is_fungible,
-        a.last_updated
-    FROM addresses_with_namespace_and_category a
-    LEFT JOIN PC_DBT_DB.PROD.dim_namespace_to_application n
-        ON a.namespace = n.namespace
-    {% if is_incremental() %}
-        LEFT JOIN {{ this }} existing
-            ON existing.address = a.address
-            AND existing.chain = a.chain
-    {% endif %}
-    WHERE n.artemis_application_id IS NOT NULL
-    {% if is_incremental() %}
-        AND existing.address IS NULL
-    {% endif %}
+    FROM {{ref("dim_all_externally_labeled_addresses")}}
 ),
-deduped_bulk_manual_labeled_addresses AS (
-    SELECT *
+bulk_manual_labeled_addresses AS (
+    SELECT 
+        address
+        , name
+        , artemis_application_id
+        , chain
+        , is_token
+        , is_fungible
+        , type
+        , last_updated
     FROM {{ ref("dim_manual_labeled_addresses") }}
-    {% if is_incremental() %}
-        WHERE last_updated > (SELECT DATEADD('day', -3, MAX(last_updated)) FROM {{ this }})
-    {% endif %}
-    QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated DESC) = 1
 ),
-labeled_automatic_table AS (
+external_and_bulk_automatic_table AS (
     SELECT
         COALESCE(dmla.address, a.address) AS address,
         COALESCE(dmla.name, a.namespace) AS name,
@@ -62,29 +42,11 @@ labeled_automatic_table AS (
         COALESCE(dmla.is_fungible, NULL) AS is_fungible,
         COALESCE(dmla.type, NULL) AS type,
         COALESCE(dmla.last_updated, a.last_updated) AS last_updated,
-    FROM mapped_addresses a
-    FULL OUTER JOIN deduped_bulk_manual_labeled_addresses dmla
+    FROM externally_labeled_addresses a
+    FULL OUTER JOIN bulk_manual_labeled_addresses dmla
         ON LOWER(a.address) = LOWER(dmla.address) AND a.chain = dmla.chain
 ),
-deduped_added_manual_labeled_addresses AS (
-    SELECT *
-    FROM {{ source("PYTHON_LOGIC", "dim_frontend_manual_contracts") }}
-    WHERE action = 'ADD'
-    {% if is_incremental() %}
-        AND last_updated_timestamp > (SELECT DATEADD('day', -3, MAX(last_updated)) FROM {{ this }})
-    {% endif %}
-    QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated_timestamp DESC) = 1
-),
-deduped_deleted_manual_labeled_addresses AS (
-    SELECT *
-    FROM {{ source("PYTHON_LOGIC", "dim_frontend_manual_contracts") }}
-    WHERE action = 'DELETE'
-    {% if is_incremental() %}
-        AND last_updated_timestamp > (SELECT DATEADD('day', -3, MAX(last_updated)) FROM {{ this }})
-    {% endif %}
-    QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated_timestamp DESC) = 1
-),
-global_labeled_automatic_table AS (
+labeled_automatic_table AS (
     SELECT
         COALESCE(dmla.address, a.address) AS address,
         COALESCE(dmla.name, a.name) AS name,
@@ -95,58 +57,41 @@ global_labeled_automatic_table AS (
         COALESCE(a.is_fungible, dmla.is_fungible) AS is_fungible,
         COALESCE(a.type, dmla.type) AS type,
         COALESCE(dmla.last_updated, a.last_updated) AS last_updated
-    FROM labeled_automatic_table a
+    FROM external_and_bulk_automatic_table a
     FULL OUTER JOIN {{ ref("dim_global_labeled_addresses")}} dmla
         ON LOWER(a.address) = LOWER(dmla.address) AND a.chain = dmla.chain
 ),
-full_labeled_automatic_table AS (
+deduped_added_frontend_manual_labeled_addresses AS (
+    SELECT 
+        address
+        , name
+        , artemis_application_id
+        , chain
+        , last_updated_by
+        , last_updated_timestamp
+        , action
+    FROM {{ ref('dim_all_frontend_labeled_addresses')}}
+    where action = 'ADD'
+),
+
+full_labeled_table AS (
     SELECT
         COALESCE(dmla.address, a.address) AS address,
         COALESCE(dmla.name, a.name) AS name,
         COALESCE(dmla.artemis_application_id, a.artemis_application_id) AS artemis_application_id,
         COALESCE(dmla.chain, a.chain) AS chain,
-        a.address_type,
-        COALESCE(a.is_token, dmla.is_token) AS is_token,
-        COALESCE(a.is_fungible, dmla.is_fungible) AS is_fungible,
-        COALESCE(a.type, dmla.type) AS type,
+        address_type,
+        is_token,
+        is_fungible,
+        type,
         COALESCE(dmla.last_updated_timestamp, a.last_updated) AS last_updated,
         dmla.last_updated_by
-    FROM global_labeled_automatic_table a
-    FULL OUTER JOIN deduped_added_manual_labeled_addresses dmla
+    FROM labeled_automatic_table a
+    FULL OUTER JOIN deduped_added_frontend_manual_labeled_addresses dmla
         ON LOWER(a.address) = LOWER(dmla.address) AND a.chain = dmla.chain
 ), 
-recent_app_changes AS (
-    SELECT 
-        artemis_application_id,
-        app_name,
-        artemis_category_id,
-        artemis_sub_category_id,
-        last_updated_timestamp AS last_updated
-    FROM {{ ref('dim_all_apps_gold') }}
-    WHERE last_updated_timestamp > DATEADD('day', -3, CURRENT_TIMESTAMP())
-),
-recent_app_changes_rows AS (
+duduped_app_and_address_labeled_table AS (
     SELECT
-        lat.address,
-        lat.name,
-        ag.app_name as friendly_name,
-        lat.artemis_application_id,
-        ag.artemis_category_id,
-        ag.artemis_sub_category_id,
-        lat.chain,
-        lat.address_type,
-        lat.is_token,
-        lat.is_fungible,
-        lat.type,
-        lat.last_updated_by,
-        ag.last_updated
-    FROM {{ this }} lat
-    LEFT JOIN recent_app_changes ag
-    ON lat.artemis_application_id = ag.artemis_application_id
-    WHERE ag.artemis_application_id IS NOT NULL
-),
-final_added_table AS (
-    SELECT DISTINCT
         lat.address,
         lat.name,
         ag.app_name as friendly_name,
@@ -160,73 +105,65 @@ final_added_table AS (
         lat.type,
         lat.last_updated_by,
         lat.last_updated
-    FROM full_labeled_automatic_table lat
+    FROM full_labeled_table lat
     LEFT JOIN {{ ref("dim_all_apps_gold") }} ag
     ON lat.artemis_application_id = ag.artemis_application_id
 ),
-final_added_table_with_updated_categories AS (
-    SELECT
-        COALESCE(fat.address, recent.address) AS address,
-        COALESCE(fat.name, recent.name) AS name,
-        COALESCE(fat.friendly_name, recent.friendly_name) AS friendly_name,
-        COALESCE(fat.artemis_application_id, recent.artemis_application_id) AS artemis_application_id,
-        COALESCE(fat.artemis_category_id, recent.artemis_category_id) AS artemis_category_id,
-        COALESCE(fat.artemis_sub_category_id, recent.artemis_sub_category_id) AS artemis_sub_category_id,
-        COALESCE(fat.chain, recent.chain) AS chain,
-        COALESCE(fat.address_type, recent.address_type) AS address_type,
-        COALESCE(fat.is_token, recent.is_token) AS is_token,
-        COALESCE(fat.is_fungible, recent.is_fungible) AS is_fungible,
-        COALESCE(fat.type, recent.type) AS type,
-        COALESCE(fat.last_updated_by, recent.last_updated_by) AS last_updated_by,
-        COALESCE(fat.last_updated, recent.last_updated) AS last_updated
-    FROM final_added_table fat
-    FULL OUTER JOIN recent_app_changes_rows recent
-    ON LOWER(fat.address) = LOWER(recent.address) AND fat.chain = recent.chain
-) 
+
+deduped_deleted_frontend_manual_labeled_addresses AS (
+    SELECT 
+        address
+        , name
+        , artemis_application_id
+        , chain
+        , last_updated_by
+        , last_updated_timestamp
+        , action
+    FROM {{ ref('dim_all_frontend_labeled_addresses')}}
+    where action = 'DELETE'
+)
+
 SELECT 
-    CASE WHEN substr(fat.address, 1, 2) = '0x' THEN LOWER(fat.address) ELSE fat.address END AS address,
+    CASE WHEN substr(coalesce(del.address, fat.address), 1, 2) = '0x' THEN LOWER(coalesce(del.address, fat.address)) ELSE coalesce(del.address, fat.address) END AS address,
     CASE 
-        WHEN del.address IS NOT NULL THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.name 
     END AS name,
     CASE 
-        WHEN del.address IS NOT NULL THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.friendly_name 
     END AS friendly_name,
     CASE 
-        WHEN del.address IS NOT NULL THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.artemis_application_id 
     END AS artemis_application_id,
     CASE 
-        WHEN del.address IS NOT NULL THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.artemis_category_id 
     END AS artemis_category_id,
     CASE 
-        WHEN del.address IS NOT NULL THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.artemis_sub_category_id 
     END AS artemis_sub_category_id,
-    fat.chain,
+    coalesce(fat.chain, del.chain) as chain,
     CASE 
-        WHEN del.address IS NOT NULL THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.address_type 
     END AS address_type,
     CASE 
-        WHEN del.address IS NOT NULL THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.is_token 
     END AS is_token,
     CASE 
-        WHEN del.address IS NOT NULL THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.is_fungible 
     END AS is_fungible,
     CASE 
-        WHEN del.address IS NOT NULL THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.type 
     END AS type,
-    CASE 
-        WHEN del.address IS NOT NULL THEN NULL 
-        ELSE fat.last_updated_by 
-    END AS last_updated_by,
-    fat.last_updated
-FROM final_added_table_with_updated_categories fat
-LEFT JOIN deduped_deleted_manual_labeled_addresses del
-ON LOWER(fat.address) = LOWER(del.address) AND fat.chain = del.chain
+    coalesce(fat.last_updated_by, del.last_updated_by) as last_updated_by,
+    coalesce(fat.last_updated, del.last_updated_timestamp) as last_updated
+FROM duduped_app_and_address_labeled_table fat
+FULL OUTER JOIN deduped_deleted_frontend_manual_labeled_addresses del
+    ON LOWER(fat.address) = LOWER(del.address) AND fat.chain = del.chain

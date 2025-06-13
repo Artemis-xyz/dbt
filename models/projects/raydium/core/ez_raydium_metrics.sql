@@ -17,12 +17,12 @@ with buyback_from_pair as (
                 case when program = 'AMMv4' then (buyback / 0.12) * 0.88
                 else (buyback/0.12) * 0.84
                 end
-        ) as lp_cash_flow
+        ) as lp_fee_allocation
         , sum(
                 case when program = 'AMMv4' then (buyback / 0.12) * 0
                 else (buyback/0.12) * 0.04
                 end
-        ) as treasury_cash_flow
+        ) as treasury_fee_allocation
     from {{ ref("fact_raydium_metrics_by_pair") }}
     group by 1
 )
@@ -120,10 +120,10 @@ select
     -- Money Metrics
     , bfp.buyback / 0.12 as spot_fees
     , coalesce(c.pool_creation_fees_native * pc.price, 0) as pool_creation_fees -- pool creation
-    , spot_fees + coalesce(c.pool_creation_fees_native * pc.price, 0) as gross_protocol_revenue
-    , bfp.buyback as buyback_cash_flow
-    , bfp.treasury_cash_flow as treasury_cash_flow
-    , bfp.lp_cash_flow as service_cash_flow
+    , spot_fees + coalesce(c.pool_creation_fees_native * pc.price, 0) as ecosystem_revenue
+    , bfp.buyback as buyback_fee_allocation
+    , bfp.treasury_fee_allocation as treasury_fee_allocation
+    , bfp.lp_fee_allocation as service_fee_allocation
     , b.buyback_native * pb.price as buybacks
     , b.buyback_native   as buyback_native
 

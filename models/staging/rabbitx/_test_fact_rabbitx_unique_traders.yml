@@ -9,10 +9,11 @@ models:
     tests:
     - not_null
     - dbt_expectations.expect_column_to_exist
-    - dbt_expectations.expect_row_values_to_have_recent_data:
-        datepart: day
-        interval: 3
-        severity: warn
+    # Upstream source deprecated
+    # - dbt_expectations.expect_row_values_to_have_recent_data:
+    #     datepart: day
+    #     interval: 3
+    #     severity: warn
   - name: UNIQUE_TRADERS
     tests:
     - not_null

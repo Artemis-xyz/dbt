@@ -8,8 +8,8 @@ with
             , type
         from {{ ref("dim_all_addresses_labeled_gold") }}
         where artemis_application_id = '{{ artemis_application_id }}'
-            and type = '{{ type }}'
             and chain = '{{ chain }}'
+            and type = '{{ type }}'
     )
     , token_metadata as (
         select
@@ -22,22 +22,33 @@ with
     -- TODO: Remove once we have updated balances data
     , old_balances as (
         select
-            address
-            , case 
-                when contract_address = 'native_token' and '{{chain}}' = 'ethereum' then 'eip155:1:native' 
-                when contract_address = 'native_token' and '{{chain}}' = 'arbitrum' then 'eip155:42161:native' 
-                when contract_address = 'native_token' and '{{chain}}' = 'base' then 'eip155:8453:native' 
-                when contract_address = 'native_token' and '{{chain}}' = 'optimism' then 'eip155:10:native' 
-                else contract_address 
+            ab.address
+            , case
+                when ab.contract_address = 'native_token' and '{{chain}}' = 'ethereum' then 'eip155:1:native'
+                when ab.contract_address = 'native_token' and '{{chain}}' = 'arbitrum' then 'eip155:42161:native'
+                when ab.contract_address = 'native_token' and '{{chain}}' = 'base' then 'eip155:8453:native'
+                when ab.contract_address = 'native_token' and '{{chain}}' = 'optimism' then 'eip155:10:native'
+                when ab.contract_address = 'native_token' and '{{chain}}' = 'solana' then 'solana:5eykt4usfv8p8njdtrepy1vzqkqzkvdp:native'
+                else ab.contract_address
             end as contract_address
             , block_timestamp
             {%if chain == 'solana' %} -- note Solana balances are already decimals adjusted
                 , amount AS balance_raw
+                , ab.decimals
             {% else %}
-                , balance_token AS balance_raw
+                    , balance_token AS balance_raw
+                    , decimals
+                , case
+                    when right(ab.contract_address, 6) = 'native' then balance_raw
+                    else balance_raw / pow(10, decimals) 
+                end as balance_native
             {% endif %}
-        from {{ ref("fact_" ~ chain ~ "_address_balances_by_token") }}
-        where lower(address) in (select lower(address) from tagged_addresses)
+        from {{ ref("fact_" ~ chain ~ "_address_balances_by_token") }} ab
+            inner join tagged_addresses
+                on lower(ab.address) = lower(tagged_addresses.address)
+            left join token_metadata
+                on lower(ab.contract_address) = lower(token_metadata.contract_address)
+            where lower(ab.address) in (select lower(address) from tagged_addresses)
     )
     , address_balances as (
         select
@@ -54,10 +65,6 @@ with
                 balance_raw as balance_native
             {% endif %}
         from old_balances ab
-        inner join tagged_addresses
-            on lower(ab.address) = lower(tagged_addresses.address)
-        left join token_metadata
-            on lower(ab.contract_address) = lower(token_metadata.contract_address)
         where block_timestamp < to_date(sysdate())
         {% if is_incremental() %}
             and block_timestamp > (select dateadd('day', -3, max(date)) from {{ this }}) 
@@ -163,6 +170,7 @@ with
         select
             date
             , contract_address
+            , symbol
             , address
             , price
             , balance_raw
@@ -178,6 +186,7 @@ with
 select 
     date
     , contract_address
+    , symbol
     , address
     , balance_raw
     , balance_native

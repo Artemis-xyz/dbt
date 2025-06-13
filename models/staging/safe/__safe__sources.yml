@@ -1,0 +1,13 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_safe_created
+      - name: raw_safe_txns
+      - name: raw_safe_tvl_by_chain
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: safe_daily_supply_data

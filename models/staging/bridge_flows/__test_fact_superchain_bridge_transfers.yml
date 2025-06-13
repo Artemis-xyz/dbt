@@ -1,0 +1,7 @@
+models:
+  - name: fact_superchain_bridge_transfers
+    columns:
+      - name: unique_id
+        tests:
+          - not_null
+          - unique

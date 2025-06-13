@@ -1,6 +1,6 @@
 {{
     config(
-        materialized='view',
+        materialized='table',
         snowflake_warehouse='jito',
         database='jito',
         schema='core',
@@ -14,25 +14,25 @@ with
             , withdraw_management_fees
         FROM {{ ref('fact_jito_mgmt_withdraw_fees') }}
     )
-    , jito_dau_txns_fees_cash_flow as ( -- Tips
+    , jito_dau_txns_fees_fee_allocation as ( -- Tips
         SELECT 
             day as date
             , sum(CASE WHEN day < '2025-03-07'
                     THEN tip_fees * 0.05
                     ELSE tip_fees * 0.03 -- 2.7% to DAO + 3% to Jito
-                END) as equity_cash_flow
+                END) as equity_fee_allocation
             , sum(CASE WHEN day < '2025-03-07'
                     THEN 0
                     ELSE tip_fees * 0.027 -- 2.7% to DAO + 3% to Jito
-                END) as treasury_cash_flow
+                END) as treasury_fee_allocation
             , sum(CASE WHEN day < '2025-03-07'
                     THEN tip_fees * .95
                     ELSE tip_fees * 0.94 -- 94% to validators + 0.3% to SOL/JTO vault operators
-                END) as validator_cash_flow
+                END) as validator_fee_allocation
             , sum(CASE WHEN day < '2025-03-07'
                     THEN 0
                     ELSE tip_fees * 0.003 -- 94% to validators + 0.3% to SOL/JTO vault operators
-                END) as strategy_cash_flow
+                END) as strategy_fee_allocation
         FROM {{ ref('fact_jito_dau_txns_fees')}}
         group by day
     )
@@ -49,7 +49,7 @@ with
     , jito_tvl as (
         SELECT
             date
-            , sum(usd_balance) as tvl
+            , sum(balance) as tvl
             , tvl - lag(tvl) over (order by date) as tvl_change
         FROM {{ ref('fact_jitosol_tvl') }}
         GROUP BY 1
@@ -105,11 +105,11 @@ SELECT
     -- Cashflow Metrics
     , coalesce(withdraw_management_fees, 0) as lst_fees
     , coalesce(tip_fees, 0) as block_infra_fees
-    , coalesce(withdraw_management_fees, 0) + coalesce(tip_fees, 0) as gross_protocol_revenue
-    , coalesce(jito_dau_txns_fees_cash_flow.equity_cash_flow, 0) as equity_cash_flow
-    , coalesce(jito_dau_txns_fees_cash_flow.treasury_cash_flow, 0) as treasury_cash_flow
-    , coalesce(jito_dau_txns_fees_cash_flow.strategy_cash_flow, 0) as strategy_cash_flow
-    , coalesce(jito_dau_txns_fees_cash_flow.validator_cash_flow, 0) as validator_cash_flow
+    , coalesce(withdraw_management_fees, 0) + coalesce(tip_fees, 0) as ecosystem_revenue
+    , coalesce(jito_dau_txns_fees_fee_allocation.equity_fee_allocation, 0) as equity_fee_allocation
+    , coalesce(jito_dau_txns_fees_fee_allocation.treasury_fee_allocation, 0) as treasury_fee_allocation
+    , coalesce(jito_dau_txns_fees_fee_allocation.strategy_fee_allocation, 0) as strategy_fee_allocation
+    , coalesce(jito_dau_txns_fees_fee_allocation.validator_fee_allocation, 0) as validator_fee_allocation
 
     -- Token Turnover Metrics
     , coalesce(market_metrics.token_turnover_circulating, 0) as token_turnover_circulating
@@ -124,8 +124,9 @@ SELECT
 
 FROM date_spine
 LEFT JOIN jito_mgmt_withdraw_fees using (date)
-LEFT JOIN jito_dau_txns_fees_cash_flow using (date)
+LEFT JOIN jito_dau_txns_fees_fee_allocation using (date)
 LEFT JOIN jito_dau_txns_fees using (date)
 LEFT JOIN jito_tvl using (date)
 LEFT JOIN daily_supply_data using (date)
 LEFT JOIN market_metrics using (date)
+WHERE date_spine.date < to_date(sysdate())

@@ -1,6 +1,6 @@
 {{
     config(
-        materialized='view',
+        materialized='table',
         snowflake_warehouse='jito',
         database='jito',
         schema='core',
@@ -25,11 +25,11 @@ SELECT
     --Standardized Metrics
     , coalesce(withdraw_management_fees, 0) as lst_fees
     , coalesce(tip_fees, 0) as tip_fees
-    , coalesce(withdraw_management_fees, 0) + coalesce(tip_fees, 0) as gross_protocol_revenue
-    , coalesce(equity_cash_flow, 0) as equity_cash_flow
-    , coalesce(treasury_cash_flow, 0) as treasury_cash_flow
-    , coalesce(strategy_cash_flow, 0) as strategy_cash_flow
-    , coalesce(validator_cash_flow, 0) as validator_cash_flow
+    , coalesce(withdraw_management_fees, 0) + coalesce(tip_fees, 0) as ecosystem_revenue
+    , coalesce(equity_fee_allocation, 0) as equity_fee_allocation
+    , coalesce(treasury_fee_allocation, 0) as treasury_fee_allocation
+    , coalesce(strategy_fee_allocation, 0) as strategy_fee_allocation
+    , coalesce(validator_fee_allocation, 0) as validator_fee_allocation
     , coalesce(block_infra_txns, 0) as block_infra_txns
     , coalesce(block_infra_dau, 0) as block_infra_dau
     , coalesce(tvl, 0) as tvl

@@ -110,6 +110,7 @@ deduped_manual_labeled_addresses AS (
     QUALIFY ROW_NUMBER() OVER (PARTITION BY address, chain ORDER BY last_updated DESC) = 1
 )
 
+, all_addresses as (
 SELECT 
     CASE
         WHEN substr(COALESCE(ua.address, TRIM(ra.address)), 1, 2) = '0x' THEN LOWER(COALESCE(ua.address, TRIM(ra.address)))
@@ -139,4 +140,24 @@ LEFT JOIN deduped_labeled_name_metadata_with_types nm
     ON LOWER(ra.address) = LOWER(nm.address) AND ra.chain = nm.chain
 FULL OUTER JOIN deduped_manual_labeled_addresses ua
     ON LOWER(ra.address) = LOWER(ua.address) AND ra.chain = ua.chain
+)
 
+select 
+    address,
+    transaction_trace_type,
+    address_type,
+    metadata,
+    namespace,
+    raw_external_category,
+    raw_external_sub_category,
+    chain,
+    total_gas,
+    total_gas_usd,
+    total_transactions,
+    average_dau,
+    country,
+    region,
+    subregion,
+    last_updated
+from all_addresses
+qualify row_number() over (partition by address, chain order by last_updated desc) = 1

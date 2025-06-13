@@ -100,7 +100,7 @@ transfer_with_price as  (
         , dst_message
         , dst_chain
         , deposit_id
-        , protocol_fee
+        , (protocol_fee/POW(10, coalesce(src_prices.decimals, dst_prices.decimals)) * coalesce(src_prices.price, dst_prices.price)) as protocol_fee
         , bridge_message_app
         , version
     FROM
@@ -185,6 +185,7 @@ SELECT
     , protocol_fee
     , bridge_message_app
     , version
+    , concat(coalesce(TO_VARCHAR(deposit_id),'null'), '|', coalesce(TO_VARCHAR(origin_chain_id), 'null'), '|', 'across') as unique_id
 from collapsed_data
 left join {{ ref('dim_chain_ids') }} as src_chains on collapsed_data.origin_chain_id = src_chains.id
 left join {{ ref('dim_chain_ids') }} as dst_chains on collapsed_data.destination_chain_id = dst_chains.id

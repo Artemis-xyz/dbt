@@ -17,6 +17,7 @@ select
         when f.key::string = 'polygon-pos' then 'polygon'
         when f.key::string = 'sei-v2' then 'sei'
         when f.key::string = 'world-chain' then 'worldchain'
+        when f.key::string = 'plume-network' then 'plume'
         else f.key::string
     end AS chain,
     f.value:contract_address::string AS contract_address,

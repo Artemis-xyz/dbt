@@ -75,10 +75,10 @@ select
     , coalesce(fees_for_blobs_native, 0) as blob_fees_native
     , coalesce(fees_for_blobs_native, 0) * coalesce(price, 0) as blob_fees
     , coalesce(fees, 0) as chain_fees
-    , coalesce(fees, 0) + coalesce(blob_fees, 0) as gross_protocol_revenue
-    , coalesce(fees_native, 0) + coalesce(blob_fees_native, 0) as gross_protocol_revenue_native
-    , coalesce(gross_protocol_revenue, 0) as validator_cash_flow
-    , coalesce(gross_protocol_revenue_native, 0) as validator_cash_flow_native
+    , coalesce(fees, 0) + coalesce(blob_fees, 0) as ecosystem_revenue
+    , coalesce(fees_native, 0) + coalesce(blob_fees_native, 0) as ecosystem_revenue_native
+    , coalesce(ecosystem_revenue, 0) as validator_fee_allocation
+    , coalesce(ecosystem_revenue_native, 0) as validator_fee_allocation_native
 
     -- Supply Metrics
     , coalesce(premine_unlocks_native, 0) as premine_unlocks_native

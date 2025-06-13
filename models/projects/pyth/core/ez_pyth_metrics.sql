@@ -19,7 +19,21 @@ with
         WHERE date between (SELECT min(date) FROM dau_txns) and to_date(sysdate())
     ),
     market_metrics as (
-        {{ get_coingecko_metrics("pyth") }}
+        {{ get_coingecko_metrics("pyth-network") }}
+    )
+    , dfl_tvs as (
+        SELECT
+            date,
+            dfl_tvs
+        FROM {{ ref('fact_pyth_dfl_tvs') }}
+    )
+    , supply_data as (
+        SELECT
+            date,
+            premine_unlocks_native,
+            net_supply_change_native,
+            circulating_supply_native
+        FROM {{ ref('fact_pyth_supply_data') }}
     )
 
 SELECT
@@ -41,10 +55,16 @@ SELECT
     --Usage Metrics
     , dau_txns.txns as oracle_txns
     , dau_txns.dau as oracle_dau
+    , dfl_tvs.dfl_tvs as tvs
 
     --Cash Flow Metrics
     , 0 as oracle_fees
-    , 0 as gross_protocol_revenue
+    , 0 as ecosystem_revenue
+
+    --Supply Metrics
+    , supply_data.premine_unlocks_native as premine_unlocks_native
+    , supply_data.net_supply_change_native as net_supply_change_native
+    , supply_data.circulating_supply_native as circulating_supply_native
 
     --Other Metrics
     , market_metrics.token_turnover_circulating
@@ -52,3 +72,5 @@ SELECT
 FROM date_spine
 LEFT JOIN dau_txns ON date_spine.date = dau_txns.date
 LEFT JOIN market_metrics ON date_spine.date = market_metrics.date
+LEFT JOIN dfl_tvs ON date_spine.date = dfl_tvs.date
+LEFT JOIN supply_data ON date_spine.date = supply_data.date

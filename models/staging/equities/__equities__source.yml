@@ -5,5 +5,5 @@ sources:
     tables:
       - name: equities_metrics
       - name: coinbase_q4_metrics
-      - name: artemis_equities_prices
       - name: artemis_equities_comps
+      - name: intrinio_historical_equity_prices

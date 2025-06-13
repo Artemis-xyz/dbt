@@ -50,7 +50,7 @@ WITH
         {{ sector }}_dau as dau,
 
         -- FEES
-        gross_protocol_revenue as fees
+        fees as fees
 
         FROM {{ artemis_id }}.prod_core.ez_metrics m
 

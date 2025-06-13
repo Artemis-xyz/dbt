@@ -23,6 +23,14 @@ with txns_data as (
     from {{ ref("fact_wormhole_bridge_volume_gold") }}
     group by 1
 )
+, supply_data as (
+    select
+        date
+        , premine_unlocks_native
+        , net_supply_change_native
+        , circulating_supply_native
+    from {{ ref("fact_wormhole_supply_data") }}
+)
 , price_data as ({{ get_coingecko_metrics("wormhole") }})
 
 select
@@ -35,15 +43,21 @@ select
     , coalesce(daa.bridge_daa, 0) as bridge_dau
     , coalesce(bridge_volume.bridge_volume, 0) as bridge_volume
     , coalesce(bridge_volume.fees, 0) as bridge_fees
-    , coalesce(bridge_volume.fees, 0) as gross_protocol_revenue
+    , coalesce(bridge_volume.fees, 0) as ecosystem_revenue
     , price_data.price as price
     , price_data.market_cap as market_cap
     , price_data.fdmc as fdmc
     , price_data.token_turnover_circulating as token_turnover_circulating
     , price_data.token_turnover_fdv as token_turnover_fdv
     , price_data.token_volume as token_volume
+
+    -- Supply Data
+    , premine_unlocks_native
+    , net_supply_change_native
+    , circulating_supply_native
 from txns_data
 left join daa on txns_data.date = daa.date
 left join bridge_volume on txns_data.date = bridge_volume.date
 left join price_data on txns_data.date = price_data.date
+left join supply_data on txns_data.date = supply_data.date
 where coalesce(txns_data.date, daa.date) < to_date(sysdate())

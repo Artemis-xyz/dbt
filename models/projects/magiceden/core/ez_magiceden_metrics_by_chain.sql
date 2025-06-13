@@ -17,9 +17,8 @@ WITH date_spine AS (
     SELECT
         date
         , chain
-        , SUM(daily_trading_volume) AS daily_trading_volume
+        , SUM(trading_volume) AS daily_trading_volume
         , SUM(active_wallets) AS dau 
-        , SUM(collections_transacted) AS collections_transacted
         , SUM(total_trades) AS txns
         , SUM(total_platform_fees) AS revenue
         , SUM(total_creator_fees) AS supply_side_fees
@@ -36,7 +35,6 @@ SELECT
     , chain
     , COALESCE(daily_trading_volume, 0) AS daily_trading_volume
     , COALESCE(dau, 0) AS dau 
-    , COALESCE(collections_transacted, 0) AS collections_transacted
     , COALESCE(txns, 0) AS txns
     , COALESCE(revenue, 0) AS revenue
     , COALESCE(supply_side_fees, 0) AS supply_side_fees
@@ -47,14 +45,14 @@ SELECT
     -- NFT Metrics
     , COALESCE(dau, 0) AS nft_dau
     , COALESCE(txns, 0) AS nft_txns
-    , COALESCE(collections_transacted, 0) AS nft_collections_transacted
     , COALESCE(supply_side_fees, 0) AS nft_royalties
     , COALESCE(fees, 0) AS nft_fees
     , COALESCE(daily_trading_volume, 0) AS nft_volume
 
     -- Cash Flow Metrics
-    , COALESCE(fees + supply_side_fees, 0) AS gross_protocol_revenue
-    , COALESCE(supply_side_fees, 0) AS service_cash_flow  
+    , COALESCE(fees, 0) AS ecosystem_revenue
+    , COALESCE(revenue, 0) AS treasury_fee_allocation
+    , COALESCE(supply_side_fees, 0) AS service_fee_allocation  
 FROM date_spine
 LEFT JOIN magiceden_metrics m ON date_spine.date = m.date
 WHERE date_spine.date < to_date(SYSDATE())

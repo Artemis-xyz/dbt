@@ -22,9 +22,9 @@ with date_spine as (
         sum(fee_usd) as trading_fees,
         sum(service_cash_flow) as primary_supply_side_revenue,
         sum(treasury_cash_flow + vebal_cash_flow) as revenue,
-        sum(service_cash_flow) as service_cash_flow,
-        sum(treasury_cash_flow) as treasury_cash_flow,
-        sum(vebal_cash_flow) as vebal_cash_flow
+        sum(service_cash_flow) as service_fee_allocation,
+        sum(treasury_cash_flow) as treasury_fee_allocation,
+        sum(vebal_cash_flow) as vebal_fee_allocation
     FROM {{ ref('ez_balancer_dex_swaps') }}
     group by 1
 )
@@ -32,7 +32,7 @@ with date_spine as (
     SELECT
         date,
         sum(amount_usd) as token_incentives_usd
-    FROM {{ ref('fact_balancer_token_incentives') }}
+    FROM {{ ref('fact_balancer_token_incentives_all_chains') }}
     group by 1
 )
 , all_tvl as (
@@ -85,7 +85,7 @@ select
     coalesce(swap_metrics.primary_supply_side_revenue, 0) as primary_supply_side_revenue,
     coalesce(swap_metrics.revenue, 0) as revenue,
     coalesce(token_incentives.token_incentives_usd, 0) as expenses,
-    coalesce(swap_metrics.revenue, 0) - coalesce(token_incentives.token_incentives_usd, 0) as protocol_earnings,
+    coalesce(swap_metrics.revenue, 0) - coalesce(token_incentives.token_incentives_usd, 0) as earnings,
     coalesce(all_tvl.tvl_usd, 0) as net_deposits,
     coalesce(treasury.net_treasury_usd, 0) as treasury_value,
     coalesce(net_treasury.net_treasury_usd, 0) as net_treasury_value,
@@ -106,10 +106,10 @@ select
 
     -- Money Metrics
     , coalesce(swap_metrics.trading_fees, 0) as spot_fees
-    , coalesce(swap_metrics.trading_fees, 0) as gross_protocol_revenue
-    , coalesce(swap_metrics.service_cash_flow, 0) as service_cash_flow
-    , coalesce(swap_metrics.treasury_cash_flow, 0) as treasury_cash_flow
-    , coalesce(swap_metrics.vebal_cash_flow, 0) as fee_sharing_token_cash_flow
+    , coalesce(swap_metrics.service_fee_allocation, 0) as service_fee_allocation
+    , coalesce(swap_metrics.treasury_fee_allocation, 0) as treasury_fee_allocation
+    , coalesce(swap_metrics.vebal_fee_allocation, 0) as staking_fee_allocation
+
     , coalesce(token_incentives.token_incentives_usd, 0) as token_incentives
 
     -- Treasury Metrics

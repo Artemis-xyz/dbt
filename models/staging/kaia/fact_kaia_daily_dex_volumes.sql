@@ -5,4 +5,4 @@
     )
 }}
 
-{{ extract_dune_dex_volumes("kaia") }}
+{{ dune_dex_volumes("kaia") }}

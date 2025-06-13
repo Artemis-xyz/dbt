@@ -32,7 +32,7 @@ select
     fundamental_data.protocol_revenue_usd AS fees,
     fundamental_data.protocol_revenue_usd AS revenue,
     fundamental_data.operating_expenses_usd,
-    fundamental_data.protocol_earnings_usd
+    fundamental_data.protocol_earnings_usd AS earnings
 
     --Standardized Metrics
     --Market Metrics
@@ -58,10 +58,10 @@ select
     --Cashflow Metrics
     , fundamental_data.fees_usd as chain_fees
     , fundamental_data.total_staking_yield_usd as yield_generated
-    , chain_fees + yield_generated as gross_protocol_revenue
-    , (yield_generated * .1) as treasury_cash_flow
-    , (yield_generated * .9) as service_cash_flow
-    , chain_fees as validator_cash_flow
+    , chain_fees + yield_generated as ecosystem_revenue
+    , (yield_generated * .1) as treasury_fee_allocation
+    , (yield_generated * .9) as service_fee_allocation
+    , chain_fees as validator_fee_allocation
 
     -- Other Metrics
     , market_data.token_turnover_circulating

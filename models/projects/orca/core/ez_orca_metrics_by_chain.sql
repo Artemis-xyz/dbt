@@ -17,6 +17,7 @@ select
     , total_supply_side_revenue
     , number_of_swaps
     , unique_traders
+    , trading_fees
 
     -- Standardized Metrics
     -- Usage/Sector Metrics
@@ -26,8 +27,8 @@ select
     , tvl
 
     -- Money Metrics
-    , treasury_cash_flow
-    , gross_protocol_revenue
-    , service_cash_flow
-    , other_cash_flow
+    , treasury_fee_allocation
+    , ecosystem_revenue
+    , service_fee_allocation
+    , other_fee_allocation
 from {{ ref("ez_orca_metrics") }}

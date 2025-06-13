@@ -21,11 +21,11 @@ WITH parsed_log_metrics AS (
         block_date
 ),
     price_data as ({{ get_coingecko_metrics("drift-protocol") }}),
-    defillama_data as ({{ get_defillama_protocol_metrics("drift trade") }})
+    defillama_data as ({{ get_defillama_protocol_metrics("drift trade") }}),
+    supply_data as ( select * from {{ ref("fact_drift_supply_data") }})
 SELECT 
     coalesce(
         price_data.date,
-        fact_drift_prediction_markets.date,
         fact_drift_float_borrow_lending_revenue.date,
         defillama_data.date,
         parsed_log_metrics.date,
@@ -33,17 +33,10 @@ SELECT
     ) as date,
     'drift' AS app,
     'DeFi' AS category,
-    price,
-    trump_prediction_market_100k_buy_order_price,
-    kamala_prediction_market_100k_buy_order_price,
-    trump_prediction_market_100k_sell_order_price,
-    kamala_prediction_market_100k_sell_order_price,
     daily_avg_float_revenue as float_revenue,
     daily_avg_lending_revenue as lending_revenue,
-    parsed_log_metrics.perp_fees,
     parsed_log_metrics.perp_revenue,
     parsed_log_metrics.perp_trading_volume as trading_volume,
-    parsed_log_metrics.spot_fees,
     parsed_log_metrics.spot_revenue,
     parsed_log_metrics.spot_trading_volume,
     total_revenue as excess_pnl_daily_change,
@@ -61,14 +54,45 @@ SELECT
     coalesce(parsed_log_metrics.spot_revenue, 0)) as amm_revenue,
     coalesce(parsed_log_metrics.perp_fees + parsed_log_metrics.spot_fees, 0) as fees,
     latest_excess_pnl as daily_latest_excess_pnl
+
+    -- Standardized Metrics
+
+    -- Market Data
+    , price
+    , market_cap
+    , fdmc
+    , token_volume
+
+    -- Usage Metrics
+    , parsed_log_metrics.perp_trading_volume as perp_volume
+    , parsed_log_metrics.spot_trading_volume as spot_volume
+    , defillama_data.tvl
+    
+    -- Cashflow Metrics
+    , parsed_log_metrics.perp_fees as perp_fees
+    , parsed_log_metrics.spot_fees as spot_fees
+    , coalesce(parsed_log_metrics.perp_fees + parsed_log_metrics.spot_fees, 0) as ecosystem_revenue
+    -- TODO: Add cashflows to individual entities
+
+    -- Supply Metrics
+    , supply_data.premine_unlocks
+    , supply_data.gross_emissions
+    , supply_data.net_supply_change
+    , supply_data.circulating_supply
+
+    -- Other Metrics
+    , token_turnover_circulating
+    , token_turnover_fdv
+    
 FROM price_data 
 LEFT JOIN {{ ref("fact_drift_amm_revenue") }} as fact_drift_amm_revenue
     ON price_data.date = fact_drift_amm_revenue.date
-FULL JOIN {{ ref("fact_drift_prediction_markets") }} as fact_drift_prediction_markets
-    ON price_data.date = fact_drift_prediction_markets.date
 FULL JOIN {{ ref("fact_drift_float_borrow_lending_revenue") }} as fact_drift_float_borrow_lending_revenue
     ON price_data.date = fact_drift_float_borrow_lending_revenue.date
 FULL JOIN defillama_data
     ON price_data.date = defillama_data.date
 FULL JOIN parsed_log_metrics
     ON price_data.date = parsed_log_metrics.date
+LEFT JOIN supply_data
+    ON price_data.date = supply_data.date
+    

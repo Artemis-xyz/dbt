@@ -100,10 +100,10 @@ SELECT
     , coalesce(km_data.total_km, 0) as total_km
 
     -- Cash Flow Metrics
-    , coalesce(stats.fees, 0) as gross_protocol_revenue
-    , coalesce(stats.supply_side_fees, 0) as service_cash_flow
-    , coalesce(stats.fees, 0) as burned_cash_flow
-    , coalesce(stats.burn_native, 0) as burned_cash_flow_native
+    , coalesce(stats.fees, 0) as ecosystem_revenue
+    , coalesce(stats.supply_side_fees, 0) as service_fee_allocation
+    , coalesce(stats.fees, 0) as burned_fee_allocation
+    , coalesce(stats.burn_native, 0) as burned_fee_allocation_native
 
     -- Turnover Metrics
     , coalesce(market_metrics.token_turnover_circulating, 0) as token_turnover_circulating

@@ -11,9 +11,8 @@
 WITH magiceden_metrics AS (
     SELECT
         date,
-        SUM(daily_trading_volume) AS daily_trading_volume,
+        SUM(trading_volume) AS daily_trading_volume,
         SUM(active_wallets) AS dau, 
-        SUM(collections_transacted) AS collections_transacted,
         SUM(total_trades) AS txns,
         SUM(total_platform_fees) AS revenue,
         SUM(total_creator_fees) AS supply_side_fees,
@@ -44,7 +43,6 @@ select
     date_spine.date
     , COALESCE(magiceden_metrics.daily_trading_volume, 0) AS daily_trading_volume
     , COALESCE(magiceden_metrics.dau, 0) AS dau 
-    , COALESCE(magiceden_metrics.collections_transacted, 0) AS collections_transacted
     , COALESCE(magiceden_metrics.txns, 0) AS txns
     , COALESCE(magiceden_metrics.revenue, 0) AS revenue
     , COALESCE(magiceden_metrics.supply_side_fees, 0) AS supply_side_fees
@@ -62,13 +60,12 @@ select
     -- NFT Metrics
     , COALESCE(magiceden_metrics.dau, 0) AS nft_dau
     , COALESCE(magiceden_metrics.txns, 0) AS nft_txns
-    , COALESCE(magiceden_metrics.collections_transacted, 0) AS nft_collections_transacted
     , COALESCE(magiceden_metrics.daily_trading_volume, 0) AS nft_volume
 
     -- Cash Flow Metrics
-    , COALESCE(magiceden_metrics.fees, 0) AS gross_protocol_revenue
-    , COALESCE(magiceden_metrics.supply_side_fees, 0) AS service_cash_flow
-    , COALESCE(magiceden_metrics.revenue, 0) AS treasury_cash_flow
+    , COALESCE(magiceden_metrics.fees, 0) AS ecosystem_revenue
+    , COALESCE(magiceden_metrics.supply_side_fees, 0) AS service_fee_allocation
+    , COALESCE(magiceden_metrics.revenue, 0) AS treasury_fee_allocation
 
     -- Turnover Metrics
     , COALESCE(market_metrics.token_turnover_circulating, 0) AS token_turnover_circulating

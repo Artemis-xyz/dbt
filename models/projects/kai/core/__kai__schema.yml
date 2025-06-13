@@ -1,0 +1,21 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  tvl: &tvl
+    name: tvl
+    description: "The total value locked in a protocol"
+
+models:
+  - name: ez_kai_metrics_by_chain
+    description: "This table stores metrics for the KAI protocol"
+    columns:
+      - *tvl
+
+  - name: ez_kai_metrics
+    description: "This table stores metrics for the KAI protocol"
+    columns:
+      - *tvl
+

@@ -10,12 +10,12 @@
         , amount_raw as credit_raw
         , amount_native as credit_native
     from {{ref("fact_" ~ chain ~ "_token_transfers")}}   
-    where lower(to_address) <> lower('0x0000000000000000000000000000000000000000') 
+    where lower(to_address) not in (lower('0x0000000000000000000000000000000000000000'), lower('T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'))
         and block_timestamp::date < to_date(sysdate())
     {% if is_incremental() %}
         and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}
-    {% if chain not in ('celo') %}
+    {% if chain not in ('celo', 'sonic', 'codex', 'tron', 'kaia', 'plume') %}
         union all
         select
             block_timestamp
@@ -28,7 +28,7 @@
             , amount_raw as credit_raw
             , amount_native as credit_native
         from {{ref("fact_" ~ chain ~ "_native_token_transfers")}}   
-        where lower(to_address) <> lower('0x0000000000000000000000000000000000000000') 
+        where lower(to_address) not in (lower('0x0000000000000000000000000000000000000000'), lower('T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'))
             and block_timestamp::date < to_date(sysdate())
         {% if is_incremental() %}
             and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})

@@ -39,11 +39,14 @@ with fundamental_data as (
     from {{ ref("fact_injective_unlocks") }}
 )
 , defillama_metrics as (
+    with dfl as (
+        {{ get_defillama_metrics("injective") }}
+    )
     select
-        date,
-        tvl as defillama_tvl,
-        dex_volumes as defillama_dex_volumes
-    from {{ ref("fact_injective_defillama_tvl_and_dexvolumes") }}
+        dfl.date,
+        dfl.tvl as defillama_tvl,
+        dfl.dex_volumes as defillama_dex_volumes
+    from dfl
 )
 , date_spine as (
     select * from {{ ref('dim_date_spine') }}
@@ -66,8 +69,8 @@ select
     , unlocks.outflows as unlocks
     , mints.mints as gross_emissions_native
     , COALESCE(revenue.revenue, 0) AS revenue
-    , fundamental_data.fees_native as gross_protocol_revenue_native
-    , coalesce(revenue.revenue_native, 0) as burned_cash_flow_native
+    , fundamental_data.fees_native as ecosystem_revenue_native
+    , coalesce(revenue.revenue_native, 0) as burned_fee_allocation_native
     
     -- Standardized Metrics
 
@@ -85,7 +88,7 @@ select
     , fundamental_data.new_users
     , fundamental_data.fees / fundamental_data.txns as chain_avg_txn_fee
     , defillama_metrics.defillama_tvl as tvl
-    , defillama_metrics.defillama_dex_volumes as spot_volume
+    , defillama_metrics.defillama_dex_volumes as chain_spot_volume
     , null as low_sleep_users
     , null as high_sleep_users
     , null as sybil_users
@@ -94,10 +97,10 @@ select
     -- Cashflow Metrics
     , coalesce(fundamental_data.fees, 0) as chain_fees
     , coalesce(revenue.spot_fees, 0) as spot_fees
-    , (coalesce(revenue.spot_fees, 0) + coalesce(fundamental_data.fees, 0)) as gross_protocol_revenue
-    , coalesce(revenue.auction_fees, 0) as burned_cash_flow
-    , coalesce(fundamental_data.fees, 0) as validator_cash_flow
-    , coalesce(revenue.dapp_fees, 0) as dapp_cash_flow
+    , (coalesce(revenue.spot_fees, 0) + coalesce(fundamental_data.fees, 0)) as ecosystem_revenue
+    , coalesce(revenue.auction_fees, 0) as burned_fee_allocation
+    , coalesce(fundamental_data.fees, 0) as validator_fee_allocation
+    , coalesce(revenue.dapp_fees, 0) as dapp_fee_allocation
 
     -- INJ Token Supply Data
     , coalesce(mints.mints, 0) as emissions_native

@@ -10,15 +10,15 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
-    name: fee_sharing_token_cash_flow
+  staking_fee_allocation: &staking_fee_allocation
+    name: staking_fee_allocation
     description: "50% of gross protocol revenue is distributed to veCRV holders."
     tags:
       - artemis_gaap
       - override
 
-  gross_protocol_revenue: &gross_protocol_revenue
-    name: gross_protocol_revenue
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
     description: "Sum of all trading fees paid on Curve's AMM."
     tags:
       - artemis_gaap
@@ -35,8 +35,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "50% of gross protocol revenue is distributed to LPs of the protocol."
     tags:
       - artemis_gaap
@@ -80,9 +80,9 @@ models:
   - name: ez_curve_metrics_by_pool
     description: "This table stores metrics for the CURVE protocol"
     columns:
-      - *fee_sharing_token_cash_flow
-      - *gross_protocol_revenue
-      - *service_cash_flow
+      - *staking_fee_allocation
+      - *ecosystem_revenue
+      - *service_fee_allocation
       - *spot_dau
       - *spot_volume
       - *tvl
@@ -91,11 +91,11 @@ models:
     description: "This table stores metrics for the CURVE protocol"
     columns:
       - *fdmc
-      - *fee_sharing_token_cash_flow
-      - *gross_protocol_revenue
+      - *staking_fee_allocation
+      - *ecosystem_revenue
       - *market_cap
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_dau
       - *spot_volume
       - *token_turnover_circulating
@@ -106,9 +106,9 @@ models:
   - name: ez_curve_metrics_by_chain
     description: "This table stores metrics for the CURVE protocol"
     columns:
-      - *fee_sharing_token_cash_flow
-      - *gross_protocol_revenue
-      - *service_cash_flow
+      - *staking_fee_allocation
+      - *ecosystem_revenue
+      - *service_fee_allocation
       - *spot_dau
       - *spot_volume
       - *tvl

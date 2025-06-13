@@ -11,7 +11,7 @@
 with 
      price_data as ({{ get_coingecko_metrics('worldcoin-wld') }})
     , worldchain_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_worldchain_daily_dex_volumes") }}
     )
 select
@@ -25,6 +25,7 @@ select
     , revenue
     , revenue_native
     , dex_volumes
+    , adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data
     , price
@@ -36,12 +37,12 @@ select
     , txns as chain_txns
     , dex_volumes as chain_spot_volume
     -- Cash Flow Metrics
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
-    , cost as l1_cash_flow
-    , cost_native as l1_cash_flow_native
-    , revenue as foundation_cash_flow
-    , revenue_native as foundation_cash_flow_native
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
+    , cost as l1_fee_allocation
+    , cost_native as l1_fee_allocation_native
+    , revenue as foundation_fee_allocation
+    , revenue_native as foundation_fee_allocation_native
     , token_turnover_circulating
     , token_turnover_fdv
 from {{ ref("fact_worldchain_fundamental_metrics") }} as f

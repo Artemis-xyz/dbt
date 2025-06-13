@@ -76,9 +76,9 @@ select
 
     -- Cashflow metrics
     , fees_revenue_data.fees AS chain_fees
-    , fees_revenue_data.fees AS gross_protocol_revenue
-    , fees_revenue_data.fees AS validator_cash_flow
-    , fees_revenue_data.revenue AS burned_cash_flow
+    , fees_revenue_data.fees AS ecosystem_revenue
+    , fees_revenue_data.fees AS validator_fee_allocation
+    , fees_revenue_data.revenue AS burned_fee_allocation
 
     -- Developer Metrics
     , github_data.weekly_commits_core_ecosystem

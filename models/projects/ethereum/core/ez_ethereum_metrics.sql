@@ -48,12 +48,16 @@ with
         GROUP BY 1
     ),
     ethereum_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_ethereum_daily_dex_volumes") }}
     ),
     block_rewards_data as (
         select date, block_rewards_native
         from {{ ref("fact_ethereum_block_rewards") }}
+    ),
+    adjusted_dau_metrics as (
+        select date, adj_daus as adjusted_dau
+        from {{ ref("ez_ethereum_adjusted_dau") }}
     )
 
 select
@@ -61,14 +65,15 @@ select
     , fundamental_data.chain
     , fundamental_data.txns
     , dau
+    , adjusted_dau
     , wau
     , mau
     , fees_native
-    , case when fees is null then fees_native * price else fees end as fees
+    , case when fees is null then (coalesce(blob_fees_native, 0) + fees_native) * price else fees + coalesce(blob_fees, 0) end as fees
     , avg_txn_fee
     , median_txn_fee
-    , revenue_native
-    , revenue
+    , revenue_native + coalesce(blob_fees_native, 0) as revenue_native
+    , revenue + coalesce(blob_fees, 0) as revenue
     , case
         when fees is null then (fees_native * price) - revenue else fees - revenue
     end as priority_fee_usd
@@ -78,6 +83,7 @@ select
     , percent_semi_censored
     , percent_non_censored
     , dune_dex_volumes_ethereum.dex_volumes
+    , dune_dex_volumes_ethereum.adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -127,10 +133,10 @@ select
     , dune_dex_volumes_ethereum.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
     , fees as chain_fees
-    , fees_native AS gross_protocol_revenue_native
-    , fees AS gross_protocol_revenue
-    , revenue_native AS burned_cash_flow_native
-    , revenue AS burned_cash_flow
+    , fees_native AS ecosystem_revenue_native
+    , fees AS ecosystem_revenue
+    , revenue_native AS burned_fee_allocation_native
+    , revenue AS burned_fee_allocation
     , fees_native - revenue_native as priority_fee_native
     , priority_fee_usd AS priority_fee
     -- Developer metrics
@@ -181,4 +187,5 @@ left join da_metrics on fundamental_data.date = da_metrics.date
 left join etf_metrics on fundamental_data.date = etf_metrics.date
 left join ethereum_dex_volumes as dune_dex_volumes_ethereum on fundamental_data.date = dune_dex_volumes_ethereum.date
 left join block_rewards_data on fundamental_data.date = block_rewards_data.date
+left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 where fundamental_data.date < to_date(sysdate())

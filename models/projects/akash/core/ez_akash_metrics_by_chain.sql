@@ -16,10 +16,10 @@ SELECT
     , new_leases
     , compute_fees
     , gas_fees
-    , gross_protocol_revenue
-    , validator_cash_flow
-    , treasury_cash_flow
-    , service_cash_flow
+    , ecosystem_revenue
+    , validator_fee_allocation
+    , treasury_fee_allocation
+    , service_fee_allocation
     , revenue
     , burns_native
     , gross_emissions_native

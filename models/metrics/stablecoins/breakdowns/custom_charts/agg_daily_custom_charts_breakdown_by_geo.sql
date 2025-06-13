@@ -31,12 +31,12 @@ select
         ) then 'asia'
         end as subregion
     , t1.chain
-    , count(distinct case when artemis_stablecoin_daily_txns > 0 then from_address end) as artemis_stablecoin_dau
+    , count(distinct case when artemis_stablecoin_daily_txns > 0 then t1.address end) as artemis_stablecoin_dau
     , sum(artemis_stablecoin_daily_txns) as artemis_stablecoin_daily_txns
     , sum(artemis_stablecoin_transfer_volume) AS artemis_stablecoin_transfer_volume
-from {{ ref("agg_daily_stablecoin_breakdown_silver") }} t1
+from {{ ref("agg_daily_stablecoin_breakdown_with_labels_silver") }} t1
 left join pc_dbt_db.prod.dim_geo_labels t2 
-on lower(from_address) = lower(address) 
+on lower(t1.address) = lower(t2.address) 
 and t1.chain = t2.chain
 where t1.chain in ('ethereum', 'solana') and date_granularity > '2020-01-01'
 and subregion is not null

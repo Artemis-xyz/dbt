@@ -40,6 +40,18 @@ with swap_metrics as (
         buybacks
     FROM {{ ref('fact_aerodrome_supply_data') }}
 )
+, pools_metrics as (
+    SELECT
+        date,
+        cumulative_count
+    FROM {{ ref('fact_aerodrome_pools') }}
+)
+, token_incentives as (
+        select
+            day as date,
+            usd_value as token_incentives
+        from {{ref('fact_aerodrome_token_incentives')}}
+)
 , date_spine as (
     SELECT
         ds.date
@@ -54,6 +66,8 @@ with swap_metrics as (
                         select min(date) as min_date from market_metrics
                         UNION ALL
                         select min(date) as min_date from supply_metrics
+                        UNION ALL
+                        select min(date) as min_date from pools_metrics
                     )
                 )
         and to_date(sysdate())
@@ -82,10 +96,13 @@ SELECT
 
     -- Cash Flow Metrics
     , coalesce(sm.daily_fees_usd, 0) as spot_fees
-    , coalesce(sm.daily_fees_usd, 0) as gross_protocol_revenue
-    , coalesce(sm.daily_fees_usd, 0) as fee_sharing_token_cash_flow
+    , coalesce(sm.daily_fees_usd, 0) as fees
+    , coalesce(sm.daily_fees_usd, 0) as staking_fee_allocation
     , coalesce(sp.buybacks_native, 0) as buybacks_native
     , coalesce(sp.buybacks, 0) as buybacks
+    , (coalesce(sm.daily_fees_usd, 0) + coalesce(sp.buybacks, 0)) as revenue
+    , (coalesce(sp.buybacks, 0)) - ti.token_incentives as earnings
+    -- NOTE: We do not track bribes as a part of revenue here. 
 
     -- Supply Metrics
     , coalesce(sp.emissions_native, 0) as gross_emissions_native
@@ -99,9 +116,14 @@ SELECT
     -- Other Metrics
     , coalesce(mm.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(mm.token_turnover_fdv, 0) as token_turnover_fdv
+    , coalesce(pm.cumulative_count, 0) as total_pools
+    , coalesce(ti.token_incentives, 0) as token_incentives
+
 FROM date_spine ds
 LEFT JOIN swap_metrics sm using (date)
 LEFT JOIN tvl_metrics tm using (date)
 LEFT JOIN market_metrics mm using (date)
 LEFT JOIN supply_metrics sp using (date)
+LEFT JOIN pools_metrics pm using (date)
+LEFT JOIN token_incentives ti using (date)
 WHERE ds.date < to_date(sysdate())

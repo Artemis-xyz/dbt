@@ -16,6 +16,7 @@ with metrics as (
 SELECT
     date
     , chain
+    , coalesce(metrics.trading_volume, 0) as trading_volume
 
     --Standardized Metrics
 
@@ -26,8 +27,8 @@ SELECT
     , coalesce(metrics.trading_volume, 0) AS aggregator_volume
 
     -- Cash Flow Metrics
-    , coalesce(metrics.fees_usd, 0) AS gross_protocol_revenue
-    , coalesce(metrics.fees_usd, 0) * 0.6 AS treasury_cash_flow
-    , coalesce(metrics.fees_usd, 0) * 0.4 AS token_cash_flow
+    , coalesce(metrics.fees_usd, 0) AS ecosystem_revenue
+    , coalesce(metrics.fees_usd, 0) * 0.6 AS treasury_fee_allocation
+    , coalesce(metrics.fees_usd, 0) * 0.4 AS token_fee_allocation
 FROM metrics
 ORDER BY date DESC

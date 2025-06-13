@@ -4,8 +4,8 @@
 version: 2
 
 column_definitions:
-  buyback_cash_flow: &buyback_cash_flow
-    name: buyback_cash_flow
+  buyback_fee_allocation: &buyback_fee_allocation
+    name: buyback_fee_allocation
     description: "Portion of revenue allocated to buy back RAY tokens."
     tags:
       - artemis_gaap
@@ -25,8 +25,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  gross_protocol_revenue: &gross_protocol_revenue
-    name: gross_protocol_revenue
+  ecosystem_revenue: &ecosystem_revenue
+    name: ecosystem_revenue
     description: "The total USD value generated from all user-paid fees on Raydium's CPMM, AMM, and CLMM, prior to the split with network participants."
     tags:
       - artemis_gaap
@@ -46,8 +46,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "The share of protocol revenue accrued to Raydium LPs. On Raydium's AMM, that is 88% of fees, while on the CPMM and CLMM it is 84% of fees."
     tags:
       - artemis_gaap
@@ -78,8 +78,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  treasury_cash_flow: &treasury_cash_flow
-    name: treasury_cash_flow
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
     description: "Revenue allocated to the protocol's treasury. For Raydium's CPMM and CLMM that is 4% of fees, and 0% for AMM v4."
     tags:
       - artemis_gaap
@@ -95,14 +95,14 @@ models:
   - name: ez_raydium_metrics_by_chain
     description: "This table stores metrics for the RAYDIUM protocol"
     columns:
-      - *buyback_cash_flow
+      - *buyback_fee_allocation
       - *buybacks
-      - *gross_protocol_revenue
-      - *service_cash_flow
+      - *ecosystem_revenue
+      - *service_fee_allocation
       - *spot_dau
       - *spot_txns
       - *spot_volume
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *tvl
 
   - name: ez_raydium_metrics

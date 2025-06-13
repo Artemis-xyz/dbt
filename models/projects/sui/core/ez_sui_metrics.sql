@@ -14,6 +14,14 @@ with
     defillama_data as ({{ get_defillama_metrics("sui") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("sui") }}),
     github_data as ({{ get_github_metrics("sui") }})
+    , supply_data as (
+        select 
+            date
+            , premine_unlocks_native
+            , net_supply_change_native
+            , circulating_supply_native
+        from {{ ref("fact_sui_supply_data") }}
+    )
 select
     fundamental_data.date
     , 'sui' as chain
@@ -43,13 +51,16 @@ select
     , new_users
     -- Cashflow Metrics
     , fees as chain_fees
-    , fees_native AS gross_protocol_revenue_native
-    , fees AS gross_protocol_revenue
-    , revenue AS burned_cash_flow
-    , revenue_native AS burned_cash_flow_native
+    , fees_native AS ecosystem_revenue_native
+    , fees AS ecosystem_revenue
+    , revenue AS burned_fee_allocation
+    , revenue_native AS burned_fee_allocation_native
     , avg_txn_fee AS chain_avg_txn_fee
     -- Supply Metrics
     , mints_native as gross_emissions_native
+    , premine_unlocks_native
+    , net_supply_change_native
+    , circulating_supply_native
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -76,4 +87,5 @@ left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join github_data on fundamental_data.date = github_data.date
+left join supply_data on fundamental_data.date = supply_data.date
 where fundamental_data.date < to_date(sysdate())

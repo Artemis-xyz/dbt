@@ -14,7 +14,7 @@ WITH token_transfers AS (
         from_address,
         to_address,
         raw_amount_precise::number / 1e18 AS amount
-    FROM ethereum_flipside.core.fact_token_transfers
+    FROM ethereum_flipside.core.ez_token_transfers
     WHERE contract_address = LOWER('0x517F9dD285e75b599234F7221227339478d0FcC8')
 ),
 daily_mints AS (
@@ -33,16 +33,22 @@ daily_burns AS (
     WHERE to_address = LOWER('0x0000000000000000000000000000000000000000')
     GROUP BY date
 ),
+dim_dates AS (
+    SELECT
+        date
+    FROM {{ ref('dim_date_spine') }}
+    WHERE date < to_date(sysdate())
+),
 daily_net_supply AS (
     SELECT
-        d.date_day as date,
+        d.date,
         COALESCE(m.daily_minted, 0) AS daily_minted,
         COALESCE(b.daily_burned, 0) AS daily_burned,
         COALESCE(m.daily_minted, 0) - COALESCE(b.daily_burned, 0) AS daily_net
-    FROM ethereum_flipside.core.dim_dates d
-    LEFT JOIN daily_mints m ON d.date_day = m.date
-    LEFT JOIN daily_burns b ON d.date_day = b.date
-    WHERE date_day < to_date(sysdate())
+    FROM dim_dates d
+    LEFT JOIN daily_mints m ON d.date = m.date
+    LEFT JOIN daily_burns b ON d.date = b.date
+    WHERE d.date < to_date(sysdate())
 ),
 cumulative_supply AS (
     SELECT

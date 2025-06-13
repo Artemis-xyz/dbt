@@ -1,7 +1,0 @@
-models:
-  - name: fact_across_complete_transfers
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - deposit_id
-            - origin_chain_id

@@ -20,6 +20,10 @@ with
             )
         }}
     )
+    , token_incentives as (
+        select date, sum(amount_native) as amount_native, sum(amount_usd) as amount_usd from {{ ref("fact_radiant_token_incentives") }}
+        group by 1
+    )
     , radiant_metrics as (
         select
             date
@@ -31,18 +35,26 @@ with
     , price_data as ({{ get_coingecko_metrics("radiant") }})
 
 select
-    radiant_metrics.date
+    token_incentives.date
     , 'radiant' as app
     , 'DeFi' as category
     , radiant_metrics.daily_borrows_usd
     , radiant_metrics.daily_supply_usd
     -- Standardized metrics
+
     , radiant_metrics.daily_borrows_usd as lending_loans
     , radiant_metrics.daily_supply_usd as lending_deposits
     , price_data.price
     , price_data.market_cap
     , price_data.fdmc
-from radiant_metrics
+
+     -- Supply data
+    , token_incentives.amount_native as gross_emissions_native
+    , token_incentives.amount_usd as gross_emissions
+
+from token_incentives
 left join price_data
-    on radiant_metrics.date = price_data.date
-where radiant_metrics.date < to_date(sysdate())
+    on token_incentives.date = price_data.date
+left join radiant_metrics
+    on token_incentives.date = radiant_metrics.date
+where token_incentives.date < to_date(sysdate())

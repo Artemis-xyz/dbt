@@ -54,10 +54,10 @@ select
     , coalesce(price_data.token_volume, 0) as token_volume
 
     -- Cash Flow Metrics
-    , coalesce(fees_data.fees, 0) as gross_protocol_revenue
-    , coalesce(revenue_data.revenue, 0) as service_cash_flow
-    , coalesce(revenue_data.hnt_burned, 0) * coalesce(price_data.price, 0) as burned_cash_flow
-    , coalesce(revenue_data.hnt_burned, 0) as burned_cash_flow_native
+    , coalesce(fees_data.fees, 0) as ecosystem_revenue
+    , coalesce(revenue_data.revenue, 0) as service_fee_allocation
+    , coalesce(revenue_data.hnt_burned, 0) * coalesce(price_data.price, 0) as burned_fee_allocation
+    , coalesce(revenue_data.hnt_burned, 0) as burned_fee_allocation_native
 
     -- Supply Metrics
     , coalesce(mints_data.mints_native, 0) as gross_emissions_native

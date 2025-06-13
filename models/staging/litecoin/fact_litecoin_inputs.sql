@@ -1,5 +1,5 @@
 {{ config(
-    materialized='table',
+    materialized='incremental',
     unique_key='unique_id',
     snowflake_warehouse='LITECOIN'
 ) }}
@@ -20,6 +20,10 @@ with source_data as (
         PARQUET_RAW:addresses::array as addresses,
         PARQUET_RAW:value::number as value
     from {{ source('PROD_LANDING', 'raw_litecoin_inputs_parquet') }}
+    where 1=1
+    {% if is_incremental() %}
+      and PARQUET_RAW:block_number::number > (select max(block_number) from {{ this }})
+    {% endif %}
 )
 
 select 
@@ -36,5 +40,6 @@ select
     required_signatures,
     type,
     addresses,
-    value
+    value,
+    md5(transaction_hash || '-' || index) as unique_id
 from source_data

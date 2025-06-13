@@ -19,7 +19,7 @@ treasury_data as (
     select
         date
         , case 
-            when substr(symbol, 0, 2) = 'S*' then 'stargate'
+            when substr(t1.symbol, 0, 2) = 'S*' then 'stargate'
             when lower(treasury_data.contract_address) in (
                 lower('0x72E95b8931767C79bA4EeE721354d6E99a61D004') -- variableDebtEthUSDC
                 , lower('0x6df1C1E379bC5a00a7b4C6e67A203333772f45A8') --variableDebtEthUSDT
@@ -31,7 +31,7 @@ treasury_data as (
             else 'wallet'
         end as protocol        
         , treasury_data.contract_address
-        , upper(replace(symbol, 'S*', '')) as symbol
+        , upper(replace(t1.symbol, 'S*', '')) as symbol
         , balance_native
         , balance
     from treasury_data

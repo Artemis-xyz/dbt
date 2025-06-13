@@ -16,8 +16,8 @@ with pharaoh_tvl as (
 )
 
 select
-    pharaoh_tvl.date,
-    'Defillama' as source,
+    pharaoh_tvl.date
+    , 'Defillama' as source
 
     -- Standardized Metrics
     , pharaoh_tvl.tvl

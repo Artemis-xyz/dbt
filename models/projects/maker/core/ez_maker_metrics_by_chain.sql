@@ -36,7 +36,8 @@ WITH
         SELECT date, net_treasury_usd FROM {{ ref('fact_net_treasury_usd') }}
     )
     , tvl_metrics AS (
-        SELECT date, tvl_usd as net_deposit, tvl_usd as tvl FROM {{ ref('fact_maker_tvl') }}
+        SELECT date, sum(balance) as net_deposit, sum(balance) as tvl FROM {{ ref('fact_maker_tvl_by_address_balance') }}
+        group by date
     )
     , outstanding_supply AS (
         SELECT date, outstanding_supply FROM {{ ref('fact_dai_supply') }}
@@ -82,13 +83,13 @@ select
     , 'DeFi' as category
     , COALESCE(stability_fees,0) as stability_fees
     , COALESCE(trading_fees, 0) AS trading_fees
-    , COALESCE(fees, 0) AS gross_protocol_revenue
+    , COALESCE(fees, 0) AS ecosystem_revenue
 
-    , COALESCE(primary_revenue, 0) AS interest_rate_cash_flow
-    , COALESCE(liquidation_revenue, 0) AS liquidation_cash_flow
-    , COALESCE(trading_revenue, 0) AS trading_cash_flow
-    -- token_cash_flow = trading_revenue + liquidation_revenue + interest_rate_cash_flow
-    , COALESCE(protocol_revenue, 0) AS token_cash_flow
+    , COALESCE(primary_revenue, 0) AS interest_rate_fee_allocation
+    , COALESCE(liquidation_revenue, 0) AS liquidation_fee_allocation
+    , COALESCE(trading_revenue, 0) AS trading_fee_allocation
+    -- token_fee_allocation = trading_revenue + liquidation_revenue + interest_rate_fee_allocation
+    , COALESCE(protocol_revenue, 0) AS token_fee_allocation
     
 
     , COALESCE(treasury_usd, 0) AS treasury

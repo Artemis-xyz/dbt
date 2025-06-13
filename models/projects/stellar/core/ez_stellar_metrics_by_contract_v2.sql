@@ -38,10 +38,11 @@ SELECT
     , txns as chain_txns
     , dau as chain_dau
     -- Cash Flow Metrics
-    , gas as gross_protocol_revenue_native
-    , gas_usd as gross_protocol_revenue
+    , gas as ecosystem_revenue_native
+    , gas_usd as ecosystem_revenue
     , price_data.token_turnover_circulating
     , price_data.token_turnover_fdv
+    , null AS real_users
 FROM fundamental_data
 LEFT JOIN prices USING(date)
 LEFT JOIN price_data USING(date)

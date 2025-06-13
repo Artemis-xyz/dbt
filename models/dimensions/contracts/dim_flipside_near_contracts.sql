@@ -2,14 +2,14 @@
 
 with
     deployed_contracts as (
-        select tx_signer as address,
+        select ea.tx_signer as address,
         max(ft.modified_timestamp) as modified_timestamp
-        from near_flipside.core.fact_actions_events fae
+        from near_flipside.core.ez_actions ea
         join
             near_flipside.core.fact_transactions ft
-            on fae.tx_hash
+            on ea.tx_hash
             = ft.tx_hash
-        where fae.action_name = 'DeployContract' and ft.tx_receiver = ft.tx_signer
+        where ea.action_name = 'DeployContract' and ft.tx_receiver = ft.tx_signer
         group by 1
     ),
     contracts_tagged as (

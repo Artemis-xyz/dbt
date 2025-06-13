@@ -34,8 +34,8 @@ select
     , txns as chain_txns
     , dau as chain_dau
     -- Cash Flow Metrics
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
     , token_turnover_circulating
     , token_turnover_fdv
 from fundamental_data f 

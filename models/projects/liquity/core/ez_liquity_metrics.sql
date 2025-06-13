@@ -11,8 +11,9 @@
 with tvl as (
     select
         date,
-        tvl_usd as tvl
+        sum(tvl_usd) as tvl
     from {{ ref('fact_liquity_tvl') }}
+    group by 1
 )
 , outstanding_supply as (
     select
@@ -72,7 +73,7 @@ select
     , fr.revenue_usd as revenue
     , ti.token_incentives
     , ti.token_incentives as expenses
-    , fr.revenue_usd - ti.token_incentives as protocol_earnings
+    , fr.revenue_usd - ti.token_incentives as earnings
     , t.treasury as treasury_value
     , t.own_token_treasury as treasury_value_native
     , t.net_treasury as net_treasury_value
@@ -96,8 +97,8 @@ select
     , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
 
     -- Cash Flow Metrics
-    , fr.revenue_usd as gross_protocol_revenue
-    , ti.token_incentives as fee_sharing_token_cash_flow
+    , fr.revenue_usd as ecosystem_revenue
+    , ti.token_incentives as staking_fee_allocation
 
     -- Protocol Metrics
     , coalesce(t.treasury, 0) as treasury

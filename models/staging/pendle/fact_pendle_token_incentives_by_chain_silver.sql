@@ -12,7 +12,7 @@ with agg as(
         , sum(raw_amount_precise::number / 1e18) as amt_pendle
         , SUM(raw_amount_precise::number / 1e18 * p.price) as amt_usd
     from
-        ethereum_flipside.core.fact_token_transfers
+        ethereum_flipside.core.ez_token_transfers
         left join ethereum_flipside.price.ez_prices_hourly p ON p.hour = date_trunc('hour', block_timestamp)
         AND p.token_address = lower('0x808507121B80c02388fAd14726482e061B8da827')
     where
@@ -26,7 +26,7 @@ with agg as(
         , sum(raw_amount_precise::number / 1e18) as amt_pendle
         , SUM(raw_amount_precise::number / 1e18 * p.price) as amt_usd
     from
-        arbitrum_flipside.core.fact_token_transfers
+        arbitrum_flipside.core.ez_token_transfers
         left join arbitrum_flipside.price.ez_prices_hourly p ON p.hour = date_trunc('hour', block_timestamp)
         AND p.token_address = lower('0x0c880f6761F1af8d9Aa9C466984b80DAb9a8c9e8')
     where

@@ -31,7 +31,7 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle", "v2") }})
 , stablecoin_data as ({{ get_stablecoin_metrics("mantle") }})
 , price_data as ({{ get_coingecko_metrics("mantle") }})
 , mantle_dex_volumes as (
-    select date, daily_volume as dex_volumes
+    select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
     from {{ ref("fact_mantle_daily_dex_volumes") }}
 )
 
@@ -52,6 +52,7 @@ select
     , treasury_data.treasury_value_native
     , treasury_data.treasury_value_native_change
     , dune_dex_volumes_mantle.dex_volumes
+    , dune_dex_volumes_mantle.adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -69,12 +70,12 @@ select
     , dune_dex_volumes_mantle.dex_volumes AS chain_spot_volume
     -- Cashflow Metrics
     , fees as chain_fees
-    , fees_native AS gross_protocol_revenue_native
-    , fees AS gross_protocol_revenue
-    , coalesce(fees_native, 0) - l1_data_cost_native as validator_cash_flow_native -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    , coalesce(fees, 0) - l1_data_cost as validator_cash_flow
-    , l1_data_cost_native AS l1_cash_flow_native
-    , l1_data_cost AS l1_cash_flow
+    , fees_native AS ecosystem_revenue_native
+    , fees AS ecosystem_revenue
+    , coalesce(fees_native, 0) - l1_data_cost_native as validator_fee_allocation_native -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(fees, 0) - l1_data_cost as validator_fee_allocation
+    , l1_data_cost_native AS l1_fee_allocation_native
+    , l1_data_cost AS l1_fee_allocation
     -- Protocol Metrics 
     , treasury_data.treasury_value_native AS treasury_native
     , treasury_data.treasury_value_native_change AS treasury_native_change

@@ -41,10 +41,10 @@ select
     , avg_txn_fee AS chain_avg_txn_fee
     -- Cashflow metrics
     , fees as chain_fees
-    , fees_native AS gross_protocol_revenue_native
-    , fees AS gross_protocol_revenue
-    , revenue_native AS burned_cash_flow_native
-    , revenue AS burned_cash_flow
+    , fees_native AS ecosystem_revenue_native
+    , fees AS ecosystem_revenue
+    , revenue_native AS burned_fee_allocation_native
+    , revenue AS burned_fee_allocation
 from fundamental_data
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join price_data on fundamental_data.date = price_data.date

@@ -18,9 +18,9 @@ with swap_metrics as (
         sum(fee_usd) as trading_fees,
         sum(treasury_cash_flow + vebal_cash_flow) as revenue,
         sum(service_cash_flow) as primary_supply_side_revenue,
-        sum(service_cash_flow) as service_cash_flow,
-        sum(treasury_cash_flow) as treasury_cash_flow,
-        sum(vebal_cash_flow) as fee_sharing_token_cash_flow
+        sum(service_cash_flow) as service_fee_allocation,
+        sum(treasury_cash_flow) as treasury_fee_allocation,
+        sum(vebal_cash_flow) as staking_fee_allocation
     FROM {{ ref('ez_balancer_dex_swaps') }}
     group by 1,2
 )
@@ -62,10 +62,10 @@ select
     , coalesce(tvl.tvl_usd, 0) as tvl
 
     -- Money Metrics
-    , coalesce(swap_metrics.trading_fees, 0) as gross_protocol_revenue
-    , coalesce(swap_metrics.service_cash_flow, 0) as service_cash_flow
-    , coalesce(swap_metrics.treasury_cash_flow, 0) as treasury_cash_flow
-    , coalesce(swap_metrics.fee_sharing_token_cash_flow, 0) as fee_sharing_token_cash_flow
+    , coalesce(swap_metrics.trading_fees, 0) as ecosystem_revenue
+    , coalesce(swap_metrics.service_fee_allocation, 0) as service_fee_allocation
+    , coalesce(swap_metrics.treasury_fee_allocation, 0) as treasury_fee_allocation
+    , coalesce(swap_metrics.staking_fee_allocation, 0) as staking_fee_allocation
 from date_pool_spine
 left join swap_metrics using (date, pool_address)
 left join tvl using (date, pool_address)

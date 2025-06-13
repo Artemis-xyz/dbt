@@ -66,12 +66,12 @@ select
 
     , crosschain_data.fees as bridge_fees
     , validator_fees_data.validator_fees as chain_fees
-    , crosschain_data.fees as gross_protocol_revenue
+    , crosschain_data.fees as ecosystem_revenue
     , crosschain_data.fees / crosschain_data.bridge_txns as chain_avg_txn_fee
-    , validator_fees_data.validator_fees as validator_cash_flow
+    , validator_fees_data.validator_fees as validator_fee_allocation
     , mints_data.mints as gross_emissions_native
-    , coalesce(supply_data.totalBurned, 0) as burned_cashflow_native
-    , coalesce(supply_data.totalBurned, 0) * price_data.price as burned_cashflow
+    , coalesce(supply_data.totalBurned, 0) as burned_fee_allocation_native
+    , coalesce(supply_data.totalBurned, 0) * price_data.price as burned_fee_allocation
 
 
     , price_data.price as price

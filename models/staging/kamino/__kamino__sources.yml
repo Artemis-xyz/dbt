@@ -4,3 +4,5 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_kamino_revenue_and_fees
+      - name: raw_kamino_lending
+      - name: raw_kamino_vaults
