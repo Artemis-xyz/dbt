@@ -134,8 +134,8 @@ with
             'solana' as chain,
             fee / 1e9 as tx_fee,
             (fee / 1e9) * price as gas_usd,
-            grouped_transfer_tips.amount / 1e9 as jito_tips,
-            (grouped_transfer_tips.amount / 1e9) * price as jito_tips_usd,
+            grouped_transfer_tips.amount as jito_tips,
+            (grouped_transfer_tips.amount * price) as jito_tips_usd,
             succeeded,
             case
                 when program_id = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
