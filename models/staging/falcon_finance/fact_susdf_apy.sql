@@ -45,21 +45,30 @@ extracted_tvl as (
     pool:date::timestamp as date,
     pool:value::float as tvl,
   from flattened_tvl
+),
+
+joined as (
+  select
+    e.date,
+    case
+      when e.previous_ratio is null then 0
+      else (power(e.ratio / e.previous_ratio, 365) - 1)
+    end as apy,
+    et.tvl,
+    row_number() over (partition by e.date order by e.date desc) as rnk
+  from extracted e
+  join extracted_tvl et on e.date = et.date
 )
 
 select
     'Staked USDf Vault' as name,
-    case
-        when e.previous_ratio is null then 0
-        else (power(e.ratio / e.previous_ratio, 365) - 1)
-    end as apy,
-    et.tvl,
+    apy,
+    tvl,
     array_construct('USDf') as symbol,
     'USDf' as protocol,
     'Vault' as type,
     'ethereum' as chain,
     'https://app.falcon.finance/earn/classic' as link,
-    e.date as extraction_timestamp
-from extracted e
-inner join extracted_tvl et
-on e.date = et.date
+    date as extraction_timestamp
+from joined
+where rnk = 1
