@@ -37,6 +37,13 @@ with
                 order by to_timestamp(value[0]::number / 1000)
             ) as rn
         from circulating_supply_data, lateral flatten(input => data:circulating_supply)
+        where
+            -- Limit to only tokens in fact_coingecko_token_date_adjusted_gold
+            coingecko_id in (
+                select
+                    distinct coingecko_id
+                from pc_dbt_db.prod.fact_coingecko_token_date_adjusted_gold
+            )
     ),
     prices as (
         select
@@ -75,6 +82,7 @@ with
 -- each date). Coingecko returns multiple prices/market caps/volumes for each date,
 -- but we only want the oldest one, so we use the row_number() window function to
 -- select only the oldest one.
+-- This is the case for every source except for the circulating supply data, which is unique on (coingecko_id, date)
 select
     p.date,
     p.coingecko_id,
