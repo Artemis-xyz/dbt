@@ -16,7 +16,7 @@ with
             , mev_priority_fees
             , total_staking_yield as fees
             , operating_expenses
-            , protocol_revenue
+            , revenue
             , primary_supply_side_revenue
             , secondary_supply_side_revenue
             , total_supply_side_revenue
@@ -85,11 +85,11 @@ select
     , COALESCE(f.primary_supply_side_revenue, 0) as primary_supply_side_revenue
     , COALESCE(f.secondary_supply_side_revenue, 0) as secondary_supply_side_revenue
     , COALESCE(f.total_supply_side_revenue, 0) as total_supply_side_revenue
-    , COALESCE(f.protocol_revenue, 0) as protocol_revenue
+    , COALESCE(f.revenue, 0) as revenue
     , COALESCE(f.operating_expenses, 0) as operating_expenses
     , COALESCE(ti.token_incentives, 0) as token_incentives
     , token_incentives + operating_expenses as total_expenses
-    , protocol_revenue - total_expenses as earnings
+    , revenue - total_expenses as earnings
     , COALESCE(t.treasury_value, 0) as treasury_value
     , COALESCE(s.amount_staked_usd, 0) as net_deposits
     , COALESCE(s.num_staked_eth, 0) as outstanding_supply
