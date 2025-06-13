@@ -84,7 +84,7 @@ select
   apy,
   tvl,
   array_construct('USDFALCON') as symbol,
-  'USDFALCON' as protocol,
+  'falcon_finance' as protocol,
   'Vault' as type,
   'ethereum' as chain,
   'https://app.falcon.finance/earn/classic' as link,
