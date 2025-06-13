@@ -100,6 +100,7 @@ select
     , fees_revenue.service_fee_allocation
     , fees_revenue.burned_fee_allocation
     , fees_revenue.treasury_fee_allocation
+    , fees_revenue.burned_fee_allocation + fees_revenue.treasury_fee_allocation as revenue
     -- TODO: see comment in ez_pancakeswap_metrics re: remaining fees
 
     , trading_volume_pool.gas_cost_native
