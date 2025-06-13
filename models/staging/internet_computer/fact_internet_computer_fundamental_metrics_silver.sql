@@ -51,18 +51,15 @@ max_extraction as (
     from latest_data, lateral flatten(input => data) as f
 )
 , final_data as (
-  select
-    *
-    ,
     -- API issues for icp_burned_total on 2025-06-01
-    case
-        when date = '2025-06-01' then icp_burned_total
-    end as icp_burned
-    , case
-        when date = '2025-06-01' then icp_burned_total + prev_icp_burned_total
-        else icp_burned_total
-      end as total_icp_burned
-  from icp_expanded_data
+    select
+        *
+        ,
+        case
+            when icp_burned_total < prev_icp_burned_total then icp_burned_total + prev_icp_burned_total
+            else icp_burned_total
+        end as total_icp_burned
+    from icp_expanded_data
 )
 select 
     date
