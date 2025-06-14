@@ -45,10 +45,10 @@ select
     usde_metrics.stablecoin_dau as stablecoin_dau,
     usde_metrics.stablecoin_txns as stablecoin_txns,
     coalesce(ena_metrics.fees, 0) as fees,
-    coalesce(ena_metrics.fees, 0) as ecosystem_revenue,
     coalesce(ena_cashflow.foundation_fee_allocation, 0) as foundation_fee_allocation, --20% of fees supports Ethena's reserve fund
     coalesce(ena_cashflow.service_fee_allocation, 0) as service_fee_allocation, --80% of fees supports Ethena's ecosystem fund
     coalesce(ena_cashflow.service_fee_allocation, 0) as susde_fees, 
+    0 as revenue, 
     tvl.stablecoin_total_supply as tvl,
     tvl.stablecoin_total_supply as usde_supply,
     tvl.stablecoin_total_supply - lag(tvl.stablecoin_total_supply) over (order by date) as net_usde_supply_change,

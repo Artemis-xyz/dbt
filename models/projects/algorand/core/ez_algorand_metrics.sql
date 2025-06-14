@@ -19,7 +19,10 @@ SELECT
     , txns
     , fees_native
     , fees_native * price AS fees
-    , fees AS revenue
+    , CASE 
+        WHEN date > '2024-12-31' THEN 0.5 * fees
+        ELSE fees
+    END AS revenue
     , rewards_algo
     , rewards_algo * price AS rewards_usd
     -- Standardized Metrics
