@@ -29,11 +29,12 @@ with fees as (
     GROUP BY 1
 )
 , token_incentives as (
-    SELECT
-        DATE(block_timestamp) AS date,
-        SUM(incentive_usd) AS token_incentives
-    FROM {{ ref('fact_maple_token_incentives') }}
-    GROUP BY 1
+    select
+        date
+        , sum(incentive_native) as token_incentives_native
+        , sum(incentive_usd) as token_incentives
+    from {{ ref('fact_maple_token_incentives') }}
+    group by 1
 )
 , tvl as (
     SELECT
@@ -88,6 +89,7 @@ SELECT
     , coalesce(interest_fees, 0) - coalesce(platform_fees, 0) - coalesce(delegate_fees, 0) as primary_supply_side_revenue
     , coalesce(primary_supply_side_revenue, 0) as total_supply_side_revenue
     , coalesce(revenues.revenue, 0) as revenue
+    , coalesce(token_incentives.token_incentives_native, 0) as token_incentives_native
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
     , coalesce(token_incentives.token_incentives, 0) as total_expenses
     , coalesce(revenue, 0) - coalesce(token_incentives.token_incentives, 0) as earnings
