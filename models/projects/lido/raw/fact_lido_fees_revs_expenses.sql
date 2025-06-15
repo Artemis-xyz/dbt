@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="LIDO",
+        snowflake_warehouse="ANALYTICS_XL",
         database="lido",
         schema="raw",
         alias="fact_fees_revs_expenses",
@@ -21,11 +21,15 @@ with steth_prices as (
         date(block_timestamp) as date
         , 'ethereum' as chain
         , 'stETH' as token
-        , sum(raw_amount_precise::number / 1e18 * 20) as total_staking_yield_native
-        , sum(raw_amount_precise::number / 1e18 * p.price * 20) as total_staking_yield_usd
+        , sum(raw_amount_precise::number / 1e18 / (treasury_fee_pct + insurance_fee_pct)) as total_staking_yield_native
+        , sum(raw_amount_precise::number / 1e18 / (treasury_fee_pct + insurance_fee_pct) * p.price) as total_staking_yield_usd
+        , AVG(treasury_fee_pct) as treasury_fee_pct
+        , AVG(insurance_fee_pct) as insurance_fee_pct
+        , AVG(operators_fee_pct) as operators_fee_pct
     from
         ethereum_flipside.core.ez_token_transfers t
     left join steth_prices p on date_trunc('hour', t.block_timestamp) = p.hour
+    left join {{ref('fact_lido_fee_split')}} f on t.block_timestamp::date = f.date
     where
         contract_address = lower('0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84')
         and from_address = lower('0x0000000000000000000000000000000000000000')
@@ -52,8 +56,8 @@ SELECT
     , COALESCE(f.total_staking_yield_native, 0) - COALESCE(m.mev_priority_fees_amount_eth, 0) AS block_rewards_native
     , COALESCE(m.mev_priority_fees_amount_eth, 0) AS mev_priority_fees_native
     , COALESCE(f.total_staking_yield_native, 0) AS total_staking_yield_native
-    , COALESCE(f.total_staking_yield_native, 0) * 0.05 as operating_expenses_native
-    , COALESCE(f.total_staking_yield_native, 0) * 0.10 as protocol_revenue_native
+    , COALESCE(f.total_staking_yield_native, 0) * operators_fee_pct as operating_expenses_native
+    , COALESCE(f.total_staking_yield_native, 0) * (treasury_fee_pct + insurance_fee_pct) as protocol_revenue_native
     , block_rewards_native * 0.90 as primary_supply_side_revenue_native
     , mev_priority_fees_amount_eth * 0.90 as secondary_supply_side_revenue_native
     , total_staking_yield_native * 0.90 as total_supply_side_revenue_native
@@ -61,8 +65,8 @@ SELECT
     , COALESCE(f.total_staking_yield_usd, 0) - COALESCE(m.mev_priority_fees_amount_usd, 0) AS block_rewards
     , COALESCE(m.mev_priority_fees_amount_usd, 0) AS mev_priority_fees
     , COALESCE(f.total_staking_yield_usd, 0) AS total_staking_yield
-    , COALESCE(f.total_staking_yield_usd, 0) * 0.05 as operating_expenses
-    , COALESCE(f.total_staking_yield_usd, 0) * 0.10 as protocol_revenue
+    , COALESCE(f.total_staking_yield_usd, 0) * operators_fee_pct as operating_expenses
+    , COALESCE(f.total_staking_yield_usd, 0) * (treasury_fee_pct + insurance_fee_pct) as protocol_revenue
     , block_rewards * 0.90 as primary_supply_side_revenue
     , mev_priority_fees * 0.90 as secondary_supply_side_revenue
     , total_staking_yield * 0.90 as total_supply_side_revenue
