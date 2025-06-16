@@ -4,18 +4,98 @@
 version: 2
 
 column_definitions:
+  foundation_fee_allocation: &foundation_fee_allocation
+    name: foundation_fee_allocation
+    description: "Revenue allocated to a foundation affiliated with the protocol, used for grants, partnerships, operations, or legal."
+    tags:
+      - artemis_gaap
+
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
+    description: "The share of protocol revenue accrued to service providers of the protocol."
+    tags:
+      - artemis_gaap
+
+  service_fee_allocation_native: &service_fee_allocation_native
+    name: service_fee_allocation_native
+    description: "The share of protocol revenue accrued to service providers of the protocol in native tokens."
+    tags:
+      - artemis_gaap
+
+  spot_dau: &spot_dau
+    name: spot_dau
+    description: "The number of daily active traders on a spot dex"
+
+  spot_fees: &spot_fees
+    name: spot_fees
+    description: "The total amount of fees (in USD) on a spot dex"
+
+  spot_txns: &spot_txns
+    name: spot_txns
+    description: "The number of daily trades on a spot dex"
+
+  spot_volume: &spot_volume
+    name: spot_volume
+    description: "The total volume on a spot dex"
+
   tvl: &tvl
     name: tvl
     description: "The total value locked in a protocol"
 
+  tvl_native: &tvl_native
+    name: tvl_native
+    description: "The total value locked in a protocol in the native currency of the protocol"
+
+  tvl_net_change: &tvl_net_change
+    name: tvl_net_change
+    description: "The net change in the total value locked in a protocol"
+
 models:
+  - name: ez_aftermath_metrics_by_pool
+    description: "This table stores metrics for the AFTERMATH protocol"
+    columns:
+      - *foundation_fee_allocation
+      - *service_fee_allocation
+      - *spot_dau
+      - *spot_fees
+      - *spot_txns
+      - *spot_volume
+      - *tvl
+
+  - name: ez_aftermath_metrics_by_token
+    description: "This table stores metrics for the AFTERMATH protocol"
+    columns:
+      - *foundation_fee_allocation
+      - *service_fee_allocation
+      - *service_fee_allocation_native
+      - *spot_dau
+      - *spot_fees
+      - *spot_txns
+      - *spot_volume
+      - *tvl
+      - *tvl_native
+
   - name: ez_aftermath_metrics_by_chain
     description: "This table stores metrics for the AFTERMATH protocol"
     columns:
+      - *foundation_fee_allocation
+      - *service_fee_allocation
+      - *spot_dau
+      - *spot_fees
+      - *spot_txns
+      - *spot_volume
       - *tvl
+      - *tvl_net_change
 
   - name: ez_aftermath_metrics
     description: "This table stores metrics for the AFTERMATH protocol"
     columns:
+      - *foundation_fee_allocation
+      - *service_fee_allocation
+      - *spot_dau
+      - *spot_fees
+      - *spot_txns
+      - *spot_volume
       - *tvl
+      - *tvl_net_change
 

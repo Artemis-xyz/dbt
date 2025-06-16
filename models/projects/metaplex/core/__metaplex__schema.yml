@@ -4,8 +4,8 @@
 version: 2
 
 column_definitions:
-  buyback_cash_flow: &buyback_cash_flow
-    name: buyback_cash_flow
+  buyback_fee_allocation: &buyback_fee_allocation
+    name: buyback_fee_allocation
     description: "Portion of revenue allocated to buy back tokens of the protocol."
     tags:
       - artemis_gaap
@@ -99,8 +99,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  treasury_cash_flow: &treasury_cash_flow
-    name: treasury_cash_flow
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
     description: "50% of gross protocol revenue is allocated to the Metaplex treasury for future use, including development, growth, or governance."
     tags:
       - artemis_gaap
@@ -110,18 +110,18 @@ models:
   - name: ez_metaplex_metrics_by_chain
     description: "This table stores metrics for the METAPLEX protocol"
     columns:
-      - *buyback_cash_flow
+      - *buyback_fee_allocation
       - *buybacks
       - *ecosystem_revenue
       - *nft_dau
       - *nft_fees
       - *nft_txns
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
 
   - name: ez_metaplex_metrics
     description: "This table stores metrics for the METAPLEX protocol"
     columns:
-      - *buyback_cash_flow
+      - *buyback_fee_allocation
       - *buybacks
       - *circulating_supply_native
       - *fdmc
@@ -137,5 +137,5 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
 

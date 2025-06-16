@@ -62,7 +62,7 @@ select
     -- Cash Flow Metrics
     , fees as chain_fees
     , fees as ecosystem_revenue
-    , revenue as treasury_cash_flow
+    , revenue as treasury_fee_allocation
     -- Crypto Metrics
     , tvl
     -- Developer Metrics

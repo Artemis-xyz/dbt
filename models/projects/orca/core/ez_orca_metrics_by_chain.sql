@@ -27,8 +27,8 @@ select
     , tvl
 
     -- Money Metrics
-    , treasury_cash_flow
+    , treasury_fee_allocation
     , ecosystem_revenue
-    , service_cash_flow
-    , other_cash_flow
+    , service_fee_allocation
+    , other_fee_allocation
 from {{ ref("ez_orca_metrics") }}

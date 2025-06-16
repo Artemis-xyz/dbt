@@ -28,7 +28,7 @@ with
         where
             not equal_null(category, 'EOA')
             {% if is_incremental() %}
-                and date >= (select dateadd('day', CASE WHEN DAYOFWEEK(CURRENT_DATE) = 7 THEN -90 ELSE -30 END, max(date)) from {{ this }})
+                and date >= (select dateadd('day', CASE WHEN DAYOFWEEK(CURRENT_DATE) = 6 THEN -90 ELSE -30 END, max(date)) from {{ this }})
             {% endif %}
         group by date, contract_address
     )

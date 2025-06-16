@@ -11,8 +11,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
-    name: fee_sharing_token_cash_flow
+  staking_fee_allocation: &staking_fee_allocation
+    name: staking_fee_allocation
     description: "Revenue distributed on a pro rata basis to $LQTY stakers."
     tags:
       - artemis_gaap
@@ -132,7 +132,7 @@ models:
     description: "This table stores metrics for the LIQUITY protocol"
     columns:
       - *fdmc
-      - *fee_sharing_token_cash_flow
+      - *staking_fee_allocation
       - *ecosystem_revenue
       - *lending_deposits
       - *lending_loans
@@ -169,7 +169,7 @@ models:
   - name: ez_liquity_metrics_by_chain
     description: "This table stores metrics for the LIQUITY protocol"
     columns:
-      - *fee_sharing_token_cash_flow
+      - *staking_fee_allocation
       - *ecosystem_revenue
       - *lending_deposits
       - *lending_loans

@@ -81,7 +81,7 @@ SELECT
     , coalesce(ti.token_incentives,0) as token_incentives
     , 0 as operating_expenses
     , token_incentives + operating_expenses as total_expenses
-    , revenue - total_expenses as protocol_earnings
+    , revenue - total_expenses as earnings
     , m.net_deposits as net_deposits
     , 0 as outstanding_supply
     , treasury_by_token.treasury as treasury_value
@@ -102,8 +102,8 @@ SELECT
 
     -- Cash Flow
     , coalesce(m.interest_fees,0) + coalesce(m.withdrawal_revenue,0) as ecosystem_revenue
-    , coalesce(m.supply_side_fees,0) as service_cash_flow
-    , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) as token_cash_flow
+    , coalesce(m.supply_side_fees,0) as service_fee_allocation
+    , coalesce(m.interest_revenue,0) + coalesce(m.withdrawal_revenue,0) as token_fee_allocation
         -- This is cashflow to the DAO-controlled treasury
     
     -- Protocol Metrics

@@ -82,7 +82,7 @@ SELECT
     , coalesce(auction_fees.fees_usd, 0) as auction_fees
     , coalesce(defillama_tvl.liquid_fees_usd, 0) as strategy_fees
     , coalesce(liquidity_pool_fees.fees_usd, 0) + coalesce(auction_fees.fees_usd, 0) + coalesce(defillama_tvl.liquid_fees_usd, 0) as ecosystem_revenue
-    , strategy_fees as equity_cash_flow
+    , strategy_fees as equity_fee_allocation
 
     --Token Turnover Metrics
     , market_metrics.token_turnover_circulating as token_turnover_circulating

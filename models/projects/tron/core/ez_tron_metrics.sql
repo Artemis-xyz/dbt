@@ -75,10 +75,8 @@ select
 
     -- Cash Flow Metrics
     , fees as chain_fees
-    , fees_native AS ecosystem_revenue_native
-    , fees AS ecosystem_revenue
-    , fees_native AS burned_cash_flow_native
-    , fees AS burned_cash_flow
+    , fees_native AS burned_fee_allocation_native
+    , fees AS burned_fee_allocation
 
     -- Financial Statement Metrics
     , fees as fees

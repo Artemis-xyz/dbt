@@ -25,7 +25,7 @@ with protocol_data as (
         , sum(spot_volume) as spot_volume
         , sum(tvl) as tvl
         , sum(trading_fees) as trading_fees
-        , sum(ecosystem_revenue) as ecosystem_revenue
+        , sum(fees) as fees
         , sum(gas_cost_native) as gas_cost_native
         , sum(gas_cost) as gas_cost
 
@@ -87,7 +87,9 @@ select
 
     -- Cashflow Metrics
     , protocol_data.spot_fees
-    , protocol_data.ecosystem_revenue
+    , protocol_data.spot_fees as fees 
+    , supply_data.burns_native as revenue
+    , revenue - token_incentives.token_incentives as earnings
     , token_incentives.token_incentives
     , protocol_data.gas_cost_native
     , protocol_data.gas_cost

@@ -17,8 +17,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  foundation_cash_flow: &foundation_cash_flow
-    name: foundation_cash_flow
+  foundation_fee_allocation: &foundation_fee_allocation
+    name: foundation_fee_allocation
     description: "This represents 50% of ecosystem revenue allocated to Believe."
     tags:
       - artemis_gaap
@@ -36,8 +36,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "This represents 50% of ecosystem revenue allocated to the creators of the coins."
     tags:
       - artemis_gaap
@@ -67,10 +67,10 @@ models:
     columns:
       - *ecosystem_revenue
       - *fdmc
-      - *foundation_cash_flow
+      - *foundation_fee_allocation
       - *market_cap
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
@@ -80,10 +80,10 @@ models:
     columns:
       - *ecosystem_revenue
       - *fdmc
-      - *foundation_cash_flow
+      - *foundation_fee_allocation
       - *market_cap
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume

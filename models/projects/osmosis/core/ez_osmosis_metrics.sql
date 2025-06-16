@@ -92,8 +92,8 @@ select
     , gas_usd as chain_fees
     , trading_fees as spot_fees
     , fees as ecosystem_revenue
-    , trading_fees as service_cash_flow
-    , gas_usd as validator_cash_flow
+    , trading_fees as service_fee_allocation
+    , gas_usd as validator_fee_allocation
     -- Crypto Metrics
     , tvl
     -- Developer Metrics

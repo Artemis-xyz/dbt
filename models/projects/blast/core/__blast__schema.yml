@@ -4,14 +4,14 @@
 version: 2
 
 column_definitions:
-  burned_cash_flow: &burned_cash_flow
-    name: burned_cash_flow
+  burned_fee_allocation: &burned_fee_allocation
+    name: burned_fee_allocation
     description: "The USD value of tokens burned"
     tags:
       - artemis_gaap
 
-  burned_cash_flow_native: &burned_cash_flow_native
-    name: burned_cash_flow_native
+  burned_fee_allocation_native: &burned_fee_allocation_native
+    name: burned_fee_allocation_native
     description: "The amount of native tokens burned"
     tags:
       - artemis_gaap
@@ -58,8 +58,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  foundation_cash_flow: &foundation_cash_flow
-    name: foundation_cash_flow
+  foundation_fee_allocation: &foundation_fee_allocation
+    name: foundation_fee_allocation
     description: "Revenue allocated to a foundation affiliated with the protocol, used for grants, partnerships, operations, or legal."
     tags:
       - artemis_gaap
@@ -80,14 +80,14 @@ column_definitions:
     name: high_sleep_users
     description: "The number of high sleep users on a chain"
 
-  l1_cash_flow: &l1_cash_flow
-    name: l1_cash_flow
+  l1_fee_allocation: &l1_fee_allocation
+    name: l1_fee_allocation
     description: "The total USD value of L1 cash flow on a chain"
     tags:
       - artemis_gaap
 
-  l1_cash_flow_native: &l1_cash_flow_native
-    name: l1_cash_flow_native
+  l1_fee_allocation_native: &l1_fee_allocation_native
+    name: l1_fee_allocation_native
     description: "The total native value of L1 cash flow on a chain"
     tags:
       - artemis_gaap
@@ -144,8 +144,8 @@ models:
   - name: ez_blast_metrics
     description: "This table stores metrics for the BLAST protocol"
     columns:
-      - *burned_cash_flow
-      - *burned_cash_flow_native
+      - *burned_fee_allocation
+      - *burned_fee_allocation_native
       - *chain_avg_txn_fee
       - *chain_dau
       - *chain_mau
@@ -156,12 +156,12 @@ models:
       - *circulating_supply_native
       - *dau_over_100_balance
       - *fdmc
-      - *foundation_cash_flow
+      - *foundation_fee_allocation
       - *ecosystem_revenue
       - *ecosystem_revenue_native
       - *high_sleep_users
-      - *l1_cash_flow
-      - *l1_cash_flow_native
+      - *l1_fee_allocation
+      - *l1_fee_allocation_native
       - *low_sleep_users
       - *market_cap
       - *net_supply_change_native

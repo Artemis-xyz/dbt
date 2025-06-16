@@ -1,6 +1,6 @@
 {{
     config(
-        materialized = 'view',
+        materialized = 'table',
         snowflake_warehouse = 'MAPLE',
         database = 'MAPLE',
         schema = 'core',
@@ -17,7 +17,7 @@ SELECT
     revenue,
     token_incentives,
     total_expenses,
-    protocol_earnings,
+    earnings,
     treasury_value,
     treasury_value_native,
     net_treasury_value,

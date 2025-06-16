@@ -58,18 +58,18 @@ select
     CASE
         WHEN version = 'v1' THEN 0.7 * perp_fees
         WHEN version = 'v2' THEN 0.63 * perp_fees
-    END as perp_lp_cash_flow,
+    END as perp_lp_fee_allocation,
     CASE
         WHEN version = 'v1' THEN 0.3 * perp_fees
         WHEN version = 'v2' THEN 0.27 * perp_fees
-    END as perp_stakers_cash_flow,
+    END as perp_stakers_fee_allocation,
     CASE
         WHEN version = 'v1' THEN 0 * perp_fees
         WHEN version = 'v2' THEN 0.012 * perp_fees
-    END as perp_oracle_cash_flow,
+    END as perp_oracle_fee_allocation,
     CASE
         WHEN version = 'v1' THEN 0 * perp_fees
         WHEN version = 'v2' THEN 0.088 * perp_fees
-    END as perp_treasury_cash_flow
+    END as perp_treasury_fee_allocation
 from perp_trades
 left join liquidation_fees using (date, chain, version)

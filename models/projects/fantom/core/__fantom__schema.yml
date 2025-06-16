@@ -38,8 +38,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  foundation_cash_flow: &foundation_cash_flow
-    name: foundation_cash_flow
+  foundation_fee_allocation: &foundation_fee_allocation
+    name: foundation_fee_allocation
     description: "Revenue allocated to a foundation affiliated with the protocol, used for grants, partnerships, operations, or legal."
     tags:
       - artemis_gaap
@@ -110,7 +110,7 @@ models:
       - *chain_txns
       - *chain_wau
       - *fdmc
-      - *foundation_cash_flow
+      - *foundation_fee_allocation
       - *ecosystem_revenue
       - *ecosystem_revenue_native
       - *market_cap

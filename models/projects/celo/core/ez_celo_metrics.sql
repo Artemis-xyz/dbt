@@ -51,7 +51,7 @@ select
     -- Cashflow metrics
     , fees AS chain_fees
     , fees AS ecosystem_revenue
-    , revenue AS burned_cash_flow
+    , revenue AS burned_fee_allocation
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

@@ -11,7 +11,8 @@ select
     t1.coingecko_id,
     t2.token_price_usd as shifted_token_price_usd,
     t2.token_market_cap as shifted_token_market_cap,
-    t2.token_h24_volume_usd as shifted_token_h24_volume_usd
+    t2.token_h24_volume_usd as shifted_token_h24_volume_usd,
+    t2.token_circulating_supply as shifted_token_circulating_supply
 from {{ ref("fact_coingecko_token") }} as t1
 left join
     {{ ref("fact_coingecko_token") }} as t2

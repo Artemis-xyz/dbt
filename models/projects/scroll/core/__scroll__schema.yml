@@ -36,8 +36,8 @@ column_definitions:
     name: chain_wau
     description: "Weekly unique users on a chain"
 
-  equity_cash_flow: &equity_cash_flow
-    name: equity_cash_flow
+  equity_fee_allocation: &equity_fee_allocation
+    name: equity_fee_allocation
     description: "All the transaction fees after paying the L1 are retained by Scroll Labs"
     tags:
       - artemis_gaap
@@ -61,14 +61,14 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  l1_cash_flow: &l1_cash_flow
-    name: l1_cash_flow
+  l1_fee_allocation: &l1_fee_allocation
+    name: l1_fee_allocation
     description: "The total USD value of L1 cash flow on a chain"
     tags:
       - artemis_gaap
 
-  l1_cash_flow_native: &l1_cash_flow_native
-    name: l1_cash_flow_native
+  l1_fee_allocation_native: &l1_fee_allocation_native
+    name: l1_fee_allocation_native
     description: "The total native value of L1 cash flow on a chain"
     tags:
       - artemis_gaap
@@ -145,12 +145,12 @@ models:
       - *chain_spot_volume
       - *chain_txns
       - *chain_wau
-      - *equity_cash_flow
+      - *equity_fee_allocation
       - *fdmc
       - *ecosystem_revenue
       - *ecosystem_revenue_native
-      - *l1_cash_flow
-      - *l1_cash_flow_native
+      - *l1_fee_allocation
+      - *l1_fee_allocation_native
       - *market_cap
       - *price
       - *token_turnover_circulating
