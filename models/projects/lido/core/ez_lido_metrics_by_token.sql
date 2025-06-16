@@ -100,6 +100,7 @@ SELECT
     --Standardized Metrics
 
     --Usage Metrics
+    , COALESCE(s.num_staked_eth, 0) as lst_tvl_native
     , COALESCE(s.num_staked_eth, 0) as tvl_native
 
     --Cash Flow Metrics

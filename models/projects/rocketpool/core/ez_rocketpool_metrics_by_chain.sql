@@ -48,7 +48,9 @@ select
 
     --Usage Metrics
     , s.num_staked_eth as tvl_native
+    , s.num_staked_eth as lst_tvl_native
     , s.amount_staked_usd as tvl
+    , s.amount_staked_usd as lst_tvl
 
     --Cash Flow Metrics
     , COALESCE(cl_rewards_usd, 0) as block_rewards
