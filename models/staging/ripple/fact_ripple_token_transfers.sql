@@ -15,7 +15,7 @@ select
     token_address as contract_address,
     from_address,
     to_address,
-    value as amount_raw,
+    value as amount_raw
 from {{ source("SONARX_XRP", "priced_transfers") }}
 {% if is_incremental() %}
     where block_timestamp >= (select dateadd(day, -3, max(block_timestamp)) from {{ this }})
