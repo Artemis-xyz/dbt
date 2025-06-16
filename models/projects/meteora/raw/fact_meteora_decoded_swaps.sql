@@ -2,16 +2,18 @@
 {{
     config(
         materialized='incremental',
-        incremental_strategy='microbatch',
-        event_time='block_timestamp',
-        begin='2023-11-27', 
-        batch_size='day',
-        concurrent_batches=true,
         snowflake_warehouse='SNOWPARK_WAREHOUSE',
         full_refresh=false,
-        enabled=false
     )
  }}
+
+-- TODO: microbatch config to add back later
+-- incremental_strategy='microbatch',
+-- event_time='block_timestamp',
+-- begin='2023-11-27', 
+-- batch_size='day',
+-- concurrent_batches=true,
+
 with swaps as (
     SELECT
         *
