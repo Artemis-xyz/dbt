@@ -18,6 +18,7 @@ with swaps as (
     SELECT
         *
     FROM {{ ref('fact_meteora_encoded_swaps') }}
+    WHERE 1=1
     {% if is_incremental() %}
         and block_timestamp > (select MAX(block_timestamp) from {{ this }})
     {% endif %}
