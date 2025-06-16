@@ -115,6 +115,7 @@ select
     , tvl.tvl
 
     -- Cashflow Metrics
+    , trading_volume.trading_fees as spot_fees
     , cashflow_metrics.ecosystem_revenue as ecosystem_revenue
     , cashflow_metrics.service_fee_allocation as service_fee_allocation
     , cashflow_metrics.staking_fee_allocation as staking_fee_allocation
