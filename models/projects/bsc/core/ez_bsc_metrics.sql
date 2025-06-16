@@ -116,4 +116,5 @@ left join contract_data on fundamental_data.date = contract_data.date
 left join nft_metrics on fundamental_data.date = nft_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join binance_dex_volumes as dune_dex_volumes_binance on fundamental_data.date = dune_dex_volumes_binance.date
+left join staked_eth_metrics on fundamental_data.date = staked_eth_metrics.date
 where fundamental_data.date < to_date(sysdate())

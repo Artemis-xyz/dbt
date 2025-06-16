@@ -34,6 +34,6 @@ SELECT
     , coalesce(block_infra_dau, 0) as block_infra_dau
     , coalesce(tvl, 0) as lst_tvl
     , coalesce(tvl, 0) as tvl
-    , coalesce(tvl_net_change, 0) as lst_tvl_net_change
+    , coalesce(tvl - lag(tvl) over (partition by chain order by date), 0) as lst_tvl_net_change
 
 FROM {{ ref('ez_jito_metrics') }}

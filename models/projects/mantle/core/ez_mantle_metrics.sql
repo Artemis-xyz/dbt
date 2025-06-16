@@ -128,4 +128,5 @@ left join expenses_data using (date)
 left join rolling_metrics using (date)
 left join treasury_data using (date)
 left join mantle_dex_volumes as dune_dex_volumes_mantle on fundamental_data.date = dune_dex_volumes_mantle.date
+left join staked_eth_metrics on fundamental_data.date = staked_eth_metrics.date
 where fundamental_data.date < to_date(sysdate())
