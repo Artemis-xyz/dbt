@@ -1,5 +1,4 @@
 -- depends_on: {{ ref('fact_ripple_stablecoin_contracts') }}
--- depends_on: {{ ref('fact_ripple_stablecoin_bridge_addresses') }}
 {{ config(
     materialized="incremental", 
         snowflake_warehouse="STABLECOIN_LG_2", 

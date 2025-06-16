@@ -14,8 +14,8 @@
             from_address,
             to_address,
             -- Mint and burn address work differently on XRP
-            from_address = token_address AND to_address != token_address AS is_mint,
-            to_address = token_address AND from_address != token_address AS is_burn,
+            from_address = t1.contract_address AND to_address != t1.contract_address AS is_mint,
+            to_address = t1.contract_address AND from_address != t1.contract_address AS is_burn,
             coalesce(amount_raw / pow(10, num_decimals), 0) as amount,
             case
                 when is_mint then amount_raw / pow(10, num_decimals)
@@ -26,7 +26,7 @@
                 when not is_mint and not is_burn then coalesce(amount_raw / pow(10, num_decimals), 0)
             end as transfer_volume,
             t1.contract_address,
-            t1.symbol
+            t2.symbol
         from {{ ref("fact_ripple_token_transfers") }} t1
         inner join {{ ref("fact_ripple_stablecoin_contracts") }} t2
             on lower(t1.contract_address) = lower(t2.contract_address)
