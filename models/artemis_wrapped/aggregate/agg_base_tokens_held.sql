@@ -20,7 +20,7 @@ with
             ) as t(contract_address, symbol)
     )
 select lower(address) as address, symbol, min(block_timestamp) as first_seen, coalesce(max(block_timestamp), sysdate()) as last_interaction_timestamp
-from {{ ref('fact_base_address_balances_by_token') }} t
+from {{ ref('fact_base_address_balances') }} t
 inner join tokens on lower(t.contract_address) = lower(tokens.contract_address)
 where block_timestamp > '2023-12-31' 
 group by 1, 2
