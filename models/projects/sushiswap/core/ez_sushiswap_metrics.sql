@@ -116,10 +116,15 @@ select
 
     -- Cashflow Metrics
     , trading_volume.trading_fees as spot_fees
-    , cashflow_metrics.ecosystem_revenue as ecosystem_revenue
     , cashflow_metrics.service_fee_allocation as service_fee_allocation
     , cashflow_metrics.staking_fee_allocation as staking_fee_allocation
-    , token_incentives.token_incentives
+
+    -- Financial Statement Metrics
+    , cashflow_metrics.ecosystem_revenue as fees
+    , 0 as revenue
+    , cashflow_metrics.staking_fee_allocation as staking_revenue
+    , token_incentives.token_incentives as token_incentives
+    , revenue - token_incentives as earnings
 
 from date_spine
 left join tvl_data tvl using(date)
