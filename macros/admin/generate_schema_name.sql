@@ -9,13 +9,17 @@
 
     {%- else -%}
 
+        {#
+            'If using the dev target, use the dev schema for the user.
+            Otherwise, use the default behavior of dbt'
+        #}
         {%- if target.name == "dev" -%}
 
             DEV_{{ env_var('SYSTEM_SNOWFLAKE_USER').split('@')[0] | replace('.', '_') | upper }}
 
         {%- else -%}
 
-            {{ custom_schema_name | trim }}
+            {{ default_schema }}_{{ custom_schema_name | trim }}
 
         {%- endif -%}
 

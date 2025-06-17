@@ -11,9 +11,9 @@
 
         {#-
             'If the custom db is set but we are in dev, set
-            the output db to the default db of the dev target'
+            the output db to the default db of the dev target
             
-            'If the custom db is set but we are not in dev, set
+            If the custom db is set but we are not in dev, set
             the output db to the custom db'
         #}
 
