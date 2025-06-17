@@ -45,6 +45,7 @@ with supply_data as (
 
 select 
     date
+    , 10000000000 as max_supply_native
     , net_supply_change_native as premine_unlocks_native
     , net_supply_change_native
     , circulating_supply_native
