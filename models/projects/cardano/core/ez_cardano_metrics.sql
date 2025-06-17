@@ -18,6 +18,10 @@ with
             max(gas) as fees_native,
             max(revenue_native) as revenue_native,
             max(revenue) as revenue,
+            max(max_supply_native) as max_supply_native,
+            max(total_supply_native) as total_supply_native,
+            max(issued_supply_native) as issued_supply_native,
+            max(treasury_native) as treasury_native,
             'cardano' as chain
         from (
             {{
@@ -26,6 +30,7 @@ with
                         ref("fact_cardano_daa"),
                         ref("fact_cardano_txns"),
                         ref("fact_cardano_fees_and_revenue"),
+                        ref("fact_cardano_supply")
                     ]
                 )
             }}
@@ -50,22 +55,41 @@ select
     , dex_volumes
     , nft_trading_volume
     -- Standardized Metrics
+    
     -- Market Data
     , price
     , market_cap
     , fdmc
     , token_volume
+    
     -- Chain Metrics
     , txns as chain_txns
     , dau as chain_dau
     , avg_txn_fee as chain_avg_txn_fee
     , dex_volumes as chain_spot_volume
     , nft_trading_volume as chain_nft_trading_volume
+    
     -- Cash Flow Metrics
     , fees as chain_fees
     
     -- Crypto Metrics
     , tvl
+    
+    -- Supply Metrics
+    , max_supply_native
+    , total_supply_native
+    , issued_supply_native
+    -- There are no unvested tokens
+    , issued_supply_native - 0 AS circulating_supply_native
+    
+    -- Protocol Metrics
+    , treasury_native
+    , treasury_native * price AS treasury
+    , treasury_native AS own_token_treasury_native
+    , treasury_native * price AS own_token_treasury
+    , 0 AS net_treasury_native
+    , 0 * price AS net_treasury
+
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
