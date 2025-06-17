@@ -16,6 +16,8 @@ with
             max(daa) as dau,
             max(gas_usd) as fees,
             max(gas) as fees_native,
+            max(revenue_native) as revenue_native,
+            max(revenue) as revenue,
             'cardano' as chain
         from (
             {{
@@ -42,6 +44,8 @@ select
     , dau
     , fees_native
     , fees
+    , revenue
+    , revenue_native
     , fees / txns as avg_txn_fee
     , dex_volumes
     , nft_trading_volume
@@ -59,8 +63,7 @@ select
     , nft_trading_volume as chain_nft_trading_volume
     -- Cash Flow Metrics
     , fees as chain_fees
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
+    
     -- Crypto Metrics
     , tvl
     -- Developer Metrics
