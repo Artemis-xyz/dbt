@@ -18,12 +18,12 @@ with unioned_labels as (
                 ref("fact_meteora_lbpair_pools"),
                 ref("fact_meteora_lbpair_vaults"),
                 ref("fact_maker_tvl_addresses")
-            ] 
+            ]
         )
     }}
 )
 
 
-select *
+select * EXCLUDE(_dbt_source_relation)
 from unioned_labels
 qualify row_number() over (partition by address, chain order by last_updated desc) = 1
