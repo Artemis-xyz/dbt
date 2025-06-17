@@ -67,5 +67,4 @@ from
                 '0xf939e0a03fb07f59a73314e73794be0e57ac1b4e',
                 '0x652aEa6B22310C89DCc506710CaD24d2Dba56B11'
             )
-
     ) as results(contract_address, premint_address)
