@@ -43,8 +43,6 @@ select
     , mau
     , fees_native
     , fees_native AS revenue_native
-    , fees
-    , fees AS revenue
     , avg_txn_fee
     , median_txn_fee
     , dex_volumes
@@ -80,7 +78,7 @@ select
 
     -- Financial Statement Metrics
     , fees as fees
-    , burned_cash_flow as revenue
+    , burned_fee_allocation as revenue
     , token_incentives.token_incentives as token_incentives
     , revenue - token_incentives as earnings
 

@@ -127,8 +127,6 @@ SELECT
     , coalesce(f.swap_fees, 0) as spot_fees
     , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as fees
     , 0 as revenue
-    , coalesce(ti.token_incentives, 0) as token_incentives
-    , revenue - token_incentives as earnings
     , swap_revenue_vependle + yield_revenue_vependle as staking_revenue
 
     -- Fee Allocation Metrics
@@ -136,8 +134,6 @@ SELECT
     , f.supply_side_fees as service_fee_allocation
 
     -- Financial Statement Metrics
-    , coalesce(f.swap_fees, 0) as fees
-    , coalesce(fee_sharing_token_cash_flow, 0) as revenue
     , coalesce(ti.token_incentives, 0) as token_incentives
     , revenue - token_incentives as earnings
 

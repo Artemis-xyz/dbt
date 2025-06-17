@@ -122,7 +122,7 @@ select
     -- Financial Statement Metrics
     , cashflow_metrics.ecosystem_revenue as fees
     , 0 as revenue
-    , cashflow_metrics.fee_sharing_token_cash_flow as staking_revenue
+    , cashflow_metrics.staking_fee_allocation as staking_revenue
     , token_incentives.token_incentives as token_incentives
     , revenue - token_incentives as earnings
 
