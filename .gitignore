@@ -226,3 +226,4 @@ Temporary Items
 dbt_scripts/grant_permissions.sql
 
 .vscode
+dbt_internal_packages/
