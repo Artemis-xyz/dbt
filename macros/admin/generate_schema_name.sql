@@ -11,7 +11,7 @@
 
         {%- if target.name == "dev" -%}
 
-            {{ env_var('SYSTEM_SNOWFLAKE_USER').split('@')[0] | replace('.', '_') | upper }}
+            DEV_{{ env_var('SYSTEM_SNOWFLAKE_USER').split('@')[0] | replace('.', '_') | upper }}
 
         {%- else -%}
 
