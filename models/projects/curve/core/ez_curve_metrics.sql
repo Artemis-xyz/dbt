@@ -104,10 +104,15 @@ select
     , trading_volume.trading_fees * 0.5 as staking_fee_allocation
     , trading_volume.trading_fees * 0.5 as service_fee_allocation
     , token_incentives.token_incentives_native
-    , token_incentives.token_incentives
     , trading_volume.gas_cost_native
     , trading_volume.gas_cost_usd as gas_cost
 
+    -- Financial Statement Metrics
+    , trading_volume.trading_fees as fees
+    , trading_volume.trading_fees * 0.5 as revenue
+    , token_incentives.token_incentives as token_incentives
+    , revenue - token_incentives as earnings
+    
     -- Other Metrics
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv

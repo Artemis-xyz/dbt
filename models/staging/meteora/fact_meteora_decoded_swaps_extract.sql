@@ -15,7 +15,7 @@ with decoded_swaps_usd as (
         t.symbol,
         t.price,
         (swap_fee_amount / POW(10, t.decimals) * t.price) as swap_fee_amount_usd, 
-    from pc_dbt_db.prod.fact_meteora_decoded_swaps d 
+    from {{ ref('fact_meteora_decoded_swaps') }} d 
     LEFT JOIN {{ source('SOLANA_FLIPSIDE_PRICE', 'ez_prices_hourly') }} t
             ON d.swap_from_mint = t.token_address
             AND date_trunc('hour', block_timestamp) = t.hour

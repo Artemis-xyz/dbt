@@ -115,25 +115,27 @@ SELECT
     , p.market_cap
     , p.token_volume
 
-    --Usage/Sector Metrics
+    --Usage Metrics
     , d.daus as spot_dau
     , d.daily_txns as spot_txns
     , f.swap_volume as spot_volume
     , t.tvl as tvl
     , {{ daily_pct_change('t.tvl') }} as tvl_pct_change
 
-    -- Financial Metrics
+    -- Cashflow Metrics
     , coalesce(yf.yield_revenue, 0) as yield_fees
     , coalesce(f.swap_fees, 0) as spot_fees
     , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as fees
     , 0 as revenue
-    , coalesce(ti.token_incentives, 0) as token_incentives
-    , revenue - token_incentives as earnings
     , swap_revenue_vependle + yield_revenue_vependle as staking_revenue
 
     -- Fee Allocation Metrics
     , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as staking_fee_allocation
     , f.supply_side_fees as service_fee_allocation
+
+    -- Financial Statement Metrics
+    , coalesce(ti.token_incentives, 0) as token_incentives
+    , revenue - token_incentives as earnings
 
     -- Treasury Metrics
     , tv.treasury_value as treasury

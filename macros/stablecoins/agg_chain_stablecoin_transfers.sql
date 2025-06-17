@@ -14,8 +14,17 @@
             from_address,
             to_address,
             -- NULL address on TRON is different
-            from_address = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' as is_mint,
-            to_address = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' as is_burn,
+            from_address = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' 
+            or lower(from_address) in (
+                select distinct (lower(premint_address))
+                from {{ ref("fact_"~chain~"_stablecoin_premint_addresses") }}
+            ) as is_mint,
+            to_address = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' 
+            or lower(to_address) in (
+                select distinct (lower(premint_address))
+                from {{ ref("fact_"~chain~"_stablecoin_premint_addresses") }}
+            )
+            as is_burn,
             lower(to_address) in (
                 select distinct (lower(premint_address))
                 from {{ ref("fact_tron_stablecoin_bridge_addresses") }}

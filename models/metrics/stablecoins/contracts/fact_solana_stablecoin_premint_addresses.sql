@@ -46,6 +46,10 @@ from
                 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
                 'Q6XprfkF8RQQKoQVG33xT88H7wi8Uk1B1CC7YAs69Gi'
             ),
+            (
+                'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
+                '8hnVkd24Gp7s1QYVPBQSayS4uLokKEj1Uq6NFjk6PibK'
+            ),
             -- EURC
             (
                 'HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr',

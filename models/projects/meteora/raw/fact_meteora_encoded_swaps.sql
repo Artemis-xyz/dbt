@@ -5,11 +5,12 @@
         snowflake_warehouse='METEORA',
         database='METEORA',
         schema='raw',
-        event_time='block_timestamp',
         unique_key=['block_timestamp', '_log_id'],
     )
  }}
 
+-- TODO: microbatch config to add back later
+-- event_time='block_timestamp',
 WITH log_id_add_query as (
     SELECT
         tx_id,
