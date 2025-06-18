@@ -4,3 +4,13 @@ sources:
     database: PC_DBT_DB
     tables:
       - name: dim_arbitrum_current_balances
+  - name: ARBITRUM_FLIPSIDE
+    schema: core
+    database: arbitrum_flipside
+    tables:
+      - name: ez_decoded_event_logs
+  - name: ARBITRUM_FLIPSIDE
+    schema: price
+    database: arbitrum_flipside
+    tables:
+      - name: ez_prices_hourly
