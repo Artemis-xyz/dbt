@@ -4,6 +4,8 @@
     )
 }}
 
+-- if there is a change here, please update the last_updated pinned timestamp
+
 WITH parsed_data AS (
   SELECT
     EXTRACTION_DATE,

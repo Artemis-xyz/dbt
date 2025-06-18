@@ -5,6 +5,8 @@
     )
 }}
 
+-- if there is a change here, please update the last_updated pinned timestamp
+
 with lb_pair_pools as (
     select address
     from {{ ref('fact_meteora_lbpair_pools') }}

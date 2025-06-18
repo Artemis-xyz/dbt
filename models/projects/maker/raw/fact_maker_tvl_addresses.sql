@@ -10,6 +10,7 @@
 
 
 -- address, name, artemis_application_id, chain, is_token, is_fungible, type, last_updated
+-- if there is a change here, please update the last_updated pinned timestamp
 
 SELECT
     distinct
