@@ -5,6 +5,9 @@
         database="litecoin",
         schema="core",
         alias="ez_metrics",
+        contract={
+            "enforced": true
+        }
     )
 }}
 
