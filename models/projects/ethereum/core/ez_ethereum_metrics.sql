@@ -68,7 +68,6 @@ select
     , adjusted_dau
     , wau
     , mau
-    , fees_native
     , avg_txn_fee
     , median_txn_fee
     , case
@@ -132,8 +131,8 @@ select
 
     -- Cashflow metrics
     , fees as chain_fees
-    , fees_native AS ecosystem_revenue_native
-    , fees AS ecosystem_revenue
+    , case when fees is null then (coalesce(blob_fees_native, 0) + fees_native) * price else fees + coalesce(blob_fees, 0) end as fees
+    , fees_native
     , revenue_native AS burned_fee_allocation_native
     , revenue AS burned_fee_allocation
 
@@ -141,7 +140,6 @@ select
     , priority_fee_usd AS priority_fee
 
     -- Financial Statement Metrics
-    , case when fees is null then (coalesce(blob_fees_native, 0) + fees_native) * price else fees + coalesce(blob_fees, 0) end as fees
     , revenue_native + coalesce(blob_fees_native, 0) as revenue_native
     , revenue + coalesce(blob_fees, 0) as revenue
     , block_rewards_native  * price AS token_incentives
