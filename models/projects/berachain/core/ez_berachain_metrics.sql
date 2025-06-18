@@ -47,7 +47,7 @@ select
     , fees as chain_fees
     , fees as ecosystem_revenue
     , fees_native as ecosystem_revenue_native
-    , burns_native as burned_cash_flow_native
+    , burns_native as burned_fee_allocation_native
     -- Supply Metrics
     , premine_unlocks_native
     , emission_native as emissions_native

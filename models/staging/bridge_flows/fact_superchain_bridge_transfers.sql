@@ -49,6 +49,7 @@ select
     , null as bridge_message_app
     , null as version
     , 'superchain_bridge' as app
+    , concat(coalesce(src_transaction_hash,'null'), '|', coalesce(TO_VARCHAR(src_event_index),'null'), '|', coalesce(source_chain,'null'), '|', coalesce(dst_transaction_hash,'null'), '|', coalesce(TO_VARCHAR(dst_event_index),'null'), '|',  coalesce(destination_chain,'null'), '|', 'superchain_bridge') as unique_id
 from flows_by_super_chain
 left join {{ ref('dim_chain_ids') }} as src_ids on flows_by_super_chain.source_chain = src_ids.chain
 left join {{ ref('dim_chain_ids') }} as dst_ids on flows_by_super_chain.destination_chain = dst_ids.chain

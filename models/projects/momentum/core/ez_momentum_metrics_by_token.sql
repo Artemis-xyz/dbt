@@ -36,9 +36,8 @@ WITH
         SELECT 
             date, 
             LOWER(token_sold) AS token, 
-            SUM(dau) AS dau, 
-            SUM(txns) AS txns,
-            SUM(GREATEST(COALESCE(dau, 0), COALESCE(txns, 0))) AS spot_dau
+            SUM(pool_dau) AS dau, 
+            SUM(pool_txns) AS txns
         FROM {{ ref("fact_momentum_spot_dau_txns") }}
         GROUP BY 1, 2
 
@@ -47,9 +46,8 @@ WITH
         SELECT 
             date, 
             LOWER(token_bought) AS token, 
-            SUM(dau) AS dau, 
-            SUM(txns) AS txns,
-            SUM(GREATEST(COALESCE(dau, 0), COALESCE(txns, 0))) AS spot_dau
+            SUM(pool_dau) AS dau, 
+            SUM(pool_txns) AS txns
         FROM {{ ref("fact_momentum_spot_dau_txns") }}
         GROUP BY 1, 2
 
@@ -60,17 +58,25 @@ WITH
             date, 
             LOWER(symbol_a) AS token, 
             SUM(fees_native) AS fees_native, 
-            SUM(fees_usd) AS fees_usd, 
-            SUM(service_cash_flow) AS service_cash_flow, 
-            SUM(service_cash_flow_native) AS service_cash_flow_native, 
-            SUM(foundation_cash_flow) AS foundation_cash_flow, 
-            SUM(foundation_cash_flow_native) AS foundation_cash_flow_native,
+            SUM(fees) AS fees, 
+            SUM(service_fee_allocation) AS service_fee_allocation, 
+            SUM(service_fee_allocation_native) AS service_fee_allocation_native, 
+            SUM(foundation_fee_allocation) AS foundation_fee_allocation, 
+            SUM(foundation_fee_allocation_native) AS foundation_fee_allocation_native,
         FROM {{ ref("fact_momentum_spot_fees_revenue") }}
         GROUP BY 1, 2
 
         UNION ALL
 
-        SELECT date, LOWER(symbol_b) AS token, SUM(fees_native) AS fees_native, SUM(fees_usd) AS fees_usd, SUM(service_cash_flow) AS service_cash_flow, SUM(service_cash_flow_native) AS service_cash_flow_native, SUM(foundation_cash_flow) AS foundation_cash_flow, SUM(foundation_cash_flow_native) AS foundation_cash_flow_native
+        SELECT
+            date, 
+            LOWER(symbol_b) AS token, 
+            SUM(fees_native) AS fees_native, 
+            SUM(fees) AS fees, 
+            SUM(service_fee_allocation) AS service_fee_allocation, 
+            SUM(service_fee_allocation_native) AS service_fee_allocation_native, 
+            SUM(foundation_fee_allocation) AS foundation_fee_allocation,  
+            SUM(foundation_fee_allocation_native) AS foundation_fee_allocation_native
         FROM {{ ref("fact_momentum_spot_fees_revenue") }}
         GROUP BY 1, 2
     )
@@ -81,7 +87,6 @@ WITH
             LOWER(symbol_a) AS token, 
             SUM(vault_a_amount_native) AS tvl_native, 
             SUM(vault_a_amount_usd) AS tvl,
-            SUM(GREATEST(COALESCE(vault_a_amount_usd, 0), COALESCE(vault_b_amount_usd, 0))) AS tvl
         FROM {{ ref("fact_momentum_spot_tvl") }}
         GROUP BY 1, 2
 
@@ -92,7 +97,6 @@ WITH
             LOWER(symbol_b) AS token, 
             SUM(vault_b_amount_native) AS tvl_native, 
             SUM(vault_b_amount_usd) AS tvl,
-            SUM(GREATEST(COALESCE(vault_a_amount_usd, 0), COALESCE(vault_b_amount_usd, 0))) AS tvl
         FROM {{ ref("fact_momentum_spot_tvl") }}
         GROUP BY 1, 2
     )
@@ -104,12 +108,12 @@ WITH
         SUM(spot_volumes.volume_usd) AS spot_volume,
         SUM(spot_dau_txns.dau) AS spot_dau, 
         SUM(spot_dau_txns.txns) AS spot_txns, 
-        SUM(spot_fees_revenue.fees_native) AS ecosystem_revenue_native, 
-        SUM(spot_fees_revenue.fees_usd) AS ecosystem_revenue, 
-        SUM(spot_fees_revenue.service_cash_flow) AS service_cash_flow, 
-        SUM(spot_fees_revenue.service_cash_flow_native) AS service_cash_flow_native, 
-        SUM(spot_fees_revenue.foundation_cash_flow) AS foundation_cash_flow, 
-        SUM(spot_fees_revenue.foundation_cash_flow_native) AS foundation_cash_flow_native, 
+        SUM(spot_fees_revenue.fees_native) AS fees_native, 
+        SUM(spot_fees_revenue.fees) AS fees, 
+        SUM(spot_fees_revenue.service_fee_allocation) AS service_fee_allocation, 
+        SUM(spot_fees_revenue.service_fee_allocation_native) AS service_fee_allocation_native, 
+        SUM(spot_fees_revenue.foundation_fee_allocation) AS foundation_fee_allocation, 
+        SUM(spot_fees_revenue.foundation_fee_allocation_native) AS foundation_fee_allocation_native, 
         SUM(tvl.tvl_native) AS tvl_native, 
         SUM(tvl.tvl) AS tvl
     FROM spot_volumes

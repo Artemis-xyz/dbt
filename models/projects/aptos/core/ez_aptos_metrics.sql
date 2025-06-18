@@ -69,8 +69,8 @@ select
     , coalesce(fees, 0) as chain_fees
     , coalesce(fees, 0) as ecosystem_revenue
     , coalesce(fees_native, 0) as ecosystem_revenue_native
-    , coalesce(fees, 0) as burned_cash_flow
-    , coalesce(fees_native, 0) as burned_cash_flow_native
+    , coalesce(fees, 0) as burned_fee_allocation
+    , coalesce(fees_native, 0) as burned_fee_allocation_native
 
     -- Developer Metrics
     , coalesce(weekly_commits_core_ecosystem, 0) as weekly_commits_core_ecosystem

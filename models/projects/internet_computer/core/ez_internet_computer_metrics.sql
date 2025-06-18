@@ -41,8 +41,8 @@ select
     , total_native_fees * price AS chain_fees
     , total_native_fees AS ecosystem_revenue_native -- total transaction fees
     , total_native_fees * price AS ecosystem_revenue
-    , icp_burned AS burned_cash_flow_native
-    , icp_burned * price AS burned_cash_flow
+    , icp_burned AS burned_fee_allocation_native
+    , icp_burned * price AS burned_fee_allocation
     -- Bespoke metrics
     , total_transactions
     , update_txns

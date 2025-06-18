@@ -3,11 +3,10 @@
     with
         yt_addresses as (
             SELECT
-                DECODED_LOG:YT::STRING as yt_address,
-                DECODED_LOG:SY::STRING as sy_address
+                yt_address,
+                sy_address
             FROM
-                {{ chain }}_flipside.core.ez_decoded_event_logs
-            WHERE event_name = 'CreateYieldContract'
+                {{ ref('dim_pendle_' ~ chain ~ '_yt_mapping') }}
         ),
         
         -- Get SY tokens with their metadata and exchange rates
@@ -17,7 +16,8 @@
                 s.sy_address,
                 s.assetinfo_type,
                 s.assetinfo_address as underlying_address,
-                s.exchange_rate / pow(10, decimals) as exchange_rate  -- Normalize the exchange rate 
+                s.exchange_rate::number / 1e18 as exchange_rate,  -- Normalize the exchange rate 
+                decimals
             FROM {{ ref("fact_pendle_sy_info") }} s
             WHERE s.chain = '{{ chain }}'
             {% if is_incremental() %}
@@ -32,10 +32,11 @@
                 tx_hash,
                 contract_address as yt_address,
                 yt.sy_address,
-                decoded_log:amountInterestFee::number /1e18 as fee_sy_amount
+                decoded_log:amountInterestFee::number / pow(10, decimals) as fee_sy_amount
             FROM
                 {{ chain }}_flipside.core.ez_decoded_event_logs l
                 LEFT JOIN yt_addresses yt ON yt.yt_address = l.contract_address
+                LEFT JOIN sy_tokens s on s.sy_address = yt.sy_address and l.block_timestamp::date = s.date
             WHERE event_name = 'CollectInterestFee'
                 AND contract_address in (SELECT distinct yt_address FROM yt_addresses)
             {% if is_incremental() %}
@@ -53,6 +54,7 @@
                 s.assetinfo_type,
                 s.underlying_address,
                 s.exchange_rate,
+                s.decimals,
                 -- Apply exchange rate conversion based on asset type
                 CASE 
                     WHEN s.assetinfo_type = '0' THEN r.fee_sy_amount * s.exchange_rate
@@ -66,9 +68,12 @@
         -- Add price data to convert to USD
         fees_with_prices as (
             SELECT
+                f.block_timestamp,
                 date(f.block_timestamp) as date,
                 f.tx_hash,
                 f.underlying_address as token_address,
+                f.yt_address,
+                f.sy_address,
                 p.symbol as token,
                 f.yield_fee_converted as yield_fee_native,
                 f.yield_fee_converted * p.price as yield_fee_usd
@@ -83,6 +88,8 @@
     SELECT
         date,
         tx_hash,
+        yt_address,
+        sy_address,
         token_address,
         token,
         yield_fee_usd,

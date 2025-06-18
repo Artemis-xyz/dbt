@@ -83,10 +83,42 @@ with hex_cte as (
         hex_data    
     FROM hex_cte
     WHERE substring(hex_data,1+16,16) IN ('68452084d423bf2f', '806547a880485654') --LiquidatePosition, LiquidateFullPosition
+
+    UNION ALL
+
+    SELECT 
+        block_timestamp,
+        tx_id,
+        'instant inc' as type,
+        pc_dbt_db.prod.big_endian_hex_to_decimal(SUBSTRING(hex_data, 435, 16))/1e6 as size_usd,
+        pc_dbt_db.prod.big_endian_hex_to_decimal(SUBSTRING(hex_data, 530+1, 16))/1e6 as fee_usd,
+        pc_dbt_db.prod.hex_to_base58(SUBSTRING(hex_data, 306+1, 64)) as owner,
+        pc_dbt_db.prod.hex_to_base58(SUBSTRING(hex_data, 242+1, 64)) as mint,
+        pc_dbt_db.prod.big_endian_hex_to_decimal(SUBSTRING(hex_data, 482+1, 16))/1e6 as price,
+        hex_data
+    FROM hex_cte
+    WHERE SUBSTRING(hex_data,17,16) = 'cdec3904d16a5745' -- InstantIncreasePosition
+
+    UNION ALL
+
+    SELECT 
+        block_timestamp,
+        tx_id,
+        'instant dec' as type,
+        pc_dbt_db.prod.big_endian_hex_to_decimal(SUBSTRING(hex_data, 532+1, 16))/1e6 as size_usd, -- transferAmountUsd
+        pc_dbt_db.prod.big_endian_hex_to_decimal(SUBSTRING(hex_data, 596+1, 16))/1e6 as fee_usd,
+        pc_dbt_db.prod.hex_to_base58(SUBSTRING(hex_data, 388+1, 64)) as owner,
+        pc_dbt_db.prod.hex_to_base58(SUBSTRING(hex_data, 242+1, 64)) as mint,
+        pc_dbt_db.prod.big_endian_hex_to_decimal(SUBSTRING(hex_data, 482+1, 16)) as price,
+        hex_data,
+    FROM hex_cte
+    WHERE SUBSTRING(hex_data,17,16) = 'abad6a19efbe3a3b' -- InstantDecreasePosition
+
 )
 
 SELECT
     block_timestamp,
+    type,
     tx_id,
     'solana' as chain,
     'jupiter' as app,

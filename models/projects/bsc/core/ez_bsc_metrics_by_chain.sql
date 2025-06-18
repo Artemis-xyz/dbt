@@ -28,5 +28,13 @@ select
     staked_eth_metrics.amount_staked_usd,
     staked_eth_metrics.num_staked_eth_net_change,
     staked_eth_metrics.amount_staked_usd_net_change
+
+    -- Standardized Metrics
+    -- Usage Metrics
+    , COALESCE(staked_eth_metrics.num_staked_eth, 0) as lst_tvl_native
+    , COALESCE(staked_eth_metrics.num_staked_eth, 0) as tvl_native
+    , COALESCE(staked_eth_metrics.amount_staked_usd, 0) as lst_tvl
+    , COALESCE(staked_eth_metrics.num_staked_eth_net_change, 0) as lst_tvl_native_net_change
+    , COALESCE(staked_eth_metrics.num_staked_eth_net_change, 0) as tvl_native_net_change
 from staked_eth_metrics
 where staked_eth_metrics.date < to_date(sysdate())

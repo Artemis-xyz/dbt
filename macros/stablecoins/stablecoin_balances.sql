@@ -20,7 +20,7 @@ with
     {% if chain in ('solana') %}
             , amount as stablecoin_supply_native
         from {{ ref("fact_" ~ chain ~ "_address_balances_by_token")}} t1
-    {% elif chain in ('celo', 'base', 'sonic', 'tron', 'kaia', 'aptos') %}
+    {% elif chain in ('celo', 'base', 'sonic', 'tron', 'kaia', 'aptos', 'ripple') %}
             , balance_raw / pow(10, num_decimals) as stablecoin_supply_native
         from {{ ref("fact_"~chain~"_address_balances")}} t1
     {% else %}

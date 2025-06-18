@@ -25,14 +25,14 @@ with
         -- Chunking required here for backfills
         {% if is_incremental() %}
             where block_timestamp
-            >= (select dateadd('day', CASE WHEN DAYOFWEEK(CURRENT_DATE) = 7 THEN -90 ELSE -30 END, max(block_timestamp)) from {{ this }})
+            >= (select dateadd('day', CASE WHEN DAYOFWEEK(CURRENT_DATE) = 6 THEN -90 ELSE -30 END, max(block_timestamp)) from {{ this }})
         {% else %}
         -- Making code not compile on purpose. Full refresh of entire history
         -- takes too long, doing last month will wipe out backfill
         -- TODO: Figure out a workaround.
         and
             block_timestamp
-            >= (select dateadd('month', -1, max(block_timestamp)) from {{ this }})
+            >= (select dateadd('month', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
     ),
     incremental_solana_transfer_rows as (
@@ -40,14 +40,14 @@ with
         -- Chunking required here for backfills
         {% if is_incremental() %}
             where block_timestamp
-            >= (select dateadd('day', CASE WHEN DAYOFWEEK(CURRENT_DATE) = 7 THEN -90 ELSE -30 END, max(block_timestamp)) from {{ this }})
+            >= (select dateadd('day', CASE WHEN DAYOFWEEK(CURRENT_DATE) = 6 THEN -90 ELSE -30 END, max(block_timestamp)) from {{ this }})
         {% else %}
         -- Making code not compile on purpose. Full refresh of entire history
         -- takes too long, doing last month will wipe out backfill
         -- TODO: Figure out a workaround.
         and
             block_timestamp
-            >= (select dateadd('month', -1, max(block_timestamp)) from {{ this }})
+            >= (select dateadd('month', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
     ),
     grouped_transfer_tips AS (
@@ -134,8 +134,8 @@ with
             'solana' as chain,
             fee / 1e9 as tx_fee,
             (fee / 1e9) * price as gas_usd,
-            grouped_transfer_tips.amount / 1e9 as jito_tips,
-            (grouped_transfer_tips.amount / 1e9) * price as jito_tips_usd,
+            grouped_transfer_tips.amount as jito_tips,
+            (grouped_transfer_tips.amount * price) as jito_tips_usd,
             succeeded,
             case
                 when program_id = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'

@@ -31,8 +31,8 @@ select
 
     -- Cash Flow Metrics
     , coalesce(revenue, 0) as ecosystem_revenue
-    , coalesce(revenue, 0) * 0.8 as buyback_cash_flow
-    , coalesce(revenue, 0) * 0.2 as foundation_cash_flow
+    , coalesce(revenue, 0) * 0.8 as buyback_fee_allocation
+    , coalesce(revenue, 0) * 0.2 as foundation_fee_allocation
 
     -- Turnover Metrics
     , coalesce(token_turnover_circulating, 0) as token_turnover_circulating
