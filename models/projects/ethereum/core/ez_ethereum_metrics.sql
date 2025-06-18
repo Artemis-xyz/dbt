@@ -69,11 +69,8 @@ select
     , wau
     , mau
     , fees_native
-    , case when fees is null then (coalesce(blob_fees_native, 0) + fees_native) * price else fees + coalesce(blob_fees, 0) end as fees
     , avg_txn_fee
     , median_txn_fee
-    , revenue_native + coalesce(blob_fees_native, 0) as revenue_native
-    , revenue + coalesce(blob_fees, 0) as revenue
     , case
         when fees is null then (fees_native * price) - revenue else fees - revenue
     end as priority_fee_usd
@@ -144,10 +141,11 @@ select
     , priority_fee_usd AS priority_fee
 
     -- Financial Statement Metrics
-    , fees AS fees
-    , revenue AS revenue
+    , case when fees is null then (coalesce(blob_fees_native, 0) + fees_native) * price else fees + coalesce(blob_fees, 0) end as fees
+    , revenue_native + coalesce(blob_fees_native, 0) as revenue_native
+    , revenue + coalesce(blob_fees, 0) as revenue
     , block_rewards_native  * price AS token_incentives
-    , protocol_revenue - token_incentives AS earnings
+    , revenue - token_incentives AS earnings
     
     -- Developer metrics
     , weekly_commits_core_ecosystem
