@@ -101,10 +101,12 @@ select
     --Standardized Metrics
 
     --Usage Metrics
+    , COALESCE(s.amount_staked_usd, 0) as lst_tvl
+    , COALESCE(s.num_staked_eth, 0) as lst_tvl_native
     , COALESCE(s.amount_staked_usd, 0) as tvl
     , COALESCE(s.num_staked_eth, 0) as tvl_native
-    , COALESCE(s.amount_staked_usd_net_change, 0) as tvl_net_change
-    , COALESCE(s.num_staked_eth_net_change, 0) as tvl_native_net_change
+    , COALESCE(s.amount_staked_usd_net_change, 0) as lst_tvl_net_change
+    , COALESCE(s.num_staked_eth_net_change, 0) as lst_tvl_native_net_change
 
     --Cash Flow Metrics
     , COALESCE(f.mev_priority_fees, 0) as mev_priority_fees

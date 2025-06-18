@@ -83,11 +83,16 @@ select
 
     --Usage Metrics 
     , tvl * price as tvl
+    , tvl * price as lst_tvl
     , tvl as tvl_native
-    , dau as lst_dau
-    , txns as lst_txns
+    , tvl as lst_tvl_native
+    , coalesce(tvl - lag(tvl) over (order by date), 0) as lst_tvl_net_change
+    , coalesce(tvl_native - lag(tvl_native) over (order by date), 0) as lst_tvl_native_net_change
     , liquid as tvl_liquid_stake
     , native as tvl_native_stake
+
+    , dau as lst_dau
+    , txns as lst_txns
 
     --Cash Flow Metrics
     , unstaking_fees_native * price as unstaking_fees

@@ -34,6 +34,15 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle", "v2") }})
     select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
     from {{ ref("fact_mantle_daily_dex_volumes") }}
 )
+, staked_eth_metrics as (
+    select
+        date,
+        num_staked_eth,
+        amount_staked_usd,
+        num_staked_eth_net_change,
+        amount_staked_usd_net_change
+    from {{ ref('fact_meth_staked_eth_count_with_USD_and_change') }}
+)
 
 select
     fundamental_data.date
@@ -68,6 +77,15 @@ select
     , new_users
     , avg_txn_fee AS chain_avg_txn_fee
     , dune_dex_volumes_mantle.dex_volumes AS chain_spot_volume
+
+    -- LST Metrics
+    , staked_eth_metrics.num_staked_eth as tvl_native
+    , staked_eth_metrics.num_staked_eth as lst_tvl_native
+    , staked_eth_metrics.amount_staked_usd as lst_tvl
+    , staked_eth_metrics.num_staked_eth_net_change as tvl_native_net_change
+    , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
+    , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
+
     -- Cashflow Metrics
     , fees as chain_fees
     , fees_native AS ecosystem_revenue_native
@@ -110,4 +128,5 @@ left join expenses_data using (date)
 left join rolling_metrics using (date)
 left join treasury_data using (date)
 left join mantle_dex_volumes as dune_dex_volumes_mantle on fundamental_data.date = dune_dex_volumes_mantle.date
+left join staked_eth_metrics on fundamental_data.date = staked_eth_metrics.date
 where fundamental_data.date < to_date(sysdate())

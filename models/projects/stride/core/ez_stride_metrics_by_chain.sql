@@ -52,6 +52,8 @@ select
     , fundamental_data.new_users as chain_new_users
     , fundamental_data.low_sleep_users as chain_low_sleep_users
     , fundamental_data.avg_txn_fee as chain_avg_txn_fee
+    , fundamental_data.tvl as lst_tvl
+    , fundamental_data.tvl_net_change as lst_tvl_net_change
 
     
     --Cashflow Metrics
