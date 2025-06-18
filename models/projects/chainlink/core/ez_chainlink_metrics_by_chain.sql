@@ -167,14 +167,10 @@ select
     date
     , chain
     --Old Metrics needed for compatibility
-    , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue
-    , fees as secondary_supply_side_revenue
+    , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as secondary_supply_side_revenue
     , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
-    , 0 as protocol_revenue
-    , primary_supply_side_revenue as operating_expenses
-    , coalesce(operating_expenses, 0) + coalesce(token_incentives, 0) as total_expenses
-    , protocol_revenue - total_expenses as earnings
+    
 
     -- Standardized Metrics
     -- Cash Flow Metrics
@@ -186,10 +182,14 @@ select
     , coalesce(fm_fees, 0) as fm_fees
     , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as oracle_fees
 
-    , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as ecosystem_revenue
-    , ecosystem_revenue as service_fee_allocation
+    , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
+    , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as service_fee_allocation
 
-    , token_incentives
+    , 0 as revenue
+    , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as operating_expenses
+    , coalesce(token_incentives, 0) as token_incentives
+    , revenue - token_incentives - operating_expenses as earnings
+
 from fm_fees_data
 left join orc_fees_data using(date, chain)
 left join automation_fees_data using(date, chain)
