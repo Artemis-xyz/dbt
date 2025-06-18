@@ -36,5 +36,5 @@ SELECT
   null as is_token,
   null as is_fungible,
   'spot_pool' as type,
-  SYSDATE()::TIMESTAMP_NTZ as last_updated
+  TO_TIMESTAMP_NTZ('2025-06-17 16:00:00') as last_updated
 FROM flattened_data

@@ -20,7 +20,7 @@ SELECT
     false as is_token,
     false as is_fungible,
     'lending_pool' as type,
-    SYSDATE()::TIMESTAMP_NTZ as last_updated
+    TO_TIMESTAMP_NTZ('2025-06-17 16:00:00') as last_updated
 from {{ ref('dim_gem_join_addresses') }}
 
 UNION ALL
@@ -33,4 +33,4 @@ SELECT
     false as is_token,
     false as is_fungible,
     'lending_pool' as type,
-    SYSDATE()::TIMESTAMP_NTZ as last_updated
+    TO_TIMESTAMP_NTZ('2025-06-17 16:00:00') as last_updated
