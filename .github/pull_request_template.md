@@ -7,7 +7,7 @@
 
 
 Tick the following only after PR has been approved and before it is merged: 
-- [ ] Added clear and concise revenue definition + methodology to the admin dashboard
+- [ ] Added clear and concise metric definitions + methodology to the admin dashboard
 - [ ] If methodology was changed, describe the changes in the 'Changelog' in the admin dashboard
 
 ## Other
