@@ -108,7 +108,9 @@ select
 
     --Usage Metrics
     , staked_eth_metrics.num_staked_eth as tvl_native
+    , staked_eth_metrics.num_staked_eth as lst_tvl_native
     , staked_eth_metrics.amount_staked_usd as tvl
+    , staked_eth_metrics.amount_staked_usd as lst_tvl
 
     , COALESCE(f.cl_rewards_eth, 0) as block_rewards_native
     , COALESCE(f.el_rewards_eth, 0) as mev_priority_fees_native

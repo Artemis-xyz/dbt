@@ -99,8 +99,9 @@ SELECT
     -- Usage Metrics
     , coalesce(tip_txns, 0) as block_infra_txns
     , coalesce(tip_dau, 0) as block_infra_dau
+    , coalesce(tvl, 0) as lst_tvl
     , coalesce(tvl, 0) as tvl
-    , coalesce(tvl_change, 0) as tvl_net_change
+    , coalesce(tvl_change, 0) as lst_tvl_net_change
 
     -- Cashflow Metrics
     , coalesce(withdraw_management_fees, 0) as lst_fees

@@ -84,6 +84,7 @@ select
     , percent_non_censored
     , dune_dex_volumes_ethereum.dex_volumes
     , dune_dex_volumes_ethereum.adjusted_dex_volumes
+    , submitters
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -129,7 +130,7 @@ select
     , avg_mib_per_second
     , avg_cost_per_mib_gwei
     , avg_cost_per_mib
-    , submitters
+    , submitters as da_dau
     , dune_dex_volumes_ethereum.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
     , fees as chain_fees
