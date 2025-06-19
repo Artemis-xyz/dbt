@@ -67,8 +67,8 @@ with trading_volume_data as (
     FROM {{ref("dim_date_spine")}}
     WHERE date between '2023-06-13' and to_date(sysdate())
 )
-, hyperevm_burns_data as (
-    select date, chain, hyperevm_burns, hyperevm_burns_native
+, hyperevm_fundamental_metrics_data as (
+    select date, chain, daa, txns, hyperevm_burns, hyperevm_burns_native
     from {{ ref("fact_hyperliquid_hyperevm_fundamental_metrics") }}
 )
     
@@ -102,9 +102,9 @@ select
     , token_turnover_fdv
 
     -- Usage Metrics
-    , unique_traders::string as perp_dau
+    , unique_traders::string + hyperevm_data.daa as perp_dau
     , perp_volume as perp_volume
-    , trades as perp_txns
+    , trades + hyperevm_data.txns as perp_txns
     , perps_tvl_data.tvl as tvl
     
     -- Cash Flow Metrics
@@ -133,7 +133,7 @@ left join trading_volume_data using(date)
 left join daily_transactions_data using(date)
 left join fees_data using(date)
 left join hypercore_spot_burns_data using(date)
-left join hyperevm_burns_data using(date)
+left join hyperevm_fundamental_metrics_data hyperevm_data using(date)
 left join daily_supply_data using(date)
 left join auction_fees_data using(date)
 left join hype_staked_data using(date)
