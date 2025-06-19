@@ -1,4 +1,7 @@
 {% macro p2p_stablecoin_transfers(chain, new_stablecoin_address) %}
+
+{% set backfill_days = 3 %}
+
 with 
     stablecoin_transfers as (
         select * from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers") }}
@@ -38,7 +41,7 @@ with
             {% endif %}
             {% if is_incremental() and new_stablecoin_address == '' %} 
                 and block_timestamp >= (
-                    select dateadd('day', -3, max(block_timestamp))
+                    select dateadd('day', -{{ backfill_days }}, max(block_timestamp))
                     from {{ this }}
                 )
             {% endif %}
@@ -72,7 +75,7 @@ with
                 and not t1.from_address in (select contract_address from distinct_contracts)
             {% if is_incremental() and new_stablecoin_address == '' %} 
                 and block_timestamp >= (
-                    select dateadd('day', -3, max(block_timestamp))
+                    select dateadd('day', -{{ backfill_days }}, max(block_timestamp))
                     from {{ this }}
                 )
             {% endif %}
@@ -115,7 +118,7 @@ with
     {% endif %}
     {% if is_incremental() and new_stablecoin_address == '' %} 
         and block_timestamp >= (
-            select dateadd('day', -3, max(block_timestamp))
+            select dateadd('day', -{{ backfill_days }}, max(block_timestamp))
             from {{ this }}
         )
     {% endif %}

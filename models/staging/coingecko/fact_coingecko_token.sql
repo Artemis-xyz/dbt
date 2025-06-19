@@ -93,4 +93,4 @@ select
 from (select * from prices where rn = 1) p
 join (select * from market_caps where rn = 1) m using (coingecko_id, date)
 join (select * from total_volumes where rn = 1) t using (coingecko_id, date)
-join (select * from circulating_supply where rn = 1) c using (coingecko_id, date)
+left join (select * from circulating_supply where rn = 1) c using (coingecko_id, date)
