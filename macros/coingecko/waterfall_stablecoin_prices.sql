@@ -8,10 +8,15 @@ coalesce(
                 where coingecko_id = 'flex-usd'
                 qualify row_number() over (partition by coingecko_id order by date desc) = 1
             ) 
+            when {{token_data_name}}.coingecko_id = 'anchored-coins-eur' then (
+                select shifted_token_price_usd
+                from {{ ref("fact_coingecko_token_date_adjusted_gold") }}
+                where coingecko_id = 'anchored-coins-eur'
+                qualify row_number() over (partition by coingecko_id order by date desc) = 1
+            ) 
             when {{token_data_name}}.coingecko_id = 'tether-eurt' then ({{ avg_l7d_coingecko_price('tether-eurt') }})
             when {{token_data_name}}.coingecko_id = 'stasis-eurs' then ({{ avg_l7d_coingecko_price('stasis-eurs') }})
             when {{token_data_name}}.coingecko_id = 'ageur' then ({{ avg_l7d_coingecko_price('ageur') }})
-            when {{token_data_name}}.coingecko_id = 'anchored-coins-eur' then ({{ avg_l7d_coingecko_price('anchored-coins-eur') }})
             when {{token_data_name}}.coingecko_id = 'euro-coin' then ({{ avg_l7d_coingecko_price('euro-coin') }})
             when {{token_data_name}}.coingecko_id = 'celo-euro' then ({{ avg_l7d_coingecko_price('celo-euro') }})
             when {{token_data_name}}.coingecko_id = 'celo-real-creal' then ({{ avg_l7d_coingecko_price('celo-real-creal') }})

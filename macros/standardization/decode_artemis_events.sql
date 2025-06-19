@@ -9,7 +9,7 @@
         , topic_data
         , data
         , b.event_name
-        , pc_dbt_db.prod.decode_evm_event_log_v3(event_info, data, topics) AS decoded_log_with_status
+        , pc_dbt_db.prod.decode_evm_event_log_v4(event_info, data, topics) AS decoded_log_with_status
         , decoded_log_with_status[0] as decoded_log
         , decoded_log_with_status[1]::boolean as decoded_log_status
         , b.topic_zero
