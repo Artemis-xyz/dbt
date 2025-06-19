@@ -3,7 +3,7 @@
 with 
     hyperliquid_perps_trading_volume as (
         select
-            to_date(to_timestamp_ltz(parse_json(source_json):timestamp::number)) as date,
+            extraction_date::date as date,
             parse_json(source_json):daily_volume_total::float as perps_trading_volume
             , 'hyperliquid' as app
             , 'hyperliquid' as chain
