@@ -18,6 +18,10 @@ column_definitions:
       - artemis_gaap
       - override
 
+  burns_native: &burns_native
+    name: burns_native
+    description: "HyperCore (Spot Tokens Fees) + HyperEvm (Gas)"
+
   buyback_fee_allocation: &buyback_fee_allocation
     name: buyback_fee_allocation
     description: "A portion of protocol revenue is allocated to the Assistance Fund (AF) for HYPE buybacks — (97%). The 97% is based on confirmation from the Hyperliquid team and matches our observed fee data from assistancefund.top and asxn data."
@@ -41,18 +45,18 @@ column_definitions:
     name: circulating_supply_native
     description: "The circulating supply of a token in native tokens"
 
-  fdmc: &fdmc
-    name: fdmc
-    description: "The fully diluted market cap of a token in USD"
-    tags:
-      - artemis_gaap
-
   ecosystem_revenue: &ecosystem_revenue
     name: ecosystem_revenue
     description: "Gross protocol revenue includes layer 1 transaction fees and trading fees, composed of spot fees, perp fees, and auction fees."
     tags:
       - artemis_gaap
       - override
+
+  fdmc: &fdmc
+    name: fdmc
+    description: "The fully diluted market cap of a token in USD"
+    tags:
+      - artemis_gaap
 
   market_cap: &market_cap
     name: market_cap
@@ -137,6 +141,10 @@ column_definitions:
       - artemis_gaap
       - override
 
+  tvl: &tvl
+    name: tvl
+    description: "The total value locked in a protocol"
+
 models:
   - name: ez_hyperliquid_metrics_by_chain
     description: "This table stores metrics for the HYPERLIQUID protocol"
@@ -146,8 +154,8 @@ models:
       - *buyback_fee_allocation
       - *buybacks_native
       - *chain_fees
-      - *fdmc
       - *ecosystem_revenue
+      - *fdmc
       - *market_cap
       - *perp_dau
       - *perp_fees
@@ -165,12 +173,13 @@ models:
     columns:
       - *burned_fee_allocation
       - *burned_fee_allocation_native
+      - *burns_native
       - *buyback_fee_allocation
       - *buybacks_native
       - *chain_fees
       - *circulating_supply_native
-      - *fdmc
       - *ecosystem_revenue
+      - *fdmc
       - *market_cap
       - *net_supply_change_native
       - *perp_dau
@@ -184,4 +193,5 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
+      - *tvl
 
