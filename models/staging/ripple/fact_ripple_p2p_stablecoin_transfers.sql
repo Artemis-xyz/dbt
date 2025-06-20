@@ -1,4 +1,4 @@
---depends_on: {{ ref("fact_base_stablecoin_transfers") }}
+--depends_on: {{ ref("fact_ripple_stablecoin_transfers") }}
 {{
     config(
         materialized="incremental",
