@@ -17,9 +17,10 @@ with
     , supply_data as (
         select 
             date
-            , premine_unlocks_native
-            , net_supply_change_native
-            , circulating_supply_native
+            , max_supply_native
+            , total_supply_native
+            , foundation_owned_supply_native
+            , unvested_tokens_native
         from {{ ref("fact_sui_supply_data") }}
     )
 select
@@ -57,10 +58,10 @@ select
     , revenue_native AS burned_fee_allocation_native
     , avg_txn_fee AS chain_avg_txn_fee
     -- Supply Metrics
-    , mints_native as gross_emissions_native
-    , premine_unlocks_native
-    , net_supply_change_native
-    , circulating_supply_native
+    , max_supply_native
+    , total_supply_native
+    , total_supply_native - foundation_owned_supply_native - burned_fee_allocation_native as issued_supply_native
+    , total_supply_native - foundation_owned_supply_native - burned_fee_allocation_native - unvested_tokens_native as circulating_supply_native
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
