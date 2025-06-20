@@ -4,6 +4,7 @@ with
         from {{ source("PROD_LANDING", "raw_hyperliquid_trading_volume") }}
     ),
     trading_volume_market as (
+        -- historical data from stats.hyperliquid.xyz
         select
             try_to_date(f.value:time::string) as date
             , sum(try_to_numeric(f.value:total_volume::string)) as trading_volume
@@ -14,6 +15,7 @@ with
 
         union all
 
+        -- point in time data from hyperliquid API
         select
             date
             , perps_trading_volume as trading_volume
