@@ -3,7 +3,7 @@ with
     stablecoin_transfers as (
         select * from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers") }}
     ),
-    {% if chain in ("tron", "solana", "near", "ton") %}
+    {% if chain in ("tron", "solana", "near", "ton", "ripple") %}
          distinct_peer_address as (
             select address
             from {{ ref("dim_" ~ chain ~ "_eoa_addresses") }}
@@ -110,6 +110,10 @@ with
         and lower(to_address) not in ('TMerfyf1KwvKeszfVoLH3PEJH52fC2DENq', '1nc1nerator11111111111111111111111111111111', 'system', '0x0000000000000000000000000000000000000000', 'EQAj-peZGPH-cC25EAv4Q-h8cBXszTmkch6ba6wXC8BM4xdo')
         and lower(from_address) not in ('TMerfyf1KwvKeszfVoLH3PEJH52fC2DENq', '1nc1nerator11111111111111111111111111111111', 'system', '0x0000000000000000000000000000000000000000', 'EQAj-peZGPH-cC25EAv4Q-h8cBXszTmkch6ba6wXC8BM4xdo')
         and lower(tx_hash) not in (select lower(tx_hash) from cex_filter)
+    {% if chain == 'ripple' %}
+        and lower(from_address) != lower(token_address)
+        and lower(to_address) != lower(token_address)
+    {% endif %}
     {% if chain == "solana" %}
         and block_timestamp::date > '2022-12-31' -- Prior to 2023, volumes data not high fidelity enough to report. Continuing to do analysis on this data. 
     {% endif %}
