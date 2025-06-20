@@ -1,3 +1,3 @@
-{{config(materialized="table") }}
+{{config(materialized="incremental", unique_key="address") }}
 
 {{ distinct_eoa_addresses("ripple") }}
