@@ -1,4 +1,4 @@
-{% macro OFTRecieved(chain, contract_address, coingecko_id, decimals) %}
+{% macro OFTRecieved(chain, contract_address, token_address, coingecko_id, decimals) %}
 
 with prices as (
     {{ get_coingecko_price_with_latest(coingecko_id) }}
@@ -14,7 +14,7 @@ with prices as (
         , contract_address
         , decoded_log:amountReceivedLD::number as amount_received_ld
         , decoded_log:srcEid::number as src_eid
-        , decoded_log:toAddress::string as to_address
+        , decoded_log:toAddress::string as dst_address
         , decoded_log:guid::string as guid
     from {{ ref("fact_" ~ chain ~ "_decoded_events") }} a
     where lower(contract_address) = lower('{{ contract_address }}')
@@ -28,6 +28,7 @@ select
     , transaction_index
     , event_index
     , contract_address
+    , lower('{{token_address}}') as token_address
     , amount_received_ld as amount_received_raw
     , amount_received_ld / power(10, {{ decimals }}) as amount_received_native
     , amount_received_ld / power(10, {{ decimals }}) * prices.price as amount_received
@@ -35,7 +36,7 @@ select
     , src_eid
     , dim_chain_id_mapping.chain_name as src_chain
     , '{{ chain }}' as dst_chain
-    , to_address
+    , dst_address
     , guid
 from events
 left join prices
