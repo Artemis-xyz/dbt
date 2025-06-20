@@ -4,30 +4,27 @@ with
         from {{ source("PROD_LANDING", "raw_hyperliquid_trading_volume") }}
     ),
     trading_volume_market as (
+        -- historical data from stats.hyperliquid.xyz
         select
-            sum(value:total_volume::double) as trading_volume
-            , max(value:coin::string) as market
-            , date(value:time) as date
-            , max(extraction_date) as extraction_date
-        from
-            {{ source("PROD_LANDING", "raw_hyperliquid_trading_volume") }},
-            lateral flatten(input => parse_json(source_json))
-        where date(extraction_date) = '2025-05-28'
+            try_to_date(f.value:time::string) as date
+            , sum(try_to_numeric(f.value:total_volume::string)) as trading_volume
+        from LANDING_DATABASE.PROD_LANDING.raw_hyperliquid_trading_volume t,
+            lateral flatten(input => parse_json(t.source_json)) as f
+        where date(extraction_date) = '2025-06-19'
         group by date
 
         union all
 
+        -- point in time data from hyperliquid API
         select
-            perps_trading_volume as trading_volume
-            , null as market
-            , date
-            , null as extraction_date
+            date
+            , perps_trading_volume as trading_volume
         from {{ ref("fact_hyperliquid_perps_trading_volume") }}
-        where date > '2025-05-24'
+        where date > '2025-06-17'
     )
 select
-    trading_volume
-    , date
+    date
+    , trading_volume
     , 'hyperliquid' as app
     , 'hyperliquid' as chain
     , 'DeFi' as category
