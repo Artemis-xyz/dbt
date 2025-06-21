@@ -17,3 +17,20 @@ snowflake-dagster:
       threads: 4
       client_session_keep_alive: False
       query_tag: PROD
+
+    dev:
+      type: snowflake
+      account: IYTNLTJ-MWB17343
+
+      user: "{{ env_var('SYSTEM_SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SYSTEM_SNOWFLAKE_PASSWORD', '') }}"
+      # snowflake client_store_temporary_credential is automatically set by dbt-snowflake
+      authenticator: "{{ env_var('SYSTEM_SNOWFLAKE_AUTHENTICATOR', 'snowflake') }}"
+
+      role: "{{ env_var('SYSTEM_SNOWFLAKE_ROLE') }}"
+      database: PC_DBT_DB
+      warehouse: ARTEMIS_DBT_PUBLIC_WAREHOUSE
+      schema: PROD
+      threads: 4
+      client_session_keep_alive: False
+      query_tag: DEV
