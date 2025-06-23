@@ -8,9 +8,9 @@ def load_global_schema(global_schema_path):
     """ Load and flatten the global schema into a set of metric names. """
     with open(global_schema_path, "r") as file:
         schema = yaml.safe_load(file)
-    
+
     metric_set = set()
-    
+
     # Iterate through schema categories
     for category, metrics in schema["column_definitions"].items():
         for metric in metrics:
@@ -36,7 +36,7 @@ def extract_sql_columns(sql_file_path):
     select_matches = re.findall(r"select\s+(.*?)\s+from", cleaned_sql, re.DOTALL | re.IGNORECASE)
     if not select_matches:
         raise ValueError("No SELECT statement found in SQL file.")
-    
+
     # Take the last SELECT statement
     select_clause = select_matches[-1]
 
@@ -48,14 +48,14 @@ def extract_sql_columns(sql_file_path):
         line = line.strip().rstrip(",")  # Remove trailing commas
         if not line or line.startswith("--"):  # Skip empty lines and comments
             continue
-            
+
         # Handle different alias patterns
         # Pattern 1: column as alias
         match = re.search(r"(?:.*\s)?as\s+(\w+)(?:\s*,)?(?:\s*--.*)?$", line, re.IGNORECASE)
         if match:
             column_names.add(match.group(1))
             continue
-            
+
         # Pattern 2: simple column name
         match = re.match(r"^\s*,?\s*(\w+)(?:\s*--.*)?$", line)
         if match:
@@ -67,7 +67,7 @@ def extract_sql_columns(sql_file_path):
         if match:
             column_names.add(match.group(1))
             continue
-            
+
         # Pattern 4: complex expression with final alias
         match = re.search(r"\w+(?:\s*--.*)?$", line)
         if match:
@@ -89,30 +89,30 @@ def load_existing_overrides(project_schema_path):
     """Load any existing column overrides from the project schema."""
     if not os.path.exists(project_schema_path):
         return {}
-    
+
     with open(project_schema_path, 'r') as f:
         existing_schema = yaml.safe_load(f)
-    
+
     overrides = {}
     # Extract existing column definitions that are marked as overrides
     column_defs = existing_schema.get('column_definitions', {})
     for col_name, col_def in column_defs.items():
         if 'tags' in col_def and 'override' in col_def['tags']:
             overrides[col_name] = col_def
-    
+
     return overrides
 
 def get_project_sql_files(project_name):
     """Get all SQL files in the project's core directory"""
     dbt_root = get_dbt_root()
-    
+
     project_core_dir = os.path.join(dbt_root, 'target', 'compiled', 'artemis_dbt', 'models', 'projects', project_name, 'core')
     # project_core_dir = os.path.join(dbt_root, 'models', 'projects', project_name, 'core')
     sql_files = []
     for file in os.listdir(project_core_dir):
         if file.endswith('.sql'):
             sql_files.append(os.path.join(project_core_dir, file))
-    
+
     return sql_files
 
 def generate_project_schema(project_name, global_schema_path, sql_files):
@@ -127,7 +127,7 @@ def generate_project_schema(project_name, global_schema_path, sql_files):
     # Read global schema to get column definitions
     with open(global_schema_path, 'r') as f:
         global_schema = yaml.safe_load(f)
-    
+
     # Extract all column definitions from global schema
     column_defs = {}
     for metric_group in global_schema['column_definitions'].values():
@@ -148,10 +148,10 @@ def generate_project_schema(project_name, global_schema_path, sql_files):
         # Write header
         f.write("# This file is auto-generated from the global schema definitions.\n")
         f.write("# To override a column definition, add the 'override' tag to that column.\n\n")
-        
+
         # Write version
         f.write("version: 2\n\n")
-        
+
         # Write column definitions with anchors
         f.write("column_definitions:\n")
         for col_name in sorted(needed_columns):
@@ -170,7 +170,7 @@ def generate_project_schema(project_name, global_schema_path, sql_files):
                 for tag in col_def['tags']:
                     f.write(f"      - {tag}\n")
             f.write("\n")
-        
+
         # Write models section
         f.write("models:\n")
         for sql_file in sql_files:
@@ -213,17 +213,17 @@ def exec_main_script(project_name):
     try:
         # Get dbt root directory
         dbt_root = get_dbt_root()
-        
+
         # Change to dbt root directory before running compile
         print(f"Changing to dbt root directory: {dbt_root}")
         original_dir = os.getcwd()
         os.chdir(dbt_root)
-        
+
         print(f"Compiling models for project: {project_name}...")
-        dbt_compile_command = ['dbt', 'compile', '-s', f'models/projects/{project_name}']
+        dbt_compile_command = ['dbt', 'compile', '-s', f'models/projects/{project_name}', '--target', 'prod']
 
         result = subprocess.run(dbt_compile_command, capture_output=True, text=True)
-        
+
         # Change back to original directory
         os.chdir(original_dir)
 
@@ -238,7 +238,7 @@ def exec_main_script(project_name):
         exit(1)
 
     # Continue with rest of script...
-    
+
     # Get paths
     paths = get_project_path()
     global_schema_path = paths['global_schema']
@@ -251,7 +251,7 @@ def exec_main_script(project_name):
     # Generate combined schema file for all models
     generate_project_schema(project_name, global_schema_path, sql_files)
 
-    
+
 
 if __name__ == "__main__":
     # Get comma-separated input and split into list
