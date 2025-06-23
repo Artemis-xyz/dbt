@@ -24,9 +24,10 @@ column_definitions:
 
   issued_supply_native: &issued_supply_native
     name: issued_supply_native
-    description: "The issued supply of a token, equal to the total supply minus foundation or DAO held tokens."
+    description: "The issued supply of a token, equal to the total supply minus foundation or DAO held tokens. For Maker, this is the issued supply of SKY."
     tags:
       - artemis_gaap
+      - override
 
   lending_deposits: &lending_deposits
     name: lending_deposits
