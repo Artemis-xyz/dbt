@@ -3,9 +3,6 @@ sources:
     schema: PROD_LANDING
     database: LANDING_DATABASE
     tables:
-      - name: raw_cardano_daa
-      - name: raw_cardano_fees
-      - name: raw_cardano_txns
       - name: raw_cardano_nft_trading_volume
       - name: raw_cardano_block_parquet
         description: Raw Cardano block data loaded from S3 parquet files
