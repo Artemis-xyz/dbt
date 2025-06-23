@@ -1,0 +1,18 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  stablecoin_total_supply: &stablecoin_total_supply
+    name: stablecoin_total_supply
+    description: "The total supply of a stablecoin on a chain"
+    tags:
+      - artemis_gaap
+
+models:
+  - name: ez_plume_metrics
+    description: "This table stores metrics for the PLUME protocol"
+    columns:
+      - *stablecoin_total_supply
+
