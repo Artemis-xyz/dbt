@@ -6,7 +6,7 @@
 }}
 
 with all_balances as (
-    {{ forward_filled_token_balances('solana', 'native_token', '2020-11-01') }}
+    {{ forward_filled_token_balances('solana', 'native_token') }}
 )
 select
     date,

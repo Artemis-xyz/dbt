@@ -26,12 +26,34 @@ with a as (
         undistributed,
         total
     FROM date_spine ds
-    LEFT JOIN  pc_dbt_db.prod.fact_ripple_supply_data using(date)
+    LEFT JOIN a using(date)
+)
+, filled as (
+    SELECT
+        date,
+        COALESCE(LAST_VALUE(s.escrowed ignore nulls) over (order by s.date rows between unbounded preceding and current row), 0) as escrowed,
+        COALESCE(LAST_VALUE(s.distributed ignore nulls) over (order by s.date rows between unbounded preceding and current row), 0) as distributed,
+        COALESCE(LAST_VALUE(s.undistributed ignore nulls) over (order by s.date rows between unbounded preceding and current row), 0) as undistributed,
+        COALESCE(LAST_VALUE(s.total ignore nulls) over (order by s.date rows between unbounded preceding and current row), 0) as total
+    from sparse s
+)
+, burns as (
+    select
+        date,
+        sum(chain_fees_native) OVER (ORDER BY date ASC) as burned
+    from {{ ref("fact_ripple_fundamental_metrics") }}
 )
 SELECT
     date,
-    COALESCE(LAST_VALUE(s.escrowed ignore nulls) over (order by s.date rows between unbounded preceding and current row), 0) as escrowed,
-    COALESCE(LAST_VALUE(s.distributed ignore nulls) over (order by s.date rows between unbounded preceding and current row), 0) as distributed,
-    COALESCE(LAST_VALUE(s.undistributed ignore nulls) over (order by s.date rows between unbounded preceding and current row), 0) as undistributed,
-    COALESCE(LAST_VALUE(s.total ignore nulls) over (order by s.date rows between unbounded preceding and current row), 0) as total
-from sparse s
+    escrowed,
+    distributed,
+    undistributed,
+    total as max_supply,
+    burned,
+    0 as uncreated_tokens,
+    total - burned as total_supply,
+    escrowed + undistributed as foundation_balance,
+    total - burned - escrowed - undistributed as issued_supply,
+    total - burned - escrowed - undistributed as circulating_supply
+from filled
+left join burns using(date)
