@@ -70,7 +70,6 @@ SELECT
     -- Not accounting for v4 to support backwards compitability. When we shift in the adapter we will delete v4.
     , trading_volume_data.trading_volume as trading_volume
     , unique_traders_data.unique_traders as unique_traders
-    , fees + txn_fees as fees
     , fees as trading_fees
     , txn_fees as txn_fees
     
