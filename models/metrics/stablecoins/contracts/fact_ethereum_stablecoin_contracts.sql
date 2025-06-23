@@ -66,5 +66,10 @@ from
             ('XSGD', '0x70e8dE73cE538DA2bEEd35d14187F6959a8ecA96', 6, 'xsgd', 0),
             ('XUSD', '0xc08e7e23c235073c6807c2efe7021304cb7c2815', 6, 'straitsx-xusd', 0),
             ('EURCV', '0x5f7827fdeb7c20b443265fc2f40845b715385ff2', 18, 'societe-generale-forge-eurcv', 0),
-            ('GYEN', '0xc08512927d12348f6620a698105e1baac6ecd911', 6, 'gyen', 0)
+            ('GYEN', '0xc08512927d12348f6620a698105e1baac6ecd911', 6, 'gyen', 0),
+            ('EURR', '0x50753cfaf86c094925bf976f218d043f8791e408', 6, 'stablr-euro', 0),
+            ('BRZ', '0x01d33FD36ec67c6Ada32cf36b31e88EE190B1839', 18, 'brz', 0),
+            ('AUDF', '0xd2a530170d71a9cfe1651fb468e2b98f7ed7456b', 6, 'forte-aud', 0),
+            ('CADC', '0xcaDC0acd4B445166f12d2C07EAc6E2544FbE2Eef', 18, 'cad-coin', 0),
+            ('ZARP', '0xb755506531786C8aC63B756BaB1ac387bACB0C04', 18, 'zarp-stablecoin', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
