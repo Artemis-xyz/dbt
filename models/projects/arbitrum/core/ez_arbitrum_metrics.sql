@@ -100,6 +100,8 @@ select
     , coalesce(fees, 0) - l1_data_cost + coalesce(0.97 * timeboost_fees, 0) as treasury_fee_allocation
     , l1_data_cost_native AS l1_fee_allocation_native -- fees paid to l1 by sequencer (L1 Fees)
     , l1_data_cost AS l1_fee_allocation
+    , timeboost_fees_native
+    , timeboost_fees
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
