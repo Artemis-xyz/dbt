@@ -12,7 +12,7 @@ with
 
 select
     value:date::date as date,
-    value:timestamp_ms::timestamp as timestamp_ms,
+    value:timestamp_ms::number as timestamp_ms,
     value:chain::string as chain,
     value:tx_hash::string as tx_hash,
     value:leo_burn_amount::number as leo_burn_amount
