@@ -6,7 +6,9 @@ version: 2
 column_definitions:
   circulating_supply_native: &circulating_supply_native
     name: circulating_supply_native
-    description: "The circulating supply of a token in native tokens"
+    description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+    tags:
+      - artemis_gaap
 
   ecosystem_revenue: &ecosystem_revenue
     name: ecosystem_revenue
@@ -17,6 +19,12 @@ column_definitions:
   fdmc: &fdmc
     name: fdmc
     description: "The fully diluted market cap of a token in USD"
+    tags:
+      - artemis_gaap
+
+  issued_supply_native: &issued_supply_native
+    name: issued_supply_native
+    description: "The issued supply of a token, equal to the total supply minus foundation or DAO held tokens."
     tags:
       - artemis_gaap
 
@@ -108,6 +116,7 @@ models:
       - *circulating_supply_native
       - *ecosystem_revenue
       - *fdmc
+      - *issued_supply_native
       - *lending_deposits
       - *lending_loans
       - *market_cap
