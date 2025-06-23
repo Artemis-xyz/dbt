@@ -60,6 +60,13 @@ WITH
             , tokenholder_count
         from {{ ref("fact_mkr_tokenholder_count")}}
     )
+    , token_supply as (
+        select
+            date
+            , issued_supply_sky_less_converter as sky_issued_supply
+            , circulating_supply_sky_less_converter as sky_circulating_supply
+        from {{ ref("fact_maker_supply_data")}}
+    )
 
 
 select
@@ -83,10 +90,22 @@ select
     -- Standardized metrics
     , 'Maker' as app
     , 'DeFi' as category
+
+    -- Market Metrics
+    , COALESCE(price, 0) AS price
+    , COALESCE(fdmc, 0) AS fdmc
+    , COALESCE(market_cap, 0) AS market_cap
+    , COALESCE(token_volume, 0) AS token_volume
+    
+    -- Usage Metrics
+    , COALESCE(tvl, 0) AS tvl
+
+    -- Financial Metrics
     , COALESCE(stability_fees,0) as stability_fees
     , COALESCE(trading_fees, 0) AS trading_fees
     , COALESCE(fees, 0) AS ecosystem_revenue
 
+    -- Fee Distribution Metrics
     , COALESCE(primary_revenue, 0) AS interest_rate_fee_allocation
     , COALESCE(liquidation_revenue, 0) AS liquidation_fee_allocation
     , COALESCE(trading_revenue, 0) AS trading_fee_allocation
@@ -94,20 +113,21 @@ select
     , COALESCE(protocol_revenue, 0) AS token_fee_allocation 
     
 
+    -- Treasury Metrics
     , COALESCE(treasury_usd, 0) AS treasury
     , COALESCE(treasury_native, 0) AS treasury_native
 
     , COALESCE(tvl, 0) AS lending_deposits
     , COALESCE(outstanding_supply, 0) AS lending_loans
 
-    , COALESCE(tvl, 0) AS tvl
-    , COALESCE(price, 0) AS price
-    , COALESCE(fdmc, 0) AS fdmc
-    , COALESCE(market_cap, 0) AS market_cap
-    , COALESCE(token_volume, 0) AS token_volume
+    -- Supply Metrics
+    , COALESCE(sky_issued_supply, 0) AS issued_supply_native
+    , COALESCE(sky_circulating_supply, 0) AS circulating_supply_native
+
+    -- Token Turnover metrics
     , COALESCE(token_turnover_fdv, 0) AS token_turnover_fdv
     , COALESCE(token_turnover_circulating, 0) AS token_turnover_circulating
-
+    
 FROM token_holder_data
 left join treasury_usd using (date)
 left join treasury_native using (date)
@@ -117,4 +137,5 @@ left join outstanding_supply using (date)
 left join token_turnover_metrics using (date)
 left join price_data using (date)
 left join fees_revenue_expenses using (date)
+left join token_supply using (date)
 where date < to_date(sysdate())

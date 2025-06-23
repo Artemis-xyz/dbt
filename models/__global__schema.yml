@@ -71,6 +71,20 @@ column_definitions:
       description: "The amount of revenue allocated to users of the protocol"
       tags: [artemis_gaap]
 
+  supply_metrics:
+    - name: max_supply_native
+      description: "The maximum supply of a token, including any uncreated tokens, unvested tokens, foundation or DAO held tokens, and burned tokens."
+      tags: [artemis_gaap]
+    - name: total_supply_native
+      description: "The total supply of a token, equal to the sum of all tokens created minus the sum of all tokens destroyed."
+      tags: [artemis_gaap]
+    - name: issued_supply_native
+      description: "The issued supply of a token, equal to the total supply minus foundation or DAO held tokens."
+      tags: [artemis_gaap]
+    - name: circulating_supply_native
+      description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+      tags: [artemis_gaap]
+
   token_metrics:
     - name: price
       description: "The price of a token in USD"
