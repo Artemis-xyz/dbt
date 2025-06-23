@@ -1,5 +1,3 @@
-{{ config(materialized="table", snowflake_warehouse='USDT0') }}
-
 {{config(materialized="table", snowflake_warehouse='USDT0')}}
 select
     OFTReceived.block_timestamp as dst_block_timestamp
