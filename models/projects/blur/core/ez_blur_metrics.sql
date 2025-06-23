@@ -48,7 +48,7 @@ select
 
     -- Cash Flow Metrics
     , coalesce(blur_fees.fees, 0) as ecosystem_revenue
-    , coalesce(blur_fees.fees, 0) as service_cash_flow
+    , coalesce(blur_fees.fees, 0) as service_fee_allocation
 
     -- Supply Metrics
     , coalesce(blur_daily_supply.premine_unlocks_native, 0) as premine_unlocks_native

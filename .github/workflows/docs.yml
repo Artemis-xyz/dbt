@@ -34,7 +34,7 @@ jobs:
       - name: Generate docs
         run: |
           dbt deps
-          dbt docs generate --threads 16
+          dbt docs generate --threads 16 --target prod
           git diff
           mkdir generated_dbt_docs
           mv "target/index.html" "target/manifest.json" "target/catalog.json" "target/partial_parse.msgpack" generated_dbt_docs

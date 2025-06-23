@@ -13,7 +13,7 @@ WITH parsed_log_metrics AS (
         SUM(IFF(market_type = 1, total_taker_fee, 0)) AS perp_fees,
         SUM(IFF(market_type = 1, total_revenue, 0)) AS perp_revenue,
         SUM(IFF(market_type = 1, total_volume, 0)) AS perp_trading_volume,
-        SUM(IFF(market_type = 0, total_revenue, 0)) AS spot_fees,
+        SUM(IFF(market_type = 0, IFF(total_revenue < 0, 0, total_revenue), 0)) AS spot_fees,
         SUM(IFF(market_type = 0, total_taker_fee, 0)) AS spot_revenue,
         SUM(IFF(market_type = 0, total_volume, 0)) AS spot_trading_volume
     FROM {{ ref("fact_drift_parsed_logs") }}

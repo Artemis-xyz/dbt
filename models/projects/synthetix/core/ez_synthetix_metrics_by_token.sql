@@ -77,7 +77,7 @@ with
         select
             date
             , token
-            , sum(cash_flow) as token_cashflow
+            , sum(fee_allocation) as token_fee_allocation
         from {{ ref("fact_synthetix_token_cashflow_by_token_and_chain") }}
         group by 1,2
     )
@@ -101,7 +101,7 @@ with
         select
             date
             , token
-            , sum(fee_sharing_cash_flow) as fee_sharing_cashflow
+            , sum(fee_sharing_fee_allocation) as fee_sharing_fee_allocation
         from {{ ref("fact_synthetix_fee_sharing_cashflow_by_token_and_chain") }}
         group by 1,2
     )
@@ -132,10 +132,10 @@ select
     -- Cashflow Metrics
     , coalesce(fees.fees_usd, 0) as ecosystem_revenue
     , coalesce(fees.fees_native, 0) as ecosystem_revenue_native
-    , coalesce(token_cashflow.token_cashflow, 0) as token_cashflow
-    , coalesce(service_cashflow.service_cashflow, 0) as service_cashflow
-    , coalesce(treasury_cashflow.treasury_cashflow, 0) as treasury_cashflow
-    , coalesce(fee_sharing_cashflow.fee_sharing_cashflow, 0) as fee_sharing_cashflow
+    , coalesce(token_cashflow.token_fee_allocation, 0) as token_fee_allocation
+    , coalesce(service_cashflow.service_cashflow, 0) as service_fee_allocation
+    , coalesce(treasury_cashflow.treasury_cashflow, 0) as treasury_fee_allocation
+    , coalesce(fee_sharing_cashflow.fee_sharing_fee_allocation, 0) as fee_sharing_fee_allocation
 
     -- Protocol Metrics
     , coalesce(treasury_by_token.treasury, 0) as treasury

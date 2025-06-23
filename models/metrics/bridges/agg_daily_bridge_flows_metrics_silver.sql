@@ -23,6 +23,7 @@ with
                     ref("fact_wormhole_flows"),
                     ref("fact_worldchain_bridge_flows"),
                     ref("fact_zksync_era_bridge_flows"),
+                    ref("fact_usdt0_flows"),
                 ]
             )
         }}

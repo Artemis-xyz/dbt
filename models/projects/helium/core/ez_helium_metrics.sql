@@ -55,9 +55,9 @@ select
 
     -- Cash Flow Metrics
     , coalesce(fees_data.fees, 0) as ecosystem_revenue
-    , coalesce(revenue_data.revenue, 0) as service_cash_flow
-    , coalesce(revenue_data.hnt_burned, 0) * coalesce(price_data.price, 0) as burned_cash_flow
-    , coalesce(revenue_data.hnt_burned, 0) as burned_cash_flow_native
+    , coalesce(revenue_data.revenue, 0) as service_fee_allocation
+    , coalesce(revenue_data.hnt_burned, 0) * coalesce(price_data.price, 0) as burned_fee_allocation
+    , coalesce(revenue_data.hnt_burned, 0) as burned_fee_allocation_native
 
     -- Turnover Metrics
     , coalesce(price_data.token_turnover_circulating, 0) as token_turnover_circulating

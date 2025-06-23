@@ -68,15 +68,15 @@ column_definitions:
       - artemis_gaap
       - override
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "The share of protocol revenue accrued to lenders on Goldfinch."
     tags:
       - artemis_gaap
       - override
 
-  token_cash_flow: &token_cash_flow
-    name: token_cash_flow
+  token_fee_allocation: &token_fee_allocation
+    name: token_fee_allocation
     description: "The withdrawal revenue and interest revenue (10% of interest fees) accrues to the DAO-controlled treasury."
     tags:
       - artemis_gaap
@@ -134,8 +134,8 @@ models:
       - *net_treasury_native
       - *own_token_treasury
       - *own_token_treasury_native
-      - *service_cash_flow
-      - *token_cash_flow
+      - *service_fee_allocation
+      - *token_fee_allocation
       - *treasury
       - *treasury_native
       - *tvl
@@ -154,8 +154,8 @@ models:
       - *own_token_treasury
       - *own_token_treasury_native
       - *price
-      - *service_cash_flow
-      - *token_cash_flow
+      - *service_fee_allocation
+      - *token_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
@@ -174,8 +174,8 @@ models:
       - *net_treasury_native
       - *own_token_treasury
       - *own_token_treasury_native
-      - *service_cash_flow
-      - *token_cash_flow
+      - *service_fee_allocation
+      - *token_fee_allocation
       - *treasury
       - *treasury_native
       - *tvl

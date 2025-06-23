@@ -103,8 +103,8 @@ SELECT
     -- Cash Flow Metrics
     , coalesce(revenue.revenue_usd, 0) as nft_fees
     , coalesce(revenue.revenue_usd, 0) as ecosystem_revenue
-    , 0.5 * coalesce(revenue.revenue_usd, 0) as treasury_cash_flow
-    , 0.5 * coalesce(revenue.revenue_usd, 0) as buyback_cash_flow
+    , 0.5 * coalesce(revenue.revenue_usd, 0) as treasury_fee_allocation
+    , 0.5 * coalesce(revenue.revenue_usd, 0) as buyback_fee_allocation
     , coalesce(buybacks.buyback, 0) as buybacks
 
     -- Supply Metrics

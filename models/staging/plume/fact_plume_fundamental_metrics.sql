@@ -3,17 +3,26 @@
 
 with fundamental_data as (
     {{ get_goldsky_chain_fundamental_metrics("plume") }}
-),
-price as (
+)
+, rwa_tvl as (
+    select 
+        date
+        , sum(rwa_supply_usd) as rwa_tvl 
+    from {{ ref('fact_plume_rwa_supply_by_date_and_chain') }} 
+    group by date 
+), price as (
     {{ get_coingecko_price_with_latest('plume') }}
 )
 
 SELECT 
-    fd.date,
-    fd.daa,
-    fd.txns,
-    fd.fees_native,
-    fees_native * price as fees
+    fd.date
+    , fd.daa
+    , fd.txns
+    , fd.fees_native
+    , fees_native * price as fees
+    , rwa_tvl.rwa_tvl
 FROM fundamental_data fd
 LEFT JOIN price p
 ON fd.date = p.date
+LEFT JOIN rwa_tvl
+ON fd.date = rwa_tvl.date

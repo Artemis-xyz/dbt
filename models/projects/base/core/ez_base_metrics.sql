@@ -84,10 +84,10 @@ select
     -- Cashflow Metrics
     , fees_native as ecosystem_revenue_native
     , fees as ecosystem_revenue
-    , l1_data_cost_native AS l1_cash_flow_native  -- fees paid to l1 by sequencer (L1 Fees)
-    , l1_data_cost AS l1_cash_flow
-    , coalesce(fees_native, 0) - coalesce(l1_data_cost_native, 0) as treasury_cash_flow_native
-    , coalesce(fees, 0) - coalesce(l1_data_cost, 0) as treasury_cash_flow
+    , l1_data_cost_native AS l1_fee_allocation_native  -- fees paid to l1 by sequencer (L1 Fees)
+    , l1_data_cost AS l1_fee_allocation
+    , coalesce(fees_native, 0) - coalesce(l1_data_cost_native, 0) as treasury_fee_allocation_native
+    , coalesce(fees, 0) - coalesce(l1_data_cost, 0) as treasury_fee_allocation
     -- Developer Metrics
     , weekly_contracts_deployed
     , weekly_contract_deployers

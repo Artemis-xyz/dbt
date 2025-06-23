@@ -24,8 +24,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
-    name: fee_sharing_token_cash_flow
+  staking_fee_allocation: &staking_fee_allocation
+    name: staking_fee_allocation
     description: "In Aerodrome 100% of trading fees are directed to veAERO voters."
     tags:
       - artemis_gaap
@@ -120,7 +120,7 @@ models:
       - *buybacks_native
       - *circulating_supply_native
       - *fdmc
-      - *fee_sharing_token_cash_flow
+      - *staking_fee_allocation
       - *gross_emissions
       - *gross_emissions_native
       - *ecosystem_revenue
@@ -140,7 +140,7 @@ models:
   - name: ez_aerodrome_metrics_by_chain
     description: "This table stores metrics for the AERODROME protocol"
     columns:
-      - *fee_sharing_token_cash_flow
+      - *staking_fee_allocation
       - *ecosystem_revenue
       - *spot_dau
       - *spot_fees

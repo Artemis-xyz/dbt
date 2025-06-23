@@ -54,6 +54,7 @@ SELECT
     , 'OFT' as bridge_message_app
     , 2 as version
     , 'stargate' as app
+    , concat(guid, '|', 'stargate') as unique_id
 FROM 
     {{ ref("fact_stargate_v2_transfers") }} as stargate
 left join {{ ref('dim_chain_ids') }} as src_ids on stargate.src_chain = src_ids.chain
@@ -106,6 +107,7 @@ SELECT
     , bridge_message_app
     , version
     , 'across' as app
+    , unique_id
 FROM 
     {{ ref('fact_across_complete_transfers') }}
 WHERE 
@@ -159,6 +161,7 @@ SELECT
     , null as bridge_message_app
     , null as version
     , 'wormhole' as app
+    , unique_id
 FROM 
     {{ ref('fact_wormhole_operations_with_price') }}
 WHERE 
@@ -211,6 +214,7 @@ SELECT
     , null as bridge_message_app
     , null as version
     , 'debridge' as app
+    , unique_id
 FROM 
     {{ref('fact_debridge_transfers_with_price_and_metadata')}}
 WHERE
@@ -262,6 +266,7 @@ select
     , bridge_message_app
     , version
     , app
+    , unique_id
 from {{ ref('fact_superchain_bridge_transfers') }}
 where
     (src_block_timestamp <= to_date(sysdate()) or src_block_timestamp is null)

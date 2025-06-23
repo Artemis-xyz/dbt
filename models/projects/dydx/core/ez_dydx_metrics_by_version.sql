@@ -12,25 +12,29 @@ with
     trading_volume_data_v4 as (
         select date, trading_volume
         from {{ ref("fact_dydx_v4_trading_volume") }}
-    ),
-    fees_data_v4 as (
+    )
+    , fees_data_v4 as (
         select date, fees
         from {{ ref("fact_dydx_v4_fees") }}
-    ),
-    chain_data_v4 as (
-        select date, txn_fees
-        from {{ ref("fact_dydx_v4_txn_and_trading_fees") }}
-    ),
-    unique_traders_data_v4 as (
+    )
+    , chain_data_v4 as (
+        select date, maker_fees, maker_rebates, txn_fees
+        from {{ ref("fact_dydx_v4_txn_fees") }}
+    )
+    , trading_fees_v4 as (
+        select date, total_fees
+        from {{ ref("fact_dydx_v4_trading_fees") }}
+    )
+    , unique_traders_data_v4 as (
         select date, unique_traders
         from {{ ref("fact_dydx_v4_unique_traders") }}
-    ),
-    trading_volume_data as (
+    )
+    , trading_volume_data as (
         select date, trading_volume
         from {{ ref("fact_dydx_trading_volume") }}
         where market_pair is null
-    ),
-    unique_traders_data as (
+    )
+    ,unique_traders_data as (
         select date, unique_traders
         from {{ ref("fact_dydx_unique_traders") }}
     )

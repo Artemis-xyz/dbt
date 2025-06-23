@@ -20,7 +20,8 @@ select
     'cardano' as chain,
     total_fee_lovelace / 1e6 as gas, -- ADA
     (total_fee_lovelace / 1e6) * coalesce(cardano_prices.price, 0) as gas_usd,
-    0 as revenue
+    0.2 * total_fee_lovelace / 1e6 as revenue_native,
+    0.2 * (total_fee_lovelace / 1e6) * coalesce(cardano_prices.price, 0) as revenue
 from tx_daily
 left join cardano_prices on tx_daily.date = cardano_prices.date
 where tx_daily.date < current_date()

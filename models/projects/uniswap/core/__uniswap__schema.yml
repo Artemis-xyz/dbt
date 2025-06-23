@@ -44,8 +44,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "The share of protocol revenue accrued to service providers of the protocol."
     tags:
       - artemis_gaap
@@ -114,7 +114,7 @@ models:
       - *net_treasury
       - *own_token_treasury
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_dau
       - *spot_txns
       - *spot_volume
@@ -130,7 +130,7 @@ models:
       - *ecosystem_revenue
       - *net_treasury
       - *own_token_treasury
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_dau
       - *spot_volume
       - *treasury
@@ -140,7 +140,7 @@ models:
     description: "This table stores metrics for the UNISWAP protocol"
     columns:
       - *ecosystem_revenue
-      - *service_cash_flow
+      - *service_fee_allocation
       - *spot_dau
       - *spot_volume
       - *tvl

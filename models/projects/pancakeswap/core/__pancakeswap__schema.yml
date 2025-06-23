@@ -4,15 +4,14 @@
 version: 2
 
 column_definitions:
-  ecosystem_revenue: &ecosystem_revenue
-    name: ecosystem_revenue
-    description: "Total trading fees paid on PancakeSwap"
+  burned_fee_allocation: &burned_fee_allocation
+    name: burned_fee_allocation
+    description: "The USD value of tokens burned"
     tags:
       - artemis_gaap
-      - override
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "About ~68% of gross protocol revenue is distributed to LPs of PancakeSwap."
     tags:
       - artemis_gaap
@@ -24,11 +23,21 @@ column_definitions:
     tags:
       - override
 
+  spot_fees: &spot_fees
+    name: spot_fees
+    description: "The total amount of fees (in USD) on a spot dex"
+
   spot_volume: &spot_volume
     name: spot_volume
     description: "The total volume on PancakeSwap"
     tags:
       - override
+
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
+    description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
+    tags:
+      - artemis_gaap
 
   tvl: &tvl
     name: tvl
@@ -38,27 +47,33 @@ models:
   - name: ez_pancakeswap_metrics_by_pool
     description: "This table stores metrics for the PANCAKESWAP protocol"
     columns:
-      - *ecosystem_revenue
-      - *service_cash_flow
+      - *burned_fee_allocation
+      - *service_fee_allocation
       - *spot_dau
+      - *spot_fees
       - *spot_volume
+      - *treasury_fee_allocation
       - *tvl
 
   - name: ez_pancakeswap_metrics_by_chain
     description: "This table stores metrics for the PANCAKESWAP protocol"
     columns:
-      - *ecosystem_revenue
-      - *service_cash_flow
+      - *burned_fee_allocation
+      - *service_fee_allocation
       - *spot_dau
+      - *spot_fees
       - *spot_volume
+      - *treasury_fee_allocation
       - *tvl
 
   - name: ez_pancakeswap_metrics
     description: "This table stores metrics for the PANCAKESWAP protocol"
     columns:
-      - *ecosystem_revenue
-      - *service_cash_flow
+      - *burned_fee_allocation
+      - *service_fee_allocation
       - *spot_dau
+      - *spot_fees
       - *spot_volume
+      - *treasury_fee_allocation
       - *tvl
 
