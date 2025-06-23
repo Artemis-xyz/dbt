@@ -21,6 +21,7 @@ with
             , total_supply_native
             , foundation_owned_supply_native
             , unvested_tokens_native
+            , gross_emissions_native
         from {{ ref("fact_sui_supply_data") }}
     )
 select
@@ -60,6 +61,7 @@ select
     -- Supply Metrics
     , max_supply_native
     , total_supply_native
+    , gross_emissions_native
     , total_supply_native - foundation_owned_supply_native - burned_fee_allocation_native as issued_supply_native
     , total_supply_native - foundation_owned_supply_native - burned_fee_allocation_native - unvested_tokens_native as circulating_supply_native
     -- Developer Metrics

@@ -134,4 +134,5 @@ select
     , unvested_tokens_native
     , unvested_insider_tokens
     , vested_tokens
+    , vested_tokens - LAG(vested_tokens) OVER (ORDER BY date) as gross_emissions_native
 from forward_filled
