@@ -9,3 +9,9 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_ripple_supply_data
+      - name: priced_transfers
+  - name: SONARX_XRP_BALANCES
+    database: sonarx_xrp_balances
+    schema: xrp_share_balances
+    tables:
+      - name: token_balances

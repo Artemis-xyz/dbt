@@ -53,9 +53,11 @@ select
 
     --Standardized Metrics
     , staked_eth_metrics.num_staked_eth as tvl_native
+    , staked_eth_metrics.num_staked_eth as lst_tvl_native
     , staked_eth_metrics.amount_staked_usd as tvl
-    , staked_eth_metrics.num_staked_eth_net_change as tvl_native_net_change
-    , staked_eth_metrics.amount_staked_usd_net_change as tvl_net_change
+    , staked_eth_metrics.amount_staked_usd as lst_tvl
+    , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
+    , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
 
     --Other Metrics
     , market_metrics.token_turnover_circulating

@@ -12,12 +12,18 @@ with
             total_gas_usd as gas_usd,
             transactions as txns,
             dau as daa,
+            contract_count,
+            real_users,
             returning_users,
             new_users,
             low_sleep_users,
             high_sleep_users,
             sybil_users,
-            non_sybil_users
+            non_sybil_users,
+            avg_gas_per_address,
+            avg_gas_usd_per_address,
+            rev,
+            rev_usd
         from {{ ref("all_chains_gas_dau_txns_by_category_v2") }} as bam_by_category
         union
         select
@@ -30,12 +36,18 @@ with
             total_gas_usd as gas_usd,
             transactions as txns,
             dau as daa,
+            contract_count,
+            real_users,
             returning_users,
             new_users,
             low_sleep_users,
             high_sleep_users,
             sybil_users,
-            non_sybil_users
+            non_sybil_users,
+            avg_gas_per_address,
+            avg_gas_usd_per_address,
+            rev,
+            rev_usd
         from {{ ref("all_chains_gas_dau_txns_by_application") }} as bam_by_app
         where app is not null
         union
@@ -49,12 +61,18 @@ with
             gas_usd,
             txns,
             dau as daa,
+            null as contract_count,
+            null as real_users,
             returning_users,
             new_users,
             low_sleep_users,
             high_sleep_users,
             sybil_users,
-            non_sybil_users
+            non_sybil_users,
+            null as avg_gas_per_address,
+            null as avg_gas_usd_per_address,
+            null as rev,
+            null as rev_usd
         from {{ ref("all_chains_gas_dau_txns_by_chain") }} as bam_by_chain
     ),
     app_coingecko as (
@@ -93,12 +111,18 @@ select
     bam.gas_usd,
     bam.txns,
     bam.daa,
+    bam.contract_count,
+    bam.real_users,
     bam.new_users,
     bam.returning_users,
     bam.high_sleep_users,
     bam.low_sleep_users,
     bam.sybil_users,
     bam.non_sybil_users,
+    bam.avg_gas_per_address,
+    bam.avg_gas_usd_per_address,
+    bam.rev,
+    bam.rev_usd,
     concat(
         coalesce(
             app_coingecko.token_symbol,

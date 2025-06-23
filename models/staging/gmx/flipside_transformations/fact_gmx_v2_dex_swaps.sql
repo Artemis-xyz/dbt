@@ -137,17 +137,17 @@ SELECT
     CASE
         WHEN version = 'v1' THEN 0.7 * spot_fees
         WHEN version = 'v2' THEN 0.63 * spot_fees
-    END as spot_lp_cash_flow,
+    END as spot_lp_fee_allocation,
     CASE
         WHEN version = 'v1' THEN 0.3 * spot_fees
         WHEN version = 'v2' THEN 0.27 * spot_fees
-    END as spot_stakers_cash_flow,
+    END as spot_stakers_fee_allocation,
     CASE
         WHEN version = 'v1' THEN 0 * spot_fees
         WHEN version = 'v2' THEN 0.012 * spot_fees
-    END as spot_oracle_cash_flow,
+    END as spot_oracle_fee_allocation,
     CASE
         WHEN version = 'v1' THEN 0 * spot_fees
         WHEN version = 'v2' THEN 0.088 * spot_fees
-    END as spot_treasury_cash_flow
+    END as spot_treasury_fee_allocation
 from spot_metrics*/

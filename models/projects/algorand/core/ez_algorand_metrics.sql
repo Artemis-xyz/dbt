@@ -19,7 +19,10 @@ SELECT
     , txns
     , fees_native
     , fees_native * price AS fees
-    , fees AS revenue
+    , CASE 
+        WHEN date > '2024-12-31' THEN 0.5 * fees
+        ELSE fees
+    END AS revenue
     , rewards_algo
     , rewards_algo * price AS rewards_usd
     -- Standardized Metrics
@@ -34,8 +37,8 @@ SELECT
     , fees_native * price AS chain_fees
     , fees_native * price AS ecosystem_revenue
     , fees_native AS ecosystem_revenue_native
-    , rewards_algo * price AS validator_cash_flow_usd
-    , rewards_algo AS validator_cash_flow_native
+    , rewards_algo * price AS validator_fee_allocation_usd
+    , rewards_algo AS validator_fee_allocation_native
     -- Bespoke metrics
     , unique_eoas
     , unique_senders

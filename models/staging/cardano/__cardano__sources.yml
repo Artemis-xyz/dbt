@@ -35,3 +35,5 @@ sources:
             description: Raw stake data in VARIANT format
             tests:
               - not_null
+      - name: raw_cardano_supply_data
+        description: Raw Cardano supply data loaded from Koios API

@@ -36,8 +36,8 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  token_cash_flow: &token_cash_flow
-    name: token_cash_flow
+  token_fee_allocation: &token_fee_allocation
+    name: token_fee_allocation
     description: "The share of protocol revenue accrued to token holders of the protocol."
     tags:
       - artemis_gaap
@@ -82,7 +82,7 @@ models:
       - *lending_loans
       - *market_cap
       - *price
-      - *token_cash_flow
+      - *token_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
@@ -99,7 +99,7 @@ models:
       - *lending_loans
       - *market_cap
       - *price
-      - *token_cash_flow
+      - *token_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
@@ -116,7 +116,7 @@ models:
       - *lending_loans
       - *market_cap
       - *price
-      - *token_cash_flow
+      - *token_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume

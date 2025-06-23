@@ -40,6 +40,8 @@ SELECT
     , gas_usd as ecosystem_revenue
     , price_data.token_turnover_circulating
     , price_data.token_turnover_fdv
+    , null AS contract_count
+    , null AS real_users
 FROM fundamental_data
 LEFT JOIN prices USING(date)
 LEFT JOIN price_data USING(date)

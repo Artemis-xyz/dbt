@@ -78,7 +78,7 @@ select
     , supply.mints_usd as gross_emissions
     , supply.mints as gross_emissions_native
     , supply.circulating_supply as circulating_supply
-    , supply.burn AS burned_cash_flow_native
+    , supply.burn AS burned_fee_allocation_native
 
 
     -- Standardized Metrics
@@ -96,9 +96,9 @@ select
 
     -- Cashflow Metrics
     , metrics.fees AS ecosystem_revenue
-    , metrics.primary_supply_side_revenue AS validator_cash_flow
-    , metrics.secondary_supply_side_revenue AS service_cash_flow
-    , supply.burn_usd AS burned_cash_flow
+    , metrics.primary_supply_side_revenue AS validator_fee_allocation
+    , metrics.secondary_supply_side_revenue AS service_fee_allocation
+    , supply.burn_usd AS burned_fee_allocation
 
     -- IOTX Token Supply Data
     , 0 as emissions_native

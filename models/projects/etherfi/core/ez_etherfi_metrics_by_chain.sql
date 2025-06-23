@@ -31,8 +31,10 @@ select
     
     --Standardized Metrics
     , num_restaked_eth as tvl_native
+    , num_restaked_eth as lrt_tvl_native
     , amount_restaked_usd as tvl
-    , num_restaked_eth_net_change as tvl_native_net_change
-    , amount_restaked_usd_net_change as tvl_net_change
+    , amount_restaked_usd as lrt_tvl
+    , num_restaked_eth_net_change as lrt_tvl_native_net_change
+    , amount_restaked_usd_net_change as lrt_tvl_net_change
 from restaked_eth_metrics
 where restaked_eth_metrics.date < to_date(sysdate())

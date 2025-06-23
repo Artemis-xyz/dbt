@@ -216,8 +216,8 @@ select
 
     , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as ecosystem_revenue
     , automation_fees_native + ccip_fees_native + vrf_fees_native + direct_fees_native + fm_fees_native + ocr_fees_native as ecosystem_revenue_native
-    , ecosystem_revenue as service_cash_flow
-    , ecosystem_revenue_native as service_cash_flow_native
+    , ecosystem_revenue as service_fee_allocation
+    , ecosystem_revenue_native as service_fee_allocation_native
 
     , coalesce(token_incentives, 0) as token_incentives
     , coalesce(token_incentives_native, 0) as token_incentives_native

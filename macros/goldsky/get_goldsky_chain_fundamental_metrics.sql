@@ -8,6 +8,15 @@
         from {{ ref("fact_" ~ chain ~ "_transactions" ~ (model_version)) }}
         where gas > 0
         group by to_timestamp(block_timestamp)::date
+    {% elif chain == "hyperliquid" %}
+        select
+            to_timestamp(block_timestamp)::date as date
+            , count (distinct from_address) as daa
+            , count(*) as txns
+            , sum((receipt_gas_used * receipt_effective_gas_price)) / 1e18 as hyperevm_burns_native
+        from {{ ref("fact_" ~ chain ~ "_hyperevm_transactions" ~ (model_version)) }}
+        where gas > 0
+        group by to_timestamp(block_timestamp)::date
     {% else %}
         select
             to_timestamp(block_timestamp)::date as date

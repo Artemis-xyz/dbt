@@ -74,9 +74,9 @@ select
     , fd.fees_native as ecosystem_revenue_native
     , avg_txn_fee as chain_avg_txn_fee
     , fd.median_txn_fee as chain_median_txn_fee
-    , fd.l1_data_cost as l1_cash_flow
-    , fd.l1_data_cost_native as l1_cash_flow_native
-    , coalesce(fd.fees, 0) - coalesce(fd.l1_data_cost, 0) as equity_cash_flow
+    , fd.l1_data_cost as l1_fee_allocation
+    , fd.l1_data_cost_native as l1_fee_allocation_native
+    , coalesce(fd.fees, 0) - coalesce(fd.l1_data_cost, 0) as equity_fee_allocation
     
     -- Developer Metrics
     , gd.weekly_commits_core_ecosystem

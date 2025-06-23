@@ -29,9 +29,10 @@ with date_spine as (
 , ff_defillama_metrics as (
     select
         date,
-        tvl
+        avg(tvl) as tvl
     from {{ ref("fact_defillama_protocol_tvls") }}
     where defillama_protocol_id = 2537
+    group by 1
 )
 
 , supply as (

@@ -30,9 +30,9 @@ with
         from {{ ref("fact_hyperliquid_auction_fees") }}
         group by 1, 2
     )
-    , daily_burn_data as (
-        select date, daily_burn, chain
-        from {{ ref("fact_hyperliquid_daily_burn") }}
+    , hypercore_spot_burns_data as (
+        select date, hypercore_burns_native, chain
+        from {{ ref("fact_hyperliquid_hypercore_burns") }}
     )
     , daily_assistance_fund_data as (
         select date, daily_balance as daily_buybacks_native, balance as assistance_fund_balance, chain
@@ -56,6 +56,10 @@ with
         FROM {{ref("dim_date_spine")}}
         WHERE date between '2023-06-13' and to_date(sysdate())
     )
+    , hyperevm_fundamental_metrics_data as (
+        select date, chain, daa, txns, hyperevm_burns, hyperevm_burns_native
+        from {{ ref("fact_hyperliquid_hyperevm_fundamental_metrics") }}
+    )
 select
     date
     , 'hyperliquid' as app
@@ -67,31 +71,31 @@ select
     , trades as txns
     , trading_fees as fees
     , auction_fees
-    , daily_burn
+    , hypercore_burns_native + hyperevm_burns_native as daily_burns_native
     , trading_fees * 0.03 as primary_supply_side_revenue
     -- add daily burn back to the revenue
-    , (daily_buybacks_native * mm.price) + (daily_burn * mm.price) as revenue
+    , (daily_buybacks_native * mm.price) + (daily_burns_native * mm.price) as revenue
     , daily_buybacks_native
     , num_stakers
     , staked_hype
 
     -- Standardized Metrics
-    , unique_traders::string as perp_dau
+    , unique_traders::string + hyperevm_data.daa as perp_dau
     , perp_volume
     , spot_trading_volume as spot_volume
-    , trades as perp_txns
+    , trades + hyperevm_data.txns as perp_txns
 
     -- Revenue Metrics
     , perp_fees as perp_fees
     , spot_fees as spot_fees
-    -- all l1 fees are burned
-    , daily_burn * mm.price as chain_fees
-    , trading_fees + (daily_burn * mm.price) as ecosystem_revenue
-    , trading_fees * 0.03 as service_cash_flow
-    , (daily_buybacks_native * mm.price) as buyback_cash_flow
+    -- all l1 fees are burned (HyperEVM) + Hypercore (Spot Token Fees Burned)
+    , daily_burns_native * mm.price as chain_fees
+    , trading_fees + (daily_burns_native * mm.price) as ecosystem_revenue
+    , trading_fees * 0.03 as service_fee_allocation
+    , (daily_buybacks_native * mm.price) as buyback_fee_allocation
     , daily_buybacks_native as buybacks_native
-    , daily_burn as burned_cash_flow_native
-    , daily_burn * mm.price as burned_cash_flow
+    , daily_burns_native as burned_fee_allocation_native
+    , daily_burns_native * mm.price as burned_fee_allocation
 
     -- Market metrics
     , mm.price as price
@@ -105,7 +109,8 @@ left join trading_volume_data using(date, chain)
 left join daily_transactions_data using(date, chain)
 left join fees_data using(date, chain)
 left join auction_fees_data using(date, chain)
-left join daily_burn_data using(date, chain)
+left join hypercore_spot_burns_data using(date, chain)
+left join hyperevm_fundamental_metrics_data hyperevm_data using(date, chain)
 left join daily_assistance_fund_data using(date, chain)
 left join hype_staked_data using(date, chain)
 left join spot_trading_volume_data using(date, chain)

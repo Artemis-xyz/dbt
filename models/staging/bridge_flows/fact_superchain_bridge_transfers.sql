@@ -26,7 +26,7 @@ select
     , decimals as src_decimals
     , source_token_symbol as src_symbol
     , source_chain as src_chain
-    , null as origin_chain_id
+    , src_ids.id as origin_chain_id
     , origin_token
     , dst_messaging_contract_address
     , dst_block_timestamp
@@ -40,7 +40,7 @@ select
     , destination_token_symbol as dst_symbol
     , depositor
     , recipient
-    , null as destination_chain_id
+    , dst_ids.id as destination_chain_id
     , destination_token
     , destination_chain as dst_chain
     , null as token_address
@@ -49,4 +49,7 @@ select
     , null as bridge_message_app
     , null as version
     , 'superchain_bridge' as app
+    , concat(coalesce(src_transaction_hash,'null'), '|', coalesce(TO_VARCHAR(src_event_index),'null'), '|', coalesce(source_chain,'null'), '|', coalesce(dst_transaction_hash,'null'), '|', coalesce(TO_VARCHAR(dst_event_index),'null'), '|',  coalesce(destination_chain,'null'), '|', 'superchain_bridge') as unique_id
 from flows_by_super_chain
+left join {{ ref('dim_chain_ids') }} as src_ids on flows_by_super_chain.source_chain = src_ids.chain
+left join {{ ref('dim_chain_ids') }} as dst_ids on flows_by_super_chain.destination_chain = dst_ids.chain

@@ -11,8 +11,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  fee_sharing_token_cash_flow: &fee_sharing_token_cash_flow
-    name: fee_sharing_token_cash_flow
+  staking_fee_allocation: &staking_fee_allocation
+    name: staking_fee_allocation
     description: "10% of gross protocol revenue is distributed to $cvxCRV stakers in $CRV and 4.5% is distributed to $CVX stakers in $cvxCRV"
     tags:
       - artemis_gaap
@@ -63,8 +63,8 @@ column_definitions:
       - artemis_gaap
       - override
 
-  service_cash_flow: &service_cash_flow
-    name: service_cash_flow
+  service_fee_allocation: &service_fee_allocation
+    name: service_fee_allocation
     description: "The share of all fees accrued to service providers of the protocol. 83% of gross protocol revenue is distributed to LPs, and 0.5% is distributed to harvest callers"
     tags:
       - artemis_gaap
@@ -97,8 +97,8 @@ column_definitions:
     tags:
       - override
 
-  treasury_cash_flow: &treasury_cash_flow
-    name: treasury_cash_flow
+  treasury_fee_allocation: &treasury_fee_allocation
+    name: treasury_fee_allocation
     description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance. 2% of gross protocol revenue is allocated to the treasury"
     tags:
       - artemis_gaap
@@ -126,15 +126,15 @@ models:
   - name: ez_convex_metrics_by_chain
     description: "This table stores metrics for the CONVEX protocol"
     columns:
-      - *fee_sharing_token_cash_flow
+      - *staking_fee_allocation
       - *ecosystem_revenue
       - *net_treasury
       - *net_treasury_native
       - *own_token_treasury
       - *own_token_treasury_native
-      - *service_cash_flow
+      - *service_fee_allocation
       - *treasury
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *treasury_native
       - *tvl
       - *tvl_net_change
@@ -142,15 +142,15 @@ models:
   - name: ez_convex_metrics_by_token
     description: "This table stores metrics for the CONVEX protocol"
     columns:
-      - *fee_sharing_token_cash_flow
+      - *staking_fee_allocation
       - *ecosystem_revenue
       - *net_treasury
       - *net_treasury_native
       - *own_token_treasury
       - *own_token_treasury_native
-      - *service_cash_flow
+      - *service_fee_allocation
       - *treasury
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *treasury_native
       - *tvl
       - *tvl_net_change
@@ -159,7 +159,7 @@ models:
     description: "This table stores metrics for the CONVEX protocol"
     columns:
       - *fdmc
-      - *fee_sharing_token_cash_flow
+      - *staking_fee_allocation
       - *ecosystem_revenue
       - *market_cap
       - *net_treasury
@@ -167,12 +167,12 @@ models:
       - *own_token_treasury
       - *own_token_treasury_native
       - *price
-      - *service_cash_flow
+      - *service_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
       - *treasury
-      - *treasury_cash_flow
+      - *treasury_fee_allocation
       - *treasury_native
       - *tvl
       - *tvl_net_change

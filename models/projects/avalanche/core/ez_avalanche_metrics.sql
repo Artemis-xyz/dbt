@@ -96,8 +96,8 @@ select
     , case when fees is null then fees_native * price else fees end as chain_fees
     , fees_native AS ecosystem_revenue_native
     , case when fees is null then fees_native * price else fees end as ecosystem_revenue
-    , fees_native AS burned_cash_flow_native
-    , case when fees is null then fees_native * price else fees end as burned_cash_flow
+    , fees_native AS burned_fee_allocation_native
+    , case when fees is null then fees_native * price else fees end as burned_fee_allocation
     -- Supply Metrics
     , issuance AS emissions_native
     -- Developer Metrics

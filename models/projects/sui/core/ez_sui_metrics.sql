@@ -53,8 +53,8 @@ select
     , fees as chain_fees
     , fees_native AS ecosystem_revenue_native
     , fees AS ecosystem_revenue
-    , revenue AS burned_cash_flow
-    , revenue_native AS burned_cash_flow_native
+    , revenue AS burned_fee_allocation
+    , revenue_native AS burned_fee_allocation_native
     , avg_txn_fee AS chain_avg_txn_fee
     -- Supply Metrics
     , mints_native as gross_emissions_native

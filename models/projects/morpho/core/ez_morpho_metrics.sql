@@ -21,6 +21,21 @@ with morpho_data as (
     group by 1
 )
 
+, all_token_incentives as (
+    select date, chain, amount_native, amount_usd from {{ ref('fact_morpho_base_token_incentives') }}
+    union all
+    select date, chain, amount_native, amount_usd from {{ ref('fact_morpho_ethereum_token_incentives') }}
+)
+
+, morpho_token_incentives as (
+    select
+        date
+        , sum(amount_native) as token_incentives_native
+        , sum(amount_usd) as token_incentives
+    from all_token_incentives
+    group by 1
+)
+
 , cumulative_metrics as (
     select
         d.date
@@ -48,6 +63,13 @@ with morpho_data as (
     from {{ ref("fact_morpho_supply_data") }}
 )
 
+, date_spine as (
+    select
+        date
+    from {{ ref("dim_date_spine") }}
+    where date < to_date(sysdate()) and date >= (select min(date) from morpho_token_incentives)
+)
+
 select
     date
     , dau
@@ -67,7 +89,8 @@ select
     
     -- Cash Flow Metrics (Interest goes to Liquidity Suppliers (Lenders) + Vaults Performance Fees)
     , fees as lending_interest_fees
-    , lending_interest_fees as ecosystem_revenue
+    , 0 as revenue
+    , revenue - token_incentives as earnings
     
     -- Supply Metrics
     , msd.premine_unlocks_native
@@ -81,6 +104,11 @@ select
     , mdd.token_turnover_circulating
     , mdd.token_turnover_fdv
     , mdd.token_volume
-from cumulative_metrics
+
+    , token_incentives_native
+    , token_incentives
+from date_spine
+left join cumulative_metrics using (date)
 left join morpho_market_data mdd using (date)
 left join morpho_supply_data msd using (date)
+left join morpho_token_incentives using (date)

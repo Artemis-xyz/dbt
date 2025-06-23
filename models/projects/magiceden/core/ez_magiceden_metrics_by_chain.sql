@@ -51,8 +51,8 @@ SELECT
 
     -- Cash Flow Metrics
     , COALESCE(fees, 0) AS ecosystem_revenue
-    , COALESCE(revenue, 0) AS treasury_cash_flow
-    , COALESCE(supply_side_fees, 0) AS service_cash_flow  
+    , COALESCE(revenue, 0) AS treasury_fee_allocation
+    , COALESCE(supply_side_fees, 0) AS service_fee_allocation  
 FROM date_spine
 LEFT JOIN magiceden_metrics m ON date_spine.date = m.date
 WHERE date_spine.date < to_date(SYSDATE())

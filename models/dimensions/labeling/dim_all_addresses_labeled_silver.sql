@@ -6,6 +6,8 @@
     )
 }}
 
+-- Source priority: frontend/terminal -> global -> manual -> external
+
 WITH 
 externally_labeled_addresses AS (
     select 
@@ -68,7 +70,7 @@ deduped_added_frontend_manual_labeled_addresses AS (
         , artemis_application_id
         , chain
         , last_updated_by
-        , last_updated_timestamp
+        , last_updated
         , action
     FROM {{ ref('dim_all_frontend_labeled_addresses')}}
     where action = 'ADD'
@@ -84,7 +86,7 @@ full_labeled_table AS (
         is_token,
         is_fungible,
         type,
-        COALESCE(dmla.last_updated_timestamp, a.last_updated) AS last_updated,
+        COALESCE(dmla.last_updated, a.last_updated) AS last_updated,
         dmla.last_updated_by
     FROM labeled_automatic_table a
     FULL OUTER JOIN deduped_added_frontend_manual_labeled_addresses dmla
@@ -117,7 +119,7 @@ deduped_deleted_frontend_manual_labeled_addresses AS (
         , artemis_application_id
         , chain
         , last_updated_by
-        , last_updated_timestamp
+        , last_updated
         , action
     FROM {{ ref('dim_all_frontend_labeled_addresses')}}
     where action = 'DELETE'
@@ -126,44 +128,44 @@ deduped_deleted_frontend_manual_labeled_addresses AS (
 SELECT 
     CASE WHEN substr(coalesce(del.address, fat.address), 1, 2) = '0x' THEN LOWER(coalesce(del.address, fat.address)) ELSE coalesce(del.address, fat.address) END AS address,
     CASE 
-        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.name 
     END AS name,
     CASE 
-        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.friendly_name 
     END AS friendly_name,
     CASE 
-        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.artemis_application_id 
     END AS artemis_application_id,
     CASE 
-        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.artemis_category_id 
     END AS artemis_category_id,
     CASE 
-        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.artemis_sub_category_id 
     END AS artemis_sub_category_id,
     coalesce(fat.chain, del.chain) as chain,
     CASE 
-        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.address_type 
     END AS address_type,
     CASE 
-        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.is_token 
     END AS is_token,
     CASE 
-        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.is_fungible 
     END AS is_fungible,
     CASE 
-        WHEN del.address IS NOT NULL AND del.last_updated_timestamp > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
+        WHEN del.address IS NOT NULL AND del.last_updated > coalesce(fat.last_updated, '1970-01-01') THEN NULL 
         ELSE fat.type 
     END AS type,
     coalesce(fat.last_updated_by, del.last_updated_by) as last_updated_by,
-    coalesce(fat.last_updated, del.last_updated_timestamp) as last_updated
+    coalesce(fat.last_updated, del.last_updated) as last_updated
 FROM duduped_app_and_address_labeled_table fat
 FULL OUTER JOIN deduped_deleted_frontend_manual_labeled_addresses del
     ON LOWER(fat.address) = LOWER(del.address) AND fat.chain = del.chain

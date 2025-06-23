@@ -10,7 +10,7 @@ with
             block_timestamp::date as date,
             from_address as submitter,
             (blob_gas_used * blob_gas_price) as blob_fees_gas,
-            blob_fees_gas / 1e18 as blob_fees_native,
+            blob_fees_gas / 1e9 as blob_fees_native,
             blob_fees_native * price as blob_fees
         from ethereum_flipside.core.fact_transactions 
         left join prices on block_timestamp::date = prices.date
