@@ -44,5 +44,10 @@ from
             (
                 '0xdAC17F958D2ee523a2206206994597C13D831ec7',
                 '0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503'
+            ),
+            -- USDT0
+            (
+                '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+                '0x6C96dE32CEa08842dcc4058c14d3aaAD7Fa41dee'
             )
     ) as results(contract_address, premint_address)

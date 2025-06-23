@@ -1,4 +1,7 @@
 {% macro stablecoin_metrics_all(chain, new_stablecoin_address) %}
+
+{% set backfill_days = 3 %}
+
 with
     stablecoin_transfers as (
         select 
@@ -12,7 +15,7 @@ with
         from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers")}}
         {% if is_incremental() and new_stablecoin_address == '' %} 
             where block_timestamp >= (
-                select dateadd('day', -3, max(date))
+                select dateadd('day', -{{ backfill_days }}, max(date))
                 from {{ this }}
             )
         {% endif %}
@@ -65,7 +68,7 @@ with
     where date < to_date(sysdate())
     {% if is_incremental() and new_stablecoin_address == '' %} 
         and date >= (
-            select dateadd('day', -3, max(date))
+            select dateadd('day', -{{ backfill_days }}, max(date))
             from {{ this }}
         )
     {% endif %} 
