@@ -15,7 +15,7 @@ with a as (
         sum(CASE WHEN
             from_address = '0x0000000000000000000000000000000000000000'
         THEN coalesce(amount,0)END)  as sky_minted
-    FROM ethereum_flipside.core.ez_token_transfers
+    FROM {{ source('ETHEREUM_FLIPSIDE', 'ez_token_transfers')}}
     WHERE contract_address = lower('0x56072C95FAA701256059aa122697B133aDEd9279')
     AND (
         from_address = '0x0000000000000000000000000000000000000000'
@@ -26,7 +26,7 @@ with a as (
 , date_spine as (
     SELECT
         date
-    FROM pc_dbt_db.prod.dim_date_spine
+    FROM {{ ref('dim_date_spine') }}
     WHERE date between (SELECT MIN(date) FROM a) AND to_date(sysdate())
 )
 , sparse as (

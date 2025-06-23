@@ -37,9 +37,10 @@ WITH
             SELECT
                 date,
                 token,
-                amount_mkr as treasury
+                sum(amount_native) as treasury
             FROM
                 {{ ref('fact_treasury_mkr') }}
+            group by 1,2
             UNION ALL
             SELECT
                 date,
@@ -49,7 +50,7 @@ WITH
                 {{ ref('fact_treasury_lp_balances') }}
     )
     , treasury_native AS (
-        SELECT date, token, amount_mkr as treasury_native FROM {{ ref('fact_treasury_mkr') }}
+        SELECT date, token, sum(amount_native) as treasury_native FROM {{ ref('fact_treasury_mkr') }} group by 1,2
     )
     , net_treasury AS (
             SELECT

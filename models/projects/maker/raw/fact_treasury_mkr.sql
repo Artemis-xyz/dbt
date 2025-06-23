@@ -57,8 +57,6 @@ all_dates_users AS (
         a.date,
         a.contract_address,
         a.user_address,
-        a.contract_address,
-        p.symbol,
         p.price,
         p.symbol,
         m.balance AS balance_token

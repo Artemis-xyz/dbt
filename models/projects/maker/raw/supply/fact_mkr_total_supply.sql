@@ -14,7 +14,7 @@ with a as (
         sum(CASE WHEN
             event_name = 'Mint'
         THEN coalesce(decoded_log:wad/1e18,0)END)  as mkr_minted
-    FROM ethereum_flipside.core.ez_decoded_event_logs
+    FROM {{ source('ETHEREUM_FLIPSIDE', 'ez_decoded_event_logs')}}
     WHERE contract_address = lower('0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2')
     AND event_name in ('Burn', 'Mint')
     GROUP BY 1
