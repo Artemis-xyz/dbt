@@ -146,4 +146,14 @@
             , sum(delta) over (partition by contract_address, address order by block_timestamp) as balance_token
         from ethereum_maker_vat_dai_balances
     {% endif %}
+    -- Add genesis ETH balances
+    {% if chain in ('ethereum') and not is_incremental() %}
+    union all
+    select
+        to_address as address
+        , 'native_token' as contract_address
+        , block_timestamp
+        , value_raw / 1e18 as balance_token
+    FROM {{ref('fact_ethereum_genesis_transactions')}}
+    {% endif %}
 {% endmacro %}
