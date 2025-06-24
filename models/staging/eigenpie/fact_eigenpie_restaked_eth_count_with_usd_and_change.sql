@@ -10,7 +10,7 @@ WITH prices AS (
         sum(e.amount_native * p.price) as amount,
     FROM {{ref('fact_eigenpie_restaked_eth_count')}} e
     LEFT JOIN prices p
-        ON p.contract_address = e.contract_address
+        ON lower(p.contract_address) = lower(e.contract_address)
         and p.date = e.date
     WHERE p.symbol ilike '%ETH%'
     GROUP BY e.date
