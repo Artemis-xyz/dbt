@@ -38,29 +38,20 @@ with
             coingecko_token_id,
             chain,
             case
-                when lower(address) like '%:%' then
-                    lower(split_part(address, ':', 1) || '-' || split_part(address, ':', 2))
-                when lower(address) like '%-%' then
-                    lower(address)
-            else
-                lower(symbol || '-' || address)
+                when lower(chain) = 'stellar' then
+                    (case when lower(address) like '%:%' then
+                        lower(split_part(address, ':', 1) || '-' || split_part(address, ':', 2))
+                    when lower(address) like '%-%' then
+                        lower(address)
+                    else
+                        lower(symbol || '-' || address))
+                else lower(address)
             end as address,
             json,
             symbol,
-            7 as decimals 
+            case when chain = 'stellar' then 7 else decimals end as decimals
             -- Stellar tokens are stored as ONLY 7 decimals on the ledger.
         from token_metadata
-        where chain in ('stellar')
-        union all
-        select
-            coingecko_token_id,
-            chain,
-            lower(address) as address,
-            json,
-            symbol,
-            decimals
-        from token_metadata
-        where chain not in ('stellar')
     )
 select coingecko_token_id, chain, lower(address) as contract_address, max(json) as json, max(symbol) as symbol, max(decimals) as decimals
 from stellar_adjusted
