@@ -20,7 +20,7 @@ column_definitions:
 
   burns_native: &burns_native
     name: burns_native
-    description: "HyperCore (Spot Tokens Fees) + HyperEvm (Gas)"
+    description: "The amount of native tokens burned"
 
   buyback_fee_allocation: &buyback_fee_allocation
     name: buyback_fee_allocation
@@ -67,6 +67,10 @@ column_definitions:
   net_supply_change_native: &net_supply_change_native
     name: net_supply_change_native
     description: "The net change in the circulating supply of a token in native tokens"
+
+  new_users: &new_users
+    name: new_users
+    description: "The number of new users on a chain"
 
   perp_dau: &perp_dau
     name: perp_dau
@@ -157,6 +161,7 @@ models:
       - *ecosystem_revenue
       - *fdmc
       - *market_cap
+      - *new_users
       - *perp_dau
       - *perp_fees
       - *perp_txns
@@ -182,6 +187,7 @@ models:
       - *fdmc
       - *market_cap
       - *net_supply_change_native
+      - *new_users
       - *perp_dau
       - *perp_fees
       - *perp_txns
