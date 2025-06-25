@@ -46,22 +46,6 @@ with
         group by 1
     ),
     
-    -- Calculate circulating supply
-    supply_metrics as (
-        select
-            date_trunc('day', timestamp) as date,
-            sum(case 
-                when number < 840000 then 50
-                when number < 1680000 then 25
-                when number < 2520000 then 12.5
-                when number < 3360000 then 6.25
-                when number < 4200000 then 3.125
-                else 1.5625
-            end) as circulating_supply
-        from {{ ref("fact_litecoin_blocks") }}
-        group by 1
-    ),
-    
     -- Calculate active addresses (unique addresses in inputs)
     active_addresses as (
         select
@@ -80,6 +64,16 @@ with
             sum(dau) over (order by date rows between 29 preceding and current row) as mau
         from active_addresses
     )
+    , supply_metrics as (
+        SELECT
+            date,
+            max_supply,
+            uncreated_tokens,
+            total_supply,
+            issued_supply,
+            circulating_supply
+        FROM {{ ref("fact_litecoin_supply") }}
+    )
     
 select
     transaction_metrics.date,
@@ -94,11 +88,11 @@ select
     0 as revenue_native,
     0 as revenue,
     block_metrics.issuance,
-    84000000 as max_supply_native,
-    84000000 - supply_metrics.circulating_supply as uncreated_tokens,
-    supply_metrics.circulating_supply as total_supply_native,
+    supply_metrics.max_supply as max_supply_native,
+    supply_metrics.uncreated_tokens as uncreated_tokens,
+    supply_metrics.total_supply as total_supply_native,
     supply_metrics.circulating_supply as circulating_supply_native,
-    supply_metrics.circulating_supply as issued_supply_native,
+    supply_metrics.issued_supply as issued_supply_native,
     github_data.weekly_commits_core_ecosystem,
     github_data.weekly_commits_sub_ecosystem,
     github_data.weekly_developers_core_ecosystem,
