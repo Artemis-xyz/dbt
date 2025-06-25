@@ -44,6 +44,21 @@ with
         select date, timeboost_fees AS timeboost_fees_native, timeboost_fees_usd AS timeboost_fees
         from {{ ref("fact_arbitrum_timeboost_fees") }}
     )
+    , unvested_supply as (
+        select date, (2694000000 + 1753000000 + 1162000000 + 113000000 - total_vested_supply) as unvested_supply_native
+        from {{ ref("ez_arbitrum_circulating_supply_metrics") }}
+    )
+    , burns_mints as (
+        select date, SUM(burns_native) as burns_native, SUM(mints_native) as mints_native, SUM(burns) as burns, SUM(mints) as mints, SUM(cumulative_burns_native) as cumulative_burns_native, SUM(cumulative_mints_native) as cumulative_mints_native, SUM(cumulative_burns) as cumulative_burns, SUM(cumulative_mints) as cumulative_mints
+        from {{ ref("fact_arbitrum_burns_mints") }}
+        group by 1
+    )
+    , foundation_owned_supply as (
+        select date, native_balance as foundation_owned_supply_native, usd_balance as foundation_owned_supply
+        from {{ ref("fact_arbitrum_owned_supply") }}
+        WHERE LOWER(contract_address) = LOWER('0x912ce59144191c1204e64559fe8253a0e49e6548')
+        QUALIFY ROW_NUMBER() OVER (PARTITION BY date ORDER BY native_balance DESC) = 1
+    )
 select
     fundamental_data.date
     , fundamental_data.chain
@@ -102,6 +117,10 @@ select
     , l1_data_cost AS l1_fee_allocation
     , timeboost_fees_native
     , timeboost_fees
+    , burns_native
+    , mints_native
+    , burns
+    , mints
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -128,6 +147,19 @@ select
     -- Bridge Metrics
     , bridge_volume_metrics.bridge_volume as bridge_volume
     , bridge_daa_metrics.bridge_daa as bridge_dau
+    -- Supply Metrics
+    , CASE
+        WHEN fundamental_data.date > '2023-03-22' THEN 10000000000 
+        ELSE 0 
+    END AS max_supply_native
+    , CASE
+        WHEN fundamental_data.date > '2023-03-22' THEN 10000000000 
+        ELSE 0 
+    END AS total_supply_native
+    , foundation_owned_supply_native
+    , unvested_supply_native
+    , COALESCE(total_supply_native, 0) - COALESCE(foundation_owned_supply_native, 0) - COALESCE(cumulative_burns_native, 0) AS issued_supply_native
+    , COALESCE(total_supply_native, 0) - COALESCE(foundation_owned_supply_native, 0) - COALESCE(cumulative_burns_native, 0) - COALESCE(unvested_supply_native, 0) AS circulating_supply_native
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -143,4 +175,7 @@ left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join arbitrum_dex_volumes as dune_dex_volumes_arbitrum on fundamental_data.date = dune_dex_volumes_arbitrum.date
 left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 left join timeboost_fees on fundamental_data.date = timeboost_fees.date
+left join unvested_supply on fundamental_data.date = unvested_supply.date
+left join burns_mints on fundamental_data.date = burns_mints.date
+left join foundation_owned_supply on fundamental_data.date = foundation_owned_supply.date
 where fundamental_data.date < to_date(sysdate())
