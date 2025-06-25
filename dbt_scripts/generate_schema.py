@@ -224,7 +224,7 @@ def exec_main_script(project_name):
         os.chdir(dbt_root)
 
         print(f"Compiling models for project: {project_name}...")
-        dbt_compile_command = ['dbt', 'compile', '-s', f'models/projects/{project_name}', '--target', 'dev']
+        dbt_compile_command = ['dbt', 'compile', '-s', f'models/projects/{project_name}', '--target', 'prod']
 
         result = subprocess.run(dbt_compile_command, capture_output=True, text=True)
 
