@@ -40,7 +40,7 @@ with
             case
                 when lower(chain) = 'stellar' then
                     (case when lower(address) like '%:%' then
-                        lower(split_part(address, ':', 1) || '-' || split_part(address, ':', 2))
+                        lower(REPLACE(address, ':', '-'))
                     when lower(address) like '%-%' then
                         lower(address)
                     else
