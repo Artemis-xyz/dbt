@@ -48,7 +48,8 @@ with
                         lower(address)
                     else
                 -- 3. 'issuer' (no symbol)
-                        lower(symbol || '-' || address))
+                        lower(symbol || '-' || address)
+                    end)
                 else lower(address)
             end as address,
             json,
