@@ -2,7 +2,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="ARBITRUM",
+        snowflake_warehouse="ANALYTICS_XL",
         database="arbitrum",
         schema="core",
         alias="ez_metrics",
@@ -45,7 +45,7 @@ with
         from {{ ref("fact_arbitrum_timeboost_fees") }}
     )
     , unvested_supply as (
-        select date, (2694000000 + 1753000000 + 1162000000 + 113000000 - total_vested_supply) as unvested_supply_native
+        select date, (2694000000 + 1753000000 + 1162000000 + 113000000 + 750000000 - total_vested_supply) as unvested_supply_native
         from {{ ref("ez_arbitrum_circulating_supply_metrics") }}
     )
     , burns_mints as (
@@ -157,7 +157,6 @@ select
         ELSE 0 
     END AS total_supply_native
     , foundation_owned_supply_native
-    , unvested_supply_native
     , COALESCE(total_supply_native, 0) - COALESCE(foundation_owned_supply_native, 0) - COALESCE(cumulative_burns_native, 0) AS issued_supply_native
     , COALESCE(total_supply_native, 0) - COALESCE(foundation_owned_supply_native, 0) - COALESCE(cumulative_burns_native, 0) - COALESCE(unvested_supply_native, 0) AS circulating_supply_native
 from fundamental_data

@@ -14,5 +14,5 @@ SELECT
     0 as daily_burns,
     daily_emissions - daily_burns as daily_net_emissions,
     sum(daily_net_emissions) over (order by date rows between unbounded preceding and current row) as circulating_supply,
-    sum(total_vested_supply) over (order by date rows between unbounded preceding and current row) as total_vested_supply
+    total_vested_supply
 FROM {{ ref("fact_arbitrum_all_supply_events") }}
