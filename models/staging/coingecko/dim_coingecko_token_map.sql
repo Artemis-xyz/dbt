@@ -39,11 +39,15 @@ with
             chain,
             case
                 when lower(chain) = 'stellar' then
+                -- Coingecko contract address data have 3 variants for Stellar that we want to standardise to 'symbol-issuer':
+                -- 1. 'symbol:issuer'
                     (case when lower(address) like '%:%' then
                         lower(REPLACE(address, ':', '-'))
+                -- 2. 'symbol-issuer'
                     when lower(address) like '%-%' then
                         lower(address)
                     else
+                -- 3. 'issuer' (no symbol)
                         lower(symbol || '-' || address))
                 else lower(address)
             end as address,
