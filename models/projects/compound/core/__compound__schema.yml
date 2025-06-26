@@ -30,12 +30,19 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  token_incentives: &token_incentives
+    name: token_incentives
+    description: "The total token incentives paid by a protocol in its native token"
+    tags:
+      - artemis_gaap
+
 models:
   - name: ez_compound_metrics_by_chain
     description: "This table stores metrics for the COMPOUND protocol"
     columns:
       - *lending_deposits
       - *lending_loans
+      - *token_incentives
 
   - name: ez_compound_metrics
     description: "This table stores metrics for the COMPOUND protocol"
@@ -45,4 +52,5 @@ models:
       - *lending_loans
       - *market_cap
       - *price
+      - *token_incentives
 

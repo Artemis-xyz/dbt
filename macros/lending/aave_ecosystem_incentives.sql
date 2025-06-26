@@ -9,6 +9,9 @@ event_logs as(
     where contract_address = lower('{{contract_address}}')
         and event_name = 'RewardsClaimed'
 )
+, prices as (
+    {{get_multiple_coingecko_price_with_latest(chain)}}
+)
 , event_logs_priced as (
     select 
         block_timestamp::date as date
@@ -16,9 +19,9 @@ event_logs as(
         , amount / pow(10, decimals) as amount_nominal
         , amount_nominal * price as amount_usd
     from  event_logs
-    left join {{chain}}_flipside.price.ez_prices_hourly p
-        on date_trunc(hour, block_timestamp) = hour
-        and lower(asset) = lower(token_address)
+    left join prices p
+        on p.date = block_timestamp::date
+        and lower(asset) = lower(contract_address)
 )
 select
     date

@@ -43,7 +43,6 @@ select
     , coalesce(revenue_data.hnt_burned, 0) as burns_native
     , coalesce(new_mobile_subscribers_data.new_subscribers, 0) as new_subscribers
     , coalesce(new_hotspot_onboards_data.device_onboards, 0) as device_onboards
-    , coalesce(fees_data.fees, 0) as fees
 
     -- Standardized Metrics)
 
@@ -54,7 +53,7 @@ select
     , coalesce(price_data.token_volume, 0) as token_volume
 
     -- Cash Flow Metrics
-    , coalesce(fees_data.fees, 0) as ecosystem_revenue
+    , coalesce(fees_data.fees, 0) as fees
     , coalesce(revenue_data.revenue, 0) as service_fee_allocation
     , coalesce(revenue_data.hnt_burned, 0) * coalesce(price_data.price, 0) as burned_fee_allocation
     , coalesce(revenue_data.hnt_burned, 0) as burned_fee_allocation_native

@@ -96,7 +96,6 @@ select
     , swap_metrics.trading_volume
     , swap_metrics.unique_traders
     , swap_metrics.trading_fees
-    , swap_metrics.trading_fees as fees
     , swap_metrics.primary_supply_side_revenue
     , swap_metrics.primary_supply_side_revenue as total_supply_side_revenue
     , swap_metrics.revenue
@@ -115,7 +114,7 @@ select
 
     -- Money Metrics
     , coalesce(swap_metrics.trading_fees, 0) as spot_fees
-    , coalesce(swap_metrics.trading_fees, 0) as ecosystem_revenue
+    , coalesce(swap_metrics.trading_fees, 0) as fees
     , coalesce(swap_metrics.service_fee_allocation, 0) as service_fee_allocation
     , coalesce(swap_metrics.treasury_fee_allocation, 0) as treasury_fee_allocation
     , coalesce(swap_metrics.vebal_fee_allocation, 0) as staking_fee_allocation

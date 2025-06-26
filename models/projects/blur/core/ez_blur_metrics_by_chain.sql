@@ -27,7 +27,6 @@ select
     , blur_daus.chain
     , blur_daus.dau
     , blur_daily_txns.daily_txns as txns
-    , blur_fees.fees
 
     -- Standardized Metrics
 
@@ -37,7 +36,7 @@ select
     , blur_fees.fees as nft_fees
 
     -- Cash Flow Metrics
-    , blur_fees.fees as ecosystem_revenue
+    , blur_fees.fees as fees
     , blur_fees.fees as service_fee_allocation
 
 from blur_fees

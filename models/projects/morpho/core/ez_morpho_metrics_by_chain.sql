@@ -67,7 +67,6 @@ select
     , borrows
     , supplies as total_available_supply
     , deposits
-    , fees
 
     -- Standardized metrics
     , borrows as lending_loans
@@ -77,7 +76,7 @@ select
     
     -- Cash Flow Metrics (Interest goes to Liquidity Suppliers (Lenders) + Vaults Performance Fees)
     , fees as lending_interest_fees
-    , lending_interest_fees as ecosystem_revenue
+    , fees as fees
 
     , token_incentives_native
     , token_incentives

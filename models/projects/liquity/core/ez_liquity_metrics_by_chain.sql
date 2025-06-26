@@ -82,7 +82,6 @@ with fees_and_revs as (
 select
     dcs.date
     , dcs.chain
-    , coalesce(fr.revenue_usd, 0) as fees
     , coalesce(fr.revenue_usd, 0) as revenue
     , coalesce(ti.token_incentives, 0) as token_incentives
     , coalesce(ti.token_incentives, 0) as expenses
@@ -105,7 +104,7 @@ select
     , coalesce(tvl.tvl, 0) - lag(coalesce(tvl.tvl, 0)) over (order by date) as tvl_net_change
 
     -- Cash Flow Metrics
-    , coalesce(fr.revenue_usd, 0) as ecosystem_revenue
+    , coalesce(fr.revenue_usd, 0) as fees
     , coalesce(ti.token_incentives, 0) as staking_fee_allocation
 
     -- Protocol Metrics
