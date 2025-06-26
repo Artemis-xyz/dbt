@@ -6,11 +6,11 @@ select
     , t1.chain as chain_name
     , ca.chain_agnostic_id as chain_id
     , case 
-        when substr(ca.chain_agnostic_id, 0, 7) = 'eip155:' then lower(ca.chain_agnostic_id || ':' || replace(replace(contract_address, '0x', ''), '0:', '')) 
-        when substr(ca.chain_agnostic_id, 0, 11) = 'sui:mainnet' then ca.chain_agnostic_id || ':' || SPLIT_PART(replace(contract_address, '0x', ''), '::', 1) 
-        else ca.chain_agnostic_id || ':' || replace(replace(contract_address, '0x', ''), '0:', '') 
+        when substr(ca.chain_agnostic_id, 0, 7) = 'eip155:' then lower(ca.chain_agnostic_id || ':' || replace(replace(t1.contract_address, '0x', ''), '0:', '')) 
+        when substr(ca.chain_agnostic_id, 0, 11) = 'sui:mainnet' then ca.chain_agnostic_id || ':' || SPLIT_PART(replace(t1.contract_address, '0x', ''), '::', 1) 
+        else ca.chain_agnostic_id || ':' || replace(replace(t1.contract_address, '0x', ''), '0:', '') 
     end as asset_id
-    , t2.symbol as asset_symbol
+    , t1.symbol as asset_symbol
     , sum(
         case 
             when t2.type is null then stablecoin_supply
