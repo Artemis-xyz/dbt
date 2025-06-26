@@ -165,12 +165,9 @@ models:
   - name: ez_trader_joe_metrics_by_chain
     description: "This table stores metrics for the TRADER_JOE protocol"
     columns:
-<<<<<<< HEAD
       - *fees
-=======
       - *chain
       - *date
->>>>>>> 6413221f32e3b7d267cb7098739b42614f9b6719
       - *spot_dau
       - *spot_fees
       - *spot_txns
@@ -181,13 +178,10 @@ models:
   - name: ez_trader_joe_metrics_by_pool
     description: "This table stores metrics for the TRADER_JOE protocol"
     columns:
-<<<<<<< HEAD
       - *fees
-=======
       - *chain
       - *date
       - *pool
->>>>>>> 6413221f32e3b7d267cb7098739b42614f9b6719
       - *spot_dau
       - *spot_fees
       - *spot_volume
@@ -202,11 +196,8 @@ models:
     columns:
       - *burns_native
       - *circulating_supply_native
-<<<<<<< HEAD
       - *earnings
-=======
       - *date
->>>>>>> 6413221f32e3b7d267cb7098739b42614f9b6719
       - *fdmc
       - *fees
       - *gross_emissions_native
