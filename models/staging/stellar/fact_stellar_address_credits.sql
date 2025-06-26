@@ -1,4 +1,4 @@
-{{ config(snowflake_warehouse="BALANCES_LG", materialized="incremental", unique_key=["transaction_hash", "event_index", "trace_index"])}}
+{{ config(snowflake_warehouse="BALANCES_LG", materialized="incremental", unique_key="unique_id")}}
 
 select
     block_timestamp
@@ -10,8 +10,9 @@ select
     , -1 as trace_index
     , amount_raw as credit_raw
     , amount_native as credit_native
+    , unique_id
 from {{ref("fact_stellar_token_transfers")}}   
-where lower(event_type) not in ('mint', 'burn')
+where lower(event_type) not in ('burn')
     and block_timestamp::date < to_date(sysdate())
 {% if is_incremental() %}
     and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
