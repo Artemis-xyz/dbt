@@ -1,3 +1,5 @@
+{{ config(materialized="table", snowflake_warehouse="HYPERLIQUID") }}
+
 with latest_source_json as (
     select extraction_date, source_url, source_json
     from {{ source("PROD_LANDING", "raw_hyperliquid_fees") }}
@@ -13,27 +15,36 @@ extracted_fees as (
 )
 , max_fees as (
     select
-        timestamp,
-        total_fees / 1e6 as max_trading_fees,
-        total_spot_fees / 1e6 as max_spot_fees
+        date(timestamp) as date,
+        max_by(total_fees / 1e6, date) as max_trading_fees,
+        max_by(total_spot_fees / 1e6, date) as max_spot_fees
     from extracted_fees
+    group by date
+)
+, auction_fees as (
+    select
+        date,
+        sum(auction_fees) as auction_fees
+    from PC_DBT_DB.PROD.fact_hyperliquid_auction_fees
+    group by date
 )
 , fee_data as (
     select
-        timestamp,
+        mf.date,
         max_trading_fees,
         max_spot_fees,
-        max_trading_fees - coalesce(lag(max_trading_fees) over (order by timestamp asc), 0) as trading_fees,
-        max_spot_fees - coalesce(lag(max_spot_fees) over (order by timestamp asc), 0) as spot_fees,
-        (trading_fees - spot_fees) as perp_fees
-    from max_fees
+        max_trading_fees - lag(max_trading_fees) over (order by mf.date asc) as trading_fees,
+        max_spot_fees - lag(max_spot_fees) over (order by mf.date asc) as spot_fees,
+        coalesce(auction_fees, 0) as auction_fees,
+        (trading_fees - (spot_fees + coalesce(auction_fees, 0))) as perp_fees
+    from max_fees mf
+    left join auction_fees af on mf.date = af.date
 )
-
 , reassigned_fees as (
     select
         case
-            when date(timestamp) in ('2024-11-17', '2024-11-25') then date '2024-11-29'
-            else date(timestamp)
+            when date in ('2024-11-17', '2024-11-25') then date '2024-11-29'
+            else date
         end as date,
         trading_fees,
         spot_fees,
