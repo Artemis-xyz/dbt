@@ -122,6 +122,7 @@ select
     -- Usage Metrics
     , unique_traders::string + hyperevm_data.daa as perp_dau
     , perp_volume as perp_volume
+    , spot_trading_volume as spot_volume
     , trades + hyperevm_data.txns as perp_txns
     , perps_tvl_data.tvl as tvl
     , new_users

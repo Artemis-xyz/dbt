@@ -20,7 +20,10 @@ column_definitions:
 
   burns_native: &burns_native
     name: burns_native
-    description: "The amount of native tokens burned"
+    description: "HyperCore (Spot Tokens Fees) + HyperEvm (Gas)"
+    tags:
+      - artemis_gaap
+      - override
 
   buyback_fee_allocation: &buyback_fee_allocation
     name: buyback_fee_allocation
