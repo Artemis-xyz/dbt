@@ -122,6 +122,7 @@ models:
       - *chain_spot_volume
       - *chain_txns
       - *fdmc
+      - *fees
       - *market_cap
       - *price
       - *token_turnover_circulating

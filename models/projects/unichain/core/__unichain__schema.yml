@@ -88,6 +88,7 @@ models:
       - *chain_spot_volume
       - *chain_txns
       - *fdmc
+      - *fees
       - *foundation_fee_allocation
       - *l1_fee_allocation
       - *l1_fee_allocation_native

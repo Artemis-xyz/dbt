@@ -59,6 +59,7 @@ models:
       - *chain_dau
       - *chain_txns
       - *fdmc
+      - *fees
       - *market_cap
       - *price
       - *token_turnover_circulating

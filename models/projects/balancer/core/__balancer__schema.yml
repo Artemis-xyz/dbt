@@ -123,6 +123,7 @@ column_definitions:
     description: "Portion of revenue allocated to the protocol treasury. Before February 2022, this was 10% of fees, after this date, it is 12.5% of fees."
     tags:
       - artemis_gaap
+      - override
 
   treasury_native: &treasury_native
     name: treasury_native

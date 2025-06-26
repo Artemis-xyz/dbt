@@ -78,6 +78,7 @@ models:
   - name: ez_drift_metrics_by_chain
     description: "This table stores metrics for the DRIFT protocol"
     columns:
+      - *fees
       - *perp_fees
       - *perp_volume
       - *spot_fees

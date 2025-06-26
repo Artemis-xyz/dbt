@@ -132,6 +132,7 @@ models:
     columns:
       - *buyback_fee_allocation
       - *buybacks
+      - *fees
       - *service_fee_allocation
       - *spot_dau
       - *spot_fees

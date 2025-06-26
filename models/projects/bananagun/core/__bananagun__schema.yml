@@ -159,6 +159,7 @@ models:
       - *aggregator_dau
       - *aggregator_txns
       - *aggregator_volume
+      - *fees
       - *token_fee_allocation
       - *treasury_fee_allocation
 

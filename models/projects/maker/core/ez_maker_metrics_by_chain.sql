@@ -62,7 +62,6 @@ WITH
 select
     date
     , 'ethereum' as chain
-    , COALESCE(fees, 0) AS fees
     , COALESCE(primary_revenue, 0) AS primary_revenue
     , COALESCE(other_revenue, 0) AS other_revenue
     , COALESCE(protocol_revenue, 0) AS protocol_revenue
@@ -83,7 +82,7 @@ select
     , 'DeFi' as category
     , COALESCE(stability_fees,0) as stability_fees
     , COALESCE(trading_fees, 0) AS trading_fees
-    , COALESCE(fees, 0) AS ecosystem_revenue
+    , COALESCE(fees, 0) AS fees
 
     , COALESCE(primary_revenue, 0) AS interest_rate_fee_allocation
     , COALESCE(liquidation_revenue, 0) AS liquidation_fee_allocation

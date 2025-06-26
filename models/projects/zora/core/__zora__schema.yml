@@ -106,6 +106,7 @@ models:
       - *chain_median_txn_fee
       - *chain_txns
       - *chain_wau
+      - *fees
       - *l1_fee_allocation
       - *l1_fee_allocation_native
       - *treasury_fee_allocation

@@ -84,7 +84,6 @@ with
 select
     date_chain_spine.date
     , date_chain_spine.chain
-    , fees_and_revenue.fees
     , fees_and_revenue.revenue
     , fees_and_revenue.primary_supply_side_fees as primary_supply_side_revenue
     , fees_and_revenue.primary_supply_side_fees as total_supply_side_revenue
@@ -102,7 +101,7 @@ select
     , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
 
     -- Cash Flow Metrics
-    , coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0) as ecosystem_revenue
+    , fees_and_revenue.fees
     , coalesce(fees_and_revenue.primary_supply_side_fees, 0) + 0.005 * (coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0)) as service_fee_allocation
     , 0.145 * (coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0)) as staking_fee_allocation
     , 0.02 * (coalesce(fees_and_revenue.revenue, 0) + coalesce(fees_and_revenue.primary_supply_side_fees, 0)) as treasury_fee_allocation

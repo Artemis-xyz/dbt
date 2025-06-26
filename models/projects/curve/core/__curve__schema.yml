@@ -135,6 +135,7 @@ models:
   - name: ez_curve_metrics_by_chain
     description: "This table stores metrics for the CURVE protocol"
     columns:
+      - *fees
       - *service_fee_allocation
       - *spot_dau
       - *spot_fees

@@ -14,7 +14,6 @@ SELECT
     , dau
     , gas_usd
     , trading_fees
-    , fees
     , fees / txns as avg_txn_fee
     , revenue
     , dex_volumes
@@ -33,7 +32,7 @@ SELECT
     -- Cash Flow Metrics
     , gas_usd as chain_fees
     , trading_fees as spot_fees
-    , fees as ecosystem_revenue
+    , fees as fees
     , trading_fees as service_fee_allocation
     , gas_usd as validator_fee_allocation
     -- Crypto Metrics

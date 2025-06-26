@@ -152,6 +152,7 @@ models:
   - name: ez_gmx_metrics_by_chain
     description: "This table stores metrics for the GMX protocol"
     columns:
+      - *fees
       - *other_fee_allocation
       - *perp_fees
       - *perp_volume

@@ -88,6 +88,7 @@ models:
   - name: ez_sushiswap_metrics_by_chain
     description: "This table stores metrics for the SUSHISWAP protocol"
     columns:
+      - *fees
       - *service_fee_allocation
       - *spot_dau
       - *spot_fees
