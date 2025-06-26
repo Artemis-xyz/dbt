@@ -1,4 +1,4 @@
-{{ config(materialized="incremental", unique_id=['date', 'chain_id' 'address'], snowflake_warehouse="STANDARD_8D737A18") }}
+{{ config(materialized="incremental", unique_id=['date', 'chain_id' 'address'], snowflake_warehouse="ANALYTICS_XL") }}
 with 
     ethereum_data as (
         select 
