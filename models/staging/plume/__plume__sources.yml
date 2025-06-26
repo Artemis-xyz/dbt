@@ -3,5 +3,5 @@ sources:
     schema: PROD_LANDING
     database: LANDING_DATABASE
     tables:
-      - name: raw_plume_transactions_parquet
-      - name: raw_plume_logs_parquet
+      - name: raw_plume_mainnet_transactions_parquet
+      - name: raw_plume_mainnet_logs_parquet

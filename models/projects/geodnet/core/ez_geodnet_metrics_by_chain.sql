@@ -18,7 +18,6 @@ select
     revenue_data.date
     , revenue_data.chain
     , revenue_data.protocol
-    , coalesce(fees, 0) as fees
     , coalesce(revenue, 0) as revenue
 
     -- Standardized Metrics
@@ -30,9 +29,9 @@ select
     , coalesce(token_volume, 0) as token_volume
 
     -- Cash Flow Metrics
-    , coalesce(revenue, 0) as gross_protocol_revenue
-    , coalesce(revenue, 0) * 0.8 as buyback_cash_flow
-    , coalesce(revenue, 0) * 0.2 as foundation_cash_flow
+    , coalesce(fees, 0) as fees
+    , coalesce(revenue, 0) * 0.8 as buyback_fee_allocation
+    , coalesce(revenue, 0) * 0.2 as foundation_fee_allocation
 
     -- Turnover Metrics
     , coalesce(token_turnover_circulating, 0) as token_turnover_circulating

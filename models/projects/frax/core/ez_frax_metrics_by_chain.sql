@@ -67,7 +67,7 @@ select
 
     -- Money Metrics
     , trading_volume_by_chain.trading_fees as spot_fees
-    , trading_volume_by_chain.trading_fees as gross_protocol_revenue
+    , trading_volume_by_chain.trading_fees as fees
     , trading_volume_by_chain.gas_cost_native
     , trading_volume_by_chain.gas_cost_usd as gas_cost
 from tvl_by_chain 

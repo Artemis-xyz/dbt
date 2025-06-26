@@ -11,12 +11,13 @@
 with 
      price_data as ({{ get_coingecko_metrics('uniswap') }})
      , unichain_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_unichain_daily_dex_volumes") }}
     )
 select
     f.date
     , dune_dex_volumes_unichain.dex_volumes
+    , dune_dex_volumes_unichain.adjusted_dex_volumes
     -- Old Metrics Needed For Compatibility
     , txns
     , daa as dau
@@ -38,12 +39,12 @@ select
     , daa as chain_dau
     , dune_dex_volumes_unichain.dex_volumes as chain_spot_volume
     -- Cash Flow Metrics
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
-    , cost as l1_cash_flow
-    , cost_native as l1_cash_flow_native
-    , revenue as foundation_cash_flow
-    , revenue_native as foundation_cash_flow_native
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
+    , cost as l1_fee_allocation
+    , cost_native as l1_fee_allocation_native
+    , revenue as foundation_fee_allocation
+    , revenue_native as foundation_fee_allocation_native
     , token_turnover_circulating
     , token_turnover_fdv
 from {{ ref("fact_unichain_fundamental_metrics") }} as f

@@ -17,12 +17,12 @@ with buyback_from_pair as (
                 case when program = 'AMMv4' then (buyback / 0.12) * 0.88
                 else (buyback/0.12) * 0.84
                 end
-        ) as lp_cash_flow
+        ) as lp_fee_allocation
         , sum(
                 case when program = 'AMMv4' then (buyback / 0.12) * 0
                 else (buyback/0.12) * 0.04
                 end
-        ) as treasury_cash_flow
+        ) as treasury_fee_allocation
     from {{ ref("fact_raydium_metrics_by_pair") }}
     group by 1
 )
@@ -77,6 +77,15 @@ with buyback_from_pair as (
     from {{ ref("dim_date_spine") }}
     where date between '2021-03-17' and to_date(sysdate())
 )
+, supply_data as (
+    select
+        date
+        , net_supply_change_native
+        , gross_emissions_native
+        , premine_unlocks_native
+        , circulating_supply_native
+    from {{ ref("fact_raydium_supply") }}
+)
 
 select 
     ds.date
@@ -111,12 +120,18 @@ select
     -- Money Metrics
     , bfp.buyback / 0.12 as spot_fees
     , coalesce(c.pool_creation_fees_native * pc.price, 0) as pool_creation_fees -- pool creation
-    , spot_fees + coalesce(c.pool_creation_fees_native * pc.price, 0) as gross_protocol_revenue
-    , bfp.buyback as buyback_cash_flow
-    , bfp.treasury_cash_flow as treasury_cash_flow
-    , bfp.lp_cash_flow as service_cash_flow
+    , spot_fees + coalesce(c.pool_creation_fees_native * pc.price, 0) as ecosystem_revenue
+    , bfp.buyback as buyback_fee_allocation
+    , bfp.treasury_fee_allocation as treasury_fee_allocation
+    , bfp.lp_fee_allocation as service_fee_allocation
     , b.buyback_native * pb.price as buybacks
     , b.buyback_native   as buyback_native
+
+    -- Supply Metrics
+    , supply_data.net_supply_change_native
+    , supply_data.gross_emissions_native
+    , supply_data.premine_unlocks_native
+    , supply_data.circulating_supply_native
 
     -- Other Metrics
     , price_data.token_turnover_circulating
@@ -135,5 +150,6 @@ left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pt on pt.token_address = t.toke
         and pt.hour = t.date and pt.blockchain = 'solana'
 left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pc on pc.token_address = c.token_mint_address
         and pc.hour = c.date and pc.blockchain = 'solana'
+left join supply_data using (date)
 where ds.date < to_date(sysdate())
 order by 1 desc 

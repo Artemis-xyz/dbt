@@ -35,7 +35,7 @@ with
         from {{ ref("fact_avalanche_bridge_bridge_daa") }}
     ), 
     avalanche_c_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_avalanche_c_daily_dex_volumes") }}
     )
     , date_spine as (
@@ -59,6 +59,7 @@ select
     , fees as revenue
     , dau_over_100
     , dune_dex_volumes_avalanche_c.dex_volumes
+    , dune_dex_volumes_avalanche_c.adjusted_dex_volumes
     , nft_trading_volume
     , total_staked_usd
     , issuance
@@ -93,10 +94,10 @@ select
     , coalesce(dune_dex_volumes_avalanche_c.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     -- Cashflow Metrics
     , case when fees is null then fees_native * price else fees end as chain_fees
-    , fees_native AS gross_protocol_revenue_native
-    , case when fees is null then fees_native * price else fees end as gross_protocol_revenue
-    , fees_native AS burned_cash_flow_native
-    , case when fees is null then fees_native * price else fees end as burned_cash_flow
+    , fees_native AS ecosystem_revenue_native
+    , case when fees is null then fees_native * price else fees end as ecosystem_revenue
+    , fees_native AS burned_fee_allocation_native
+    , case when fees is null then fees_native * price else fees end as burned_fee_allocation
     -- Supply Metrics
     , issuance AS emissions_native
     -- Developer Metrics

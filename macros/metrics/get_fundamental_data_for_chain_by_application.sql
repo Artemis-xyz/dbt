@@ -5,6 +5,7 @@
             select min(raw_date) as start_date, from_address, app
             from {{ ref(model_name) }}
             where not equal_null(category, 'EOA') and app is not null
+            and raw_date < to_date(sysdate())
             group by app, from_address
         ),
         new_users as (
@@ -20,6 +21,7 @@
                 count(*) as tx_n
             from {{ ref(model_name) }}
             where user_type = 'LOW_SLEEP' and app is not null
+            and raw_date < to_date(sysdate())
             group by user_type, raw_date, app
         ),
         sybil as (
@@ -30,12 +32,24 @@
                 count(*) as tx_n
             from {{ ref(model_name) }}
             where engagement_type = 'sybil'
+            and raw_date < to_date(sysdate())
             group by engagement_type, raw_date, app
         ),
+        real_users as (
+            select
+                app,
+                from_address
+            from {{ ref(model_name) }}
+                where not equal_null(category, 'EOA')
+                and app is not null
+                and raw_date < to_date(sysdate())
+                group by app, from_address
+                having count(*) >= 2 and sum(gas_usd) > 0.0001
+            ),
         agg_data as (
             select
                 raw_date,
-                app,
+                m.app,
                 max(chain) as chain,
                 max(friendly_name) friendly_name,
                 max(category) category,
@@ -43,10 +57,16 @@
                 sum(tx_fee) gas,
                 sum(gas_usd) gas_usd,
                 count(*) txns,
-                count(distinct from_address) dau
-            from {{ ref(model_name) }}
-            where not equal_null(category, 'EOA') and app is not null
-            group by raw_date, app
+                count(distinct m.from_address) dau,
+                count(distinct contract_address) contract_count,
+                count(distinct ru.from_address) real_users
+            from {{ ref(model_name) }} m
+            left join real_users ru
+                on m.from_address = ru.from_address
+                and m.app = ru.app
+            where not equal_null(category, 'EOA') and m.app is not null
+            and raw_date < to_date(sysdate())
+            group by raw_date, m.app
         )
     select
         agg_data.raw_date as date,
@@ -59,6 +79,8 @@
         gas_usd,
         txns,
         dau,
+        contract_count,
+        real_users,
         (dau - new_users) as returning_users,
         new_users,
         low_sleep_users,

@@ -41,7 +41,7 @@ select
         when event_name = 'ERC20WithdrawalFinalized' then 'withdrawal' 
         when event_name = 'ETHWithdrawalFinalized' then 'withdrawal'
     end as action
-from ethereum_flipside.core.fact_decoded_event_logs
+from ethereum_flipside.core.ez_decoded_event_logs
 where
     contract_address = lower('{{ contract_address }}')
     and event_name in ('ETHDepositInitiated', 'ETHWithdrawalFinalized', 'ERC20DepositInitiated', 'ERC20WithdrawalFinalized')

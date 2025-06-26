@@ -5,6 +5,7 @@
         database="level_finance",
         schema="core",
         alias="ez_metrics",
+        enabled=false,
     )
 }}
 

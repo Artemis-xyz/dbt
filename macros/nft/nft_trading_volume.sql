@@ -3,8 +3,8 @@
         select
             block_timestamp::date as date,
             '{{ chain }}' as chain,
-            sum(coalesce(sales_amount * price, 0)) nft_trading_volume
-        from solana_flipside.nft.fact_nft_sales
+            sum(coalesce(price_usd, 0)) nft_trading_volume
+        from solana_flipside.nft.ez_nft_sales
         left join
             ({{ get_coingecko_price_with_latest("solana") }}) prices
             on block_timestamp::date = prices.date

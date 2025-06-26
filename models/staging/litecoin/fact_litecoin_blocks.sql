@@ -1,6 +1,6 @@
 {{ config(
-    materialized='table',
-    unique_key='unique_id',
+    materialized='incremental',
+    unique_key='number',
     snowflake_warehouse='LITECOIN'
 ) }}
 with source_data as (
@@ -19,6 +19,10 @@ with source_data as (
         PARQUET_RAW:coinbase_param::string as coinbase_param,
         PARQUET_RAW:transaction_count::number as transaction_count
     from {{ source('PROD_LANDING', 'raw_litecoin_blocks_parquet') }}
+    where 1=1
+    {% if is_incremental() %}
+      and PARQUET_RAW:number::number > (select max(number) from {{ this }})
+    {% endif %}
 )
 
 select 
@@ -36,3 +40,4 @@ select
     coinbase_param,
     transaction_count
 from source_data
+qualify row_number() over (partition by number order by timestamp desc) = 1

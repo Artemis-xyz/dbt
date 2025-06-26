@@ -10,12 +10,12 @@ with
         select 
             tx_hash,
             block_timestamp::date as date,
-            signer_id as submitter,
-            len(args::string) * 6 / 8 as bytes
-        from near_flipside.core.fact_actions_events_function_call
+            receipt_signer_id as submitter,
+            len(action_data:args::VARCHAR) * 6 / 8 as bytes
+        from near_flipside.core.ez_actions
         --Will need to scale out as more l2s use nearDA, right now just one tho
-        where signer_id = 'vsl-submitter.near'
-            and method_name = 'submit' 
+        where receipt_signer_id = 'vsl-submitter.near'
+            and action_data:method_name::VARCHAR = 'submit'
     ),
     blob_gas_fees as (
         select 

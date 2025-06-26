@@ -17,7 +17,7 @@ with
                         lower('0xEb1bB70123B2f43419d070d7fDE5618971cc2F8f'),
                         lower('0x50Ff3B278fCC70ec7A9465063d68029AB460eA04')
                     )
-                    and status = 'SUCCESS'
+                    and TX_SUCCEEDED = 1
                     {% if is_incremental() %}
 
                         and block_timestamp >= (
@@ -39,7 +39,7 @@ with
             contract_address as token_address,
             'ethereum' as source_chain,
             'avalanche' as destination_chain
-        from avalanche_flipside.core.fact_decoded_event_logs
+        from avalanche_flipside.core.ez_decoded_event_logs
         where
             tx_hash in (select * from txs) and event_name = 'Mint'
             {% if is_incremental() %}
@@ -64,7 +64,7 @@ with
             contract_address as token_address,
             'avalanche' as source_chain,
             'ethereum' as destination_chain
-        from avalanche_flipside.core.fact_decoded_event_logs
+        from avalanche_flipside.core.ez_decoded_event_logs
         where
             contract_address in (select * from tokens)
             and event_name = 'Transfer'
@@ -85,7 +85,7 @@ with
                 where
                     from_address
                     in (lower('0xF5163f69F97B221d50347Dd79382F11c6401f1a1'))
-                    and status = 'SUCCESS'
+                    and TX_SUCCEEDED = 1
             )
 
         select
@@ -99,7 +99,7 @@ with
             contract_address as token_address,
             'bitcoin' as source_chain,
             'avalanche' as destination_chain
-        from avalanche_flipside.core.fact_decoded_event_logs
+        from avalanche_flipside.core.ez_decoded_event_logs
         where
             tx_hash in (select * from txs) and event_name = 'Mint'
             {% if is_incremental() %}
@@ -124,7 +124,7 @@ with
             contract_address as token_address,
             'avalanche' as source_chain,
             'bitcoin' as destination_chain
-        from avalanche_flipside.core.fact_decoded_event_logs
+        from avalanche_flipside.core.ez_decoded_event_logs
         where
             contract_address in (select * from tokens)
             and event_name = 'Transfer'

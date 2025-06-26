@@ -70,8 +70,9 @@ WITH
         SELECT
             date,
             symbol as token,
-            total_amount_native as tvl
-        FROM {{ ref('fact_maker_tvl_by_asset') }}
+            sum(balance_native) as tvl
+        FROM {{ ref('fact_maker_tvl_by_address_balance') }}
+        GROUP BY 1,2
     )
     , outstanding_supply AS (
         SELECT date, 'DAI' as token, outstanding_supply FROM {{ ref('fact_dai_supply') }}
@@ -89,7 +90,7 @@ select
     , COALESCE(operating_expenses, 0) AS operating_expenses
     , COALESCE(direct_expenses, 0) AS direct_expenses
     , COALESCE(total_expenses, 0) AS total_expenses
-    , COALESCE(protocol_revenue - total_expenses, 0) AS protocol_earnings
+    , COALESCE(protocol_revenue - total_expenses, 0) AS earnings
     , COALESCE(treasury, 0) as treasury_value
     , COALESCE(net_treasury, 0) as net_treasury
     , COALESCE(tvl, 0) as net_deposits
@@ -100,13 +101,13 @@ select
     , 'DeFi' as category
     , COALESCE(stability_fees,0) as stability_fees
     , COALESCE(trading_fees, 0) AS trading_fees
-    , COALESCE(fees, 0) AS gross_protocol_revenue
+    , COALESCE(fees, 0) AS ecosystem_revenue
 
-    , COALESCE(primary_revenue, 0) AS interest_rate_cash_flow
-    , COALESCE(liquidation_revenue, 0) AS liquidation_cash_flow
-    , COALESCE(trading_fees, 0) AS trading_cash_flow
-    -- token_cash_flow = trading_revenue + liquidation_revenue + interest_rate_cash_flow
-    , COALESCE(protocol_revenue, 0) AS token_cash_flow 
+    , COALESCE(primary_revenue, 0) AS interest_rate_fee_allocation
+    , COALESCE(liquidation_revenue, 0) AS liquidation_fee_allocation
+    , COALESCE(trading_fees, 0) AS trading_fee_allocation
+    -- token_fee_allocation = trading_revenue + liquidation_revenue + interest_rate_fee_allocation
+    , COALESCE(protocol_revenue, 0) AS token_fee_allocation 
     
     , COALESCE(treasury, 0) AS treasury
     , COALESCE(treasury_native, 0) AS treasury_native

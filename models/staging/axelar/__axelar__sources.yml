@@ -4,3 +4,4 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_axelar_dau_txns_volume_fees
+      - name: raw_axelar_supply_data

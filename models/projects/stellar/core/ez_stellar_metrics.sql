@@ -42,12 +42,15 @@ select
     , fundamental_data.ledgers_closed as ledgers_closed
     , stablecoin_tvl.stablecoin_mc
     , rwa_tvl.rwa_tvl
+
     -- Standardized Metrics
+
     -- Market Data
     , price_data.price
     , price_data.market_cap
     , price_data.fdmc
     , price_data.token_volume
+
     -- Chain Metrics
     , txns as chain_txns
     , dau as chain_dau
@@ -59,11 +62,17 @@ select
     , null as high_sleep_users
     , null as sybil_users
     , null as non_sybil_users
+
     -- Cash Flow Metrics
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
+
+    -- Financial Statement Metrics
+    , fees as revenue
+
     -- Real World Asset Metrics
     , rwa_tvl as tokenized_market_cap
+
     -- Stablecoin Metrics
     , stablecoin_mc as stablecoin_total_supply
     , price_data.token_turnover_circulating

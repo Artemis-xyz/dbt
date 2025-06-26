@@ -44,7 +44,6 @@ select
     --Old metrics needed for backwards compatibility
     , coalesce(revenue_data.revenue, 0) as revenue
     , coalesce(fees_data.fees, 0) as fees
-    , coalesce(mints_data.mints_native, 0) as mints_native
 
     -- Standardized Metrics)
 
@@ -55,10 +54,10 @@ select
     , coalesce(price_data.token_volume, 0) as token_volume
 
     -- Cash Flow Metrics
-    , coalesce(fees_data.fees, 0) as gross_protocol_revenue
-    , coalesce(revenue_data.revenue, 0) as service_cash_flow
-    , coalesce(revenue_data.hnt_burned, 0) * coalesce(price_data.price, 0) as burned_cash_flow
-    , coalesce(revenue_data.hnt_burned, 0) as burned_cash_flow_native
+    , coalesce(fees_data.fees, 0) as ecosystem_revenue
+    , coalesce(revenue_data.revenue, 0) as service_fee_allocation
+    , coalesce(revenue_data.hnt_burned, 0) * coalesce(price_data.price, 0) as burned_fee_allocation
+    , coalesce(revenue_data.hnt_burned, 0) as burned_fee_allocation_native
 
     -- Turnover Metrics
     , coalesce(price_data.token_turnover_circulating, 0) as token_turnover_circulating
@@ -69,7 +68,7 @@ select
     , coalesce(new_hotspot_onboards_data.device_onboards, 0) as device_onboards
 
     --HNT Token Supply Data
-    , coalesce(daily_supply_data.emissions_native, 0) as emissions_native
+    , coalesce(daily_supply_data.emissions_native, 0) as gross_emissions_native
     , coalesce(daily_supply_data.premine_unlocks_native, 0) as premine_unlocks_native
     , coalesce(daily_supply_data.burns_native, 0) as burns_native
     , coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(daily_supply_data.burns_native, 0) as net_supply_change_native

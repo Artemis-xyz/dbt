@@ -9,13 +9,7 @@
                 , contract_address
                 , symbol
                 , address as from_address
-                {% if chain in ('tron') %}
-                    , case
-                        when 
-                            lower(address) in (select lower(premint_address) from {{ref("fact_"~chain~"_stablecoin_bridge_addresses")}}) then 0
-                        else stablecoin_supply
-                    end as stablecoin_supply
-                {% elif chain in ('ethereum') %}
+                {% if chain in ('ethereum', 'tron') %}
                     , case
                         when (
                             lower(address) in (
@@ -34,7 +28,7 @@
                         ) then 0
                         else stablecoin_supply
                     end as stablecoin_supply
-                {% elif chain in ('solana', 'celo', 'ton', 'sui', 'polygon', 'avalanche') %}
+                {% elif chain in ('solana', 'celo', 'ton', 'sui', 'polygon', 'avalanche', 'aptos', 'kaia') %}
                     , case
                         when 
                             lower(address) in (select lower(premint_address) from {{ref("fact_"~chain~"_stablecoin_premint_addresses")}}) then 0
@@ -197,7 +191,7 @@
                     else filtered_contracts.artemis_category_id 
                 end as artemis_category_id
                 , case 
-                    {% if chain not in ('solana', 'tron', 'near', 'ton', 'sui') %}
+                    {% if chain not in ('solana', 'tron', 'near', 'ton', 'sui', 'ripple') %}
                         when 
                             from_address not in (select contract_address from {{ ref("dim_" ~ chain ~ "_contract_addresses")}}) 
                             then 1
@@ -225,7 +219,7 @@
             left join filtered_contracts
                 on lower(chain_stablecoin_metrics.from_address) = lower(filtered_contracts.address)
         )
-    {% if is_incremental() %}
+    {% if is_incremental() and backfill_date == '' %}
         , updated_labels as (
             select 
                 t1.address
@@ -318,7 +312,7 @@
         , '{{ chain }}' as chain
         , unique_id || '-' || chain as unique_id
     from tagged_chain_stablecoin_metrics
-    {% if is_incremental() %}
+    {% if is_incremental() and backfill_date == '' %}
         union all
         select
             date

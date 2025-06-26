@@ -80,9 +80,9 @@ select
     
     -- Cashflow metrics
     , fees AS chain_fees
-    , fees_usd AS gross_protocol_revenue
-    , revenue AS burned_cash_flow
-    , burns_native AS burned_cash_flow_native
+    , fees_usd AS ecosystem_revenue
+    , revenue AS burned_fee_allocation
+    , burns_native AS burned_fee_allocation_native
     
     -- Protocol Metrics
     , usd_balance AS treasury

@@ -1,0 +1,5 @@
+id,chain,symbol,link
+0xdace1121e10500e9e29d071f01593fd76b000f08,1,USDS,https://app.pendle.finance/trade/pools/0xdace1121e10500e9e29d071f01593fd76b000f08/zap/in?chain=ethereum
+0x4339ffe2b7592dc783ed13cce310531ab366deac,1,USDe,https://app.pendle.finance/trade/pools/0x4339ffe2b7592dc783ed13cce310531ab366deac/zap/in?chain=ethereum
+0x45f163e583d34b8e276445dd3da9ae077d137d72,1,USDFALCON,https://app.pendle.finance/trade/pools/0x45f163e583d34b8e276445dd3da9ae077d137d72/zap/in?chain=ethereum
+0x9a63fa80b5ddfd3cab23803fdb93ad2c18f3d5aa,1,USDC,https://app.pendle.finance/trade/pools/0x9a63fa80b5ddfd3cab23803fdb93ad2c18f3d5aa/zap/in?chain=ethereum

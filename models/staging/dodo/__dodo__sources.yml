@@ -1,0 +1,21 @@
+sources:
+  - name: BSC_FLIPSIDE_DEFI
+    schema: defi
+    database: bsc_flipside
+    tables:
+      - name: ez_dex_swaps
+  - name: ARBITRUM_FLIPSIDE_DEFI
+    schema: defi
+    database: arbitrum_flipside
+    tables:
+      - name: ez_dex_swaps
+  - name: POLYGON_FLIPSIDE_DEFI
+    schema: defi
+    database: polygon_flipside
+    tables:
+      - name: ez_dex_swaps
+  - name: ETHEREUM_FLIPSIDE_DEFI
+    schema: defi
+    database: ethereum_flipside
+    tables:
+      - name: ez_dex_swaps

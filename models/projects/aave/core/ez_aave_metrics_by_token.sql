@@ -274,8 +274,8 @@ select
     , token_incentives_nominal as total_expenses_nominal
     , token_incentives as total_expenses 
 
-    , coalesce(protocol_revenue_nominal, 0) - coalesce(total_expenses_nominal, 0) as protocol_earnings_nominal
-    , coalesce(protocol_revenue, 0) - coalesce(total_expenses, 0) as protocol_earnings
+    , coalesce(protocol_revenue_nominal, 0) - coalesce(total_expenses_nominal, 0) as earnings_nominal
+    , coalesce(protocol_revenue, 0) - coalesce(total_expenses, 0) as earnings
 
     , outstanding_supply_nominal
     , outstanding_supply
@@ -302,23 +302,23 @@ select
     , gho_revenue_nominal as gho_fees_native
     , gho_revenue as gho_fees
 
-    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as gross_protocol_revenue
-    , coalesce(interest_rate_fees_nominal, 0) + coalesce(flashloan_fees_nominal, 0) + coalesce(gho_fees_nominal, 0) as gross_protocol_revenue_native
+    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as ecosystem_revenue
+    , coalesce(interest_rate_fees_nominal, 0) + coalesce(flashloan_fees_nominal, 0) + coalesce(gho_fees_nominal, 0) as ecosystem_revenue_native
 
-    , supply_side_deposit_revenue + flashloan_fees as service_cash_flow
-    , supply_side_deposit_revenue_nominal + flashloan_fees_nominal as service_cash_flow_native
+    , supply_side_deposit_revenue + flashloan_fees as service_fee_allocation
+    , supply_side_deposit_revenue_nominal + flashloan_fees_nominal as service_fee_allocation_native
     
-    , liquidation_revenue as liquidator_cash_flow
-    , liquidation_revenue_nominal as liquidator_cash_flow_native
+    , liquidation_revenue as liquidator_fee_allocation
+    , liquidation_revenue_nominal as liquidator_fee_allocation_native
 
-    , reserve_factor_revenue as reserve_factor_treasury_cash_flow
-    , reserve_factor_revenue_nominal as reserve_factor_treasury_cash_flow_native
-    , dao_trading_revenue as dao_treasury_cash_flow
-    , dao_trading_revenue_nominal as dao_treasury_cash_flow_native
-    , gho_revenue as gho_treasury_cash_flow
-    , gho_revenue_nominal as gho_treasury_cash_flow_native
-    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as treasury_cash_flow
-    , coalesce(reserve_factor_revenue_nominal, 0) + coalesce(dao_trading_revenue_nominal, 0) + coalesce(gho_revenue_nominal, 0) as treasury_cash_flow_native
+    , reserve_factor_revenue as reserve_factor_treasury_fee_allocation
+    , reserve_factor_revenue_nominal as reserve_factor_treasury_fee_allocation_native
+    , dao_trading_revenue as dao_treasury_fee_allocation
+    , dao_trading_revenue_nominal as dao_treasury_fee_allocation_native
+    , gho_revenue as gho_treasury_fee_allocation
+    , gho_revenue_nominal as gho_treasury_fee_allocation_native
+    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as treasury_fee_allocation
+    , coalesce(reserve_factor_revenue_nominal, 0) + coalesce(dao_trading_revenue_nominal, 0) + coalesce(gho_revenue_nominal, 0) as treasury_fee_allocation_native
     
     , outstanding_supply as lending_loans
     , outstanding_supply_nominal as lending_loans_native

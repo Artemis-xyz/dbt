@@ -26,7 +26,7 @@ transfers AS (
             WHEN lower(FROM_ADDRESS) = lower('0xECC6c8C7EdA9C600773F0D133549d9933a91dBFB') THEN 'reward'
             ELSE 'other'
         END as transfer_type
-    FROM ETHEREUM_FLIPSIDE.CORE.FACT_TOKEN_TRANSFERS
+    FROM ethereum_flipside.core.ez_token_transfers
     WHERE lower(CONTRACT_ADDRESS) = lower('0x38E68A37E401F7271568CecaAc63c6B1e19130B4') -- BANANA V2
         AND BLOCK_NUMBER >= 18135851
 ),

@@ -15,6 +15,7 @@ with bridge_volume_fees as (
         , ecosystem_revenue
         , bridge_txns
         , bridge_txns as txns
+        , bridge_dau
         , ecosystem_revenue as fees
     from {{ ref("fact_debridge_fundamental_metrics") }}
 )
@@ -28,8 +29,8 @@ select
     , fees
     -- Standardized Metrics
     , bridge_volume
+    , bridge_dau
     , bridge_txns
-    , ecosystem_revenue as gross_protocol_revenue
     , price_data.price as price
     , price_data.market_cap as market_cap
     , price_data.fdmc as fdmc

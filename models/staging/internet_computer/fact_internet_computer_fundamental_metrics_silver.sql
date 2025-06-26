@@ -25,9 +25,9 @@ max_extraction as (
         ,value:governance_total_locked_e8s::int / 10e7 as nns_tvl
         ,value:proposals_count::int as total_proposals_count
         ,value:registered_canisters_count::int as total_registered_canister_count
-        ,value:total_transactions::int as total_transactions
-        ,value:total_update_transactions_till_date::int as update_transactions
-        ,value:total_update_transactions_till_date::int + value:total_query_transactions_till_date::int as new_total_transactions
+        ,floor(value:average_transactions_per_second::float) * 86400 as icp_txns
+        ,floor(value:average_update_transactions_per_second::float) * 86400  as update_txns
+        ,floor(value:average_update_transactions_per_second::float) * 86400 + floor(value:average_query_transactions_per_second::float) * 18400 as txns
         -- DQ issues where estimated returns are sometimes >> 1 Trillion
         , case 
             when 
@@ -50,22 +50,34 @@ max_extraction as (
         ,value:canister_memory_usage_bytes::int as canister_memory_usage_bytes
     from latest_data, lateral flatten(input => data) as f
 )
+, final_data as (
+    -- API issues for icp_burned_total on 2025-06-01
+    select
+        *
+        ,
+        case
+            when icp_burned_total < prev_icp_burned_total then icp_burned_total + prev_icp_burned_total
+            else icp_burned_total
+        end as total_icp_burned
+    from icp_expanded_data
+)
 select 
     date
-    , total_transactions
+    , sum(icp_txns) over (order by date) as total_transactions
     , dau
-    , total_transactions - LAG(total_transactions, 1, null) OVER (ORDER BY date) as icp_txns
-    , new_total_transactions - LAG(NEW_TOTAL_TRANSACTIONS, 1, null) OVER (ORDER BY date) as txns
-    , update_transactions - LAG(update_transactions, 1, null) OVER (ORDER BY date) as update_txns
+    , icp_txns
+    , txns
+    , update_txns
     , neurons_total
     , avg_tps
     , avg_blocks_per_second
     , case 
-        when icp_burned_total - prev_icp_burned_total < 0  or icp_burned_total - prev_icp_burned_total > 100000
+        when total_icp_burned - lag(total_icp_burned) over (order by date) < 0
+          or total_icp_burned - lag(total_icp_burned) over (order by date) > 100000
         then 0
-        else icp_burned_total - prev_icp_burned_total
+        else total_icp_burned - lag(total_icp_burned) over (order by date)
       end as icp_burned
-    , icp_burned_total as total_icp_burned
+    , total_icp_burned
     , icp_burned_fees as total_native_fees -- total transaction fees
     , icp_burned_fees - LAG(icp_burned_fees, 1, null) OVER (ORDER BY date) as icp_transaction_fees
     , nns_tvl as nns_tvl_native -- same as total icp staked in NNS
@@ -77,5 +89,5 @@ select
     , cycle_burn_rate_average
     , total_internet_identity_user_count
     , 'internet_computer' as chain
-from icp_expanded_data
+from final_data
 where dau is not null 

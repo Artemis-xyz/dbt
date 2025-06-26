@@ -12,16 +12,20 @@ with
     trading_volume_data as (
         select date, trading_volume
         from {{ ref("fact_dydx_v4_trading_volume") }}
-    ),
-    fees_data as (
+    )
+    , fees_data as (
         select date, maker_fees, taker_fees, fees
         from {{ ref("fact_dydx_v4_fees") }}
-    ),
-    chain_data as (
-        select date, trading_fees, txn_fees
-        from {{ ref("fact_dydx_v4_txn_and_trading_fees") }}
-    ),
-    unique_traders_data as (
+    )
+    , chain_data as (
+        select date, maker_fees, maker_rebates, txn_fees
+        from {{ ref("fact_dydx_v4_txn_fees") }}
+    )
+    , trading_fees as (
+        select date, total_fees
+        from {{ ref("fact_dydx_v4_trading_fees") }}
+    )
+    , unique_traders_data as (
         select date, unique_traders
         from {{ ref("fact_dydx_v4_unique_traders") }}
     )
@@ -32,16 +36,16 @@ select
     , 'DeFi' as category
     , trading_volume
     , unique_traders
-    , maker_fees
+    , fees_data.maker_fees
     , taker_fees
     , fees
-    , trading_fees -- Trading fees is maker_fees+taker_fees
+    , fees_data.maker_fees + fees_data.taker_fees as trading_fees -- Trading fees is maker_fees+taker_fees
     , txn_fees -- chain transaction fees (not really significant)
     -- standardize metrics
     , trading_volume as perp_volume
     , unique_traders as perp_dau
-    , trading_fees + txn_fees as gross_protocol_revenue
-    , case when unique_traders_data.date > '2025-03-25' then gross_protocol_revenue * 0.25 else 0 end as buybacks
+    , trading_fees + txn_fees as ecosystem_revenue
+    , case when unique_traders_data.date > '2025-03-25' then ecosystem_revenue * 0.25 else 0 end as buybacks
 from trading_volume_data
 left join fees_data on trading_volume_data.date = fees_data.date
 left join chain_data on trading_volume_data.date = chain_data.date

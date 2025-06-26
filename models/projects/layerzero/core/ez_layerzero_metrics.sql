@@ -62,7 +62,7 @@ select
 
     -- Cash Flow Metrics
     , coalesce(bridge_metrics.fees, 0) as bridge_fees
-    , coalesce(bridge_metrics.fees, 0) as gross_protocol_revenue
+    , coalesce(bridge_metrics.fees, 0) as ecosystem_revenue
 
     -- Turnover Metrics
     , coalesce(market_metrics.token_turnover_circulating, 0) as token_turnover_circulating

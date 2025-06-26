@@ -59,7 +59,7 @@ select
     coalesce(pumpswap_metrics.spot_volume, 0) as spot_volume,
     coalesce(daily_revenues.fees, 0) as launchpad_fees,
     coalesce(pumpswap_metrics.spot_fees, 0) as spot_fees,
-    coalesce(daily_revenues.fees, 0) + coalesce(pumpswap_metrics.spot_fees, 0) as gross_protocol_revenue
+    coalesce(daily_revenues.fees, 0) + coalesce(pumpswap_metrics.spot_fees, 0) as fees
 from date_spine
 left join swap_metrics using(date)
 left join daily_revenues using(date)

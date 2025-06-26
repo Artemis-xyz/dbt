@@ -1,28 +1,36 @@
 models:
-- name: dim_all_addresses_labeled_silver
-  tests:
-    - dbt_expectations.expect_compound_columns_to_be_unique:
-        column_list: ["address", "chain"]
-  columns:
-    - name: address
-      tests:
-        - not_null
-        - dbt_expectations.expect_column_to_exist
-    - name: artemis_application_id
-      tests:
-        - dbt_expectations.expect_column_to_exist
-    - name: chain
-      tests:
-        - not_null
-        - dbt_expectations.expect_column_to_exist
-    - name: type
-      tests:
-        - dbt_expectations.expect_column_to_exist
-        - dbt_expectations.expect_column_values_to_be_in_set:
-            value_set: ['pool', 'treasury', 'stake_pool', 'perps_pool']
-            quote_values: true
-            where: "type is not null"
-    - name: last_updated
-      tests:
-        - not_null
-        - dbt_expectations.expect_column_to_exist
+  - name: dim_all_addresses_labeled_silver
+    tests:
+      - dbt_expectations.expect_compound_columns_to_be_unique:
+          column_list: ["address", "chain"]
+    columns:
+      - name: address
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist
+      - name: artemis_application_id
+        tests:
+          - dbt_expectations.expect_column_to_exist
+      - name: chain
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist
+      - name: type
+        tests:
+          - dbt_expectations.expect_column_to_exist
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set:
+                [
+                  "pool",
+                  "treasury",
+                  "perps_pool",
+                  "spot_pool",
+                  "lst_pool",
+                  "lending_pool",
+                ]
+              quote_values: true
+              where: "type is not null"
+      - name: last_updated
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_to_exist

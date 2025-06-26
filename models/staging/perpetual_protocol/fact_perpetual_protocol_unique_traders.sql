@@ -18,6 +18,6 @@ select
     end as chain,
     to_date(regexp_substr(value:day::string, '^(.*)U', 1, 1, 'e', 1)) as date,
     'perpetual_protocol' as app,
-    value:unique_traders as unique_traders,
+    value:unique_traders::number as unique_traders,
     'DeFi' as category
 from data, lateral flatten(input => data)

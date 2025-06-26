@@ -31,8 +31,8 @@ select
     , token_volume
     --chain metrics
     , txns as chain_txns
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
+    , fees as fees
+    , fees_native as fees_native
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem

@@ -4,7 +4,7 @@
         snowflake_warehouse="GAINS_NETWORK",
         database="gains_network",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics",
     )
 }}
 
@@ -42,11 +42,11 @@ with date_spine as (
             date
             , fees
             , revenue
-            , treasury_cash_flow
-            , case when date <= '2024-07-12' then (gns_stakers + dai_stakers) else dai_stakers end as fee_sharing_token_cash_flow
+            , treasury_fee_allocation
+            , case when date <= '2024-07-12' then (gns_stakers + dai_stakers) else dai_stakers end as staking_fee_allocation
             , case when date > '2024-07-12' then gns_stakers else 0 end as buybacks
-            , foundation_cash_flow
-            , service_cash_flow
+            , foundation_fee_allocation
+            , service_fee_allocation
             , referral_fees
             , nft_bot_fees
         from {{ ref("fact_gains_fees") }}
@@ -71,12 +71,12 @@ select
     , gd.unique_traders as perp_dau
     , gf.referral_fees
     , gf.nft_bot_fees
-    , gf.fees as gross_protocol_revenue
-    , gf.buybacks as buyback_cash_flow
-    , gf.foundation_cash_flow
-    , gf.fee_sharing_token_cash_flow
-    , gf.service_cash_flow
-    , gf.treasury_cash_flow
+    , gf.fees as ecosystem_revenue
+    , gf.buybacks as buyback_fee_allocation
+    , gf.foundation_fee_allocation
+    , gf.staking_fee_allocation
+    , gf.service_fee_allocation
+    , gf.treasury_fee_allocation
 from date_spine ds
 left join gains_data gd using (date)
 left join gains_fees gf using (date)

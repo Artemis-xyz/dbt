@@ -18,9 +18,9 @@ with swap_metrics as (
         sum(fee_usd) as trading_fees,
         sum(service_cash_flow) as primary_supply_side_revenue,
         sum(treasury_cash_flow + vebal_cash_flow) as revenue,
-        sum(service_cash_flow) as service_cash_flow,
-        sum(treasury_cash_flow) as treasury_cash_flow,
-        sum(vebal_cash_flow) as vebal_cash_flow
+        sum(service_cash_flow) as service_fee_allocation,
+        sum(treasury_cash_flow) as treasury_fee_allocation,
+        sum(vebal_cash_flow) as vebal_fee_allocation
     FROM {{ ref('ez_balancer_dex_swaps') }}
     group by 1,2
 )
@@ -35,16 +35,20 @@ with swap_metrics as (
 , token_incentives as (
     SELECT
         date,
-        'ethereum' as chain,
+        case
+            when chain ilike '%ethereum%' then 'ethereum'
+            else chain 
+        end as chain,
         sum(amount_usd) as token_incentives
-    FROM {{ ref('fact_balancer_token_incentives') }}
+    FROM {{ ref('fact_balancer_token_incentives_all_chains') }}
     group by 1,2
 )
 
 , treasury_by_chain as (
     SELECT
         date,
-        'ethereum' as chain,
+        case when chain ilike '%ethereum%' then 'ethereum'
+        else chain end as chain,
         sum(usd_balance) as usd_balance
     FROM {{ ref('fact_balancer_treasury_by_token') }}
     group by 1,2
@@ -92,11 +96,10 @@ select
     , swap_metrics.trading_volume
     , swap_metrics.unique_traders
     , swap_metrics.trading_fees
-    , swap_metrics.trading_fees as fees
     , swap_metrics.primary_supply_side_revenue
     , swap_metrics.primary_supply_side_revenue as total_supply_side_revenue
     , swap_metrics.revenue
-    , swap_metrics.revenue - token_incentives.token_incentives as protocol_earnings
+    , swap_metrics.revenue - token_incentives.token_incentives as earnings
     , tvl.tvl_usd as net_deposits
     , treasury_by_chain.usd_balance as treasury_value
     , treasury_native.treasury_native as treasury_native
@@ -111,10 +114,10 @@ select
 
     -- Money Metrics
     , coalesce(swap_metrics.trading_fees, 0) as spot_fees
-    , coalesce(swap_metrics.trading_fees, 0) as gross_protocol_revenue
-    , coalesce(swap_metrics.service_cash_flow, 0) as service_cash_flow
-    , coalesce(swap_metrics.treasury_cash_flow, 0) as treasury_cash_flow
-    , coalesce(swap_metrics.vebal_cash_flow, 0) as fee_sharing_token_cash_flow
+    , coalesce(swap_metrics.trading_fees, 0) as fees
+    , coalesce(swap_metrics.service_fee_allocation, 0) as service_fee_allocation
+    , coalesce(swap_metrics.treasury_fee_allocation, 0) as treasury_fee_allocation
+    , coalesce(swap_metrics.vebal_fee_allocation, 0) as staking_fee_allocation
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
 
     -- Treasury Metrics

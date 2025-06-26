@@ -1,0 +1,23 @@
+sources:
+  - name: SOLANA_FLIPSIDE_DEFI
+    schema: DEFI
+    database: SOLANA_FLIPSIDE
+    tables:
+      - name: raw_moonbeam_fees_parquet
+      - name: raw_moonbeam_transactions_parquet
+      - name: raw_moonbeam_evm_transactions_parquet
+      - name: raw_moonbeam_evm_transactions_fees_parquet
+    name: SOLANA_FLIPSIDE
+    schema: CORE
+    database: SOLANA_FLIPSIDE
+    tables:
+      - name: dim_idls
+  - name: PROD_LANDING
+    schema: prod_landing
+    database: landing_database
+    tables:
+      - name: raw_meteora_amm_pool_metrics
+      - name: raw_meteora_lbpairs
+      - name: raw_meteora_tvl
+      - name: raw_meteora_amm_metrics
+    

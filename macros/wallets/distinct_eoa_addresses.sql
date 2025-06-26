@@ -1,7 +1,40 @@
 {% macro distinct_eoa_addresses(chain) %}
     {% if chain == "tron" %}
-        select distinct from_address as address, 'eoa' as address_type
-        from tron_allium.raw.transactions
+        select trx_from_address as address, 'eoa' as address_type, max(datetime) as last_updated_at
+        from sonarx_tron.tron_share.transactions
+        where trx_from_address is not null 
+        {% if is_incremental() %}
+            and datetime > (select max(last_updated_at) from {{this}})
+        {% endif %}
+        group by 1
+    {% elif chain == "ripple" %}
+        select address, 'eoa' as address_type, max(last_updated_at) as last_updated_at
+        from (
+            select account as address, max(datetime) as last_updated_at
+            from sonarx_xrp.xrp_share.transactions
+            where account is not null 
+            {% if is_incremental() %}
+                and datetime > (select max(last_updated_at) from {{ this }})
+            {% endif %}
+            group by 1
+            union all
+            select from_address as address, max(block_timestamp) as last_updated_at
+            from {{ ref('fact_ripple_token_transfers') }}
+            where from_address is not null
+            {% if is_incremental() %}
+                and block_timestamp > (select max(last_updated_at) from {{ this }})
+            {% endif %}
+            group by 1
+            union all
+            select to_address as address, max(block_timestamp) as last_updated_at
+            from {{ ref('fact_ripple_token_transfers') }}
+            where to_address is not null
+            {% if is_incremental() %}
+                and block_timestamp > (select max(last_updated_at) from {{ this }})
+            {% endif %}
+            group by 1
+        ) all_eoa_address
+        group by 1
     {% elif chain == "sui" %}
         select distinct from_address as address, 'eoa' as address_type
         from {{ref('fact_sui_token_transfers')}}
@@ -17,6 +50,7 @@
         select distinct tx_signer as address, 'signer' as address_type
         from near_flipside.core.fact_transactions
         --tx_singer is a contract: https://flipsidecrypto.github.io/near-models/#!/model/model.near.core__fact_actions_events_function_call
-        where tx_signer not in (select receiver_id from near_flipside.core.fact_actions_events_function_call where method_name is not null)
+        -- receipt_receiver_id is a contract: https://flipsidecrypto.github.io/near-models/#!/model/model.near_models.core__ez_actions
+        where tx_signer not in (select receipt_receiver_id from near_flipside.core.ez_actions where action_data:method_name is not null)
     {% endif %}
 {% endmacro %}

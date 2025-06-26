@@ -43,10 +43,10 @@ with
             chain,
             sum(spot_volume) as spot_volume,
             sum(spot_fees) as spot_fees,
-            sum(spot_lp_cash_flow) as spot_lp_cash_flow,
-            sum(spot_stakers_cash_flow) as spot_stakers_cash_flow,
-            sum(spot_oracle_cash_flow) as spot_oracle_cash_flow,
-            sum(spot_treasury_cash_flow) as spot_treasury_cash_flow
+            sum(spot_lp_fee_allocation) as spot_lp_fee_allocation,
+            sum(spot_stakers_fee_allocation) as spot_stakers_fee_allocation,
+            sum(spot_oracle_fee_allocation) as spot_oracle_fee_allocation,
+            sum(spot_treasury_fee_allocation) as spot_treasury_fee_allocation
         from {{ ref("fact_gmx_all_versions_dex_cash_flows") }}
         group by 1, 2
     )
@@ -58,10 +58,10 @@ with
             sum(perp_trading_fees) as perp_trading_fees,
             sum(perp_liquidation_fees) as perp_liquidation_fees,
             sum(perp_fees) as perp_fees,
-            sum(perp_lp_cash_flow) as perp_lp_cash_flow,
-            sum(perp_stakers_cash_flow) as perp_stakers_cash_flow,
-            sum(perp_oracle_cash_flow) as perp_oracle_cash_flow,
-            sum(perp_treasury_cash_flow) as perp_treasury_cash_flow
+            sum(perp_lp_fee_allocation) as perp_lp_fee_allocation,
+            sum(perp_stakers_fee_allocation) as perp_stakers_fee_allocation,
+            sum(perp_oracle_fee_allocation) as perp_oracle_fee_allocation,
+            sum(perp_treasury_fee_allocation) as perp_treasury_fee_allocation
         from {{ ref("fact_gmx_all_versions_perp_cash_flows") }}
         group by 1, 2
     )
@@ -92,6 +92,14 @@ with
         from tvl_metrics
         group by 1, 2
     ),
+    token_incentives as (
+        select
+            claim_date as date,
+            chain,
+            MAX(token_incentive_usd) as token_incentives
+        from {{ref('fact_gmx_token_incentives')}}
+        group by 1, 2
+    ),
     date_spine as (
         select date, chain
         from {{ ref("dim_date_spine") }}
@@ -114,17 +122,19 @@ select
     , coalesce(perp_data.perp_liquidation_fees, 0) as perp_liquidation_fees
     , coalesce(perp_data.perp_trading_fees, 0) as perp_trading_fees
     , coalesce(perp_data.perp_fees, 0) as perp_fees
-    , coalesce(spot_data.spot_fees, 0) + coalesce(perp_data.perp_fees, 0) as gross_protocol_revenue
-    , coalesce(spot_data.spot_lp_cash_flow, 0) + coalesce(perp_data.perp_lp_cash_flow, 0) as lp_cash_flow
-    , coalesce(spot_data.spot_stakers_cash_flow, 0) + coalesce(perp_data.perp_stakers_cash_flow, 0) as stakers_cash_flow
-    , coalesce(spot_data.spot_oracle_cash_flow, 0) + coalesce(perp_data.perp_oracle_cash_flow, 0) as oracle_cash_flow
-    , coalesce(spot_data.spot_treasury_cash_flow, 0) + coalesce(perp_data.perp_treasury_cash_flow, 0) as treasury_cash_flow
+    , coalesce(spot_data.spot_fees, 0) + coalesce(perp_data.perp_fees, 0) as fees
+    , coalesce(spot_data.spot_lp_fee_allocation, 0) + coalesce(perp_data.perp_lp_fee_allocation, 0) as service_fee_allocation
+    , coalesce(spot_data.spot_stakers_fee_allocation, 0) + coalesce(perp_data.perp_stakers_fee_allocation, 0) as staking_fee_allocation
+    , coalesce(spot_data.spot_oracle_fee_allocation, 0) + coalesce(perp_data.perp_oracle_fee_allocation, 0) as other_fee_allocation
+    , coalesce(spot_data.spot_treasury_fee_allocation, 0) + coalesce(perp_data.perp_treasury_fee_allocation, 0) as treasury_fee_allocation
     , coalesce(spot_data.spot_volume, 0) as spot_volume
     , coalesce(perp_data.perp_volume, 0) as perp_volume
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
     , coalesce(tvl_metrics_grouped.tvl, 0) as tvl
 
 from date_spine
 left join tvl_metrics_grouped using(date, chain)
+left join token_incentives using(date, chain)
 left join spot_data using(date, chain)
 left join perp_data using(date, chain)
 left join combined_data using(date, chain)

@@ -19,7 +19,7 @@ WITH c AS (
             END
         ) AS lusdSupplyChange
     FROM
-        polygon_flipside.core.fact_token_transfers
+        polygon_flipside.core.ez_token_transfers
     WHERE 1 = 1 
         AND contract_address = lower('0x23001f892c0C82b79303EDC9B9033cD190BB21c7')
         AND(

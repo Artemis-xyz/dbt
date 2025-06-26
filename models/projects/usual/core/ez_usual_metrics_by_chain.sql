@@ -39,14 +39,11 @@ with usd0_metrics as (
 , usual_burn_mint as (
     select 
         date
-        , daily_supply
-        , cumulative_supply
-        , daily_treasury
-        , cumulative_treasury
-        , daily_burned
-        , cumulative_burned
+        , gross_emissions_native
+        , burns_native
+        , net_supply_change_native
         , circulating_supply_native
-        , cumulative_supply
+        , daily_treasury
         , daily_treasury_usualstar
         , daily_treasury_usualx
     from {{ ref('fact_usual_burn_mint') }}
@@ -60,13 +57,10 @@ select
     usd0.date
     , usd0.usd0_tvl
     , usd0pp.usd0pp_tvl
-    , usual.fees
     , usual.collateral_yield
-    , ubm.daily_supply
     , ubm.daily_treasury
-    , ubm.daily_burned
     -- revenue is the sum of treasury revenue, daily burned, and fees
-    , usual.fees + (usual.collateral_yield * mm.price) + (ubm.daily_burned * mm.price) as revenue
+    , usual.fees + (usual.collateral_yield * mm.price) + (ubm.burns_native * mm.price) as revenue
 
     -- Standardized Metrics
     , usd0.usd0_tvl + usd0pp.usd0pp_tvl as tvl
@@ -75,13 +69,13 @@ select
 
     -- Revenue Metrics
     , (usual.collateral_yield * mm.price) as yield_generated
-    , (ubm.daily_burned * mm.price) as burned_cash_flow
-    , ubm.daily_burned as burned_cash_flow_native
+    , (ubm.burns_native * mm.price) as burned_fee_allocation
+    , ubm.burns_native as burned_fee_allocation_native
     -- Gross Protocol Revenue
-    , (usual.usualx_unstake_fees_daily) + (usual.treasury_fee) + (yield_generated) + (burned_cash_flow) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as gross_protocol_revenue
+    , (usual.usualx_unstake_fees_daily) + (usual.treasury_fee) + (yield_generated) + (burned_fee_allocation) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as fees
     -- Cash Flow Buckets
-    , (usual.collateral_yield * mm.price) + (usual.treasury_fee) as treasury_cash_flow
-    , (usual.usualx_unstake_fees_daily) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as fee_sharing_token_cash_flow
+    , (usual.collateral_yield * mm.price) + (usual.treasury_fee) as treasury_fee_allocation
+    , (usual.usualx_unstake_fees_daily) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as staking_fee_allocation
 
     , ubm.circulating_supply_native
     , 'ethereum' as chain

@@ -11,7 +11,7 @@
 with 
      price_data as ({{ get_coingecko_metrics('berachain-bera') }}),
      dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_berachain_daily_dex_volumes") }}
      ),
      supply_data as (
@@ -31,6 +31,7 @@ select
     , fees_native
     , fees
     , dex_volumes
+    , adjusted_dex_volumes
     , emission_native
     , burns_native
     -- Standardized Metrics
@@ -44,9 +45,9 @@ select
     , daa as chain_dau
     -- Cash Flow Metrics
     , fees as chain_fees
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
-    , burns_native as burned_cash_flow_native
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
+    , burns_native as burned_fee_allocation_native
     -- Supply Metrics
     , premine_unlocks_native
     , emission_native as emissions_native

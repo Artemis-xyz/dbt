@@ -16,3 +16,6 @@ eip155:1329,sei
 stellar:pubnet,stellar
 cosmos:injective-888,injective
 near:mainnet,near
+eip155:8217,kaia
+aptos:mainnet,aptos
+xrpl:0,ripple

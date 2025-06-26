@@ -11,4 +11,10 @@ sources:
       - name: raw_drift_float_revenue
       - name: raw_drift_borrow_lending_revenue
       - name: raw_drift_parsed_logs
+      - name: raw_drift_lending_market_data
  
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: drift_daily_supply_data

@@ -80,7 +80,7 @@ SELECT
     , coalesce(revenue.revenue_usd, 0) as revenue -- Fees + Revenue are same - 50% fees go to buybacks | the other 50% goes to dao treasury.
     , coalesce(buybacks.buyback, 0) as buyback -- 50% of fees (ie all of revenue) go to buybacks but buybacks are done in batches, at the time of the buyback
     , coalesce(buybacks.buyback_native, 0) as buyback_native
-    , coalesce(mints.daily_mints, 0) as daily_mints
+    , coalesce(mints.daily_mints, 0) as gross_emissions_native
     , coalesce(mints.cumulative_mints, 0) as cumulative_mints
     , coalesce(unique_signers.unique_signers, 0) as unique_signers
     , coalesce(new_holders.daily_new_holders, 0) as daily_new_holders
@@ -102,9 +102,9 @@ SELECT
 
     -- Cash Flow Metrics
     , coalesce(revenue.revenue_usd, 0) as nft_fees
-    , coalesce(revenue.revenue_usd, 0) as gross_protocol_revenue
-    , 0.5 * coalesce(revenue.revenue_usd, 0) as treasury_cash_flow
-    , 0.5 * coalesce(revenue.revenue_usd, 0) as buyback_cash_flow
+    , coalesce(revenue.revenue_usd, 0) as ecosystem_revenue
+    , 0.5 * coalesce(revenue.revenue_usd, 0) as treasury_fee_allocation
+    , 0.5 * coalesce(revenue.revenue_usd, 0) as buyback_fee_allocation
     , coalesce(buybacks.buyback, 0) as buybacks
 
     -- Supply Metrics

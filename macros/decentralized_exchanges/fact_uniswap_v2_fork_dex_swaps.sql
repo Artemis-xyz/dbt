@@ -50,7 +50,8 @@
                 token0_in_amount * fee as token0_in_fee,
                 token0_out_amount * fee as token0_out_fee,
                 token1_in_amount * fee as token1_in_fee,
-                token1_out_amount * fee as token1_out_fee
+                token1_out_amount * fee as token1_out_fee, 
+                fee as fee_percent
             from all_pool_events
         ),
         swaps_adjusted as (
@@ -123,7 +124,10 @@
                         end
                 end as token_fee_amount_native_symbol,
                 token0_in_amount_usd + token1_in_amount_usd as total_in,
-                token0_out_amount_usd + token1_out_amount_usd as total_out
+                token0_out_amount_usd + token1_out_amount_usd as total_out,
+                abs(token0_in_amount_usd - token0_out_amount_usd) as abs_token0_net_amount_usd,
+                abs(token1_in_amount_usd - token1_out_amount_usd) as abs_token1_net_amount_usd,
+                fee_percent
             from swaps t1
             left join
                 {{ chain }}_flipside.price.ez_prices_hourly t2
@@ -135,6 +139,12 @@
                 and abs(
                     ln(abs(coalesce(nullif(total_in, 0), 1))) / ln(10)
                     - ln(abs(coalesce(nullif(total_out, 0), 1))) / ln(10)
+                )
+                < 2
+                and abs( -- Necessary for filtering swaps where there is both a token0in and a token1in such as https://bscscan.com/tx/0x8c517b96974c7632627758e92675c984599b57fdced30cf00e4fef9095bf348a#eventlog#1009
+                    -- more context here: https://github.com/Artemis-xyz/dbt/pull/1467
+                    ln(abs(coalesce(nullif(abs_token0_net_amount_usd, 0), 1))) / ln(10)
+                    - ln(abs(coalesce(nullif(abs_token1_net_amount_usd, 0), 1))) / ln(10)
                 )
                 < 2
         ),
@@ -157,7 +167,8 @@
                 token_fee_amount_native,
                 token_fee_amount_native_symbol,
                 least(total_out, total_in) as trading_volume,
-                total_fees as trading_fees
+                total_fees as trading_fees,
+                fee_percent
             from swaps_adjusted
         ),
         events as (
@@ -180,6 +191,7 @@
                 token_fee_amount_native_symbol,
                 trading_volume,
                 trading_fees,
+                fee_percent,
                 ROW_NUMBER() OVER (PARTITION by tx_hash, pool ORDER BY event_index) AS row_number
             from filtered_pairs
         ),
@@ -225,6 +237,9 @@
             token_1_volume_native,
             token_fee_amount_native,
             token_fee_amount_native_symbol,
+        {% endif %}
+        {% if app == 'pancakeswap' %}
+            fee_percent,
         {% endif %}
         gas_price * gas_used as raw_gas_cost_native,
         raw_gas_cost_native / 1e9 as gas_cost_native

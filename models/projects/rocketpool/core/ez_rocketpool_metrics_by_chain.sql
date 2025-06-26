@@ -31,7 +31,6 @@ select
     , cl_rewards_usd
     , el_rewards_usd
     , lst_deposit_fees
-    , fees
     , primary_supply_side_revenue
     , secondary_supply_side_revenue
     , total_supply_side_revenue
@@ -39,7 +38,7 @@ select
     , token_incentives
     , operating_expenses
     , total_expenses
-    , protocol_earnings
+    , earnings
     , net_deposits
     , outstanding_supply
     , treasury_value
@@ -48,16 +47,18 @@ select
 
     --Usage Metrics
     , s.num_staked_eth as tvl_native
+    , s.num_staked_eth as lst_tvl_native
     , s.amount_staked_usd as tvl
+    , s.amount_staked_usd as lst_tvl
 
     --Cash Flow Metrics
     , COALESCE(cl_rewards_usd, 0) as block_rewards
     , COALESCE(el_rewards_usd, 0) as mev_priority_fees
     , COALESCE(lst_deposit_fees, 0) as lst_deposit_fees
     , COALESCE(fees, 0) as yield_generated
-    , COALESCE(fees, 0) as gross_protocol_revenue
-    , gross_protocol_revenue * 0.14 as validator_cash_flow
-    , gross_protocol_revenue * 0.86 as service_cash_flow
+    , COALESCE(fees, 0) as fees
+    , fees * 0.14 as validator_fee_allocation
+    , fees * 0.86 as service_fee_allocation
     
     
 from staked_eth_metrics s

@@ -14,7 +14,7 @@ WITH treasury_flows_preunioned AS (
         evt.tx_hash AS hash,
         t.token,
         SUM(evt.RAW_AMOUNT_PRECISE / POW(10, t.decimals)) AS value
-    FROM ethereum_flipside.core.fact_token_transfers evt
+    FROM ethereum_flipside.core.ez_token_transfers evt
     JOIN {{ ref('dim_treasury_erc20s') }} t
         ON evt.contract_address = t.contract_address
     WHERE evt.to_address = '0xbe8e3e3618f7474f8cb1d074a26affef007e98fb'
@@ -27,7 +27,7 @@ WITH treasury_flows_preunioned AS (
         evt.tx_hash AS hash,
         t.token,
         -SUM(evt.RAW_AMOUNT_PRECISE / POW(10, t.decimals)) AS value
-    FROM ethereum_flipside.core.fact_token_transfers evt
+    FROM ethereum_flipside.core.ez_token_transfers evt
     JOIN {{ ref('dim_treasury_erc20s') }} t
         ON evt.contract_address = t.contract_address
     WHERE evt.from_address = '0xbe8e3e3618f7474f8cb1d074a26affef007e98fb'

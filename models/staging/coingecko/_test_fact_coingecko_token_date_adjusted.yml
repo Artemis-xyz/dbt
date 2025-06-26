@@ -28,3 +28,7 @@ models:
       - name: shifted_token_h24_volume_usd
         tests:
           - dbt_expectations.expect_column_to_exist
+      - name: shifted_token_circulating_supply
+        tests:
+          - dbt_expectations.expect_column_to_exist
+

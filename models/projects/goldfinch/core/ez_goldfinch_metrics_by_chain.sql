@@ -13,7 +13,6 @@ select
     , 'ethereum' as chain
     , interest_fees
     , withdrawal_fees
-    , fees
     , primary_supply_side_revenue
     , secondary_supply_side_revenue
     , total_supply_side_revenue
@@ -23,7 +22,7 @@ select
     , token_incentives
     , operating_expenses
     , total_expenses
-    , protocol_earnings
+    , earnings
     , net_deposits
     , outstanding_supply
     , treasury_value
@@ -44,9 +43,9 @@ select
     , tvl_net_change
 
     -- Cash Flow
-    , gross_protocol_revenue
-    , service_cash_flow
-    , token_cash_flow
+    , fees
+    , service_fee_allocation
+    , token_fee_allocation
 
     -- Protocol Metrics
     , treasury

@@ -39,6 +39,10 @@ with
     )
     , github_data as ({{ get_github_metrics("Axelar Network") }})
     , price_data as ({{ get_coingecko_metrics("axelar") }})
+    , supply_data as (
+        select * 
+        from {{ ref("fact_axelar_supply") }}
+    )
 select 
     crosschain_data.date
     , 'axelar' as chain
@@ -62,10 +66,12 @@ select
 
     , crosschain_data.fees as bridge_fees
     , validator_fees_data.validator_fees as chain_fees
-    , crosschain_data.fees as gross_protocol_revenue
+    , crosschain_data.fees as ecosystem_revenue
     , crosschain_data.fees / crosschain_data.bridge_txns as chain_avg_txn_fee
-    , validator_fees_data.validator_fees as validator_cash_flow
-    , mints_data.mints
+    , validator_fees_data.validator_fees as validator_fee_allocation
+    , mints_data.mints as gross_emissions_native
+    , coalesce(supply_data.totalBurned, 0) as burned_fee_allocation_native
+    , coalesce(supply_data.totalBurned, 0) * price_data.price as burned_fee_allocation
 
 
     , price_data.price as price
@@ -74,6 +80,9 @@ select
     , price_data.token_turnover_circulating as token_turnover_circulating
     , price_data.token_turnover_fdv as token_turnover_fdv
     , price_data.token_volume as token_volume
+
+    , coalesce(supply_data.circulatingSupply, 0) - lag(coalesce(supply_data.circulatingSupply, 0)) over (order by crosschain_data.date) as net_supply_change_native
+    , coalesce(supply_data.circulatingSupply, 0) as circulating_supply_native
 
     , github_data.weekly_commits_core_ecosystem
     , github_data.weekly_commits_sub_ecosystem
@@ -85,4 +94,5 @@ left join github_data using (date)
 left join price_data using (date)
 left join validator_fees_data using (date)
 left join mints_data using (date)
+left join supply_data using (date)
 where crosschain_data.date < to_date(sysdate())

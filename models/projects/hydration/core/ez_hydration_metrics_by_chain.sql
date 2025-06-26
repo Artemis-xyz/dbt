@@ -31,8 +31,8 @@ select
     , txns as chain_txns
     , daa as chain_dau
     -- Cash Flow Metrics
-    , coalesce(fees_usd, 0) as gross_protocol_revenue
-    , coalesce(fees_native, 0) as gross_protocol_revenue_native
+    , coalesce(fees_usd, 0) as fees
+    , coalesce(fees_native, 0) as fees_native
     , token_turnover_circulating
     , token_turnover_fdv
 from fundamental_data f

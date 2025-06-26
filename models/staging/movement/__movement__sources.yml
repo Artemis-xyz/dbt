@@ -1,0 +1,12 @@
+sources:
+    - name: MOVEMENT_FLIPSIDE
+      schema: CORE
+      database: MOVEMENT_FLIPSIDE
+      tables:
+        - name: fact_transactions
+    
+    - name: MOVEMENT_FLIPSIDE_PRICE
+      schema: PRICE
+      database: MOVEMENT_FLIPSIDE
+      tables:
+        - name: ez_prices_hourly

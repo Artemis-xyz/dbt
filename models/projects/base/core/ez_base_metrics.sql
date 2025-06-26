@@ -31,8 +31,12 @@ with
         from {{ ref("fact_base_bridge_bridge_daa") }}
     ),
     base_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_base_daily_dex_volumes") }}
+    ),
+    adjusted_dau_metrics as (
+        select date, adj_daus as adjusted_dau
+        from {{ ref("ez_base_adjusted_dau") }}
     )
 
 select
@@ -40,6 +44,7 @@ select
     , fundamental_data.chain
     , txns
     , dau
+    , adjusted_dau
     , wau
     , mau
     , fees_native
@@ -53,6 +58,7 @@ select
     , dau_over_100
     , nft_trading_volume
     , dune_dex_volumes_base.dex_volumes AS dex_volumes
+    , dune_dex_volumes_base.adjusted_dex_volumes AS adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
     , tvl
@@ -76,12 +82,12 @@ select
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_base.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     -- Cashflow Metrics
-    , fees_native as gross_protocol_revenue_native
-    , fees as gross_protocol_revenue
-    , l1_data_cost_native AS l1_cash_flow_native  -- fees paid to l1 by sequencer (L1 Fees)
-    , l1_data_cost AS l1_cash_flow
-    , coalesce(fees_native, 0) - coalesce(l1_data_cost_native, 0) as treasury_cash_flow_native
-    , coalesce(fees, 0) - coalesce(l1_data_cost, 0) as treasury_cash_flow
+    , fees_native as ecosystem_revenue_native
+    , fees as ecosystem_revenue
+    , l1_data_cost_native AS l1_fee_allocation_native  -- fees paid to l1 by sequencer (L1 Fees)
+    , l1_data_cost AS l1_fee_allocation
+    , coalesce(fees_native, 0) - coalesce(l1_data_cost_native, 0) as treasury_fee_allocation_native
+    , coalesce(fees, 0) - coalesce(l1_data_cost, 0) as treasury_fee_allocation
     -- Developer Metrics
     , weekly_contracts_deployed
     , weekly_contract_deployers
@@ -115,4 +121,5 @@ left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join base_dex_volumes as dune_dex_volumes_base on fundamental_data.date = dune_dex_volumes_base.date
+left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 where fundamental_data.date < to_date(sysdate())

@@ -40,8 +40,8 @@ select
     
     -- Cash Flow Metrics
     , chain_fees
-    , chain_fees as gross_protocol_revenue
-    , chain_fees as burned_cash_flow
+    , chain_fees as ecosystem_revenue
+    , chain_fees as burned_fee_allocation
 
     -- Other Metrics
     , price_data.token_turnover_circulating

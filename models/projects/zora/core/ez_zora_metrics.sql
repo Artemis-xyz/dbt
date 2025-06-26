@@ -31,12 +31,13 @@ with
     , defillama_data as ({{ get_defillama_metrics("zora") }})
     , rolling_metrics as ({{ get_rolling_active_address_metrics("zora") }})
     , zora_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_zora_daily_dex_volumes") }}
     )
 select
     fundamental_data.date
     , dune_dex_volumes_zora.dex_volumes
+    , dune_dex_volumes_zora.adjusted_dex_volumes
     , 'zora' as chain
     , txns
     , dau
@@ -59,12 +60,12 @@ select
     , median_txn_fee as chain_median_txn_fee
     , avg_txn_fee as chain_avg_txn_fee
     -- Cash Flow Metrics
-    , fees as gross_protocol_revenue
-    , fees_native as gross_protocol_revenue_native
-    , l1_data_cost as l1_cash_flow
-    , l1_data_cost_native as l1_cash_flow_native
-    , revenue as treasury_cash_flow
-    , revenue_native as treasury_cash_flow_native
+    , fees as ecosystem_revenue
+    , fees_native as ecosystem_revenue_native
+    , l1_data_cost as l1_fee_allocation
+    , l1_data_cost_native as l1_fee_allocation_native
+    , revenue as treasury_fee_allocation
+    , revenue_native as treasury_fee_allocation_native
     -- Crypto Metrics
     , tvl
     -- Developer Metrics

@@ -77,16 +77,14 @@ SELECT
     -- Cashflow Metrics
     , (coalesce(compute_fees_total_usd.compute_fees_total_usd, 0))/ 1e6 AS compute_fees
     , coalesce(validator_fees.validator_fees, 0) AS gas_fees
-    , compute_fees + gas_fees AS gross_protocol_revenue
-    , validator_fees AS validator_cash_flow
-    , revenue.revenue AS treasury_cash_flow
-    , compute_fees - treasury_cash_flow AS service_cash_flow
+    , compute_fees + gas_fees AS fees
+    , validator_fees AS validator_fee_allocation
+    , revenue.revenue AS treasury_fee_allocation
+    , compute_fees - treasury_fee_allocation AS service_fee_allocation
     , coalesce(burns.total_burned_native, 0) AS burns_native
 
     -- Supply Metrics
-    , coalesce(mints.mints, 0) AS mints_native 
-    , coalesce(mints.mints, 0) * coalesce(price, 0) AS mints
-    , coalesce(mints.mints, 0) AS emissions_native
+    , coalesce(mints.mints, 0) AS gross_emissions_native
     , coalesce(premine_unlocks.pre_mine_unlocks, 0) AS premine_unlocks_native
     , coalesce(mints.mints, 0) + coalesce(premine_unlocks.pre_mine_unlocks, 0) - coalesce(burns.total_burned_native, 0) AS net_supply_change_native
     , sum((coalesce(mints.mints, 0) - coalesce(burns.total_burned_native, 0)) + coalesce(premine_unlocks.pre_mine_unlocks, 0)) OVER (order by mints.date) AS circulating_supply_native

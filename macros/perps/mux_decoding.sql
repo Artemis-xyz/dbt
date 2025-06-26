@@ -18,7 +18,7 @@
         end as trading_volume,
         decoded_log:"trader"::string as trader,
         '{{ chain }}' as chain
-    from {{ chain }}_flipside.core.fact_decoded_event_logs
+    from {{ chain }}_flipside.core.ez_decoded_event_logs
     where
         contract_address = lower('{{ liquidity_contract }}')
         and (event_name in ('ClosePosition', 'OpenPosition'))

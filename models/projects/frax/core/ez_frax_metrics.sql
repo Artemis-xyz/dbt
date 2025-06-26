@@ -39,39 +39,95 @@ with dex_data as (
     GROUP BY
         date
 )
-, market_data as (
+, fxs_daily_supply_data as (
+    SELECT
+        date,
+        emissions_native,
+        total_premine_unlocks,
+        burns_native,
+        net_supply_change_native,
+        total_circulating_supply
+    FROM
+        {{ ref("fact_fxs_daily_supply_data") }}
+)
+, frax_daily_supply_data as (
+    SELECT
+        date,
+        supply as frax_circulating_supply
+    FROM
+        {{ ref("fact_frax_circulating_supply") }}
+)
+, veFXS_daily_supply_data as (
+    SELECT
+        date,
+        circulating_supply
+    FROM
+        {{ ref("fact_veFXS_daily_supply") }}
+)
+, fractal_l2_txns as (
+    SELECT
+        date,
+        l2_txns
+    FROM
+        {{ ref("fact_frax_L2_transactions") }}
+)
+, date_spine as (
+    select
+        ds.date
+    from {{ ref('dim_date_spine') }} ds
+    where ds.date between (select min(date) from tvl_data) and to_date(sysdate())
+)
+, market_metrics as (
     {{ get_coingecko_metrics('frax-share')}}
 )
 
 SELECT
-    market_data.date
+    date_spine.date
 
     -- Standardized Metrics
 
     -- Price Metrics
-    , market_data.price
-    , market_data.market_cap
-    , market_data.fdmc
-    , market_data.token_volume
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
 
-    -- Usage/Sector Metrics
-    , dex_data.spot_dau
-    , dex_data.spot_txns
-    , dex_data.spot_volume
-    , dex_data.spot_fees
+    -- Usage Metrics
+    , dex_data.spot_txns as spot_txns
+    , dex_data.spot_dau as spot_dau
+    , dex_data.spot_volume as spot_volume
+    , fractal_l2_txns.l2_txns as chain_txns
     , staked_eth_metrics.num_staked_eth as lst_tvl_native
     , staked_eth_metrics.amount_staked_usd as lst_tvl
     , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
     , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
     , tvl_data.tvl as spot_tvl
-    
+    , frax_daily_supply_data.frax_circulating_supply as stablecoin_total_supply
+    , veFXS_daily_supply_data.circulating_supply as veFXS_total_supply
+
+    --Cashflow Metrics
+    , dex_data.spot_fees as spot_fees
+    , spot_fees as ecosystem_revenue
 
     -- Other Metrics
     , dex_data.gas_cost_native
-    , market_data.token_turnover_circulating
-    , market_data.token_turnover_fdv
-from market_data
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
+
+    --FXS Token Supply Data
+    , fxs_daily_supply_data.emissions_native as fxs_emissions_native
+    , fxs_daily_supply_data.total_premine_unlocks as fxs_premine_unlocks_native
+    , fxs_daily_supply_data.burns_native as fxs_burns_native
+    , fxs_daily_supply_data.net_supply_change_native as fxs_net_supply_change_native
+    , fxs_daily_supply_data.total_circulating_supply as fxs_circulating_supply   
+
+from date_spine
+left join market_metrics using (date)
 left join dex_data using (date)
+left join fractal_l2_txns using (date)
 left join staked_eth_metrics using (date)
 left join tvl_data using (date)
-where market_data.date < to_date(sysdate())
+left join frax_daily_supply_data using (date)
+left join veFXS_daily_supply_data using (date)
+left join fxs_daily_supply_data using (date)
+where date_spine.date < to_date(sysdate())

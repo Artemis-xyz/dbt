@@ -7,8 +7,8 @@ select
     source_chain,
     destination_chain,
     category,
-    sum(amount_sent) as amount_usd,
+    sum(coalesce(amount_sent, amount_received, 0)) as amount_usd,
     sum(coalesce(percentage_fee,0) + coalesce(fix_fee,0)) as fee_usd
 from {{ ref("fact_debridge_transfers_with_prices") }}
-where source_chain is not null and destination_chain is not null and amount_received is not null
+where source_chain is not null and destination_chain is not null
 group by 1, 2, 3, 4, 5

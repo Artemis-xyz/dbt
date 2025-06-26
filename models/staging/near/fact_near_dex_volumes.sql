@@ -26,8 +26,8 @@ rhea_near_dex_volumes as (
 
 select 
     coalesce(flipside.date, rhea.date) as date,
-    coalesce(flipside.volume_usd,0) + coalesce(rhea.volume_usd,0) as volume_usd
+    sum(coalesce(flipside.volume_usd,0) + coalesce(rhea.volume_usd,0)) as volume_usd
 from flipside_near_dex_volumes as flipside
 full outer join rhea_near_dex_volumes as rhea
     on flipside.date = rhea.date
-
+group by 1

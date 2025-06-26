@@ -1,5 +1,6 @@
 {{ config(
     materialized="incremental",
+    snowflake_warehouse="CCTP",
 )}}
 with
 tranfers as (
@@ -18,19 +19,34 @@ tranfers as (
     {{ cctp_transfers("solana", "CCTPiPYPc6AsJuwueEnWgSgucamXDZwBd53dQ11YiKX3", 5) }}
     union all
     {{ cctp_transfers("noble", "noble1afmt2kk6n9fr7pwkjhe25hz86dlmkp2v4phl98", 4) }}
-),
-usdc_prices as ({{ get_coingecko_price_with_latest("usd-coin") }}),
-eurc_prices as ({{ get_coingecko_price_with_latest("euro-coin") }})
+)
+, usdc_prices as ({{ get_coingecko_price_with_latest("usd-coin") }})
+, eurc_prices as ({{ get_coingecko_price_with_latest("euro-coin") }})
+, chain_id_map as (
+    select chain_id, chain
+    from  (
+        values
+            (0, 'ethereum'),
+            (1, 'avalanche'),
+            (2, 'optimism'),
+            (3, 'arbitrum'),
+            (4, 'noble'),
+            (5, 'solana'),
+            (6, 'base'),
+            (7, 'polygon')
+            
+    ) as t(chain_id, chain)
+)
 select
-    block_timestamp,
-    block_number,
-    tx_hash,
-    contract_address,
-    sender,
-    nonce,
-    reciepient,
-    amount,
-    case 
+    block_timestamp
+    , block_number
+    , tx_hash
+    , contract_address
+    , sender
+    , nonce
+    , reciepient
+    , amount
+    , case 
         when burn_token in (
             '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
             'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
@@ -47,10 +63,14 @@ select
             'HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr'
         ) then (amount/1e6) * eurc_prices.price
         else null
-    end as amount_usd,
-    burn_token,
-    source_domain_id,
-    destination_domain_id
+    end as amount_usd
+    , burn_token
+    , source_domain_id
+    , destination_domain_id
+    , c1.chain as src_chain
+    , c2.chain as dst_chain
 from tranfers
 left join usdc_prices on usdc_prices.date = tranfers.block_timestamp::date
 left join eurc_prices on eurc_prices.date = tranfers.block_timestamp::date
+left join chain_id_map c1 on tranfers.source_domain_id = c1.chain_id
+left join chain_id_map c2 on tranfers.destination_domain_id = c2.chain_id

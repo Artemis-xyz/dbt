@@ -39,6 +39,14 @@ with date_spine as (
 , market_data as (
     {{ get_coingecko_metrics('orca')}}
 )
+, supply_data as (
+    select
+        date
+        , premine_unlocks_native
+        , net_change
+        , circulating_supply_native
+    from {{ ref("fact_orca_supply_data") }}
+)
 select
     ds.date
     , fees_and_volume.total_fees as trading_fees
@@ -69,11 +77,16 @@ select
 
     -- Money Metrics
     , coalesce(fees_and_volume.total_fees, 0) as spot_fees
-    , coalesce(fees_and_volume.total_fees, 0) as gross_protocol_revenue
-    , coalesce(fees_and_volume.lp_fees, 0) as service_cash_flow
-    , coalesce(fees_and_volume.dao_treasury_fees, 0) as treasury_cash_flow
-    , coalesce(fees_and_volume.climate_fund_fees, 0) as other_cash_flow
+    , coalesce(fees_and_volume.total_fees, 0) as ecosystem_revenue
+    , coalesce(fees_and_volume.lp_fees, 0) as service_fee_allocation
+    , coalesce(fees_and_volume.dao_treasury_fees, 0) as treasury_fee_allocation
+    , coalesce(fees_and_volume.climate_fund_fees, 0) as other_fee_allocation
 
+    -- Supply Metrics
+    , coalesce(supply_data.premine_unlocks_native, 0) as premine_unlocks_native
+    , coalesce(supply_data.net_change, 0) as net_change
+    , coalesce(supply_data.circulating_supply_native, 0) as circulating_supply_native
+    
     -- Other Metrics
     , market_data.token_turnover_circulating
     , market_data.token_turnover_fdv
@@ -81,4 +94,5 @@ from date_spine ds
 left join fees_and_volume using (date)
 left join dau_txns using (date)
 left join tvl using (date)
+left join supply_data using (date)
 left join market_data using (date)

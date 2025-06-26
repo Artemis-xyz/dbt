@@ -83,8 +83,8 @@ SELECT
     , coalesce(stats.supply_side_fees, 0) as primary_supply_side_revenue
     , coalesce(stats.revenue, 0) as revenue
     , coalesce(stats.contributors, 0) as dau
-    , coalesce(stats.mints_native, 0) as mints_native
-    , coalesce(stats.mints_native, 0) * coalesce(market_metrics.price, 0) as mints
+    , coalesce(stats.mints_native, 0) as gross_emissions_native
+    , coalesce(stats.mints_native, 0) * coalesce(market_metrics.price, 0) as gross_emissions
 
     -- Standardized Metrics
 
@@ -100,10 +100,10 @@ SELECT
     , coalesce(km_data.total_km, 0) as total_km
 
     -- Cash Flow Metrics
-    , coalesce(stats.fees, 0) as gross_protocol_revenue
-    , coalesce(stats.supply_side_fees, 0) as service_cash_flow
-    , coalesce(stats.fees, 0) as burned_cash_flow
-    , coalesce(stats.burn_native, 0) as burned_cash_flow_native
+    , coalesce(stats.fees, 0) as ecosystem_revenue
+    , coalesce(stats.supply_side_fees, 0) as service_fee_allocation
+    , coalesce(stats.fees, 0) as burned_fee_allocation
+    , coalesce(stats.burn_native, 0) as burned_fee_allocation_native
 
     -- Turnover Metrics
     , coalesce(market_metrics.token_turnover_circulating, 0) as token_turnover_circulating
