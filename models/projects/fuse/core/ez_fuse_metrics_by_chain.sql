@@ -36,8 +36,8 @@ select
     , case when txns > 0 then fees / txns end as chain_avg_txn_fee
     , dex_volumes as chain_spot_volume
     -- Cash Flow Metrics
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
+    , fees as fees
+    , fees_native as fees_native
     -- Crypto Metrics
     , tvl
     -- Developer Metrics

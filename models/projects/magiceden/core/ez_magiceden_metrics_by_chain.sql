@@ -38,7 +38,6 @@ SELECT
     , COALESCE(txns, 0) AS txns
     , COALESCE(revenue, 0) AS revenue
     , COALESCE(supply_side_fees, 0) AS supply_side_fees
-    , COALESCE(fees, 0) AS fees
 
     -- Standardized Metrics
 
@@ -50,7 +49,7 @@ SELECT
     , COALESCE(daily_trading_volume, 0) AS nft_volume
 
     -- Cash Flow Metrics
-    , COALESCE(fees, 0) AS ecosystem_revenue
+    , COALESCE(fees, 0) AS fees
     , COALESCE(revenue, 0) AS treasury_fee_allocation
     , COALESCE(supply_side_fees, 0) AS service_fee_allocation  
 FROM date_spine

@@ -12,7 +12,6 @@ select
     date
     , 'solana' as chain
     , trading_volume
-    , fees
     , revenue
     , total_supply_side_revenue
     , number_of_swaps
@@ -28,7 +27,7 @@ select
 
     -- Money Metrics
     , treasury_fee_allocation
-    , ecosystem_revenue
+    , fees
     , service_fee_allocation
     , other_fee_allocation
 from {{ ref("ez_orca_metrics") }}

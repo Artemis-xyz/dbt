@@ -18,7 +18,7 @@ SELECT
     , tvl
     , spot_fees
     , pool_creation_fees
-    , ecosystem_revenue
+    , fees
     , buyback_fee_allocation
     , treasury_fee_allocation
     , service_fee_allocation

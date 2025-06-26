@@ -57,7 +57,6 @@ select
     usd0.date
     , usd0.usd0_tvl
     , usd0pp.usd0pp_tvl
-    , usual.fees
     , usual.collateral_yield
     , ubm.daily_treasury
     -- revenue is the sum of treasury revenue, daily burned, and fees
@@ -73,7 +72,7 @@ select
     , (ubm.burns_native * mm.price) as burned_fee_allocation
     , ubm.burns_native as burned_fee_allocation_native
     -- Gross Protocol Revenue
-    , (usual.usualx_unstake_fees_daily) + (usual.treasury_fee) + (yield_generated) + (burned_fee_allocation) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as ecosystem_revenue
+    , (usual.usualx_unstake_fees_daily) + (usual.treasury_fee) + (yield_generated) + (burned_fee_allocation) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as fees
     -- Cash Flow Buckets
     , (usual.collateral_yield * mm.price) + (usual.treasury_fee) as treasury_fee_allocation
     , (usual.usualx_unstake_fees_daily) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as staking_fee_allocation
