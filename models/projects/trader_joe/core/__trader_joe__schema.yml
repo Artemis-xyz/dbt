@@ -100,13 +100,11 @@ column_definitions:
     name: spot_volume
     description: "The total volume on a spot dex"
 
-<<<<<<< HEAD
   token_incentives: &token_incentives
     name: token_incentives
     description: "The total token incentives paid by a protocol in its native token"
     tags:
       - artemis_gaap
-=======
   token_0: &token_0
     name: token_0
     description: ""
@@ -140,7 +138,6 @@ column_definitions:
       - dbt_expectations.expect_column_to_exist
     tags:
       - override
->>>>>>> 6413221f32e3b7d267cb7098739b42614f9b6719
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
