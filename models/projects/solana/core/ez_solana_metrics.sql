@@ -3,7 +3,7 @@
     config(
         materialized="table",
         unique_key="date",
-        snowflake_warehouse="SOLANA_XLG",
+        snowflake_warehouse="SOLANA",
         database="solana",
         schema="core",
         alias="ez_metrics",
@@ -26,14 +26,14 @@ with
     rolling_metrics as ({{ get_rolling_active_address_metrics("solana") }}),
     fundamental_usage as (
         select
-            agg_data.raw_date as date,
+            date,
             gas,
             gas_usd,
             median_txn_fee,
             base_fee_native,
             txns,
             dau,
-            (dau - new_users) as returning_users,
+            returning_users,
             new_users,
             vote_tx_fee_native
         from {{ ref('fact_solana_fundamental_data') }}
@@ -47,6 +47,10 @@ with
             day as date,
             tip_fees
         FROM {{ ref('fact_jito_dau_txns_fees')}}
+    )
+    , supply_data as (
+        select date, issued_supply, circulating_supply
+        from {{ ref('fact_solana_supply_data') }}
     )
 select
     fundamental_usage.date
@@ -109,6 +113,8 @@ select
     -- Supply Metrics
     , issuance AS gross_emissions_native
     , issuance * price AS gross_emissions
+    , issued_supply as issued_supply_native
+    , circulating_supply as circulating_supply_native
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -145,4 +151,5 @@ left join p2p_metrics on fundamental_usage.date = p2p_metrics.date
 left join rolling_metrics on fundamental_usage.date = rolling_metrics.date
 left join solana_dex_volumes on fundamental_usage.date = solana_dex_volumes.date
 left join jito_tips on fundamental_usage.date = jito_tips.date
+left join supply_data on fundamental_usage.date = supply_data.date
 where fundamental_usage.date < to_date(sysdate())
