@@ -41,6 +41,10 @@ column_definitions:
     tags:
       - override
 
+  chain_tvl: &chain_tvl
+    name: chain_tvl
+    description: "The total value locked in a chain"
+
   circulating_supply_native: &circulating_supply_native
     name: circulating_supply_native
     description: "The circulating supply of a token in native tokens"
@@ -181,6 +185,7 @@ models:
       - *buyback_fee_allocation
       - *buybacks_native
       - *chain_fees
+      - *chain_tvl
       - *circulating_supply_native
       - *fdmc
       - *fees
