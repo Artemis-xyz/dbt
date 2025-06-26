@@ -81,7 +81,6 @@ select
     , 'ethereum' as chain
 
     --Old metrics needed for compatibility
-    , COALESCE(f.fees, 0) as fees
     , COALESCE(f.primary_supply_side_revenue, 0) as primary_supply_side_revenue
     , COALESCE(f.secondary_supply_side_revenue, 0) as secondary_supply_side_revenue
     , COALESCE(f.total_supply_side_revenue, 0) as total_supply_side_revenue
@@ -112,7 +111,7 @@ select
     , COALESCE(f.mev_priority_fees, 0) as mev_priority_fees
     , COALESCE(f.block_rewards, 0) as block_rewards
     , COALESCE(f.fees, 0) as yield_generated
-    , COALESCE(f.fees, 0) as ecosystem_revenue
+    , COALESCE(f.fees, 0) as fees
     , COALESCE(f.fees, 0) * .90 as service_fee_allocation
     , COALESCE(f.fees, 0) * .05 as treasury_fee_allocation
     , COALESCE(f.fees, 0) * .05 as validator_fee_allocation

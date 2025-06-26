@@ -67,16 +67,9 @@ select
     , dau
     , txns
     , fees_native
-    -- v1 fees (2024-08-17 and before) - commission + unstaking fees, v2 fees (2024-08-18 and after) - validator bids
-    -- v2 fees - 100% goes to the protocol
-    , (unstaking_fees_native * price) + (fees_native * price) as fees
     -- v1 - unstaking fees 75% goes to LP (Fees to Suppliers), 25% goes to treasury (Fees to Holders)
     , unstaking_fees_native * 0.75 as supply_side_fee
-    , case when 
-        date < '2024-08-18' then unstaking_fees_native * price * 0.25 + fees
-    -- when v2 fees are active, 100% goes to the protocol
-        else fees 
-    end as revenue
+
 
     --Standardized Metrics
 
@@ -97,7 +90,9 @@ select
     --Cash Flow Metrics
     , unstaking_fees_native * price as unstaking_fees
     , fees_native * price as lst_fees
-    , unstaking_fees + lst_fees as ecosystem_revenue
+    -- v1 fees (2024-08-17 and before) - commission + unstaking fees, v2 fees (2024-08-18 and after) - validator bids
+    -- v2 fees - 100% goes to the protocol
+    , (unstaking_fees_native * price) + (fees_native * price) as fees
     , case when 
         date < '2024-08-18' then unstaking_fees * 0.25 + lst_fees
     -- when v2 fees are active, 100% goes to the protocol
@@ -108,6 +103,12 @@ select
     -- when v2 fees are active, 100% goes to the protocol
         else 0 
     end as service_fee_allocation    
+
+    , case when 
+        date < '2024-08-18' then unstaking_fees_native * price * 0.25 + fees
+    -- when v2 fees are active, 100% goes to the protocol
+        else fees 
+    end as revenue
     
 
 from tvl

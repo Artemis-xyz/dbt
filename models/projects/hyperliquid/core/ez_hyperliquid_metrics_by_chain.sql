@@ -69,7 +69,6 @@ select
     , coalesce(perp_volume, 0) + coalesce(spot_trading_volume, 0) as trading_volume
     , unique_traders::string as unique_traders
     , trades as txns
-    , trading_fees as fees
     , auction_fees
     , hypercore_burns_native + hyperevm_burns_native as daily_burns_native
     , trading_fees * 0.03 as primary_supply_side_revenue
@@ -90,7 +89,7 @@ select
     , spot_fees as spot_fees
     -- all l1 fees are burned (HyperEVM) + Hypercore (Spot Token Fees Burned)
     , daily_burns_native * mm.price as chain_fees
-    , trading_fees + (daily_burns_native * mm.price) as ecosystem_revenue
+    , trading_fees + (daily_burns_native * mm.price) as fees
     , trading_fees * 0.03 as service_fee_allocation
     , (daily_buybacks_native * mm.price) as buyback_fee_allocation
     , daily_buybacks_native as buybacks_native
