@@ -20,7 +20,6 @@ select
     trading_volume,
     txns,
     fees,
-    ecosystem_revenue,
     market_cap,
     perp_dau,
     perp_fees,

@@ -31,7 +31,7 @@ with
         select
             date
             , sum(amount_native) as fees_native
-            , sum(amount_usd) as ecosystem_revenue
+            , sum(amount_usd) as fees
         from {{ ref('fact_believe_fees') }}
         group by 1
     )
@@ -59,10 +59,10 @@ select
     , bst.txns as launchpad_txns
     , bst.unique_traders as launchpad_dau
     , bcm.coins_minted
-    , bf.ecosystem_revenue
+    , bf.fees
     , bf.fees_native
-    , bf.ecosystem_revenue * 0.5 as foundation_fee_allocation
-    , bf.ecosystem_revenue * 0.5 as service_fee_allocation
+    , bf.fees * 0.5 as foundation_fee_allocation
+    , bf.fees * 0.5 as service_fee_allocation
 
 from believe_swap_trades bst
 left join believe_coins_minted bcm

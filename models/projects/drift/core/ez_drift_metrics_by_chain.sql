@@ -34,6 +34,6 @@ select
     -- Cashflow metrics
     , perp_fees
     , spot_fees
-    , coalesce(perp_fees, 0) + coalesce(spot_fees, 0) as ecosystem_revenue
+    , coalesce(perp_fees, 0) + coalesce(spot_fees, 0) as fees
 from drift_data
 where date < to_date(sysdate())

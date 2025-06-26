@@ -143,6 +143,10 @@ def generate_project_schema(project_name, global_schema_path, sql_files):
         matching_columns, _ = compare_columns(sql_columns, schema_columns, existing_overrides.keys())
         needed_columns.update(matching_columns)
 
+    if len(needed_columns) == 0:
+        print(f"No matching columns found for project: {project_name}")
+        return
+
     # Write the new schema file with auto-generated comment and anchors
     with open(output_path, 'w') as f:
         # Write header
