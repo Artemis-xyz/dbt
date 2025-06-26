@@ -100,6 +100,7 @@ select
     , case when fees is null then fees_native * price else fees end as burned_fee_allocation
     -- Supply Metrics
     , issuance AS emissions_native
+    , issuance * price AS gross_emissions
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
