@@ -35,6 +35,36 @@
                 select lower(contract_address)
                 from {{ ref("fact_ripple_stablecoin_contracts") }}
             )
+    {% elif chain in ("stellar") %}
+        select
+            block_timestamp,
+            block_timestamp::date as date,
+            block_number,
+            event_index as index,
+            transaction_hash as tx_hash,
+            from_address,
+            to_address,
+            lower(event_type) = 'mint' AS is_mint,
+            lower(event_type) = 'burn' AS is_burn,
+            coalesce(amount_raw / pow(10, num_decimals), 0) as amount,
+            case
+                when is_mint then amount_raw / pow(10, num_decimals)
+                when is_burn then -1 * amount_raw / pow(10, num_decimals)
+                else 0
+            end as inflow,
+            case
+                when not is_mint and not is_burn then coalesce(amount_raw / pow(10, num_decimals), 0)
+            end as transfer_volume,
+            t1.contract_address,
+            t2.symbol
+        from {{ ref("fact_stellar_token_transfers") }} t1
+        inner join {{ ref("fact_stellar_stablecoin_contracts") }} t2
+            on lower(t1.contract_address) = lower(t2.contract_address)
+        where
+            lower(t1.contract_address) in (
+                select lower(contract_address)
+                from {{ ref("fact_stellar_stablecoin_contracts") }}
+            )
     {% elif chain in ("tron") %}
         select
             block_timestamp,
