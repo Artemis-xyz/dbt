@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: ez_litecoin_metrics
+    description: "Core metrics table for Litecoin combining transaction, block, supply, and price data"
+    config:
+      contract:
+        enforced: true
+    tests:
+      - dbt_expectations.expect_compound_columns_to_be_unique:
+          column_list: ["date", "chain"]
+      - dbt_expectations.expect_column_values_to_be_in_set:
+          column_name: chain
+          value_set: ['litecoin']
+    columns:
+      - name: date
+        data_type: timestamp_ntz(9)
+      - name: chain
+        data_type: varchar(8)
+      - name: txns
+        data_type: number(18,0)
+      - name: dau
+        data_type: number(18,0)
+      - name: wau
+        data_type: number(30,0)
+      - name: mau
+        data_type: number(30,0)
+      - name: fees_native
+        data_type: number(38,8)
+      - name: fees
+        data_type: float
+      - name: avg_txn_fee
+        data_type: number(38,8)
+      - name: revenue_native
+        data_type: number(38,8)
+      - name: revenue
+        data_type: float
+      - name: issuance
+        data_type: number(38,8)
+      - name: circulating_supply
+        data_type: number(38,8)
+      - name: weekly_commits_core_ecosystem
+        data_type: number(38,0)
+      - name: weekly_commits_sub_ecosystem
+        data_type: number(38,0)
+      - name: weekly_developers_core_ecosystem
+        data_type: number(38,0)
+      - name: weekly_developers_sub_ecosystem
+        data_type: number(38,0)
+      - name: price
+        data_type: float
+      - name: market_cap
+        data_type: float
+      - name: fdmc
+        data_type: float
+          
