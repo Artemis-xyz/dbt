@@ -29,4 +29,4 @@ left join {{ ref("stablecoin_contract_bridged_metadata") }} t2
     and t1.chain = t2.chain
 left join {{ ref("chain_agnostic_ids") }} ca
     on t1.chain = ca.chain
-group by 1,2,3,4
+group by 1,2,3,4,5
