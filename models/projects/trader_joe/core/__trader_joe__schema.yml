@@ -8,6 +8,15 @@ column_definitions:
     name: burns_native
     description: "The amount of native tokens burned"
 
+  chain: &chain
+    name: chain
+    description: ""
+    tests:
+      - dbt_expectations.expect_column_to_exist
+      - not_null
+    tags:
+      - override
+
   circulating_supply_native: &circulating_supply_native
     name: circulating_supply_native
     description: "The circulating supply of a token in native tokens"
@@ -17,6 +26,14 @@ column_definitions:
     description: "The total earnings generated to tokenholders defined as revenue less expenses"
     tags:
       - artemis_gaap
+  date: &date
+    name: date
+    description: ""
+    tests:
+      - dbt_expectations.expect_column_to_exist
+      - not_null
+    tags:
+      - override
 
   fdmc: &fdmc
     name: fdmc
@@ -41,6 +58,15 @@ column_definitions:
   net_supply_change_native: &net_supply_change_native
     name: net_supply_change_native
     description: "The net change in the circulating supply of a token in native tokens"
+
+  pool: &pool
+    name: pool
+    description: ""
+    tests:
+      - dbt_expectations.expect_column_to_exist
+      - not_null
+    tags:
+      - override
 
   premine_unlocks_native: &premine_unlocks_native
     name: premine_unlocks_native
@@ -74,11 +100,47 @@ column_definitions:
     name: spot_volume
     description: "The total volume on a spot dex"
 
+<<<<<<< HEAD
   token_incentives: &token_incentives
     name: token_incentives
     description: "The total token incentives paid by a protocol in its native token"
     tags:
       - artemis_gaap
+=======
+  token_0: &token_0
+    name: token_0
+    description: ""
+    tests:
+      - dbt_expectations.expect_column_to_exist
+      - not_null
+    tags:
+      - override
+
+  token_0_symbol: &token_0_symbol
+    name: token_0_symbol
+    description: ""
+    tests:
+      - dbt_expectations.expect_column_to_exist
+    tags:
+      - override
+
+  token_1: &token_1
+    name: token_1
+    description: ""
+    tests:
+      - dbt_expectations.expect_column_to_exist
+      - not_null
+    tags:
+      - override
+
+  token_1_symbol: &token_1_symbol
+    name: token_1_symbol
+    description: ""
+    tests:
+      - dbt_expectations.expect_column_to_exist
+    tags:
+      - override
+>>>>>>> 6413221f32e3b7d267cb7098739b42614f9b6719
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
@@ -106,7 +168,12 @@ models:
   - name: ez_trader_joe_metrics_by_chain
     description: "This table stores metrics for the TRADER_JOE protocol"
     columns:
+<<<<<<< HEAD
       - *fees
+=======
+      - *chain
+      - *date
+>>>>>>> 6413221f32e3b7d267cb7098739b42614f9b6719
       - *spot_dau
       - *spot_fees
       - *spot_txns
@@ -117,10 +184,20 @@ models:
   - name: ez_trader_joe_metrics_by_pool
     description: "This table stores metrics for the TRADER_JOE protocol"
     columns:
+<<<<<<< HEAD
       - *fees
+=======
+      - *chain
+      - *date
+      - *pool
+>>>>>>> 6413221f32e3b7d267cb7098739b42614f9b6719
       - *spot_dau
       - *spot_fees
       - *spot_volume
+      - *token_0
+      - *token_0_symbol
+      - *token_1
+      - *token_1_symbol
       - *tvl
 
   - name: ez_trader_joe_metrics
@@ -128,7 +205,11 @@ models:
     columns:
       - *burns_native
       - *circulating_supply_native
+<<<<<<< HEAD
       - *earnings
+=======
+      - *date
+>>>>>>> 6413221f32e3b7d267cb7098739b42614f9b6719
       - *fdmc
       - *fees
       - *gross_emissions_native

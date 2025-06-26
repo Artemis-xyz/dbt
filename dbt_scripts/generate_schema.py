@@ -75,10 +75,10 @@ def extract_sql_columns(sql_file_path):
 
     return sorted(column_names)
 
-def compare_columns(sql_columns, schema_columns):
+def compare_columns(sql_columns, schema_columns, existing_overrides):
     """ Compare extracted SQL columns against the global schema. """
-    matching_columns = set(sql_columns) & set(schema_columns)
-    missing_columns = set(sql_columns) - set(schema_columns)
+    matching_columns = set(sql_columns) & (set(schema_columns) | set(existing_overrides))
+    missing_columns = set(sql_columns) - (set(schema_columns) | set(existing_overrides))
 
     print("✅ Matching columns:", matching_columns)
     print("⚠️ Missing columns from schema:", missing_columns)
@@ -140,7 +140,7 @@ def generate_project_schema(project_name, global_schema_path, sql_files):
     for sql_file in sql_files:
         sql_columns = extract_sql_columns(sql_file)
         schema_columns = load_global_schema(global_schema_path)
-        matching_columns, _ = compare_columns(sql_columns, schema_columns)
+        matching_columns, _ = compare_columns(sql_columns, schema_columns, existing_overrides.keys())
         needed_columns.update(matching_columns)
 
     if len(needed_columns) == 0:
@@ -169,6 +169,10 @@ def generate_project_schema(project_name, global_schema_path, sql_files):
             f.write(f"  {col_name}: &{col_name}\n")
             f.write(f"    name: {col_def['name']}\n")
             f.write(f"    description: \"{col_def['description']}\"\n")
+            if 'tests' in col_def:
+                f.write("    tests:\n")
+                for test in col_def['tests']:
+                    f.write(f"      - {test}\n")
             if 'tags' in col_def:
                 f.write("    tags:\n")
                 for tag in col_def['tags']:
@@ -181,7 +185,7 @@ def generate_project_schema(project_name, global_schema_path, sql_files):
             model_name = os.path.basename(sql_file).replace('.sql', '')
             sql_columns = extract_sql_columns(sql_file)
             schema_columns = load_global_schema(global_schema_path)
-            matching_columns, _ = compare_columns(sql_columns, schema_columns)
+            matching_columns, _ = compare_columns(sql_columns, schema_columns, existing_overrides.keys())
 
             if matching_columns:  # Only add model if it has matching columns
                 f.write(f"  - name: {model_name}\n")
