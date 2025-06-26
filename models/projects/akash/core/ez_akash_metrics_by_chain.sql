@@ -16,7 +16,7 @@ SELECT
     , new_leases
     , compute_fees
     , gas_fees
-    , ecosystem_revenue
+    , fees
     , validator_fee_allocation
     , treasury_fee_allocation
     , service_fee_allocation

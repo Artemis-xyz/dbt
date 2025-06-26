@@ -57,7 +57,6 @@ select
     , base.chain
     , coalesce(tvd.trading_volume, 0) as trading_volume
     , coalesce(utd.unique_traders, 0) as unique_traders
-    , coalesce(fd.fees, 0) as fees
     , coalesce(fd.fees, 0) * 0.2 as revenue -- https://support.perp.com/general/legacy-reward-programs#how-it-works search '20%'
     , (coalesce(tvl_data.tvl, 0) - LAG(coalesce(tvl_data.tvl, 0)) OVER (PARTITION BY base.chain ORDER BY base.date)) / NULLIF(LAG(coalesce(tvl_data.tvl, 0)) OVER (PARTITION BY base.chain ORDER BY base.date), 0) * 100 as tvl_growth
     -- standardize metrics
@@ -65,7 +64,7 @@ select
     , coalesce(utd.unique_traders, 0) as perp_dau
     , coalesce(tvl_data.tvl, 0) as tvl
     , (coalesce(tvl_data.tvl, 0) - LAG(coalesce(tvl_data.tvl, 0)) OVER (PARTITION BY base.chain ORDER BY base.date)) / NULLIF(LAG(coalesce(tvl_data.tvl, 0)) OVER (PARTITION BY base.chain ORDER BY base.date), 0) * 100 as tvl_pct_change
-    , coalesce(fd.fees, 0) as ecosystem_revenue
+    , coalesce(fd.fees, 0) as fees
     , coalesce(fd.fees, 0) * 0.2 * 0.8 as staking_fee_allocation
     , coalesce(fd.fees, 0) * 0.8 as service_fee_allocation
     , coalesce(fd.fees, 0) * 0.2 * 0.2 as treasury_fee_allocation

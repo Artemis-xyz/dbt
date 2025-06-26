@@ -14,7 +14,6 @@ SELECT
 
     --Old metrics needed for compatibility
     withdraw_management_fees,
-    fees,
     revenue,
     supply_side_fees,
     txns,
@@ -25,7 +24,7 @@ SELECT
     --Standardized Metrics
     , coalesce(withdraw_management_fees, 0) as lst_fees
     , coalesce(tip_fees, 0) as tip_fees
-    , coalesce(withdraw_management_fees, 0) + coalesce(tip_fees, 0) as ecosystem_revenue
+    , coalesce(withdraw_management_fees, 0) + coalesce(tip_fees, 0) as fees
     , coalesce(equity_fee_allocation, 0) as equity_fee_allocation
     , coalesce(treasury_fee_allocation, 0) as treasury_fee_allocation
     , coalesce(strategy_fee_allocation, 0) as strategy_fee_allocation
