@@ -53,7 +53,7 @@ with
         from {{ ref('fact_solana_supply_data') }}
     )
 select
-    fundamental_usage.date
+    coalesce(fundamental_usage.date, supply_data.date) as date
     , 'solana' as chain
     , txns
     , dau
@@ -138,7 +138,7 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
-from fundamental_usage
+from fundamental_usage 
 left join defillama_data on fundamental_usage.date = defillama_data.date
 left join stablecoin_data on fundamental_usage.date = stablecoin_data.date
 left join price on fundamental_usage.date = price.date

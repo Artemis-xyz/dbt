@@ -11,6 +11,7 @@ with base as (
         , sum(amount_unlocked) as amount_unlocked
         , sum(cumulative_unlocked) as cumulative_unlocked
     FROM {{ ref('fact_solana_vesting_schedule') }} v
+    WHERE category <> 'Solana Foundation'
     GROUP BY 1
     
 )
@@ -26,7 +27,7 @@ SELECT
     , 500e6 + coalesce(cumulative_issuance,0) - coalesce(burns_cumulative,0) as total_supply
     , 52300000 as estimated_foundation_holdings
     , 500e6 + coalesce(cumulative_issuance,0) - 52300000 - coalesce(burns_cumulative,0) as issued_supply
-    , coalesce(cumulative_unlocked,0) + coalesce(cumulative_issuance,0) - coalesce(burns_cumulative,0) - 52300000 as circulating_supply
+    , 500e6 - coalesce(unvested_tokens,0) + coalesce(cumulative_issuance,0) - coalesce(burns_cumulative,0) - 52300000 as circulating_supply
 FROM base b
 LEFT JOIN {{ ref('fact_solana_issuance_silver') }}  i USING(date)      
 LEFT JOIN {{ ref('fact_solana_fundamental_data') }} f USING(date)
