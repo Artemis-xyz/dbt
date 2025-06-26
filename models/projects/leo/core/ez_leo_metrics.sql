@@ -37,6 +37,11 @@ with
         , revenue_native AS buybacks_native
         , revenue_native * price AS buybacks
         , revenue_native AS buyback_fee_allocation
+        , SUM(revenue_native) OVER (ORDER BY date ROWS UNBOUNDED PRECEDING) AS total_burned_native
+        , 1000000000 AS max_supply_native
+        , 1000000000 AS total_supply_native
+        , 1000000000 - SUM(revenue_native) OVER (ORDER BY date ROWS UNBOUNDED PRECEDING)  - 2469394.1 AS issued_supply_native
+        , 1000000000 - SUM(revenue_native) OVER (ORDER BY date ROWS UNBOUNDED PRECEDING) - 2469394.1 AS circulating_supply_native
         , price
         , market_cap
         , fdmc
