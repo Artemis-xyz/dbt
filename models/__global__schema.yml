@@ -207,6 +207,8 @@ column_definitions:
       description: "The average time it takes to produce a block on a chain"
     - name: chain_avg_tps
       description: "The average number of transactions per second on a chain"
+    - name: adjusted_dau
+      description: "The number of adjusted daily active users on a chain"
 
   developer_metrics:
     - name: weekly_commits_core_ecosystem
