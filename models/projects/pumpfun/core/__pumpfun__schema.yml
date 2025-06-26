@@ -1,0 +1,39 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  spot_dau: &spot_dau
+    name: spot_dau
+    description: "The number of daily active traders on a spot dex"
+
+  spot_fees: &spot_fees
+    name: spot_fees
+    description: "The total amount of fees (in USD) on a spot dex"
+
+  spot_txns: &spot_txns
+    name: spot_txns
+    description: "The number of daily trades on a spot dex"
+
+  spot_volume: &spot_volume
+    name: spot_volume
+    description: "The total volume on a spot dex"
+
+models:
+  - name: ez_pumpfun_metrics_by_chain
+    description: "This table stores metrics for the PUMPFUN protocol"
+    columns:
+      - *spot_dau
+      - *spot_fees
+      - *spot_txns
+      - *spot_volume
+
+  - name: ez_pumpfun_metrics
+    description: "This table stores metrics for the PUMPFUN protocol"
+    columns:
+      - *spot_dau
+      - *spot_fees
+      - *spot_txns
+      - *spot_volume
+
