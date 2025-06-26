@@ -261,20 +261,6 @@ if __name__ == "__main__":
     # Get comma-separated input and split into list
     project_names = input("Enter project names, separated by commas: ").split(',')
 
-    # Trim whitespace and prepare project list
-    project_names = [n.strip() for n in project_names if n.strip()]
-    
-    # Import concurrent.futures for parallelization
-    import concurrent.futures
-    
-    # Use ThreadPoolExecutor to run projects in parallel
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        # Submit all projects to the executor and collect futures
-        futures = [executor.submit(exec_main_script, name) for name in project_names]
-        
-        # Wait for all futures to complete
-        for future in concurrent.futures.as_completed(futures):
-            try:
-                future.result()  # This will raise any exceptions that occurred during execution
-            except Exception as e:
-                print(f"Error processing project: {e}")
+    # Trim whitespace and run script
+    for name in [n.strip() for n in project_names if n.strip()]:
+        exec_main_script(name)
