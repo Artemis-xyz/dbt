@@ -29,32 +29,31 @@ WITH issued_supply_metrics AS (
 , market_metrics AS ({{ get_coingecko_metrics("hedera-hashgraph") }}) 
 
 SELECT
-    date_spine.date,
+    date_spine.date
 
     -- Market Metrics
-    market_metrics.price,
-    market_metrics.market_cap,
-    market_metrics.fdmc,
-    market_metrics.token_volume
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
 
     -- Cash Flow Metrics
-    0 as revenue,
+    , 0 as revenue
 
     -- Issued Supply Metrics
-    issued_supply_metrics.max_supply,
-    issued_supply_metrics.uncreated_tokens,
-    issued_supply_metrics.total_supply,
-    issued_supply_metrics.cumulative_burned_hbar,
-    issued_supply_metrics.foundation_balances,
-    issued_supply_metrics.issued_supply,
-    issued_supply_metrics.unvested_balances,
-    issued_supply_metrics.circulating_supply_native,
-
+    , issued_supply_metrics.max_supply
+    , issued_supply_metrics.uncreated_tokens
+    , issued_supply_metrics.total_supply
+    , issued_supply_metrics.cumulative_burned_hbar
+    , issued_supply_metrics.foundation_balances
+    , issued_supply_metrics.issued_supply
+    , issued_supply_metrics.unvested_balances
+    , issued_supply_metrics.circulating_supply_native
 
     -- Token Turnover Metrics
     , coalesce(market_metrics.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(market_metrics.token_turnover_fdv, 0) as token_turnover_fdv
 
 FROM date_spine
-left join issued_supply_metrics on date_spine.date = issued_supply_metrics.date
-left join market_metrics on date_spine.date = market_metrics.date
+left join issued_supply_metrics using (date)
+left join market_metrics using (date)
