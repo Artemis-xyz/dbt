@@ -204,6 +204,7 @@ models:
       - *revenue
       - *service_fee_allocation
       - *spot_fees
+      - *spot_volume
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
