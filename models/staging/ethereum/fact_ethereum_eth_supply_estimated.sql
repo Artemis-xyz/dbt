@@ -22,8 +22,8 @@ with base_rewards as (
     SELECT
         b.slot_timestamp,
         count(distinct index) as n_validators
-    FROM ethereum_flipside.beacon_chain.fact_validators v
-    LEFT JOIN ethereum_flipside.beacon_chain.fact_blocks b USING(slot_number)
+    FROM {{ source('ETHEREUM_FLIPSIDE_BEACON', 'fact_validators') }} v
+    LEFT JOIN {{ source('ETHEREUM_FLIPSIDE_BEACON', 'fact_blocks') }} b USING(slot_number)
     WHERE VALIDATOR_STATUS IN (
         'active_ongoing',
         'active_exiting',
@@ -85,7 +85,7 @@ with base_rewards as (
     LEFT JOIN pos_components USING(date)
 )
 , foundation_eth_balances as (
-    SELECT date, sum(balance_native) as foundation_balance FROM fact_ethereum_foundation_balance
+    SELECT date, sum(balance_native) as foundation_balance FROM {{ ref('fact_ethereum_foundation_balance') }}
     WHERE contract_address ilike '%eip%'
     GROUP BY 1
 )
