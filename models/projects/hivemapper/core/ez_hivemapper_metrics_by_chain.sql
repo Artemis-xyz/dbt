@@ -11,7 +11,6 @@
 select
     date
     , 'solana' as chain
-    , fees
     , primary_supply_side_revenue
     , revenue
     , burns_native
@@ -23,7 +22,7 @@ select
     , chain_dau
     
     -- Cash Flow Metrics
-    , ecosystem_revenue
+    , fees
     , service_fee_allocation
     , burned_fee_allocation
     , burned_fee_allocation_native

@@ -1,0 +1,21 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  new_users: &new_users
+    name: new_users
+    description: "The number of new users on a chain"
+
+  returning_users: &returning_users
+    name: returning_users
+    description: "The number of returning users on a chain"
+
+models:
+  - name: ez_kaiching_metrics
+    description: "This table stores metrics for the KAICHING protocol"
+    columns:
+      - *new_users
+      - *returning_users
+

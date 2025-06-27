@@ -4,7 +4,38 @@
 -- contracts in `fact_{{ chain }}_stablecoin_contracts` are decoded
 -- 3. The table `{{ chain }}_flipside.core.fact_transactions` exists
 {% macro agg_chain_stablecoin_transfers(chain, new_stablecoin_address) %}
-    {% if chain in ("tron") %}
+    {% if chain in ("ripple") %}
+        select
+            block_timestamp,
+            block_timestamp::date as date,
+            block_number,
+            event_index as index,
+            transaction_hash as tx_hash,
+            from_address,
+            to_address,
+            -- Mint and burn address work differently on XRP
+            from_address = t1.contract_address AND to_address != t1.contract_address AS is_mint,
+            to_address = t1.contract_address AND from_address != t1.contract_address AS is_burn,
+            coalesce(amount_raw / pow(10, num_decimals), 0) as amount,
+            case
+                when is_mint then amount_raw / pow(10, num_decimals)
+                when is_burn then -1 * amount_raw / pow(10, num_decimals)
+                else 0
+            end as inflow,
+            case
+                when not is_mint and not is_burn then coalesce(amount_raw / pow(10, num_decimals), 0)
+            end as transfer_volume,
+            t1.contract_address,
+            t2.symbol
+        from {{ ref("fact_ripple_token_transfers") }} t1
+        inner join {{ ref("fact_ripple_stablecoin_contracts") }} t2
+            on lower(t1.contract_address) = lower(t2.contract_address)
+        where
+            lower(t1.contract_address) in (
+                select lower(contract_address)
+                from {{ ref("fact_ripple_stablecoin_contracts") }}
+            )
+    {% elif chain in ("tron") %}
         select
             block_timestamp,
             block_timestamp::date as date,

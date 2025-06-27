@@ -31,7 +31,6 @@ select
     , cl_rewards_usd
     , el_rewards_usd
     , lst_deposit_fees
-    , fees
     , primary_supply_side_revenue
     , secondary_supply_side_revenue
     , total_supply_side_revenue
@@ -48,16 +47,18 @@ select
 
     --Usage Metrics
     , s.num_staked_eth as tvl_native
+    , s.num_staked_eth as lst_tvl_native
     , s.amount_staked_usd as tvl
+    , s.amount_staked_usd as lst_tvl
 
     --Cash Flow Metrics
     , COALESCE(cl_rewards_usd, 0) as block_rewards
     , COALESCE(el_rewards_usd, 0) as mev_priority_fees
     , COALESCE(lst_deposit_fees, 0) as lst_deposit_fees
     , COALESCE(fees, 0) as yield_generated
-    , COALESCE(fees, 0) as ecosystem_revenue
-    , ecosystem_revenue * 0.14 as validator_fee_allocation
-    , ecosystem_revenue * 0.86 as service_fee_allocation
+    , COALESCE(fees, 0) as fees
+    , fees * 0.14 as validator_fee_allocation
+    , fees * 0.86 as service_fee_allocation
     
     
 from staked_eth_metrics s

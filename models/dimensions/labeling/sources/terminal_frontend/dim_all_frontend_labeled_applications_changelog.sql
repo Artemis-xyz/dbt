@@ -26,4 +26,4 @@ from {{ source("PROD_LANDING", "raw_manually_labeled_applications_parquet") }}
 where parquet_raw:LAST_UPDATED_TIMESTAMP is not null and parquet_raw:LAST_UPDATED_TIMESTAMP::timestamp > '2025-03-23'
     -- Exclude this artemis application id, which is a test application
     and parquet_raw:ARTEMIS_APPLICATION_ID::string <> 'test123'
-qualify row_number() over (partition by parquet_raw:ARTEMIS_APPLICATION_ID order by parquet_raw:LAST_UPDATED_TIMESTAMP desc) = 1
+order by artemis_application_id, last_updated_timestamp desc

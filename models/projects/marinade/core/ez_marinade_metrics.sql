@@ -89,7 +89,12 @@ select
 
     --Usage Metrics
     , tvl * price as tvl
+    , tvl * price as lst_tvl
     , tvl as tvl_native
+    , tvl as lst_tvl_native
+    , coalesce(tvl - lag(tvl) over (order by date), 0) as lst_tvl_net_change
+    , coalesce(tvl_native - lag(tvl_native) over (order by date), 0) as lst_tvl_native_net_change
+
     , dau as lst_dau
     , txns as lst_txns
     , liquid as tvl_liquid_stake

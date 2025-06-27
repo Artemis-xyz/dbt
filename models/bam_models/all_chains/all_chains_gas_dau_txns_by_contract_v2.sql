@@ -20,6 +20,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'arbitrum' as chain
 from {{ ref("ez_arbitrum_metrics_by_contract_v2") }}
 union
@@ -43,6 +44,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'avalanche' as chain
 from {{ ref("ez_avalanche_metrics_by_contract_v2") }}
 union
@@ -66,6 +68,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'base' as chain
 from {{ ref("ez_base_metrics_by_contract_v2") }}
 union
@@ -89,6 +92,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'bsc' as chain
 from {{ ref("ez_bsc_metrics_by_contract_v2") }}
 union
@@ -112,6 +116,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'ethereum' as chain
 from {{ ref("ez_ethereum_metrics_by_contract_v2") }}
 union
@@ -135,6 +140,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'optimism' as chain
 from {{ ref("ez_optimism_metrics_by_contract_v2") }}
 union
@@ -158,6 +164,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'polygon' as chain
 from {{ ref("ez_polygon_metrics_by_contract_v2") }}
 union
@@ -181,6 +188,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'near' as chain
 from {{ ref("ez_near_metrics_by_contract_v2") }}
 union
@@ -204,6 +212,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'sei' as chain
 from {{ ref("ez_sei_metrics_by_contract_v2") }}
 union
@@ -227,6 +236,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'tron' as chain
 from {{ ref("ez_tron_metrics_by_contract_v2") }}
 union
@@ -250,6 +260,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'mantle' as chain
 from {{ ref("ez_mantle_metrics_by_contract_v2") }}
 union
@@ -273,6 +284,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'sui' as chain
 from {{ ref("ez_sui_metrics_by_contract_v2") }}
 union
@@ -296,6 +308,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'injective' as chain
 from {{ ref("ez_injective_metrics_by_contract_v2") }}
 union
@@ -319,6 +332,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'stellar' as chain
 from {{ ref("ez_stellar_metrics_by_contract_v2") }}
 union
@@ -342,6 +356,7 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    mau,
     'solana' as chain
 from {{ ref("ez_solana_metrics_by_contract_v2") }}
 union
@@ -365,5 +380,6 @@ select
     null as token_transfer_usd,
     null as token_transfer,
     null as avg_token_price,
+    null as mau,
     'celo' as chain
 from {{ ref("ez_celo_metrics_by_contract_v2") }}
