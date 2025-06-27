@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="MAKER",
         database="maker",
         schema="raw",
         alias="fact_treasury_mkr"
