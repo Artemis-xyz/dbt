@@ -90,14 +90,14 @@ with trading_volume_data as (
         SELECT 
             date
             , tvl 
-        FROM fact_defillama_chain_tvls
+        FROM {{ref('fact_defillama_chain_tvls')}}
         WHERE defillama_chain_name ilike '%hype%'
         UNION ALL
         SELECT 
             t.date
             , -sum(tvl) as tvl 
-        FROM fact_defillama_protocol_tvls t
-        JOIN fact_defillama_protocols p ON p.id = t.defillama_protocol_id
+        FROM {{ref('fact_defillama_protocol_tvls')}} t
+        JOIN {{ref('fact_defillama_protocols')}} p ON p.id = t.defillama_protocol_id
         WHERE name in (
             'Hyperliquid HLP'
         , 'Hyperliquid Spot Orderbook'
