@@ -12,7 +12,7 @@
 WITH date_spine AS (
     SELECT date
     FROM pc_dbt_db.prod.dim_date_spine
-    WHERE date BETWEEN '2023-03-23' AND '2030-12-31'
+    WHERE date BETWEEN '2023-03-21' AND '2030-12-31'
 )
 , all_events AS (
     SELECT * FROM {{ ref("fact_arbitrum_airdrop_emissions") }}
@@ -36,7 +36,7 @@ WITH date_spine AS (
         date,
         COALESCE(SUM(CASE WHEN event_type = 'Airdrop' THEN amount ELSE 0 END), 0) AS airdrop_amount,
         COALESCE(SUM(CASE WHEN event_type = 'Team/Investor Unlock' THEN amount ELSE 0 END), 0) AS investor_team_unlock_amount,
-        COALESCE(SUM(CASE WHEN event_type = 'Arbitrum Foundation Unlocks' THEN amount ELSE 0 END), 0) AS arbitrum_foundation_unlocks_amount,
+        COALESCE(SUM(CASE WHEN event_type = 'Arbitrum Foundation Unlocks' OR event_type = 'Arbitrum Foundation Initial Unlock' THEN amount ELSE 0 END), 0) AS arbitrum_foundation_unlocks_amount,
         COALESCE(SUM(CASE WHEN event_type = 'DAO Emissions' THEN amount ELSE 0 END), 0) AS dao_emissions_amount
     FROM aggregated_events
     GROUP BY date

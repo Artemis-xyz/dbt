@@ -115,12 +115,12 @@ select
     , coalesce(fees, 0) - l1_data_cost + coalesce(0.97 * timeboost_fees, 0) as treasury_fee_allocation
     , l1_data_cost_native AS l1_fee_allocation_native -- fees paid to l1 by sequencer (L1 Fees)
     , l1_data_cost AS l1_fee_allocation
-    , timeboost_fees_native
-    , timeboost_fees
-    , burns_native
-    , mints_native
-    , burns
-    , mints
+    , coalesce(timeboost_fees_native, 0) as timeboost_fees_native
+    , coalesce(timeboost_fees, 0) as timeboost_fees
+    , coalesce(burns_native, 0) as burns_native
+    , coalesce(mints_native, 0) as mints_native
+    , coalesce(burns, 0) as burns
+    , coalesce(mints, 0) as mints
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -156,7 +156,6 @@ select
         WHEN fundamental_data.date > '2023-03-22' THEN 10000000000 
         ELSE 0 
     END AS total_supply_native
-    , foundation_owned_supply_native
     , COALESCE(total_supply_native, 0) - COALESCE(foundation_owned_supply_native, 0) - COALESCE(cumulative_burns_native, 0) AS issued_supply_native
     , COALESCE(total_supply_native, 0) - COALESCE(foundation_owned_supply_native, 0) - COALESCE(cumulative_burns_native, 0) - COALESCE(unvested_supply_native, 0) AS circulating_supply_native
 from fundamental_data
