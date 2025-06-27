@@ -131,7 +131,7 @@ select
     , perp_fees
     , spot_fees
     -- all l1 fees are burned (HyperEVM)
-     , hyperevm_burns_native * mm.price as chain_fees
+     , coalesce(hyperevm_burns_native, 0) * mm.price as chain_fees
      , trading_fees + (daily_burns_native * mm.price) as ecosystem_revenue
      , trading_fees * 0.03 as service_fee_allocation
      , (daily_buybacks_native * mm.price) as buyback_fee_allocation

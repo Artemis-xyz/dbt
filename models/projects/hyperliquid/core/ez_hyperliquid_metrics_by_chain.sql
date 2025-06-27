@@ -95,7 +95,7 @@ select
     , perp_fees as perp_fees
     , spot_fees as spot_fees
     -- all l1 fees are burned (HyperEVM)
-    , hyperevm_burns_native * mm.price as chain_fees
+    , coalesce(hyperevm_burns_native, 0) * mm.price as chain_fees
     , trading_fees + (daily_burns_native * mm.price) as ecosystem_revenue
 
     -- all l1 fees are burned (HyperEVM) + Hypercore (Spot Token Fees Burned)
