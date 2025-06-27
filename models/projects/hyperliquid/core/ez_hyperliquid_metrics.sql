@@ -106,8 +106,10 @@ with trading_volume_data as (
     )
     SELECT 
         date
-        , tvl 
+        , sum(tvl) as tvl 
     FROM agg
+    WHERE date > '2025-02-24'
+    GROUP BY 1
     )
 
 , new_users_data as (
