@@ -11,13 +11,13 @@
 WITH issued_supply_metrics AS (
     SELECT
         date,
-        max_supply,
-        uncreated_tokens,
-        total_supply,
-        cumulative_burned_hbar,
-        foundation_balances,
-        issued_supply,
-        unvested_balances,
+        max_supply as max_supply_native,
+        uncreated_tokens as uncreated_tokens_native,
+        total_supply as total_supply_native,
+        cumulative_burned_hbar as cumulative_burned_hbar_native,
+        foundation_balances as foundation_balances_native,
+        issued_supply as issued_supply_native,
+        unvested_balances as unvested_balances_native,
         circulating_supply_native
     FROM {{ ref('fact_hedera_issued_supply_and_float') }}
 )
@@ -41,13 +41,9 @@ SELECT
     , 0 as revenue
 
     -- Issued Supply Metrics
-    , issued_supply_metrics.max_supply
-    , issued_supply_metrics.uncreated_tokens
-    , issued_supply_metrics.total_supply
-    , issued_supply_metrics.cumulative_burned_hbar
-    , issued_supply_metrics.foundation_balances
-    , issued_supply_metrics.issued_supply
-    , issued_supply_metrics.unvested_balances
+    , issued_supply_metrics.max_supply_native
+    , issued_supply_metrics.total_supply_native
+    , issued_supply_metrics.issued_supply_native
     , issued_supply_metrics.circulating_supply_native
 
     -- Token Turnover Metrics
