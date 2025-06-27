@@ -2,7 +2,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="optimism",
+        snowflake_warehouse="ANALYTICS_XL",
         database="optimism",
         schema="core",
         alias="ez_metrics",
@@ -46,6 +46,32 @@ with
             sum(token_incentives) as token_incentives
         from {{ ref("fact_optimism_token_incentives") }}
         group by 1
+    )
+    , mints_burns as (
+        select
+            date,
+            mints_native,
+            burns_native, 
+            cumulative_mints_native,
+            cumulative_burns_native
+        from {{ ref("fact_optimism_mints_burns") }}
+    )
+    , unvested_supply as (
+        with total_insider_allocation as (
+            select sum(amount) as total_insider_allocation
+            from {{ref("fact_optimism_insider_unlocks")}}
+        )
+        select
+            date, 
+            (select total_insider_allocation from total_insider_allocation) - total_vested_supply AS total_unvested_supply
+        from {{ ref("fact_optimism_all_supply_events") }}
+    )
+    , owned_supply as (
+        select
+            date, 
+            native_balance AS foundation_owned_supply_native
+        from {{ ref("fact_optimism_owned_supply") }}
+        where contract_address = '0x4200000000000000000000000000000000000042'
     )
 
 select
@@ -147,6 +173,12 @@ select
     , bridge_volume
     , bridge_daa
 
+    -- Supply Metrics
+    , cumulative_mints_native AS max_supply_native
+    , cumulative_mints_native AS total_supply_native
+    , cumulative_mints_native - cumulative_burns_native - foundation_owned_supply_native AS issued_supply_native
+    , cumulative_mints_native - cumulative_burns_native - foundation_owned_supply_native - total_unvested_supply AS circulating_supply_native
+
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -162,4 +194,7 @@ left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join optimism_dex_volumes as dune_dex_volumes_optimism on fundamental_data.date = dune_dex_volumes_optimism.date
 left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 left join token_incentives on fundamental_data.date = token_incentives.date
+left join mints_burns on fundamental_data.date = mints_burns.date
+left join unvested_supply on fundamental_data.date = unvested_supply.date
+left join owned_supply on fundamental_data.date = owned_supply.date
 where fundamental_data.date < to_date(sysdate())
