@@ -24,13 +24,13 @@ column_definitions:
 
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
-    description: "The turnover of a token in USD"
+    description: "The turnover of a token in USD, based on the token's circulating supply."
     tags:
       - artemis_gaap
 
   token_turnover_fdv: &token_turnover_fdv
     name: token_turnover_fdv
-    description: "The turnover of a token in USD"
+    description: "The turnover of a token in USD, based on the token's fully diluted supply."
     tags:
       - artemis_gaap
 
@@ -40,56 +40,31 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  tvl: &tvl
+    name: tvl
+    description: "The total value locked in a protocol"
 
-  lrt_tvl: &lrt_tvl
-    name: lrt_tvl
-    description: "The total value in usd restaked using swell restaking protocol"
-    tags:
-      - override
+  tvl_native: &tvl_native
+    name: tvl_native
+    description: "The total value locked in a protocol in the native currency of the protocol"
 
-  lrt_tvl_native: &lrt_tvl_native
-    name: lrt_tvl_native
-    description: "The total value restaked using swell restaking protocol in the native currency of the protocol"
-    tags:
-      - override
+  tvl_native_net_change: &tvl_native_net_change
+    name: tvl_native_net_change
+    description: "The net change in the total value locked in a protocol in the native currency of the protocol"
 
-  lrt_tvl_native_net_change: &lrt_tvl_native_net_change
-    name: lrt_tvl_native_net_change
-    description: "The net change in the total value restaked using swell restaking protocol in the native currency of the protocol"
-    tags:
-      - override
-
-  lrt_tvl_net_change: &lrt_tvl_net_change
-    name: lrt_tvl_net_change
-    description: "The net change in the total value restaked using swell restaking protocol"
-    tags:
-      - override
-  
-  lst_tvl: &lst_tvl
-    name: lst_tvl
-    description: "The total value in usd staked using swell staking protocol"
-    tags:
-      - override
-
-  lst_tvl_native: &lst_tvl_native
-    name: lst_tvl_native
-    description: "The total value staked using swell staking protocol in the native currency of the protocol"
-    tags:
-      - override
-
-  lst_tvl_native_net_change: &lst_tvl_native_net_change
-    name: lst_tvl_native_net_change
-    description: "The net change in the total value staked using swell staking protocol in the native currency of the protocol"
-    tags:
-      - override
-
-  lst_tvl_net_change: &lst_tvl_net_change
-    name: lst_tvl_net_change
-    description: "The net change in the total value staked using swell staking protocol"
-    tags:
-      - override
+  tvl_net_change: &tvl_net_change
+    name: tvl_net_change
+    description: "The net change in the total value locked in a protocol"
 
 models:
+  - name: ez_swell_metrics_by_chain
+    description: "This table stores metrics for the SWELL protocol"
+    columns:
+      - *tvl
+      - *tvl_native
+      - *tvl_native_net_change
+      - *tvl_net_change
+
   - name: ez_swell_metrics
     description: "This table stores metrics for the SWELL protocol"
     columns:
@@ -99,4 +74,8 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
+      - *tvl
+      - *tvl_native
+      - *tvl_native_net_change
+      - *tvl_net_change
 

@@ -33,6 +33,31 @@ with
         select null as json, coingecko_token_id, symbol, chain, contract_address as address, decimals
         from {{ ref("manually_added_tokens_seed") }}
     )
-select coingecko_token_id, chain, lower(address) as contract_address, max(json) as json, max(symbol) as symbol,  max(decimals) as decimals
-from token_metadata
+    , stellar_adjusted as (
+        select
+            coingecko_token_id,
+            chain,
+            case
+                when lower(chain) = 'stellar' then
+                -- Coingecko contract address data have 3 variants for Stellar that we want to standardise to 'symbol-issuer':
+                -- 1. 'symbol:issuer'
+                    (case when lower(address) like '%:%' then
+                        lower(REPLACE(address, ':', '-'))
+                -- 2. 'symbol-issuer'
+                    when lower(address) like '%-%' then
+                        lower(address)
+                    else
+                -- 3. 'issuer' (no symbol)
+                        lower(symbol || '-' || address)
+                    end)
+                else lower(address)
+            end as address,
+            json,
+            symbol,
+            case when chain = 'stellar' then 7 else decimals end as decimals
+            -- Stellar tokens are stored as ONLY 7 decimals on the ledger.
+        from token_metadata
+    )
+select coingecko_token_id, chain, lower(address) as contract_address, max(json) as json, max(symbol) as symbol, max(decimals) as decimals
+from stellar_adjusted
 group by coingecko_token_id, chain, contract_address

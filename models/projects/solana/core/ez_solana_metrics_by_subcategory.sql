@@ -64,6 +64,15 @@ with
             count(distinct(case when succeeded = 'TRUE' then value else null end)) dau
         from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         group by raw_date, updated_category, sub_category
+    ),
+    monthly_users as (
+        select
+            date_trunc('month', raw_date) as month_date,
+            case when category = 'Tokens' then 'Token' else category end as updated_category,
+            sub_category,
+            count(distinct(case when succeeded = 'TRUE' then value else null end)) mau
+        from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
+        group by month_date, updated_category, sub_category
     )
 select
     agg_data.raw_date as date,
@@ -84,6 +93,7 @@ select
     rev_usd,
     txns,
     dau,
+    ifnull(monthly_users.mau, 0) as mau,
     null AS contract_count,
     null AS real_users,
     (dau - new_users) as returning_users,
@@ -108,3 +118,8 @@ left join
     on equal_null(agg_data.updated_category, sybil.category)
     and equal_null(agg_data.sub_category, sybil.sub_category)
     and agg_data.raw_date = sybil.raw_date
+left join
+    monthly_users
+    on equal_null(agg_data.updated_category, monthly_users.updated_category)
+    and equal_null(agg_data.sub_category, monthly_users.sub_category)
+    and date_trunc('month', agg_data.raw_date) = monthly_users.month_date

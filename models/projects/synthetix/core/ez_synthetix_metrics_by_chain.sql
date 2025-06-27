@@ -126,11 +126,6 @@ select
     , chain
     , coalesce(trading_volume, 0) as trading_volume
     , coalesce(unique_traders, 0) as unique_traders
-    , coalesce(fees.fees_usd, 0) as fees
-    , coalesce(fees.fees_native, 0) as fees_native
-    , coalesce(token_incentives, 0) as token_incentives
-    , coalesce(token_incentives, 0) as total_expenses
-    , fees - token_incentives AS earnings
     , coalesce(token_holder_count, 0) as token_holder_count
     , coalesce(tvl.tvl, 0) as net_deposits
 
@@ -147,12 +142,15 @@ select
     , coalesce(tvl.tvl_native - lag(tvl.tvl_native) over (order by date), 0) as tvl_native_net_change
 
     -- Cashflow Metrics
-    , coalesce(fees.fees_usd, 0) as ecosystem_revenue
-    , coalesce(fees.fees_native, 0) as ecosystem_revenue_native
+    , coalesce(fees.fees_usd, 0) as fees
     , coalesce(service_cashflow.service_cashflow, 0) as service_fee_allocation
     , coalesce(treasury_cashflow.treasury_cashflow, 0) as treasury_fee_allocation
     , coalesce(fee_sharing_cashflow.fee_sharing_fee_allocation, 0) as staking_fee_allocation
     , coalesce(token_cashflow.token_cashflow, 0) as token_fee_allocation
+
+    , coalesce(token_incentives, 0) as token_incentives
+    , coalesce(token_incentives, 0) as total_expenses
+    , fees.fees_usd - token_incentives AS earnings
 
     -- Protocol Metrics
     , coalesce(treasury_by_chain.treasury, 0) as treasury
