@@ -12,18 +12,27 @@
 with fundamental_data as (
     {{ get_fundamental_data_for_chain("tron", "v2") }}
 )
-,    market_metrics as ({{ get_coingecko_metrics("tron") }})
-,    defillama_data as ({{ get_defillama_metrics("tron") }})
-,    stablecoin_data as ({{ get_stablecoin_metrics("tron") }})
-,    github_data as ({{ get_github_metrics("tron") }})
-,    p2p_metrics as ({{ get_p2p_metrics("tron") }})
-,    rolling_metrics as ({{ get_rolling_active_address_metrics("tron") }})
-,    token_incentives as (
+, market_metrics as ({{ get_coingecko_metrics("tron") }})
+, defillama_data as ({{ get_defillama_metrics("tron") }})
+, stablecoin_data as ({{ get_stablecoin_metrics("tron") }})
+, github_data as ({{ get_github_metrics("tron") }})
+, p2p_metrics as ({{ get_p2p_metrics("tron") }})
+, rolling_metrics as ({{ get_rolling_active_address_metrics("tron") }})
+, token_incentives as (
     select 
         date,
         sum(token_incentives) as token_incentives,
     from {{ ref("fact_tron_token_incentives") }}
     group by date
+)
+, issued_supply_metrics as (
+    select
+        date,
+        max_supply_to_date as max_supply_native,
+        total_supply as total_supply_native,
+        issued_supply as issued_supply_native,
+        floating_supply as circulating_supply_native,
+    from {{ ref("fact_tron_issued_supply_and_float") }}
 )
 
 select
@@ -82,6 +91,12 @@ select
     , token_incentives.token_incentives as token_incentives
     , revenue - token_incentives as earnings
 
+    -- Issued Supply Metrics
+    , issued_supply_metrics.max_supply_native
+    , issued_supply_metrics.total_supply_native
+    , issued_supply_metrics.issued_supply_native
+    , issued_supply_metrics.circulating_supply_native
+
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -114,4 +129,5 @@ left join github_data on fundamental_data.date = github_data.date
 left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join token_incentives on fundamental_data.date = token_incentives.date
+left join issued_supply_metrics on fundamental_data.date = issued_supply_metrics.date
 where fundamental_data.date < to_date(sysdate())

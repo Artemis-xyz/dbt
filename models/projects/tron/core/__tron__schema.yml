@@ -72,6 +72,10 @@ column_definitions:
     name: chain_wau
     description: "Weekly unique users on a chain"
 
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
+
   earnings: &earnings
     name: earnings
     description: "The total earnings generated to tokenholders defined as revenue less expenses"
@@ -285,6 +289,7 @@ models:
       - *chain_spot_volume
       - *chain_txns
       - *chain_wau
+      - *circulating_supply_native
       - *earnings
       - *fdmc
       - *fees
