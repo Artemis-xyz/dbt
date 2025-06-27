@@ -1,4 +1,9 @@
-{{ config(materialized="table", snowflake_warehouse="HYPERLIQUID") }}
+{{
+    config(
+        materialized="table",
+        snowflake_warehouse="HYPERLIQUID",
+    )
+}}
 
 with latest_source_json as (
     select extraction_date, source_url, source_json

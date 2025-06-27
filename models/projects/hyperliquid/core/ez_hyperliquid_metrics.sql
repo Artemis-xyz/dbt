@@ -84,10 +84,39 @@ with trading_volume_data as (
     select date, chain, daa, txns, hyperevm_burns, hyperevm_burns_native
     from {{ ref("fact_hyperliquid_hyperevm_fundamental_metrics") }}
 )
+
+, chain_tvl as (
+    with agg as (
+        SELECT 
+            date
+            , tvl 
+        FROM {{ref('fact_defillama_chain_tvls')}}
+        WHERE defillama_chain_name ilike '%hype%'
+        UNION ALL
+        SELECT 
+            t.date
+            , -sum(tvl) as tvl 
+        FROM {{ref('fact_defillama_protocol_tvls')}} t
+        JOIN {{ref('fact_defillama_protocols')}} p ON p.id = t.defillama_protocol_id
+        WHERE name in (
+            'Hyperliquid HLP'
+        , 'Hyperliquid Spot Orderbook'
+        )
+        GROUP BY 1
+    )
+    SELECT 
+        date
+        , sum(tvl) as tvl 
+    FROM agg
+    WHERE date > '2025-02-24'
+    GROUP BY 1
+    )
+
 , new_users_data as (
     select date, new_users
     from {{ ref("fact_hyperliquid_new_users") }}
 )
+
     
 select
     date_spine.date
@@ -124,7 +153,8 @@ select
     , perp_volume as perp_volume
     , spot_trading_volume as spot_volume
     , trades + hyperevm_data.txns as perp_txns
-    , perps_tvl_data.tvl as tvl
+    , chain_tvl.tvl as chain_tvl
+    , coalesce(perps_tvl_data.tvl, 0) as tvl
     , new_users
     
     -- Cash Flow Metrics
@@ -163,5 +193,6 @@ left join hype_staked_data using(date)
 left join spot_trading_volume_data using(date)
 left join daily_assistance_fund_data using(date)
 left join perps_tvl_data using(date)
+left join chain_tvl using(date)
 left join new_users_data using(date)
 where date < to_date(sysdate())
