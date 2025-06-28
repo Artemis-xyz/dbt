@@ -89,7 +89,8 @@ select
     
     -- Cash Flow Metrics (Interest goes to Liquidity Suppliers (Lenders) + Vaults Performance Fees)
     , fees as lending_interest_fees
-    , lending_interest_fees as ecosystem_revenue
+    , 0 as revenue
+    , revenue - token_incentives as earnings
     
     -- Supply Metrics
     , msd.premine_unlocks_native

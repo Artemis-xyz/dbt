@@ -87,10 +87,10 @@
 
             left join
                 {{ chain }}_flipside.price.ez_prices_hourly t2
-                on (lower(t1.token0) = lower(t2.token_address) and t2.hour = t1.hour)
+                on (lower(t1.token0) = lower(t2.token_address) and t2.hour = t1.hour and t2.price > 0)
             left join
                 {{ chain }}_flipside.price.ez_prices_hourly t3
-                on (lower(t1.token1) = lower(t3.token_address) and t3.hour = t1.hour)
+                on (lower(t1.token1) = lower(t3.token_address) and t3.hour = t1.hour and t3.price > 0)
             where token1_decimals != 0 and token0_decimals != 0
         ),
         filtered_pairs as (
@@ -118,7 +118,8 @@
                     then token_fee_amount_native
                     else 0
                 end as token_fee_amount_native,
-                token_fee_amount_native_symbol
+                token_fee_amount_native_symbol, 
+                fee as fee_percent
             from swaps_adjusted
         ),
         events as (
@@ -139,6 +140,7 @@
                 token_fee_amount as trading_fees,
                 token_fee_amount_native,
                 token_fee_amount_native_symbol,
+                fee_percent,
                 ROW_NUMBER() OVER (PARTITION by tx_hash, pool ORDER BY event_index) AS row_number
             from filtered_pairs
         ),
@@ -185,8 +187,11 @@
             token_fee_amount_native,
             token_fee_amount_native_symbol,
         {% endif %}
+        {% if app == 'pancakeswap' %}
+            fee_percent,
+        {% endif %}
         gas_price * gas_used as raw_gas_cost_native,
-        raw_gas_cost_native / 1e9 as gas_cost_native
+        raw_gas_cost_native / 1e9 as gas_cost_native, 
     from events
     left join traces on
         events.tx_hash = traces.tx_hash

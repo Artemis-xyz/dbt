@@ -1,4 +1,3 @@
--- This file has been renamed from uploaded_labeled_addresses to dim_manual_labeled_addresses
 {{config(materialized='table')}}
 select
     --lower all hex addresses
@@ -12,4 +11,4 @@ select
     , last_updated
 from {{ source("PROD_LANDING", "raw_manually_labeled_addresses_csv") }}
 where address is not null and chain in (select distinct chain_name from {{ ref("dim_chain_id_mapping")}})
-qualify row_number() over (partition by lower(address), chain order by last_updated desc) = 1
+order by chain, address, last_updated desc

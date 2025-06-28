@@ -231,7 +231,7 @@ select
     , coalesce(ecosystem_incentives, 0) + coalesce(safety_incentives, 0) as token_incentives
 
     , token_incentives as total_expenses 
-    , coalesce(protocol_revenue, 0) - coalesce(total_expenses, 0) as earnings
+    , coalesce(protocol_revenue, 0) - coalesce(token_incentives, 0) as earnings
     , outstanding_supply
     , net_deposits
     
@@ -244,7 +244,6 @@ select
     , interest_rate_fees as interest_rate_fees
     , flashloan_fees
     , gho_revenue as gho_fees
-    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as ecosystem_revenue
 
     , supply_side_deposit_revenue + flashloan_fees as service_fee_allocation
     , liquidation_revenue as liquidator_fee_allocation

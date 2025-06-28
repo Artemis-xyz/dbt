@@ -14,42 +14,62 @@
         group by 1, 2
     )
     {% endif %}
-    
-    select
-        events.block_timestamp
-        , events.transaction_hash
-        , events.event_index
-        , vaults.proxy_address as vault_address
-        , vaults.asset_token_address as asset_address
-        , events.decoded_log:"accumulatedFees"::float as accumulated_fees
-        , events.decoded_log:"cash"::float as cash
-        , events.decoded_log:"interestAccumulator"::float as interest_accumulator
-        , events.decoded_log:"interestRate"::float as interest_rate
-        , events.decoded_log:"timestamp"::integer as timestamp
-        , events.decoded_log:"totalBorrows"::float as total_borrows
-        , events.decoded_log:"totalShares"::float as total_shares
+    , euler_vault_status as 
+    (
+        select
+            events.block_timestamp
+            , events.transaction_hash
+            , events.event_index
+            , vaults.proxy_address as vault_address
+            , vaults.asset_token_address as asset_address
+            , events.decoded_log:"accumulatedFees"::float as accumulated_fees
+            , events.decoded_log:"cash"::float as cash
+            , events.decoded_log:"interestAccumulator"::float as interest_accumulator
+            , events.decoded_log:"interestRate"::float as interest_rate
+            , events.decoded_log:"timestamp"::integer as timestamp
+            , events.decoded_log:"totalBorrows"::float as total_borrows
+            , events.decoded_log:"totalShares"::float as total_shares
+            {% if chain not in ["bob", "berachain", "sonic"] %}
+            , coalesce(prices.price, flipside_prices.price) as price
+            , coalesce(prices.decimals, flipside_prices.decimals) as decimals
+            , coalesce(prices.symbol, flipside_prices.symbol) as symbol
+            {% else %}
+            , prices.price as price
+            , prices.decimals as decimals
+            , prices.symbol as symbol
+            {% endif %}
+        from {{ ref("fact_" ~ chain ~ "_decoded_events") }} events
+        inner join {{ ref("fact_euler_" ~ chain ~ "_event_ProxyCreated") }} vaults 
+            on lower(events.contract_address) = lower(vaults.proxy_address)
+        left join prices
+            on prices.date = events.block_timestamp::date
+            and lower(prices.contract_address) = lower(vaults.asset_token_address)
         {% if chain not in ["bob", "berachain", "sonic"] %}
-        , coalesce(prices.price, flipside_prices.price) as price
-        , coalesce(prices.decimals, flipside_prices.decimals) as decimals
-        , coalesce(prices.symbol, flipside_prices.symbol) as symbol
-        {% else %}
-        , prices.price as price
-        , prices.decimals as decimals
-        , prices.symbol as symbol
+        left join flipside_prices
+            on flipside_prices.date = events.block_timestamp::date
+            and lower(flipside_prices.contract_address) = lower(vaults.asset_token_address)
         {% endif %}
-    from {{ ref("fact_" ~ chain ~ "_decoded_events") }} events
-    inner join {{ ref("fact_euler_" ~ chain ~ "_event_ProxyCreated") }} vaults 
-        on lower(events.contract_address) = lower(vaults.proxy_address)
-    left join prices
-        on prices.date = events.block_timestamp::date
-        and lower(prices.contract_address) = lower(vaults.asset_token_address)
-    {% if chain not in ["bob", "berachain", "sonic"] %}
-    left join flipside_prices
-        on flipside_prices.date = events.block_timestamp::date
-        and lower(flipside_prices.contract_address) = lower(vaults.asset_token_address)
-    {% endif %}
-    where events.event_name = 'VaultStatus'
-    {% if is_incremental() %}
-        and events.block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
-    {% endif %}
+        where events.event_name = 'VaultStatus'
+        {% if is_incremental() %}
+            and events.block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+        {% endif %}
+    )
+    select 
+        max(block_timestamp) as block_timestamp
+        , transaction_hash
+        , event_index
+        , max(vault_address) as vault_address
+        , max(asset_address) as asset_address
+        , max(accumulated_fees) as accumulated_fees
+        , max(cash) as cash
+        , max(interest_accumulator) as interest_accumulator
+        , max(interest_rate) as interest_rate
+        , max(timestamp) as timestamp
+        , max(total_borrows) as total_borrows
+        , max(total_shares) as total_shares
+        , max(price) as price
+        , max(decimals) as decimals
+        , max(symbol) as symbol
+    from euler_vault_status
+    group by transaction_hash, event_index
 {% endmacro %}

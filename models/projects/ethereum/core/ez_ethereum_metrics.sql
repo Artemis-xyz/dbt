@@ -69,11 +69,11 @@ select
     , wau
     , mau
     , fees_native
-    , case when fees is null then fees_native * price else fees end as fees
+    , case when fees is null then (coalesce(blob_fees_native, 0) + fees_native) * price else fees + coalesce(blob_fees, 0) end as fees
     , avg_txn_fee
     , median_txn_fee
-    , revenue_native
-    , revenue
+    , revenue_native + coalesce(blob_fees_native, 0) as revenue_native
+    , revenue + coalesce(blob_fees, 0) as revenue
     , case
         when fees is null then (fees_native * price) - revenue else fees - revenue
     end as priority_fee_usd
@@ -84,6 +84,7 @@ select
     , percent_non_censored
     , dune_dex_volumes_ethereum.dex_volumes
     , dune_dex_volumes_ethereum.adjusted_dex_volumes
+    , submitters
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -129,7 +130,7 @@ select
     , avg_mib_per_second
     , avg_cost_per_mib_gwei
     , avg_cost_per_mib
-    , submitters
+    , submitters as da_dau
     , dune_dex_volumes_ethereum.dex_volumes AS chain_spot_volume
     -- Cashflow metrics
     , fees as chain_fees

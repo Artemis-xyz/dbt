@@ -8,6 +8,7 @@ sources:
       - name: raw_coingecko_token_realtime_data
       - name: raw_coingecko_token_data
       - name: raw_coingecko_token_metadata
+      - name: raw_coingecko_token_historical_circulating_supply
   - name: SDO_DEV_LANDING
     schema: SDO_DEV_LANDING
     database: LANDING_DATABASE

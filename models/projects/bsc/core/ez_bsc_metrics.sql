@@ -22,6 +22,16 @@ with
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_binance_daily_dex_volumes") }}
     )
+    , staked_eth_metrics as (
+        select
+            date,
+            sum(num_staked_eth) as num_staked_eth,
+            sum(amount_staked_usd) as amount_staked_usd,
+            sum(num_staked_eth_net_change) as num_staked_eth_net_change,
+            sum(amount_staked_usd_net_change) as amount_staked_usd_net_change
+        from {{ ref('fact_binance_staked_eth_count_with_usd_and_change') }}
+        group by 1
+    )
 select
     fundamental_data.date
     , fundamental_data.chain
@@ -61,6 +71,13 @@ select
     , dau_over_100 AS dau_over_100_balance
     , nft_trading_volume AS chain_nft_trading_volume
     , dune_dex_volumes_binance.dex_volumes AS chain_spot_volume
+
+    -- LST Metrics
+    , staked_eth_metrics.num_staked_eth as lst_tvl_native
+    , staked_eth_metrics.amount_staked_usd as lst_tvl
+    , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
+    , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
+
     -- Cashflow metrics
     , fees as chain_fees
     , fees_native AS ecosystem_revenue_native
@@ -99,4 +116,5 @@ left join contract_data on fundamental_data.date = contract_data.date
 left join nft_metrics on fundamental_data.date = nft_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join binance_dex_volumes as dune_dex_volumes_binance on fundamental_data.date = dune_dex_volumes_binance.date
+left join staked_eth_metrics on fundamental_data.date = staked_eth_metrics.date
 where fundamental_data.date < to_date(sysdate())

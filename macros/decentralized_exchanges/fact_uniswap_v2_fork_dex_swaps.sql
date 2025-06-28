@@ -50,7 +50,8 @@
                 token0_in_amount * fee as token0_in_fee,
                 token0_out_amount * fee as token0_out_fee,
                 token1_in_amount * fee as token1_in_fee,
-                token1_out_amount * fee as token1_out_fee
+                token1_out_amount * fee as token1_out_fee, 
+                fee as fee_percent
             from all_pool_events
         ),
         swaps_adjusted as (
@@ -126,13 +127,14 @@
                 token0_out_amount_usd + token1_out_amount_usd as total_out,
                 abs(token0_in_amount_usd - token0_out_amount_usd) as abs_token0_net_amount_usd,
                 abs(token1_in_amount_usd - token1_out_amount_usd) as abs_token1_net_amount_usd,
+                fee_percent
             from swaps t1
             left join
                 {{ chain }}_flipside.price.ez_prices_hourly t2
-                on (lower(t1.token0) = lower(t2.token_address) and t2.hour = t1.hour)
+                on (lower(t1.token0) = lower(t2.token_address) and t2.hour = t1.hour and t2.price > 0)
             left join
                 {{ chain }}_flipside.price.ez_prices_hourly t3
-                on (lower(t1.token1) = lower(t3.token_address) and t3.hour = t1.hour)
+                on (lower(t1.token1) = lower(t3.token_address) and t3.hour = t1.hour and t3.price > 0)
             where token1_decimals > 0 and token0_decimals > 0
                 and abs(
                     ln(abs(coalesce(nullif(total_in, 0), 1))) / ln(10)
@@ -165,7 +167,8 @@
                 token_fee_amount_native,
                 token_fee_amount_native_symbol,
                 least(total_out, total_in) as trading_volume,
-                total_fees as trading_fees
+                total_fees as trading_fees,
+                fee_percent
             from swaps_adjusted
         ),
         events as (
@@ -188,6 +191,7 @@
                 token_fee_amount_native_symbol,
                 trading_volume,
                 trading_fees,
+                fee_percent,
                 ROW_NUMBER() OVER (PARTITION by tx_hash, pool ORDER BY event_index) AS row_number
             from filtered_pairs
         ),
@@ -233,6 +237,9 @@
             token_1_volume_native,
             token_fee_amount_native,
             token_fee_amount_native_symbol,
+        {% endif %}
+        {% if app == 'pancakeswap' %}
+            fee_percent,
         {% endif %}
         gas_price * gas_used as raw_gas_cost_native,
         raw_gas_cost_native / 1e9 as gas_cost_native
