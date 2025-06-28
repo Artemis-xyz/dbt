@@ -63,7 +63,7 @@ WITH date_spine AS (
         SUM(arbitrum_foundation_unlocks_amount) OVER (ORDER BY date) AS cumulative_arbitrum_foundation_supply,
         SUM(dao_emissions_amount) OVER (ORDER BY date) AS cumulative_dao_emissions_supply,
         SUM(airdrop_amount + investor_team_unlock_amount + arbitrum_foundation_unlocks_amount + dao_emissions_amount) OVER (ORDER BY date) AS total_cumulative_supply, 
-        SUM(airdrop_amount + investor_team_unlock_amount + arbitrum_foundation_unlocks_amount) OVER (ORDER BY date) AS total_vested_supply
+        SUM(investor_team_unlock_amount + arbitrum_foundation_unlocks_amount) OVER (ORDER BY date) AS total_vested_supply
     FROM daily_supply_changes
 )
 SELECT
