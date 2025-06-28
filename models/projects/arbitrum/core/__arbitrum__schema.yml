@@ -40,6 +40,10 @@ column_definitions:
     name: bridge_volume
     description: "The total volume on a bridge"
 
+  burns_native: &burns_native
+    name: burns_native
+    description: "The amount of native tokens burned"
+
   chain_avg_txn_fee: &chain_avg_txn_fee
     name: chain_avg_txn_fee
     description: "The average transaction fee on a chain"
@@ -75,6 +79,10 @@ column_definitions:
   chain_wau: &chain_wau
     name: chain_wau
     description: "Weekly unique users on a chain"
+
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
 
   dau_over_100_balance: &dau_over_100_balance
     name: dau_over_100_balance
@@ -285,16 +293,6 @@ column_definitions:
       - artemis_gaap
 
 models:
-  - name: ez_arbitrum_metrics_by_application
-    description: "This table stores metrics for the ARBITRUM protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
-
   - name: ez_arbitrum_metrics
     description: "This table stores metrics for the ARBITRUM protocol"
     columns:
@@ -305,6 +303,7 @@ models:
       - *artemis_stablecoin_txns
       - *bridge_dau
       - *bridge_volume
+      - *burns_native
       - *chain_avg_txn_fee
       - *chain_dau
       - *chain_fees
@@ -314,6 +313,7 @@ models:
       - *chain_spot_volume
       - *chain_txns
       - *chain_wau
+      - *circulating_supply_native
       - *dau_over_100_balance
       - *fdmc
       - *fees
@@ -352,16 +352,6 @@ models:
       - *weekly_contracts_deployed
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-
-  - name: ez_arbitrum_metrics_by_category
-    description: "This table stores metrics for the ARBITRUM protocol"
-    columns:
-      - *high_sleep_users
-      - *low_sleep_users
-      - *new_users
-      - *non_sybil_users
-      - *returning_users
-      - *sybil_users
 
   - name: ez_arbitrum_metrics_by_subcategory
     description: "This table stores metrics for the ARBITRUM protocol"

@@ -8,7 +8,30 @@
     )
 }}
 
- SELECT
+SELECT * FROM (VALUES
+    (
+        '2023-03-21',
+        'Arbitrum Foundation Initial Unlock',
+        0.4 * 1e8, 
+        'https://arbiscan.io/tokentxns?a=0xc24e24383120669512a336fb3b5b19afb4cc2a56'
+    ),
+    (
+        '2023-03-24', 
+        'Arbitrum Foundation Initial Unlock',
+        0.1 * 1e8, 
+        'https://arbiscan.io/tokentxns?a=0xc24e24383120669512a336fb3b5b19afb4cc2a56'
+    ),
+    (
+        '2023-03-27', 
+        'Arbitrum Foundation Initial Unlock',
+        0.500009 * 1e6, 
+        'https://arbiscan.io/tokentxns?a=0xc24e24383120669512a336fb3b5b19afb4cc2a56'
+    )
+) AS t (date, event_type, amount, source)
+
+UNION ALL
+
+SELECT
     block_timestamp::date as date,
     'Arbitrum Foundation Unlocks' as event_type,
     sum(amount_precise) as amount,
