@@ -2,7 +2,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="optimism",
+        snowflake_warehouse="ANALYTICS_XL",
         database="optimism",
         schema="core",
         alias="ez_metrics",
@@ -50,9 +50,10 @@ with
     , revenue_share as (
         select
             date, 
-            revenue_share_native,
-            revenue_share
+            sum(revenue_share_native) as revenue_share_native,
+            sum(revenue_share) as revenue_share
         from {{ ref("fact_optimism_revenue_share") }}
+        group by 1
     )
     , mints_burns as (
         select
