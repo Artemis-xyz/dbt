@@ -2,7 +2,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="OPTIMISM",
         database="optimism",
         schema="core",
         alias="ez_metrics",
@@ -65,14 +65,10 @@ with
         from {{ ref("fact_optimism_mints_burns") }}
     )
     , unvested_supply as (
-        with total_insider_allocation as (
-            select sum(amount) as total_insider_allocation
-            from {{ref("fact_optimism_insider_unlocks")}}
-        )
         select
             date, 
             total_vested_supply, 
-            (select total_insider_allocation from total_insider_allocation) - total_vested_supply AS total_unvested_supply
+            1545523296 - total_vested_supply AS total_unvested_supply
         from {{ ref("fact_optimism_all_supply_events") }}
     )
     , owned_supply as (
@@ -188,6 +184,8 @@ select
     , cumulative_mints_native AS total_supply_native
     , cumulative_mints_native - cumulative_burns_native - foundation_owned_supply_native AS issued_supply_native
     , cumulative_mints_native - cumulative_burns_native - foundation_owned_supply_native - total_unvested_supply AS circulating_supply_native
+    , total_unvested_supply
+    , foundation_owned_supply_native
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
