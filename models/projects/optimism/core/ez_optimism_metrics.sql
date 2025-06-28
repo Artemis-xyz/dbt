@@ -47,6 +47,13 @@ with
         from {{ ref("fact_optimism_token_incentives") }}
         group by 1
     )
+    , revenue_share as (
+        select
+            date, 
+            revenue_share_native,
+            revenue_share
+        from {{ ref("fact_optimism_revenue_share") }}
+    )
     , mints_burns as (
         select
             date,
@@ -98,8 +105,10 @@ select
     , avg_txn_fee
     , median_txn_fee
     , dau_over_100
-    , coalesce(fees_native, 0) - l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    , coalesce(fees, 0) - l1_data_cost as revenue
+    , coalesce(fees_native, 0) + coalesce(revenue_share_native, 0) - l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(fees, 0) + (coalesce(revenue_share, 0)) - l1_data_cost as revenue
+    , coalesce(revenue_share_native, 0) as revenue_share_native
+    , coalesce(revenue_share, 0) as revenue_share
     , nft_trading_volume
     , dune_dex_volumes_optimism.dex_volumes
     , dune_dex_volumes_optimism.adjusted_dex_volumes
@@ -136,7 +145,6 @@ select
 
     -- Cashflow Metrics
     , fees AS chain_fees
-
     , revenue - token_incentives.token_incentives as earnings
     , l1_data_cost_native AS l1_fee_allocation_native
     , l1_data_cost AS l1_fee_allocation
@@ -194,6 +202,7 @@ left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join optimism_dex_volumes as dune_dex_volumes_optimism on fundamental_data.date = dune_dex_volumes_optimism.date
 left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 left join token_incentives on fundamental_data.date = token_incentives.date
+left join revenue_share on fundamental_data.date = revenue_share.date
 left join mints_burns on fundamental_data.date = mints_burns.date
 left join unvested_supply on fundamental_data.date = unvested_supply.date
 left join owned_supply on fundamental_data.date = owned_supply.date
