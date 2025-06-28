@@ -85,7 +85,12 @@ cumulative_supply AS (
             COALESCE(investor_unlocks_supply, 0) + 
             COALESCE(base_grant_supply, 0) + 
             COALESCE(private_sale_supply, 0)
-        ) OVER (ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_circulating_supply
+        ) OVER (ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_circulating_supply, 
+
+        SUM( 
+            COALESCE(core_contributor_unlocks_supply, 0) + 
+            COALESCE(investor_unlocks_supply, 0)
+        ) OVER (ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_vested_supply
     FROM aggregated_events
 )
 
