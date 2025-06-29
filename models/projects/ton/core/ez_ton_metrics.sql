@@ -41,6 +41,11 @@ with
             , gross_emissions_native
             , burns_native
             , net_supply_change_native
+            , max_supply_native
+            , total_supply_native
+            , foundation_owned
+            , issued_supply_native
+            , unvested_tokens
             , circulating_supply_native
         from {{ ref("fact_ton_supply_data") }}
     )
@@ -89,6 +94,11 @@ select
     , block_rewards_native * price AS gross_emissions
     , burns_native
     , net_supply_change_native
+    , max_supply_native
+    , total_supply_native
+    , foundation_owned
+    , issued_supply_native
+    , unvested_tokens
     , circulating_supply_native
     -- Stablecoin Metrics
     , stablecoin_total_supply
