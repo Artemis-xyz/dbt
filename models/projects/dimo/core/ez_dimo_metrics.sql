@@ -19,7 +19,8 @@ with token_incentives as (
 , airdrop as (
     select
         date,
-        daily_airdrop_amount
+        daily_airdrop_amount,
+        daily_airdrop_amount_native
     from {{ ref("fact_dimo_airdrop") }}
 )
 , market_metrics as (
@@ -27,8 +28,8 @@ with token_incentives as (
 )
 select
     market_metrics.date,
-    token_incentives.token_incentives_native,
     token_incentives.token_incentives,
+    token_incentives.token_incentives_native,
     airdrop.daily_airdrop_amount as airdrop,
     airdrop.daily_airdrop_amount_native as airdrop_native,
     market_metrics.price,
