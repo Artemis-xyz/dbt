@@ -1,28 +1,27 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="LIVEPEER",
+        snowflake_warehouse="ANALYTICS_XL",
     )
 }}
 
-with
-    max_extraction as (
-        select max(extraction_date) as max_date
-        from {{ source("PROD_LANDING", "raw_livepeer_revenue") }}
-        
-    ),
-   latest_data as (
-        select parse_json(source_json) as data
-        from {{ source("PROD_LANDING", "raw_livepeer_revenue") }}
-        where extraction_date = (select max_date from max_extraction)
-    )
-    , flattened_data as (
-        select
-            left(f.value:day, 10)::date as date,
-            f.value:daily_fees_usd::number as fees
-        from latest_data, lateral flatten(input => data) as f
-    )
-select date, fees
-from flattened_data
-where date < to_date(sysdate())
-order by date desc
+with raw as (
+    SELECT
+        block_timestamp,
+        decoded_log:faceValue::number / 1e18 as eth_amount
+    FROM
+        fact_arbitrum_decoded_events
+    WHERE
+        contract_address = lower('0xa8bB618B1520E284046F3dFc448851A1Ff26e41B')
+    AND event_name = 'WinningTicketRedeemed'
+)
+, prices as (
+    {{ get_coingecko_price_with_latest('ethereum') }}
+)
+SELECT
+    block_timestamp::date as date,
+    sum(eth_amount) as fees_native,
+    sum(eth_amount * p.price) as fees
+FROM raw
+LEFT JOIN prices p on p.date = raw.block_timestamp::date
+GROUP BY 1

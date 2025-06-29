@@ -1,7 +1,7 @@
 {{
     config(
-        materialized="table",
-        snowflake_warehouse="RENDER",
+        materialized="incremental",
+        snowflake_warehouse="ANALYTICS_XL",
         unique_key=["tx_id", "index", "inner_index"]    
     )
 }}
@@ -15,9 +15,6 @@ SELECT
     tr.burn_amount / pow(10, p.decimals) as amount_native,
     p.price,
     amount_native * p.price as amount
-    
-
-    
 FROM 
     solana_flipside.defi.fact_token_burn_actions tr
 LEFT JOIN 

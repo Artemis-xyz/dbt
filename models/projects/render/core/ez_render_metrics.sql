@@ -23,8 +23,8 @@ with
 
 select
     burn_data.date,
-    burn_data.total_burns,
-    burn_data.revenue,
-    price_data.price
+    price_data.price,
+    burn_data.total_burns as burns_native,
+    burn_data.revenue
 from burn_data
 left join price_data using(date)
