@@ -11,7 +11,7 @@
 with revenue as (
     SELECT
         date,
-        revenue
+        fees
     FROM {{ ref("fact_glow_compute_revenue") }}
 )
 ,  date_spine as (
@@ -22,6 +22,6 @@ with revenue as (
 
 SELECT
     date_spine.date,
-    revenue.revenue
+    coalesce(revenue.fees, 0) as fees
 FROM date_spine
 LEFT JOIN revenue USING(date)
