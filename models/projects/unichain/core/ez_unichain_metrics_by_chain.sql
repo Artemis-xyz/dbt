@@ -29,8 +29,8 @@ select
     , daa as chain_dau
     , dune_dex_volumes_unichain.dex_volumes as chain_spot_volume
     -- Cash Flow Metrics
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
+    , fees as fees
+    , fees_native as fees_native
     , cost as l1_fee_allocation
     , cost_native as l1_fee_allocation_native
     , revenue as foundation_fee_allocation

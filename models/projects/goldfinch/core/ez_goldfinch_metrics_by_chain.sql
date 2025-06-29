@@ -13,7 +13,6 @@ select
     , 'ethereum' as chain
     , interest_fees
     , withdrawal_fees
-    , fees
     , primary_supply_side_revenue
     , secondary_supply_side_revenue
     , total_supply_side_revenue
@@ -44,7 +43,7 @@ select
     , tvl_net_change
 
     -- Cash Flow
-    , ecosystem_revenue
+    , fees
     , service_fee_allocation
     , token_fee_allocation
 

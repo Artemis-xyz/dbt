@@ -73,9 +73,11 @@ SELECT
 
     --Usage Metrics
     , restaked_eth_metrics.num_restaked_eth as tvl_native
+    , restaked_eth_metrics.num_restaked_eth as lrt_tvl_native
     , restaked_eth_metrics.amount_restaked_usd as tvl
-    , restaked_eth_metrics.num_restaked_eth_net_change as tvl_native_net_change
-    , restaked_eth_metrics.amount_restaked_usd_net_change as tvl_net_change
+    , restaked_eth_metrics.amount_restaked_usd as lrt_tvl
+    , restaked_eth_metrics.num_restaked_eth_net_change as lrt_tvl_native_net_change
+    , restaked_eth_metrics.amount_restaked_usd_net_change as lrt_tvl_net_change
 
     --Cash Flow Metrics
     , coalesce(liquidity_pool_fees.fees_usd, 0) as liquidity_pool_fees

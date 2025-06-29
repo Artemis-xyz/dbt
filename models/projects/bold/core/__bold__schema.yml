@@ -1,0 +1,102 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  artemis_stablecoin_dau: &artemis_stablecoin_dau
+    name: artemis_stablecoin_dau
+    description: "The number of daily active users on a chain"
+    tags:
+      - artemis_gaap
+
+  artemis_stablecoin_mau: &artemis_stablecoin_mau
+    name: artemis_stablecoin_mau
+    description: "The number of monthly active users on a chain"
+    tags:
+      - artemis_gaap
+
+  artemis_stablecoin_transfer_volume: &artemis_stablecoin_transfer_volume
+    name: artemis_stablecoin_transfer_volume
+    description: "The total volume of stablecoin transfers on a chain"
+    tags:
+      - artemis_gaap
+
+  artemis_stablecoin_txns: &artemis_stablecoin_txns
+    name: artemis_stablecoin_txns
+    description: "The number of transactions on a chain"
+    tags:
+      - artemis_gaap
+
+  p2p_stablecoin_dau: &p2p_stablecoin_dau
+    name: p2p_stablecoin_dau
+    description: "The number of daily active users on a chain"
+    tags:
+      - artemis_gaap
+
+  p2p_stablecoin_mau: &p2p_stablecoin_mau
+    name: p2p_stablecoin_mau
+    description: "The number of monthly active users on a chain"
+    tags:
+      - artemis_gaap
+
+  p2p_stablecoin_transfer_volume: &p2p_stablecoin_transfer_volume
+    name: p2p_stablecoin_transfer_volume
+    description: "The total volume of stablecoin transfers on a chain"
+    tags:
+      - artemis_gaap
+
+  p2p_stablecoin_txns: &p2p_stablecoin_txns
+    name: p2p_stablecoin_txns
+    description: "The number of transactions on a chain"
+    tags:
+      - artemis_gaap
+
+  stablecoin_dau: &stablecoin_dau
+    name: stablecoin_dau
+    description: "The number of daily active users on a chain"
+    tags:
+      - artemis_gaap
+
+  stablecoin_mau: &stablecoin_mau
+    name: stablecoin_mau
+    description: "The number of monthly active users on a chain"
+    tags:
+      - artemis_gaap
+
+  stablecoin_total_supply: &stablecoin_total_supply
+    name: stablecoin_total_supply
+    description: "The total supply of a stablecoin on a chain"
+    tags:
+      - artemis_gaap
+
+  stablecoin_transfer_volume: &stablecoin_transfer_volume
+    name: stablecoin_transfer_volume
+    description: "The total volume of stablecoin transfers on a chain"
+    tags:
+      - artemis_gaap
+
+  stablecoin_txns: &stablecoin_txns
+    name: stablecoin_txns
+    description: "The number of transactions on a chain"
+    tags:
+      - artemis_gaap
+
+models:
+  - name: ez_bold_metrics
+    description: "This table stores metrics for the BOLD protocol"
+    columns:
+      - *artemis_stablecoin_dau
+      - *artemis_stablecoin_mau
+      - *artemis_stablecoin_transfer_volume
+      - *artemis_stablecoin_txns
+      - *p2p_stablecoin_dau
+      - *p2p_stablecoin_mau
+      - *p2p_stablecoin_transfer_volume
+      - *p2p_stablecoin_txns
+      - *stablecoin_dau
+      - *stablecoin_mau
+      - *stablecoin_total_supply
+      - *stablecoin_transfer_volume
+      - *stablecoin_txns
+

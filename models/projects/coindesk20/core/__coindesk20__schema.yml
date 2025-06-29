@@ -1,0 +1,18 @@
+# This file is auto-generated from the global schema definitions.
+# To override a column definition, add the 'override' tag to that column.
+
+version: 2
+
+column_definitions:
+  price: &price
+    name: price
+    description: "The price of a token in USD"
+    tags:
+      - artemis_gaap
+
+models:
+  - name: ez_coindesk20_metrics
+    description: "This table stores metrics for the COINDESK20 protocol"
+    columns:
+      - *price
+

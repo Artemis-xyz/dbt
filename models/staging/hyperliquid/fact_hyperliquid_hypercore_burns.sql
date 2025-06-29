@@ -9,6 +9,7 @@ with
     extracted_daily_burn as (
         select
             key::date as date, 
+            -- HyperCore Spot Token Fees Burned
             value::double as daily_burn,
             'hyperliquid' as app,
             'hyperliquid' as chain,
@@ -17,7 +18,7 @@ with
     )
 select
     date,
-    daily_burn,
+    daily_burn as hypercore_burns_native,
     app,
     chain,
     category
