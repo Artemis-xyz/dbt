@@ -82,7 +82,6 @@ WITH
 select
     date
     , token
-    , COALESCE(fees, 0) AS fees
     , COALESCE(primary_revenue, 0) AS primary_revenue
     , COALESCE(other_revenue, 0) AS other_revenue
     

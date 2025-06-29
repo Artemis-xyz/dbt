@@ -86,7 +86,6 @@ select
     --Old metrics needed for compatibility
     , COALESCE(f.cl_rewards_usd, 0) as cl_rewards_usd
     , COALESCE(f.el_rewards_usd, 0) as el_rewards_usd
-    , COALESCE(f.fees, 0) as fees
     , COALESCE(f.primary_supply_side_revenue, 0) as primary_supply_side_revenue
     , COALESCE(f.secondary_supply_side_revenue, 0) as secondary_supply_side_revenue
     , COALESCE(f.total_supply_side_revenue, 0) as total_supply_side_revenue
@@ -114,12 +113,12 @@ select
     , COALESCE(f.el_rewards_usd, 0) as mev_priority_fees
     , COALESCE(f.deposit_fees, 0) as lst_deposit_fees
     , COALESCE(f.cl_rewards_usd, 0) + COALESCE(f.el_rewards_usd, 0) as yield_generated
-    , COALESCE(f.fees, 0) as ecosystem_revenue
+    , COALESCE(f.fees, 0) as fees
     , yield_generated * 0.14 as validator_fee_allocation
     , yield_generated * 0.86 as service_fee_allocation
 
     --Financial Statement Metrics
-    , COALESCE(f.protocol_revenue, 0) as revenue
+    , 0 as revenue
     , COALESCE(ti.token_incentives_usd, 0) as token_incentives
     , 0 as operating_expenses
     , COALESCE(token_incentives_usd, 0) as total_expenses
