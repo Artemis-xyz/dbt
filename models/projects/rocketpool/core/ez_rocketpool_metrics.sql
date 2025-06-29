@@ -90,11 +90,6 @@ select
     , COALESCE(f.primary_supply_side_revenue, 0) as primary_supply_side_revenue
     , COALESCE(f.secondary_supply_side_revenue, 0) as secondary_supply_side_revenue
     , COALESCE(f.total_supply_side_revenue, 0) as total_supply_side_revenue
-    , 0 as protocol_revenue
-    , COALESCE(ti.token_incentives_usd, 0) as token_incentives
-    , 0 as operating_expenses
-    , COALESCE(token_incentives_usd, 0) as total_expenses
-    , protocol_revenue - token_incentives as earnings
     , staked_eth_metrics.num_staked_eth as net_deposits
     , os.reth_supply as outstanding_supply
     , COALESCE(t.treasury_value, 0) as treasury_value
@@ -122,6 +117,13 @@ select
     , COALESCE(f.fees, 0) as ecosystem_revenue
     , yield_generated * 0.14 as validator_fee_allocation
     , yield_generated * 0.86 as service_fee_allocation
+
+    --Financial Statement Metrics
+    , COALESCE(f.protocol_revenue, 0) as revenue
+    , COALESCE(ti.token_incentives_usd, 0) as token_incentives
+    , 0 as operating_expenses
+    , COALESCE(token_incentives_usd, 0) as total_expenses
+    , revenue - token_incentives as earnings
 
     --Treasury Metrics
     , COALESCE(t.treasury_value, 0) as treasury
