@@ -26,8 +26,13 @@ with token_incentives as (
 , market_metrics as (
     {{ get_coingecko_metrics("dimo") }}
 )
+, date_spine as (
+    select date
+    from {{ ref("dim_date_spine") }}
+    where date between (SELECT min(date) from airdrop) and to_date(sysdate())
+)
 select
-    market_metrics.date,
+    date_spine.date,
     token_incentives.token_incentives,
     token_incentives.token_incentives_native,
     airdrop.daily_airdrop_amount as airdrop,
@@ -38,6 +43,7 @@ select
     market_metrics.token_turnover_circulating,
     market_metrics.token_turnover_fdv,
     market_metrics.token_volume
-from token_incentives
+from date_spine
 left join market_metrics using(date)
+left join token_incentives using(date)
 left join airdrop using(date)
