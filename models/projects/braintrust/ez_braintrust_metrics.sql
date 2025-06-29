@@ -11,17 +11,16 @@
 with revenue as (
     SELECT
         date,
-        burns,
-        burns_native
+        revenue
     FROM {{ ref("fact_braintrust_revenue") }}
+)
+, market_metrics as (
+    {{ get_coingecko_metrics("braintrust") }}
 )
 , date_spine as (
     select date
     from {{ ref("dim_date_spine") }}
-    where date between (SELECT min(date) from revenue) and to_date(sysdate())
-)
-, market_metrics as (
-    {{ get_coingecko_metrics("braintrust") }}
+    where date between (SELECT min(date) from market_metrics) and to_date(sysdate())
 )
 SELECT
     date_spine.date,
@@ -30,8 +29,7 @@ SELECT
     market_metrics.fdmc,
     market_metrics.token_turnover_circulating,
     market_metrics.token_turnover_fdv,
-    revenue.burns as revenue,
-    revenue.burns_native as burns_native
+    coalesce(revenue.revenue, 0) as revenue
 FROM date_spine
 LEFT JOIN revenue USING(date)
 LEFT JOIN market_metrics USING(date)
