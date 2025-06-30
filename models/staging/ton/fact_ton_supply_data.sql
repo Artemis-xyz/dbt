@@ -43,10 +43,11 @@ with latest_source_json as (
             , issued_supply as issued_supply_native
             , backers + dns_locked + telegram + the_locker as unvested_tokens
             , circulating_supply_first_principles as circulating_supply_native
-        from pc_dbt_db.PROD.ton_daily_supply_data
+        from {{ source('MANUAL_STATIC_TABLES', 'ton_daily_supply_data') }}
 
         union
 
+        -- I modelled using first principles until 2025-06-29, so moving forward we get data (total supply and circulating supply) from the API
         select
             date
             , total_supply as max_supply
