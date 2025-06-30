@@ -34,11 +34,6 @@ select
     , primary_supply_side_revenue
     , secondary_supply_side_revenue
     , total_supply_side_revenue
-    , protocol_revenue
-    , token_incentives
-    , operating_expenses
-    , total_expenses
-    , earnings
     , net_deposits
     , outstanding_supply
     , treasury_value
@@ -60,6 +55,12 @@ select
     , fees * 0.14 as validator_fee_allocation
     , fees * 0.86 as service_fee_allocation
     
+    --Financial Statement Metrics
+    , COALESCE(revenue, 0) as revenue
+    , COALESCE(token_incentives, 0) as token_incentives
+    , COALESCE(operating_expenses, 0) as operating_expenses
+    , COALESCE(total_expenses, 0) as total_expenses
+    , COALESCE(earnings, 0) as earnings
     
 from staked_eth_metrics s
 left join {{ ref('ez_rocketpool_metrics') }} using(date)

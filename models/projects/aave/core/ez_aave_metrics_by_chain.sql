@@ -205,12 +205,8 @@ select
     , trading_fees as dao_trading_revenue
     , gho_revenue
     , coalesce(reserve_factor_revenue, 0) as reserve_factor_revenue
-    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as protocol_revenue
     , ecosystem_incentives
     , safety_incentives
-    , coalesce(ecosystem_incentives, 0) + coalesce(safety_incentives, 0) as token_incentives
-    , token_incentives as total_expenses 
-    , coalesce(protocol_revenue, 0) - coalesce(total_expenses, 0) as earnings
     , outstanding_supply
     , net_deposits
     , treasury_value
@@ -223,6 +219,10 @@ select
     , flashloan_fees
     , gho_revenue as gho_fees
     , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as fees
+    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as revenue
+    , coalesce(ecosystem_incentives, 0) + coalesce(safety_incentives, 0) as token_incentives
+    , coalesce(revenue, 0) - coalesce(token_incentives, 0) as earnings
+
 
     , supply_side_deposit_revenue + flashloan_fees as service_fee_allocation
     , liquidation_revenue as liquidator_fee_allocation
