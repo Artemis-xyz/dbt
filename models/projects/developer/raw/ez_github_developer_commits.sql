@@ -18,3 +18,5 @@ select
     , num_deletions 
 from 
     {{source("STAGING", "core_weeklycommithistory")}}
+where 
+    start_of_week <= {{ latest_developer_data_date() }}
