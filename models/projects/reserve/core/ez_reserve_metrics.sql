@@ -72,7 +72,7 @@ select
     , dau
 
     -- Standardized Metrics
-    , coalesce(ecosystem_revenue, 0) as ecosystem_revenue
+    , coalesce(ecosystem_revenue, 0) as fees
 
     -- Token Metrics
     , coalesce(price, 0) as price

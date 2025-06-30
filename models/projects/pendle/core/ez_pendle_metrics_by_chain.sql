@@ -71,9 +71,6 @@ SELECT
     , COALESCE(f.swap_revenue, 0) as swap_revenue_vependle
     , COALESCE(yf.yield_revenue, 0) as yield_revenue_vependle
     , swap_revenue_vependle + yield_revenue_vependle as total_revenue_vependle
-    , 0 as protocol_revenue
-    , 0 as operating_expenses
-    , COALESCE(ti.token_incentives, 0) as total_expenses
     , COALESCE(t.tvl, 0) as net_deposits
     , 0 as outstanding_supply
 

@@ -212,7 +212,6 @@ with
     )
 select
     aave_outstanding_supply_net_deposits_deposit_revenue.date
-    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_revenue, 0) as fees
     , supply_side_deposit_revenue
     , coalesce(supply_side_deposit_revenue, 0) as primary_supply_side_revenue
     , flashloan_fees as flashloan_supply_side_revenue
@@ -223,15 +222,9 @@ select
     , trading_fees as dao_trading_revenue
     , gho_revenue
     , coalesce(reserve_factor_revenue, 0) as reserve_factor_revenue
-    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as protocol_revenue
     
     -- Currently don't take into account incentives
-    , ecosystem_incentives
-    , safety_incentives
-    , coalesce(ecosystem_incentives, 0) + coalesce(safety_incentives, 0) as token_incentives
 
-    , token_incentives as total_expenses 
-    , coalesce(protocol_revenue, 0) - coalesce(token_incentives, 0) as earnings
     , outstanding_supply
     , net_deposits
     
@@ -244,6 +237,9 @@ select
     , interest_rate_fees as interest_rate_fees
     , flashloan_fees
     , gho_revenue as gho_fees
+    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_revenue, 0) as fees
+    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as revenue
+
 
     , supply_side_deposit_revenue + flashloan_fees as service_fee_allocation
     , liquidation_revenue as liquidator_fee_allocation
@@ -252,6 +248,11 @@ select
     , dao_trading_revenue as dao_treasury_fee_allocation
     , gho_revenue as gho_treasury_fee_allocation
     , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as treasury_fee_allocation
+
+    , ecosystem_incentives
+    , safety_incentives
+    , coalesce(ecosystem_incentives, 0) + coalesce(safety_incentives, 0) as token_incentives
+    , revenue - token_incentives as earnings
     
     , outstanding_supply as lending_loans
     , net_deposits as lending_deposits
