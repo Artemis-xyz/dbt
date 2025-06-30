@@ -18,3 +18,5 @@ select
     , symbol 
 from {{ source("STAGING", "core_ecosystemrepositories") }} as er
 left join {{ source("STAGING", "core_ecosystems") }} as ecosystems  on er.ecosystem_id = ecosystems.id
+where 
+    start_of_week <= {{ latest_developer_data_date() }}
