@@ -50,19 +50,19 @@ with
         from {{ ref("fact_ton_supply_data") }}
     )
 select
-    ton.date
+    supply.date
     , 'ton' as chain
-    , dau
-    , wau
-    , mau
-    , txns
-    , fees_native
-    , fees_native * price AS fees
-    , fees_native /2 AS revenue_native
-    , (fees_native / 2) * price AS revenue
-    , avg_txn_fee_native * price AS avg_txn_fee
+    , coalesce(dau, 0) as dau
+    , coalesce(wau, 0) as wau
+    , coalesce(mau, 0) as mau
+    , coalesce(txns, 0) as txns
+    , coalesce(fees_native, 0) as fees_native
+    , coalesce(fees_native, 0) * price AS fees
+    , coalesce(fees_native, 0) / 2 AS revenue_native
+    , (coalesce(fees_native, 0) / 2) * price AS revenue
+    , coalesce(avg_txn_fee_native, 0) * price AS avg_txn_fee
     -- Bespoke Metrics
-    , transaction_nodes
+    , coalesce(transaction_nodes, 0) as transaction_nodes
     -- Standardized Metrics
     -- Market Data Metrics
     , price
@@ -70,19 +70,19 @@ select
     , fdmc
     , tvl
     -- Chain Usage Metrics
-    , dau AS chain_dau
-    , wau AS chain_wau
-    , mau AS chain_mau
-    , txns AS chain_txns
-    , avg_txn_fee_native * price AS chain_avg_txn_fee
+    , coalesce(dau, 0) AS chain_dau
+    , coalesce(wau, 0) AS chain_wau
+    , coalesce(mau, 0) AS chain_mau
+    , coalesce(txns, 0) AS chain_txns
+    , coalesce(avg_txn_fee_native, 0) * price AS chain_avg_txn_fee
     -- Cash Flow Metrics
-    , fees * price as chain_fees
-    , fees_native AS ecosystem_revenue_native
-    , fees * price AS ecosystem_revenue
-    , fees_native / 2 AS burned_fee_allocation_native
-    , (fees_native / 2) * price AS burned_fee_allocation
-    , fees_native / 2 AS validator_fee_allocation_native
-    , (fees_native / 2) * price AS validator_fee_allocation
+    , coalesce(fees, 0) * price as chain_fees
+    , coalesce(fees_native, 0) AS ecosystem_revenue_native
+    , coalesce(fees, 0) * price AS ecosystem_revenue
+    , coalesce(fees_native, 0) / 2 AS burned_fee_allocation_native
+    , (coalesce(fees_native, 0) / 2) * price AS burned_fee_allocation
+    , coalesce(fees_native, 0) / 2 AS validator_fee_allocation_native
+    , (coalesce(fees_native, 0) / 2) * price AS validator_fee_allocation
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -116,13 +116,13 @@ select
     , p2p_stablecoin_mau
     , p2p_stablecoin_transfer_volume
     , p2p_stablecoin_tokenholder_count
-from ton_apps_fundamental_data as ton
-left join price_data on ton.date = price_data.date
-left join defillama_data on ton.date = defillama_data.date
-left join github_data on ton.date = github_data.date
-left join fundamental_data on ton.date = fundamental_data.date
-left join stablecoin_data on ton.date = stablecoin_data.date
-left join rolling_metrics on ton.date = rolling_metrics.date
-left join block_rewards_data on ton.date = block_rewards_data.date
-left join supply_data on ton.date = supply_data.date
-where ton.date < to_date(sysdate())
+from supply_data as supply
+left join ton_apps_fundamental_data as ton on supply.date = ton.date
+left join price_data on supply.date = price_data.date
+left join defillama_data on supply.date = defillama_data.date
+left join github_data on supply.date = github_data.date
+left join fundamental_data on supply.date = fundamental_data.date
+left join stablecoin_data on supply.date = stablecoin_data.date
+left join rolling_metrics on supply.date = rolling_metrics.date
+left join block_rewards_data on supply.date = block_rewards_data.date
+where supply.date < to_date(sysdate())

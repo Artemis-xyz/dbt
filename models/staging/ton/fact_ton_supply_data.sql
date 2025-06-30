@@ -41,10 +41,9 @@ with latest_source_json as (
             , total_supply
             , the_open_network_foundation + frozen as foundation_owned
             , issued_supply as issued_supply_native
-            , backers + dns_locked + telegram as unvested_tokens
+            , backers + dns_locked + telegram + the_locker as unvested_tokens
             , circulating_supply_first_principles as circulating_supply_native
         from pc_dbt_db.PROD.ton_daily_supply_data
-        where date < '2025-06-29'
 
         union
 
