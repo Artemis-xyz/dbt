@@ -14,8 +14,10 @@ with
             date
             , block_rewards
             , mev_priority_fees
-            , total_staking_yield as fees
-            , operating_expenses
+            , total_staking_yield as yield_generated
+            , fees
+            , validator_fee_allocation
+            , treasury_fee_allocation
             , protocol_revenue
             , primary_supply_side_revenue
             , secondary_supply_side_revenue
@@ -78,15 +80,13 @@ select
     s.date
 
     --Old metrics needed for compatibility
-    , COALESCE(f.fees, 0) as fees
     , COALESCE(f.primary_supply_side_revenue, 0) as primary_supply_side_revenue
     , COALESCE(f.secondary_supply_side_revenue, 0) as secondary_supply_side_revenue
     , COALESCE(f.total_supply_side_revenue, 0) as total_supply_side_revenue
     , COALESCE(f.protocol_revenue, 0) as protocol_revenue
-    , COALESCE(f.operating_expenses, 0) as operating_expenses
     , COALESCE(ti.token_incentives, 0) as token_incentives
-    , token_incentives + operating_expenses as total_expenses
-    , protocol_revenue - total_expenses as earnings
+    , COALESCE(token_incentives, 0) as total_expenses
+    , COALESCE(protocol_revenue, 0) - COALESCE(token_incentives, 0) as earnings
     , COALESCE(t.treasury_value, 0) as treasury_value
     , COALESCE(tn.treasury_native, 0) as treasury_native
     , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
@@ -108,16 +108,15 @@ select
     , COALESCE(s.num_staked_eth, 0) as tvl_native
     , COALESCE(s.amount_staked_usd_net_change, 0) as tvl_net_change
     , COALESCE(s.num_staked_eth_net_change, 0) as tvl_native_net_change
+    , COALESCE(f.yield_generated, 0) as yield_generated
 
     --Cash Flow Metrics
     , COALESCE(f.mev_priority_fees, 0) as mev_priority_fees
     , COALESCE(f.block_rewards, 0) as block_rewards
-    , COALESCE(f.fees, 0) as yield_generated
+    , COALESCE(f.fees, 0) as fees
 
-    , COALESCE(f.fees, 0) * .90 as service_fee_allocation
-    , COALESCE(f.fees, 0) * .05 as treasury_fee_allocation
-    , COALESCE(f.fees, 0) * .05 as validator_fee_allocation
-
+    , COALESCE(f.treasury_fee_allocation, 0) as treasury_fee_allocation
+    , COALESCE(f.validator_fee_allocation, 0) as validator_fee_allocation
 
     --Treasury Metrics
     , COALESCE(t.treasury_value, 0) as treasury
