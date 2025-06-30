@@ -1,11 +1,11 @@
 {{ 
     config(
         materialized="table",
-        database="solana",
+        database="optimism",
         schema="raw",
-        alias="ez_solana_gdp",
+        alias="ez_optimism_gdp",
         tags=["gdp"]
     )
 }}
 
-{{ get_chain_gdp("solana") }}
+{{ get_chain_gdp("optimism") }}

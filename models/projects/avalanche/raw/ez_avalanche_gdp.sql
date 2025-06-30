@@ -1,11 +1,11 @@
 {{ 
     config(
         materialized="table",
-        database="solana",
+        database="avalanche",
         schema="raw",
-        alias="ez_solana_gdp",
+        alias="ez_avalanche_gdp",
         tags=["gdp"]
     )
 }}
 
-{{ get_chain_gdp("solana") }}
+{{ get_chain_gdp("avalanche") }}

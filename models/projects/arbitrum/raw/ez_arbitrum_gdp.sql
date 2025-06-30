@@ -1,11 +1,11 @@
 {{ 
     config(
         materialized="table",
-        database="solana",
+        database="arbitrum",
         schema="raw",
-        alias="ez_solana_gdp",
+        alias="ez_arbitrum_gdp",
         tags=["gdp"]
     )
 }}
 
-{{ get_chain_gdp("solana") }}
+{{ get_chain_gdp("arbitrum") }}
