@@ -13,5 +13,3 @@ select
     subecosystem_name
 from {{ source("STAGING", "core_subecosystems") }}
 left join {{ source("STAGING", "core_ecosystems") }} on core_subecosystems.ecosystem_id = core_ecosystems.id
-where 
-    start_of_week <= {{ latest_developer_data_date() }}

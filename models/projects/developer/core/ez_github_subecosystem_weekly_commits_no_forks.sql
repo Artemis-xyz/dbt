@@ -15,4 +15,4 @@ select
 from {{ source("STAGING", "core_weeklycommitssubecosystemswithoutforks") }} as commits
 left join {{ source("STAGING", "core_ecosystems") }} as ecosystems on commits.ecosystem_id = ecosystems.id
 where 
-    start_of_week <= {{ latest_developer_data_date() }}
+    date <= {{ latest_developer_data_date() }}
