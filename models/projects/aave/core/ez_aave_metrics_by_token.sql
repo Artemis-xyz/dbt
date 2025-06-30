@@ -226,9 +226,6 @@ select
     , coalesce(flashloan_fees_nominal, 0) as flashloan_fees_nominal
     , gho_revenue_nominal as gho_fees_nominal
 
-    , coalesce(interest_rate_fees_nominal, 0) + coalesce(flashloan_fees_nominal, 0) + coalesce(gho_fees_nominal, 0) as fees_nominal
-    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_revenue, 0) as fees
-
     , supply_side_deposit_revenue_nominal
     , supply_side_deposit_revenue
 
@@ -259,23 +256,12 @@ select
     , gho_revenue_nominal
     , gho_revenue
 
-    , coalesce(reserve_factor_revenue_nominal, 0) + coalesce(dao_trading_revenue_nominal, 0) + coalesce(gho_revenue_nominal, 0) as protocol_revenue_nominal
-    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as protocol_revenue
 
     , ecosystem_incentives_nominal as ecosystem_incentives_nominal
     , ecosystem_incentives
 
     , safety_incentives_nominal as safety_incentives_nominal
     , safety_incentives
-
-    , coalesce(ecosystem_incentives_nominal, 0) + coalesce(safety_incentives_nominal, 0) as token_incentives_nominal
-    , coalesce(ecosystem_incentives, 0) + coalesce(safety_incentives, 0) as token_incentives
-
-    , token_incentives_nominal as total_expenses_nominal
-    , token_incentives as total_expenses 
-
-    , coalesce(protocol_revenue_nominal, 0) - coalesce(total_expenses_nominal, 0) as earnings_nominal
-    , coalesce(protocol_revenue, 0) - coalesce(total_expenses, 0) as earnings
 
     , outstanding_supply_nominal
     , outstanding_supply
@@ -301,9 +287,11 @@ select
     , flashloan_fees
     , gho_revenue_nominal as gho_fees_native
     , gho_revenue as gho_fees
+    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as revenue
+    , coalesce(reserve_factor_revenue_nominal, 0) + coalesce(dao_trading_revenue_nominal, 0) + coalesce(gho_revenue_nominal, 0) as revenue_native
 
-    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as ecosystem_revenue
-    , coalesce(interest_rate_fees_nominal, 0) + coalesce(flashloan_fees_nominal, 0) + coalesce(gho_fees_nominal, 0) as ecosystem_revenue_native
+    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_fees, 0) as fees
+    , coalesce(interest_rate_fees_nominal, 0) + coalesce(flashloan_fees_nominal, 0) + coalesce(gho_fees_nominal, 0) as fees_native
 
     , supply_side_deposit_revenue + flashloan_fees as service_fee_allocation
     , supply_side_deposit_revenue_nominal + flashloan_fees_nominal as service_fee_allocation_native
@@ -319,6 +307,12 @@ select
     , gho_revenue_nominal as gho_treasury_fee_allocation_native
     , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as treasury_fee_allocation
     , coalesce(reserve_factor_revenue_nominal, 0) + coalesce(dao_trading_revenue_nominal, 0) + coalesce(gho_revenue_nominal, 0) as treasury_fee_allocation_native
+
+    , coalesce(ecosystem_incentives_nominal, 0) + coalesce(safety_incentives_nominal, 0) as token_incentives_native
+    , coalesce(ecosystem_incentives, 0) + coalesce(safety_incentives, 0) as token_incentives
+
+    , coalesce(revenue_native, 0) - coalesce(token_incentives_native, 0) as earnings_native
+    , coalesce(revenue, 0) - coalesce(token_incentives, 0) as earnings
     
     , outstanding_supply as lending_loans
     , outstanding_supply_nominal as lending_loans_native

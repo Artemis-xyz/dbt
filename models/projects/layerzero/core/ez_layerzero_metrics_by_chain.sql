@@ -28,12 +28,11 @@ SELECT
     coalesce(f.date, d.date) as date
     , d.chain
     , coalesce(d.dau, 0) as bridge_daa
-    , coalesce(f.fees, 0) as fees
 
     -- Standardized Metrics
 
     -- Cash Flow Metrics
-    , coalesce(fees, 0) as ecosystem_revenue
+    , coalesce(f.fees, 0) as fees
     
     -- Bridge Metrics
     , coalesce(d.dau, 0) as bridge_dau

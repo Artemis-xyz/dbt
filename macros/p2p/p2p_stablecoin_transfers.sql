@@ -1,9 +1,12 @@
 {% macro p2p_stablecoin_transfers(chain, new_stablecoin_address) %}
+
+{% set backfill_days = 3 %}
+
 with 
     stablecoin_transfers as (
         select * from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers") }}
     ),
-    {% if chain in ("tron", "solana", "near", "ton") %}
+    {% if chain in ("tron", "solana", "near", "ton", "ripple") %}
          distinct_peer_address as (
             select address
             from {{ ref("dim_" ~ chain ~ "_eoa_addresses") }}
@@ -38,7 +41,7 @@ with
             {% endif %}
             {% if is_incremental() and new_stablecoin_address == '' %} 
                 and block_timestamp >= (
-                    select dateadd('day', -3, max(block_timestamp))
+                    select dateadd('day', -{{ backfill_days }}, max(block_timestamp))
                     from {{ this }}
                 )
             {% endif %}
@@ -72,7 +75,7 @@ with
                 and not t1.from_address in (select contract_address from distinct_contracts)
             {% if is_incremental() and new_stablecoin_address == '' %} 
                 and block_timestamp >= (
-                    select dateadd('day', -3, max(block_timestamp))
+                    select dateadd('day', -{{ backfill_days }}, max(block_timestamp))
                     from {{ this }}
                 )
             {% endif %}
@@ -110,12 +113,16 @@ with
         and lower(to_address) not in ('TMerfyf1KwvKeszfVoLH3PEJH52fC2DENq', '1nc1nerator11111111111111111111111111111111', 'system', '0x0000000000000000000000000000000000000000', 'EQAj-peZGPH-cC25EAv4Q-h8cBXszTmkch6ba6wXC8BM4xdo')
         and lower(from_address) not in ('TMerfyf1KwvKeszfVoLH3PEJH52fC2DENq', '1nc1nerator11111111111111111111111111111111', 'system', '0x0000000000000000000000000000000000000000', 'EQAj-peZGPH-cC25EAv4Q-h8cBXszTmkch6ba6wXC8BM4xdo')
         and lower(tx_hash) not in (select lower(tx_hash) from cex_filter)
+    {% if chain == 'ripple' %}
+        and lower(from_address) != lower(token_address)
+        and lower(to_address) != lower(token_address)
+    {% endif %}
     {% if chain == "solana" %}
         and block_timestamp::date > '2022-12-31' -- Prior to 2023, volumes data not high fidelity enough to report. Continuing to do analysis on this data. 
     {% endif %}
     {% if is_incremental() and new_stablecoin_address == '' %} 
         and block_timestamp >= (
-            select dateadd('day', -3, max(block_timestamp))
+            select dateadd('day', -{{ backfill_days }}, max(block_timestamp))
             from {{ this }}
         )
     {% endif %}

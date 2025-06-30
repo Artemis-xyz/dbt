@@ -62,15 +62,8 @@ WITH
 select
     date
     , 'ethereum' as chain
-    , COALESCE(fees, 0) AS fees
     , COALESCE(primary_revenue, 0) AS primary_revenue
     , COALESCE(other_revenue, 0) AS other_revenue
-    , COALESCE(protocol_revenue, 0) AS protocol_revenue
-    , COALESCE(token_incentives, 0) AS token_incentives
-    , COALESCE(operating_expenses, 0) AS operating_expenses
-    , COALESCE(direct_expenses, 0) AS direct_expenses
-    , COALESCE(total_expenses, 0) AS total_expenses
-    , COALESCE(protocol_revenue - total_expenses, 0) AS earnings
     
     , COALESCE(treasury_usd, 0) AS treasury_usd
     , COALESCE(net_treasury_usd, 0) AS net_treasury_usd
@@ -83,14 +76,15 @@ select
     , 'DeFi' as category
     , COALESCE(stability_fees,0) as stability_fees
     , COALESCE(trading_fees, 0) AS trading_fees
-    , COALESCE(fees, 0) AS ecosystem_revenue
+    , COALESCE(fees, 0) AS fees
+    , COALESCE(protocol_revenue, 0) AS treasury_fee_allocation
 
-    , COALESCE(primary_revenue, 0) AS interest_rate_fee_allocation
-    , COALESCE(liquidation_revenue, 0) AS liquidation_fee_allocation
-    , COALESCE(trading_revenue, 0) AS trading_fee_allocation
-    -- token_fee_allocation = trading_revenue + liquidation_revenue + interest_rate_fee_allocation
-    , COALESCE(protocol_revenue, 0) AS token_fee_allocation
-    
+    , COALESCE(protocol_revenue, 0) AS revenue
+    , COALESCE(token_incentives, 0) AS token_incentives
+    , COALESCE(operating_expenses, 0) AS operating_expenses
+    , COALESCE(direct_expenses, 0) AS direct_expenses
+    , COALESCE(total_expenses, 0) AS total_expenses
+    , COALESCE(revenue - total_expenses, 0) AS earnings
 
     , COALESCE(treasury_usd, 0) AS treasury
     , COALESCE(treasury_native, 0) AS treasury_native

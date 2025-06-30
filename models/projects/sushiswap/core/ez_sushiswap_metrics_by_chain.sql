@@ -59,7 +59,7 @@ with trading_volume_by_pool as (
     select
         date,
         chain,
-        sum(trading_fees) as ecosystem_revenue,
+        sum(trading_fees) as fees,
         case
             when date between '2023-01-23' and '2024-01-23' THEN
                 sum(trading_fees * 0.0030)
@@ -112,7 +112,8 @@ select
     , tvl_by_chain.tvl
 
     -- Cashflow Metrics
-    , cashflow_metrics.ecosystem_revenue as ecosystem_revenue
+    , trading_volume_by_chain.trading_fees as spot_fees
+    , cashflow_metrics.fees as fees
     , cashflow_metrics.service_fee_allocation as service_fee_allocation
     , cashflow_metrics.staking_fee_allocation as staking_fee_allocation
     , token_incentives.token_incentives

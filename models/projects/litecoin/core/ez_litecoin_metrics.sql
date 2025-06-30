@@ -19,7 +19,7 @@ with
             count(*) as txns,
             sum(fee) / 100000000 as fees_native, -- Convert satoshis to LTC
             avg(fee) / 100000000 as avg_txn_fee,
-            sum(fee) / 100000000 as revenue_native, -- Revenue in LTC
+            0 as revenue_native, -- Revenue in LTC
             'litecoin' as chain
         from {{ ref("fact_litecoin_transactions") }}
         group by 1
@@ -91,8 +91,8 @@ select
     transaction_metrics.fees_native,
     transaction_metrics.fees_native * price_data.price as fees,
     transaction_metrics.avg_txn_fee,
-    transaction_metrics.revenue_native,
-    transaction_metrics.revenue_native * price_data.price as revenue,
+    0 as revenue_native,
+    0 as revenue,
     block_metrics.issuance,
     supply_metrics.circulating_supply,
     github_data.weekly_commits_core_ecosystem,

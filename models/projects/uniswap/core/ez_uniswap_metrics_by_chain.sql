@@ -108,11 +108,9 @@ select
     , 'DeFi' as category
     , tvl_by_chain.chain
     , trading_fees
-    , trading_fees as fees
     , trading_fees as primary_supply_side_revenue
     , trading_fees as total_supply_side_revenue
     , 0 as secondary_supply_side_revenue
-    , 0 as protocol_revenue
     , 0 as operating_expenses
     , token_incentives_usd + operating_expenses as total_expenses
     , token_incentives_usd as token_incentives
@@ -132,8 +130,11 @@ select
     , trading_volume_by_chain.unique_traders as spot_dau
     , trading_volume_by_chain.trading_volume as spot_volume
     , trading_volume_by_chain.trading_fees as spot_fees
-    , trading_volume_by_chain.trading_fees as ecosystem_revenue
+    , trading_volume_by_chain.trading_fees as fees
     , trading_volume_by_chain.trading_fees as service_fee_allocation
+
+    --Financial Statement Metrics
+    , 0 as revenue
 
     -- Treasury Metrics
     , treasury_value as treasury

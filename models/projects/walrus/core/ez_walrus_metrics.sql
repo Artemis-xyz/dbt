@@ -24,7 +24,7 @@ SELECT DISTINCT
     , parquet_raw:txns::int AS txns
 
     -- Standardized Metrics
-    , (COALESCE(parquet_raw:fees::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS gross_protocol_revenue_usd
+    , (COALESCE(parquet_raw:fees::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS fees
 
     -- Token Metrics
     , COALESCE(market_data.price, 0) AS price

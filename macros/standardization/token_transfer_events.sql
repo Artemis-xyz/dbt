@@ -54,8 +54,8 @@ select
     , transaction_index
     , event_index
     , token_transfers.contract_address
-    , from_address
-    , to_address
+    , lower(from_address) as from_address
+    , lower(to_address) as to_address
     , amount_raw
     , amount_raw / pow(10, contract_addresses.decimals) as amount_native
     , amount_native * prices.price as amount

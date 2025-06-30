@@ -97,10 +97,10 @@ SELECT
     , dex_data.spot_dau as spot_dau
     , dex_data.spot_volume as spot_volume
     , fractal_l2_txns.l2_txns as chain_txns
-    , staked_eth_metrics.num_staked_eth as stake_tvl_native
-    , staked_eth_metrics.amount_staked_usd as stake_tvl
-    , staked_eth_metrics.num_staked_eth_net_change as stake_tvl_native_net_change
-    , staked_eth_metrics.amount_staked_usd_net_change as stake_tvl_net_change
+    , staked_eth_metrics.num_staked_eth as lst_tvl_native
+    , staked_eth_metrics.amount_staked_usd as lst_tvl
+    , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
+    , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
     , tvl_data.tvl as spot_tvl
     , frax_daily_supply_data.frax_circulating_supply as stablecoin_total_supply
     , veFXS_daily_supply_data.circulating_supply as veFXS_total_supply

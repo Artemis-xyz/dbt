@@ -83,10 +83,6 @@ select
     , COALESCE(f.primary_supply_side_revenue, 0) as primary_supply_side_revenue
     , COALESCE(f.secondary_supply_side_revenue, 0) as secondary_supply_side_revenue
     , COALESCE(f.total_supply_side_revenue, 0) as total_supply_side_revenue
-    , COALESCE(f.protocol_revenue, 0) as protocol_revenue
-    , COALESCE(ti.token_incentives, 0) as token_incentives
-    , COALESCE(token_incentives, 0) as total_expenses
-    , COALESCE(protocol_revenue, 0) - COALESCE(token_incentives, 0) as earnings
     , COALESCE(t.treasury_value, 0) as treasury_value
     , COALESCE(tn.treasury_native, 0) as treasury_native
     , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
@@ -104,10 +100,12 @@ select
     , COALESCE(p.token_volume, 0) as token_volume
 
     --Usage Metrics
+    , COALESCE(s.amount_staked_usd, 0) as lst_tvl
     , COALESCE(s.amount_staked_usd, 0) as tvl
+    , COALESCE(s.num_staked_eth, 0) as lst_tvl_native
     , COALESCE(s.num_staked_eth, 0) as tvl_native
-    , COALESCE(s.amount_staked_usd_net_change, 0) as tvl_net_change
-    , COALESCE(s.num_staked_eth_net_change, 0) as tvl_native_net_change
+    , COALESCE(s.amount_staked_usd_net_change, 0) as lst_tvl_net_change
+    , COALESCE(s.num_staked_eth_net_change, 0) as lst_tvl_native_net_change
     , COALESCE(f.yield_generated, 0) as yield_generated
 
     --Cash Flow Metrics
@@ -117,6 +115,12 @@ select
 
     , COALESCE(f.treasury_fee_allocation, 0) as treasury_fee_allocation
     , COALESCE(f.validator_fee_allocation, 0) as validator_fee_allocation
+
+    -- Financial Statement Metrics
+    , COALESCE(f.protocol_revenue, 0) as revenue
+    , COALESCE(ti.token_incentives, 0) as token_incentives
+    , COALESCE(ti.token_incentives, 0) as total_expenses
+    , COALESCE(f.protocol_revenue, 0) - COALESCE(ti.token_incentives, 0) as earnings
 
     --Treasury Metrics
     , COALESCE(t.treasury_value, 0) as treasury

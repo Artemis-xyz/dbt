@@ -9,13 +9,7 @@
                 , contract_address
                 , symbol
                 , address as from_address
-                {% if chain in ('tron') %}
-                    , case
-                        when 
-                            lower(address) in (select lower(premint_address) from {{ref("fact_"~chain~"_stablecoin_bridge_addresses")}}) then 0
-                        else stablecoin_supply
-                    end as stablecoin_supply
-                {% elif chain in ('ethereum') %}
+                {% if chain in ('ethereum', 'tron') %}
                     , case
                         when (
                             lower(address) in (
@@ -197,7 +191,7 @@
                     else filtered_contracts.artemis_category_id 
                 end as artemis_category_id
                 , case 
-                    {% if chain not in ('solana', 'tron', 'near', 'ton', 'sui') %}
+                    {% if chain not in ('solana', 'tron', 'near', 'ton', 'sui', 'ripple') %}
                         when 
                             from_address not in (select contract_address from {{ ref("dim_" ~ chain ~ "_contract_addresses")}}) 
                             then 1

@@ -54,6 +54,8 @@ select
     , fundamental_data.non_sybil_users as non_sybil_users
     , fundamental_data.tvl as tvl
     , fundamental_data.tvl_net_change as tvl_net_change
+    , fundamental_data.tvl as lst_tvl
+    , fundamental_data.tvl_net_change as lst_tvl_net_change
 
     --Cashflow Metrics
     , fundamental_data.fees_usd as chain_fees

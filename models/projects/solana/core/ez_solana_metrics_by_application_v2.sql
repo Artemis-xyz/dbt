@@ -56,6 +56,15 @@ with
         from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         where not equal_null(category, 'EOA') and app is not null
         group by raw_date, app
+    ),
+    monthly_users as (
+        select
+            date_trunc('month', raw_date) as month_date,
+            app,
+            count(distinct(case when succeeded = 'TRUE' then value else null end)) mau
+        from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
+        where not equal_null(category, 'EOA') and app is not null
+        group by month_date, app
     )
 select
     agg_data.raw_date as date,
@@ -77,6 +86,7 @@ select
     rev_usd,
     txns,
     dau,
+    mau,
     null AS contract_count,
     null AS real_users,
     (dau - new_users) as returning_users,
@@ -96,3 +106,7 @@ left join
     sybil
     on equal_null(agg_data.app, sybil.app)
     and agg_data.raw_date = sybil.raw_date
+left join
+    monthly_users
+    on equal_null(agg_data.app, monthly_users.app)
+    and date_trunc('month', agg_data.raw_date) = monthly_users.month_date
