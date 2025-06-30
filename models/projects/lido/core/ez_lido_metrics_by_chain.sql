@@ -93,6 +93,8 @@ select
     , COALESCE(s.num_staked_eth, 0) as outstanding_supply
     , COALESCE(s.amount_staked_usd, 0) as amount_staked_usd
     , COALESCE(s.num_staked_eth, 0) as num_staked_eth
+    , COALESCE(s.amount_staked_usd_net_change, 0) as amount_staked_usd_net_change
+    , COALESCE(s.num_staked_eth_net_change, 0) as num_staked_eth_net_change
 
     --Standardized Metrics
 

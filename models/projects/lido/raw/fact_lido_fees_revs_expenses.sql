@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="LIDO",
+        snowflake_warehouse="ANALYTICS_XL",
         database="lido",
         schema="raw",
         alias="fact_fees_revs_expenses",
