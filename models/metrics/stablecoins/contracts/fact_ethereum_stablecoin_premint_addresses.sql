@@ -66,5 +66,10 @@ from
             (
                 '0xf939e0a03fb07f59a73314e73794be0e57ac1b4e',
                 '0x652aEa6B22310C89DCc506710CaD24d2Dba56B11'
+            ),
+            -- Ethena OFT address
+            (
+                '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
+                '0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34'
             )
     ) as results(contract_address, premint_address)
