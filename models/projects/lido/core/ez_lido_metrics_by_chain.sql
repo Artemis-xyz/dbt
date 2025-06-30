@@ -84,11 +84,6 @@ select
     , COALESCE(f.primary_supply_side_revenue, 0) as primary_supply_side_revenue
     , COALESCE(f.secondary_supply_side_revenue, 0) as secondary_supply_side_revenue
     , COALESCE(f.total_supply_side_revenue, 0) as total_supply_side_revenue
-    , COALESCE(f.protocol_revenue, 0) as protocol_revenue
-    , COALESCE(f.operating_expenses, 0) as operating_expenses
-    , COALESCE(ti.token_incentives, 0) as token_incentives
-    , token_incentives + operating_expenses as total_expenses
-    , protocol_revenue - total_expenses as earnings
     , COALESCE(t.treasury_value, 0) as treasury_value
     , COALESCE(s.amount_staked_usd, 0) as net_deposits
     , COALESCE(s.num_staked_eth, 0) as outstanding_supply
@@ -115,6 +110,13 @@ select
     , COALESCE(f.fees, 0) * .90 as service_fee_allocation
     , COALESCE(f.fees, 0) * .05 as treasury_fee_allocation
     , COALESCE(f.fees, 0) * .05 as validator_fee_allocation
+
+    -- Financial Statement Metrics
+    , COALESCE(f.protocol_revenue, 0) as revenue
+    , COALESCE(f.operating_expenses, 0) as operating_expenses
+    , COALESCE(ti.token_incentives, 0) as token_incentives
+    , token_incentives + operating_expenses as total_expenses
+    , revenue - total_expenses as earnings
 
     --Treasury Metrics
     , COALESCE(t.treasury_value, 0) as treasury

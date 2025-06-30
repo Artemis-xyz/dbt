@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="ANALYTICS_XL") }}
+{{ config(materialized="table", snowflake_warehouse="STANDARD_8D737A18") }}
 
 
 select 

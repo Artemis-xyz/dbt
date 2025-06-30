@@ -104,7 +104,6 @@ SELECT
     , fees as primary_supply_side_revenue
     , 0 as secondary_supply_side_revenue
     , fees as total_supply_side_revenue
-    , 0 as protocol_revenue
     , 0 as operating_expenses
     , token_incentives_usd + operating_expenses as total_expenses
     , treasury_usd as treausry_value
@@ -130,8 +129,11 @@ SELECT
     -- Money Metrics
     , fees as spot_fees
     , fees as service_fee_allocation
+
+    --Financial Statement Metrics
+    , 0 as revenue
     , token_incentives_usd as token_incentives
-    , protocol_revenue - token_incentives as earnings
+    , revenue - token_incentives as earnings
 
     -- Treasury Metrics
     , treasury_usd as treasury
