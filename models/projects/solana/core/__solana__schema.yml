@@ -82,6 +82,12 @@ column_definitions:
     name: chain_wau
     description: "Weekly unique users on a chain"
 
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+    tags:
+      - artemis_gaap
+
   fdmc: &fdmc
     name: fdmc
     description: "The fully diluted market cap of a token in USD"
@@ -107,6 +113,12 @@ column_definitions:
   high_sleep_users: &high_sleep_users
     name: high_sleep_users
     description: "The number of high sleep users on a chain"
+
+  issued_supply_native: &issued_supply_native
+    name: issued_supply_native
+    description: "The issued supply of a token, equal to the total supply minus foundation or DAO held tokens."
+    tags:
+      - artemis_gaap
 
   low_sleep_users: &low_sleep_users
     name: low_sleep_users
@@ -336,10 +348,12 @@ models:
       - *chain_spot_volume
       - *chain_txns
       - *chain_wau
+      - *circulating_supply_native
       - *fdmc
       - *fees
       - *gross_emissions
       - *gross_emissions_native
+      - *issued_supply_native
       - *market_cap
       - *new_users
       - *p2p_native_transfer_volume

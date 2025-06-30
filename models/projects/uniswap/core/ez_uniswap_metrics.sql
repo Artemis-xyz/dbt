@@ -86,6 +86,15 @@ WITH
     , tokenholder_cte as (
         SELECT * FROM {{ ref('fact_uni_tokenholder_count') }}
     )
+    , supply_metrics as (
+        SELECT
+            date,
+            max_supply,
+            total_supply,
+            issued_supply,
+            circulating_supply
+        FROM {{ ref("fact_uniswap_supply_data") }}
+    )
 SELECT
     date
     , dau_txns_volume.spot_dau as dau
@@ -129,6 +138,12 @@ SELECT
     , own_token_treasury as own_token_treasury
     , net_treasury_usd as net_treasury
 
+    -- Supply Metrics
+    , supply_metrics.max_supply as max_supply_native
+    , supply_metrics.total_supply as total_supply_native
+    , supply_metrics.issued_supply as issued_supply_native
+    , supply_metrics.circulating_supply as circulating_supply_native
+
     -- Other Metrics
     , price_data_cte.token_turnover_fdv
     , price_data_cte.token_turnover_circulating
@@ -143,4 +158,5 @@ LEFT JOIN net_treasury_cte using(date)
 LEFT JOIN tvl_cte using(date)
 LEFT JOIN price_data_cte using(date)
 LEFT JOIN tokenholder_cte using(date)
+LEFT JOIN supply_metrics using(date)
 WHERE date < to_date(sysdate())

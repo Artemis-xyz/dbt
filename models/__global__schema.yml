@@ -398,8 +398,18 @@ column_definitions:
       description: "The amount of native tokens burned"
     - name: net_supply_change_native
       description: "The net change in the circulating supply of a token in native tokens"
+    - name: max_supply_native
+      description: "The maximum supply of a token, including any uncreated tokens, unvested tokens, foundation or DAO held tokens, and burned tokens."
+      tags: [artemis_gaap]
+    - name: total_supply_native
+      description: "The total supply of a token, equal to the sum of all tokens created minus the sum of all tokens destroyed."
+      tags: [artemis_gaap]
+    - name: issued_supply_native
+      description: "The issued supply of a token, equal to the total supply minus foundation or DAO held tokens."
+      tags: [artemis_gaap]
     - name: circulating_supply_native
-      description: "The circulating supply of a token in native tokens"
+      description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+      tags: [artemis_gaap]
 
   etf_metrics:
     - name: net_etf_flow_native

@@ -88,6 +88,7 @@ sources:
     database: ethereum_flipside
     tables:
       - name: fact_validators
+      - name: fact_blocks
 
 # DUNE
   - name: DUNE_DEX_VOLUMES

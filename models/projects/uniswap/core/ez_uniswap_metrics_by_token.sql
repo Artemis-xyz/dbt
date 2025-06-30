@@ -71,7 +71,6 @@ WITH
             , 'ethereum' as chain
             , token
             , sum(treasury_native) as net_treasury_value
-            , sum(usd_balance) as own_token_treasury
         FROM {{ ref('fact_uniswap_treasury_by_token') }}
         WHERE token <> 'UNI'
         GROUP BY 1, 2, 3
@@ -128,7 +127,7 @@ SELECT
     -- Treasury Metrics
     , treasury_native_value as treasury
     , net_treasury_value as net_treasury
-    , own_token_treasury
+    , treasury_native_value as own_token_treasury_native
 FROM
     fees_agg
 LEFT JOIN token_incentives_cte using(date, chain, token)
