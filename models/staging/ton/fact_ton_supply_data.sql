@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="SEI",
+        snowflake_warehouse="TON",
     )
 }}
 
@@ -34,15 +34,72 @@ with latest_source_json as (
     group by 1
 )
 
-, raw_data as (
+, combined_supply as (
+        select
+            date
+            , max_supply
+            , total_supply
+            -- Frozen was a community initiative to lock up inactive mining wallets for 4 years, so we can consider it as foundation owned
+            , the_open_network_foundation + frozen as foundation_owned
+            , issued_supply as issued_supply_native
+            -- Backers are people who acquired Toncoin from secondary markets with lockup schedules ranging from 2 to 10 years
+            -- DNS locked was launched because Toncoin was collected from DNS auctions
+            -- Telegram has an exclusive promotion agreement with TON
+            -- The Locker is use to incentives large holders by offering fixed yields for vesting their Toncoin for 2 years of lockup
+            , backers + dns_locked + telegram + the_locker as unvested_tokens
+            , circulating_supply_first_principles as circulating_supply_native
+        from {{ source('MANUAL_STATIC_TABLES', 'ton_daily_supply_data') }}
+
+        union
+
+        -- I modelled using first principles until 2025-06-29, so moving forward we get data (total supply and circulating supply) from the API
+        select
+            date
+            , total_supply as max_supply
+            , total_supply
+            , null as foundation_owned
+            , null as issued_supply_native
+            , null as unvested_tokens
+            , circulating_supply as circulating_supply_native
+        from filtered_data 
+        where date > '2025-06-29'
+)
+
+, filled_supply as (
     select
-        date(date) as date
-        , circulating_supply
-        , circulating_supply - nullif(lag(circulating_supply) over (order by date), 0) as premine_unlocks_native
-        , initiated_supply
-        , total_supply
-        , total_accounts
-    from filtered_data
+        date(date) as date,
+        total_supply,
+        circulating_supply_native,
+        max_supply,
+        last_value(foundation_owned ignore nulls) over (order by date rows between unbounded preceding and current row) as foundation_owned,
+        last_value(issued_supply_native ignore nulls) over (order by date rows between unbounded preceding and current row) as issued_supply_native,
+        last_value(unvested_tokens ignore nulls) over (order by date rows between unbounded preceding and current row) as unvested_tokens
+    from combined_supply
+)
+
+, first_principles_calculation as (
+    select
+        date
+        , max_supply as max_supply_native
+        , total_supply as total_supply_native
+        , foundation_owned
+        , total_supply - foundation_owned as issued_supply_native
+        , unvested_tokens
+        , issued_supply_native - unvested_tokens as circulating_supply_native
+    from filled_supply
+)
+
+, calculating_net_supply_change as (
+    select
+        date
+        , max_supply_native
+        , total_supply_native
+        , foundation_owned
+        , issued_supply_native
+        , unvested_tokens
+        , circulating_supply_native - nullif(lag(circulating_supply_native) over (order by date), 0) as net_supply_change_native
+        , circulating_supply_native
+    from first_principles_calculation
 )
 
 , minted_data as (
@@ -63,16 +120,23 @@ with latest_source_json as (
 )
 
 , supply_data as (
-    select 
+    select
         date
-        , coalesce(premine_unlocks_native, 0) as premine_unlocks_native
+        , coalesce(net_supply_change_native, 0) - coalesce(gross_emissions_native, 0) + coalesce(burns_native, 0) as premine_unlocks_native
         , coalesce(gross_emissions_native, 0) as gross_emissions_native
         , coalesce(burns_native, 0) as burns_native
-        , coalesce(premine_unlocks_native, 0) + coalesce(gross_emissions_native, 0) - coalesce(burns_native, 0) as net_supply_change_native
-        , sum(net_supply_change_native) over (order by date) as circulating_supply_native
-    from raw_data
+        , net_supply_change_native
+        , total_supply_native
+        , max_supply_native
+        , foundation_owned
+        , issued_supply_native
+        , unvested_tokens
+        , circulating_supply_native
+    from first_principles_calculation first_principles
+    left join calculating_net_supply_change using (date)
     left join minted_data using (date)
     left join fundamental_data using (date)
+    
 )
 
 select
@@ -81,5 +145,10 @@ select
     , gross_emissions_native
     , burns_native
     , net_supply_change_native
+    , total_supply_native
+    , max_supply_native
+    , foundation_owned
+    , issued_supply_native
+    , unvested_tokens
     , circulating_supply_native
 from supply_data

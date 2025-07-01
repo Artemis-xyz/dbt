@@ -31,6 +31,19 @@ with
                 and date >= (select dateadd('day', CASE WHEN DAYOFWEEK(CURRENT_DATE) = 6 THEN -90 ELSE -30 END, max(date)) from {{ this }})
             {% endif %}
         group by date, contract_address
+    ),
+    monthly_users as (
+        select
+            coalesce(token_address, program_id) as contract_address,
+            date_trunc('month', raw_date) as month_date,
+            count(distinct(case when succeeded = 'TRUE' then value else null end)) mau
+        from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
+        where
+            not equal_null(category, 'EOA')
+            {% if is_incremental() %}
+                and raw_date >= (select dateadd('day', CASE WHEN DAYOFWEEK(CURRENT_DATE) = 6 THEN -120 ELSE -60 END, max(date)) from {{ this }})
+            {% endif %}
+        group by month_date, contract_address
     )
 select
     contract_data.contract_address,
@@ -54,5 +67,10 @@ select
     rev_usd,
     txns,
     dau,
+    mau,
     null AS real_users
 from contract_data
+left join
+    monthly_users
+    on contract_data.contract_address = monthly_users.contract_address
+    and date_trunc('month', contract_data.date) = monthly_users.month_date

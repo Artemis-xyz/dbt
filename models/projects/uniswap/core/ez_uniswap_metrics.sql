@@ -86,6 +86,15 @@ WITH
     , tokenholder_cte as (
         SELECT * FROM {{ ref('fact_uni_tokenholder_count') }}
     )
+    , supply_metrics as (
+        SELECT
+            date,
+            max_supply,
+            total_supply,
+            issued_supply,
+            circulating_supply
+        FROM {{ ref("fact_uniswap_supply_data") }}
+    )
 SELECT
     date
     , dau_txns_volume.spot_dau as dau
@@ -95,7 +104,6 @@ SELECT
     , fees as primary_supply_side_revenue
     , 0 as secondary_supply_side_revenue
     , fees as total_supply_side_revenue
-    , 0 as protocol_revenue
     , 0 as operating_expenses
     , token_incentives_usd + operating_expenses as total_expenses
     , treasury_usd as treausry_value
@@ -121,13 +129,22 @@ SELECT
     -- Money Metrics
     , fees as spot_fees
     , fees as service_fee_allocation
+
+    --Financial Statement Metrics
+    , 0 as revenue
     , token_incentives_usd as token_incentives
-    , protocol_revenue - token_incentives as earnings
+    , revenue - token_incentives as earnings
 
     -- Treasury Metrics
     , treasury_usd as treasury
     , own_token_treasury as own_token_treasury
     , net_treasury_usd as net_treasury
+
+    -- Supply Metrics
+    , supply_metrics.max_supply as max_supply_native
+    , supply_metrics.total_supply as total_supply_native
+    , supply_metrics.issued_supply as issued_supply_native
+    , supply_metrics.circulating_supply as circulating_supply_native
 
     -- Other Metrics
     , price_data_cte.token_turnover_fdv
@@ -143,4 +160,5 @@ LEFT JOIN net_treasury_cte using(date)
 LEFT JOIN tvl_cte using(date)
 LEFT JOIN price_data_cte using(date)
 LEFT JOIN tokenholder_cte using(date)
+LEFT JOIN supply_metrics using(date)
 WHERE date < to_date(sysdate())

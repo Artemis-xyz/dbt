@@ -30,15 +30,21 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  token_incentives: &token_incentives
+    name: token_incentives
+    description: "The total token incentives paid by a protocol in its native token"
+    tags:
+      - artemis_gaap
+
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
-    description: "The turnover of a token in USD"
+    description: "The turnover of a token in USD, based on the token's circulating supply."
     tags:
       - artemis_gaap
 
   token_turnover_fdv: &token_turnover_fdv
     name: token_turnover_fdv
-    description: "The turnover of a token in USD"
+    description: "The turnover of a token in USD, based on the token's fully diluted supply."
     tags:
       - artemis_gaap
 
@@ -57,6 +63,7 @@ models:
       - *perp_dau
       - *perp_volume
       - *price
+      - *token_incentives
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
@@ -66,4 +73,5 @@ models:
     columns:
       - *perp_dau
       - *perp_volume
+      - *token_incentives
 

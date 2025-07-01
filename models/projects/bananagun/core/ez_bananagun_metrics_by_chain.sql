@@ -27,7 +27,7 @@ SELECT
     , coalesce(metrics.trading_volume, 0) AS aggregator_volume
 
     -- Cash Flow Metrics
-    , coalesce(metrics.fees_usd, 0) AS ecosystem_revenue
+    , coalesce(metrics.fees_usd, 0) AS fees
     , coalesce(metrics.fees_usd, 0) * 0.6 AS treasury_fee_allocation
     , coalesce(metrics.fees_usd, 0) * 0.4 AS token_fee_allocation
 FROM metrics
