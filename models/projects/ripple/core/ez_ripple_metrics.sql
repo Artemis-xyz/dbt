@@ -19,7 +19,13 @@ with
         from {{ ref("fact_ripple_fundamental_metrics") }}
     )
     , price_data as ({{ get_coingecko_metrics("ripple") }})
-    
+    , supply_data as (
+        select
+            date,
+            issued_supply,
+            circulating_supply
+        from {{ ref("fact_ripple_supply_data") }}
+    )
 select
     fundamental_data.date -- goes back to Jan 2013
 
@@ -46,9 +52,14 @@ select
     , chain_fees_native as revenue_native
     , chain_fees_native as burned_fee_allocation_native
 
+    -- Supply Metrics
+    , issued_supply as issued_supply_native
+    , circulating_supply as circulating_supply_native
+
     -- Other Metrics
     , price_data.token_turnover_circulating
     , price_data.token_turnover_fdv
 FROM fundamental_data
 left join price_data using(date)
+left join supply_data using(date)
 where fundamental_data.date < to_date(sysdate())

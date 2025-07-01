@@ -30,7 +30,7 @@ WITH
         SELECT date, treasury_usd FROM {{ ref('fact_treasury_usd') }}
     )
     , treasury_native AS (
-        SELECT date, amount_mkr as treasury_native FROM {{ ref('fact_treasury_mkr') }}
+        SELECT date, sum(amount_native) as treasury_native FROM {{ ref('fact_treasury_mkr') }} group by 1
     )
     , net_treasury AS (
         SELECT date, net_treasury_usd FROM {{ ref('fact_net_treasury_usd') }}
