@@ -6,32 +6,54 @@ WITH gdp_components AS (
             date
             {% if chain == "ethereum" %}
                 , COALESCE(fees, 0) AS fees
+                , COALESCE(nft_trading_volume, 0) AS nft_trading_volume
+                , COALESCE(dex_volumes, 0) AS dex_volumes
+                , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
                 , COALESCE(settlement_volume, 0) AS settlement_volume
                 , COALESCE(blob_fees, 0) AS blob_fees
                 , COALESCE(priority_fee_usd, 0) AS priority_fees
             {% elif chain == "avalanche" %}
                 , COALESCE(chain_fees, 0) AS rev
+                , COALESCE(nft_trading_volume, 0) AS nft_trading_volume
+                , COALESCE(dex_volumes, 0) AS dex_volumes
+                , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
                 , COALESCE(settlement_volume, 0) AS settlement_volume
             {% elif chain == "solana" %}
                 , COALESCE(rev, 0) AS rev 
+                , COALESCE(nft_trading_volume, 0) AS nft_trading_volume
+                , COALESCE(dex_volumes, 0) AS dex_volumes
+                , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
                 , COALESCE(settlement_volume, 0) AS settlement_volume 
             {% elif chain == "arbitrum" %}
                 , COALESCE(revenue, 0) AS rev
+                , COALESCE(nft_trading_volume, 0) AS nft_trading_volume
+                , COALESCE(dex_volumes, 0) AS dex_volumes
+                , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
                 , COALESCE(settlement_volume, 0) AS settlement_volume
             {% elif chain == "optimism" %}
                 , COALESCE(revenue, 0) AS rev
+                , COALESCE(nft_trading_volume, 0) AS nft_trading_volume
+                , COALESCE(dex_volumes, 0) AS dex_volumes
+                , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
                 , COALESCE(settlement_volume, 0) AS settlement_volume
             {% elif chain == "near" %}
                 , COALESCE(blob_fees, 0) AS blob_fees
                 , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
                 , COALESCE(dex_volumes, 0) AS dex_volumes
+                , NULL AS nft_trading_volume
                 , COALESCE(chain_fees, 0) AS chain_fees
             {% elif chain == 'tron' %}
                 , COALESCE(chain_fees, 0) AS rev
+                , COALESCE(dex_volumes, 0) AS dex_volumes
+                , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
+                , NULL AS nft_trading_volume
                 , COALESCE(settlement_volume, 0) AS settlement_volume
             {% elif chain == 'polygon' %}
                 , COALESCE(chain_fees, 0) AS chain_fees
                 , COALESCE(l1_data_cost, 0) AS l1_data_cost
+                , COALESCE(nft_trading_volume, 0) AS nft_trading_volume
+                , COALESCE(dex_volumes, 0) AS dex_volumes
+                , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
                 , COALESCE(settlement_volume, 0) AS settlement_volume
             {% endif %}
         FROM {{ ref('ez_' ~ chain ~ '_metrics') }}
@@ -51,27 +73,51 @@ WITH gdp_components AS (
         f.date 
         , p.protocol_revenue
         {% if chain == "ethereum" %}
+            , f.nft_trading_volume
+            , f.dex_volumes
+            , f.p2p_transfer_volume
             , f.settlement_volume
             , f.fees + f.blob_fees + f.priority_fees AS rev
         {% elif chain == "avalanche" %}
+            , f.nft_trading_volume
+            , f.dex_volumes
+            , f.p2p_transfer_volume
             , f.settlement_volume
             , f.rev
         {% elif chain == "solana" %}
+            , f.nft_trading_volume
+            , f.dex_volumes
+            , f.p2p_transfer_volume
             , f.rev
             , f.settlement_volume
         {% elif chain == "arbitrum" %}
+            , f.nft_trading_volume
+            , f.dex_volumes
+            , f.p2p_transfer_volume
             , f.rev
             , f.settlement_volume
         {% elif chain == "optimism" %}
+            , f.nft_trading_volume
+            , f.dex_volumes
+            , f.p2p_transfer_volume
             , f.rev
             , f.settlement_volume
         {% elif chain == "near" %}
+            , f.nft_trading_volume
+            , f.dex_volumes
+            , f.p2p_transfer_volume
             , f.chain_fees + f.blob_fees AS rev
             , f.dex_volumes + f.p2p_transfer_volume AS settlement_volume
         {% elif chain == "tron" %}
+            , f.nft_trading_volume
+            , f.dex_volumes
+            , f.p2p_transfer_volume
             , f.rev
             , f.settlement_volume
         {% elif chain == "polygon" %}
+            , f.nft_trading_volume
+            , f.dex_volumes
+            , f.p2p_transfer_volume
             , f.chain_fees - f.l1_data_cost AS rev
             , f.settlement_volume
         {% endif %}
@@ -83,6 +129,9 @@ WITH gdp_components AS (
 SELECT 
     date
     , SUM(COALESCE(rev, 0)) AS rev
+    , SUM(COALESCE(nft_trading_volume, 0)) AS nft_trading_volume
+    , SUM(COALESCE(dex_volumes, 0)) AS dex_volumes
+    , SUM(COALESCE(p2p_transfer_volume, 0)) AS p2p_transfer_volume
     , SUM(COALESCE(settlement_volume, 0)) AS settlement_volume
     , SUM(COALESCE(protocol_revenue, 0)) AS protocol_revenue
     , SUM(COALESCE(rev, 0)) + SUM(COALESCE(settlement_volume, 0)) + SUM(COALESCE(protocol_revenue, 0)) AS gdp
