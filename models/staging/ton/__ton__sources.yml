@@ -22,3 +22,8 @@ sources:
     database: PC_DBT_DB
     tables:
       - name: dim_ton_current_balances
+  - name: MANUAL_STATIC_TABLES
+    schema: PROD
+    database: pc_dbt_db
+    tables:
+      - name: ton_daily_supply_data
