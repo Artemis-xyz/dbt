@@ -186,6 +186,12 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  token_incentives: &token_incentives
+    name: token_incentives
+    description: "The total token incentives paid by a protocol in its native token"
+    tags:
+      - artemis_gaap
+
   tvl: &tvl
     name: tvl
     description: "The total value locked in a protocol"
@@ -233,6 +239,48 @@ models:
       - *artemis_stablecoin_transfer_volume
       - *p2p_stablecoin_transfer_volume
       - *stablecoin_transfer_volume
+
+  - name: ez_ton_metrics_by_chain
+    description: "This table stores metrics for the TON protocol"
+    columns:
+      - *artemis_stablecoin_dau
+      - *artemis_stablecoin_mau
+      - *artemis_stablecoin_transfer_volume
+      - *artemis_stablecoin_txns
+      - *burns_native
+      - *chain_avg_txn_fee
+      - *chain_dau
+      - *chain_fees
+      - *chain_mau
+      - *chain_txns
+      - *chain_wau
+      - *circulating_supply_native
+      - *fdmc
+      - *fees
+      - *gross_emissions
+      - *gross_emissions_native
+      - *market_cap
+      - *net_supply_change_native
+      - *p2p_stablecoin_dau
+      - *p2p_stablecoin_mau
+      - *p2p_stablecoin_tokenholder_count
+      - *p2p_stablecoin_transfer_volume
+      - *p2p_stablecoin_txns
+      - *premine_unlocks_native
+      - *price
+      - *revenue
+      - *stablecoin_dau
+      - *stablecoin_mau
+      - *stablecoin_tokenholder_count
+      - *stablecoin_total_supply
+      - *stablecoin_transfer_volume
+      - *stablecoin_txns
+      - *token_incentives
+      - *tvl
+      - *weekly_commits_core_ecosystem
+      - *weekly_commits_sub_ecosystem
+      - *weekly_developers_core_ecosystem
+      - *weekly_developers_sub_ecosystem
 
   - name: ez_ton_metrics
     description: "This table stores metrics for the TON protocol"
