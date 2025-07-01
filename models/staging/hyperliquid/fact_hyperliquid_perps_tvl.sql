@@ -8,7 +8,7 @@ with base_date as (
 -- Backfill from DefiLlama for dates before Hyperliquid data begins
 , defillama_backfill as (
     select date, tvl
-    from pc_dbt_db.prod.fact_defillama_protocol_tvls
+    from {{ ref('fact_defillama_protocol_tvls') }}
     where defillama_protocol_id = 5448
       and date < '2025-04-08'
 )
@@ -17,14 +17,14 @@ with base_date as (
 -- (only have 30 days lookback period), so we have data until 2025-04-08
 , snapshot_on_may9 as (
     select extraction_date, source_url, source_json
-    from landing_database.prod_landing.raw_hyperliquid_hlp_tvl
+    from {{ source('PROD_LANDING', 'raw_hyperliquid_hlp_tvl') }}
     where date(extraction_date) = '2025-05-09'
 )
 
 -- Dynamically include newer data past the 1-month lookback window
 , snapshot_after_may9 as (
     select extraction_date, source_url, source_json
-    from landing_database.prod_landing.raw_hyperliquid_hlp_tvl
+    from {{ source('PROD_LANDING', 'raw_hyperliquid_hlp_tvl') }}
     where date(extraction_date) > '2025-05-09'
 )
 
