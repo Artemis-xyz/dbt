@@ -7,7 +7,7 @@
 
 with latest_source_json as (
     select extraction_date, source_url, source_json
-    from LANDING_DATABASE.PROD_LANDING.raw_ton_supply
+    from {{ source("PROD_LANDING", "raw_ton_supply") }}
     order by extraction_date desc
     limit 1
 )
@@ -39,8 +39,13 @@ with latest_source_json as (
             date
             , max_supply
             , total_supply
+            -- Frozen was a community initiative to lock up inactive mining wallets for 4 years, so we can consider it as foundation owned
             , the_open_network_foundation + frozen as foundation_owned
             , issued_supply as issued_supply_native
+            -- Backers are people who acquired Toncoin from secondary markets with lockup schedules ranging from 2 to 10 years
+            -- DNS locked was launched because Toncoin was collected from DNS auctions
+            -- Telegram has an exclusive promotion agreement with TON
+            -- The Locker is use to incentives large holders by offering fixed yields for vesting their Toncoin for 2 years of lockup
             , backers + dns_locked + telegram + the_locker as unvested_tokens
             , circulating_supply_first_principles as circulating_supply_native
         from {{ source('MANUAL_STATIC_TABLES', 'ton_daily_supply_data') }}
