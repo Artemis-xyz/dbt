@@ -1,10 +1,11 @@
 {{
     config(
-        materialized="table",
-        snowflake_warehouse="ANALYTICS_XL",
+        materialized="incremental",
+        snowflake_warehouse="LIDO",
         database="lido",
         schema="raw",
         alias="fact_fees_revs_expenses",
+        unique_key="date",
     )
 }}
 
@@ -35,6 +36,9 @@ with steth_prices as (
         and from_address = lower('0x0000000000000000000000000000000000000000')
         and to_address = lower('0x3e40d73eb977dc6a537af587d48316fee66e9c8c')
         and origin_function_signature <> lower('0xf98a4eca')
+        {% if is_incremental() %}
+            and block_timestamp >= (select dateadd('day', -1, max(date)) from {{ this }})
+        {% endif %}
     group by 1
 )
 , mev as (
