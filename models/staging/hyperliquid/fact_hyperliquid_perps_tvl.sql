@@ -13,7 +13,8 @@ with base_date as (
       and date < '2025-04-08'
 )
 
--- Always include fixed snapshot from 2025-05-09 (have a 30 days lookback period)
+-- Always include fixed snapshot from 2025-05-09 - earliest day we ingested data from Hyperliquid API 
+-- (only have 30 days lookback period), so we have data until 2025-04-08
 , snapshot_on_may9 as (
     select extraction_date, source_url, source_json
     from landing_database.prod_landing.raw_hyperliquid_hlp_tvl
@@ -34,7 +35,6 @@ with base_date as (
     select * from snapshot_after_may9
 )
 
--- `accountValueHistory` from combined snapshots
 , hyperliquid_perps_tvl as (
     select
         to_date(to_timestamp_ntz(value[0]::number / 1000)) as date,
@@ -56,7 +56,6 @@ with base_date as (
     where date between (select min(date) from unified_tvl) and current_date
 )
 
--- Join spine and fill gaps
 , joined as (
     select
         spine.date,
