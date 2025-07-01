@@ -13,6 +13,7 @@ with
         select
             date,
             chain_fees,
+            chain_fees_native,
             chain_dau,
             chain_txns
         from {{ ref("fact_ripple_fundamental_metrics") }}
@@ -25,8 +26,6 @@ select
     -- Old metrics for compatibility
     , chain_dau as dau
     , chain_txns as txns
-    , chain_fees as fees
-    , chain_fees as revenue
 
     -- Market Metrics
     , price_data.price
@@ -40,8 +39,12 @@ select
     
     -- Cash Flow Metrics
     , chain_fees
-    , chain_fees as ecosystem_revenue
+    , chain_fees as fees
+    , chain_fees as revenue
     , chain_fees as burned_fee_allocation
+    , chain_fees_native as fees_native
+    , chain_fees_native as revenue_native
+    , chain_fees_native as burned_fee_allocation_native
 
     -- Other Metrics
     , price_data.token_turnover_circulating

@@ -1,0 +1,6 @@
+sources:
+  - name: PROD_LANDING
+    database: landing_database
+    schema: prod_landing  
+    tables:
+      - name: raw_glow_revenue
