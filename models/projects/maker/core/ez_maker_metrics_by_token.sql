@@ -37,9 +37,10 @@ WITH
             SELECT
                 date,
                 token,
-                amount_mkr as treasury
+                sum(amount_native) as treasury
             FROM
                 {{ ref('fact_treasury_mkr') }}
+            group by 1,2
             UNION ALL
             SELECT
                 date,
@@ -49,7 +50,7 @@ WITH
                 {{ ref('fact_treasury_lp_balances') }}
     )
     , treasury_native AS (
-        SELECT date, token, amount_mkr as treasury_native FROM {{ ref('fact_treasury_mkr') }}
+        SELECT date, token, sum(amount_native) as treasury_native FROM {{ ref('fact_treasury_mkr') }} group by 1,2
     )
     , net_treasury AS (
             SELECT
@@ -87,6 +88,7 @@ select
     
     , COALESCE(treasury, 0) as treasury_value
     , COALESCE(net_treasury, 0) as net_treasury
+    , COALESCE(treasury_native, 0) AS treasury_native
     , COALESCE(tvl, 0) as net_deposits
     , COALESCE(outstanding_supply,0) as outstanding_supply
 
@@ -106,7 +108,7 @@ select
     , COALESCE(revenue - total_expenses, 0) AS earnings
     
     , COALESCE(treasury, 0) AS treasury
-    , COALESCE(treasury_native, 0) AS treasury_native
+    , COALESCE(treasury_native, 0) AS own_token_treasury_native
 
     , COALESCE(tvl, 0) AS lending_deposits
     , COALESCE(outstanding_supply, 0) AS lending_loans

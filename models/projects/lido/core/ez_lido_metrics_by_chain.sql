@@ -127,6 +127,13 @@ select
     , COALESCE(ti.token_incentives, 0) as total_expenses
     , COALESCE(f.protocol_revenue, 0) - COALESCE(ti.token_incentives, 0) as earnings
 
+    -- Financial Statement Metrics
+    , COALESCE(f.protocol_revenue, 0) as revenue
+    , COALESCE(f.operating_expenses, 0) as operating_expenses
+    , COALESCE(ti.token_incentives, 0) as token_incentives
+    , token_incentives + operating_expenses as total_expenses
+    , revenue - total_expenses as earnings
+
     --Treasury Metrics
     , COALESCE(t.treasury_value, 0) as treasury
     , COALESCE(tn.treasury_native, 0) as own_token_treasury_native

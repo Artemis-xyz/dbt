@@ -101,7 +101,6 @@ SELECT
     , tn.treasury_value_native
     , nt.net_treasury_value
     , t.net_deposits
-    , 0 as outstanding_supply
 
 
     -- Standardized Metrics
@@ -156,4 +155,4 @@ LEFT JOIN tvl t USING (date)
 LEFT JOIN treasury_value_cte tv USING (date)
 LEFT JOIN net_treasury_value_cte nt USING (date)
 LEFT JOIN treasury_value_native_cte tn USING (date) 
-LEFT JOIN tokenholder_count tc using(date)
+LEFT JOIN tokenholder_count tc using(date) 

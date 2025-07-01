@@ -14,3 +14,5 @@ select
     , val
 from {{ source("STAGING", "core_weeklycommitscoreecosystemwithoutforks") }} as commits
 left join {{ source("STAGING", "core_ecosystems") }} as ecosystems on commits.ecosystem_id = ecosystems.id
+where 
+    date <= {{ latest_developer_data_date() }}
