@@ -13,6 +13,7 @@
     {% if chain in ('sei') %}
         from {{ chain }}_flipside.core_evm.fact_event_logs
         left join {{ chain }}_flipside.core_evm.fact_transactions using (tx_hash)
+        where lower(status) = lower('success')
     {% else %}
         from {{ chain }}_flipside.core.fact_event_logs
         left join {{ chain }}_flipside.core.fact_transactions using (tx_hash)
