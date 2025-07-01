@@ -97,14 +97,10 @@ SELECT
     , f.swap_revenue as swap_revenue_vependle
     , coalesce(yf.yield_revenue, 0) as yield_revenue_vependle
     , swap_revenue_vependle + yield_revenue_vependle as total_revenue_vependle
-    , 0 as protocol_revenue
-    , 0 as operating_expenses
-    , token_incentives + operating_expenses as total_expenses
     , tv.treasury_value
     , tn.treasury_value_native
     , nt.net_treasury_value
     , t.net_deposits
-    , 0 as outstanding_supply
 
 
     -- Standardized Metrics
@@ -159,4 +155,4 @@ LEFT JOIN tvl t USING (date)
 LEFT JOIN treasury_value_cte tv USING (date)
 LEFT JOIN net_treasury_value_cte nt USING (date)
 LEFT JOIN treasury_value_native_cte tn USING (date) 
-LEFT JOIN tokenholder_count tc using(date)
+LEFT JOIN tokenholder_count tc using(date) 

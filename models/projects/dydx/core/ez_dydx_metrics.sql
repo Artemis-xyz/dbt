@@ -55,14 +55,21 @@ WITH
     , price_data as (
         {{ get_coingecko_metrics("dydx-chain") }}
     )
-select
+    , token_incentives as (
+        select
+            day as date,
+            sum(total_usd) as token_incentives
+        from {{ref('fact_dydx_token_incentives')}}
+        group by date
+    )
+
+SELECT
     date_spine.date as date
     , 'dydx' as app
     , 'DeFi' as category
     -- Not accounting for v4 to support backwards compitability. When we shift in the adapter we will delete v4.
     , trading_volume_data.trading_volume as trading_volume
     , unique_traders_data.unique_traders as unique_traders
-    , fees + txn_fees as fees
     , fees as trading_fees
     , txn_fees as txn_fees
     
@@ -79,13 +86,16 @@ select
     , txn_fees as chain_fees
     , coalesce(trading_volume_data.trading_volume, 0) + coalesce(trading_volume_data_v4.trading_volume, 0) as perp_volume
     , coalesce(unique_traders_data.unique_traders, 0) + coalesce(unique_traders_data_v4.unique_traders, 0) as perp_dau
-    , coalesce(txn_fees, 0) + coalesce(fees, 0) as gross_fees
-    , case when date_spine.date >= '2022-03-25' then gross_fees * 0.25 else 0 end as buybacks
+    , coalesce(txn_fees, 0) + coalesce(fees, 0) as fees
+    , case when date_spine.date >= '2022-03-25' then fees * 0.25 else 0 end as buybacks
+    , (coalesce(txn_fees, 0) + coalesce(fees, 0))
+            - COALESCE(token_incentives.token_incentives, 0) AS earnings     
 
     -- Supply Metrics
     , dydx_supply_data.circulating_supply_native - lag(dydx_supply_data.circulating_supply_native) over (order by date_spine.date) as net_supply_change_native
     , dydx_supply_data.premine_unlocks_native as premine_unlocks_native
     , dydx_supply_data.circulating_supply_native as circulating_supply_native
+    , token_incentives.token_incentives as token_incentives
 
 from date_spine
 left join trading_volume_data on date_spine.date = trading_volume_data.date
@@ -96,4 +106,5 @@ left join chain_data_v4 on date_spine.date = chain_data_v4.date
 left join unique_traders_data_v4 on date_spine.date = unique_traders_data_v4.date
 left join dydx_supply_data on date_spine.date = dydx_supply_data.date
 left join price_data on date_spine.date = price_data.date
+LEFT JOIN token_incentives ON date_spine.date = token_incentives.date
 where date_spine.date < to_date(sysdate())

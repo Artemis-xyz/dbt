@@ -95,11 +95,6 @@ select
     , COALESCE(f.primary_supply_side_revenue_native, 0) as primary_supply_side_revenue_native
     , COALESCE(f.secondary_supply_side_revenue_native, 0) as secondary_supply_side_revenue_native
     , COALESCE(f.total_supply_side_revenue_native, 0) as total_supply_side_revenue_native
-    , 0 as protocol_revenue
-    , COALESCE(ti.token_incentives, 0) as token_incentives
-    , 0 as operating_expenses
-    , COALESCE(token_incentives, 0) as total_expenses
-    , coalesce(protocol_revenue,0) - coalesce(token_incentives,0) as earnings
     , coalesce(staked_eth_metrics.num_staked_eth, 0) as net_deposits
     , coalesce(os.reth_supply, 0) as outstanding_supply
     , COALESCE(t.treasury_value, 0) as treasury_value
@@ -119,6 +114,14 @@ select
     , COALESCE(f.fees_native, 0) as ecosystem_revenue_native
     , ecosystem_revenue_native * 0.14 as validator_fee_allocation_native
     , ecosystem_revenue_native * 0.86 as service_fee_allocation_native
+
+    --Financial Statement Metrics
+    , 0 as revenue
+    , COALESCE(ti.token_incentives, 0) as token_incentives
+    , 0 as operating_expenses
+    , COALESCE(token_incentives, 0) as total_expenses
+    , coalesce(revenue,0) - coalesce(token_incentives,0) as earnings
+    
 
 from staked_eth_metrics
 full join fees_revs_cte f using (date, token)

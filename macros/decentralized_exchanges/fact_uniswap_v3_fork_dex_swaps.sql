@@ -87,10 +87,10 @@
 
             left join
                 {{ chain }}_flipside.price.ez_prices_hourly t2
-                on (lower(t1.token0) = lower(t2.token_address) and t2.hour = t1.hour)
+                on (lower(t1.token0) = lower(t2.token_address) and t2.hour = t1.hour and t2.price > 0)
             left join
                 {{ chain }}_flipside.price.ez_prices_hourly t3
-                on (lower(t1.token1) = lower(t3.token_address) and t3.hour = t1.hour)
+                on (lower(t1.token1) = lower(t3.token_address) and t3.hour = t1.hour and t3.price > 0)
             where token1_decimals != 0 and token0_decimals != 0
         ),
         filtered_pairs as (
