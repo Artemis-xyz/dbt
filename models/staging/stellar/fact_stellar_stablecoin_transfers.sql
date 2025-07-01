@@ -2,7 +2,7 @@
 {{ config(
     materialized="incremental", 
         snowflake_warehouse="STABLECOIN_LG_2", 
-        unique_key=["tx_hash", "index"],
+        unique_key="unique_id",
     ) 
 }}
 
