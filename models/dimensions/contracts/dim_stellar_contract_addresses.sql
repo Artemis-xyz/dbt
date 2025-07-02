@@ -1,7 +1,8 @@
 {{ 
     config(
         materialized="incremental",
-        snowflake_warehouse="STELLAR"
+        snowflake_warehouse="STELLAR",
+        unique_key="contract_address"
     )
 }}
 

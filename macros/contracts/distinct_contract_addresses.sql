@@ -4,7 +4,7 @@
             select 
                 block_timestamp, 
                 to_address as contract_address
-            from {{ ref("ez_stellar_stablecoin_transfers") }}
+            from {{ ref("fact_stellar_stablecoin_transfers") }}
             where to_address like 'C%'
             {% if is_incremental() %}
                 and block_timestamp >= (
@@ -16,7 +16,7 @@
             select 
                 block_timestamp, 
                 from_address as contract_address
-            from {{ ref("ez_stellar_stablecoin_transfers") }}
+            from {{ ref("fact_stellar_stablecoin_transfers") }}
             where from_address like 'C%'
             {% if is_incremental() %}
                 and block_timestamp >= (
