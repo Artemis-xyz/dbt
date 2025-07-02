@@ -12,42 +12,49 @@ WITH gdp_components AS (
                 , COALESCE(settlement_volume, 0) AS settlement_volume
                 , COALESCE(blob_fees, 0) AS blob_fees
                 , COALESCE(priority_fee_usd, 0) AS priority_fees
+                , COALESCE(gross_emissions, 0) AS gross_emissions
             {% elif chain == "avalanche" %}
                 , COALESCE(chain_fees, 0) AS rev
                 , COALESCE(nft_trading_volume, 0) AS nft_trading_volume
                 , COALESCE(dex_volumes, 0) AS dex_volumes
                 , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
                 , COALESCE(settlement_volume, 0) AS settlement_volume
+                , COALESCE(gross_emissions, 0) AS gross_emissions
             {% elif chain == "solana" %}
                 , COALESCE(rev, 0) AS rev 
                 , COALESCE(nft_trading_volume, 0) AS nft_trading_volume
                 , COALESCE(dex_volumes, 0) AS dex_volumes
                 , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
                 , COALESCE(settlement_volume, 0) AS settlement_volume 
+                , COALESCE(gross_emissions, 0) AS gross_emissions
             {% elif chain == "arbitrum" %}
                 , COALESCE(revenue, 0) AS rev
                 , COALESCE(nft_trading_volume, 0) AS nft_trading_volume
                 , COALESCE(dex_volumes, 0) AS dex_volumes
                 , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
                 , COALESCE(settlement_volume, 0) AS settlement_volume
+                , NULL AS gross_emissions
             {% elif chain == "optimism" %}
                 , COALESCE(revenue, 0) AS rev
                 , COALESCE(nft_trading_volume, 0) AS nft_trading_volume
                 , COALESCE(dex_volumes, 0) AS dex_volumes
                 , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
                 , COALESCE(settlement_volume, 0) AS settlement_volume
+                , NULL AS gross_emissions
             {% elif chain == "near" %}
                 , COALESCE(blob_fees, 0) AS blob_fees
                 , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
                 , COALESCE(dex_volumes, 0) AS dex_volumes
                 , NULL AS nft_trading_volume
                 , COALESCE(chain_fees, 0) AS chain_fees
+                , NULL AS gross_emissions
             {% elif chain == 'tron' %}
                 , COALESCE(chain_fees, 0) AS rev
                 , COALESCE(dex_volumes, 0) AS dex_volumes
                 , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
                 , NULL AS nft_trading_volume
                 , COALESCE(settlement_volume, 0) AS settlement_volume
+                , NULL AS gross_emissions
             {% elif chain == 'polygon' %}
                 , COALESCE(chain_fees, 0) AS chain_fees
                 , COALESCE(l1_data_cost, 0) AS l1_data_cost
@@ -55,6 +62,7 @@ WITH gdp_components AS (
                 , COALESCE(dex_volumes, 0) AS dex_volumes
                 , COALESCE(p2p_transfer_volume, 0) AS p2p_transfer_volume
                 , COALESCE(settlement_volume, 0) AS settlement_volume
+                , NULL AS gross_emissions
             {% endif %}
         FROM {{ ref('ez_' ~ chain ~ '_metrics') }}
     )
@@ -78,48 +86,56 @@ WITH gdp_components AS (
             , f.p2p_transfer_volume
             , f.settlement_volume
             , f.fees + f.blob_fees + f.priority_fees AS rev
+            , f.gross_emissions
         {% elif chain == "avalanche" %}
             , f.nft_trading_volume
             , f.dex_volumes
             , f.p2p_transfer_volume
             , f.settlement_volume
             , f.rev
+            , f.gross_emissions
         {% elif chain == "solana" %}
             , f.nft_trading_volume
             , f.dex_volumes
             , f.p2p_transfer_volume
             , f.rev
             , f.settlement_volume
+            , f.gross_emissions
         {% elif chain == "arbitrum" %}
             , f.nft_trading_volume
             , f.dex_volumes
             , f.p2p_transfer_volume
             , f.rev
             , f.settlement_volume
+            , f.gross_emissions
         {% elif chain == "optimism" %}
             , f.nft_trading_volume
             , f.dex_volumes
             , f.p2p_transfer_volume
             , f.rev
             , f.settlement_volume
+            , f.gross_emissions
         {% elif chain == "near" %}
             , f.nft_trading_volume
             , f.dex_volumes
             , f.p2p_transfer_volume
             , f.chain_fees + f.blob_fees AS rev
             , f.dex_volumes + f.p2p_transfer_volume AS settlement_volume
+            , f.gross_emissions
         {% elif chain == "tron" %}
             , f.nft_trading_volume
             , f.dex_volumes
             , f.p2p_transfer_volume
             , f.rev
             , f.settlement_volume
+            , f.gross_emissions
         {% elif chain == "polygon" %}
             , f.nft_trading_volume
             , f.dex_volumes
             , f.p2p_transfer_volume
             , f.chain_fees - f.l1_data_cost AS rev
             , f.settlement_volume
+            , f.gross_emissions
         {% endif %}
     FROM fees_volume_and_emissions f 
     LEFT JOIN protocol_revenue_data p
@@ -134,7 +150,8 @@ SELECT
     , SUM(COALESCE(p2p_transfer_volume, 0)) AS p2p_transfer_volume
     , SUM(COALESCE(settlement_volume, 0)) AS settlement_volume
     , SUM(COALESCE(protocol_revenue, 0)) AS protocol_revenue
-    , SUM(COALESCE(rev, 0)) + SUM(COALESCE(settlement_volume, 0)) + SUM(COALESCE(protocol_revenue, 0)) AS gdp
+    , SUM(COALESCE(gross_emissions, 0)) AS gross_emissions
+    , SUM(COALESCE(rev, 0)) + SUM(COALESCE(settlement_volume, 0)) + SUM(COALESCE(protocol_revenue, 0)) + SUM(COALESCE(gross_emissions, 0)) AS gdp
 FROM gdp_components
 GROUP BY 1
 {% endmacro %}
