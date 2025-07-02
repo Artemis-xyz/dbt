@@ -37,6 +37,7 @@ usdc_historic_prices as (
       FALSE AS is_native,
       FALSE AS is_imputed,
       FALSE AS is_deprecated,
+      FALSE AS is_verified,
       NULL AS ez_prices_hourly_id,
       CURRENT_TIMESTAMP() AS inserted_timestamp,
       CURRENT_TIMESTAMP() AS modified_timestamp,
