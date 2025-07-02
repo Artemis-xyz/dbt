@@ -5,7 +5,7 @@
                 block_timestamp, 
                 to_address as contract_address
             from {{ ref("fact_stellar_stablecoin_transfers") }}
-            where to_address like 'C%'
+            where substring(to_address, 1, 1) = 'C'
             {% if is_incremental() %}
                 and block_timestamp >= (
                     select dateadd('day', -3, max(block_timestamp)) 
@@ -17,7 +17,7 @@
                 block_timestamp, 
                 from_address as contract_address
             from {{ ref("fact_stellar_stablecoin_transfers") }}
-            where from_address like 'C%'
+            where substring(from_address, 1, 1) = 'C'
             {% if is_incremental() %}
                 and block_timestamp >= (
                     select dateadd('day', -3, max(block_timestamp)) 

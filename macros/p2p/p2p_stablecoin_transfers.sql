@@ -65,6 +65,9 @@ with
                 t1.to_address,
                 t1.amount,
                 transfer_volume * {{waterfall_stablecoin_prices('c', 'p')}} as amount_usd
+                {% if chain == 'stellar' %}
+                    , t1.unique_id
+                {% endif %}
             from stablecoin_transfers t1
             join {{ ref("fact_"~chain~"_stablecoin_contracts") }} c
                 on lower(t1.contract_address) = lower(c.contract_address)
@@ -107,6 +110,9 @@ with
         t1.to_address,
         t1.amount,
         t1.amount_usd
+        {% if chain == 'stellar' %}
+            , t1.unique_id
+        {% endif %}
     from stablecoin_transfers_with_prices t1
     where from_address != to_address
         and from_address is not null and to_address is not null
