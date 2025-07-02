@@ -56,4 +56,5 @@ left join prices
 left join contract_addresses 
     on lower(token_transfers.contract_address) = lower(contract_addresses.contract_address)
 where amount_raw > 0
-qualify row_number() over (partition by unique_id order by block_timestamp desc) = 1
+and (from_address is not null or to_address is not null)
+qualify row_number() over (partition by transaction_hash, transaction_index, event_index, token_transfers.contract_address, to_address, from_address, amount_raw order by unique_id desc) = 1

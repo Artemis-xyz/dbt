@@ -56,8 +56,7 @@
                 when not is_mint and not is_burn then coalesce(amount_raw / pow(10, num_decimals), 0)
             end as transfer_volume,
             t1.contract_address,
-            t2.symbol,
-            t1.unique_id
+            t2.symbol
         from {{ ref("fact_stellar_token_transfers") }} t1
         inner join {{ ref("fact_stellar_stablecoin_contracts") }} t2
             on lower(t1.contract_address) = lower(t2.contract_address)

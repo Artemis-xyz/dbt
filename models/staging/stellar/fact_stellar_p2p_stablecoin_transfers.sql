@@ -2,7 +2,7 @@
 {{
     config(
         materialized="incremental",
-        unique_key="unique_id",
+        unique_key=["tx_hash", "index", "token_address", "from_address", "to_address", "amount"],
     )
 }}
 
