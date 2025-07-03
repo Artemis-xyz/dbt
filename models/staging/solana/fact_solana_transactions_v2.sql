@@ -88,7 +88,8 @@ with
                 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr',
                 'Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo',
                 '11111111111111111111111111111111',
-                'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+                'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+                'Ed25519SigVerify111111111111111111111111111'
             )
         group by tx_id
     ),

@@ -9,17 +9,26 @@ with avg_tvl as (
     group by name
 ),
 
+daily_avg as (
+  select
+    name,
+    date_trunc('day', extraction_timestamp) as day,
+    avg(apy) * 100 as daily_avg_apy
+  from {{ ref("fact_susdf_apy") }}
+  where extraction_timestamp >= dateadd(day, -7, current_date)
+  group by name, date_trunc('day', extraction_timestamp)
+),
+
 l7d as (
   select
     name,
     ARRAY_AGG(
       ARRAY_CONSTRUCT(
-        DATE_PART(EPOCH_SECOND, extraction_timestamp::TIMESTAMP_NTZ),
-        round(apy * 100, 6)
+        DATE_PART(EPOCH_SECOND, day::TIMESTAMP_NTZ),
+        ROUND(daily_avg_apy::NUMBER(38, 18), 6)
       )
-    ) WITHIN GROUP (ORDER BY extraction_timestamp ASC) AS daily_avg_apy_l7d
-  from {{ ref("fact_susdf_apy") }}
-  where extraction_timestamp >= dateadd(day, -7, current_date)
+    ) WITHIN GROUP (ORDER BY day ASC) AS daily_avg_apy_l7d
+  from daily_avg
   group by name
 )
 

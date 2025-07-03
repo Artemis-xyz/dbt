@@ -53,15 +53,19 @@ select
 
     --Standardized Metrics
 
-    --Usage Metrics
+    -- LRT Usage Metrics
     , restaked_eth_metrics.num_restaked_eth as lrt_tvl_native
     , restaked_eth_metrics.amount_restaked_usd as lrt_tvl
     , restaked_eth_metrics.num_restaked_eth_net_change as lrt_tvl_native_net_change
     , restaked_eth_metrics.amount_restaked_usd_net_change as lrt_tvl_net_change
+    
+    -- LST Usage Metrics
     , staked_eth_metrics.num_staked_eth as lst_tvl_native
     , staked_eth_metrics.amount_staked_usd as lst_tvl
     , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
     , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
+    
+    -- TVL Metrics
     , lst_tvl_native + lrt_tvl_native as tvl_native
     , lst_tvl + lrt_tvl as tvl
     , lst_tvl_native_net_change + lrt_tvl_native_net_change as tvl_native_net_change

@@ -22,7 +22,7 @@ select
 
     --Cashflow Metrics
     , coalesce(greatest(total_fees, 0), 0) as perp_fees
-    , coalesce(greatest(total_fees, 0), 0) as ecosystem_revenue
+    , coalesce(greatest(total_fees, 0), 0) as fees
     
 from {{ ref("fact_ostium_metrics") }}
 where date < to_date(sysdate())

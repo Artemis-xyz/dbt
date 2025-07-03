@@ -22,6 +22,8 @@
     left join
         pc_dbt_db.prod.core_ecosystems as ecosystems
         on commits_core.ecosystem_id = ecosystems.id
-    where lower(ecosystem_name) = lower('{{ ecosystem }}')
+    where 
+        lower(ecosystem_name) = lower('{{ ecosystem }}')
+        AND commits_core.date <= {{ latest_developer_data_date() }}
     order by date desc
 {% endmacro %}

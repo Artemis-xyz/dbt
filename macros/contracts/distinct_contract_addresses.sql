@@ -1,5 +1,36 @@
 {% macro distinct_contract_addresses(chain) %}
-    {% if chain == "ton" %}
+    {% if chain == 'stellar' %}
+        with stellar_contracts as (
+            select 
+                block_timestamp, 
+                to_address as contract_address
+            from {{ ref("fact_stellar_stablecoin_transfers") }}
+            where substring(to_address, 1, 1) = 'C'
+            {% if is_incremental() %}
+                and block_timestamp >= (
+                    select dateadd('day', -3, max(block_timestamp)) 
+                    from {{ this }}
+                )
+            {% endif %}
+            union
+            select 
+                block_timestamp, 
+                from_address as contract_address
+            from {{ ref("fact_stellar_stablecoin_transfers") }}
+            where substring(from_address, 1, 1) = 'C'
+            {% if is_incremental() %}
+                and block_timestamp >= (
+                    select dateadd('day', -3, max(block_timestamp)) 
+                    from {{ this }}
+                )
+            {% endif %}
+        )
+        select
+            min(block_timestamp) as block_timestamp
+            , contract_address
+        from stellar_contracts 
+        group by contract_address
+    {% elif chain == "ton" %}
         with ton_contracts as (
             SELECT 
             block_timestamp, 

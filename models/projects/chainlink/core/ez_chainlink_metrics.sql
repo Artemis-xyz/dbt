@@ -206,10 +206,6 @@ select
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue
     , fees as secondary_supply_side_revenue
     , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
-    , 0 as protocol_revenue
-    , primary_supply_side_revenue as operating_expenses
-    , coalesce(operating_expenses, 0) + coalesce(token_incentives, 0) as total_expenses
-    , protocol_revenue - total_expenses as earnings
     , daily_txns as txns
     , dau
     , treasury_usd
@@ -238,7 +234,11 @@ select
     , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as ecosystem_revenue
     , ecosystem_revenue as service_fee_allocation
 
+    , 0 as revenue
+
     , token_incentives
+    , primary_supply_side_revenue as operating_expenses
+    , revenue - token_incentives - operating_expenses as earnings
 
     -- Treasury Metrics
     , treasury_usd as treasury

@@ -36,7 +36,6 @@ select
     fundamental_data.non_sybil_users,
     fundamental_data.total_staking_yield_usd,
     fundamental_data.total_supply_side_revenue_usd,
-    fundamental_data.protocol_revenue_usd AS fees,
     fundamental_data.protocol_revenue_usd AS revenue,
     fundamental_data.operating_expenses_usd,
     fundamental_data.protocol_earnings_usd AS earnings
@@ -52,12 +51,14 @@ select
     , fundamental_data.new_users as chain_new_users
     , fundamental_data.low_sleep_users as chain_low_sleep_users
     , fundamental_data.avg_txn_fee as chain_avg_txn_fee
+    , fundamental_data.tvl as lst_tvl
+    , fundamental_data.tvl_net_change as lst_tvl_net_change
 
     
     --Cashflow Metrics
     , fundamental_data.fees_usd as chain_fees
     , fundamental_data.total_staking_yield_usd as yield_generated
-    , chain_fees + yield_generated as ecosystem_revenue
+    , chain_fees + fundamental_data.protocol_revenue_usd AS fees
     , (yield_generated * .1) as treasury_fee_allocation
     , (yield_generated * .9) as service_fee_allocation
     , chain_fees as validator_fee_allocation    

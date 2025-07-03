@@ -22,7 +22,7 @@ application_labels as (
         COALESCE(ma.developer_email, sil.developer_email) as developer_email,
         COALESCE(ma.developer_x_handle, sil.developer_x_handle) as developer_x_handle,
         COALESCE(ma.last_updated_by, sil.last_updated_by) as last_updated_by,
-        COALESCE(ma.last_updated_timestamp, sil.last_updated_timestamp, '1970-01-01'::TIMESTAMP_NTZ) as last_updated_timestamp
+        COALESCE(ma.last_updated_timestamp, sil.last_updated_timestamp, '2025-03-01'::TIMESTAMP_NTZ) as last_updated_timestamp
     FROM {{ ref("all_apps_2025_05_07_seed") }} sil
     LEFT JOIN {{ ref('dim_coingecko_tokens')}} token
     ON sil.coingecko_id = token.coingecko_token_id

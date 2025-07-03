@@ -28,12 +28,13 @@ with fees as (
     GROUP BY 1, 2
 )
 , token_incentives as (
-    SELECT
-        DATE(block_timestamp) AS date,
-        token,
-        SUM(incentive_native) AS token_incentives_native
-    FROM {{ ref('fact_maple_token_incentives') }}
-    GROUP BY 1, 2
+    select
+        date
+        , token
+        , sum(incentive_native) as token_incentives_native
+        , sum(incentive_usd) as token_incentives
+    from {{ ref('fact_maple_token_incentives') }}
+    group by 1, 2
 )
 -- , tvl as (
 --     SELECT

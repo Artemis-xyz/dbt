@@ -29,15 +29,15 @@ CORE_FOLDER_PATH="$INPUT_FOLDER/core"
 echo "Running dbt compile for each file..."
 find "$CORE_FOLDER_PATH" -type f -name "*.sql" | while read -r file; do
     base_filename=$(basename "$file" .sql)
-    
+
     output_file="$OUTPUT_FOLDER/${base_filename}__complete__.sql"
-    
-    dbt compile --select "$file" > "$output_file"
+
+    dbt compile --select "$file" > "$output_file" --target prod
     # Remove unwanted log lines from the first 7 lines of the output file
     head -n 7 "$output_file" | sed '/^\[0m/d' | sed '/^Found /d' | sed '/^Concurrency: /d' > "${output_file}.tmp"
     tail -n +8 "$output_file" >> "${output_file}.tmp"
     mv "${output_file}.tmp" "$output_file"
-    
+
     echo "Compiled and created: $output_file"
 done
 
