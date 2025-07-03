@@ -10,7 +10,7 @@ event_signatures as (
     select
         value:"name"::string as event_name,
         value as event_info,
-        {{ target.schema }}.event_info_to_keccak_event_signature_v2(value) as topic_zero,
+        {{ target.schema }}.event_info_to_keccak_event_signature_v3(value) as topic_zero,
         
         'artemis' as source
     from {{ ref("dim_contract_abis") }}, lateral flatten(input => abi) as f
@@ -21,7 +21,7 @@ event_signatures as (
     select
         value:"name"::string as event_name,
         value as event_info,
-        {{ target.schema }}.event_info_to_keccak_event_signature_v2(value) as topic_zero,
+        {{ target.schema }}.event_info_to_keccak_event_signature_v3(value) as topic_zero,
         source
     from {{ source("DECODING", "dim_all_abis") }}, lateral flatten(input => abi) as f
     where value:"type" = 'event'
