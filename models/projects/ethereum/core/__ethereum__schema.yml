@@ -108,6 +108,12 @@ column_definitions:
     name: chain_wau
     description: "Weekly unique users on a chain"
 
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+    tags:
+      - artemis_gaap
+
   cumulative_etf_flow: &cumulative_etf_flow
     name: cumulative_etf_flow
     description: "The cumulative flow of ETFs on a chain"
@@ -149,6 +155,12 @@ column_definitions:
   high_sleep_users: &high_sleep_users
     name: high_sleep_users
     description: "The number of high sleep users on a chain"
+
+  issued_supply_native: &issued_supply_native
+    name: issued_supply_native
+    description: "The issued supply of a token, equal to the total supply minus foundation or DAO held tokens."
+    tags:
+      - artemis_gaap
 
   low_sleep_users: &low_sleep_users
     name: low_sleep_users
@@ -446,6 +458,7 @@ models:
       - *chain_spot_volume
       - *chain_txns
       - *chain_wau
+      - *circulating_supply_native
       - *cumulative_etf_flow
       - *cumulative_etf_flow_native
       - *da_dau
@@ -455,6 +468,7 @@ models:
       - *gross_emissions
       - *gross_emissions_native
       - *high_sleep_users
+      - *issued_supply_native
       - *low_sleep_users
       - *market_cap
       - *net_etf_flow
