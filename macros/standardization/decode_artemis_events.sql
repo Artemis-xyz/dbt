@@ -35,7 +35,7 @@
         , b.topic_zero
         , b.event_info
     from events a
-    inner join {{ ref("dim_events_silver_v2") }} b 
+    inner join {{ ref("dim_events_silver") }} b 
         -- We need to join on the number of indexed topics
         on a.topic_zero = b.topic_zero and a.indexed_topic_count = b.indexed_topic_count
 {% endmacro %}
