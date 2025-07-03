@@ -14,8 +14,10 @@ with
             date
             , block_rewards
             , mev_priority_fees
-            , total_staking_yield as fees
-            , operating_expenses
+            , total_staking_yield as yield_generated
+            , fees
+            , validator_fee_allocation
+            , treasury_fee_allocation
             , protocol_revenue
             , primary_supply_side_revenue
             , secondary_supply_side_revenue
@@ -85,6 +87,8 @@ select
     , COALESCE(f.secondary_supply_side_revenue, 0) as secondary_supply_side_revenue
     , COALESCE(f.total_supply_side_revenue, 0) as total_supply_side_revenue
     , COALESCE(t.treasury_value, 0) as treasury_value
+    , COALESCE(tn.treasury_native, 0) as treasury_native
+    , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
     , COALESCE(s.amount_staked_usd, 0) as net_deposits
     , COALESCE(s.num_staked_eth, 0) as outstanding_supply
     , COALESCE(s.amount_staked_usd, 0) as amount_staked_usd
@@ -94,34 +98,44 @@ select
 
     --Standardized Metrics
 
+    --Market Metrics
+    , COALESCE(p.price, 0) as price
+    , COALESCE(p.fdmc, 0) as fdmc
+    , COALESCE(p.market_cap, 0) as market_cap
+    , COALESCE(p.token_volume, 0) as token_volume
+
     --Usage Metrics
     , COALESCE(s.amount_staked_usd, 0) as lst_tvl
-    , COALESCE(s.num_staked_eth, 0) as lst_tvl_native
     , COALESCE(s.amount_staked_usd, 0) as tvl
+    , COALESCE(s.num_staked_eth, 0) as lst_tvl_native
     , COALESCE(s.num_staked_eth, 0) as tvl_native
     , COALESCE(s.amount_staked_usd_net_change, 0) as lst_tvl_net_change
     , COALESCE(s.num_staked_eth_net_change, 0) as lst_tvl_native_net_change
+    , COALESCE(f.yield_generated, 0) as yield_generated
 
     --Cash Flow Metrics
     , COALESCE(f.mev_priority_fees, 0) as mev_priority_fees
     , COALESCE(f.block_rewards, 0) as block_rewards
-    , COALESCE(f.fees, 0) as yield_generated
     , COALESCE(f.fees, 0) as fees
-    , COALESCE(f.fees, 0) * .90 as service_fee_allocation
-    , COALESCE(f.fees, 0) * .05 as treasury_fee_allocation
-    , COALESCE(f.fees, 0) * .05 as validator_fee_allocation
+
+    , COALESCE(f.treasury_fee_allocation, 0) as treasury_fee_allocation
+    , COALESCE(f.validator_fee_allocation, 0) as validator_fee_allocation
 
     -- Financial Statement Metrics
     , COALESCE(f.protocol_revenue, 0) as revenue
-    , COALESCE(f.operating_expenses, 0) as operating_expenses
     , COALESCE(ti.token_incentives, 0) as token_incentives
-    , token_incentives + operating_expenses as total_expenses
+    , token_incentives as total_expenses
     , revenue - total_expenses as earnings
 
     --Treasury Metrics
     , COALESCE(t.treasury_value, 0) as treasury
-    , COALESCE(tn.treasury_native, 0) as treasury_native
-    , COALESCE(nt.net_treasury_value, 0) as net_treasury_value
+    , COALESCE(tn.treasury_native, 0) as own_token_treasury_native
+    , COALESCE(nt.net_treasury_value, 0) as net_treasury
+
+    --Other Metrics
+    , COALESCE(p.token_turnover_fdv, 0) as token_turnover_fdv
+    , COALESCE(p.token_turnover_circulating, 0) as token_turnover_circulating
+    , COALESCE(th.token_holder_count, 0) as token_holder_count
     
 from staked_eth_metrics s
 left join fees_revenue_expenses f using(date)

@@ -11,7 +11,7 @@ SELECT
     volume::number as volume,
     fees::number as fees,
     tvl::number as tvl,
-    price::number as price,
+    price::float as price,
     market_cap::number as market_cap,
     fdmc::number as fdmc,
     token_volume::number as token_volume
