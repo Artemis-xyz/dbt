@@ -52,7 +52,7 @@ with base_date as (
 
 , date_spine as (
     select date
-    from pc_dbt_db.prod.dim_date_spine
+    from {{ref('dim_date_spine')}}
     where date between (select min(date) from unified_tvl) and current_date
 )
 
