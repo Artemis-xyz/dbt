@@ -5,11 +5,16 @@
         -- Get the node for the model so we can obtain it's config
         {%- set node = graph.nodes.get("model." ~ project_name ~ "." ~ model_name) -%}
 
+        -- If node lookup fails, use the builtin ref (seeds)
+        {%- if node is none -%}
+            {{ return(builtins.ref(model_name)) }}
+        {%- endif -%}
+
         -- Get the relation for the model
         -- If there is an alias, use it, otherwise use the model name
         {%- set relation = adapter.get_relation(
-            database=node.database,
-            schema=node.schema,
+            database=node.database or 'PC_DBT_DB',
+            schema=node.schema or 'PROD',
             identifier=node.alias or node.name
         ) -%}
 
@@ -18,10 +23,16 @@
           {{ return(builtins.ref(model_name)) }}
       {%- else -%}
         -- Otherwise, use production data
-        {%- set prod_database = node.config.database -%}
+        {%- set prod_database = node.config.database or 'PC_DBT_DB' -%}
 
         -- PROD is hardcoded in profiles.yml and will be used as the default prefix for any schema names
-        {%- set prod_schema = 'PROD_' ~ node.config.schema -%}
+        {%- if node.config.schema is none -%}
+            {%- set prod_schema = 'PROD' -%}
+        {%- else -%}
+            {%- set prod_schema = 'PROD_' ~ node.config.schema -%}
+        {%- endif -%}
+
+        {%- set prod_model_name = node.config.alias or model_name -%}
 
         -- {%- set prod_model_name = node.config.alias or model_name -%}
         {%- set prod_model_name = node.alias or model_name -%}
