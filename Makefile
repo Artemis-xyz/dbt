@@ -18,9 +18,13 @@ pipcompile:
 generate_schema:
 	python3 dbt_scripts/generate_schema.py
 
+clean-dev-schema:
+	python3 dbt_scripts/clean_dev_schema.py
+
 build-models:
 	@echo "Running dbt build for models: $(filter-out $@,$(MAKECMDGOALS))"
 	@dbt build -s $(foreach model,$(filter-out $@,$(MAKECMDGOALS)),$(model)+) --exclude "*iceberg*"
 
 %:
 	@:
+
