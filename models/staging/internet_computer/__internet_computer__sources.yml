@@ -7,3 +7,5 @@ sources:
       - name: raw_icp_daily_block_count
       - name: raw_icp_canister_total_state
       - name: raw_icp_neuron_fund_size
+      - name: raw_icp_circulating_supply_data
+      - name: raw_icp_total_supply_data
