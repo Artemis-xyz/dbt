@@ -8,7 +8,10 @@
 select
     t.block_timestamp::date as date,
     sum(t.raw_amount_precise) / 1e18 as burns_native,
-    sum(t.raw_amount_precise * p.price) / 1e18 as revenue
+    sum(CASE 
+        WHEN t.block_timestamp::date > '2025-04-15' THEN t.raw_amount_precise * p.price 
+        ELSE 0 
+    END) / 1e18 AS revenue
 FROM 
     ethereum_flipside.core.ez_token_transfers t
 LEFT JOIN  ethereum_flipside.price.ez_prices_hourly p
