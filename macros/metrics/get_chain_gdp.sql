@@ -75,13 +75,17 @@ WITH gdp_components AS (
         FROM {{ ref('ez_' ~ chain ~ '_metrics') }}
     )
 
-    -- need to subtract solana dex fees so I'm not double counting those in dex volumes above
     , protocol_revenue_data AS (
         SELECT 
             DATE_TRUNC(DAY, date) AS date 
             , SUM(COALESCE(fees, 0)) AS protocol_revenue
         FROM {{ ref("ez_protocol_datahub_by_chain") }}
         WHERE chain = '{{ chain }}'
+        -- excluding solana dex's to avoid double counting. It looks like these are included in dex_volumes above as dex_volumes defaults to the greater usd value of token_bought and token_sold
+        -- this does not appear to be an issue for EVM based chains that rely on Dune dex.trades as that defaults to using the token_bought amount which is net of fees
+        {% if chain == 'solana' %}
+            AND artemis_id NOT IN ('raydium', 'jupiter', 'saber', 'pumpfun')
+        {% endif %}
         GROUP BY 1
     )
 
