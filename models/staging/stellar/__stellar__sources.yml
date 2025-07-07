@@ -10,5 +10,4 @@ sources:
       - name: ez_stellar_metrics_by_category_v2
       - name: ez_stellar_metrics_by_contract_v2
       - name: ez_stellar_metrics_by_subcategory
-      - name: raw_stellar_fact_stellar_issued_supply_and_float_parquet
       - name: raw_stellar_fact_stellar_token_transfers_bigquery_parquet
