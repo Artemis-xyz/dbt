@@ -15,18 +15,19 @@ WITH
             , 'ETH' AS token
             , block_rewards_native
             , mev_priority_fees_native
-            , total_staking_yield_native AS fees
+            , fees_native
         FROM {{ ref('fact_lido_fees_revs_expenses') }}
     )
     , revenues_expenses AS (
         SELECT
             date
             , 'stETH' AS token
-            , operating_expenses_native
             , protocol_revenue_native
             , primary_supply_side_revenue_native
             , secondary_supply_side_revenue_native
             , total_supply_side_revenue_native
+            , treasury_fee_allocation_native
+            , validator_fee_allocation_native
         FROM {{ ref('fact_lido_fees_revs_expenses') }}
     )
     , token_incentives_cte AS (
@@ -84,15 +85,10 @@ SELECT
     , token
 
     --Old metrics needed for compatibility
-    , COALESCE(f.fees, 0) AS fees
+    , COALESCE(f.fees_native, 0) AS fees
     , COALESCE(primary_supply_side_revenue_native, 0) AS primary_supply_side_revenue
     , COALESCE(secondary_supply_side_revenue_native, 0) AS secondary_supply_side_revenue
     , COALESCE(total_supply_side_revenue_native, 0) AS total_supply_side_revenue
-    , COALESCE(protocol_revenue_native, 0) AS revenue
-    , COALESCE(operating_expenses_native, 0) AS operating_expenses
-    , COALESCE(ti.token_incentives_native, 0) AS token_incentives
-    , token_incentives + operating_expenses as total_expenses
-    , revenue - total_expenses as earnings
     , COALESCE(t.treasury_value_native, 0) AS treasury_value
     , COALESCE(s.num_staked_eth, 0) AS net_deposits
     , COALESCE(sto.outstanding_supply_native, 0) AS outstanding_supply
@@ -104,18 +100,23 @@ SELECT
     , COALESCE(s.num_staked_eth, 0) as tvl_native
 
     --Cash Flow Metrics
-    , COALESCE(f.mev_priority_fees_native, 0) as mev_priority_fees
-    , COALESCE(f.block_rewards_native, 0) as block_rewards
-    , COALESCE(f.fees, 0) as yield_generated
-    , COALESCE(f.fees, 0) as ecosystem_revenue
-    , COALESCE(f.fees, 0) * .90 as service_fee_allocation
-    , COALESCE(f.fees, 0) * .05 as treasury_fee_allocation
-    , COALESCE(f.fees, 0) * .05 as validator_fee_allocation
+    , COALESCE(f.mev_priority_fees_native, 0) as mev_priority_fees_native
+    , COALESCE(f.block_rewards_native, 0) as block_rewards_native
+    , COALESCE(f.fees_native, 0) as yield_generated_native
+    , COALESCE(f.fees_native, 0) as fees_native
+    , COALESCE(e.treasury_fee_allocation_native, 0) as treasury_fee_allocation_native
+    , COALESCE(e.validator_fee_allocation_native, 0) as validator_fee_allocation_native
+
+    -- Financial Statement Metrics
+    , COALESCE(e.protocol_revenue_native, 0) as revenue_native
+    , COALESCE(ti.token_incentives_native, 0) as token_incentives_native
+    , COALESCE(ti.token_incentives_native, 0) as total_expenses_native
+    , COALESCE(e.protocol_revenue_native, 0) - COALESCE(ti.token_incentives_native, 0) as earnings_native
 
     --Treasury Metrics
-    , COALESCE(t.treasury_value_native, 0) as treasury
-    , COALESCE(tn.treasury_native, 0) as treasury_native
-    , COALESCE(nt.net_treasury_value_native, 0) as net_treasury_value
+    , COALESCE(t.treasury_value_native, 0) as treasury_native
+    , COALESCE(tn.treasury_native, 0) as own_token_treasury_native
+    , COALESCE(nt.net_treasury_value_native, 0) as net_treasury_native
 FROM fees f
 FULL JOIN revenues_expenses e USING (date, token)
 FULL JOIN treasury_cte t USING(date, token)

@@ -11,11 +11,11 @@
 
 select 
     block_timestamp,
-    tx_hash as ethereum_tx_hash,
+    transaction_hash as ethereum_tx_hash,
     event_index,
     depositor as source_address,
     recipient as destination_address,
-    amount,
+    amount_native as amount,
     token_address as ethereum_token_address,
     source_chain,
     destination_chain
