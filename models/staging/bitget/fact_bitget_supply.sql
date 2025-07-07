@@ -31,6 +31,7 @@ supply_with_burn AS (
   SELECT
     s.date,
     s.max_supply,
+    s.burn,
 
     -- rolling cumulative burn over every supply date
     SUM(COALESCE(bc.burn, 0))
@@ -63,11 +64,16 @@ supply_with_burn AS (
     (
       s.bft_unvested
       + s.employee_incentive_unvested
+      + s.ecosystem_unvested
       + s.promotion_unvested
       + s.commitment_unvested
       + s.protection_unvested
-      - 0
-      - COALESCE(bc.burn, 0)
+      - 0  -- foundation
+      - SUM(COALESCE(bc.burn, 0))
+          OVER (
+            ORDER BY s.date
+            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+          )
     ) AS float_supply
 
   FROM pc_dbt_db.prod.bgb_daily_supply_data AS s
