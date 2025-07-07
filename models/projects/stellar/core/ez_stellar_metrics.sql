@@ -12,11 +12,11 @@ with fundamental_data as (
         * EXCLUDE date,
         TO_TIMESTAMP_NTZ(date) AS date 
     from {{ source('PROD_LANDING', 'ez_stellar_metrics') }}
-)
-, rwa_tvl as (
+),
+rwa_tvl as (
     select * from {{ ref('fact_stellar_rwa_tvl') }}
-)
-, stablecoin_tvl as (
+),
+stablecoin_tvl as (
     -- Sum mktcap in USD across all stablecoins 
     select 
         date,
@@ -24,17 +24,7 @@ with fundamental_data as (
     from {{ ref ('fact_stellar_stablecoin_tvl') }} 
     group by 
         date 
-)
-, issued_supply_metrics as (
-    select 
-        date,
-        max_supply as max_supply_native,
-        total_supply as total_supply_native,
-        issued_supply as issued_supply_native,
-        circulating_supply_native as circulating_supply_native
-    from {{ ref('fact_stellar_issued_supply_and_float') }}
-)
-, prices as ({{ get_coingecko_price_with_latest("stellar") }})
+), prices as ({{ get_coingecko_price_with_latest("stellar") }})
 , price_data as ( {{ get_coingecko_metrics("stellar") }} )
 select
     fundamental_data.date
@@ -77,12 +67,6 @@ select
     , fees as ecosystem_revenue
     , fees_native as ecosystem_revenue_native
 
-    -- Issued Supply Metrics
-    , issued_supply_metrics.max_supply_native
-    , issued_supply_metrics.total_supply_native
-    , issued_supply_metrics.issued_supply_native
-    , issued_supply_metrics.circulating_supply_native
-
     -- Financial Statement Metrics
     , fees as revenue
 
@@ -99,4 +83,3 @@ left join prices using(date)
 left join price_data on fundamental_data.date = price_data.date
 left join rwa_tvl on fundamental_data.date = rwa_tvl.date
 left join stablecoin_tvl on fundamental_data.date = stablecoin_tvl.date
-left join issued_supply_metrics on fundamental_data.date = issued_supply_metrics.date
