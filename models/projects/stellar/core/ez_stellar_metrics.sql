@@ -32,7 +32,7 @@ with fundamental_data as (
         total_supply as total_supply_native,
         issued_supply as issued_supply_native,
         circulating_supply_native as circulating_supply_native
-    from {{ ref('fact_stellar_issued_supply_and_float') }}
+    from {{ ref('fact_stellar_issued_supply_and_float_dbt') }}
 )
 , prices as ({{ get_coingecko_price_with_latest("stellar") }})
 , price_data as ( {{ get_coingecko_metrics("stellar") }} )
