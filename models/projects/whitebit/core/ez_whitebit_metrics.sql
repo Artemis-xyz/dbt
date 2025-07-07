@@ -43,10 +43,10 @@ SELECT
     END AS burns_native
 
     -- Supply Metrics
-    , COALESCE(supply_data.max_supply_native, 0) AS max_supply_native
-    , COALESCE(supply_data.max_supply_native - supply_data.cumulative_burns_native - revenue_data.revenue_native, 0) AS total_supply_native
-    , COALESCE(supply_data.max_supply_native - supply_data.cumulative_burns_native - revenue_data.revenue_native - supply_data.cumulative_foundation_owned_supply_native, 0) AS issued_supply_native
-    , COALESCE(supply_data.max_supply_native - supply_data.cumulative_burns_native - revenue_data.revenue_native - supply_data.cumulative_foundation_owned_supply_native - supply_data.total_unvested_supply_native, 0) AS circulating_supply_native
+    --, COALESCE(supply_data.max_supply_native, 0) AS max_supply_native
+    --, COALESCE(supply_data.max_supply_native - supply_data.cumulative_burns_native - revenue_data.revenue_native, 0) AS total_supply_native
+    --, COALESCE(supply_data.max_supply_native - supply_data.cumulative_burns_native - revenue_data.revenue_native - supply_data.cumulative_foundation_owned_supply_native, 0) AS issued_supply_native
+    --, COALESCE(supply_data.max_supply_native - supply_data.cumulative_burns_native - revenue_data.revenue_native - supply_data.cumulative_foundation_owned_supply_native - supply_data.total_unvested_supply_native, 0) AS circulating_supply_native
 
     -- Turnover Metrics
     , COALESCE(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
