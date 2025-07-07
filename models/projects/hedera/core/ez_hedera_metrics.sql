@@ -24,7 +24,7 @@ WITH issued_supply_metrics AS (
 , date_spine AS (
     select * 
     from {{ ref('dim_date_spine') }} 
-    where date between (select min(date) from issued_supply_metrics) and to_date(sysdate())
+    where date between '2020-01-01' and to_date(sysdate())
 )
 , market_metrics AS ({{ get_coingecko_metrics("hedera-hashgraph") }}) 
 
