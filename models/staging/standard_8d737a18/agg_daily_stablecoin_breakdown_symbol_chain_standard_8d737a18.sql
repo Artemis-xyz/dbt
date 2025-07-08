@@ -10,7 +10,11 @@ select
         else ca.chain_agnostic_id || ':' || replace(replace(contract_address, '0x', ''), '0:', '') 
     end as asset_id
     , contract_address
-    , symbol as asset_symbol
+    , case 
+        when symbol = 'USDFALCON' then 'USDF'
+        when symbol = 'S_USD' then 'SUSD'
+        else symbol
+    end as asset_symbol
     , sum(stablecoin_supply) as supply_usd
 from {{ ref("agg_daily_stablecoin_breakdown_with_labels_silver") }} agg
 left join {{ ref("chain_agnostic_ids") }} ca
