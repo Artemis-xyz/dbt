@@ -45,6 +45,12 @@ column_definitions:
     tags:
       - override
 
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+    tags:
+      - artemis_gaap
+
   fdmc: &fdmc
     name: fdmc
     description: "The fully diluted market cap of ICP in USD"
@@ -58,6 +64,12 @@ column_definitions:
     tags:
       - artemis_gaap
       - override
+
+  issued_supply_native: &issued_supply_native
+    name: issued_supply_native
+    description: "The issued supply of a token, equal to the total supply minus foundation or DAO held tokens."
+    tags:
+      - artemis_gaap
 
   market_cap: &market_cap
     name: market_cap
@@ -79,6 +91,12 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  total_supply_native: &total_supply_native
+    name: total_supply_native
+    description: "The total supply of a token, equal to the sum of all tokens created minus the sum of all tokens destroyed."
+    tags:
+      - artemis_gaap
+
   tvl: &tvl
     name: tvl
     description: "The total value locked in a protocol"
@@ -94,10 +112,13 @@ models:
       - *chain_fees
       - *chain_spot_volume
       - *chain_txns
+      - *circulating_supply_native
       - *fdmc
       - *fees
+      - *issued_supply_native
       - *market_cap
       - *price
       - *revenue
+      - *total_supply_native
       - *tvl
 
