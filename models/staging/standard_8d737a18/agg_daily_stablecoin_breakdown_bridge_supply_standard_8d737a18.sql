@@ -39,7 +39,11 @@ select
         else ca.chain_agnostic_id || ':' || replace(replace(t1.contract_address, '0x', ''), '0:', '') 
     end as asset_id
     , t1.contract_address
-    , t1.symbol as asset_symbol
+    , case 
+        when t1.symbol = 'USDFALCON' then 'USDF'
+        when t1.symbol = 'S_USD' then 'SUSD'
+        else t1.symbol
+    end as asset_symbol
     , sum(
         case 
             when t2.type is null then stablecoin_supply
