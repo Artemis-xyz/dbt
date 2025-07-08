@@ -1,6 +1,6 @@
-{% macro get_chain_gdp(chain) %}
-
-WITH gdp_components AS (
+{% macro get_chain_total_economic_activity(chain) %}
+-- renaming metric from GDP to TEA (Total Economic Activity)
+WITH total_economic_activity_components AS (
     WITH fees_volume_and_emissions AS (
         SELECT
             date
@@ -64,13 +64,6 @@ WITH gdp_components AS (
                 , COALESCE(p2p_stablecoin_transfer_volume, 0) AS p2p_stablecoin_transfer_volume
                 , COALESCE(p2p_native_transfer_volume, 0) AS p2p_native_transfer_volume
                 , COALESCE(p2p_token_transfer_volume, 0) AS p2p_token_transfer_volume
-            {% elif chain == 'sui' %}
-                , COALESCE(chain_fees, 0) AS rev
-                , NULL AS nft_trading_volume
-                , COALESCE(dex_volumes, 0) AS dex_volumes
-                , COALESCE(p2p_stablecoin_transfer_volume, 0) AS p2p_stablecoin_transfer_volume
-                , NULL AS p2p_native_transfer_volume
-                , NULL AS p2p_token_transfer_volume
             {% endif %}
         FROM {{ ref('ez_' ~ chain ~ '_metrics') }}
     )
@@ -149,13 +142,6 @@ WITH gdp_components AS (
             , f.p2p_native_transfer_volume
             , f.p2p_token_transfer_volume
             , f.chain_fees - f.l1_data_cost AS rev
-        {% elif chain == "sui" %}
-            , f.nft_trading_volume
-            , f.dex_volumes
-            , f.p2p_stablecoin_transfer_volume
-            , f.p2p_native_transfer_volume
-            , f.p2p_token_transfer_volume
-            , f.rev
         {% endif %}
     FROM fees_volume_and_emissions f 
     LEFT JOIN protocol_revenue_data p
@@ -171,7 +157,7 @@ SELECT
     , SUM(COALESCE(p2p_token_transfer_volume, 0)) AS p2p_token_transfer_volume
     , SUM(COALESCE(p2p_native_transfer_volume, 0)) AS p2p_native_transfer_volume
     , SUM(COALESCE(protocol_revenue, 0)) AS protocol_revenue
-    , SUM(COALESCE(rev, 0)) + SUM(COALESCE(dex_volumes, 0)) + SUM(COALESCE(protocol_revenue, 0)) + SUM(COALESCE(p2p_stablecoin_transfer_volume, 0)) + SUM(COALESCE(nft_trading_volume, 0)) + SUM(COALESCE(p2p_token_transfer_volume, 0)) + SUM(COALESCE(p2p_native_transfer_volume, 0)) AS gdp
-FROM gdp_components
+    , SUM(COALESCE(rev, 0)) + SUM(COALESCE(dex_volumes, 0)) + SUM(COALESCE(protocol_revenue, 0)) + SUM(COALESCE(p2p_stablecoin_transfer_volume, 0)) + SUM(COALESCE(nft_trading_volume, 0)) + SUM(COALESCE(p2p_token_transfer_volume, 0)) + SUM(COALESCE(p2p_native_transfer_volume, 0)) AS total_economic_activity
+FROM total_economic_activity_components
 GROUP BY 1
 {% endmacro %}

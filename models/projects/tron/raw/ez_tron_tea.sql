@@ -3,9 +3,9 @@
         materialized="table",
         database="tron",
         schema="raw",
-        alias="ez_tron_gdp",
-        tags=["gdp"]
+        alias="ez_tron_tea",
+        tags=["tea"]
     )
 }}
 
-{{ get_chain_gdp("tron") }}
+{{ get_chain_total_economic_activity("tron") }}

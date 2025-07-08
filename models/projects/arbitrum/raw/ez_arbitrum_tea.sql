@@ -3,9 +3,9 @@
         materialized="table",
         database="arbitrum",
         schema="raw",
-        alias="ez_arbitrum_gdp",
-        tags=["gdp"]
+        alias="ez_arbitrum_tea",
+        tags=["tea"]
     )
 }}
 
-{{ get_chain_gdp("arbitrum") }}
+{{ get_chain_total_economic_activity("arbitrum") }}

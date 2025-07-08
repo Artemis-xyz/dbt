@@ -3,9 +3,9 @@
         materialized="table",
         database="near",
         schema="raw",
-        alias="ez_near_gdp",
-        tags=["gdp"]
+        alias="ez_near_tea",
+        tags=["tea"]
     )
 }}
 
-{{ get_chain_gdp("near") }}
+{{ get_chain_total_economic_activity("near") }}
