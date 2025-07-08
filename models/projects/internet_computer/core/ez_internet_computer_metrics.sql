@@ -15,6 +15,8 @@ with
     , icp_neuron_funds as (select * from {{ ref("fact_internet_computer_neuron_funds_silver") }})
     , price_data as ({{ get_coingecko_metrics("internet-computer") }})
     , defillama_data as ({{ get_defillama_metrics("icp") }})
+    , icp_circulating_supply as (select date, circulating_supply_native from {{ ref("fact_internet_computer_circulating_supply_data") }})
+    , icp_total_supply as (select date, total_supply_native from {{ ref("fact_internet_computer_total_supply_data") }})
 select
     coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_total_canister_state.date, icp_neuron_funds.date, icp_blocks.date) as date
     , 'internet_computer' as chain
@@ -65,10 +67,18 @@ select
     , total_internet_identity_user_count
     , icp_blocks.block_count
     , 5 as storage_cost
+
+    -- Supply Data
+    , icp_circulating_supply.circulating_supply_native as circulating_supply_native
+    , circulating_supply_native as issued_supply_native
+    , icp_total_supply.total_supply_native as total_supply_native
+    
 from price_data
 left join icp_metrics on price_data.date = icp_metrics.date
 left join icp_blocks on price_data.date = icp_blocks.date
 left join icp_total_canister_state on price_data.date = icp_total_canister_state.date
 left join icp_neuron_funds on price_data.date = icp_neuron_funds.date
 left join defillama_data on price_data.date = defillama_data.date
+left join icp_circulating_supply on price_data.date = icp_circulating_supply.date
+left join icp_total_supply on price_data.date = icp_total_supply.date
 where coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_blocks.date, icp_total_canister_state.date, icp_neuron_funds.date) < to_date(sysdate())
