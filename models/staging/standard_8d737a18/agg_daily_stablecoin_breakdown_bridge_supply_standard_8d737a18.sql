@@ -1,4 +1,4 @@
-{{ config(materialized="table", snowflake_warehouse="STANDARD_8D737A18") }}
+{{ config(materialized="incremental", unique_key=["date", "chain_name","asset_id"], snowflake_warehouse="STANDARD_8D737A18") }}
 
 {% set chain_list = ['arbitrum', 'avalanche', 'base', 'bsc', 'celo', 'ethereum', 'mantle', 'optimism', 'polygon', 'solana', 'sui', 'ton', 'tron', 'sonic', 'kaia', 'aptos', 'ripple'] %}
 
@@ -39,7 +39,11 @@ select
         else ca.chain_agnostic_id || ':' || replace(replace(t1.contract_address, '0x', ''), '0:', '') 
     end as asset_id
     , t1.contract_address
-    , t1.symbol as asset_symbol
+    , case 
+        when t1.symbol = 'USDFALCON' then 'USDF'
+        when t1.symbol = 'S_USD' then 'SUSD'
+        else t1.symbol
+    end as asset_symbol
     , sum(
         case 
             when t2.type is null then stablecoin_supply
@@ -73,6 +77,9 @@ left join premint_addresses pa
     on t1.chain = pa.chain
     and lower(t1.address) = lower(pa.premint_address)
     and lower(t1.contract_address) = lower(pa.contract_address)
+{% if is_incremental() %}
+    where date >= (select DATEADD('day', -3, max(date)) from {{ this }})
+{% endif %}
 group by 1, 2, 3, 4, 5, 6
 
 -- native_usd: the amount issued natively on-chain or zero for bridged chains

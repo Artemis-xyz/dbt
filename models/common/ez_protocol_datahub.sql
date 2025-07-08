@@ -15,6 +15,7 @@ select
     txns,
     volume,
     fees,
+    revenue,
     tvl,
     price,
     market_cap,
