@@ -3,9 +3,9 @@
         materialized="table",
         database="avalanche",
         schema="raw",
-        alias="ez_avalanche_gdp",
-        tags=["gdp"]
+        alias="ez_avalanche_tea",
+        tags=["tea"]
     )
 }}
 
-{{ get_chain_gdp("avalanche") }}
+{{ get_chain_total_economic_activity("avalanche") }}
