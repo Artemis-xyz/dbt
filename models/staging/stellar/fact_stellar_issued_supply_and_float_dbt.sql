@@ -13,4 +13,5 @@ select
     MAX(parquet_raw:unvested_tokens::NUMBER) unvested_tokens,
     MAX(parquet_raw:circulating_supply_native::NUMBER) as circulating_supply_native
 from {{ source("PROD_LANDING", "raw_stellar_fact_stellar_issued_supply_and_float_parquet") }}
+where date >= '2022-01-01'
 group by date
