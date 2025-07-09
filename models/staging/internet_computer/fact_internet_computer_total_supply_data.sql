@@ -10,10 +10,11 @@ with
 
     extracted_total_supply as (
         select
-            to_date(to_timestamp_ntz(value[0]::number)) as date,
-            value[1]::double / 1e8 as total_supply_native
+            to_date(to_timestamp_ntz(value[0]::number)) as date
+            , value[1]::double / 1e8 as total_supply_native
         from latest_source_json, lateral flatten(input => parse_json(source_json))
     )
+
 select
     date
     , total_supply_native

@@ -6,14 +6,15 @@ with
         from {{ source("PROD_LANDING", "raw_icp_circulating_supply_data") }}
         order by extraction_date desc
         limit 1
-    ),
-
-    extracted_circulating_supply as (
+    )
+    
+    , extracted_circulating_supply as (
         select
-            to_date(to_timestamp_ntz(value[0]::number)) as date,
-            value[1]::double / 1e8 as circulating_supply_native
+            to_date(to_timestamp_ntz(value[0]::number)) as date
+            , value[1]::double / 1e8 as circulating_supply_native
         from latest_source_json, lateral flatten(input => parse_json(source_json))
     )
+    
 select
     date
     , circulating_supply_native
