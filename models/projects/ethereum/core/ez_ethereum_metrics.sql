@@ -71,12 +71,8 @@ select
     , adjusted_dau
     , wau
     , mau
-    , fees_native
-    , case when fees is null then (coalesce(blob_fees_native, 0) + fees_native) * price else fees + coalesce(blob_fees, 0) end as fees
     , avg_txn_fee
     , median_txn_fee
-    , revenue_native + coalesce(blob_fees_native, 0) as revenue_native
-    , revenue + coalesce(blob_fees, 0) as revenue
     , case
         when fees is null then (fees_native * price) - revenue else fees - revenue
     end as priority_fee_usd
@@ -135,14 +131,23 @@ select
     , avg_cost_per_mib
     , submitters as da_dau
     , dune_dex_volumes_ethereum.dex_volumes AS chain_spot_volume
+
     -- Cashflow metrics
     , fees as chain_fees
-    , fees_native AS ecosystem_revenue_native
-    , fees AS ecosystem_revenue
+    , case when fees is null then (coalesce(blob_fees_native, 0) + fees_native) * price else fees + coalesce(blob_fees, 0) end as fees
+    , fees_native
     , revenue_native AS burned_fee_allocation_native
     , revenue AS burned_fee_allocation
+
     , fees_native - revenue_native as priority_fee_native
     , priority_fee_usd AS priority_fee
+
+    -- Financial Statement Metrics
+    , revenue_native + coalesce(blob_fees_native, 0) as revenue_native
+    , revenue + coalesce(blob_fees, 0) as revenue
+    , block_rewards_native  * price AS token_incentives
+    , revenue - token_incentives AS earnings
+    
     -- Developer metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -150,9 +155,11 @@ select
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
+
     -- Supply metrics
     , block_rewards_native AS gross_emissions_native
     , block_rewards_native * price AS gross_emissions
+
     -- Stablecoin metrics
     , stablecoin_total_supply
     , stablecoin_txns
