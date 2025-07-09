@@ -35,7 +35,7 @@ WITH total_economic_activity_components AS (
                 , COALESCE(p2p_native_transfer_volume, 0) AS p2p_native_transfer_volume
                 , COALESCE(p2p_token_transfer_volume, 0) AS p2p_token_transfer_volume
             {% elif chain == "optimism" %}
-                , COALESCE(revenue, 0) AS rev
+                , COALESCE(fees, 0) - COALESCE(l1_data_cost, 0) AS rev
                 , COALESCE(nft_trading_volume, 0) AS nft_trading_volume
                 , COALESCE(dex_volumes, 0) AS dex_volumes
                 , COALESCE(p2p_stablecoin_transfer_volume, 0) AS p2p_stablecoin_transfer_volume
@@ -71,7 +71,7 @@ WITH total_economic_activity_components AS (
     , protocol_revenue_data AS (
         SELECT 
             DATE_TRUNC(DAY, date) AS date 
-            , SUM(COALESCE(fees, 0)) AS protocol_revenue
+            , SUM(COALESCE(fees, 0)) AS fees
         FROM {{ ref("ez_protocol_datahub_by_chain") }}
         WHERE chain = '{{ chain }}'
         -- excluding solana dex's to avoid double counting. It looks like these are included in dex_volumes above as dex_volumes defaults to the greater usd value of token_bought and token_sold
@@ -84,7 +84,7 @@ WITH total_economic_activity_components AS (
 
     SELECT 
         f.date 
-        , p.protocol_revenue
+        , p.fees AS application_fees
         {% if chain == "ethereum" %}
             , f.nft_trading_volume
             , f.dex_volumes
@@ -156,8 +156,8 @@ SELECT
     , SUM(COALESCE(p2p_stablecoin_transfer_volume, 0)) AS p2p_stablecoin_transfer_volume
     , SUM(COALESCE(p2p_token_transfer_volume, 0)) AS p2p_token_transfer_volume
     , SUM(COALESCE(p2p_native_transfer_volume, 0)) AS p2p_native_transfer_volume
-    , SUM(COALESCE(protocol_revenue, 0)) AS protocol_revenue
-    , SUM(COALESCE(rev, 0)) + SUM(COALESCE(dex_volumes, 0)) + SUM(COALESCE(protocol_revenue, 0)) + SUM(COALESCE(p2p_stablecoin_transfer_volume, 0)) + SUM(COALESCE(nft_trading_volume, 0)) + SUM(COALESCE(p2p_token_transfer_volume, 0)) + SUM(COALESCE(p2p_native_transfer_volume, 0)) AS total_economic_activity
+    , SUM(COALESCE(application_fees, 0)) AS application_fees
+    , SUM(COALESCE(rev, 0)) + SUM(COALESCE(dex_volumes, 0)) + SUM(COALESCE(application_fees, 0)) + SUM(COALESCE(p2p_stablecoin_transfer_volume, 0)) + SUM(COALESCE(nft_trading_volume, 0)) + SUM(COALESCE(p2p_token_transfer_volume, 0)) + SUM(COALESCE(p2p_native_transfer_volume, 0)) AS total_economic_activity
 FROM total_economic_activity_components
 GROUP BY 1
 {% endmacro %}
