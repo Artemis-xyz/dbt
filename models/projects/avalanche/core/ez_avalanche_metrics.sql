@@ -10,39 +10,49 @@
     )
 }}
 
-with
-    fundamental_data as ({{ get_fundamental_data_for_chain("avalanche", "v2") }}),
-    price_data as ({{ get_coingecko_metrics("avalanche-2") }}),
-    defillama_data as ({{ get_defillama_metrics("avalanche") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("avalanche") }}),
-    staking_data as ({{ get_staking_metrics("avalanche") }}),
-    github_data as ({{ get_github_metrics("avalanche") }}),
-    contract_data as ({{ get_contract_metrics("avalanche") }}),
-    issuance_data as (
-        select date, validator_rewards as issuance
-        from {{ ref("fact_avalanche_validator_rewards_silver") }}
-    ),
-    nft_metrics as ({{ get_nft_metrics("avalanche") }}),
-    p2p_metrics as ({{ get_p2p_metrics("avalanche") }}),
-    rolling_metrics as ({{ get_rolling_active_address_metrics("avalanche") }}),
-    bridge_volume_metrics as (
-        select date, bridge_volume
-        from {{ ref("fact_avalanche_bridge_bridge_volume") }}
-        where chain is null
-    ),
-    bridge_daa_metrics as (
-        select date, bridge_daa
-        from {{ ref("fact_avalanche_bridge_bridge_daa") }}
-    ), 
-    avalanche_c_dex_volumes as (
-        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
-        from {{ ref("fact_avalanche_c_daily_dex_volumes") }}
-    )
-    , date_spine as (
-        SELECT date
-        FROM {{ ref("dim_date_spine") }}
-        WHERE date between '2014-04-13' AND to_date(sysdate()) -- Dev data goes back to 2014
-    )
+with fundamental_data as (
+    select * from {{ ref("fact_avalanche_fundamental_data_cte") }}
+)
+, price_data as ({{ get_coingecko_metrics("avalanche-2") }})
+, defillama_data as ({{ get_defillama_metrics("avalanche") }})
+, stablecoin_data as ({{ get_stablecoin_metrics("avalanche") }})
+, staking_data as ({{ get_staking_metrics("avalanche") }})
+, github_data as ({{ get_github_metrics("avalanche") }})
+, contract_data as ({{ get_contract_metrics("avalanche") }})
+, issuance_data as (
+    select date, validator_rewards as issuance
+    from {{ ref("fact_avalanche_validator_rewards_silver") }}
+)
+, nft_metrics as ({{ get_nft_metrics("avalanche") }})
+, p2p_metrics as ({{ get_p2p_metrics("avalanche") }})
+, rolling_metrics as ({{ get_rolling_active_address_metrics("avalanche") }})
+, bridge_volume_metrics as (
+    select date, bridge_volume
+    from {{ ref("fact_avalanche_bridge_bridge_volume") }}
+    where chain is null
+)
+, bridge_daa_metrics as (
+    select date, bridge_daa
+    from {{ ref("fact_avalanche_bridge_bridge_daa") }}
+)
+, avalanche_c_dex_volumes as (
+    select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
+    from {{ ref("fact_avalanche_c_daily_dex_volumes") }}
+)
+, issued_supply_metrics as (
+    select 
+        date,
+        max_supply as max_supply_native,
+        total_supply as total_supply_native,
+        issued_supply as issued_supply_native,
+        circulating_supply_native as circulating_supply_native
+    from {{ ref('fact_avalanche_issued_supply_and_float') }}
+)
+, date_spine as (
+    SELECT date
+    FROM {{ ref("dim_date_spine") }}
+    WHERE date between '2014-04-13' AND to_date(sysdate()) -- Dev data goes back to 2014
+)
 
 select
     staking_data.date
@@ -63,12 +73,15 @@ select
     , nft_trading_volume
     , total_staked_usd
     , issuance
+
     -- Standardized Metrics
+
     -- Market Data Metrics
     , price
     , market_cap
     , fdmc
     , tvl
+
     -- Chain Usage Metrics
     , dau AS chain_dau
     , wau AS chain_wau
@@ -92,15 +105,24 @@ select
     , p2p_transfer_volume
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_avalanche_c.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
-    -- Cashflow Metrics
+
+    -- Cash Flow Metrics
     , case when fees is null then fees_native * price else fees end as chain_fees
     , fees_native AS ecosystem_revenue_native
     , case when fees is null then fees_native * price else fees end as ecosystem_revenue
     , fees_native AS burned_fee_allocation_native
     , case when fees is null then fees_native * price else fees end as burned_fee_allocation
+
+    -- Issued Supply Metrics
+    , issued_supply_metrics.max_supply_native
+    , issued_supply_metrics.total_supply_native
+    , issued_supply_metrics.issued_supply_native
+    , issued_supply_metrics.circulating_supply_native
+
     -- Supply Metrics
     , issuance AS emissions_native
     , issuance * price AS gross_emissions
+
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -108,6 +130,7 @@ select
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
+
     -- Stablecoin Metrics
     , stablecoin_total_supply
     , stablecoin_txns
@@ -124,9 +147,11 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
+
     -- Bridge Metrics
     , bridge_volume
     , bridge_daa
+
 from staking_data
 left join fundamental_data on staking_data.date = fundamental_data.date
 left join price_data on staking_data.date = price_data.date
@@ -141,4 +166,5 @@ left join rolling_metrics on staking_data.date = rolling_metrics.date
 left join bridge_volume_metrics on staking_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on staking_data.date = bridge_daa_metrics.date
 left join avalanche_c_dex_volumes as dune_dex_volumes_avalanche_c on staking_data.date = dune_dex_volumes_avalanche_c.date
+left join issued_supply_metrics on staking_data.date = issued_supply_metrics.date
 where staking_data.date < to_date(sysdate())
