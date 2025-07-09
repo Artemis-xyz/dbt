@@ -70,12 +70,15 @@ select
 
     -- Supply Data
     , icp_total_supply.total_supply_native as max_supply_native
+    -- has 0 uncreated tokens
     , 0 as uncreated_tokens
     , icp_total_supply.total_supply_native
     , sum(icp_burned) over (order by icp_metrics.date) as cumulative_icp_burned
     , icp_circulating_supply.circulating_supply_native as issued_supply_native
     , icp_total_supply.total_supply_native - icp_circulating_supply.circulating_supply_native as foundation_owned
+    -- all the tokens are vested
     , 0 as unvested_tokens
+    -- after the ICP 136222 proposal, after the motion is passed, the circulating supply will be the same as the total supply
     , icp_circulating_supply.circulating_supply_native
     
 from price_data
