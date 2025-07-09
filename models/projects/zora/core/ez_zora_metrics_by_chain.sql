@@ -46,8 +46,8 @@ select
     , median_txn_fee as chain_median_txn_fee
     , fees / txns as chain_avg_txn_fee
     -- Cash Flow Metrics
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
+    , fees as fees
+    , fees_native as fees_native
     , l1_data_cost as l1_fee_allocation
     , l1_data_cost_native as l1_fee_allocation_native
     , revenue as treasury_fee_allocation

@@ -175,35 +175,57 @@
             {% if is_incremental() %}
                 where t1.block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
             {% endif %}
+        ),
+        curve_data as (
+            select
+                events.block_timestamp,
+                '{{ _chain }}' as chain,
+                'DeFi' as category,
+                'curve' as app,
+                events.tx_hash,
+                events.event_index,
+                events.sender,
+                events.recipient,
+                events.pool,
+                --different naming from uniswap because pool structure is different
+                events.token_out,
+                events.token_out_symbol,
+                events.token_in,
+                events.token_in_symbol,
+                events.trading_volume,
+                events.trading_fees,
+                events.trading_revenue,
+                gas_price * gas_used as raw_gas_cost_native,
+                raw_gas_cost_native / 1e9 as gas_cost_native
+            from events
+            left join traces on 
+                events.tx_hash = traces.tx_hash
+                and events.pool = traces.to_address
+                and events.row_number = traces.row_number
+            where events.block_timestamp is not null
+            {% if is_incremental() %}
+                and events.block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+            {% endif %}
         )
-
-    select
-        events.block_timestamp,
-        '{{ _chain }}' as chain,
-        'DeFi' as category,
-        'curve' as app,
-        events.tx_hash,
-        events.event_index,
-        events.sender,
-        events.recipient,
-        events.pool,
-        --different naming from uniswap because pool structure is different
-        events.token_out,
-        events.token_out_symbol,
-        events.token_in,
-        events.token_in_symbol,
-        events.trading_volume,
-        events.trading_fees,
-        events.trading_revenue,
-        gas_price * gas_used as raw_gas_cost_native,
-        raw_gas_cost_native / 1e9 as gas_cost_native
-    from events
-    left join traces on 
-        events.tx_hash = traces.tx_hash
-        and events.pool = traces.to_address
-        and events.row_number = traces.row_number
-    where events.block_timestamp is not null
-    {% if is_incremental() %}
-        and events.block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
-    {% endif %}
+        select
+            max(block_timestamp) as block_timestamp
+            , max(chain) as chain
+            , max(category) as category
+            , max(app) as app
+            , tx_hash
+            , event_index
+            , max(sender) as sender
+            , max(recipient) as recipient
+            , max(pool) as pool
+            , max(token_out) as token_out
+            , max(token_out_symbol) as token_out_symbol
+            , max(token_in) as token_in
+            , max(token_in_symbol) as token_in_symbol
+            , sum(trading_volume) as trading_volume
+            , sum(trading_fees) as trading_fees
+            , sum(trading_revenue) as trading_revenue
+            , sum(raw_gas_cost_native) as raw_gas_cost_native
+            , sum(gas_cost_native) as gas_cost_native
+        from curve_data
+        group by tx_hash, event_index
 {% endmacro %}

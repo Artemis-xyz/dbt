@@ -59,7 +59,10 @@ with
         select date, adj_daus as adjusted_dau
         from {{ ref("ez_ethereum_adjusted_dau") }}
     )
-
+    , eth_supply as (
+        select date, issued_supply, circulating_supply
+        from {{ ref("fact_ethereum_eth_supply_estimated") }}
+    )
 select
     fundamental_data.date
     , fundamental_data.chain
@@ -173,6 +176,9 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
+
+    , eth_supply.issued_supply as issued_supply_native
+    , eth_supply.circulating_supply as circulating_supply_native
     -- ETF Metrics
     , net_etf_flow_native
     , net_etf_flow
@@ -195,5 +201,6 @@ left join da_metrics on fundamental_data.date = da_metrics.date
 left join etf_metrics on fundamental_data.date = etf_metrics.date
 left join ethereum_dex_volumes as dune_dex_volumes_ethereum on fundamental_data.date = dune_dex_volumes_ethereum.date
 left join block_rewards_data on fundamental_data.date = block_rewards_data.date
+left join eth_supply on fundamental_data.date = eth_supply.date
 left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 where fundamental_data.date < to_date(sysdate())

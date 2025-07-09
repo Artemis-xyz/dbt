@@ -24,10 +24,10 @@ with
             , cl_rewards_usd
             , el_rewards_usd
             , deposit_fee_usd as deposit_fees
-            , cl_rewards_usd + el_rewards_usd + deposit_fees as fees
-            , cl_rewards_usd + el_rewards_usd as primary_supply_side_revenue
+            , total_node_rewards_usd + deposit_fees as fees
+            , total_node_rewards_usd as primary_supply_side_revenue
             , deposit_fees as secondary_supply_side_revenue
-            , fees as total_supply_side_revenue
+            , total_node_rewards_usd + deposit_fees as total_supply_side_revenue
         from {{ ref('fact_rocketpool_fees_revs') }}
         left join {{ ref('fact_rocketpool_deposit_fees') }} d using(date)
     )
@@ -86,15 +86,9 @@ select
     --Old metrics needed for compatibility
     , COALESCE(f.cl_rewards_usd, 0) as cl_rewards_usd
     , COALESCE(f.el_rewards_usd, 0) as el_rewards_usd
-    , COALESCE(f.fees, 0) as fees
     , COALESCE(f.primary_supply_side_revenue, 0) as primary_supply_side_revenue
     , COALESCE(f.secondary_supply_side_revenue, 0) as secondary_supply_side_revenue
     , COALESCE(f.total_supply_side_revenue, 0) as total_supply_side_revenue
-    , 0 as protocol_revenue
-    , COALESCE(ti.token_incentives_usd, 0) as token_incentives
-    , 0 as operating_expenses
-    , COALESCE(token_incentives_usd, 0) as total_expenses
-    , protocol_revenue - token_incentives as earnings
     , staked_eth_metrics.num_staked_eth as net_deposits
     , os.reth_supply as outstanding_supply
     , COALESCE(t.treasury_value, 0) as treasury_value
@@ -119,9 +113,16 @@ select
     , COALESCE(f.el_rewards_usd, 0) as mev_priority_fees
     , COALESCE(f.deposit_fees, 0) as lst_deposit_fees
     , COALESCE(f.cl_rewards_usd, 0) + COALESCE(f.el_rewards_usd, 0) as yield_generated
-    , COALESCE(f.fees, 0) as ecosystem_revenue
+    , COALESCE(f.fees, 0) as fees
     , yield_generated * 0.14 as validator_fee_allocation
     , yield_generated * 0.86 as service_fee_allocation
+
+    --Financial Statement Metrics
+    , 0 as revenue
+    , COALESCE(ti.token_incentives_usd, 0) as token_incentives
+    , 0 as operating_expenses
+    , COALESCE(token_incentives_usd, 0) as total_expenses
+    , revenue - token_incentives as earnings
 
     --Treasury Metrics
     , COALESCE(t.treasury_value, 0) as treasury

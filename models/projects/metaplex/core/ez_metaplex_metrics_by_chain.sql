@@ -66,7 +66,6 @@ with date_spine as (
 SELECT
     ds.date
     , 'solana' as chain
-    , coalesce(revenue.revenue_usd, 0) as fees
     , coalesce(revenue.revenue_usd, 0) as revenue -- Fees + Revenue are same - 50% fees go to buybacks | the other 50% goes to dao treasury.
     , coalesce(buybacks.buyback, 0) as buyback -- 50% of fees (ie all of revenue) go to buybacks but buybacks are done in batches, at the time of the buyback
     , coalesce(buybacks.buyback_native, 0) as buyback_native
@@ -83,7 +82,7 @@ SELECT
     , coalesce(revenue.revenue_usd, 0) as nft_fees
 
     -- Cash Flow Metrics
-    , coalesce(revenue.revenue_usd, 0) as ecosystem_revenue
+    , coalesce(revenue.revenue_usd, 0) as fees
     , 0.5 * coalesce(revenue.revenue_usd, 0) as treasury_fee_allocation
     , 0.5 * coalesce(revenue.revenue_usd, 0) as buyback_fee_allocation
     , coalesce(buybacks.buyback, 0) as buybacks

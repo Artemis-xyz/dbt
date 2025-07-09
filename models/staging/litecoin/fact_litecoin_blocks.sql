@@ -1,6 +1,6 @@
 {{ config(
     materialized='incremental',
-    unique_key='unique_id',
+    unique_key='number',
     snowflake_warehouse='LITECOIN'
 ) }}
 with source_data as (
@@ -38,6 +38,6 @@ select
     nonce,
     bits,
     coinbase_param,
-    transaction_count,
-    md5(hash) as unique_id
+    transaction_count
 from source_data
+qualify row_number() over (partition by number order by timestamp desc) = 1
