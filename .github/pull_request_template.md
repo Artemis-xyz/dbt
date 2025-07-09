@@ -1,5 +1,5 @@
 ## Context
-<!-- 1-3 sentences describing what you did and why -->
+[ Write 1-3 sentences describing what you did and why here ]
 
 - [ ] Internal only (check this box this PR should not appear in external facing docs/changelog)
 
