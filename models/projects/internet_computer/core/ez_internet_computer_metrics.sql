@@ -18,7 +18,7 @@ with
     , icp_circulating_supply as (select date, circulating_supply_native from {{ ref("fact_internet_computer_circulating_supply_data") }})
     , icp_total_supply as (select date, total_supply_native from {{ ref("fact_internet_computer_total_supply_data") }})
 select
-    coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_total_canister_state.date, icp_neuron_funds.date, icp_blocks.date) as date
+    coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_total_canister_state.date, icp_neuron_funds.date, icp_blocks.date, icp_circulating_supply.date, icp_total_supply.date) as date
     , 'internet_computer' as chain
     , dau
     , txns
@@ -69,9 +69,14 @@ select
     , 5 as storage_cost
 
     -- Supply Data
-    , icp_circulating_supply.circulating_supply_native as circulating_supply_native
-    , circulating_supply_native as issued_supply_native
-    , icp_total_supply.total_supply_native as total_supply_native
+    , icp_total_supply.total_supply_native as max_supply_native
+    , 0 as uncreated_tokens
+    , icp_total_supply.total_supply_native
+    , sum(icp_burned) over (order by icp_metrics.date) as cumulative_icp_burned
+    , icp_circulating_supply.circulating_supply_native as issued_supply_native
+    , icp_total_supply.total_supply_native - icp_circulating_supply.circulating_supply_native as foundation_owned
+    , 0 as unvested_tokens
+    , icp_circulating_supply.circulating_supply_native
     
 from price_data
 left join icp_metrics on price_data.date = icp_metrics.date

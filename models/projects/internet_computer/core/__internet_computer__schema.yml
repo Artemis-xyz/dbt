@@ -78,6 +78,12 @@ column_definitions:
       - artemis_gaap
       - override
 
+  max_supply_native: &max_supply_native
+    name: max_supply_native
+    description: "The maximum supply of a token, including any uncreated tokens, unvested tokens, foundation or DAO held tokens, and burned tokens."
+    tags:
+      - artemis_gaap
+
   price: &price
     name: price
     description: "The price of ICP in USD"
@@ -117,6 +123,7 @@ models:
       - *fees
       - *issued_supply_native
       - *market_cap
+      - *max_supply_native
       - *price
       - *revenue
       - *total_supply_native
