@@ -3,6 +3,7 @@ import re
 import os
 import subprocess
 import requests
+from generate_tests import generate_all_tests
 
 def load_global_schema(global_schema_path):
     """ Load and flatten the global schema into a set of metric names. """
@@ -193,6 +194,8 @@ def generate_project_schema(project_name, global_schema_path, sql_files):
                 f.write("    columns:\n")
                 for col_name in sorted(matching_columns):
                     f.write(f"      - *{col_name}\n")
+                # Add tests block using abstracted test generation
+                f.write(generate_all_tests())
                 f.write("\n")
 
     print(f"Generated schema file: {output_path}")
