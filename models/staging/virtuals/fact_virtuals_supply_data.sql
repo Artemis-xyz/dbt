@@ -75,14 +75,16 @@ select
     date
     , virtuals_sablier_lockup
     , virtuals_treasury
-    , case 
-        when delta_sablier != 0 or delta_treasury != 0
-        then delta_sablier + delta_treasury
+    , case
+        -- if the delta is negative (because the balance is decreasing), people are claiming from the sablier lockup or the treasury
+        when delta_sablier < 0 or delta_treasury < 0
+        then (delta_sablier * -1) + (delta_treasury * -1)
         else 0
     end as premine_unlocks_native
-    , case 
-        when delta_sablier != 0 or delta_treasury != 0
-        then delta_sablier + delta_treasury
+    , case
+        -- if the delta is negative (because the balance is decreasing), people are claiming from the sablier lockup or the treasury
+        when delta_sablier < 0 or delta_treasury < 0
+        then (delta_sablier * -1) + (delta_treasury * -1)
         else 0
     end as net_supply_change_native
     , 1000000000 - (virtuals_sablier_lockup + virtuals_treasury) as circulating_supply_native
