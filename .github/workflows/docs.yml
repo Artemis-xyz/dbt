@@ -2,8 +2,6 @@ name: docs
 on:
   push:
     branches: main
-  pull_request_target:
-    branches: main
 env:
   SYSTEM_SNOWFLAKE_USER: ${{ secrets.SYSTEM_SNOWFLAKE_USER }}
   SYSTEM_SNOWFLAKE_PASSWORD: ${{ secrets.SYSTEM_SNOWFLAKE_PASSWORD }}
@@ -62,14 +60,14 @@ jobs:
                   type: "mrkdwn"
                   text: "- <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Failed Run>\n - <${{ github.event.pull_request.html_url || github.event.head_commit.url }}|PR>\n - This PR was opened by `${{ github.event.pull_request.user.login }}`"
 
-      # - name: Push to Github Pages repo
-      #   uses: cpina/github-action-push-to-another-repository@v1.7.2
-      #   env:
-      #     API_TOKEN_GITHUB: ${{ steps.generate_token.outputs.token }}
-      #   with:
-      #     source-directory: 'generated_dbt_docs'
-      #     target-directory: 'dbt'
-      #     destination-github-username: 'artemis-xyz'
-      #     destination-repository-name: 'artemis-xyz.github.io'
-      #     user-name: 'Artemis CI'
-      #     commit-message: 'update DBT docs'
+      - name: Push to Github Pages repo
+        uses: cpina/github-action-push-to-another-repository@v1.7.2
+        env:
+          API_TOKEN_GITHUB: ${{ steps.generate_token.outputs.token }}
+        with:
+          source-directory: 'generated_dbt_docs'
+          target-directory: 'dbt'
+          destination-github-username: 'artemis-xyz'
+          destination-repository-name: 'artemis-xyz.github.io'
+          user-name: 'Artemis CI'
+          commit-message: 'update DBT docs'
