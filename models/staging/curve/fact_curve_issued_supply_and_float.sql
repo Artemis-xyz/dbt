@@ -10,7 +10,7 @@ WITH minted AS (
         block_timestamp::date AS date,
         SUM(amount) AS daily_mint,
         SUM(SUM(amount)) OVER (ORDER BY block_timestamp::date) AS total_supply
-    FROM ethereum_flipside.core.ez_token_transfers
+    FROM {{ source("ETHEREUM_FLIPSIDE", "ez_token_transfers") }}
     WHERE 
         lower(contract_address) = '0xd533a949740bb3306d119cc777fa900ba034cd52'
         AND lower(from_address) = '0x0000000000000000000000000000000000000000'
@@ -22,7 +22,7 @@ foundation_balance_raw AS (
     SELECT 
         block_timestamp::date AS date,
         MAX(balance / 1e18) AS foundation_balance
-    FROM ethereum_flipside.core.fact_token_balances
+    FROM {{ source("ETHEREUM_FLIPSIDE", "fact_token_balances") }}
     WHERE 
         lower(user_address) = '0xe3997288987e6297ad550a69b31439504f513267'
         AND lower(contract_address) = '0xd533a949740bb3306d119cc777fa900ba034cd52'
@@ -48,7 +48,7 @@ inflows AS (
     SELECT 
         block_timestamp::date AS date,
         SUM(amount) AS inflow
-    FROM ethereum_flipside.core.ez_token_transfers
+    FROM {{ source("ETHEREUM_FLIPSIDE", "ez_token_transfers") }}
     WHERE 
         lower(to_address) IN (
             '0xd2d43555134dc575bf7279f4ba18809645db0f1d',
@@ -66,7 +66,7 @@ outflows AS (
     SELECT 
         block_timestamp::date AS date,
         SUM(amount) AS outflow
-    FROM ethereum_flipside.core.ez_token_transfers
+    FROM {{ source("ETHEREUM_FLIPSIDE", "ez_token_transfers") }}
     WHERE 
         lower(from_address) IN (
             '0xd2d43555134dc575bf7279f4ba18809645db0f1d',
@@ -101,7 +101,7 @@ locked_balance_raw AS (
     SELECT 
         block_timestamp::date AS date,
         MAX(balance / 1e18) AS locked
-    FROM ethereum_flipside.core.fact_token_balances
+    FROM {{ source("ETHEREUM_FLIPSIDE", "fact_token_balances") }}
     WHERE 
         lower(user_address) = '0x5f3b5dfeb7b28cdbd7faba78963ee202a494e2a2'
         AND lower(contract_address) = '0xd533a949740bb3306d119cc777fa900ba034cd52'
