@@ -26,6 +26,27 @@ cumulative_rewards AS (
     SUM(staker_rewards) OVER (ORDER BY date) AS cumulative_rewards
   FROM rewards_data
 ),
+foundation_balance_raw AS (
+    SELECT 
+        block_timestamp::date AS date,
+        MAX(balance / 1e18) AS foundation_balance
+    FROM ethereum_flipside.core.fact_token_balances
+    WHERE 
+        lower(user_address) = lower('0x7E233EAfC76243474369bd080238fD6EB36A73CE')
+        AND lower(contract_address) = lower('0xe28b3B32B6c345A34Ff64674606124Dd5Aceca30')
+    GROUP BY block_timestamp::date
+),
+foundation_balance_filled AS (
+    SELECT 
+        m.date,
+        LAST_VALUE(f.foundation_balance IGNORE NULLS) OVER (
+            ORDER BY m.date
+            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) AS foundation_wallet_balance
+    FROM injective.prod_core.ez_metrics m
+    LEFT JOIN foundation_balance_raw f
+      ON m.date = f.date
+),
 vesting_data AS (
 SELECT 
     date,
@@ -41,8 +62,8 @@ SELECT
     0.0 as uncreated_tokens,
     m.circulating_supply_native as total_supply,
     m.BURNED_FEE_ALLOCATION as burned_inj,
-    0.0 as foundation_wallet_balance,
-    100000000 + COALESCE(cr.cumulative_rewards, 0) AS issued_supply,
+    f.foundation_wallet_balance as foundation_wallet_balance,
+    100000000 + COALESCE(cr.cumulative_rewards, 0) - f.foundation_wallet_balance AS issued_supply,
     COALESCE(v.remaining_vesting_balance, 0) AS cumulative_unlocks,
     m.circulating_supply_native as circulating_supply_native
 FROM injective.prod_core.ez_metrics m
@@ -50,4 +71,6 @@ LEFT JOIN cumulative_rewards cr
   ON m.date = cr.date
 LEFT JOIN vesting_data v
   ON m.date = v.date
+LEFT JOIN foundation_balance_filled f
+  ON m.date = f.date
 ORDER BY m.date
