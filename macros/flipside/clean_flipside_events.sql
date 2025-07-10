@@ -17,8 +17,9 @@
     {% else %}
         from {{ chain }}_flipside.core.fact_event_logs
         left join {{ chain }}_flipside.core.fact_transactions using (tx_hash)
+        where 1=1
     {% endif %}
     {% if is_incremental() %}
-    where block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+    and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}
 {% endmacro %}
