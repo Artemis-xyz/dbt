@@ -21,14 +21,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      # - name: Generate a Github App token
-      #   id: generate_token
-      #   uses: actions/create-github-app-token@v1
-      #   with:
-      #     app-id: ${{ secrets.ARTEMIS_CI_APP_ID }}
-      #     private-key: ${{ secrets.ARTEMIS_CI_APP_PRIVATE_KEY }}
-      #     owner: ${{ github.repository_owner }}
-      #     repositories: "artemis-xyz.github.io"
+      - name: Generate a Github App token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.ARTEMIS_CI_APP_ID }}
+          private-key: ${{ secrets.ARTEMIS_CI_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: "artemis-xyz.github.io"
 
       - name: Init dbt
         uses: ./.github/actions/init-dbt
