@@ -32,12 +32,33 @@ jobs:
         uses: ./.github/actions/init-dbt
 
       - name: Generate docs
+        id: generateDocs
         run: |
+          exit 1
           dbt deps
           dbt docs generate --threads 16 --target prod
           git diff
           mkdir generated_dbt_docs
           mv "target/index.html" "target/manifest.json" "target/catalog.json" "target/partial_parse.msgpack" generated_dbt_docs
+
+      - name: Send Slack Alert
+        if: failure() && steps.generateDocs.outcome == 'failure'
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: C03KWK6G7ME
+            blocks:
+              - type: "header"
+                text:
+                  type: "plain_text"
+                  text: "🚨🚨🚨 DBT Deploy FAILURE 🚨🚨🚨"
+                  emoji: true
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: "- <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Failed Run>\n - <${{ github.event.pull_request.html_url || github.event.head_commit.url }}|PR>\n - This PR was opened by `${{ github.event.pull_request.user.login }}`"
 
       - name: Push to Github Pages repo
         uses: cpina/github-action-push-to-another-repository@v1.7.2
