@@ -34,7 +34,6 @@ jobs:
       - name: Generate docs
         id: generateDocs
         run: |
-          exit 1
           dbt deps
           dbt docs generate --threads 16 --target prod
           git diff
