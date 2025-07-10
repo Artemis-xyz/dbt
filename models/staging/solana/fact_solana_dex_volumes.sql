@@ -8,7 +8,7 @@ with scaled_down_volume as (
         date_trunc('day', block_timestamp) as date, 
         sum(
             case
-                when swap_from_amount_usd is not null and swap_to_amount_usd is not null then greatest(swap_from_amount_usd, swap_to_amount_usd)
+                when swap_from_amount_usd is not null and swap_to_amount_usd is not null then swap_to_amount_usd
                 else coalesce(swap_from_amount_usd, swap_to_amount_usd)
             end
         ) as trading_volume
@@ -25,7 +25,7 @@ with scaled_down_volume as (
                 coalesce(swap_to_amount_usd, 0)
             ),
             0
-        ) < 100 
+        ) < 50 
         and swap_program in (
             'raydium constant product market maker',
             'raydium concentrated liquidity',
@@ -44,7 +44,7 @@ pump_fun_volume as (
         date_trunc('day', block_timestamp) as date, 
         sum(
             case
-                when swap_from_amount_usd is not null and swap_to_amount_usd is not null then greatest(swap_from_amount_usd, swap_to_amount_usd)
+                when swap_from_amount_usd is not null and swap_to_amount_usd is not null then swap_to_amount_usd
                 else coalesce(swap_from_amount_usd, swap_to_amount_usd)
             end
         ) as trading_volume
@@ -65,16 +65,25 @@ excluded_marginfi_volume as (
         date_trunc('day', block_timestamp) as date, 
         sum(
             case
-                when swap_from_amount_usd is not null and swap_to_amount_usd is not null then greatest(swap_from_amount_usd, swap_to_amount_usd)
-                when swap_from_amount_usd is null then swap_to_amount_usd
-                when swap_to_amount_usd is null then swap_from_amount_usd
-                else 0
+                when swap_from_amount_usd is not null and swap_to_amount_usd is not null then swap_to_amount_usd
+                else coalesce(swap_from_amount_usd, swap_to_amount_usd)
             end
         ) as trading_volume
         
     from solana_flipside.defi.ez_dex_swaps
     where tx_id not in (select tx_id from all_marginfi_flash_loans) 
-        and abs(coalesce(swap_from_amount_usd,0) - coalesce(swap_to_amount_usd,0)) < 1000
+        and greatest(
+                coalesce(swap_from_amount_usd, 0),
+                coalesce(swap_to_amount_usd, 0)
+            )
+            /
+            nullif(
+                least(
+                    coalesce(swap_from_amount_usd, 0),
+                    coalesce(swap_to_amount_usd, 0)
+                ),
+                0
+            ) < 50 
         and swap_program not in (
             'raydium constant product market maker',
             'raydium concentrated liquidity',
