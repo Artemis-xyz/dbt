@@ -67,6 +67,17 @@ with date_spine as (
     group by date
 )
 
+, supply_data as (
+    select
+        date
+        , premine_unlocks_native
+        , gross_emissions_native
+        , burns_native
+        , net_supply_change_native
+        , circulating_supply_native
+    from {{ ref("fact_reserve_supply_data") }}
+)
+
 select
     date
     , dau
@@ -91,8 +102,12 @@ select
     , coalesce(token_turnover_fdv, 0) as token_turnover_fdv
 
     -- Supply Metrics
-    , market_cap_filled - lag(market_cap_filled) over (order by date) as net_supply_change_native
-    , market_cap_filled / price_filled as circulating_supply_native
+    , premine_unlocks_native
+    , gross_emissions_native
+    , burns_native
+    , net_supply_change_native
+    , circulating_supply_native
 
 from forward_filled_data
 left join protocol_revenue using (date)
+left join supply_data using (date)

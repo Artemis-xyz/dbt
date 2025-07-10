@@ -1,3 +1,8 @@
+## Context
+[ Write 1-3 sentences describing what you did and why here ]
+
+- [ ] Internal only (check this box this PR should not appear in external facing docs/changelog)
+
 ## Testing
 
 - [ ] `dbt build model_name+` screenshot (must include downstream models)
