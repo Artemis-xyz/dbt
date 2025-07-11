@@ -1,7 +1,8 @@
 --depends_on: {{ ref("fact_sei_stablecoin_transfers") }}
 {{
     config(
-        materialized="table"
+        materialized="incremental",
+        unique_key=["tx_hash", "index"],
     )
 }}
 

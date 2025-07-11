@@ -337,9 +337,6 @@
             end as transfer_volume,
             t1.contract_address,
             contracts.symbol
-            {% if chain in ("sei") %}
-            , unique_id
-            {% endif %}
         from {{ref("fact_" ~ chain ~ "_token_transfers")}} t1 
         join {{ref("fact_" ~chain~ "_stablecoin_contracts")}} contracts
             on lower(t1.contract_address) = lower(contracts.contract_address)

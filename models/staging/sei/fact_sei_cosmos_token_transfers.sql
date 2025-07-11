@@ -1,4 +1,4 @@
-{{ config(snowflake_warehouse="SEI", materialized="incremental", unique_key="unique_id") }}
+{{ config(snowflake_warehouse="SEI", materialized="incremental", unique_key=["transaction_hash", "event_index"]) }}
 
 with 
     prices as ({{get_multiple_coingecko_price_with_latest('sei')}})
@@ -34,6 +34,7 @@ with
 select
     block_timestamp
     , block_number
+    , row_number() over (partition by transaction_hash order by unique_id) as event_index
     , transaction_hash
     , token_transfers.contract_address
     , from_address
@@ -42,7 +43,6 @@ select
     , amount_raw / pow(10, contract_addresses.decimals) as amount_native
     , amount_native * prices.price as amount
     , prices.price
-    , unique_id
 from token_transfers
 left join prices
     on token_transfers.block_timestamp::date = prices.date

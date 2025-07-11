@@ -1,4 +1,4 @@
-{{ config(snowflake_warehouse="SEI", materialized="incremental", unique_key="unique_id") }}
+{{ config(snowflake_warehouse="SEI", materialized="incremental", unique_key=["transaction_hash", "event_index"]) }}
 
 with evm_transfers as (
     select
@@ -12,11 +12,7 @@ with evm_transfers as (
         et.amount_raw,
         et.amount_native,
         et.amount,
-        et.price,
-        md5(
-            et.transaction_hash || et.transaction_index || et.event_index || 
-            coalesce(et.from_address, '') || coalesce(et.to_address, '') || et.amount
-        ) as unique_id
+        et.price
     from {{ ref('fact_sei_evm_token_transfers') }} et
     where lower(et.contract_address) in (
         select lower(contract_address)
@@ -31,6 +27,7 @@ cosmos_transfers as (
     select
         ct.block_timestamp,
         ct.block_number,
+        ct.event_index,
         ct.transaction_hash,
         ct.contract_address,
         ct.from_address,
@@ -38,8 +35,7 @@ cosmos_transfers as (
         ct.amount_raw,
         ct.amount_native,
         ct.amount,
-        ct.price,
-        ct.unique_id
+        ct.price
     from {{ ref('fact_sei_cosmos_token_transfers') }} ct
     where lower(ct.contract_address) in (
         select lower(contract_address)
@@ -60,14 +56,13 @@ select
     amount_raw,
     amount_native,
     amount,
-    price,
-    unique_id
+    price
 from evm_transfers
 union all
 select
     block_timestamp,
     block_number,
-    -1 as event_index,
+    event_index,
     transaction_hash,
     contract_address,
     from_address,
@@ -75,6 +70,5 @@ select
     amount_raw,
     amount_native,
     amount,
-    price,
-    unique_id
+    price
 from cosmos_transfers
