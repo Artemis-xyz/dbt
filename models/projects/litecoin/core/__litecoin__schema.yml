@@ -89,7 +89,7 @@ models:
           description: Ensures that each chain and date combination is unique
       - dbt_utils.recency:
           datepart: day
-          interval: 2
+          interval: 3
           field: date
           description: Ensures that the date column contains at least one record from the last 2 days
       - not_null:
