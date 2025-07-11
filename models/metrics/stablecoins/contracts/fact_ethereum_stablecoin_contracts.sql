@@ -63,6 +63,7 @@ from
             ('USDFALCON', '0xfa2b947eec368f42195f24f36d2af29f7c24cec2', 18, 'falcon-finance', 0),
             ('USD1', '0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d', 18, 'usd1-wlfi', 0),
             ('BUIDL', '0x7712c34205737192402172409a8f7ccef8aa2aec', 6, 'blackrock-usd-institutional-digital-liquidity-fund', 0),
+            ('BUIDL', '0x6a9DA2D710BB9B700acde7Cb81F10F1fF8C89041', 6, 'blackrock-usd-institutional-digital-liquidity-fund', 0),
             ('XSGD', '0x70e8dE73cE538DA2bEEd35d14187F6959a8ecA96', 6, 'xsgd', 0),
             ('XUSD', '0xc08e7e23c235073c6807c2efe7021304cb7c2815', 6, 'straitsx-xusd', 0),
             ('EURCV', '0x5f7827fdeb7c20b443265fc2f40845b715385ff2', 18, 'societe-generale-forge-eurcv', 0),
