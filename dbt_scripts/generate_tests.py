@@ -9,9 +9,10 @@ def generate_unique_chain_date_test():
 
 def generate_recency_test(days_threshold=2, table_name=None):
     """Generate a recency test for date columns as YAML string"""
-    ref_name = f"{{{{ ref('{table_name}') }}}}" if table_name else "{{ this }}"
-    return f"""      - dbt_utils.expression_is_true:
-          expression: "exists (select 1 from {ref_name} where date >= dateadd('day', -{days_threshold}, current_date()))"
+    return f"""      - dbt_utils.recency:
+          datepart: day
+          interval: {days_threshold}
+          field: date
           description: Ensures that the date column contains at least one record from the last {days_threshold} days"""
 
 def generate_not_null_chain_test():
@@ -26,13 +27,20 @@ def generate_not_null_date_test():
           column_name: date
           description: Ensures that the date column is not null"""
 
+def generate_date_format_test():
+    """Generate a test to ensure date column is in correct DATE format"""
+    return """      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"""
+
 def generate_all_tests(table_name=None):
     """Generate all tests as a YAML string block"""
     tests = [
         generate_unique_chain_date_test(),
         generate_recency_test(table_name=table_name),
         generate_not_null_chain_test(),
-        generate_not_null_date_test()
+        generate_not_null_date_test(),
+        generate_date_format_test()
     ]
     return "    tests:\n" + "\n".join(tests)
 
