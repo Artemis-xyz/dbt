@@ -307,7 +307,7 @@
             )
             and transfer_type = 'nep141'
 
-    {% elif chain in ("celo", "kaia", "aptos") %}
+    {% elif chain in ("celo", "kaia", "aptos", 'sei') %}
         select
             block_timestamp,
             block_timestamp::date as date,
