@@ -72,6 +72,10 @@ column_definitions:
     name: chain_wau
     description: "Weekly unique users on a chain"
 
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token in native tokens"
+
   dau_over_100_balance: &dau_over_100_balance
     name: dau_over_100_balance
     description: "The number of users on a chain who have made over 100 transactions"
@@ -323,6 +327,7 @@ models:
       - *chain_spot_volume
       - *chain_txns
       - *chain_wau
+      - *circulating_supply_native
       - *dau_over_100_balance
       - *earnings
       - *fdmc

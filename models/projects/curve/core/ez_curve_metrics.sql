@@ -75,6 +75,17 @@ with trading_volume_by_pool as (
     from {{ ref('dim_date_spine') }}
     where date between (select min(date) from tvl) and to_date(sysdate())
 )
+
+, issued_supply_metrics as (
+    select 
+        date,
+        max_supply as max_supply_native,
+        total_supply as total_supply_native,
+        issued_supply as issued_supply_native,
+        circulating_supply as circulating_supply_native
+    from {{ ref('fact_curve_issued_supply_and_float') }}
+)
+
 , market_metrics as (
     {{ get_coingecko_metrics('curve-dao-token')}}
 )
@@ -107,6 +118,12 @@ select
     , trading_volume.gas_cost_native
     , trading_volume.gas_cost_usd as gas_cost
 
+    -- Issued Supply Metrics
+    , issued_supply_metrics.max_supply_native
+    , issued_supply_metrics.total_supply_native
+    , issued_supply_metrics.issued_supply_native
+    , issued_supply_metrics.circulating_supply_native
+
     -- Financial Statement Metrics
     , trading_volume.trading_fees as fees
     , trading_volume.trading_fees * 0.5 as revenue
@@ -123,4 +140,5 @@ left join ez_dex_swaps using(date)
 left join trading_volume using(date)
 left join tvl using(date)
 left join token_incentives using(date)
+left join issued_supply_metrics using(date)
 where date_spine.date < to_date(sysdate())
