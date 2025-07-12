@@ -10,9 +10,16 @@
         , topics
         , nullif(concat(coalesce(substring(topic_1, 3), ''), coalesce(substring(topic_2, 3), ''), coalesce(substring(topic_3, 3),'')), '') as topic_data
         , data
-    from {{ chain }}_flipside.core.fact_event_logs 
-    left join {{ chain }}_flipside.core.fact_transactions using (tx_hash)
+    {% if chain in ('sei') %}
+        from {{ chain }}_flipside.core_evm.fact_event_logs
+        left join {{ chain }}_flipside.core_evm.fact_transactions ft using (tx_hash)
+        where lower(ft.tx_succeeded) = true
+    {% else %}
+        from {{ chain }}_flipside.core.fact_event_logs
+        left join {{ chain }}_flipside.core.fact_transactions using (tx_hash)
+        where 1=1
+    {% endif %}
     {% if is_incremental() %}
-    where block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+    and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}
 {% endmacro %}
