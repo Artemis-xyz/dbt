@@ -28,25 +28,25 @@ supply_data as (
     from {{ref("fact_bitget_supply")}}
 )
 select
-    price.date,
+    price.date
 
     -- price data
-    price.price,
-    price.market_cap,
-    price.fdmc,
-    price.token_volume,
+    , price.price
+    , price.market_cap
+    , price.fdmc
+    , price.token_volume
 
 
     --revenue data
-    coalesce(burns_native, 0) as burns_native,
-    coalesce(revenue, 0) as revenue,
+    , coalesce(burns_native, 0) as burns_native
+    , coalesce(revenue, 0) as revenue
 
     -- supply data
-    supply_data.max_supply,
-    supply_data.total_supply,
-    supply_data.issued_supply,
-    supply_data.float_supply,
-    supply_data.cumulative_burn
+    ,supply_data.max_supply as max_supply_native
+    , supply_data.total_supply as total_supply_native
+    , supply_data.cumulative_burn as total_burned_native
+    , supply_data.issued_supply as issued_supply_native
+    , supply_data.float_supply as circulating_supply_native
 
 from price
 left join revenue_data using(date)
