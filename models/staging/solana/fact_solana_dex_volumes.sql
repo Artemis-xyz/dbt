@@ -171,22 +171,16 @@ jupiter_volume as (
 
 SELECT
     COALESCE(raydium.date, orca.date, other.date, pump_fun.date, lifinity.date, pumpswap.date, meteora.date, jupiter.date) AS date, 
-    COALESCE(raydium.trading_volume, 0) AS raydium_volume, 
-    COALESCE(orca.trading_volume, 0) AS orca_volume, 
-    COALESCE(other.trading_volume, 0) AS other_volume, 
-    COALESCE(pump_fun.trading_volume, 0) AS pump_fun_volume, 
-    COALESCE(lifinity.trading_volume, 0) AS lifinity_volume, 
-    COALESCE(pumpswap.trading_volume, 0) AS pumpswap_volume, 
-    COALESCE(meteora.trading_volume, 0) AS meteora_volume, 
-    COALESCE(jupiter.trading_volume, 0) AS jupiter_volume, 
-    COALESCE(raydium.trading_volume, 0) + 
-    COALESCE(orca.trading_volume, 0) + 
-    COALESCE(other.trading_volume, 0) + 
-    COALESCE(pump_fun.trading_volume, 0) + 
-    COALESCE(lifinity.trading_volume, 0) + 
-    COALESCE(pumpswap.trading_volume, 0) + 
-    COALESCE(meteora.trading_volume, 0) + 
-    COALESCE(jupiter.trading_volume, 0) AS daily_volume_usd
+    SUM(
+        COALESCE(raydium.trading_volume, 0) + 
+        COALESCE(orca.trading_volume, 0) + 
+        COALESCE(other.trading_volume, 0) + 
+        COALESCE(pump_fun.trading_volume, 0) + 
+        COALESCE(lifinity.trading_volume, 0) + 
+        COALESCE(pumpswap.trading_volume, 0) + 
+        COALESCE(meteora.trading_volume, 0) + 
+        COALESCE(jupiter.trading_volume, 0)
+    ) AS daily_volume_usd
 FROM raydium_volume AS raydium
 FULL JOIN orca_volume AS orca
     ON raydium.date = orca.date
@@ -202,3 +196,4 @@ FULL JOIN meteora_volume AS meteora
     ON raydium.date = meteora.date
 FULL JOIN jupiter_volume AS jupiter
     ON raydium.date = jupiter.date
+GROUP BY 1
