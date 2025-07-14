@@ -1,7 +1,7 @@
 -- This query is used to calculate the daily volume of dex swaps on Solana.
 -- It excludes marginfi flash loans and is used to calculate the daily volume of dex swaps on Solana.
 
-{{ config(materialized="table", snowflake_warehouse="ANALYTICS_XL") }}
+{{ config(materialized="table", snowflake_warehouse="SOLANA") }}
 
 WITH raydium_volume AS (
     WITH all_marginfi_flash_loans AS (
