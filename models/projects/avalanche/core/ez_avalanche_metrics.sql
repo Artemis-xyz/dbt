@@ -11,7 +11,7 @@
 }}
 
 with fundamental_data as (
-    select * from {{ ref("fact_avalanche_fundamental_data_cte") }}
+    select * from {{ ref("fact_avalanche_fundamental_data") }}
 )
 , price_data as ({{ get_coingecko_metrics("avalanche-2") }})
 , defillama_data as ({{ get_defillama_metrics("avalanche") }})

@@ -26,7 +26,7 @@ with staking_rewards as (
       date,
       fees_native,
       sum(fees_native) over (order by date) as cumulative_fees_native
-    from {{ ref("fact_avalanche_fundamental_data_cte") }}
+    from {{ ref("fact_avalanche_fundamental_data") }}
 )
 
 , aggregated AS (
