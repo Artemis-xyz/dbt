@@ -13,8 +13,8 @@ select
         ELSE 0 
     END) / 1e18 AS revenue
 FROM 
-    {{source('ethereum_flipside','ez_token_transfers')}} as t
-LEFT JOIN  {{source('ethereum_flipside','ez_prices_hourly')}} as p
+    {{ source('ETHEREUM_FLIPSIDE', 'ez_token_transfers')}} t
+LEFT JOIN  {{ source('ETHEREUM_FLIPSIDE_PRICE', 'ez_prices_hourly')}} p
 ON t.block_timestamp::date = p.hour
 AND lower(p.token_address) = lower('0x54D2252757e1672EEaD234D27B1270728fF90581')
 WHERE 1=1

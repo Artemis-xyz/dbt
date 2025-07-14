@@ -38,8 +38,7 @@ select
 
 
     --revenue data
-    , coalesce(burns_native, 0) as burns_native
-    , coalesce(revenue, 0) as revenue
+    ,coalesce(burns_native, 0) as burns_native
 
     -- supply data
     ,supply_data.max_supply as max_supply_native

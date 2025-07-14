@@ -10,7 +10,7 @@ WITH burn_data AS (
   SELECT
     t.block_timestamp::date           AS date,
     SUM(t.raw_amount_precise) / 1e18  AS burn
-  FROM {{source('ethereum_flipside','ez_token_transfers')}} as t
+  FROM  {{ source('ETHEREUM_FLIPSIDE', 'ez_token_transfers')}} as t
   WHERE LOWER(t.contract_address) = LOWER('0x54D2252757e1672EEaD234D27B1270728fF90581')
     AND t.to_address = '0x000000000000000000000000000000000000dead'
   GROUP BY 1
@@ -76,7 +76,7 @@ supply_with_burn AS (
           )
     ) AS float_supply
 
-  FROM {{ref('bgb_daily_supply_data')}} AS s
+  FROM {{ source('MANUAL_STATIC_TABLES', 'bgb_daily_supply_data')}} AS s
   LEFT JOIN burn_cumulative AS bc
     ON s.date = bc.date
 
