@@ -21,7 +21,8 @@ with
                 else f.key::string
             end AS chain,
             f.value:contract_address::string AS address,
-            f.value:decimal_place::number AS decimals
+            f.value:decimal_place::number AS decimals,
+            1 as priority
         from {{ source("PROD_LANDING", "raw_coingecko_token_metadata") }},
             lateral flatten(input => parse_json(source_json):detail_platforms) f
         where extraction_date = (select max_date from max_extraction) and (
@@ -30,7 +31,14 @@ with
             and decimals is not null
         )
         union 
-        select null as json, coingecko_token_id, symbol, chain, contract_address as address, decimals
+        select
+            null as json
+            , coingecko_token_id
+            , symbol
+            , chain
+            , contract_address as address
+            , decimals
+            , 2 as priority
         from {{ ref("manually_added_tokens_seed") }}
     )
     , stellar_adjusted as (
@@ -54,10 +62,17 @@ with
             end as address,
             json,
             symbol,
-            case when chain = 'stellar' then 7 else decimals end as decimals
+            case when chain = 'stellar' then 7 else decimals end as decimals,
+            priority
             -- Stellar tokens are stored as ONLY 7 decimals on the ledger.
         from token_metadata
     )
-select coingecko_token_id, chain, lower(address) as contract_address, max(json) as json, max(symbol) as symbol, max(decimals) as decimals
+select 
+    coingecko_token_id
+    , chain
+    , lower(address) as contract_address
+    , json
+    , symbol
+    , decimals
 from stellar_adjusted
-group by coingecko_token_id, chain, contract_address
+qualify row_number() over (partition by lower(chain), lower(address) order by priority) = 1
