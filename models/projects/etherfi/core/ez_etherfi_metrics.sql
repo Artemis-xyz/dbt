@@ -86,8 +86,8 @@ SELECT
     , restaked_eth_metrics.amount_restaked_usd as lrt_tvl
     , restaked_eth_metrics.num_restaked_eth_net_change as lrt_tvl_native_net_change
     , restaked_eth_metrics.amount_restaked_usd_net_change as lrt_tvl_net_change
-    , buybacks.ethfi_bought as buybacks
-    , buybacks.cumulative_ethfi_bought as cumulative_buybacks
+    , coalesce(buybacks.ethfi_bought, 0) as buyback
+    , coalesce(buybacks.cumulative_ethfi_bought, 0) as cumulative_buyback
 
     --Cash Flow Metrics
     , coalesce(liquidity_pool_fees.fees_usd, 0) as liquidity_pool_fees
