@@ -54,7 +54,7 @@ select
     , transfer_event
     , tx_hash as transaction_hash
     , account_address
-    , amount
+    , amount AS amount_asset
     , case 
         when substr(ca.chain_agnostic_id, 0, 7) = 'eip155:' then lower(ca.chain_agnostic_id || ':' || replace(replace(token_address, '0x', ''), '0:', '')) 
         else ca.chain_agnostic_id || ':' || replace(replace(token_address, '0x', ''), '0:', '') 
