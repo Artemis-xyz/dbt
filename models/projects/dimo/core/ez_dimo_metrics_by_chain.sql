@@ -18,6 +18,8 @@ select
     price,
     market_cap,
     fdmc,
+    fees,
+    fees_native,
     token_turnover_circulating,
     token_turnover_fdv,
     token_volume
