@@ -60,10 +60,6 @@ column_definitions:
     name: oracle_txns
     description: "The number of transactions done through an oracle."
 
-  premine_unlocks_native: &premine_unlocks_native
-    name: premine_unlocks_native
-    description: "The amount of native tokens unlocked from premine"
-
   price: &price
     name: price
     description: "The price of a token in USD"
@@ -161,7 +157,6 @@ models:
       - *oracle_dau
       - *oracle_fees
       - *oracle_txns
-      - *premine_unlocks_native
       - *price
       - *revenue
       - *service_fee_allocation

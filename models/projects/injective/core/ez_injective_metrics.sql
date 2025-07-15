@@ -52,10 +52,10 @@ with fundamental_data as (
 , issued_supply_metrics as (
     select 
         date,
-        max_supply_to_date as max_supply_native,
+        0 as max_supply_native,
         total_supply as total_supply_native,
         issued_supply as issued_supply_native,
-        circulating_supply_native as circulating_supply_native
+        circulating_supply as circulating_supply_native
     from {{ ref('fact_injective_issued_supply_and_float') }}
 )
 
