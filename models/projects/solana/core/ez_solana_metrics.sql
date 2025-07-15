@@ -59,12 +59,8 @@ select
     , dau
     , wau
     , mau
-    , gas + vote_tx_fee_native as fees_native
-    , vote_tx_fee_native * price + gas_usd as fees
     , gas_usd / txns as avg_txn_fee
     , median_txn_fee
-    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as revenue_native
-    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee_native * price  + vote_tx_fee_native * price) * .5) as revenue
     , issuance
     , nft_trading_volume
     , solana_dex_volumes.dex_volumes as dex_volumes
@@ -74,6 +70,7 @@ select
     , market_cap
     , fdmc
     , tvl
+
     -- Chain Usage Metrics
     , txns AS chain_txns
     , dau AS chain_dau
@@ -97,10 +94,11 @@ select
     , case
         when (gas_usd - base_fee_native * price ) < 0.001 then 0 else (gas_usd - base_fee_native * price )
     end as priority_fee
+
     -- Cashflow Metrics
     , gas_usd + vote_tx_fee_native * price as chain_fees
-    , gas + vote_tx_fee_native as ecosystem_revenue_native
-    , gas_usd + vote_tx_fee_native * price as ecosystem_revenue
+    , gas + vote_tx_fee_native as fees_native
+    , vote_tx_fee_native * price + gas_usd as fees
     , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, ((base_fee_native + vote_tx_fee_native) * .5) + priority_fee_native) as validator_fee_allocation_native
     , IFF(fundamental_usage.date < '2025-02-13', fees * .5, ((base_fee_native * price  + vote_tx_fee_native * price) * .5) + priority_fee) as validator_fee_allocation
     , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as burned_fee_allocation_native
@@ -110,11 +108,20 @@ select
     , vote_tx_fee_native
     , vote_tx_fee_native * price AS vote_tx_fee
     , chain_fees + jito_tips.tip_fees as rev -- Blockworks' REV
+    
+
+    -- Financial Statement Metrics
+    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as revenue_native
+    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee_native * price  + vote_tx_fee_native * price) * .5) as revenue
+    , issuance * price as token_incentives
+    , revenue - token_incentives as earnings
+    
     -- Supply Metrics
     , issuance AS gross_emissions_native
     , issuance * price AS gross_emissions
     , issued_supply as issued_supply_native
     , circulating_supply as circulating_supply_native
+
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
