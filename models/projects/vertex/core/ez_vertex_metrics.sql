@@ -1,3 +1,4 @@
+-- Deprecated 7/15/2025
 {{
     config(
         materialized="table",
