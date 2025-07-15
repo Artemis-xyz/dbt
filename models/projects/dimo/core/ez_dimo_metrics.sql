@@ -31,12 +31,21 @@ with token_incentives as (
     from {{ ref("dim_date_spine") }}
     where date between (SELECT min(date) from airdrop) and to_date(sysdate())
 )
+, fees as (
+    select
+        date,
+        fees_native,
+        fees
+    from {{ ref("fact_dimo_fees") }}
+)
 select
     date_spine.date,
     token_incentives.token_incentives,
     token_incentives.token_incentives_native,
     airdrop.daily_airdrop_amount as airdrop,
     airdrop.daily_airdrop_amount_native as airdrop_native,
+    fees.fees,
+    fees.fees_native,
     market_metrics.price,
     market_metrics.market_cap,
     market_metrics.fdmc,
@@ -47,3 +56,4 @@ from date_spine
 left join market_metrics using(date)
 left join token_incentives using(date)
 left join airdrop using(date)
+left join fees using(date)
