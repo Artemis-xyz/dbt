@@ -1,3 +1,5 @@
+{{ config(materialized="table", snowflake_warehouse="HYPERLIQUID") }}
+
 with
     max_date as (
         select max(extraction_date) as extraction_date
