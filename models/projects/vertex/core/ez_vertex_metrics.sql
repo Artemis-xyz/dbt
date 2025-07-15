@@ -6,6 +6,7 @@
         database="vertex",
         schema="core",
         alias="ez_metrics",
+        enabled=false
     )
 }}
 
