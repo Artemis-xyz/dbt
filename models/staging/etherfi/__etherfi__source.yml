@@ -4,6 +4,7 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_etherfi_restaked_eth_count
+      - name: raw_etherfi_buybacks
   - name: MANUAL_STATIC_TABLES
     schema: PROD
     database: PC_DBT_DB
