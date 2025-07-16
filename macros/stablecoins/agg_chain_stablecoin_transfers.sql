@@ -382,12 +382,14 @@
                 decoded_log:from,
                 decoded_log:_from,
                 -- DAI on ETH Mainnet does not follow the IERC20 interface
-                decoded_log:src
+                decoded_log:src,
+                decoded_log:sender
             ) as from_address,
             coalesce(
                 decoded_log:to,
                 decoded_log:_to,
-                decoded_log:dst
+                decoded_log:dst,
+                decoded_log:receiver
             ) as to_address,
             from_address = '0x0000000000000000000000000000000000000000'
                 or event_name = 'Issue' 
