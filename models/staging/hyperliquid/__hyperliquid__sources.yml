@@ -20,6 +20,8 @@ sources:
       - name: raw_hyperliquid_hlp_tvl
       - name: raw_hyperliquid_perps_trading_volume
       - name: raw_hyperliquid_new_users
+      - name: raw_hyperliquid_supply_data
+
   - name: MANUAL_STATIC_TABLES
     schema: PROD
     database: pc_dbt_db

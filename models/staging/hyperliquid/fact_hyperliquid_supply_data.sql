@@ -11,7 +11,7 @@ with hyperliquid_genesis as (
         date(extraction_date) as date,
         count(*) as user_balance_count,
         sum(try_to_decimal(f.value[1]::string)) as total_balance
-    from landing_database.prod_landing.raw_hyperliquid_supply_data,
+    from {{ source('PROD_LANDING', 'raw_hyperliquid_supply_data') }},
     lateral flatten(input => source_json:genesis.userBalances) as f
     group by date(extraction_date)
 )
@@ -19,7 +19,7 @@ with hyperliquid_genesis as (
     select
         date(extraction_date) as date
         , sum(try_to_decimal(f.value[1]::string)) as unvested_tokens
-    from landing_database.prod_landing.raw_hyperliquid_supply_data,
+    from {{ source('PROD_LANDING', 'raw_hyperliquid_supply_data') }},
         lateral flatten(input => source_json:nonCirculatingUserBalances) as f
     where f.value[0] = '0x43e9abea1910387c4292bca4b94de81462f8a251'
     group by date(extraction_date)
@@ -28,7 +28,7 @@ with hyperliquid_genesis as (
     select
         date(extraction_date) as date
         , sum(try_to_decimal(f.value[1]::string)) as dead_tokens
-    from landing_database.prod_landing.raw_hyperliquid_supply_data,
+    from {{ source('PROD_LANDING', 'raw_hyperliquid_supply_data') }}
         lateral flatten(input => source_json:nonCirculatingUserBalances) as f
     where f.value[0] in ('0x0000000000000000000000000000000000000000', '0x000000000000000000000000000000000000dead')
     group by date(extraction_date)
@@ -40,14 +40,14 @@ with hyperliquid_genesis as (
         max(try_to_decimal(source_json:totalSupply::string)) as hype_total_supply,
         max(try_to_decimal(source_json:circulatingSupply::string)) as circulating_supply,
         max(try_to_decimal(source_json:futureEmissions::string)) as future_emissions
-    from landing_database.prod_landing.raw_hyperliquid_supply_data
+    from {{ source('PROD_LANDING', 'raw_hyperliquid_supply_data') }}
     group by date(extraction_date)
 )
 , foundation_owned as (
     select
         date(extraction_date) as date
         , sum(try_to_decimal(f.value[1]::string)) as foundation_owned
-    from landing_database.prod_landing.raw_hyperliquid_supply_data supply,
+    from {{ source('PROD_LANDING', 'raw_hyperliquid_supply_data') }} supply,
         lateral flatten(input => source_json:genesis.userBalances) as f
     where f.value[0] in ('0xd57ecca444a9acb7208d286be439de12dd09de5d', '0xa20fcfa0507fe762011962cc581b95bbbc3bbdba', '0xffffffffffffffffffffffffffffffffffffffff')
     group by date(extraction_date)
