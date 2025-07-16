@@ -77,7 +77,7 @@ select
     , supply.burn_usd as revenue
     , supply.mints_usd as gross_emissions
     , supply.mints as gross_emissions_native
-    , supply.circulating_supply as circulating_supply
+    , supply.circulating_supply as circulating_supply_native
     , supply.burn AS burned_fee_allocation_native
 
 

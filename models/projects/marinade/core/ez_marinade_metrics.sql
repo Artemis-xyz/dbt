@@ -85,7 +85,6 @@ select
     , market_metrics.market_cap
     , market_metrics.fdmc
     , market_metrics.token_volume
-    , circulating_supply as circulating_supply
 
     --Usage Metrics
     , tvl * price as tvl
@@ -114,6 +113,9 @@ select
     -- when v2 fees are active, 100% goes to the protocol
         else 0 
     end as service_fee_allocation
+
+    -- Supply Metrics
+    , circulating_supply as circulating_supply_native
     
     --Other Metrics
     , market_metrics.token_turnover_circulating
