@@ -52,6 +52,10 @@ with
         select date, issued_supply, circulating_supply
         from {{ ref('fact_solana_supply_data') }}
     )
+    , total_economic_activity as (
+        select date, total_economic_activity
+        from SOLANA.PROD_RAW.EZ_SOLANA_TEA
+    )
 select
     coalesce(fundamental_usage.date, supply_data.date) as date
     , 'solana' as chain
@@ -94,6 +98,7 @@ select
     , case
         when (gas_usd - base_fee_native * price ) < 0.001 then 0 else (gas_usd - base_fee_native * price )
     end as priority_fee
+    , total_economic_activity
 
     -- Cashflow Metrics
     , gas_usd + vote_tx_fee_native * price as chain_fees
@@ -159,4 +164,5 @@ left join rolling_metrics on fundamental_usage.date = rolling_metrics.date
 left join solana_dex_volumes on fundamental_usage.date = solana_dex_volumes.date
 left join jito_tips on fundamental_usage.date = jito_tips.date
 left join supply_data on fundamental_usage.date = supply_data.date
+left join total_economic_activity on fundamental_usage.date = total_economic_activity.date
 where fundamental_usage.date < to_date(sysdate())

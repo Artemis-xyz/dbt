@@ -63,6 +63,11 @@ with
         select date, issued_supply, circulating_supply
         from {{ ref("fact_ethereum_eth_supply_estimated") }}
     )
+    , total_economic_activity as (
+        select date, total_economic_activity
+        from ETHEREUM.PROD_RAW.EZ_ETHEREUM_TEA
+    )
+
 select
     fundamental_data.date
     , fundamental_data.chain
@@ -131,6 +136,7 @@ select
     , avg_cost_per_mib
     , submitters as da_dau
     , dune_dex_volumes_ethereum.dex_volumes AS chain_spot_volume
+    , total_economic_activity
 
     -- Cashflow metrics
     , fees as chain_fees
@@ -203,4 +209,5 @@ left join ethereum_dex_volumes as dune_dex_volumes_ethereum on fundamental_data.
 left join block_rewards_data on fundamental_data.date = block_rewards_data.date
 left join eth_supply on fundamental_data.date = eth_supply.date
 left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
+left join total_economic_activity on fundamental_data.date = total_economic_activity.date
 where fundamental_data.date < to_date(sysdate())

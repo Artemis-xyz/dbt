@@ -59,6 +59,11 @@ with
         WHERE LOWER(contract_address) = LOWER('0x912ce59144191c1204e64559fe8253a0e49e6548')
         QUALIFY ROW_NUMBER() OVER (PARTITION BY date ORDER BY native_balance DESC) = 1
     )
+    , total_economic_activity as (
+        select date, total_economic_activity
+        from ARBITRUM.PROD_RAW.EZ_ARBITRUM_TEA
+    )
+
 select
     fundamental_data.date
     , fundamental_data.chain
@@ -107,6 +112,7 @@ select
     , p2p_transfer_volume
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_arbitrum.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
+    , total_economic_activity
     -- Cashflow Metrics
     , coalesce(fees_native, 0) + coalesce(timeboost_fees_native, 0) AS chain_fees
     , coalesce(fees_native, 0) + coalesce(timeboost_fees_native, 0) AS ecosystem_revenue_native -- Total gas fees paid on L2 by users (L2 Fees)
@@ -176,4 +182,5 @@ left join timeboost_fees on fundamental_data.date = timeboost_fees.date
 left join unvested_supply on fundamental_data.date = unvested_supply.date
 left join burns_mints on fundamental_data.date = burns_mints.date
 left join foundation_owned_supply on fundamental_data.date = foundation_owned_supply.date
+left join total_economic_activity on fundamental_data.date = total_economic_activity.date
 where fundamental_data.date < to_date(sysdate())

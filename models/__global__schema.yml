@@ -215,6 +215,8 @@ column_definitions:
       description: "The average number of transactions per second on a chain"
     - name: adjusted_dau
       description: "The number of adjusted daily active users on a chain"
+    - name: total_economic_activity
+      description: "The total value of all economic activity on a chain"
 
   developer_metrics:
     - name: weekly_commits_core_ecosystem

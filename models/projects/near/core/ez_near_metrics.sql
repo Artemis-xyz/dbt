@@ -27,6 +27,10 @@ with
     near_dex_volumes as (
         select date, volume_usd as dex_volumes
         from {{ ref("fact_near_dex_volumes") }}
+    ),
+    total_economic_activity as (
+        select date, total_economic_activity
+        from NEAR.PROD_RAW.EZ_NEAR_TEA
     )
 
 select
@@ -59,6 +63,7 @@ select
     , new_users
     , low_sleep_users
     , high_sleep_users
+    , total_economic_activity
     -- Cashflow Metrics
     , case when fees is null then fees_native * price else fees end as chain_fees
     , fees_native as ecosystem_revenue_native
@@ -95,4 +100,5 @@ left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join da_metrics on fundamental_data.date = da_metrics.date
 left join near_dex_volumes on fundamental_data.date = near_dex_volumes.date
+left join total_economic_activity on fundamental_data.date = total_economic_activity.date
 where fundamental_data.date < to_date(sysdate())
