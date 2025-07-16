@@ -52,13 +52,16 @@ SELECT
     , coalesce(ecosystem_fund_balance, 0) as foundation_balance
     , coalesce(advisors + liquidity_boostrapping + investors + team, 0) as unlocks_native
     , 111.5 * 1e6  as total_unlock_allocation
+    , 46 * 1e6 as foundation_allocation
+    , foundation_allocation-foundation_balance as foundation_emitted
     , sum(unlocks_native) over (order by date asc) as unlocks_native_cumulative
     , coalesce(emissions, 0) as emissions_native
     , sum(emissions_native) over (order by date asc) as emissions_native_cumulative
     , coalesce(ve_pendle_balance, 0) as pendle_locked
+
     , sum(minted_amount) over (order by date asc) as total_supply_native
-    , total_unlock_allocation + emissions_native_cumulative - pendle_locked - foundation_balance as issued_supply_native
-    , unlocks_native_cumulative + emissions_native_cumulative - pendle_locked - foundation_balance as circulating_supply_native
+    , total_unlock_allocation + emissions_native_cumulative - pendle_locked + foundation_emitted as issued_supply_native
+    , unlocks_native_cumulative + emissions_native_cumulative - pendle_locked + foundation_emitted as circulating_supply_native
 FROM date_spine ds
 LEFT JOIN {{ source("MANUAL_STATIC_TABLES", "pendle_unlocks_seed") }} using(date)
 LEFT JOIN emissions using(date)
