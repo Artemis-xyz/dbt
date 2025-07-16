@@ -94,10 +94,10 @@ select
     , solana_dex_volumes.dex_volumes as chain_spot_volume
     , case
         when (gas - base_fee_native) < 0.00001 then 0 else (gas - base_fee_native)
-    end as priority_fee_native
+    end as priority_fees_native
     , case
         when (gas_usd - base_fee_native * price ) < 0.001 then 0 else (gas_usd - base_fee_native * price )
-    end as priority_fee
+    end as priority_fees
     , total_economic_activity
 
     -- Cashflow Metrics
