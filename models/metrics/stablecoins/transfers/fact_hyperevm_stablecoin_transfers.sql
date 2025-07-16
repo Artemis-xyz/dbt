@@ -1,4 +1,4 @@
--- depends_on: {{ ref('fact_base_stablecoin_contracts') }}
+-- depends_on: {{ ref('fact_hyperevm_stablecoin_contracts') }}
 {{ config(
     materialized="incremental", 
         snowflake_warehouse="STABLECOIN_LG_2", 
