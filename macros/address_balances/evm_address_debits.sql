@@ -15,7 +15,7 @@
     {% if is_incremental() %}
         and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}
-    {% if chain not in ('celo', 'sonic', 'codex', 'tron', 'kaia', 'plume', 'sei') %}
+    {% if chain not in ('celo', 'sonic', 'codex', 'tron', 'kaia', 'plume', 'sei', 'hyperevm') %}
         union all
         select
             block_timestamp
