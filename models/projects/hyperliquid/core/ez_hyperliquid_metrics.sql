@@ -165,7 +165,7 @@ select
      , trading_fees + (daily_burns_native * mm.price) as ecosystem_revenue
      , trading_fees * 0.03 as service_fee_allocation
      , (daily_buybacks_native * mm.price) as buyback_fee_allocation
-     , daily_buybacks_native as buybacks_native
+     , daily_buybacks_native as buyback_native
      , daily_burns_native as burned_fee_allocation_native
      , daily_burns_native * mm.price as burned_fee_allocation
 
@@ -174,7 +174,8 @@ select
     , coalesce(premine_unlocks_native, 0) as premine_unlocks_native
     , coalesce(daily_burns_native, 0) as burns_native
     , coalesce(emissions_native, 0) + coalesce(premine_unlocks_native, 0) - coalesce(burns_native, 0) as net_supply_change_native
-    , coalesce(hyperliquid_api_supply_data.total_supply, 0) as issued_supply_native
+    , coalesce(hyperliquid_api_supply_data.total_supply, 0) as total_supply_native
+    , coalesce(hyperliquid_api_supply_data.issued_supply, 0) as issued_supply_native
     , coalesce(hyperliquid_api_supply_data.circulating_supply, 0) as circulating_supply_native
     --, sum(coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(burns_native, 0)) over (order by daily_supply_data.date) as circulating_supply_native
 
