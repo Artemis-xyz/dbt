@@ -1,8 +1,0 @@
-ez_drift_metrics
-ez_eigenlayer_metrics
-ez_etherfi_metrics
-ez_flow_metrics
-ez_frax_metrics
-ez_iotex_metrics
-ez_marinade_metrics
-ez_marinade_metrics_by_chain
