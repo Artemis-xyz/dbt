@@ -425,6 +425,7 @@
                 decoded_log:wad::float / pow(10, num_decimals),
                 -- USDT on ETH does not follow the IERC20 interface
                 decoded_log:amount::float / pow(10, num_decimals),
+                decoded_log:_amount::float / pow(10, num_decimals),
                 0
             ) as amount,
             case
