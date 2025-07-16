@@ -91,7 +91,7 @@ SELECT
     , market_metrics.token_turnover_fdv as token_turnover_fdv
 
     --ETHFI Token Supply Data
-    , daily_supply_data.emissions_native
+    , daily_supply_data.emissions_native as gross_emissions_native
     , daily_supply_data.premine_unlocks_native
     , daily_supply_data.burns_native
     , daily_supply_data.net_supply_change_native
