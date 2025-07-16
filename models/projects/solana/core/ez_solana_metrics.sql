@@ -112,7 +112,7 @@ select
     , base_fee_native * price AS base_fee
     , vote_tx_fee_native
     , vote_tx_fee_native * price AS vote_tx_fee
-    , chain_fees + jito_tips.tip_fees as rev -- Blockworks' REV
+    , chain_fees + COALESCE(jito_tips.tip_fees, 0) as rev -- Blockworks' REV
     
 
     -- Financial Statement Metrics
