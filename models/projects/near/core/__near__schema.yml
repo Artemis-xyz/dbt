@@ -142,6 +142,10 @@ column_definitions:
     name: sybil_users
     description: "The number of sybil users on a chain"
 
+  total_economic_activity: &total_economic_activity
+    name: total_economic_activity
+    description: "The total value of all economic activity on a chain"
+
   tvl: &tvl
     name: tvl
     description: "The total value locked in a protocol"
@@ -215,6 +219,7 @@ models:
       - *returning_users
       - *revenue
       - *submitters
+      - *total_economic_activity
       - *tvl
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem
@@ -222,7 +227,24 @@ models:
       - *weekly_contracts_deployed
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["chain", "date"]
+          description: Ensures that each chain and date combination is unique
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: Ensures that the date column contains at least one record from the last 2 days
+      - not_null:
+          column_name: chain
+          description: Ensures that the chain column is not null
+      - not_null:
+          column_name: date
+          description: Ensures that the date column is not null
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format
   - name: ez_near_metrics_by_application_v2
     description: "This table stores metrics for the NEAR protocol"
     columns:
@@ -232,7 +254,24 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["chain", "date"]
+          description: Ensures that each chain and date combination is unique
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: Ensures that the date column contains at least one record from the last 2 days
+      - not_null:
+          column_name: chain
+          description: Ensures that the chain column is not null
+      - not_null:
+          column_name: date
+          description: Ensures that the date column is not null
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format
   - name: ez_near_metrics_by_subcategory
     description: "This table stores metrics for the NEAR protocol"
     columns:
@@ -242,7 +281,24 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["chain", "date"]
+          description: Ensures that each chain and date combination is unique
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: Ensures that the date column contains at least one record from the last 2 days
+      - not_null:
+          column_name: chain
+          description: Ensures that the chain column is not null
+      - not_null:
+          column_name: date
+          description: Ensures that the date column is not null
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format
   - name: ez_near_metrics_by_category_v2
     description: "This table stores metrics for the NEAR protocol"
     columns:
@@ -252,4 +308,21 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["chain", "date"]
+          description: Ensures that each chain and date combination is unique
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: Ensures that the date column contains at least one record from the last 2 days
+      - not_null:
+          column_name: chain
+          description: Ensures that the chain column is not null
+      - not_null:
+          column_name: date
+          description: Ensures that the date column is not null
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format

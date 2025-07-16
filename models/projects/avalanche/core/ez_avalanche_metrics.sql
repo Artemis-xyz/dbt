@@ -53,6 +53,10 @@ with fundamental_data as (
     FROM {{ ref("dim_date_spine") }}
     WHERE date between '2014-04-13' AND to_date(sysdate()) -- Dev data goes back to 2014
 )
+, total_economic_activity as (
+    select date, total_economic_activity
+    from AVALANCHE.PROD_RAW.EZ_AVALANCHE_TEA
+)
 
 select
     staking_data.date
@@ -105,6 +109,7 @@ select
     , p2p_transfer_volume
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_avalanche_c.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
+    , total_economic_activity
 
     -- Cash Flow Metrics
     , case when fees is null then fees_native * price else fees end as chain_fees
@@ -167,4 +172,5 @@ left join bridge_volume_metrics on staking_data.date = bridge_volume_metrics.dat
 left join bridge_daa_metrics on staking_data.date = bridge_daa_metrics.date
 left join avalanche_c_dex_volumes as dune_dex_volumes_avalanche_c on staking_data.date = dune_dex_volumes_avalanche_c.date
 left join issued_supply_metrics on staking_data.date = issued_supply_metrics.date
+left join total_economic_activity on staking_data.date = total_economic_activity.date
 where staking_data.date < to_date(sysdate())
