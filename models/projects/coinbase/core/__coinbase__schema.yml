@@ -4,20 +4,15 @@
 version: 2
 
 column_definitions:
-  lending_deposits: &lending_deposits
-    name: lending_deposits
-    description: "The total amount of tokens deposited (in USD) on a lending protocol"
-
-  lending_loans: &lending_loans
-    name: lending_loans
-    description: "The total outstanding loans (in USD) on a lending protocol"
+  lst_tvl: &lst_tvl
+    name: lst_tvl
+    description: "The total value locked in a liquid staking protocol"
 
 models:
-  - name: ez_benqi_metrics_by_chain
-    description: "This table stores metrics for the BENQI protocol"
+  - name: ez_coinbase_metrics_by_chain
+    description: "This table stores metrics for the COINBASE protocol"
     columns:
-      - *lending_deposits
-      - *lending_loans
+      - *lst_tvl
     tests:
       - not_null:
           column_name: chain
@@ -33,11 +28,10 @@ models:
       - dbt_utils.expression_is_true:
           expression: "date = cast(date as date)"
           description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format
-  - name: ez_benqi_metrics
-    description: "This table stores metrics for the BENQI protocol"
+  - name: ez_coinbase_metrics
+    description: "This table stores metrics for the COINBASE protocol"
     columns:
-      - *lending_deposits
-      - *lending_loans
+      - *lst_tvl
     tests:
       - not_null:
           column_name: app

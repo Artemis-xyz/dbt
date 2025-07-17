@@ -228,7 +228,21 @@ models:
     columns:
       - *inflow
       - *outflow
-
+    tests:
+      - not_null:
+          column_name: chain
+          description: Ensures that the chain column is not null
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: Ensures that the date column contains at least one record from the last 2 days
+      - not_null:
+          column_name: date
+          description: Ensures that the date column is not null
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format
   - name: ez_base_metrics
     description: "This table stores metrics for the BASE protocol"
     columns:
@@ -274,14 +288,39 @@ models:
       - *tvl
       - *weekly_contract_deployers
       - *weekly_contracts_deployed
-
+    tests:
+      - not_null:
+          column_name: chain
+          description: Ensures that the chain column is not null
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: Ensures that the date column contains at least one record from the last 2 days
+      - not_null:
+          column_name: date
+          description: Ensures that the date column is not null
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format
   - name: ez_base_stablecoin_metrics_by_address_with_labels
     description: "This table stores metrics for the BASE protocol"
     columns:
       - *artemis_stablecoin_transfer_volume
       - *p2p_stablecoin_transfer_volume
       - *stablecoin_transfer_volume
-
+    tests:
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: Ensures that the date column contains at least one record from the last 2 days
+      - not_null:
+          column_name: date
+          description: Ensures that the date column is not null
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format
   - name: ez_base_metrics_by_category_v2
     description: "This table stores metrics for the BASE protocol"
     columns:
@@ -291,7 +330,21 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
+    tests:
+      - not_null:
+          column_name: chain
+          description: Ensures that the chain column is not null
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: Ensures that the date column contains at least one record from the last 2 days
+      - not_null:
+          column_name: date
+          description: Ensures that the date column is not null
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format
   - name: ez_base_metrics_by_application_v2
     description: "This table stores metrics for the BASE protocol"
     columns:
@@ -301,7 +354,21 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
+    tests:
+      - not_null:
+          column_name: chain
+          description: Ensures that the chain column is not null
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: Ensures that the date column contains at least one record from the last 2 days
+      - not_null:
+          column_name: date
+          description: Ensures that the date column is not null
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format
   - name: ez_base_metrics_by_subcategory
     description: "This table stores metrics for the BASE protocol"
     columns:
@@ -311,4 +378,18 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
+    tests:
+      - not_null:
+          column_name: chain
+          description: Ensures that the chain column is not null
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: Ensures that the date column contains at least one record from the last 2 days
+      - not_null:
+          column_name: date
+          description: Ensures that the date column is not null
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format

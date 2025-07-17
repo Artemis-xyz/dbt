@@ -43,7 +43,21 @@ models:
       - *lending_deposits
       - *lending_loans
       - *token_incentives
-
+    tests:
+      - not_null:
+          column_name: chain
+          description: Ensures that the chain column is not null
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: Ensures that the date column contains at least one record from the last 2 days
+      - not_null:
+          column_name: date
+          description: Ensures that the date column is not null
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format
   - name: ez_compound_metrics
     description: "This table stores metrics for the COMPOUND protocol"
     columns:
@@ -53,4 +67,18 @@ models:
       - *market_cap
       - *price
       - *token_incentives
-
+    tests:
+      - not_null:
+          column_name: app
+          description: Ensures that the app column is not null
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: Ensures that the date column contains at least one record from the last 2 days
+      - not_null:
+          column_name: date
+          description: Ensures that the date column is not null
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format

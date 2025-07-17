@@ -16,13 +16,15 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  perp_volume: &perp_volume
-    name: perp_volume
-    description: "The total trading volume on a perpetuals exchange"
-
   price: &price
     name: price
     description: "The price of a token in USD"
+    tags:
+      - artemis_gaap
+
+  token_incentives: &token_incentives
+    name: token_incentives
+    description: "The total token incentives paid by a protocol in its native token"
     tags:
       - artemis_gaap
 
@@ -45,20 +47,20 @@ column_definitions:
       - artemis_gaap
 
 models:
-  - name: ez_apex_metrics
-    description: "This table stores metrics for the APEX protocol"
+  - name: ez_dimo_metrics_by_chain
+    description: "This table stores metrics for the DIMO protocol"
     columns:
       - *fdmc
       - *market_cap
-      - *perp_volume
       - *price
+      - *token_incentives
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
     tests:
       - not_null:
-          column_name: app
-          description: Ensures that the app column is not null
+          column_name: chain
+          description: Ensures that the chain column is not null
       - dbt_utils.recency:
           datepart: day
           interval: 2
@@ -70,14 +72,17 @@ models:
       - dbt_utils.expression_is_true:
           expression: "date = cast(date as date)"
           description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format
-  - name: ez_apex_metrics_by_chain
-    description: "This table stores metrics for the APEX protocol"
+  - name: ez_dimo_metrics
+    description: "This table stores metrics for the DIMO protocol"
     columns:
-      - *perp_volume
+      - *fdmc
+      - *market_cap
+      - *price
+      - *token_incentives
+      - *token_turnover_circulating
+      - *token_turnover_fdv
+      - *token_volume
     tests:
-      - not_null:
-          column_name: chain
-          description: Ensures that the chain column is not null
       - dbt_utils.recency:
           datepart: day
           interval: 2

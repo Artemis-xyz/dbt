@@ -54,7 +54,21 @@ models:
     columns:
       - *tvl
       - *tvl_net_change
-
+    tests:
+      - not_null:
+          column_name: chain
+          description: Ensures that the chain column is not null
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: Ensures that the date column contains at least one record from the last 2 days
+      - not_null:
+          column_name: date
+          description: Ensures that the date column is not null
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format
   - name: ez_babylon_metrics
     description: "This table stores metrics for the BABYLON protocol"
     columns:
@@ -66,4 +80,15 @@ models:
       - *token_volume
       - *tvl
       - *tvl_net_change
-
+    tests:
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: Ensures that the date column contains at least one record from the last 2 days
+      - not_null:
+          column_name: date
+          description: Ensures that the date column is not null
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: Ensures that the date column is properly typed as DATE with yyyy-mm-dd format
