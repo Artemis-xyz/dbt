@@ -12,6 +12,7 @@
     from {{ref("fact_" ~ chain ~ "_token_transfers")}}   
     where lower(to_address) not in (lower('0x0000000000000000000000000000000000000000'), lower('T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'))
         and block_timestamp::date < to_date(sysdate())
+        and amount_raw > 0
     {% if is_incremental() %}
         and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
     {% endif %}
@@ -30,6 +31,7 @@
         from {{ref("fact_" ~ chain ~ "_native_token_transfers")}}   
         where lower(to_address) not in (lower('0x0000000000000000000000000000000000000000'), lower('T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'))
             and block_timestamp::date < to_date(sysdate())
+            and amount_raw > 0
         {% if is_incremental() %}
             and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
         {% endif %}
