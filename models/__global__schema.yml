@@ -139,10 +139,10 @@ column_definitions:
       description: "The average transaction fee on a chain"
     - name: chain_median_txn_fee
       description: "The median transaction fee on a chain"
-    - name: priority_fee_native
+    - name: priority_fees_native
       description: "The total native value of priority fees on a chain"
       tags: [artemis_gaap]
-    - name: priority_fee
+    - name: priority_fees
       description: "The total USD value of priority fees on a chain"
       tags: [artemis_gaap]
     - name: returning_users

@@ -1,0 +1,7 @@
+sources:
+  - name: PROD_LANDING
+    schema: PROD_LANDING
+    database: LANDING_DATABASE
+    tables:
+      - name: raw_hyperevm_transactions_parquet
+      - name: raw_hyperevm_logs_parquet

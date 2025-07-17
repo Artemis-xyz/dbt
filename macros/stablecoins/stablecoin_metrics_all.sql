@@ -13,14 +13,15 @@ with
             , transfer_volume
             , to_address
         from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers")}}
+        where transfer_volume > 0
         {% if is_incremental() and new_stablecoin_address == '' %} 
-            where block_timestamp >= (
+            and block_timestamp >= (
                 select dateadd('day', -{{ backfill_days }}, max(date))
                 from {{ this }}
             )
         {% endif %}
         {% if new_stablecoin_address != '' %}
-            where lower(contract_address) = lower('{{ new_stablecoin_address }}')
+            and lower(contract_address) = lower('{{ new_stablecoin_address }}')
         {% endif %}
     )
     , stablecoin_metrics as (

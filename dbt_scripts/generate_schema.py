@@ -194,6 +194,9 @@ def generate_project_schema(project_name, global_schema_path, sql_files):
                 f.write("    columns:\n")
                 for col_name in sorted(matching_columns):
                     f.write(f"      - *{col_name}\n")
+                # NOTE: Removing generated tests because they caused a ton of dimension-related jobs to break
+                # Needs fixing before we can uncomment this
+
                 # Add tests block using abstracted test generation
                 # from generate_tests import generate_all_tests
                 # f.write(generate_all_tests(table_name=model_name))

@@ -6,7 +6,7 @@ with
     stablecoin_transfers as (
         select * from {{ ref("fact_" ~ chain ~ "_stablecoin_transfers") }}
     ),
-    {% if chain in ("tron", "solana", "near", "ton", "ripple") %}
+    {% if chain in ("tron", "solana", "near", "ton", "ripple", "hyperevm") %}
          distinct_peer_address as (
             select address
             from {{ ref("dim_" ~ chain ~ "_eoa_addresses") }}
