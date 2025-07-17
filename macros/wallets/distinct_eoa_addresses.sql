@@ -1,6 +1,6 @@
 {% macro distinct_eoa_addresses(chain) %}
     {% if chain == "tron" %}
-        select trx_from_address as address, 'eoa' as address_type, max(datetime) as last_updated_at
+        select COALESCE(trx_from_address, trx_owner_address) as address, 'eoa' as address_type, max(datetime) as last_updated_at
         from sonarx_tron.tron_share.transactions
         where trx_from_address is not null 
         {% if is_incremental() %}
