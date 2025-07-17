@@ -145,8 +145,8 @@ select
     , revenue_native AS burned_fee_allocation_native
     , revenue AS burned_fee_allocation
 
-    , fees_native - revenue_native as priority_fee_native
-    , priority_fee_usd AS priority_fee
+    , fees_native - revenue_native as priority_fees_native
+    , priority_fee_usd AS priority_fees
 
     -- Financial Statement Metrics
     , revenue_native + coalesce(blob_fees_native, 0) as revenue_native

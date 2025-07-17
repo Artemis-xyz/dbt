@@ -192,14 +192,14 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  priority_fee: &priority_fee
-    name: priority_fee
+  priority_fees: &priority_fees
+    name: priority_fees
     description: "The total USD value of priority fees on a chain"
     tags:
       - artemis_gaap
 
-  priority_fee_native: &priority_fee_native
-    name: priority_fee_native
+  priority_fees_native: &priority_fees_native
+    name: priority_fees_native
     description: "The total native value of priority fees on a chain"
     tags:
       - artemis_gaap
@@ -416,8 +416,8 @@ models:
       - *p2p_token_transfer_volume
       - *p2p_transfer_volume
       - *price
-      - *priority_fee
-      - *priority_fee_native
+      - *priority_fees
+      - *priority_fees_native
       - *returning_users
       - *revenue
       - *settlement_volume

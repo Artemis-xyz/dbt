@@ -94,18 +94,18 @@ select
     , solana_dex_volumes.dex_volumes as chain_spot_volume
     , case
         when (gas - base_fee_native) < 0.00001 then 0 else (gas - base_fee_native)
-    end as priority_fee_native
+    end as priority_fees_native
     , case
         when (gas_usd - base_fee_native * price ) < 0.001 then 0 else (gas_usd - base_fee_native * price )
-    end as priority_fee
+    end as priority_fees
     , total_economic_activity
 
     -- Cashflow Metrics
     , gas_usd + vote_tx_fee_native * price as chain_fees
     , gas + vote_tx_fee_native as fees_native
     , vote_tx_fee_native * price + gas_usd as fees
-    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, ((base_fee_native + vote_tx_fee_native) * .5) + priority_fee_native) as validator_fee_allocation_native
-    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, ((base_fee_native * price  + vote_tx_fee_native * price) * .5) + priority_fee) as validator_fee_allocation
+    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, ((base_fee_native + vote_tx_fee_native) * .5) + priority_fees_native) as validator_fee_allocation_native
+    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, ((base_fee_native * price  + vote_tx_fee_native * price) * .5) + priority_fees) as validator_fee_allocation
     , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as burned_fee_allocation_native
     , IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee_native * price  + vote_tx_fee_native * price) * .5) as burned_fee_allocation
     , base_fee_native
