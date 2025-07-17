@@ -344,7 +344,7 @@
                 select lower(contract_address)
                 from {{ref("fact_" ~chain~ "_stablecoin_contracts")}}
             )
-    {% elif chain in ("mantle", 'sonic') %}
+    {% elif chain in ("mantle", 'sonic', 'hyperevm') %}
         select
             block_timestamp
             , block_timestamp::date as date
