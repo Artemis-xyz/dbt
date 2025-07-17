@@ -5,3 +5,9 @@ sources:
     tables:
       - name: raw_pendle_sy_info
       - name: raw_pendle_sy
+
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: pendle_unlocks_seed
