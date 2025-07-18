@@ -188,6 +188,16 @@ with
             , token_holder_count
         from {{ ref("fact_aave_token_holders")}}
     )
+    , issued_supply_metrics as (
+        select 
+            date,
+            max_supply as max_supply_native,
+            total_supply_to_date as total_supply_native,
+            issued_supply as issued_supply_native,
+            circulating_supply as circulating_supply_native
+        from {{ ref('fact_aave_issued_supply_and_float') }}
+    )
+
     , coingecko_metrics as (
         select 
             date
@@ -258,6 +268,12 @@ select
     , net_deposits as lending_deposits
     , tvl
 
+     -- Issued Supply Metrics
+    , issued_supply_metrics.max_supply_native
+    , issued_supply_metrics.total_supply_native
+    , issued_supply_metrics.issued_supply_native
+    , issued_supply_metrics.circulating_supply_native
+
     , treasury_value as treasury
     , treasury_value_native as treasury_native
     , net_treasury_value as net_treasury
@@ -279,4 +295,5 @@ left join treasury using (date)
 left join net_treasury_data using (date)
 left join aave_token_holders using (date)
 left join coingecko_metrics using (date)
+left join issued_supply_metrics using (date)
 where aave_outstanding_supply_net_deposits_deposit_revenue.date < to_date(sysdate())
