@@ -4,8 +4,9 @@ with
     max_date as (
         select max(extraction_date) as extraction_date
         from {{ source("PROD_LANDING", "raw_hyperliquid_trading_volume") }}
-    ),
-    trading_volume_market as (
+    )
+    
+    , trading_volume_market as (
         -- historical data from stats.hyperliquid.xyz
         select
             try_to_date(f.value:time::string) as date
@@ -26,8 +27,9 @@ with
     )
 select
     date
-    , trading_volume
+    , max_by(trading_volume, date) as trading_volume
     , 'hyperliquid' as app
     , 'hyperliquid' as chain
     , 'DeFi' as category
 from trading_volume_market
+group by date
