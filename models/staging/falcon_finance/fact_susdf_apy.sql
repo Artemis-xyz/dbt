@@ -39,7 +39,7 @@ joined as (
     e.date,
     case
       when e.previous_ratio is null then 0
-      else (power(e.ratio / e.previous_ratio, 365) - 1)
+      else (power(e.ratio / e.previous_ratio, 365*24) - 1)
     end as apy,
     coalesce(et.tvl, latest_tvl.tvl) as tvl
   from extracted e
