@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key="contract_address",
-        snowflake_warehouse="TRON_LG"
+        snowflake_warehouse="TRON"
     )
 }}
 
