@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key="unique_id",
-        database="hyperliquid",
+        database="hyperevm",
         schema="core",
         alias="ez_stablecoin_metrics_by_address_with_labels",
         snowflake_warehouse="STABLECOIN_V2_LG_2",
