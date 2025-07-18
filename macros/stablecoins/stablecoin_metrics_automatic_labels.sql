@@ -191,7 +191,7 @@
                     else filtered_contracts.artemis_category_id 
                 end as artemis_category_id
                 , case 
-                    {% if chain not in ('solana', 'tron', 'near', 'ton', 'sui', 'ripple', 'hyperevm') %}
+                    {% if chain not in ('solana', 'near', 'ton', 'sui', 'ripple', 'hyperevm') %}
                         when 
                             from_address not in (select contract_address from {{ ref("dim_" ~ chain ~ "_contract_addresses")}}) 
                             then 1
