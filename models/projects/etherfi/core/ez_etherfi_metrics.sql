@@ -91,11 +91,11 @@ SELECT
     , market_metrics.token_turnover_fdv as token_turnover_fdv
 
     --ETHFI Token Supply Data
-    , daily_supply_data.emissions_native
+    , daily_supply_data.emissions_native as gross_emissions_native
     , daily_supply_data.premine_unlocks_native
     , daily_supply_data.burns_native
     , daily_supply_data.net_supply_change_native
-    , daily_supply_data.circulating_supply
+    , daily_supply_data.circulating_supply as circulating_supply_native
 
 from date_spine
 left join restaked_eth_metrics using(date)

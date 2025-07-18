@@ -78,7 +78,7 @@ SELECT
     , supply_data.premine_unlocks
     , supply_data.gross_emissions
     , supply_data.net_supply_change
-    , supply_data.circulating_supply
+    , supply_data.circulating_supply as circulating_supply_native
 
     -- Other Metrics
     , token_turnover_circulating

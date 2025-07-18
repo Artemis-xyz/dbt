@@ -100,7 +100,7 @@ SELECT
         OVER (ORDER BY date) AS tvl_native_net_change
 
     -- Supply Metrics
-    , circulating_supply
+    , circulating_supply as circulating_supply_native
     , emissions_native as emissions_native
     , net_supply_change_native
     , premine_unlocks_native as premine_unlocks_native_native

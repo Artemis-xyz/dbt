@@ -91,7 +91,7 @@ select
     , daily_supply_data.premine_unlocks_native
     , daily_supply_data.burns_native
     , daily_supply_data.net_supply_change_native
-    , daily_supply_data.circulating_supply
+    , daily_supply_data.circulating_supply as circulating_supply_native
 
 from date_spine
 left join dau_txn_data on date_spine.date = dau_txn_data.date
