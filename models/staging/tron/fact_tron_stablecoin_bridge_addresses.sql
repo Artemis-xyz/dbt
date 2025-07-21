@@ -10,7 +10,7 @@ from
             (
                 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
                 'TT1DyeqXaaJkt6UhVYFWUXBXknaXnBudTK'
-            ),
+            )
             -- USDT 
             -- BSC
             --      tron Bridge

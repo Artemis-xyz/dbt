@@ -23,8 +23,9 @@ with
     )
 select 
     date
-    , round(spot_trading_volume, 2) as spot_trading_volume
-    , app
-    , chain
-    , category
+    , max_by(round(spot_trading_volume, 2), date) as spot_trading_volume
+    , 'hyperliquid' as app
+    , 'hyperliquid' as chain
+    , 'DeFi' as category
 from hyperliquid_spot_trading_volume
+group by date
