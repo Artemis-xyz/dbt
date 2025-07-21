@@ -187,7 +187,15 @@ with
             date
             , token_holder_count
         from {{ ref("fact_aave_token_holders")}}
+    ),
+
+    flashloan_fees_to_procotol as (
+        select
+            date,
+            protocol_revenue
+        from {{ ref('fact_aave_flashloan_fees') }}
     )
+
     , issued_supply_metrics as (
         select 
             date,
@@ -248,7 +256,7 @@ select
     , flashloan_fees
     , gho_revenue as gho_fees
     , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_revenue, 0) as fees
-    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as revenue
+    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) + coalesce(flashloan_fees_to_procotol.protocol_revenue, 0) as revenue
 
 
     , supply_side_deposit_revenue + flashloan_fees as service_fee_allocation
@@ -296,4 +304,5 @@ left join net_treasury_data using (date)
 left join aave_token_holders using (date)
 left join coingecko_metrics using (date)
 left join issued_supply_metrics using (date)
+left join flashloan_fees_to_procotol using (date)
 where aave_outstanding_supply_net_deposits_deposit_revenue.date < to_date(sysdate())
