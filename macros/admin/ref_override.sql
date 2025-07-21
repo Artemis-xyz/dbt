@@ -34,10 +34,11 @@
 
         {%- set prod_model_name = node.config.alias or model_name -%}
 
-        -- {%- set prod_model_name = node.config.alias or model_name -%}
         {%- set prod_model_name = node.alias or model_name -%}
 
-        {{ return(prod_database.upper() ~ '.' ~ prod_schema.upper() ~ '.' ~ prod_model_name.upper()) }}
+        -- Return the below as a relation
+        {% set relation = api.Relation.create(database=prod_database, schema=prod_schema, identifier=prod_model_name) %}
+        -- {{ return(prod_database.upper() ~ '.' ~ prod_schema.upper() ~ '.' ~ prod_model_name.upper()) }}
     {%- endif -%}
   {%- else -%}
     {{ return(builtins.ref(model_name)) }}
