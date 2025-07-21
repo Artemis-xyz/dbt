@@ -12,9 +12,10 @@
 WITH issued_supply_metrics AS (
     SELECT 
         date,
-        total_supply AS max_supply_native,
+        total_supply + cumulative_ip_burned AS max_supply_native,
         total_supply AS total_supply_native,
         total_ip_burned AS native_burns,
+        revenue as revenue,
         issued_supply AS issued_supply_native,
         circulating_supply AS circulating_supply_native
     FROM {{ ref('fact_story_issued_supply_and_float') }}
@@ -26,6 +27,7 @@ SELECT
     f.daa AS dau,
     f.fees_native,
     f.fees,
+    i.revenue,
     i.max_supply_native,
     i.total_supply_native,
     i.native_burns,
