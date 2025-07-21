@@ -78,9 +78,13 @@ with
         from {{ ref("fact_optimism_owned_supply") }}
         where contract_address = '0x4200000000000000000000000000000000000042'
     )
-    , total_economic_activity as (
-        select date, total_economic_activity
-        from OPTIMISM.PROD_RAW.EZ_OPTIMISM_TEA
+    , application_fees AS (
+        SELECT 
+            DATE_TRUNC(DAY, date) AS date 
+            , SUM(COALESCE(fees, 0)) AS application_fees
+        FROM {{ ref("ez_protocol_datahub_by_chain") }}
+        WHERE chain = 'optimism'
+        GROUP BY 1
     )
 
 select
@@ -143,7 +147,7 @@ select
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_optimism.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     , dune_dex_volumes_optimism.dex_volumes AS chain_spot_volume
-    , total_economic_activity
+    , coalesce(fees, 0) - coalesce(l1_data_cost, 0) + coalesce(settlement_volume, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
 
     -- Cashflow Metrics
     , fees AS chain_fees
@@ -210,5 +214,5 @@ left join revenue_share on fundamental_data.date = revenue_share.date
 left join mints_burns on fundamental_data.date = mints_burns.date
 left join unvested_supply on fundamental_data.date = unvested_supply.date
 left join owned_supply on fundamental_data.date = owned_supply.date
-left join total_economic_activity on fundamental_data.date = total_economic_activity.date
+left join application_fees on fundamental_data.date = application_fees.date
 where fundamental_data.date < to_date(sysdate())

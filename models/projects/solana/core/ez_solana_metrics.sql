@@ -52,9 +52,16 @@ with
         select date, issued_supply, circulating_supply
         from {{ ref('fact_solana_supply_data') }}
     )
-    , total_economic_activity as (
-        select date, total_economic_activity
-        from SOLANA.PROD_RAW.EZ_SOLANA_TEA
+    , application_fees AS (
+        SELECT 
+            DATE_TRUNC(DAY, date) AS date 
+            , SUM(COALESCE(fees, 0)) AS application_fees
+        FROM {{ ref("ez_protocol_datahub_by_chain") }}
+        WHERE chain = 'solana'
+        -- excluding solana dex's to avoid double counting. It looks like these are included in dex_volumes above as dex_volumes defaults to the greater usd value of token_bought and token_sold
+        -- this does not appear to be an issue for EVM based chains that rely on Dune dex.trades as that defaults to using the token_bought amount which is net of fees
+            AND artemis_id NOT IN ('raydium', 'jupiter', 'saber', 'pumpfun')
+        GROUP BY 1
     )
 select
     coalesce(fundamental_usage.date, supply_data.date) as date
@@ -98,7 +105,6 @@ select
     , case
         when (gas_usd - base_fee_native * price ) < 0.001 then 0 else (gas_usd - base_fee_native * price )
     end as priority_fees
-    , total_economic_activity
 
     -- Cashflow Metrics
     , gas_usd + vote_tx_fee_native * price as chain_fees
@@ -114,6 +120,8 @@ select
     , vote_tx_fee_native * price AS vote_tx_fee
     , chain_fees + COALESCE(jito_tips.tip_fees, 0) as rev -- Blockworks' REV
     
+    -- TEA 
+    , coalesce(rev, 0) + coalesce(settlement_volume, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
 
     -- Financial Statement Metrics
     , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as revenue_native
@@ -164,5 +172,5 @@ left join rolling_metrics on fundamental_usage.date = rolling_metrics.date
 left join solana_dex_volumes on fundamental_usage.date = solana_dex_volumes.date
 left join jito_tips on fundamental_usage.date = jito_tips.date
 left join supply_data on fundamental_usage.date = supply_data.date
-left join total_economic_activity on fundamental_usage.date = total_economic_activity.date
+left join application_fees on fundamental_usage.date = application_fees.date
 where fundamental_usage.date < to_date(sysdate())
