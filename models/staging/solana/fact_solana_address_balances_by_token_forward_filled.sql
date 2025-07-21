@@ -6,12 +6,12 @@
     )
 }}
 
-{% set token_addresses = var('token_addresses_list', ['KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD']) %}
+{% set token_addresses = var('token_addresses_list', ['9DrvZvyWh1HuAoZxvYWMvkf2XCzryCpGgHqrMjyDWpmo', 'B9spsrMK6pJicYtukaZzDyzsUQLgc3jbx5gHVwdDxb6y', '81BgcfZuZf9bESLvw3zDkh7cZmMtDwTPgkCvYu7zx26o', 'GuWEkEJb5bh8Ai2gaYmZWMTUq8MrFeoaDZ89BrQfB1FZ', 'Dx8iy2o46sK1DzWbEcznqSKeLbLVeu7otkibA3WohGAj']) %}
 
 WITH 
 {% if token_addresses | length > 0 %}
     all_addresses AS (
-        {{ get_all_addresses_under_program_id(token_addresses) }}
+        {{ get_all_addresses_under_owners(token_addresses) }}
     ),
 {% endif %}
 address_balances AS (

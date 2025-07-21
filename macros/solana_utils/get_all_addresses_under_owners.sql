@@ -1,11 +1,11 @@
-{% macro get_all_addresses_under_program_id(program_ids, max_levels=5) %}
+{% macro get_all_addresses_under_owners(program_ids, max_levels=5) %}
 
 WITH cleaned_up_token_owner_hierarchy AS (
     {{ get_valid_solana_token_account_owners() }}
 ),
 
--- Generate the base level (l1)
-l1 as (
+-- Generate the base level (l0)
+l0 as (
     select 
         owner,
         account_address,
@@ -16,7 +16,7 @@ l1 as (
     )  
 ),
 
-{% for level in range(2, max_levels + 1) %}
+{% for level in range(1, max_levels + 1) %}
     -- Level {{ level }}
     l{{ level }} as (
         SELECT
@@ -31,7 +31,7 @@ l1 as (
 
 -- Combine all addresses from all levels
 combined_addresses AS (
-    {% for level in range(1, max_levels + 1) %}
+    {% for level in range(0, max_levels + 1) %}
     -- Get both owner and account_address from level {{ level }}
     SELECT DISTINCT owner as address FROM l{{ level }}
     UNION
