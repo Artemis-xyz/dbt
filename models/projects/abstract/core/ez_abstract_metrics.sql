@@ -1,12 +1,20 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="ABSTRACT",
         database="abstract",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        -- merge_update_columns=["modified_on", <new_columns>], -- can specify specific columns to backfill but going to be manual work
+        full_refresh=false
     )
 }}
+
+{% set backfill_date = None %}
 
 select
     f.date
@@ -32,5 +40,16 @@ select
     , cost_native as l1_fee_allocation_native
     , revenue as foundation_fee_allocation
     , revenue_native as foundation_fee_allocation_native
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from {{ ref("fact_abstract_fundamental_metrics") }} as f
 where f.date  < to_date(sysdate())
+{% if is_incremental() %}
+    {% if backfill_date %}
+        and date >= '{{ backfill_date }}'
+    {% else %}
+        and date > (select max(this.date) from {{ this }} as this)
+    {% endif %}
+{% endif %}
