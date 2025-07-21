@@ -6,7 +6,7 @@
     )
 }}
 
-{% set token_addresses = var('token_addresses_list', ['9DrvZvyWh1HuAoZxvYWMvkf2XCzryCpGgHqrMjyDWpmo', 'B9spsrMK6pJicYtukaZzDyzsUQLgc3jbx5gHVwdDxb6y', '81BgcfZuZf9bESLvw3zDkh7cZmMtDwTPgkCvYu7zx26o', 'GuWEkEJb5bh8Ai2gaYmZWMTUq8MrFeoaDZ89BrQfB1FZ', 'Dx8iy2o46sK1DzWbEcznqSKeLbLVeu7otkibA3WohGAj']) %}
+{% set token_addresses = var('token_addresses_list', []) %}
 
 WITH 
 {% if token_addresses | length > 0 %}
