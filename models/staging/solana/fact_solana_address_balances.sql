@@ -2,47 +2,74 @@
     config(
         materialized="incremental",
         unique_key=["date", "contract_address", "address"],
-        snowflake_warehouse="SOLANA_XLG"
+        snowflake_warehouse="SOLANA_2XLG"
     )
 }}
 
-{% set token_addresses = var('token_addresses_list', []) %}
+{% set token_addresses = var('token_addresses_list', ['KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD']) %}
 
 
 -- NOTE: owner_addresses here are either program_ids (via PDAs), or EOAs
 -- We can also add an optional type column here to define program_id or EOA
 
 
-WITH cleaned_up_token_owner_hierarchy AS (
-    SELECT * FROM solana_flipside.core.fact_token_account_owners
-    WHERE account_owner NOT IN (
-        '11111111111111111111111111111111',
-        'Vote111111111111111111111111111111111111111',
-        'Stake11111111111111111111111111111111111111',
-        'Config1111111111111111111111111111111111111',
-        'ComputeBudget111111111111111111111111111111',
-        'AddressLookupTab1e1111111111111111111111111',
-        'ZkE1Gama1Proof11111111111111111111111111111',
-        'KeccakSecp256k11111111111111111111111111111',
-        'Ed25519SigVerify111111111111111111111111111',
-        'Feature111111111111111111111111111111111111',
-
-        -- loaders
-        'NativeLoader1111111111111111111111111111111',
-        'BPFLoader1111111111111111111111111111111111',
-        'BPFLoader2111111111111111111111111111111111',
-        'BPFLoaderUpgradeab1e11111111111111111111111',
-        'LoaderV411111111111111111111111111111111111',
-
-        -- sys vars
-        'SysvarRent111111111111111111111111111111111',
-        'SysvarC1ock11111111111111111111111111111111',
-        'SysvarStakeHistory1111111111111111111111111',
-        'Sysvar1nstructions1111111111111111111111111',
-        'SysvarRecentB1ockHashes11111111111111111111',
-        'Sysvar1111111111111111111111111111111111111'
-    )
+WITH 
+{% if token_addresses | length > 0 %}
+    all_addresses AS (
+        {{ get_all_addresses_under_program_id(token_addresses) }}
+    ),
+{% endif %}
+cleaned_up_token_owner_hierarchy AS (
+    {{ get_valid_solana_token_account_owners() }}
+),
+base_case AS (
+    SELECT
+        a.address AS base_address,
+        a.address AS parent_address,
+        0 AS level
+    FROM {{ ref("fact_solana_address_balances_by_token_forward_filled") }} a
+    {% if token_addresses | length > 0 %}
+        INNER JOIN all_addresses
+            ON a.address = all_addresses.address
+    {% endif %}
+    WHERE 1=1
+    {% if is_incremental() %}
+        AND a.block_timestamp >= dateadd(day, -1, to_date(sysdate()))
+    {% endif %}
+),
+l1 AS (
+    SELECT
+        a.base_address,
+        p.owner AS parent_address,
+        a.level + 1 AS level
+    FROM base_case a
+    INNER JOIN cleaned_up_token_owner_hierarchy p
+        ON a.parent_address = p.account_address
+),
+l2 AS (
+    SELECT
+        l1.base_address,
+        p.owner AS parent_address,
+        l1.level + 1 AS level
+    FROM l1
+    INNER JOIN cleaned_up_token_owner_hierarchy p
+        ON l1.parent_address = p.account_address
+),
+l3 AS (
+    SELECT
+        l2.base_address,
+        p.owner AS parent_address,
+        l2.level + 1 AS level
+    FROM l2
+    INNER JOIN cleaned_up_token_owner_hierarchy p
+        ON l2.parent_address = p.account_address
 )
+
+
+
+-- left join and order by level desc I think should work?
+
+
 -- Recursive CTE with recursion capped at 10 levels
 , RECURSIVE address_hierarchy (
     original_address,
@@ -58,14 +85,13 @@ WITH cleaned_up_token_owner_hierarchy AS (
         NULL AS parent_address,
         0 AS level
     FROM {{ ref("fact_solana_address_balances_by_token_forward_filled") }} a
+    {% if token_addresses | length > 0 %}
+        INNER JOIN all_addresses
+            ON a.address = all_addresses.address
+    {% endif %}
     WHERE 1=1
     {% if is_incremental() %}
         AND block_timestamp >= dateadd(day, -1, to_date(sysdate()))
-    {% endif %}
-    {% if token_addresses | length > 0 %}
-        AND a.address IN (
-            {{ "'" ~ token_addresses | join("','") ~ "'" }}
-        )
     {% endif %}
 
     UNION ALL
