@@ -30,6 +30,26 @@
             , contract_address
         from stellar_contracts 
         group by contract_address
+    {% elif chain == "sei" %}
+        select min(block_timestamp) as block_timestamp, to_address as contract_address
+        from {{ chain }}_flipside.core_evm.fact_traces
+        where type in ('CREATE', 'CREATE2')
+            and contract_address is not null --if the deploy fails the to address will be null
+            {% if is_incremental() %}
+                and block_timestamp
+                >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+            {% endif %}
+        group by contract_address
+        union all
+        select min(block_timestamp) as block_timestamp, attribute_value as contract_address
+        from {{ chain }}_flipside.core.fact_msg_attributes
+        where substr(msg_type, 1, 4) = 'wasm'
+        and substr(attribute_value, 1, 4) = 'sei1'
+            {% if is_incremental() %}
+                and block_timestamp
+                >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+            {% endif %}
+        group by contract_address
     {% elif chain == "ton" %}
         with ton_contracts as (
             SELECT 
@@ -78,7 +98,15 @@
                 and block_timestamp >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
             {% endif %}
         group by contract_address
-
+    {% elif chain == "tron" %}
+        select min(datetime) as block_timestamp, trx_contract_address as contract_address
+        from sonarx_tron.tron_share.transactions 
+        where contract_type = 'CreateSmartContract'
+            and trx_contract_address is not null
+            {% if is_incremental() %}
+                and datetime >= (select dateadd('day', -3, max(block_timestamp)) from {{ this }})
+            {% endif %}
+        group by contract_address
     {% else %}
         select min(block_timestamp) as block_timestamp, to_address as contract_address, min(type) as type --Contracts can be redeployed at the same addresses with CREATE2
         from {{ chain }}_flipside.core.fact_traces

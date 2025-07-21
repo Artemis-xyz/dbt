@@ -1,8 +1,18 @@
 {% macro distinct_eoa_addresses(chain) %}
     {% if chain == "tron" %}
-        select trx_from_address as address, 'eoa' as address_type, max(datetime) as last_updated_at
+        select COALESCE(trx_from_address, trx_owner_address) as address, 'eoa' as address_type, max(datetime) as last_updated_at
         from sonarx_tron.tron_share.transactions
         where trx_from_address is not null 
+        {% if is_incremental() %}
+            and datetime > (select max(last_updated_at) from {{this}})
+        {% endif %}
+        group by 1
+    {% elif chain == "hyperevm" %}
+        select
+            parquet_raw:from_address::string as address,
+            max(parquet_raw:block_timestamp::timestamp_ntz) as last_updated_at
+        from {{ source("PROD_LANDING", "raw_hyperevm_transactions_parquet") }}
+        where parquet_raw:from_address::string is not null
         {% if is_incremental() %}
             and datetime > (select max(last_updated_at) from {{this}})
         {% endif %}

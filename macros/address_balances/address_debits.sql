@@ -12,6 +12,7 @@
     from {{ chain }}_flipside.core.fact_transactions as t
     where
         to_date(block_timestamp) < to_date(sysdate())
+        and (tx_succeeded or tx_fee > 0)
         and from_address <> lower('0x0000000000000000000000000000000000000000')
         {% if is_incremental() %}
             and block_timestamp

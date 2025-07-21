@@ -2,7 +2,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="optimism",
+        snowflake_warehouse="OPTIMISM",
         database="optimism",
         schema="core",
         alias="ez_metrics",
@@ -47,6 +47,45 @@ with
         from {{ ref("fact_optimism_token_incentives") }}
         group by 1
     )
+    , revenue_share as (
+        select
+            date, 
+            sum(revenue_share_native) as revenue_share_native,
+            sum(revenue_share) as revenue_share
+        from {{ ref("fact_optimism_revenue_share") }}
+        group by 1
+    )
+    , mints_burns as (
+        select
+            date,
+            mints_native,
+            burns_native, 
+            cumulative_mints_native,
+            cumulative_burns_native
+        from {{ ref("fact_optimism_mints_burns") }}
+    )
+    , unvested_supply as (
+        select
+            date, 
+            total_vested_supply, 
+            1545523296 - total_vested_supply AS total_unvested_supply
+        from {{ ref("fact_optimism_all_supply_events") }}
+    )
+    , owned_supply as (
+        select
+            date, 
+            native_balance AS foundation_owned_supply_native
+        from {{ ref("fact_optimism_owned_supply") }}
+        where contract_address = '0x4200000000000000000000000000000000000042'
+    )
+    , application_fees AS (
+        SELECT 
+            DATE_TRUNC(DAY, date) AS date 
+            , SUM(COALESCE(fees, 0)) AS application_fees
+        FROM {{ ref("ez_protocol_datahub_by_chain") }}
+        WHERE chain = 'optimism'
+        GROUP BY 1
+    )
 
 select
     coalesce(
@@ -71,8 +110,10 @@ select
     , avg_txn_fee
     , median_txn_fee
     , dau_over_100
-    , coalesce(fees_native, 0) - l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    , coalesce(fees, 0) - l1_data_cost as revenue
+    , coalesce(fees_native, 0) + coalesce(revenue_share_native, 0) - l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(fees, 0) + (coalesce(revenue_share, 0)) - l1_data_cost as revenue
+    , coalesce(revenue_share_native, 0) as revenue_share_native
+    , coalesce(revenue_share, 0) as revenue_share
     , nft_trading_volume
     , dune_dex_volumes_optimism.dex_volumes
     , dune_dex_volumes_optimism.adjusted_dex_volumes
@@ -106,10 +147,10 @@ select
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_optimism.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     , dune_dex_volumes_optimism.dex_volumes AS chain_spot_volume
+    , coalesce(fees, 0) - coalesce(l1_data_cost, 0) + coalesce(settlement_volume, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
 
     -- Cashflow Metrics
     , fees AS chain_fees
-
     , revenue - token_incentives.token_incentives as earnings
     , l1_data_cost_native AS l1_fee_allocation_native
     , l1_data_cost AS l1_fee_allocation
@@ -147,6 +188,13 @@ select
     , bridge_volume
     , bridge_daa
 
+    -- Supply Metrics
+    , cumulative_mints_native AS max_supply_native
+    , cumulative_mints_native AS total_supply_native
+    , cumulative_mints_native - cumulative_burns_native - foundation_owned_supply_native AS issued_supply_native
+    , cumulative_mints_native - cumulative_burns_native - foundation_owned_supply_native - total_unvested_supply AS circulating_supply_native
+    , total_unvested_supply
+    , foundation_owned_supply_native
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -162,4 +210,9 @@ left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join optimism_dex_volumes as dune_dex_volumes_optimism on fundamental_data.date = dune_dex_volumes_optimism.date
 left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 left join token_incentives on fundamental_data.date = token_incentives.date
+left join revenue_share on fundamental_data.date = revenue_share.date
+left join mints_burns on fundamental_data.date = mints_burns.date
+left join unvested_supply on fundamental_data.date = unvested_supply.date
+left join owned_supply on fundamental_data.date = owned_supply.date
+left join application_fees on fundamental_data.date = application_fees.date
 where fundamental_data.date < to_date(sysdate())

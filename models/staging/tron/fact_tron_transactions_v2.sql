@@ -9,7 +9,7 @@
 with
     tron_fees as (
         select
-            concat('0x', transaction_hash) as tx_hash,
+            transaction_hash as tx_hash,
             max(amount) as gas,
             max(usd_amount) as gas_usd,
             max(usd_exchange_rate) as price

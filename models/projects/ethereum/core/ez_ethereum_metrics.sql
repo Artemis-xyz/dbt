@@ -63,6 +63,15 @@ with
         select date, issued_supply, circulating_supply
         from {{ ref("fact_ethereum_eth_supply_estimated") }}
     )
+    , application_fees AS (
+        SELECT 
+            DATE_TRUNC(DAY, date) AS date 
+            , SUM(COALESCE(fees, 0)) AS application_fees
+        FROM {{ ref("ez_protocol_datahub_by_chain") }}
+        WHERE chain = 'ethereum'
+        GROUP BY 1
+    )
+
 select
     fundamental_data.date
     , fundamental_data.chain
@@ -71,12 +80,8 @@ select
     , adjusted_dau
     , wau
     , mau
-    , fees_native
-    , case when fees is null then (coalesce(blob_fees_native, 0) + fees_native) * price else fees + coalesce(blob_fees, 0) end as fees
     , avg_txn_fee
     , median_txn_fee
-    , revenue_native + coalesce(blob_fees_native, 0) as revenue_native
-    , revenue + coalesce(blob_fees, 0) as revenue
     , case
         when fees is null then (fees_native * price) - revenue else fees - revenue
     end as priority_fee_usd
@@ -135,14 +140,24 @@ select
     , avg_cost_per_mib
     , submitters as da_dau
     , dune_dex_volumes_ethereum.dex_volumes AS chain_spot_volume
+    , coalesce(fees, 0) + coalesce(blob_fees, 0) + coalesce(priority_fee_usd, 0) + coalesce(settlement_volume, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
+
     -- Cashflow metrics
     , fees as chain_fees
-    , fees_native AS ecosystem_revenue_native
-    , fees AS ecosystem_revenue
+    , case when fees is null then (coalesce(blob_fees_native, 0) + fees_native) * price else fees + coalesce(blob_fees, 0) end as fees
+    , fees_native
     , revenue_native AS burned_fee_allocation_native
     , revenue AS burned_fee_allocation
-    , fees_native - revenue_native as priority_fee_native
-    , priority_fee_usd AS priority_fee
+
+    , fees_native - revenue_native as priority_fees_native
+    , priority_fee_usd AS priority_fees
+
+    -- Financial Statement Metrics
+    , revenue_native + coalesce(blob_fees_native, 0) as revenue_native
+    , revenue + coalesce(blob_fees, 0) as revenue
+    , block_rewards_native  * price AS token_incentives
+    , revenue - token_incentives AS earnings
+    
     -- Developer metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -150,9 +165,11 @@ select
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
+
     -- Supply metrics
     , block_rewards_native AS gross_emissions_native
     , block_rewards_native * price AS gross_emissions
+
     -- Stablecoin metrics
     , stablecoin_total_supply
     , stablecoin_txns
@@ -196,4 +213,5 @@ left join ethereum_dex_volumes as dune_dex_volumes_ethereum on fundamental_data.
 left join block_rewards_data on fundamental_data.date = block_rewards_data.date
 left join eth_supply on fundamental_data.date = eth_supply.date
 left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
+left join application_fees on fundamental_data.date = application_fees.date
 where fundamental_data.date < to_date(sysdate())

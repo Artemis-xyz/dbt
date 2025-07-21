@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", enabled=false) }}
 with
     unique_traders_data as (
         select

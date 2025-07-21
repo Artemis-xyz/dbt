@@ -52,6 +52,17 @@ with
         select date, issued_supply, circulating_supply
         from {{ ref('fact_solana_supply_data') }}
     )
+    , application_fees AS (
+        SELECT 
+            DATE_TRUNC(DAY, date) AS date 
+            , SUM(COALESCE(fees, 0)) AS application_fees
+        FROM {{ ref("ez_protocol_datahub_by_chain") }}
+        WHERE chain = 'solana'
+        -- excluding solana dex's to avoid double counting. It looks like these are included in dex_volumes above as dex_volumes defaults to the greater usd value of token_bought and token_sold
+        -- this does not appear to be an issue for EVM based chains that rely on Dune dex.trades as that defaults to using the token_bought amount which is net of fees
+            AND artemis_id NOT IN ('raydium', 'jupiter', 'saber', 'pumpfun')
+        GROUP BY 1
+    )
 select
     coalesce(fundamental_usage.date, supply_data.date) as date
     , 'solana' as chain
@@ -59,12 +70,8 @@ select
     , dau
     , wau
     , mau
-    , gas + vote_tx_fee_native as fees_native
-    , vote_tx_fee_native * price + gas_usd as fees
     , gas_usd / txns as avg_txn_fee
     , median_txn_fee
-    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as revenue_native
-    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee_native * price  + vote_tx_fee_native * price) * .5) as revenue
     , issuance
     , nft_trading_volume
     , solana_dex_volumes.dex_volumes as dex_volumes
@@ -74,6 +81,7 @@ select
     , market_cap
     , fdmc
     , tvl
+
     -- Chain Usage Metrics
     , txns AS chain_txns
     , dau AS chain_dau
@@ -93,28 +101,40 @@ select
     , solana_dex_volumes.dex_volumes as chain_spot_volume
     , case
         when (gas - base_fee_native) < 0.00001 then 0 else (gas - base_fee_native)
-    end as priority_fee_native
+    end as priority_fees_native
     , case
         when (gas_usd - base_fee_native * price ) < 0.001 then 0 else (gas_usd - base_fee_native * price )
-    end as priority_fee
+    end as priority_fees
+
     -- Cashflow Metrics
     , gas_usd + vote_tx_fee_native * price as chain_fees
-    , gas + vote_tx_fee_native as ecosystem_revenue_native
-    , gas_usd + vote_tx_fee_native * price as ecosystem_revenue
-    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, ((base_fee_native + vote_tx_fee_native) * .5) + priority_fee_native) as validator_fee_allocation_native
-    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, ((base_fee_native * price  + vote_tx_fee_native * price) * .5) + priority_fee) as validator_fee_allocation
+    , gas + vote_tx_fee_native as fees_native
+    , vote_tx_fee_native * price + gas_usd as fees
+    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, ((base_fee_native + vote_tx_fee_native) * .5) + priority_fees_native) as validator_fee_allocation_native
+    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, ((base_fee_native * price  + vote_tx_fee_native * price) * .5) + priority_fees) as validator_fee_allocation
     , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as burned_fee_allocation_native
     , IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee_native * price  + vote_tx_fee_native * price) * .5) as burned_fee_allocation
     , base_fee_native
     , base_fee_native * price AS base_fee
     , vote_tx_fee_native
     , vote_tx_fee_native * price AS vote_tx_fee
-    , chain_fees + jito_tips.tip_fees as rev -- Blockworks' REV
+    , chain_fees + COALESCE(jito_tips.tip_fees, 0) as rev -- Blockworks' REV
+    
+    -- TEA 
+    , coalesce(rev, 0) + coalesce(settlement_volume, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
+
+    -- Financial Statement Metrics
+    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as revenue_native
+    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee_native * price  + vote_tx_fee_native * price) * .5) as revenue
+    , issuance * price as token_incentives
+    , revenue - token_incentives as earnings
+    
     -- Supply Metrics
     , issuance AS gross_emissions_native
     , issuance * price AS gross_emissions
     , issued_supply as issued_supply_native
     , circulating_supply as circulating_supply_native
+
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -152,4 +172,5 @@ left join rolling_metrics on fundamental_usage.date = rolling_metrics.date
 left join solana_dex_volumes on fundamental_usage.date = solana_dex_volumes.date
 left join jito_tips on fundamental_usage.date = jito_tips.date
 left join supply_data on fundamental_usage.date = supply_data.date
+left join application_fees on fundamental_usage.date = application_fees.date
 where fundamental_usage.date < to_date(sysdate())

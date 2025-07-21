@@ -72,6 +72,12 @@ column_definitions:
     name: chain_wau
     description: "Weekly unique users on a chain"
 
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+    tags:
+      - artemis_gaap
+
   earnings: &earnings
     name: earnings
     description: "The total earnings generated to tokenholders defined as revenue less expenses"
@@ -92,6 +98,12 @@ column_definitions:
     name: high_sleep_users
     description: "The number of high sleep users on a chain"
 
+  issued_supply_native: &issued_supply_native
+    name: issued_supply_native
+    description: "The issued supply of a token, equal to the total supply minus foundation or DAO held tokens."
+    tags:
+      - artemis_gaap
+
   low_sleep_users: &low_sleep_users
     name: low_sleep_users
     description: "The number of low sleep users on a chain"
@@ -99,6 +111,12 @@ column_definitions:
   market_cap: &market_cap
     name: market_cap
     description: "The market cap of a token in USD"
+    tags:
+      - artemis_gaap
+
+  max_supply_native: &max_supply_native
+    name: max_supply_native
+    description: "The maximum supply of a token, including any uncreated tokens, unvested tokens, foundation or DAO held tokens, and burned tokens."
     tags:
       - artemis_gaap
 
@@ -222,6 +240,16 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  total_economic_activity: &total_economic_activity
+    name: total_economic_activity
+    description: "The total value of all economic activity on a chain"
+
+  total_supply_native: &total_supply_native
+    name: total_supply_native
+    description: "The total supply of a token, equal to the sum of all tokens created minus the sum of all tokens destroyed."
+    tags:
+      - artemis_gaap
+
   tvl: &tvl
     name: tvl
     description: "The total value locked in a protocol"
@@ -257,7 +285,6 @@ models:
       - *artemis_stablecoin_transfer_volume
       - *p2p_stablecoin_transfer_volume
       - *stablecoin_transfer_volume
-
   - name: ez_tron_metrics_by_category_v2
     description: "This table stores metrics for the TRON protocol"
     columns:
@@ -267,7 +294,6 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
   - name: ez_tron_metrics
     description: "This table stores metrics for the TRON protocol"
     columns:
@@ -285,10 +311,13 @@ models:
       - *chain_spot_volume
       - *chain_txns
       - *chain_wau
+      - *circulating_supply_native
       - *earnings
       - *fdmc
       - *fees
+      - *issued_supply_native
       - *market_cap
+      - *max_supply_native
       - *new_users
       - *non_p2p_stablecoin_transfer_volume
       - *p2p_native_transfer_volume
@@ -310,12 +339,13 @@ models:
       - *stablecoin_transfer_volume
       - *stablecoin_txns
       - *token_incentives
+      - *total_economic_activity
+      - *total_supply_native
       - *tvl
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-
   - name: ez_tron_metrics_by_subcategory
     description: "This table stores metrics for the TRON protocol"
     columns:
@@ -325,7 +355,6 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
   - name: ez_tron_metrics_by_application_v2
     description: "This table stores metrics for the TRON protocol"
     columns:
@@ -335,4 +364,3 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-

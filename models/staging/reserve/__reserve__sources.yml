@@ -7,3 +7,8 @@ sources:
       - name: raw_reserve_dau
       - name: raw_reserve_rtoken_market_cap
       - name: raw_reserve_protocol_revenue
+  - name: MANUAL_STATIC_TABLES
+    schema: PROD
+    database: pc_dbt_db
+    tables:
+      - name: reserve_daily_supply_data

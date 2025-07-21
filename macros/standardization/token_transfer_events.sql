@@ -66,5 +66,4 @@ left join prices
     and lower(token_transfers.contract_address) = lower(prices.contract_address)
 left join contract_addresses 
     on lower(token_transfers.contract_address) = lower(contract_addresses.contract_address)
-where amount_raw > 0
 {% endmacro %}
