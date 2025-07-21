@@ -28,9 +28,13 @@ with
         select date, volume_usd as dex_volumes
         from {{ ref("fact_near_dex_volumes") }}
     ),
-    total_economic_activity as (
-        select date, total_economic_activity
-        from NEAR.PROD_RAW.EZ_NEAR_TEA
+    application_fees AS (
+    SELECT 
+        DATE_TRUNC(DAY, date) AS date 
+        , SUM(COALESCE(fees, 0)) AS application_fees
+    FROM {{ ref("ez_protocol_datahub_by_chain") }}
+    WHERE chain = 'near'
+    GROUP BY 1
     )
 
 select
@@ -63,7 +67,6 @@ select
     , new_users
     , low_sleep_users
     , high_sleep_users
-    , total_economic_activity
     -- Cashflow Metrics
     , case when fees is null then fees_native * price else fees end as chain_fees
     , fees_native as ecosystem_revenue_native
@@ -90,6 +93,7 @@ select
     , avg_cost_per_mib
     , submitters
     , coalesce(near_dex_volumes.dex_volumes, 0) as chain_spot_volume
+    , coalesce(chain_fees, 0) + coalesce(blob_fees, 0) + coalesce(p2p_transfer_volume, 0) + coalesce(near_dex_volumes.dex_volumes, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -100,5 +104,5 @@ left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join da_metrics on fundamental_data.date = da_metrics.date
 left join near_dex_volumes on fundamental_data.date = near_dex_volumes.date
-left join total_economic_activity on fundamental_data.date = total_economic_activity.date
+left join application_fees on fundamental_data.date = application_fees.date
 where fundamental_data.date < to_date(sysdate())
