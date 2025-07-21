@@ -10,10 +10,11 @@
         unique_key="date",
         on_schema_change="append_new_columns",
         merge_exclude_columns=["created_on"],
-        -- merge_update_columns=["modified_on", <new_columns>], -- can specify specific columns to backfill but going to be manual work
-        full_refresh=false
+        full_refresh=false,
     )
 }}
+
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
 
 {% set backfill_date = None %}
 

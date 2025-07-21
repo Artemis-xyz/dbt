@@ -1,12 +1,21 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='AERODROME',
         database='aerodrome',
         schema='core',
-        alias='ez_metrics'
+        alias='ez_metrics',
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
+
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+
+{% set backfill_date = None %}
 
 with swap_metrics as (
     SELECT
@@ -16,6 +25,13 @@ with swap_metrics as (
         SUM(amount_in_usd) as daily_volume_usd,
         SUM(fee_usd) as daily_fees_usd
     FROM {{ ref('fact_aerodrome_swaps') }}
+    {% if is_incremental() %}
+        {% if backfill_date %}
+            where block_timestamp::date >= '{{ backfill_date }}'
+        {% else %}
+            where block_timestamp::date > (select max(this.date) from {{ this }} as this)
+        {% endif %}
+    {% endif %}
     GROUP BY 1
 )
 , tvl_metrics as (
@@ -23,6 +39,13 @@ with swap_metrics as (
         date,
         SUM(token_balance_usd) as tvl_usd
     FROM {{ ref('fact_aerodrome_tvl') }}
+    {% if is_incremental() %}
+        {% if backfill_date %}
+            where date >= '{{ backfill_date }}'
+        {% else %}
+            where date > (select max(this.date) from {{ this }} as this)
+        {% endif %}
+    {% endif %}
     GROUP BY date
 )
 , market_metrics as (
@@ -39,39 +62,56 @@ with swap_metrics as (
         buybacks_native, 
         buybacks
     FROM {{ ref('fact_aerodrome_supply_data') }}
+    {% if is_incremental() %}
+        {% if backfill_date %}
+            where date >= '{{ backfill_date }}'
+        {% else %}
+            where date > (select max(this.date) from {{ this }} as this)
+        {% endif %}
+    {% endif %}
 )
 , pools_metrics as (
     SELECT
         date,
         cumulative_count
     FROM {{ ref('fact_aerodrome_pools') }}
+    {% if is_incremental() %}
+        {% if backfill_date %}
+            where date >= '{{ backfill_date }}'
+        {% else %}
+            where date > (select max(this.date) from {{ this }} as this)
+        {% endif %}
+    {% endif %}
 )
 , token_incentives as (
         select
             day as date,
             usd_value as token_incentives
         from {{ref('fact_aerodrome_token_incentives')}}
+    {% if is_incremental() %}
+        {% if backfill_date %}
+            where day >= '{{ backfill_date }}'
+        {% else %}
+            where day > (select max(this.date) from {{ this }} as this)
+        {% endif %}
+    {% endif %}
 )
 , date_spine as (
     SELECT
         ds.date
     FROM {{ ref('dim_date_spine') }} ds
-    WHERE ds.date
-        between (
-                    select min(min_date) from (
-                        select min(date) as min_date from swap_metrics
-                        UNION ALL
-                        select min(date) as min_date from tvl_metrics
-                        UNION ALL
-                        select min(date) as min_date from market_metrics
-                        UNION ALL
-                        select min(date) as min_date from supply_metrics
-                        UNION ALL
-                        select min(date) as min_date from pools_metrics
-                    )
-                )
-        and to_date(sysdate())
+    WHERE ds.date >= (
+        select MIN(
+            {% if backfill_date %}
+                '{{ backfill_date }}'
+            {% else %}
+                (SELECT MAX(this.date) FROM {{ this }} as this)
+            {% endif %}
+        )
+    )
+        and ds.date < to_date(sysdate())
 )
+
 SELECT
     ds.date
 
@@ -119,6 +159,9 @@ SELECT
     , coalesce(pm.cumulative_count, 0) as total_pools
     , coalesce(ti.token_incentives, 0) as token_incentives
 
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM date_spine ds
 LEFT JOIN swap_metrics sm using (date)
 LEFT JOIN tvl_metrics tm using (date)
