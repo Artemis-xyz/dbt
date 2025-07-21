@@ -36,8 +36,7 @@ with
     , aave_outstanding_supply_net_deposits_deposit_revenue as (
         select
             date
-            , chain
-            , token_address
+            , symbol
             , sum(borrows) as outstanding_supply_nominal
             , sum(borrows_usd) as outstanding_supply
             , sum(supply) as net_deposits_nominal
@@ -50,8 +49,13 @@ with
             , sum(interest_rate_fees_nominal) as interest_rate_fees_nominal
             , sum(reserve_factor_revenue) as reserve_factor_revenue
             , sum(reserve_factor_revenue_nominal) as reserve_factor_revenue_nominal
+            , avg(liquidity_apy) as lend_apy
+            , avg(variable_borrow_apy) as borrow_apy
         from deposits_borrows_lender_revenue
-        group by 1, 2, 3
+        left join {{ ref("dim_coingecko_token_map") }} cg 
+            on lower(cg.contract_address) = lower(deposits_borrows_lender_revenue.token_address) 
+            and lower(cg.chain) = lower(deposits_borrows_lender_revenue.chain)
+        group by 1, 2
     )
     , flashloan_fees as (
         select * from {{ref("fact_aave_v3_arbitrum_flashloan_fees")}}
@@ -77,12 +81,14 @@ with
     , aave_flashloan_fees as (
         select 
             date
-            , chain
-            , token_address
+            , symbol
             , sum(amount_usd) as flashloan_fees
             , sum(amount_nominal) as flashloan_fees_nominal
         from flashloan_fees
-        group by 1, 2, 3
+        left join {{ ref("dim_coingecko_token_map") }} cg 
+            on lower(cg.contract_address) = lower(flashloan_fees.token_address) 
+            and lower(cg.chain) = lower(flashloan_fees.chain)
+        group by 1, 2
     )
     , liquidation_revenue as (
         select * from {{ref("fact_aave_v3_arbitrum_liquidation_revenue")}}
@@ -110,12 +116,11 @@ with
     , aave_liquidation_supply_side_revenue as (
         select 
             date
-            , chain
-            , 'USD' as token_address
+            , 'USD' as symbol
             , sum(liquidation_revenue) as liquidation_revenue
             , null as liquidation_revenue_nominal
         from liquidation_revenue
-        group by 1, 2, 3
+        group by 1, 2
     )
     , ecosystem_incentives as (
         select * from {{ref("fact_aave_v3_arbitrum_ecosystem_incentives")}}
@@ -144,12 +149,14 @@ with
     , aave_ecosystem_incentives as (
         select 
             date
-            , chain
-            , token_address
+            , symbol
             , sum(amount_usd) as ecosystem_incentives
             , sum(amount_nominal) as ecosystem_incentives_nominal
         from ecosystem_incentives
-        group by date, chain, token_address
+        left join {{ ref("dim_coingecko_token_map") }} cg 
+            on lower(cg.contract_address) = lower(ecosystem_incentives.token_address) 
+            and lower(cg.chain) = lower(ecosystem_incentives.chain)
+        group by 1, 2
     )
     , aave_treasury as (
         select * from {{ref("fact_aave_aavura_treasury")}}
@@ -163,14 +170,16 @@ with
     , treasury as (
         select
             date
-            , chain
-            , token_address
+            , symbol
             , sum(amount_usd) as treasury_value
             , sum(amount_nominal) as treasury_value_nominal
             , sum(case when token_address = lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') then amount_usd else 0 end) as treasury_value_native
             , sum(case when token_address = lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') then amount_nominal else 0 end) as treasury_value_native_nominal
         from aave_treasury
-        group by date, chain, token_address
+        left join {{ ref("dim_coingecko_token_map") }} cg 
+            on lower(cg.contract_address) = lower(aave_treasury.token_address) 
+            and lower(cg.chain) = lower(aave_treasury.chain)
+        group by 1, 2
     )
     , aave_net_treasury as (
         select * from {{ref("fact_aave_v2_collector")}}
@@ -180,47 +189,54 @@ with
     , net_treasury_data as (
         select
             date
-            , chain
-            , token_address
+            , symbol
             , sum(amount_usd) as net_treasury_value
             , sum(amount_nominal) as net_treasury_value_nominal
         from aave_net_treasury
-        group by 1, 2, 3
+        left join {{ ref("dim_coingecko_token_map") }} cg 
+            on lower(cg.contract_address) = lower(aave_net_treasury.token_address) 
+            and lower(cg.chain) = lower(aave_net_treasury.chain)
+        group by 1, 2
     )
     , dao_trading_revenue as (
         select
             date
-            , chain
-            , token_address
+            , symbol
             , sum(trading_fees_usd) as trading_fees
             , sum(trading_fees_nominal) as trading_fees_nominal
-        from {{ ref("fact_aave_dao_balancer_trading_fees")}}
-        group by 1, 2, 3
+        from {{ ref("fact_aave_dao_balancer_trading_fees")}} t1
+        left join {{ ref("dim_coingecko_token_map") }} cg 
+            on lower(cg.contract_address) = lower(t1.token_address) 
+            and lower(cg.chain) = lower(t1.chain)
+        group by 1, 2
     )
     , safety_incentives as (
         select
             date
-            , chain
-            , token_address
+            , symbol
             , sum(amount_usd) as safety_incentives
             , sum(amount_nominal) as safety_incentives_nominal
-        from {{ ref("fact_aave_dao_safety_incentives")}}
-        group by 1, 2, 3
+        from {{ ref("fact_aave_dao_safety_incentives")}} t1
+        left join {{ ref("dim_coingecko_token_map") }} cg 
+            on lower(cg.contract_address) = lower(t1.token_address) 
+            and lower(cg.chain) = lower(t1.chain)
+        group by 1, 2
     )
     , gho_treasury_revenue as (
         select
             date
-            , chain
-            , token_address
+            , symbol
             , sum(amount_usd) as gho_revenue
             , sum(amount_nominal) as gho_revenue_nominal
-        from {{ ref("fact_aave_gho_treasury_revenue")}}
-        group by 1, 2, 3
+        from {{ ref("fact_aave_gho_treasury_revenue")}} t1
+        left join {{ ref("dim_coingecko_token_map") }} cg 
+            on lower(cg.contract_address) = lower(t1.token_address) 
+            and lower(cg.chain) = lower(t1.chain)
+        group by 1, 2
     )
 select
     aave_outstanding_supply_net_deposits_deposit_revenue.date
-    , chain
-    , token_address
+    , upper(symbol) as token
 
     , coalesce(interest_rate_fees_nominal, 0) as interest_rate_fees_nominal
     , coalesce(flashloan_fees_nominal, 0) as flashloan_fees_nominal
@@ -327,13 +343,15 @@ select
     , net_treasury_value as net_treasury
     , net_treasury_value_nominal as net_treasury_native
 
+    , lend_apy
+    , borrow_apy
 from aave_outstanding_supply_net_deposits_deposit_revenue
-left join aave_flashloan_fees using (date, chain, token_address)
-left join aave_liquidation_supply_side_revenue using (date, chain, token_address)
-left join aave_ecosystem_incentives using (date, chain, token_address)
-left join dao_trading_revenue using (date, chain, token_address)
-left join safety_incentives using (date, chain, token_address)
-left join gho_treasury_revenue using (date, chain, token_address)
-left join treasury using (date, chain, token_address)
-left join net_treasury_data using (date, chain, token_address)
+left join aave_flashloan_fees using (date, symbol)
+left join aave_liquidation_supply_side_revenue using (date, symbol)
+left join aave_ecosystem_incentives using (date, symbol)
+left join dao_trading_revenue using (date, symbol)
+left join safety_incentives using (date, symbol)
+left join gho_treasury_revenue using (date, symbol)
+left join treasury using (date, symbol)
+left join net_treasury_data using (date, symbol)
 where aave_outstanding_supply_net_deposits_deposit_revenue.date < to_date(sysdate())
