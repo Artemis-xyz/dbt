@@ -7,6 +7,8 @@
 }}
 
 {% set token_addresses = var('token_addresses_list', []) %}
+{% set start_date = var('start_date', '') %}
+{% set end_date = var('end_date', '') %}
 
 WITH 
 {% if token_addresses | length > 0 %}
@@ -31,11 +33,18 @@ address_balances AS (
         ON ab.address = all_addresses.address
     {% endif %}
     WHERE ab.block_timestamp < to_date(sysdate())
-    {% if is_incremental() %}
+    {% if start_date %}
+        AND ab.block_timestamp >= to_date('{{ start_date }}')
+        {% if end_date %}
+            AND ab.block_timestamp <= to_date('{{ end_date }}')
+        {% else %}
+            AND ab.block_timestamp <= dateadd(day, 30, to_date('{{ start_date }}'))
+        {% endif %}
+    {% elif is_incremental() %}
         AND ab.block_timestamp > dateadd(day, -3, to_date(sysdate()))
     {% endif %}
 ),
-{% if is_incremental() %}
+{% if is_incremental() and not start_date %}
     --Get the most recent data in the existing table
     stale_balances as (
         select 
@@ -59,7 +68,7 @@ heal_balance_table as (
         , balance_raw
         , balance_native
     from address_balances
-    {% if is_incremental() %}
+    {% if is_incremental() and not start_date %}
         union
         select 
             block_timestamp
