@@ -18,21 +18,20 @@ with date_spine as (
     select
         date,
         'pumpswap' as version,
-        spot_dau,
-        spot_txns,
-        spot_volume,
-        spot_fees as spot_protocol_fees,
-        spot_lp_fees
+        coalesce(spot_dau, 0) as spot_dau,
+        coalesce(spot_txns, 0) as spot_txns,
+        coalesce(spot_volume, 0) as spot_volume,
+        coalesce(spot_fees, 0) as spot_protocol_fees,
+        coalesce(spot_lp_fees, 0) as spot_lp_fees
     from {{ ref('fact_pumpswap_metrics') }}
-    where date >= '2025-03-20'
 )
 , pumpfun_metrics as (
     select
         date,
-        launchpad_dau,
-        launchpad_txns,
-        launchpad_volume,
-        launchpad_fees
+        coalesce(launchpad_dau, 0) as launchpad_dau,
+        coalesce(launchpad_txns, 0) as launchpad_txns,
+        coalesce(launchpad_volume, 0) as launchpad_volume,
+        coalesce(launchpad_fees, 0) as launchpad_fees
     from {{ ref('fact_pumpfun_metrics') }}
 )
 
@@ -62,8 +61,8 @@ select
     , pumpswap_metrics.spot_protocol_fees
     , pumpswap_metrics.spot_lp_fees
     , pumpswap_metrics.spot_protocol_fees + pumpswap_metrics.spot_lp_fees as spot_fees
-    , pumpfun_metrics.launchpad_fees
-    , pumpswap_metrics.spot_protocol_fees + pumpswap_metrics.spot_lp_fees + pumpfun_metrics.launchpad_fees as fees
+    , pumpfun_metrics.launchpad_fees as launchpad_fees
+    , pumpfun_metrics.launchpad_fees + coalesce(pumpswap_metrics.spot_protocol_fees, 0) + coalesce(pumpswap_metrics.spot_lp_fees, 0) as fees 
 
     -- Financial Statement Metrics
     , 0 as revenue

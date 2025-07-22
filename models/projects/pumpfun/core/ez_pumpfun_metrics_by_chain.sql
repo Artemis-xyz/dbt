@@ -54,7 +54,7 @@ select
     , pumpswap_metrics.spot_lp_fees
     , pumpswap_metrics.spot_protocol_fees + pumpswap_metrics.spot_lp_fees as spot_fees
     , pumpfun_metrics.launchpad_fees
-    , pumpswap_metrics.spot_protocol_fees + pumpswap_metrics.spot_lp_fees + pumpfun_metrics.launchpad_fees as fees
+    , pumpfun_metrics.launchpad_fees + coalesce(pumpswap_metrics.spot_protocol_fees, 0) + coalesce(pumpswap_metrics.spot_lp_fees, 0) as fees 
 
     -- Financial Statement Metrics
     , 0 as revenue
