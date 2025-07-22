@@ -63,6 +63,7 @@ with trading_volume_data as (
         , foundation_owned
         , issued_supply
         , unvested_tokens
+        , net_supply_change_native
         , circulating_supply
     from {{ref('fact_hyperliquid_supply_data')}}
 )
@@ -173,7 +174,7 @@ select
     , coalesce(emissions_native, 0) as emissions_native
     , coalesce(premine_unlocks_native, 0) as premine_unlocks_native
     , coalesce(daily_burns_native, 0) as burns_native
-    , coalesce(emissions_native, 0) + coalesce(premine_unlocks_native, 0) - coalesce(burns_native, 0) as net_supply_change_native
+    , coalesce(hyperliquid_api_supply_data.net_supply_change_native, 0) as net_supply_change_native
     , coalesce(hyperliquid_api_supply_data.total_supply, 0) as total_supply_native
     , coalesce(hyperliquid_api_supply_data.issued_supply, 0) as issued_supply_native
     , coalesce(hyperliquid_api_supply_data.circulating_supply, 0) as circulating_supply_native
