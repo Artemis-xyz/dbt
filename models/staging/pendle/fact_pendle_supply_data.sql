@@ -60,7 +60,7 @@ SELECT
     , coalesce(ve_pendle_balance, 0) as pendle_locked
 
     , sum(minted_amount) over (order by date asc) as total_supply_native
-    , total_unlock_allocation + emissions_native_cumulative - pendle_locked + foundation_emitted as issued_supply_native
+    , total_unlock_allocation + emissions_native_cumulative + foundation_emitted as issued_supply_native
     , unlocks_native_cumulative + emissions_native_cumulative - pendle_locked + foundation_emitted as circulating_supply_native
 FROM date_spine ds
 LEFT JOIN {{ source("MANUAL_STATIC_TABLES", "pendle_unlocks_seed") }} using(date)
