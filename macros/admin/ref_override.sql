@@ -39,7 +39,6 @@
         -- Return the below as a relation
         {% set relation = api.Relation.create(database=prod_database, schema=prod_schema, identifier=prod_model_name) %}
         {{ return(relation) }}
-        -- {{ return(prod_database.upper() ~ '.' ~ prod_schema.upper() ~ '.' ~ prod_model_name.upper()) }}
     {%- endif -%}
   {%- else -%}
     {{ return(builtins.ref(model_name)) }}
