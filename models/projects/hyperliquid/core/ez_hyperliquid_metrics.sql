@@ -56,15 +56,15 @@ with trading_volume_data as (
 , hyperliquid_api_supply_data as (
     select 
         date
-        , max_supply
+        , max_supply_native
         , uncreated_tokens
-        , total_supply
+        , total_supply_native
         , burn_tokens
-        , foundation_owned
-        , issued_supply
+        , foundation_owned_balances
+        , issued_supply_native
         , unvested_tokens
         , net_supply_change_native
-        , circulating_supply
+        , circulating_supply_native
     from {{ref('fact_hyperliquid_supply_data')}}
 )
 , perps_tvl_data as (
@@ -174,10 +174,11 @@ select
     , coalesce(emissions_native, 0) as emissions_native
     , coalesce(premine_unlocks_native, 0) as premine_unlocks_native
     , coalesce(daily_burns_native, 0) as burns_native
+    , coalesce(hyperliquid_api_supply_data.max_supply_native, 0) as max_supply_native
+    , coalesce(hyperliquid_api_supply_data.total_supply_native, 0) as total_supply_native
+    , coalesce(hyperliquid_api_supply_data.issued_supply_native, 0) as issued_supply_native
     , coalesce(hyperliquid_api_supply_data.net_supply_change_native, 0) as net_supply_change_native
-    , coalesce(hyperliquid_api_supply_data.total_supply, 0) as total_supply_native
-    , coalesce(hyperliquid_api_supply_data.issued_supply, 0) as issued_supply_native
-    , coalesce(hyperliquid_api_supply_data.circulating_supply, 0) as circulating_supply_native
+    , coalesce(hyperliquid_api_supply_data.circulating_supply_native, 0) as circulating_supply_native
     --, sum(coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(burns_native, 0)) over (order by daily_supply_data.date) as circulating_supply_native
 
 from date_spine

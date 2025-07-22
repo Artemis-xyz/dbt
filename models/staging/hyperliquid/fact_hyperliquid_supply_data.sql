@@ -76,6 +76,13 @@ with hyperliquid_genesis as (
     group by date
 )
 
+, assistance_fund as (
+    select
+        date
+        , balance
+    from {{ ref('fact_hyperliquid_assistance_fund_balance') }}
+)
+
 , burn_tokens as (
     select
         date
@@ -98,17 +105,18 @@ with hyperliquid_genesis as (
 , hyperliquid_supply_data as (
     select
         metrics.date
-        , metrics.max_supply
+        , metrics.max_supply as max_supply_native
         , metrics.future_emissions as uncreated_tokens
-        , (metrics.max_supply - metrics.future_emissions) as total_supply
+        , (metrics.max_supply - metrics.future_emissions) - cumulative_burns.burn_tokens as total_supply_native
         , cumulative_burns.burn_tokens
-        , foundation.foundation_owned
-        , (metrics.max_supply - metrics.future_emissions) - foundation.foundation_owned - cumulative_burns.burn_tokens as issued_supply
+        , foundation.foundation_owned + assistance.balance as foundation_owned_balances
+        , total_supply_native - foundation_owned_balances as issued_supply_native
         , unvested.unvested_tokens
-        , (metrics.max_supply - metrics.future_emissions) - foundation.foundation_owned - cumulative_burns.burn_tokens - unvested.unvested_tokens as circulating_supply
+        , issued_supply_native - unvested.unvested_tokens as circulating_supply_native
     from hyperliquid_metrics metrics
     left join cumulative_burn_tokens cumulative_burns on metrics.date = cumulative_burns.date
     left join foundation_owned foundation on metrics.date = foundation.date
+    left join assistance_fund assistance on metrics.date = assistance.date
     left join unvested_tokens unvested on metrics.date = unvested.date
 )
 
@@ -123,14 +131,14 @@ with hyperliquid_genesis as (
 , date_spine_with_supply_data as (
     select
         spine.date
-        , supply.max_supply
+        , supply.max_supply_native
         , supply.uncreated_tokens
-        , supply.total_supply
+        , supply.total_supply_native
         , supply.burn_tokens
-        , supply.foundation_owned
-        , supply.issued_supply
+        , supply.foundation_owned_balances
+        , supply.issued_supply_native
         , supply.unvested_tokens
-        , supply.circulating_supply
+        , supply.circulating_supply_native
     from date_spine spine
     left join hyperliquid_supply_data supply on spine.date = supply.date
 )
@@ -144,14 +152,14 @@ with hyperliquid_genesis as (
 , with_backfill as (
   select
     sj.date,
-    case when sj.date < '2025-06-16' then snap.max_supply else sj.max_supply end as max_supply,
+    case when sj.date < '2025-06-16' then snap.max_supply_native else sj.max_supply_native end as max_supply_native,
     case when sj.date < '2025-06-16' then snap.uncreated_tokens else sj.uncreated_tokens end as uncreated_tokens,
-    case when sj.date < '2025-06-16' then snap.total_supply else sj.total_supply end as total_supply,
+    case when sj.date < '2025-06-16' then snap.total_supply_native else sj.total_supply_native end as total_supply_native,
     case when sj.date < '2025-06-16' then snap.burn_tokens else sj.burn_tokens end as burn_tokens,
-    case when sj.date < '2025-06-16' then snap.foundation_owned else sj.foundation_owned end as foundation_owned,
-    case when sj.date < '2025-06-16' then snap.issued_supply else sj.issued_supply end as issued_supply,
+    case when sj.date < '2025-06-16' then snap.foundation_owned_balances else sj.foundation_owned_balances end as foundation_owned_balances,
+    case when sj.date < '2025-06-16' then snap.issued_supply_native else sj.issued_supply_native end as issued_supply_native,
     case when sj.date < '2025-06-16' then snap.unvested_tokens else sj.unvested_tokens end as unvested_tokens,
-    case when sj.date < '2025-06-16' then snap.circulating_supply else sj.circulating_supply end as circulating_supply
+    case when sj.date < '2025-06-16' then snap.circulating_supply_native else sj.circulating_supply_native end as circulating_supply_native
   from date_spine_with_supply_data sj
   cross join snapshot_jun16 snap
 )
@@ -159,34 +167,34 @@ with hyperliquid_genesis as (
 , final_backfill as (
     select
         date
-        , last_value(max_supply ignore nulls) over (order by date rows between unbounded preceding and current row) as max_supply
+        , last_value(max_supply_native ignore nulls) over (order by date rows between unbounded preceding and current row) as max_supply_native
         , last_value(uncreated_tokens ignore nulls) over (order by date rows between unbounded preceding and current row) as uncreated_tokens
-        , last_value(total_supply ignore nulls) over (order by date rows between unbounded preceding and current row) as total_supply
+        , last_value(total_supply_native ignore nulls) over (order by date rows between unbounded preceding and current row) as total_supply_native
         , last_value(burn_tokens ignore nulls) over (order by date rows between unbounded preceding and current row) as burn_tokens
-        , last_value(foundation_owned ignore nulls) over (order by date rows between unbounded preceding and current row) as foundation_owned
-        , last_value(issued_supply ignore nulls) over (order by date rows between unbounded preceding and current row) as issued_supply
+        , last_value(foundation_owned_balances ignore nulls) over (order by date rows between unbounded preceding and current row) as foundation_owned_balances
+        , last_value(issued_supply_native ignore nulls) over (order by date rows between unbounded preceding and current row) as issued_supply_native
         , last_value(unvested_tokens ignore nulls) over (order by date rows between unbounded preceding and current row) as unvested_tokens
-        , last_value(circulating_supply ignore nulls) over (order by date rows between unbounded preceding and current row) as circulating_supply
+        , last_value(circulating_supply_native ignore nulls) over (order by date rows between unbounded preceding and current row) as circulating_supply_native
     from with_backfill
 )
 
 , final_with_net_change as (
     select
         *
-        , circulating_supply - lag(circulating_supply) over (order by date) as net_supply_change_native
+        , circulating_supply_native - lag(circulating_supply_native) over (order by date) as net_supply_change_native
     from final_backfill
 )
 
 select
     date
-    , max_supply
+    , max_supply_native
     , uncreated_tokens
-    , total_supply
+    , total_supply_native
     , burn_tokens
-    , foundation_owned
-    , issued_supply
+    , foundation_owned_balances
+    , issued_supply_native
     , unvested_tokens
     , net_supply_change_native
-    , circulating_supply
+    , circulating_supply_native
 from final_with_net_change
 order by date desc
