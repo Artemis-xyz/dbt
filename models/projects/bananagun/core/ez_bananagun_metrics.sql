@@ -35,40 +35,38 @@ WITH metrics AS (
 
 SELECT
     metrics.date
-    , coalesce(metrics.trading_volume, 0) as trading_volume
-    , coalesce(metrics.dau, 0) as dau
-    , coalesce(metrics.daily_txns, 0) as daily_txns
-    , coalesce(metrics.fees_usd, 0) as fees
-    , coalesce(metrics.fees_usd, 0) * 0.4 AS supply_side_fees
-    , coalesce(metrics.fees_usd, 0) * 0.6 + coalesce(coin_metrics.burns_usd, 0) AS revenue
-    , coalesce(coin_metrics.burns, 0) AS burns_native
     
     --Standardized Metrics
 
-    -- Token Metrics
+    -- Market Data
     , coalesce(market_data.price, 0) AS price
     , coalesce(market_data.market_cap, 0) AS market_cap
     , coalesce(market_data.fdmc, 0) AS fdmc
     , coalesce(market_data.token_volume, 0) AS token_volume
 
-    -- Aggregator Metrics
+    -- Usage Data
     , coalesce(metrics.dau, 0) AS aggregator_dau
+    , coalesce(metrics.dau, 0) AS dau
     , coalesce(metrics.daily_txns, 0) AS aggregator_txns
-    , coalesce(metrics.fees_usd, 0) AS aggregator_revenue
+    , coalesce(metrics.daily_txns, 0) AS txns
     , coalesce(metrics.trading_volume, 0) AS aggregator_volume
+    , coalesce(metrics.trading_volume, 0) AS volume
 
-    -- Cash Flow Metrics
-    , coalesce(metrics.fees_usd, 0) AS ecosystem_revenue
+    -- Fee Data 
+    , coalesce(metrics.fees_usd, 0) AS fees
     , coalesce(metrics.fees_usd, 0) * 0.6 AS treasury_fee_allocation
     , coalesce(metrics.fees_usd, 0) * 0.4 AS token_fee_allocation
-    , coalesce(coin_metrics.burns, 0) AS burned_fee_allocation_native
     , coalesce(coin_metrics.burns_usd, 0) AS burned_fee_allocation
+
+    -- Financial Statements
+    , coalesce(metrics.fees_usd, 0) * 0.4 + coalesce(coin_metrics.burns_usd, 0) AS revenue
 
     -- Supply Metrics
     , coalesce(coin_metrics.circulating_supply, 0) AS circulating_supply_native
     , coalesce(coin_metrics.gross_emissions, 0) AS gross_emissions_native
     , coalesce(coin_metrics.net_supply_change, 0) AS net_supply_change_native
     , coalesce(coin_metrics.pre_mine_unlocks, 0) AS premine_unlocks_native
+    , coalesce(coin_metrics.burns, 0) AS burns_native
 
     -- Turnover Metrics
     , coalesce(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
