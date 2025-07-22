@@ -115,11 +115,11 @@ SELECT
     , market_metrics.token_turnover_fdv
 
     --FXS Token Supply Data
-    , fxs_daily_supply_data.emissions_native as fxs_emissions_native
-    , fxs_daily_supply_data.total_premine_unlocks as fxs_premine_unlocks_native
-    , fxs_daily_supply_data.burns_native as fxs_burns_native
-    , fxs_daily_supply_data.net_supply_change_native as fxs_net_supply_change_native
-    , fxs_daily_supply_data.total_circulating_supply as fxs_circulating_supply   
+    , fxs_daily_supply_data.emissions_native as emissions_native
+    , fxs_daily_supply_data.total_premine_unlocks as premine_unlocks_native
+    , fxs_daily_supply_data.burns_native as burns_native
+    , fxs_daily_supply_data.net_supply_change_native as net_supply_change_native
+    , fxs_daily_supply_data.total_circulating_supply as circulating_supply_native   
 
 from date_spine
 left join market_metrics using (date)

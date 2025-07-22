@@ -70,14 +70,9 @@ select
     'iotex' as chain
     , metrics.dau
     , metrics.txns
-    , metrics.fees
-    , metrics.total_supply_side_revenue
-    , metrics.primary_supply_side_revenue
-    , metrics.secondary_supply_side_revenue
-    , supply.burn_usd as revenue
+    
     , supply.mints_usd as gross_emissions
     , supply.mints as gross_emissions_native
-    , supply.circulating_supply as circulating_supply
     , supply.burn AS burned_fee_allocation_native
 
 
@@ -95,10 +90,11 @@ select
     , defillama_tvl.tvl as chain_tvl
 
     -- Cashflow Metrics
-    , metrics.fees AS ecosystem_revenue
+    , metrics.fees
     , metrics.primary_supply_side_revenue AS validator_fee_allocation
     , metrics.secondary_supply_side_revenue AS service_fee_allocation
     , supply.burn_usd AS burned_fee_allocation
+    , supply.burn_usd as revenue
 
     -- IOTX Token Supply Data
     , 0 as emissions_native
