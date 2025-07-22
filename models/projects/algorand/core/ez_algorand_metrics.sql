@@ -98,9 +98,6 @@ WITH
     )
 SELECT
     DATE(DATE_TRUNC('DAY', fundamental_data.date)) AS date
-    , fees_native
-    , rewards_algo
-    , rewards_algo * price AS rewards_usd
     
     -- Standardized Metrics
 
