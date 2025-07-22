@@ -28,7 +28,7 @@
                         ) then 0
                         else stablecoin_supply
                     end as stablecoin_supply
-                {% elif chain in ('solana', 'celo', 'ton', 'sui', 'polygon', 'avalanche', 'aptos', 'kaia') %}
+                {% elif chain in ('solana', 'celo', 'ton', 'sui', 'polygon', 'avalanche', 'aptos', 'kaia', 'katana') %}
                     , case
                         when 
                             lower(address) in (select lower(premint_address) from {{ref("fact_"~chain~"_stablecoin_premint_addresses")}}) then 0
@@ -191,7 +191,7 @@
                     else filtered_contracts.artemis_category_id 
                 end as artemis_category_id
                 , case 
-                    {% if chain not in ('solana', 'tron', 'near', 'ton', 'sui', 'ripple') %}
+                    {% if chain not in ('solana', 'near', 'ton', 'sui', 'ripple', 'hyperevm') %}
                         when 
                             from_address not in (select contract_address from {{ ref("dim_" ~ chain ~ "_contract_addresses")}}) 
                             then 1

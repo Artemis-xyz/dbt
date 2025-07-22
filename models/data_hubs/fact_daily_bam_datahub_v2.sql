@@ -24,7 +24,8 @@ with
             avg_gas_per_address,
             avg_gas_usd_per_address,
             rev,
-            rev_usd
+            rev_usd,
+            null as tvl
         from {{ ref("all_chains_gas_dau_txns_by_category_v2") }} as bam_by_category
         union
         select
@@ -49,7 +50,8 @@ with
             avg_gas_per_address,
             avg_gas_usd_per_address,
             rev,
-            rev_usd
+            rev_usd,
+            tvl
         from {{ ref("all_chains_gas_dau_txns_by_application") }} as bam_by_app
         where app is not null
         union
@@ -75,7 +77,8 @@ with
             null as avg_gas_per_address,
             null as avg_gas_usd_per_address,
             null as rev,
-            null as rev_usd
+            null as rev_usd,
+            null as tvl
         from {{ ref("all_chains_gas_dau_txns_by_chain") }} as bam_by_chain
     ),
     app_coingecko as (
@@ -127,6 +130,7 @@ select
     bam.avg_gas_usd_per_address,
     bam.rev,
     bam.rev_usd,
+    bam.tvl,
     concat(
         coalesce(
             app_coingecko.token_symbol,

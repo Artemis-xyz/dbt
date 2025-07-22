@@ -34,6 +34,14 @@ with fundamental_data as (
         floating_supply as circulating_supply_native,
     from {{ ref("fact_tron_issued_supply_and_float") }}
 )
+, application_fees AS (
+    SELECT 
+        DATE_TRUNC(DAY, date) AS date 
+        , SUM(COALESCE(fees, 0)) AS application_fees
+    FROM {{ ref("ez_protocol_datahub_by_chain") }}
+    WHERE chain = 'tron'
+    GROUP BY 1
+)
 
 select
     coalesce(
@@ -85,6 +93,9 @@ select
     , fees_native AS burned_fee_allocation_native
     , fees AS burned_fee_allocation
 
+    -- TEA
+    , coalesce(fees, 0) + coalesce(settlement_volume, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
+
     -- Financial Statement Metrics
     , fees as fees
     , burned_fee_allocation as revenue
@@ -130,4 +141,5 @@ left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join token_incentives on fundamental_data.date = token_incentives.date
 left join issued_supply_metrics on fundamental_data.date = issued_supply_metrics.date
+left join application_fees on fundamental_data.date = application_fees.date
 where fundamental_data.date < to_date(sysdate())

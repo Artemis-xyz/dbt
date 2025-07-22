@@ -254,6 +254,10 @@ column_definitions:
     name: sybil_users
     description: "The number of sybil users on a chain"
 
+  total_economic_activity: &total_economic_activity
+    name: total_economic_activity
+    description: "The total value of all economic activity on a chain"
+
   total_staked: &total_staked
     name: total_staked
     description: "The total amount of USD value staked on a chain"
@@ -315,7 +319,6 @@ models:
       - *artemis_stablecoin_transfer_volume
       - *p2p_stablecoin_transfer_volume
       - *stablecoin_transfer_volume
-
   - name: ez_avalanche_metrics_by_subcategory
     description: "This table stores metrics for the AVALANCHE protocol"
     columns:
@@ -325,7 +328,6 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
   - name: ez_avalanche_metrics_by_application_v2
     description: "This table stores metrics for the AVALANCHE protocol"
     columns:
@@ -335,7 +337,6 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
   - name: ez_avalanche_metrics_by_category_v2
     description: "This table stores metrics for the AVALANCHE protocol"
     columns:
@@ -345,13 +346,11 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
   - name: ez_avalanche_metrics_by_chain
     description: "This table stores metrics for the AVALANCHE protocol"
     columns:
       - *inflow
       - *outflow
-
   - name: ez_avalanche_metrics
     description: "This table stores metrics for the AVALANCHE protocol"
     columns:
@@ -403,6 +402,7 @@ models:
       - *stablecoin_transfer_volume
       - *stablecoin_txns
       - *sybil_users
+      - *total_economic_activity
       - *total_staked
       - *total_staked_native
       - *total_supply_native
@@ -413,9 +413,7 @@ models:
       - *weekly_contracts_deployed
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-
   - name: fact_avalanche_staking_metrics_by_type
     description: "This table stores metrics for the AVALANCHE protocol"
     columns:
       - *total_staked_native
-
