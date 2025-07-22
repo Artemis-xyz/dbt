@@ -10,12 +10,13 @@ with snowflake.connector.connect(
     consent_cache_id_token=True,
 ) as ctx: 
     # Drop user's dev schema, add prompt to make sure user wants to do this
-    user_input = input("Are you sure you want to drop your dev schema? All data will be lost! (y/n): ")
+    dev_schema_name = f"DEV_{os.environ.get('SYSTEM_SNOWFLAKE_USER').split('@')[0].replace('.', '_').upper()}"
+    user_input = input(f"Are you sure you want to drop your dev schema {dev_schema_name}? All data will be lost! (y/n): ")
+
     if user_input != "y":
         print("Exiting...")
         exit()
 
-    dev_schema_name = f"DEV_{os.environ.get('SYSTEM_SNOWFLAKE_USER').split('@')[0].replace('.', '_').upper()}"
     print(f"Dropping dev schema {dev_schema_name}...")
 
     query = f"""
