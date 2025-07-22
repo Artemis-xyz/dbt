@@ -101,65 +101,53 @@ with
     )
 select
     date
-    , 'synthetix' as app
-    , 'DeFi' as category
-    , coalesce(trading_volume, 0) as trading_volume
-    , coalesce(unique_traders, 0) as dau
-    , coalesce(unique_traders, 0) as unique_traders
-    , coalesce(tvl, 0) as net_deposits
-    , coalesce(fees.fees, 0) as fees
-    , coalesce(fees.fees_native, 0) as fees_native
-    , coalesce(fees.fees, 0) as revenue
-    , coalesce(token_incentives, 0) as expenses
-    , coalesce(revenue, 0) - coalesce(expenses,0) as earnings
-    , coalesce(token_incentives, 0) as token_incentives
-    , coalesce(treasury.treasury, 0) as treasury_value
-    , coalesce(treasury.own_token_treasury, 0) as treasury_value_native
-    , coalesce(treasury.net_treasury, 0) as net_treasury_value
-    , coalesce(token_holders.token_holder_count, 0) as tokenholder_count
 
     -- Standardized Metrics
 
-    -- Token Metrics
-    , coalesce(market_data.price, 0) as price
-    , coalesce(market_data.market_cap, 0) as market_cap
-    , coalesce(market_data.fdmc, 0) as fdmc
-    , coalesce(market_data.token_volume, 0) as token_volume
+    -- Market Data
+    , market_data.price as price
+    , market_data.market_cap as market_cap
+    , market_data.fdmc as fdmc
+    , market_data.token_volume as token_volume
 
-    -- Perpetuals Metrics
-    , coalesce(unique_traders, 0) as perp_dau
-    , coalesce(trading_volume, 0) as perp_volume
-    , coalesce(fees.fees, 0) as perp_revenue
+    -- Usage Data
+    , unique_traders as perp_dau
+    , unique_traders as dau
+    , trading_volume as perp_volume
+    , trading_volume as volume
+    , tvl as perp_tvl
+    , tvl as tvl
+    , tvl - lag(tvl) over (order by date) as tvl_net_change
 
-    -- Crypto Metrics
-    , coalesce(tvl, 0) as tvl
-    , coalesce(tvl - lag(tvl) over (order by date), 0) as tvl_net_change
-    , coalesce(tvl_native, 0) as tvl_native
-    , coalesce(tvl_native - lag(tvl_native) over (order by date), 0) as tvl_native_net_change
+    -- Fee Data
+    , fees.fees as perp_fees
+    , fees.fees as fees
+    , fees.fees_native as fees_native
+    , token_cashflow as token_fee_allocation
+    , service_cashflow as service_fee_allocation
+    , treasury_cashflow as treasury_fee_allocation
+    , fee_sharing_fee_allocation as staking_fee_allocation
 
-    -- Cash Flow Metrics
-    , coalesce(fees.fees, 0) as ecosystem_revenue
-    , coalesce(fees.fees_native, 0) as ecosystem_revenue_native
-    , coalesce(token_cashflow, 0) as token_fee_allocation
-    , coalesce(service_cashflow, 0) as service_fee_allocation
-    , coalesce(treasury_cashflow, 0) as treasury_fee_allocation
-    , coalesce(fee_sharing_fee_allocation, 0) as staking_fee_allocation
+    -- Financial Statements
+    , coalesce(token_cashflow, 0) + coalesce(treasury_cashflow, 0) + coalesce(fee_sharing_fee_allocation, 0) as revenue
+    , token_incentives as token_incentives
+    , coalesce(revenue, 0) - coalesce(token_incentives,0) as earnings
 
-    -- Protocol Metrics
-    , coalesce(treasury.treasury, 0) as treasury
-    , coalesce(treasury.treasury_native, 0) as treasury_native
-    , coalesce(treasury.net_treasury, 0) as net_treasury
-    , coalesce(treasury.net_treasury_native, 0) as net_treasury_native
-    , coalesce(treasury.own_token_treasury, 0) as own_token_treasury
-    , coalesce(treasury.own_token_treasury_native, 0) as own_token_treasury_native
+    -- Treasury Data
+    , treasury.treasury as treasury
+    , treasury.treasury_native as treasury_native
+    , treasury.net_treasury as net_treasury
+    , treasury.net_treasury_native as net_treasury_native
+    , treasury.own_token_treasury as own_token_treasury
+    , treasury.own_token_treasury_native as own_token_treasury_native
 
     -- Supply Metrics
-    , coalesce(mints, 0) as gross_emissions
-    , coalesce(mints_native, 0) as gross_emissions_native
+    , mints as gross_emissions
+    , mints_native as gross_emissions_native
 
     -- Turnover Metrics
-    , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
-    , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
+    , market_data.token_turnover_circulating as token_turnover_circulating
+    , market_data.token_turnover_fdv as token_turnover_fdv
 from unique_traders_data
 left join trading_volume_data using(date)
 left join tvl using(date)

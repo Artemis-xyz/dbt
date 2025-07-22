@@ -18,7 +18,8 @@ with usde_metrics as (
 , ena_metrics as (
     SELECT
         date,
-        sum(coalesce(collateral_fees.collateral_fee, 0) + coalesce(yield_fees.fees, 0)) as fees
+        sum(collateral_fees.collateral_fee) as collateral_fee,
+        sum(yield_fees.fees) as yield_fees,
     FROM  {{ ref('fact_ethena_yield_fees') }} yield_fees
     left join  {{ ref('fact_ethena_collateral_fees') }} collateral_fees using(date)
     group by 1
@@ -40,25 +41,48 @@ with usde_metrics as (
     select *
     from {{ ref('fact_ethena_supply') }}
 )
+, market_data as (
+    {{ get_coingecko_metrics('ethena') }}
+)
 select
-    usde_metrics.date,
-    usde_metrics.stablecoin_dau as stablecoin_dau,
-    usde_metrics.stablecoin_txns as stablecoin_txns,
-    coalesce(ena_metrics.fees, 0) as fees,
-    coalesce(ena_cashflow.foundation_fee_allocation, 0) as foundation_fee_allocation, --20% of fees supports Ethena's reserve fund
-    coalesce(ena_cashflow.service_fee_allocation, 0) as service_fee_allocation, --80% of fees supports Ethena's ecosystem fund
-    coalesce(ena_cashflow.service_fee_allocation, 0) as susde_fees, 
-    0 as revenue, 
-    tvl.stablecoin_total_supply as tvl,
-    tvl.stablecoin_total_supply as usde_supply,
-    tvl.stablecoin_total_supply - lag(tvl.stablecoin_total_supply) over (order by date) as net_usde_supply_change,
-    {{ daily_pct_change('tvl.stablecoin_total_supply') }} as tvl_growth, 
-    supply_data.circulating_supply_native as circulating_supply_native,
-    supply_data.circulating_supply_native - lag(supply_data.circulating_supply_native) over (order by date) as net_supply_change_native,
+    usde_metrics.date
+
+    -- Standardized Metrics
+
+    -- Market Data
+    , market_data.price as price
+    , market_data.market_cap as market_cap
+    , market_data.fdmc as fdmc
+    , market_data.token_volume as token_volume
+
+    -- Usage Data
+    , usde_metrics.stablecoin_dau as stablecoin_dau
+    , usde_metrics.stablecoin_dau as dau
+    , usde_metrics.stablecoin_txns as stablecoin_txns
+    , usde_metrics.stablecoin_txns as txns
+    , tvl.stablecoin_total_supply as tvl
+    , {{ daily_pct_change('tvl.stablecoin_total_supply') }} as tvl_growth
+
+    -- Fee Data
+    , ena_metrics.collateral_fee as collateral_fee
+    , ena_metrics.yield_fees as yield_fees
+    , coalesce(ena_metrics.collateral_fee, 0) + coalesce(ena_metrics.yield_fees, 0) as fees
+    , ena_cashflow.foundation_fee_allocation as foundation_fee_allocation
+    , ena_cashflow.service_fee_allocation as service_fee_allocation
+
+    -- Financial Statements
+    , 0 as revenue
+
+    -- Stablecoin Data 
+    , tvl.stablecoin_total_supply as stablecoin_total_supply
+
+    -- Turnover Data
+    , market_data.token_turnover_circulating as token_turnover_circulating
+    , market_data.token_turnover_fdv as token_turnover_fdv
 from usde_metrics
 left join ena_metrics using(date)
 left join ena_cashflow using(date)
 left join tvl using(date)
-left join supply_data using(date)
+left join market_data using(date)
 where usde_metrics.date < to_date(sysdate())
 order by 1 desc
