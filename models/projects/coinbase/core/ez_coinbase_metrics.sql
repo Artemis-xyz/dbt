@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="COINBASE",
         database="coinbase",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
+
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+
+{% set backfill_date = None %}
 
 with
     staked_eth_metrics as (
@@ -17,6 +26,7 @@ with
             sum(num_staked_eth_net_change) as num_staked_eth_net_change,
             sum(amount_staked_usd_net_change) as amount_staked_usd_net_change
         from {{ ref('fact_coinbase_staked_eth_count_with_usd_and_change') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
 select
@@ -27,11 +37,13 @@ select
     staked_eth_metrics.amount_staked_usd,
     staked_eth_metrics.num_staked_eth_net_change,
     staked_eth_metrics.amount_staked_usd_net_change
-
     -- Standardized Metrics
     , staked_eth_metrics.num_staked_eth as lst_tvl_native
     , staked_eth_metrics.amount_staked_usd as lst_tvl
     , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
     , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from staked_eth_metrics
 where staked_eth_metrics.date < to_date(sysdate())

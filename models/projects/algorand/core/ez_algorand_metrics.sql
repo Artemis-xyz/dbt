@@ -1,17 +1,33 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="ALGORAND",
         database="algorand",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
 
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+{% set backfill_date = None %}
+
 WITH
     -- Alternative fundamental source from BigQuery, preferred when possible over Snowflake data
-    fundamental_data AS (SELECT * EXCLUDE date, TO_TIMESTAMP_NTZ(date) AS date FROM {{ source('PROD_LANDING', 'ez_algorand_metrics') }}),
+    fundamental_data AS (
+        SELECT 
+            * EXCLUDE date,
+            TO_TIMESTAMP_NTZ(date) AS date
+        FROM {{ source('PROD_LANDING', 'ez_algorand_metrics') }}
+        {{ ez_metrics_incremental("TO_TIMESTAMP_NTZ(date)", backfill_date) }}
+    ),
+
     price as ({{ get_coingecko_metrics("algorand") }})
+
 SELECT
     DATE(DATE_TRUNC('DAY', fundamental_data.date)) AS date
     ,'algorand' as chain
@@ -47,5 +63,8 @@ SELECT
     , unique_pairs
     , unique_eoa_pairs
     , unique_tokens
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM fundamental_data
 LEFT JOIN price USING (date)

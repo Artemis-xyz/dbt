@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="CARDANO",
         database="cardano",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
+
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+
+{% set backfill_date = None %}
 
 with
     fundamental_data as (
@@ -35,6 +44,7 @@ with
                 )
             }}
         )
+        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     ),
     price_data as ({{ get_coingecko_metrics("cardano") }}),
@@ -97,9 +107,13 @@ select
     , weekly_developers_sub_ecosystem
     , token_turnover_circulating
     , token_turnover_fdv
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data f
 left join price_data on f.date = price_data.date
 left join defillama_data on f.date = defillama_data.date
 left join github_data on f.date = github_data.date
 left join nft_metrics on f.date = nft_metrics.date
-where f.date < to_date(sysdate())
+{{ ez_metrics_incremental('f.date', backfill_date) }}
+    and f.date < to_date(sysdate())

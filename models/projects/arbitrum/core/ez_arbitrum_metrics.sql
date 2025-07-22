@@ -1,13 +1,22 @@
 -- depends_on {{ ref("fact_arbitrum_transactions_v2") }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="ARBITRUM",
         database="arbitrum",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
+
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+
+{% set backfill_date = None %}
 
 with
     fundamental_data as ({{ get_fundamental_data_for_chain("arbitrum", "v2") }}),
@@ -17,6 +26,7 @@ with
     expenses_data as (
         select date, chain, l1_data_cost_native, l1_data_cost
         from {{ ref("fact_arbitrum_l1_data_cost") }}
+        {{ ez_metrics_incremental("date", backfill_date) }}
     ),  -- supply side revenue and fees
     github_data as ({{ get_github_metrics("arbitrum") }}),
     contract_data as ({{ get_contract_metrics("arbitrum") }}),
@@ -26,31 +36,38 @@ with
     bridge_volume_metrics as (
         select date, bridge_volume
         from {{ ref("fact_arbitrum_one_bridge_bridge_volume") }}
-        where chain is null
+        {{ ez_metrics_incremental("date", backfill_date) }}
+            and chain is null
     ),
     bridge_daa_metrics as (
         select date, bridge_daa
         from {{ ref("fact_arbitrum_one_bridge_bridge_daa") }}
+        {{ ez_metrics_incremental("date", backfill_date) }}
     ),
     arbitrum_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_arbitrum_daily_dex_volumes") }}
+        {{ ez_metrics_incremental("date", backfill_date) }}
     ),
     adjusted_dau_metrics as (
         select date, adj_daus as adjusted_dau
         from {{ ref("ez_arbitrum_adjusted_dau") }}
+        {{ ez_metrics_incremental("date", backfill_date) }}
     ),
     timeboost_fees as (
         select date, timeboost_fees AS timeboost_fees_native, timeboost_fees_usd AS timeboost_fees
         from {{ ref("fact_arbitrum_timeboost_fees") }}
+        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , unvested_supply as (
         select date, (2694000000 + 1753000000 + 1162000000 + 113000000 + 750000000 - total_vested_supply) as unvested_supply_native
         from {{ ref("ez_arbitrum_circulating_supply_metrics") }}
+        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , burns_mints as (
         select date, SUM(burns_native) as burns_native, SUM(mints_native) as mints_native, SUM(burns) as burns, SUM(mints) as mints, SUM(cumulative_burns_native) as cumulative_burns_native, SUM(cumulative_mints_native) as cumulative_mints_native, SUM(cumulative_burns) as cumulative_burns, SUM(cumulative_mints) as cumulative_mints
         from {{ ref("fact_arbitrum_burns_mints") }}
+        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , foundation_owned_supply as (
@@ -64,7 +81,8 @@ with
             DATE_TRUNC(DAY, date) AS date 
             , SUM(COALESCE(fees, 0)) AS application_fees
         FROM {{ ref("ez_protocol_datahub_by_chain") }}
-        WHERE chain = 'arbitrum'
+        {{ ez_metrics_incremental("DATE_TRUNC(DAY, date)", backfill_date) }}
+            AND chain = 'arbitrum'
         GROUP BY 1
     )
 
@@ -168,6 +186,10 @@ select
     END AS total_supply_native
     , COALESCE(total_supply_native, 0) - COALESCE(foundation_owned_supply_native, 0) - COALESCE(cumulative_burns_native, 0) AS issued_supply_native
     , COALESCE(total_supply_native, 0) - COALESCE(foundation_owned_supply_native, 0) - COALESCE(cumulative_burns_native, 0) - COALESCE(unvested_supply_native, 0) AS circulating_supply_native
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -187,4 +209,5 @@ left join unvested_supply on fundamental_data.date = unvested_supply.date
 left join burns_mints on fundamental_data.date = burns_mints.date
 left join foundation_owned_supply on fundamental_data.date = foundation_owned_supply.date
 left join application_fees on fundamental_data.date = application_fees.date
-where fundamental_data.date < to_date(sysdate())
+{{ ez_metrics_incremental("fundamental_data.date", backfill_date) }}
+    and fundamental_data.date < to_date(sysdate())

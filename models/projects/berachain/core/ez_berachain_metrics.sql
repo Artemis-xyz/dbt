@@ -1,18 +1,28 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="BERACHAIN",
         database="berachain",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
+
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+
+{% set backfill_date = None %}
 
 with 
      price_data as ({{ get_coingecko_metrics('berachain-bera') }}),
      dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_berachain_daily_dex_volumes") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
      ),
      supply_data as (
         select 
@@ -23,6 +33,11 @@ with
             , net_supply_change_native
             , circulating_supply_native
         from {{ ref('fact_berachain_supply_data') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
+     )
+     , fundamental_metrics as (
+        select * from {{ ref("fact_berachain_fundamental_metrics") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
      )
 select
     f.date
@@ -56,8 +71,13 @@ select
     , token_turnover_circulating
     , token_turnover_fdv
 
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
 from {{ ref("fact_berachain_fundamental_metrics") }} as f
 left join price_data on f.date = price_data.date
 left join dex_volumes on f.date = dex_volumes.date
 left join supply_data on f.date = supply_data.date
-where f.date  < to_date(sysdate())
+{{ ez_metrics_incremental('f.date', backfill_date) }}
+    and f.date  < to_date(sysdate())

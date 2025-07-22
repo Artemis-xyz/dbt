@@ -23,13 +23,7 @@ with
         select
             date, chain, daa, txns, fees_native, fees_usd as fees, fees_native * .2 as revenue_native, fees_usd * .2 as revenue
         from {{ ref("fact_acala_fundamental_metrics") }}
-        {% if is_incremental() %}
-            {% if backfill_date %}
-                where date >= '{{ backfill_date }}'
-            {% else %}
-                where date > (select max(this.date) from {{ this }} as this)
-            {% endif %}
-        {% endif %}
+        {{ ez_metrics_incremental("date", backfill_date) }}
     ),
     rolling_metrics as ({{ get_rolling_active_address_metrics("acala") }}),
     price_data as ({{ get_coingecko_metrics("acala") }})
@@ -67,11 +61,6 @@ select
 from fundamental_data
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join price_data on fundamental_data.date = price_data.date
-where fundamental_data.date < to_date(sysdate())
-{% if is_incremental() %}
-    {% if backfill_date %}
-        and date >= '{{ backfill_date }}'
-    {% else %}
-        and date > (select max(this.date) from {{ this }} as this)
-    {% endif %}
-{% endif %}
+{{ ez_metrics_incremental("fundamental_data.date", backfill_date) }}
+    and fundamental_data.date < to_date(sysdate())
+

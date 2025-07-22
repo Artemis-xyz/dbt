@@ -1,52 +1,100 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="AKASH",
         database="akash",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
 
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+
+{% set backfill_date = None %}
+
 WITH
 active_providers AS (
-    SELECT * FROM {{ ref("fact_akash_active_providers_silver") }}
+    SELECT * 
+    FROM {{ ref("fact_akash_active_providers_silver") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
-, active_leases AS (SELECT * FROM {{ ref("fact_akash_active_leases_silver") }})
+, active_leases AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_active_leases_silver") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
+)
 
-, new_leases AS (SELECT * FROM {{ ref("fact_akash_new_leases_silver") }})
+, new_leases AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_new_leases_silver") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
+)
 
 , compute_fees_native AS (
-    SELECT * FROM {{ ref("fact_akash_compute_fees_native_silver") }}
+    SELECT * 
+    FROM {{ ref("fact_akash_compute_fees_native_silver") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
 , compute_fees_usdc AS (
-    SELECT * FROM {{ ref("fact_akash_compute_fees_usdc_silver") }}
+    SELECT * 
+    FROM {{ ref("fact_akash_compute_fees_usdc_silver") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
 , compute_fees_total_usd AS (
-    SELECT * FROM {{ ref("fact_akash_compute_fees_total_usd_silver") }}
+    SELECT * 
+    FROM {{ ref("fact_akash_compute_fees_total_usd_silver") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
 , validator_fees_native AS (
-    SELECT * FROM {{ ref("fact_akash_validator_fees_native_silver") }}
+    SELECT * 
+    FROM {{ ref("fact_akash_validator_fees_native_silver") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
+)
+, validator_fees AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_validator_fees_silver") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
-, validator_fees AS (SELECT * FROM {{ ref("fact_akash_validator_fees_silver") }}
+, total_fees AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_total_fees_silver") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
-, total_fees AS (SELECT * FROM {{ ref("fact_akash_total_fees_silver") }})
+, revenue AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_revenue_silver") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
+)
 
-, revenue AS (SELECT * FROM {{ ref("fact_akash_revenue_silver") }})
+, mints AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_mints_silver") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
+)
 
-, mints AS (SELECT * FROM {{ ref("fact_akash_mints_silver") }})
-
-, burns AS (SELECT * FROM {{ ref("fact_akash_burns_native_silver") }})
-
+, burns AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_burns_native_silver") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
+)
 , price as ({{ get_coingecko_metrics("akash-network") }})
 
-, premine_unlocks AS (SELECT * FROM {{ ref("fact_akash_premine_unlocks") }})
+, premine_unlocks AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_premine_unlocks") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
+)
 
 SELECT
     mints.date
@@ -92,6 +140,10 @@ SELECT
     -- Turnover Metrics
     , coalesce(token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(token_turnover_fdv, 0) as token_turnover_fdv 
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM mints
 LEFT JOIN active_providers ON mints.date = active_providers.date
 LEFT JOIN new_leases ON mints.date = new_leases.date

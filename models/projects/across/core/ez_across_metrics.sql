@@ -21,25 +21,14 @@ with
     bridge_volume as (
         select date, bridge_volume
         from {{ ref("fact_across_bridge_volume") }}
-        where chain is null
-        {% if is_incremental() %}
-            {% if backfill_date %}
-                and date >= '{{ backfill_date }}'
-            {% else %}
-                and date > (select max(this.date) from {{ this }} as this)
-            {% endif %}
-        {% endif %}
+        {{ ez_metrics_incremental("date", backfill_date) }}
+            and chain is null
+        
     ),
     bridge_daa as (
         select date, bridge_daa
         from {{ ref("fact_across_bridge_daa") }}
-        {% if is_incremental() %}
-            {% if backfill_date %}
-                where date >= '{{ backfill_date }}'
-            {% else %}
-                where date > (select max(this.date) from {{ this }} as this)
-            {% endif %}
-        {% endif %}
+        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("across") }})
 select

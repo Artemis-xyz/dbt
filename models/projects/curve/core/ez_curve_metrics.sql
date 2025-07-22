@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="CURVE",
         database="curve",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
+
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+
+{% set backfill_date = None %}
 
 with trading_volume_by_pool as (
     {{
@@ -30,6 +39,7 @@ with trading_volume_by_pool as (
         sum(trading_volume_by_pool.gas_cost_native) as gas_cost_native,
         sum(trading_volume_by_pool.gas_cost_usd) as gas_cost_usd
     from trading_volume_by_pool
+    {{ ez_metrics_incremental('trading_volume_by_pool.date', backfill_date) }}
     group by trading_volume_by_pool.date
 )
 , ez_dex_swaps as (
@@ -39,6 +49,7 @@ with trading_volume_by_pool as (
         count(*) as spot_txns
     FROM
         {{ ref('ez_curve_dex_swaps') }}
+    {{ ez_metrics_incremental('block_timestamp::date', backfill_date) }}
     group by 1
 )
 , tvl_by_pool as (
@@ -59,6 +70,7 @@ with trading_volume_by_pool as (
         tvl_by_pool.date,
         sum(tvl_by_pool.tvl) as tvl
     from tvl_by_pool
+    {{ ez_metrics_incremental('tvl_by_pool.date', backfill_date) }}
     group by tvl_by_pool.date
 )
 , token_incentives as (
@@ -67,6 +79,7 @@ with trading_volume_by_pool as (
         sum(minted_amount) as token_incentives_native,
         sum(minted_usd) as token_incentives
     from {{ ref('fact_curve_token_incentives') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , date_spine as (
@@ -84,6 +97,7 @@ with trading_volume_by_pool as (
         issued_supply as issued_supply_native,
         circulating_supply as circulating_supply_native
     from {{ ref('fact_curve_issued_supply_and_float') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 , market_metrics as (
@@ -94,21 +108,17 @@ select
     date_spine.date
     , 'curve' as app
     , 'DeFi' as category
-
     -- Standardized Metrics
-
     -- Market Metrics
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
     , market_metrics.token_volume
-
     -- Usage Metrics
     , ez_dex_swaps.unique_traders as spot_dau
     , ez_dex_swaps.spot_txns
     , trading_volume.trading_volume as spot_volume
     , tvl.tvl
-
     -- Cashflow Metrics
     , trading_volume.trading_fees as spot_fees
     , trading_volume.trading_fees as ecosystem_revenue
@@ -117,23 +127,22 @@ select
     , token_incentives.token_incentives_native
     , trading_volume.gas_cost_native
     , trading_volume.gas_cost_usd as gas_cost
-
     -- Issued Supply Metrics
     , issued_supply_metrics.max_supply_native
     , issued_supply_metrics.total_supply_native
     , issued_supply_metrics.issued_supply_native
     , issued_supply_metrics.circulating_supply_native
-
     -- Financial Statement Metrics
     , trading_volume.trading_fees as fees
     , trading_volume.trading_fees * 0.5 as revenue
     , token_incentives.token_incentives as token_incentives
     , revenue - token_incentives as earnings
-    
     -- Other Metrics
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
-
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 left join market_metrics using(date)
 left join ez_dex_swaps using(date)
@@ -141,4 +150,5 @@ left join trading_volume using(date)
 left join tvl using(date)
 left join token_incentives using(date)
 left join issued_supply_metrics using(date)
-where date_spine.date < to_date(sysdate())
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+    and date_spine.date < to_date(sysdate())

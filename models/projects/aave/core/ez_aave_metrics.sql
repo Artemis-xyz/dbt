@@ -51,13 +51,7 @@ with
             , sum(interest_rate_fees) as interest_rate_fees
             , sum(reserve_factor_revenue) as reserve_factor_revenue
         from deposits_borrows_lender_revenue
-        {% if is_incremental() %}
-            {% if backfill_date %}
-                where date >= '{{ backfill_date }}'
-            {% else %}
-                where date > (select max(this.date) from {{ this }} as this)
-            {% endif %}
-        {% endif %}
+        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , flashloan_fees as (
@@ -86,13 +80,7 @@ with
             date
             , sum(amount_usd) as flashloan_fees
         from flashloan_fees
-        {% if is_incremental() %}
-            {% if backfill_date %}
-                where date >= '{{ backfill_date }}'
-            {% else %}
-                where date > (select max(this.date) from {{ this }} as this)
-            {% endif %}
-        {% endif %}
+        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , liquidation_revenue as (
@@ -123,13 +111,7 @@ with
             date
             , sum(liquidation_revenue) as liquidation_revenue
         from liquidation_revenue
-        {% if is_incremental() %}
-            {% if backfill_date %}
-                where date >= '{{ backfill_date }}'
-            {% else %}
-                where date > (select max(this.date) from {{ this }} as this)
-            {% endif %}
-        {% endif %}
+        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , ecosystem_incentives as (
@@ -170,13 +152,7 @@ with
             , sum(case when token_address = lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') then amount_usd else 0 end) as treasury_value_native
             , sum(amount_usd) as treasury_value
         from aave_treasury
-        {% if is_incremental() %}
-            {% if backfill_date %}
-                where date >= '{{ backfill_date }}'
-            {% else %}
-                where date > (select max(this.date) from {{ this }} as this)
-            {% endif %}
-        {% endif %}
+        {{ ez_metrics_incremental("date", backfill_date) }}
         group by date
     )
     , aave_net_treasury as (
@@ -189,13 +165,7 @@ with
             date
             , sum(amount_usd) as net_treasury_value
         from aave_net_treasury
-        {% if is_incremental() %}
-            {% if backfill_date %}
-                where date >= '{{ backfill_date }}'
-            {% else %}
-                where date > (select max(this.date) from {{ this }} as this)
-            {% endif %}
-        {% endif %}
+        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , aave_ecosystem_incentives as (
@@ -203,13 +173,7 @@ with
             date
             , sum(amount_usd) as ecosystem_incentives
         from ecosystem_incentives
-        {% if is_incremental() %}
-            {% if backfill_date %}
-                where date >= '{{ backfill_date }}'
-            {% else %}
-                where date > (select max(this.date) from {{ this }} as this)
-            {% endif %}
-        {% endif %}
+        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , dao_trading_revenue as (
@@ -217,13 +181,7 @@ with
             date
             , sum(trading_fees_usd) as trading_fees
         from {{ ref("fact_aave_dao_balancer_trading_fees")}}
-        {% if is_incremental() %}
-            {% if backfill_date %}
-                where date >= '{{ backfill_date }}'
-            {% else %}
-                where date > (select max(this.date) from {{ this }} as this)
-            {% endif %}
-        {% endif %}
+        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , safety_incentives as (
@@ -231,13 +189,7 @@ with
             date
             , sum(amount_usd) as safety_incentives
         from {{ ref("fact_aave_dao_safety_incentives")}}
-        {% if is_incremental() %}
-            {% if backfill_date %}
-                where date >= '{{ backfill_date }}'
-            {% else %}
-                where date > (select max(this.date) from {{ this }} as this)
-            {% endif %}
-        {% endif %}
+        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , gho_treasury_revenue as (
@@ -245,13 +197,7 @@ with
             date
             , sum(amount_usd) as gho_revenue
         from {{ ref("fact_aave_gho_treasury_revenue")}}
-        {% if is_incremental() %}
-            {% if backfill_date %}
-                where date >= '{{ backfill_date }}'
-            {% else %}
-                where date > (select max(this.date) from {{ this }} as this)
-            {% endif %}
-        {% endif %}
+        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , aave_token_holders as (
@@ -259,13 +205,7 @@ with
             date
             , token_holder_count
         from {{ ref("fact_aave_token_holders")}}
-        {% if is_incremental() %}
-            {% if backfill_date %}
-                where date >= '{{ backfill_date }}'
-            {% else %}
-                where date > (select max(this.date) from {{ this }} as this)
-            {% endif %}
-        {% endif %}
+        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , coingecko_metrics as (
         select 

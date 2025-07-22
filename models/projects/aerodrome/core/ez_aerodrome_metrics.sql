@@ -25,13 +25,7 @@ with swap_metrics as (
         SUM(amount_in_usd) as daily_volume_usd,
         SUM(fee_usd) as daily_fees_usd
     FROM {{ ref('fact_aerodrome_swaps') }}
-    {% if is_incremental() %}
-        {% if backfill_date %}
-            where block_timestamp::date >= '{{ backfill_date }}'
-        {% else %}
-            where block_timestamp::date > (select max(this.date) from {{ this }} as this)
-        {% endif %}
-    {% endif %}
+    {{ ez_metrics_incremental("block_timestamp::date", backfill_date) }}
     GROUP BY 1
 )
 , tvl_metrics as (
@@ -39,13 +33,7 @@ with swap_metrics as (
         date,
         SUM(token_balance_usd) as tvl_usd
     FROM {{ ref('fact_aerodrome_tvl') }}
-    {% if is_incremental() %}
-        {% if backfill_date %}
-            where date >= '{{ backfill_date }}'
-        {% else %}
-            where date > (select max(this.date) from {{ this }} as this)
-        {% endif %}
-    {% endif %}
+    {{ ez_metrics_incremental("date", backfill_date) }}
     GROUP BY date
 )
 , market_metrics as (
@@ -62,39 +50,21 @@ with swap_metrics as (
         buybacks_native, 
         buybacks
     FROM {{ ref('fact_aerodrome_supply_data') }}
-    {% if is_incremental() %}
-        {% if backfill_date %}
-            where date >= '{{ backfill_date }}'
-        {% else %}
-            where date > (select max(this.date) from {{ this }} as this)
-        {% endif %}
-    {% endif %}
+    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 , pools_metrics as (
     SELECT
         date,
         cumulative_count
     FROM {{ ref('fact_aerodrome_pools') }}
-    {% if is_incremental() %}
-        {% if backfill_date %}
-            where date >= '{{ backfill_date }}'
-        {% else %}
-            where date > (select max(this.date) from {{ this }} as this)
-        {% endif %}
-    {% endif %}
+    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 , token_incentives as (
-        select
-            day as date,
-            usd_value as token_incentives
-        from {{ref('fact_aerodrome_token_incentives')}}
-    {% if is_incremental() %}
-        {% if backfill_date %}
-            where day >= '{{ backfill_date }}'
-        {% else %}
-            where day > (select max(this.date) from {{ this }} as this)
-        {% endif %}
-    {% endif %}
+    select
+        day as date,
+        usd_value as token_incentives
+    from {{ref('fact_aerodrome_token_incentives')}}
+    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 , date_spine as (
     SELECT

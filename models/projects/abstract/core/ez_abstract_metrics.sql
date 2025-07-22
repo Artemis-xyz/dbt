@@ -46,11 +46,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from {{ ref("fact_abstract_fundamental_metrics") }} as f
-where f.date  < to_date(sysdate())
-{% if is_incremental() %}
-    {% if backfill_date %}
-        and date >= '{{ backfill_date }}'
-    {% else %}
-        and date > (select max(this.date) from {{ this }} as this)
-    {% endif %}
-{% endif %}
+{{ ez_metrics_incremental("f.date", backfill_date) }}
+    and f.date  < to_date(sysdate())
+

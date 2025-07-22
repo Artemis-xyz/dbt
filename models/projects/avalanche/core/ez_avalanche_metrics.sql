@@ -2,16 +2,26 @@
 -- depends_on {{ ref('fact_avalanche_amount_staked_silver') }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="AVALANCHE",
         database="avalanche",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
 
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+
+{% set backfill_date = None %}
+
 with fundamental_data as (
     select * from {{ ref("fact_avalanche_fundamental_data") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 , price_data as ({{ get_coingecko_metrics("avalanche-2") }})
 , defillama_data as ({{ get_defillama_metrics("avalanche") }})
@@ -22,6 +32,7 @@ with fundamental_data as (
 , issuance_data as (
     select date, validator_rewards as issuance
     from {{ ref("fact_avalanche_validator_rewards_silver") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 , nft_metrics as ({{ get_nft_metrics("avalanche") }})
 , p2p_metrics as ({{ get_p2p_metrics("avalanche") }})
@@ -29,15 +40,18 @@ with fundamental_data as (
 , bridge_volume_metrics as (
     select date, bridge_volume
     from {{ ref("fact_avalanche_bridge_bridge_volume") }}
-    where chain is null
+    {{ ez_metrics_incremental("date", backfill_date) }}
+    and chain is null
 )
 , bridge_daa_metrics as (
     select date, bridge_daa
     from {{ ref("fact_avalanche_bridge_bridge_daa") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 , avalanche_c_dex_volumes as (
     select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
     from {{ ref("fact_avalanche_c_daily_dex_volumes") }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 , issued_supply_metrics as (
     select 
@@ -47,6 +61,7 @@ with fundamental_data as (
         issued_supply as issued_supply_native,
         circulating_supply_native as circulating_supply_native
     from {{ ref('fact_avalanche_issued_supply_and_float') }}
+    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 , date_spine as (
     SELECT date
@@ -58,7 +73,8 @@ with fundamental_data as (
         DATE_TRUNC(DAY, date) AS date 
         , SUM(COALESCE(fees, 0)) AS application_fees
     FROM {{ ref("ez_protocol_datahub_by_chain") }}
-    WHERE chain = 'avalanche'
+    {{ ez_metrics_incremental("DATE_TRUNC(DAY, date)", backfill_date) }}
+        AND chain = 'avalanche'
     GROUP BY 1
 )
 
@@ -161,6 +177,10 @@ select
     , bridge_volume
     , bridge_daa
 
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
 from staking_data
 left join fundamental_data on staking_data.date = fundamental_data.date
 left join price_data on staking_data.date = price_data.date
@@ -177,4 +197,5 @@ left join bridge_daa_metrics on staking_data.date = bridge_daa_metrics.date
 left join avalanche_c_dex_volumes as dune_dex_volumes_avalanche_c on staking_data.date = dune_dex_volumes_avalanche_c.date
 left join issued_supply_metrics on staking_data.date = issued_supply_metrics.date
 left join application_fees on staking_data.date = application_fees.date
-where staking_data.date < to_date(sysdate())
+{{ ez_metrics_incremental("staking_data.date", backfill_date) }}
+    and staking_data.date < to_date(sysdate())

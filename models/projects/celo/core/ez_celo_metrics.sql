@@ -1,18 +1,28 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="CELO",
         database="celo",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
+
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+
+{% set backfill_date = None %}
 
 with
     fundamental_data as (
         select
             date, chain, gas_usd as fees, revenue, txns, dau, avg_txn_fee
         from {{ ref("fact_celo_dau_txns_gas_usd_revenue_avg_txn_fee") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics("celo") }}),
     defillama_data as ({{ get_defillama_metrics("celo") }}),
@@ -22,6 +32,7 @@ with
     celo_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_celo_daily_dex_volumes") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     fundamental_data.date
@@ -73,6 +84,9 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , p2p_stablecoin_transfer_volume
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -80,4 +94,5 @@ left join github_data on fundamental_data.date = github_data.date
 left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join celo_dex_volumes on fundamental_data.date = celo_dex_volumes.date
-where fundamental_data.date < to_date(sysdate())
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+    and fundamental_data.date < to_date(sysdate())

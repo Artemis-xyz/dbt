@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="ALPHAFI",
         database="alphafi",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
+
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+
+{% set backfill_date = None %}
 
 WITH 
     defillama_tvl AS (
@@ -14,8 +23,9 @@ WITH
             date, 
             SUM(tvl) AS tvl
         FROM {{ ref("fact_defillama_protocol_tvls") }}
-        WHERE defillama_protocol_id = 5511 OR defillama_protocol_id = 4848
-            -- This includes AlphaFi Liquid Staking and AlphaFi Yield Aggregator
+        {{ ez_metrics_incremental("date", backfill_date) }}
+        AND defillama_protocol_id = 5511 OR defillama_protocol_id = 4848
+        -- This includes AlphaFi Liquid Staking and AlphaFi Yield Aggregator
         GROUP BY 1
     )
 
@@ -42,4 +52,7 @@ SELECT
     'alphafi' AS app,
     'DeFi' AS category,
     COALESCE(d.tvl, 0) AS tvl
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM defillama_tvl_forwardfill d

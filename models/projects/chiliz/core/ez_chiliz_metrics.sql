@@ -1,12 +1,21 @@
 {{
     config(
-        materialized = "table",
+        materialized = "incremental",
         snowflake_warehouse = "CHILIZ",
         database = "CHILIZ",
         schema = "core",
-        alias = "ez_metrics"
+        alias = "ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
+
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+
+{% set backfill_date = None %}
 
 with date_spine as(
     SELECT
@@ -19,28 +28,32 @@ with date_spine as(
         date,
         fees_usd
     from {{ref("fact_chiliz_fees")}}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 txns as (
     select
         date,
         txns
     from {{ref("fact_chiliz_txns")}}
-)
-, daus as (
+    {{ ez_metrics_incremental('date', backfill_date) }}
+),
+daus as (
     select
         date,
         dau
     from {{ref("fact_chiliz_dau")}}
-    where dau < 170000 -- There is a DQ issue with the Chiliz dau data: 2 days with > 170k DAU while the rest of the data around those days is < 1k
-)
-, burns as (
+    {{ ez_metrics_incremental('date', backfill_date) }}
+        and dau < 170000 -- There is a DQ issue with the Chiliz dau data: 2 days with > 170k DAU while the rest of the data around those days is < 1k
+),
+burns as (
     select
         date,
         burns_native,
         revenue
     from {{ref("fact_chiliz_burns")}}
-)
-, treasury as (
+    {{ ez_metrics_incremental('date', backfill_date) }}
+),
+treasury as (
     select
         date,
         native_balance,
@@ -48,14 +61,16 @@ txns as (
         usd_balance,
         usd_balance_change
     from {{ref("fact_chiliz_treasury")}}
-)
-, price_data as ({{ get_coingecko_metrics("chiliz") }})
-, supply_data as (
+    {{ ez_metrics_incremental('date', backfill_date) }}
+),
+price_data as ({{ get_coingecko_metrics("chiliz") }}),
+supply_data as (
     select
         date,
         gross_emissions_native,
         circulating_supply_native
     from {{ref("fact_chiliz_supply")}}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 select
     ds.date
@@ -91,6 +106,9 @@ select
     -- Supply metrics
     , gross_emissions_native
     , circulating_supply_native
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine ds
 left join fees using (date)
 left join txns using (date)
@@ -99,3 +117,4 @@ left join burns using (date)
 left join treasury using (date)
 left join price_data using (date)
 left join supply_data using (date)
+{{ ez_metrics_incremental('ds.date', backfill_date) }}

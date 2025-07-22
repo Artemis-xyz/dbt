@@ -1,4 +1,4 @@
-{% macro get_stablecoin_metrics(identifier, breakdown="chain") %}
+{% macro get_stablecoin_metrics(identifier, breakdown="chain", backfill_date=None) %}
 with mau as (
     select
         date_granularity as date
@@ -36,11 +36,13 @@ with mau as (
         , p2p_stablecoin_supply as p2p_stablecoin_total_supply
         , stablecoin_supply as stablecoin_total_supply
     from {{ ref("agg_daily_stablecoin_breakdown_" ~ breakdown) }}
+    {{ ez_metrics_incremental("date_granularity", backfill_date) }}
     {% if breakdown == "chain" %}
-        where lower(chain) = lower('{{ identifier }}')
+        and lower(chain) = lower('{{ identifier }}')
     {% elif breakdown == "symbol" %}
-        where lower(symbol) = lower('{{ identifier }}')
+        and lower(symbol) = lower('{{ identifier }}')
     {% endif %}
+    
 )
 select
     daily_metrics.date
@@ -66,6 +68,9 @@ select
     {% endif %}
     , p2p_stablecoin_total_supply
     , stablecoin_total_supply
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from daily_metrics
 left join mau on daily_metrics.date = mau.date
 {% endmacro %}

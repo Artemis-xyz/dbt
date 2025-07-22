@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="COMPOUND",
         database="compound",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
+
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+
+{% set backfill_date = None %}
 
 with
     compound_by_chain as (
@@ -27,6 +36,7 @@ with
             , sum(daily_borrows_usd) as daily_borrows_usd
             , sum(daily_supply_usd) as daily_supply_usd
         from compound_by_chain
+        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , price_data as ({{ get_coingecko_metrics("compound-governance-token") }})
@@ -35,6 +45,7 @@ with
             day as date,
             total_usd_value as token_incentives
         from {{ref('fact_compound_token_incentives')}}
+        {{ ez_metrics_incremental('day', backfill_date) }}
     )
 
 select
@@ -48,9 +59,13 @@ select
     , price_data.market_cap
     , price_data.fdmc
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from compound_metrics
 left join price_data
     on compound_metrics.date = price_data.date
 left join token_incentives
     on compound_metrics.date = token_incentives.date
-where compound_metrics.date < to_date(sysdate())
+{{ ez_metrics_incremental('compound_metrics.date', backfill_date) }}
+    and compound_metrics.date < to_date(sysdate())

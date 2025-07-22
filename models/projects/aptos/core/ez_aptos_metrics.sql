@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="APTOS",
         database="aptos",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
+
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+
+{% set backfill_date = None %}
 
 with
     fundamental_data as (
@@ -21,6 +30,7 @@ with
             , revenue
             , gas as revenue_native
         from {{ ref("fact_aptos_daa_txns_gas_gas_usd_revenue") }}
+        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("aptos") }})
     , defillama_data as ({{ get_defillama_metrics("aptos") }})
@@ -31,6 +41,7 @@ with
             date
             , volume_usd as dex_volumes
         from {{ ref("fact_aptos_dex_volumes") }}
+        {{ ez_metrics_incremental("date", backfill_date) }}
     )
 select
     fundamental_data.date
@@ -81,10 +92,15 @@ select
     -- Turnover Metrics
     , coalesce(price_data.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(price_data.token_turnover_fdv, 0) as token_turnover_fdv
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join github_data on fundamental_data.date = github_data.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join aptos_dex_volumes on fundamental_data.date = aptos_dex_volumes.date
-where fundamental_data.date < to_date(sysdate())
+{{ ez_metrics_incremental("fundamental_data.date", backfill_date) }}
+    and fundamental_data.date < to_date(sysdate())

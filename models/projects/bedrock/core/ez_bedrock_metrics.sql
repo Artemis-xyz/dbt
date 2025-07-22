@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="BEDROCK",
         database="bedrock",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_exclude_columns=["created_on"],
+        full_refresh=false
     )
 }}
+
+-- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
+
+{% set backfill_date = None %}
 
 with restaked_eth_metrics as (
     select
@@ -17,6 +26,7 @@ with restaked_eth_metrics as (
         num_restaked_eth_net_change,
         amount_restaked_usd_net_change
     from {{ ref('fact_bedrock_restaked_eth_count_with_usd_and_change') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , market_metrics as (
     {{get_coingecko_metrics('bedrock-token')}}
@@ -31,13 +41,11 @@ select
     date_spine.date,
     'bedrock' as app,
     'DeFi' as category,
-
     -- Old metrics needed for compatibility
     restaked_eth_metrics.num_restaked_eth,
     restaked_eth_metrics.amount_restaked_usd,
     restaked_eth_metrics.num_restaked_eth_net_change,
     restaked_eth_metrics.amount_restaked_usd_net_change
-
     -- Standardized Metrics
     , restaked_eth_metrics.num_restaked_eth as tvl_native
     , restaked_eth_metrics.num_restaked_eth as lrt_tvl_native
@@ -45,7 +53,6 @@ select
     , restaked_eth_metrics.amount_restaked_usd as lrt_tvl
     , restaked_eth_metrics.num_restaked_eth_net_change as lrt_tvl_native_net_change
     , restaked_eth_metrics.amount_restaked_usd_net_change as lrt_tvl_net_change
-
     -- Market Metrics
     , market_metrics.price as price
     , market_metrics.token_volume as token_volume
@@ -53,7 +60,11 @@ select
     , market_metrics.fdmc as fdmc
     , market_metrics.token_turnover_circulating as token_turnover_circulating
     , market_metrics.token_turnover_fdv as token_turnover_fdv
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 left join restaked_eth_metrics using(date)
 left join market_metrics using(date)
-where date_spine.date < to_date(sysdate())
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+    and date_spine.date < to_date(sysdate())
