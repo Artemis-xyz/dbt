@@ -122,29 +122,27 @@ with trading_volume_data as (
 select
     date_spine.date
     , 'hyperliquid' as app
-    , 'DeFi' as category
 
     -- Standardized Metrics
 
-    -- Market Metrics
+    -- Market Data
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
     , market_metrics.token_volume
 
-    -- Usage Metrics
+    -- Usage Data
     -- , unique_traders_data.unique_traders::string + hyperevm_data.daa as perp_dau (this is not an accurate DAU metric)
     , daily_transactions_data.trades as perp_txns
+    , perp_txns as txns
     , trading_volume_data.perp_volume
     , spot_trading_volume_data.spot_trading_volume as spot_volume
-    , coalesce(trading_volume_data.perp_volume, 0) + coalesce(spot_trading_volume_data.spot_trading_volume, 0) as trading_volume
+    , coalesce(trading_volume_data.perp_volume, 0) + coalesce(spot_trading_volume_data.spot_trading_volume, 0) as volume
     , perps_tvl_data.tvl as perps_tvl
     , chain_tvl.tvl as chain_tvl
-    , new_users_data.new_users as new_users
-    , hype_staked_data.num_stakers
-    , hype_staked_data.staked_hype
+    , perps_tvl_data.tvl + chain_tvl.tvl as tvl
     
-    -- Cash Flow Metrics
+    -- Fee Data
     , perp_fees
     , spot_fees
     , auction_fees
@@ -154,9 +152,9 @@ select
 
     -- Financial Statements
     , hypercore_spot_burns_data.hypercore_burns_native + hyperevm_data.hyperevm_burns_native as burns_native
-    , (daily_buybacks_native * market_metrics.price) + (burns_native * market_metrics.price) as revenue -- burns + buybacks
+    , (daily_buybacks_native) as buybacks_native
     , (daily_buybacks_native * market_metrics.price) as buybacks
-    , daily_buybacks_native as buyback_native
+    , (daily_buybacks_native * market_metrics.price) + (burns_native * market_metrics.price) as revenue -- burns + buybacks
 
     -- Supply Data
     , first_principles_supply_data.emissions_native as gross_emissions_native
@@ -171,6 +169,11 @@ select
     -- Token Turnover
     , market_metrics.token_turnover_fdv
     , market_metrics.token_turnover_circulating
+
+    -- Bespoke Metrics
+    , new_users_data.new_users as new_users
+    , hype_staked_data.num_stakers
+    , hype_staked_data.staked_hype
 
 from date_spine
 left join market_metrics using(date)
