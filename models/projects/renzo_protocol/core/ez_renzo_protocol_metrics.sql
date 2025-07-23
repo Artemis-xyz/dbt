@@ -94,15 +94,6 @@ with
     )
 select
     date_spine.date,
-    'renzo_protocol' as app,
-    'DeFi' as category
-
-    --Old metrics needed for compatibility
-    , restaked_eth_metrics.num_restaked_eth as num_restaked_eth
-    , restaked_eth_metrics.amount_restaked_usd as amount_restaked_usd
-    , restaked_eth_metrics.num_restaked_eth_net_change as num_restaked_eth_net_change
-    , restaked_eth_metrics.amount_restaked_usd_net_change as amount_restaked_usd_net_change
-
     --Standardized Metrics
 
     --Market Metrics
