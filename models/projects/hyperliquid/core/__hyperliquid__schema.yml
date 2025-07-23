@@ -32,6 +32,10 @@ column_definitions:
       - artemis_gaap
       - override
 
+  buybacks: &buybacks
+    name: buybacks
+    description: "The amount tokens actually bought back by the protocol (USD)."
+
   buybacks_native: &buybacks_native
     name: buybacks_native
     description: "The amount tokens actually bought back by the protocol (USD)."
@@ -175,10 +179,6 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  tvl: &tvl
-    name: tvl
-    description: "The total value locked in a protocol"
-
 models:
   - name: ez_hyperliquid_metrics_by_chain
     description: "This table stores metrics for the HYPERLIQUID protocol"
@@ -206,10 +206,8 @@ models:
   - name: ez_hyperliquid_metrics
     description: "This table stores metrics for the HYPERLIQUID protocol"
     columns:
-      - *burned_fee_allocation
-      - *burned_fee_allocation_native
       - *burns_native
-      - *buyback_fee_allocation
+      - *buybacks
       - *chain_fees
       - *chain_tvl
       - *circulating_supply_native
@@ -220,7 +218,6 @@ models:
       - *max_supply_native
       - *net_supply_change_native
       - *new_users
-      - *perp_dau
       - *perp_fees
       - *perp_txns
       - *perp_volume
@@ -234,4 +231,3 @@ models:
       - *token_turnover_fdv
       - *token_volume
       - *total_supply_native
-      - *tvl
