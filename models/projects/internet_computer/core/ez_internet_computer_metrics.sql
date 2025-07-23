@@ -1,18 +1,44 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="internet_computer",
         database="internet_computer",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
+
 with
     -- Latest data from ICP api is 2023-12-21
-    icp_metrics as (select * from {{ ref("fact_internet_computer_fundamental_metrics_silver") }} where date > '2023-12-21')
-    , icp_blocks as (select * from {{ ref("fact_internet_computer_block_count_silver") }})
-    , icp_total_canister_state as (select * from {{ ref("fact_internet_computer_canister_total_state_silver") }})
-    , icp_neuron_funds as (select * from {{ ref("fact_internet_computer_neuron_funds_silver") }})
+    icp_metrics as (
+        select * 
+        from {{ ref("fact_internet_computer_fundamental_metrics_silver") }} 
+        {{ ez_metrics_incremental('date', backfill_date) }} 
+    )
+    , icp_blocks as (
+        select * 
+        from {{ ref("fact_internet_computer_block_count_silver") }} 
+        {{ ez_metrics_incremental('date', backfill_date) }} 
+    )
+    , icp_total_canister_state as (
+        select * 
+        from {{ ref("fact_internet_computer_canister_total_state_silver") }} 
+        {{ ez_metrics_incremental('date', backfill_date) }} 
+    )
+    , icp_neuron_funds as (
+        select * 
+        from {{ ref("fact_internet_computer_neuron_funds_silver") }} 
+        {{ ez_metrics_incremental('date', backfill_date) }} 
+    )
     , price_data as ({{ get_coingecko_metrics("internet-computer") }})
     , defillama_data as ({{ get_defillama_metrics("icp") }})
 select
@@ -65,10 +91,14 @@ select
     , total_internet_identity_user_count
     , icp_blocks.block_count
     , 5 as storage_cost
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from price_data
 left join icp_metrics on price_data.date = icp_metrics.date
 left join icp_blocks on price_data.date = icp_blocks.date
 left join icp_total_canister_state on price_data.date = icp_total_canister_state.date
 left join icp_neuron_funds on price_data.date = icp_neuron_funds.date
 left join defillama_data on price_data.date = defillama_data.date
-where coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_blocks.date, icp_total_canister_state.date, icp_neuron_funds.date) < to_date(sysdate())
+{{ ez_metrics_incremental('price_data.date', backfill_date) }}
+and coalesce(price_data.date, defillama_data.date, icp_metrics.date, icp_blocks.date, icp_total_canister_state.date, icp_neuron_funds.date) < to_date(sysdate())

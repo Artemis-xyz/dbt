@@ -73,4 +73,5 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from daily_metrics
 left join mau on daily_metrics.date = mau.date
+where daily_metrics.date < to_date(sysdate())
 {% endmacro %}

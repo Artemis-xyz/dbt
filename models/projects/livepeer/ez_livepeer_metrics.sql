@@ -1,10 +1,17 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="LIVEPEER",
         database="livepeer",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
 
@@ -16,6 +23,7 @@ with market_data as (
         date,
         fees
     FROM {{ ref("fact_livepeer_revenue") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 SELECT
     market_data.date,
@@ -28,3 +36,5 @@ SELECT
     market_data.token_volume
 FROM market_data
 LEFT JOIN revenue USING(date)
+{{ ez_metrics_incremental('market_data.date', backfill_date) }}
+and market_data.date < to_date(sysdate())

@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="ETHERFI",
         database="etherfi",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with restaked_eth_metrics as (
     select
@@ -17,6 +26,7 @@ with restaked_eth_metrics as (
         num_restaked_eth_net_change,
         amount_restaked_usd_net_change
     from {{ ref('fact_etherfi_restaked_eth_count_with_usd_and_change') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , daily_supply_data as (
     select
@@ -27,18 +37,21 @@ with restaked_eth_metrics as (
         net_supply_change_native,
         circulating_supply
     from {{ ref('fact_etherfi_daily_supply_data') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , liquidity_pool_fees as (
     select
         date,
         fees_usd
     from {{ ref('fact_etherfi_liquidity_pool_fees') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , auction_fees as (
     select
         date,
         fees_usd
     from {{ ref('fact_etherfi_auction_fees') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , defillama_tvl as (
     select
@@ -47,6 +60,7 @@ with restaked_eth_metrics as (
         liquid_tvl,
         liquid_tvl * 0.000055 as liquid_fees_usd
     from {{ ref('fact_etherfi_tvl') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , date_spine as (
     select
@@ -62,15 +76,12 @@ SELECT
     date_spine.date
     , 'etherfi' as app
     , 'DeFi' as category
-
     --Standardized Metrics
-
     --Market Metrics
     , market_metrics.price as price
     , market_metrics.token_volume as token_volume
     , market_metrics.market_cap as market_cap
     , market_metrics.fdmc as fdmc
-
     --Usage Metrics
     , restaked_eth_metrics.num_restaked_eth as tvl_native
     , restaked_eth_metrics.num_restaked_eth as lrt_tvl_native
@@ -78,25 +89,24 @@ SELECT
     , restaked_eth_metrics.amount_restaked_usd as lrt_tvl
     , restaked_eth_metrics.num_restaked_eth_net_change as lrt_tvl_native_net_change
     , restaked_eth_metrics.amount_restaked_usd_net_change as lrt_tvl_net_change
-
     --Cash Flow Metrics
     , coalesce(liquidity_pool_fees.fees_usd, 0) as liquidity_pool_fees
     , coalesce(auction_fees.fees_usd, 0) as auction_fees
     , coalesce(defillama_tvl.liquid_fees_usd, 0) as strategy_fees
     , coalesce(liquidity_pool_fees.fees_usd, 0) + coalesce(auction_fees.fees_usd, 0) + coalesce(defillama_tvl.liquid_fees_usd, 0) as ecosystem_revenue
     , strategy_fees as equity_fee_allocation
-
     --Token Turnover Metrics
     , market_metrics.token_turnover_circulating as token_turnover_circulating
     , market_metrics.token_turnover_fdv as token_turnover_fdv
-
     --ETHFI Token Supply Data
     , daily_supply_data.emissions_native
     , daily_supply_data.premine_unlocks_native
     , daily_supply_data.burns_native
     , daily_supply_data.net_supply_change_native
     , daily_supply_data.circulating_supply
-
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 left join restaked_eth_metrics using(date)
 left join liquidity_pool_fees using(date)
@@ -104,5 +114,6 @@ left join auction_fees using(date)
 left join defillama_tvl using(date)
 left join daily_supply_data using(date)
 left join market_metrics using(date)
-where date < to_date(sysdate())
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+    and date < to_date(sysdate())
 

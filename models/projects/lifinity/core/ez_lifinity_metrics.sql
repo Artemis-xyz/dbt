@@ -1,16 +1,26 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="LIFINITY",
         database="lifinity",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with lifinity_dex_volumes as (
     select date, daily_volume as dex_volumes
     from {{ ref("fact_lifinity_dex_volumes") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , lifinity_market_data as (
     {{ get_coingecko_metrics('lifinity') }}
@@ -19,10 +29,8 @@ with lifinity_dex_volumes as (
 select
     date
     , dex_volumes
-
     -- Standardized Metrics
     , dex_volumes as spot_volume
-
     -- Market Metrics
     , lmd.price
     , lmd.market_cap
@@ -30,7 +38,10 @@ select
     , lmd.token_turnover_circulating
     , lmd.token_turnover_fdv
     , lmd.token_volume
-
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from lifinity_dex_volumes   
 left join lifinity_market_data lmd using (date)
-where date < to_date(sysdate())
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())

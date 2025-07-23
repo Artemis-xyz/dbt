@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="HELIUM",
         database="helium",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     date_spine as (
@@ -17,63 +26,64 @@ with
     revenue_data as (
         select date, hnt_burned, revenue
         from {{ ref("fact_helium_revenue_silver") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     fees_data as(
         select date, fees
         from {{ ref("fact_helium_fees_silver") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     new_mobile_subscribers_data as (
         select date, new_subscribers
         from {{ ref("fact_helium_new_mobile_subscribers") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     new_hotspot_onboards_data as (
         select date, device_onboards
         from {{ ref("fact_helium_new_hotspot_onboards") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     mints_data as (
         select date, mints_native
         from {{ ref("fact_helium_mints") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     daily_supply_data as (
         select * from {{ ref("fact_helium_daily_supply_data") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics("helium") }})
 select
     date_spine.date
-
     --Old metrics needed for backwards compatibility
     , coalesce(revenue_data.revenue, 0) as revenue
     , coalesce(fees_data.fees, 0) as fees
-
     -- Standardized Metrics)
-
     -- Token Metrics
     , coalesce(price_data.price, 0) as price
     , coalesce(price_data.market_cap, 0) as market_cap
     , coalesce(price_data.fdmc, 0) as fdmc
     , coalesce(price_data.token_volume, 0) as token_volume
-
     -- Cash Flow Metrics
     , coalesce(fees_data.fees, 0) as ecosystem_revenue
     , coalesce(revenue_data.revenue, 0) as service_fee_allocation
     , coalesce(revenue_data.hnt_burned, 0) * coalesce(price_data.price, 0) as burned_fee_allocation
     , coalesce(revenue_data.hnt_burned, 0) as burned_fee_allocation_native
-
     -- Turnover Metrics
     , coalesce(price_data.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(price_data.token_turnover_fdv, 0) as token_turnover_fdv
-
     -- Other Metrics
     , coalesce(new_mobile_subscribers_data.new_subscribers, 0) as new_subscribers
     , coalesce(new_hotspot_onboards_data.device_onboards, 0) as device_onboards
-
     --HNT Token Supply Data
     , coalesce(daily_supply_data.emissions_native, 0) as gross_emissions_native
     , coalesce(daily_supply_data.premine_unlocks_native, 0) as premine_unlocks_native
     , coalesce(daily_supply_data.burns_native, 0) as burns_native
     , coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(daily_supply_data.burns_native, 0) as net_supply_change_native
     , sum(coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(daily_supply_data.burns_native, 0)) over (order by daily_supply_data.date) as circulating_supply_native
-
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 left join revenue_data using (date)
 left join price_data using (date)
@@ -82,5 +92,6 @@ left join new_mobile_subscribers_data using (date)
 left join new_hotspot_onboards_data using (date)
 left join mints_data using (date)
 left join daily_supply_data using (date)
-where revenue_data.date < to_date(sysdate())
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and revenue_data.date < to_date(sysdate())
 order by 1 desc

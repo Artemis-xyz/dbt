@@ -8,14 +8,16 @@
         incremental_strategy="merge",
         unique_key="date",
         on_schema_change="append_new_columns",
-        merge_exclude_columns=["created_on"],
-        full_refresh=false
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
 
 -- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
 
-{% set backfill_date = None %}
+{% set backfill_date = var("backfill_date", None) %}
 
 select
     date::date as date,
@@ -25,4 +27,5 @@ select
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from {{ ref("fact_cypher_transfers") }}
 {{ ez_metrics_incremental('date::date', backfill_date) }}
+and date::date < to_date(sysdate())
 group by 1

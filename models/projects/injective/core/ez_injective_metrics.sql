@@ -1,22 +1,33 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="INJECTIVE",
         database="injective",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with fundamental_data as (
     select
         TO_TIMESTAMP_NTZ(date) AS date, 
         * EXCLUDE date
     from {{ source('PROD_LANDING', 'ez_injective_metrics') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , daily_txns as (
     select * 
     from {{ ref("fact_injective_daily_txns_silver") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , revenue as (
     select
@@ -27,16 +38,19 @@ with fundamental_data as (
         revenue as auction_fees,
         (revenue * 5/3) * 2/5 as dapp_fees
     from {{ ref("fact_injective_revenue_silver") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , mints AS (
     SELECT *
     FROM {{ ref("fact_injective_mints_silver") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , unlocks as (
     select
         date,
         outflows
     from {{ ref("fact_injective_unlocks") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , defillama_metrics as (
     with dfl as (
@@ -108,7 +122,9 @@ select
     , coalesce(revenue.revenue_native, 0) as burns_native
     , coalesce(mints.mints, 0) + coalesce(unlocks.outflows, 0) - coalesce(revenue.revenue_native, 0) as net_supply_change_native
     , sum(coalesce(mints.mints, 0) + coalesce(unlocks.outflows, 0) - coalesce(revenue.revenue_native, 0)) over (order by date_spine.date) as circulating_supply_native
-
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 left join market_metrics using (date)
 left join fundamental_data using (date)
@@ -116,3 +132,5 @@ left join defillama_metrics using (date)
 left join revenue using (date)
 left join mints using (date)
 left join unlocks using (date)
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

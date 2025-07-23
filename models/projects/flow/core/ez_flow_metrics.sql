@@ -1,13 +1,22 @@
 --depends_on: {{ ref("fact_flow_nft_trading_volume") }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="FLOW",
         database="flow",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with fees_revenue_data as (
     select 
@@ -15,6 +24,7 @@ with fees_revenue_data as (
         total_fees_usd as fees, 
         fees_burned_usd as revenue
     from {{ ref("fact_flow_fees_revs") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 ,    dau_txn_data as (
     select 
@@ -23,6 +33,7 @@ with fees_revenue_data as (
         daa as dau, 
         txns 
     from {{ ref("fact_flow_daa_txns") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , daily_supply_data as (
     select
@@ -33,6 +44,7 @@ with fees_revenue_data as (
         net_supply_change_native,
         circulating_supply
     from {{ ref('fact_flow_daily_supply_data') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , date_spine as (
     select
@@ -47,7 +59,6 @@ with fees_revenue_data as (
 
 select
     date_spine.date
-
     --Old metrics needed for compatibility
     , dau_txn_data.txns
     , dau_txn_data.dau
@@ -59,13 +70,11 @@ select
     , defillama_data.tvl as tvl
     , nft_metrics.nft_trading_volume
     -- Standardized Metrics
-
     -- Market Metrics
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
     , market_metrics.token_volume
-
     -- Usage Metrics
     , dau_txn_data.txns as chain_txns
     , dau_txn_data.dau as chain_dau
@@ -73,26 +82,25 @@ select
     , defillama_data.dex_volumes as chain_spot_volume
     , defillama_data.tvl as chain_tvl
     , nft_metrics.nft_trading_volume as chain_nft_trading_volume
-
     -- Cashflow metrics
     , fees_revenue_data.fees AS chain_fees
     , fees_revenue_data.fees AS ecosystem_revenue
     , fees_revenue_data.fees AS validator_fee_allocation
     , fees_revenue_data.revenue AS burned_fee_allocation
-
     -- Developer Metrics
     , github_data.weekly_commits_core_ecosystem
     , github_data.weekly_commits_sub_ecosystem
     , github_data.weekly_developers_core_ecosystem
     , github_data.weekly_developers_sub_ecosystem
-
     --FLOW Token Supply Data
     , daily_supply_data.emissions_native
     , daily_supply_data.premine_unlocks_native
     , daily_supply_data.burns_native
     , daily_supply_data.net_supply_change_native
     , daily_supply_data.circulating_supply
-
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 left join dau_txn_data on date_spine.date = dau_txn_data.date
 left join fees_revenue_data on date_spine.date = fees_revenue_data.date
@@ -101,4 +109,5 @@ left join daily_supply_data on date_spine.date = daily_supply_data.date
 left join defillama_data on date_spine.date = defillama_data.date
 left join github_data on date_spine.date = github_data.date
 left join nft_metrics on date_spine.date = nft_metrics.date
-where date_spine.date < to_date(sysdate())
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+    and date_spine.date < to_date(sysdate())

@@ -1,18 +1,28 @@
 {{
     config(
-        materialized="view",
+        materialized="incremental",
         snowflake_warehouse="LAYERZERO",
         database="layerzero",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with bridge_volume as (
     SELECT
         date,
         avg(bridge_volume) as bridge_volume
     FROM {{ ref('fact_layerzero_bridge_volume_all_chains') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY 1
 )
 , bridge_metrics as (
@@ -22,6 +32,7 @@ with bridge_volume as (
         , sum(fees) as fees
         , sum(bridge_txns) as bridge_txns
     FROM {{ ref('ez_layerzero_metrics_by_chain') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY 1
 )
 , daily_supply_data as (
@@ -31,6 +42,7 @@ with bridge_volume as (
         , premine_unlocks as premine_unlocks_native
         , 0 as burns_native
     FROM {{ ref('fact_layerzero_daily_premine_unlocks') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , date_spine as (
     SELECT * 
@@ -74,10 +86,15 @@ select
     , coalesce(daily_supply_data.burns_native, 0) as burns_native
     , coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(daily_supply_data.burns_native, 0) as net_supply_change_native
     , sum(net_supply_change_native) over (order by date rows between unbounded preceding and current row) as circulating_supply_native
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 left join market_metrics using (date)
 left join bridge_metrics using (date)
 left join bridge_volume using (date)
 left join daily_supply_data using (date)
-where date_spine.date < to_date(sysdate())
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())
 order by 1

@@ -1,33 +1,39 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="LEO",
         database="leo",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with 
     date_spine as (
         SELECT * 
         FROM {{ ref("dim_date_spine") }}
         WHERE date < to_date(sysdate()) AND date >= (SELECT MIN(date) FROM {{ ref("fact_leo_revenue") }})
-        
     )
-
     , leo_revenue as (
         SELECT 
             date, 
             SUM(leo_burn_amount) AS revenue_native
         FROM {{ ref("fact_leo_revenue") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
-
     , market_data as (
         {{ get_coingecko_metrics('leo-token') }}
     )
-
     select 
         date
         -- Standardized Metrics
@@ -36,7 +42,6 @@ with
         , market_cap
         , fdmc
         , token_volume
-
         -- Fee Allocation Metrics
         , revenue_native
         , revenue_native * price as revenue
@@ -51,10 +56,14 @@ with
         -- recovered funds from Crypto Capital and the Bitfinex Hack. (https://www.bitfinex.com/wp-2019-05.pdf)
         , 1000000000 - SUM(revenue_native) OVER (ORDER BY date ROWS UNBOUNDED PRECEDING)  - 2469394.1 AS issued_supply_native
         , 1000000000 - SUM(revenue_native) OVER (ORDER BY date ROWS UNBOUNDED PRECEDING) - 2469394.1 AS circulating_supply_native
-
         -- Token Turnover Metrics
         , token_turnover_circulating
         , token_turnover_fdv
+        -- timestamp columns
+        , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+        , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
     from date_spine
     left join leo_revenue using (date)
     left join market_data using (date)
+    {{ ez_metrics_incremental('date', backfill_date) }}
+    and date < to_date(sysdate())

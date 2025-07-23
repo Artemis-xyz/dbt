@@ -1,33 +1,47 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="DYDX",
         database="dydx_v4",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     trading_volume_data as (
         select date, trading_volume
         from {{ ref("fact_dydx_v4_trading_volume") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , fees_data as (
         select date, maker_fees, taker_fees, fees
         from {{ ref("fact_dydx_v4_fees") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , chain_data as (
         select date, maker_fees, maker_rebates, txn_fees
         from {{ ref("fact_dydx_v4_txn_fees") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , trading_fees as (
         select date, total_fees
         from {{ ref("fact_dydx_v4_trading_fees") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , unique_traders_data as (
         select date, unique_traders
         from {{ ref("fact_dydx_v4_unique_traders") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 
 select 
@@ -46,6 +60,9 @@ select
     , unique_traders as perp_dau
     , trading_fees + txn_fees as ecosystem_revenue
     , case when unique_traders_data.date > '2025-03-25' then ecosystem_revenue * 0.25 else 0 end as buybacks
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from trading_volume_data
 left join fees_data on trading_volume_data.date = fees_data.date
 left join chain_data on trading_volume_data.date = chain_data.date
