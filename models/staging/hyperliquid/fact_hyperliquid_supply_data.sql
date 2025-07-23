@@ -69,7 +69,7 @@ with hyperliquid_genesis as (
         where f.value[0] in (
             '0xd57ecca444a9acb7208d286be439de12dd09de5d', -- Hyperliquid Foundation
             '0xa20fcfa0507fe762011962cc581b95bbbc3bbdba', -- Community Grants
-            '0xffffffffffffffffffffffffffffffffffffffff' -- HIP-2: Hyperliquidity
+            '0xffffffffffffffffffffffffffffffffffffffff' -- HIP-2: Hyperliquid Improvement Proposal 2
         )
         group by 1, 2
     ) tmp
