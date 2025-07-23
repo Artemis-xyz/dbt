@@ -72,7 +72,7 @@ with
     , treasury_value_cte as (
         select
             date,
-            sum(usd_balance) as treasury_value
+            sum(balance) as treasury_value
         from {{ref('fact_pendle_treasury')}}
         {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
@@ -80,7 +80,7 @@ with
     , net_treasury_value_cte as (
         select
             date,
-            sum(usd_balance) as net_treasury_value
+            sum(balance) as net_treasury_value
         from {{ref('fact_pendle_treasury')}}
         {{ ez_metrics_incremental('date', backfill_date) }}
         and token <> 'PENDLE'
@@ -89,8 +89,8 @@ with
     , treasury_value_native_cte as (
         select
             date,
-            sum(native_balance) as treasury_value_native,
-            sum(usd_balance) as native_treasury_value
+            sum(balance_native) as treasury_value_native,
+            sum(balance) as native_treasury_value
         from {{ref('fact_pendle_treasury')}}
         {{ ez_metrics_incremental('date', backfill_date) }}
         and token = 'PENDLE'
@@ -104,7 +104,17 @@ with
         from {{ref('fact_pendle_token_holders')}}
         {{ ez_metrics_incremental('date', backfill_date) }}
     )
-
+    , supply_data as (
+        SELECT
+            date,
+            emissions_native,
+            unlocks_native,
+            pendle_locked,
+            total_supply_native,
+            issued_supply_native,
+            circulating_supply_native
+        FROM {{ ref('fact_pendle_supply_data')}}
+    )
 SELECT
     p.date
     , d.daus as dau
@@ -155,7 +165,16 @@ SELECT
     -- Treasury Metrics
     , tv.treasury_value as treasury
     , tn.native_treasury_value as own_token_treasury
+    , tn.treasury_value_native as own_token_treasury_native
     , nt.net_treasury_value as net_treasury
+
+    -- Supply Metrics
+    , emissions_native
+    , unlocks_native as premine_unlocks_native
+    , pendle_locked as locked_supply_native
+    , total_supply_native
+    , issued_supply_native
+    , circulating_supply_native
 
     -- Other Metrics
     , coalesce(ti.token_incentives, 0) as gross_emissions
@@ -175,5 +194,6 @@ LEFT JOIN treasury_value_cte tv USING (date)
 LEFT JOIN net_treasury_value_cte nt USING (date)
 LEFT JOIN treasury_value_native_cte tn USING (date) 
 LEFT JOIN tokenholder_count tc using(date) 
+LEFT JOIN supply_data sd using(date)
 {{ ez_metrics_incremental('p.date', backfill_date) }}
 and p.date < to_date(sysdate())

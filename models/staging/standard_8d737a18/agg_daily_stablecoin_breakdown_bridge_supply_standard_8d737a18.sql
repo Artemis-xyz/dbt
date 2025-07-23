@@ -2,7 +2,7 @@
 
 {% set chain_list = ['arbitrum', 'avalanche', 'base', 'bsc', 'celo', 'ethereum', 'mantle', 'optimism', 'polygon', 'solana', 'sui', 'ton', 'tron', 'sonic', 'kaia', 'aptos', 'ripple'] %}
 
-{% set premint_chains = ['aptos', 'avalanche', 'celo', 'ethereum', 'kaia', 'polygon', 'solana', 'sui', 'ton', 'tron'] %}
+{% set premint_chains = ['aptos', 'avalanche', 'celo', 'ethereum', 'kaia', 'polygon', 'solana', 'sui', 'ton', 'tron', 'katana'] %}
 {% set bridge_chains = ['ethereum', 'tron'] %}
 
 with

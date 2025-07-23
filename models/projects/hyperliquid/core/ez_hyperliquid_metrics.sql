@@ -82,6 +82,7 @@ with trading_volume_data as (
         , foundation_owned
         , issued_supply
         , unvested_tokens
+        , net_supply_change_native
         , circulating_supply
     from {{ref('fact_hyperliquid_supply_data')}}
     {{ ez_metrics_incremental('date', backfill_date) }}
@@ -98,8 +99,8 @@ with trading_volume_data as (
     SELECT
         date,
         'hyperliquid' as chain
-    FROM {{ref("dim_date_spine")}}
-    WHERE date between '2024-11-29' and to_date(sysdate())
+    FROM {{ref("dim_date_spine")}}  
+    WHERE date between '2023-06-13' and to_date(sysdate())
 )
 , hyperevm_fundamental_metrics_data as (
     select date, chain, daa, txns, hyperevm_burns, hyperevm_burns_native
@@ -141,7 +142,11 @@ with trading_volume_data as (
     from {{ ref("fact_hyperliquid_new_users") }}
     {{ ez_metrics_incremental('date', backfill_date) }}
 )
-
+, open_interest_data as (
+    select date, sum(open_interest) as open_interest
+    from {{ ref("fact_hyperliquid_open_interest") }}
+    group by 1
+)
     
 select
     date_spine.date
@@ -177,6 +182,8 @@ select
     , chain_tvl.tvl as chain_tvl
     , coalesce(perps_tvl_data.tvl, 0) as tvl
     , new_users
+    , open_interest
+
     -- Cash Flow Metrics
     , perp_fees
     , spot_fees
@@ -192,7 +199,7 @@ select
     , coalesce(emissions_native, 0) as emissions_native
     , coalesce(premine_unlocks_native, 0) as premine_unlocks_native
     , coalesce(daily_burns_native, 0) as burns_native
-    , coalesce(emissions_native, 0) + coalesce(premine_unlocks_native, 0) - coalesce(burns_native, 0) as net_supply_change_native
+    , coalesce(hyperliquid_api_supply_data.net_supply_change_native, 0) as net_supply_change_native
     , coalesce(hyperliquid_api_supply_data.total_supply, 0) as total_supply_native
     , coalesce(hyperliquid_api_supply_data.issued_supply, 0) as issued_supply_native
     , coalesce(hyperliquid_api_supply_data.circulating_supply, 0) as circulating_supply_native
@@ -217,5 +224,6 @@ left join daily_assistance_fund_data using(date)
 left join perps_tvl_data using(date)
 left join chain_tvl using(date)
 left join new_users_data using(date)
+left join open_interest_data using(date)
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

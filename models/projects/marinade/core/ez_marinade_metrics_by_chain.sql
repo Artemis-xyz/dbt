@@ -110,6 +110,7 @@ select
         else fees 
     end as revenue
     
+    , circulating_supply as circulating_supply_native
 
 from tvl
 left join dau using (date)
