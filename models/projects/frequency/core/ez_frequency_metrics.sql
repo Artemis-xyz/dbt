@@ -18,14 +18,14 @@ with
     )
 select
     date
-    , txns
-    , daa as dau
-    , coalesce(fees_native, 0) as fees_native
+
     -- Standardized Metrics
-    -- Chain Metrics
+    -- Usage Metrics
     , txns as chain_txns
+    , txns
     , dau as chain_dau
+    , daa as dau
     -- Cash Flow Metrics
-    , fees_native as ecosystem_revenue_native
+    , coalesce(fees_native, 0) as fees_native
 from fundamental_data
 where fundamental_data.date < to_date(sysdate())
