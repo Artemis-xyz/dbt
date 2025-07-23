@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="OSMOSIS",
         database="osmosis",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     date_spine as (
@@ -34,6 +43,7 @@ with
                     )
                 }}
             )
+        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     ),
     price_data as ({{ get_coingecko_metrics("osmosis") }}),
@@ -103,9 +113,13 @@ select
     , weekly_developers_sub_ecosystem
     , token_turnover_circulating
     , token_turnover_fdv
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 left join fundamental_data using (date)
 left join price_data using (date)
 left join defillama_data using (date)
 left join github_data using (date)
-where date_spine.date < to_date(sysdate())
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

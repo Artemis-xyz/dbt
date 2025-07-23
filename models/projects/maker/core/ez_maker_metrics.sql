@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="MAKER",
         database="maker",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 WITH
     fees_revenue_expenses AS (
@@ -25,25 +34,35 @@ WITH
             operating_expenses,
             total_expenses
         FROM {{ ref('fact_maker_fees_revenue_expenses') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , treasury_usd AS (
         SELECT date, treasury_usd FROM {{ ref('fact_treasury_usd') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , treasury_native AS (
-        SELECT date, sum(amount_native) as treasury_native FROM {{ ref('fact_treasury_mkr') }} group by 1
+        SELECT date, sum(amount_native) as treasury_native 
+        FROM {{ ref('fact_treasury_mkr') }} 
+        {{ ez_metrics_incremental('date', backfill_date) }} 
+        group by 1
     )
     , net_treasury AS (
-        SELECT date, net_treasury_usd FROM {{ ref('fact_net_treasury_usd') }}
+        SELECT date, net_treasury_usd 
+        FROM {{ ref('fact_net_treasury_usd') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , tvl_metrics AS (
         SELECT 
             date, 
             sum(balance) as tvl
         FROM {{ ref('fact_maker_tvl_by_address_balance') }} 
+        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , outstanding_supply AS (
-        SELECT date, outstanding_supply FROM {{ ref('fact_dai_supply') }}
+        SELECT date, outstanding_supply 
+        FROM {{ ref('fact_dai_supply') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , token_turnover_metrics as (
         select
@@ -52,6 +71,7 @@ WITH
             , token_turnover_fdv
             , token_volume
         from {{ ref("fact_maker_fdv_and_turnover")}}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("maker") }})
     , token_holder_data as (
@@ -59,6 +79,7 @@ WITH
             date
             , tokenholder_count
         from {{ ref("fact_mkr_tokenholder_count")}}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , token_supply as (
         select
@@ -66,6 +87,7 @@ WITH
             , issued_supply_sky_less_converter as sky_issued_supply
             , circulating_supply_sky_less_converter as sky_circulating_supply
         from {{ ref("fact_maker_supply_data")}}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 
 
@@ -122,7 +144,9 @@ select
     -- Token Turnover metrics
     , COALESCE(token_turnover_fdv, 0) AS token_turnover_fdv
     , COALESCE(token_turnover_circulating, 0) AS token_turnover_circulating
-    
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM token_holder_data
 left join treasury_usd using (date)
 left join treasury_native using (date)
@@ -133,4 +157,5 @@ left join token_turnover_metrics using (date)
 left join price_data using (date)
 left join fees_revenue_expenses using (date)
 left join token_supply using (date)
-where date < to_date(sysdate())
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())

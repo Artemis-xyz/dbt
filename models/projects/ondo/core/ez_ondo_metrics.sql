@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         database = 'ondo',
         schema = 'core',
         snowflake_warehouse = 'ONDO',
-        alias = 'ez_metrics'
+        alias = 'ez_metrics',
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with date_spine as (
     select
@@ -14,9 +23,9 @@ with date_spine as (
     from {{ ref("dim_date_spine") }}
     where date between '2023-01-26' and to_date(sysdate())
 )
-
 , fees as (
     select date, fee as fees from {{ ref("fact_ondo_ousg_fees") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , tvl as (
     select
@@ -24,6 +33,7 @@ with date_spine as (
         sum(tokenized_mcap_change) as tokenized_mcap_change,
         sum(tokenized_mcap) as tokenized_mcap,
     from {{ ref("ez_ondo_metrics_by_chain") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , ff_defillama_metrics as (
@@ -31,10 +41,10 @@ with date_spine as (
         date,
         avg(tvl) as tvl
     from {{ ref("fact_defillama_protocol_tvls") }}
-    where defillama_protocol_id = 2537
+    {{ ez_metrics_incremental('date', backfill_date) }}
+    and defillama_protocol_id = 2537
     group by 1
 )
-
 , supply as (
     select
         date,
@@ -42,6 +52,7 @@ with date_spine as (
         net_supply_change_native,
         circulating_supply_native
     from {{ ref("fact_ondo_daily_supply") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 select
@@ -52,10 +63,14 @@ select
     coalesce(ff_defillama_metrics.tvl, 0) as flux_finance_tvl,
     coalesce(supply.premine_unlocks_native, 0) as premine_unlocks_native,
     coalesce(supply.net_supply_change_native, 0) as net_supply_change_native,
-    coalesce(supply.circulating_supply_native, 0) as circulating_supply_native
+    coalesce(supply.circulating_supply_native, 0) as circulating_supply_native,
+    -- timestamp columns
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine ds
 left join fees using (date)
 left join tvl using (date)
 left join ff_defillama_metrics using (date)
 left join supply using (date)
-where ds.date < to_date(sysdate())
+{{ ez_metrics_incremental('ds.date', backfill_date) }}
+and ds.date < to_date(sysdate())

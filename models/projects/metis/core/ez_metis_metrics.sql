@@ -1,30 +1,42 @@
 {{
     config(
-        materialized = "table",
+        materialized = "incremental",
         snowflake_warehouse = "METIS",
         database = "METIS",
         schema = "core",
-        alias = "ez_metrics"
+        alias = "ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with fees as (
     select
         date,
         fees_usd
     from {{ref("fact_metis_fees")}}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 txns as (
     select
         date,
         txns
     from {{ref("fact_metis_txns")}}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , daus as (
     select
         date,
         dau
     from {{ref("fact_metis_dau")}}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , defillama_data as (
     {{ get_defillama_metrics("metis") }}
@@ -36,6 +48,7 @@ txns as (
         , net_supply_change_native
         , circulating_supply_native
     from {{ref("fact_metis_supply_data")}}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , price_data as ({{ get_coingecko_metrics("metis-token") }})
 
@@ -68,9 +81,14 @@ select
     -- Other Metrics
     , token_turnover_circulating
     , token_turnover_fdv
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fees
 left join txns on fees.date = txns.date
 left join daus on fees.date = daus.date 
 left join price_data on fees.date = price_data.date
 left join defillama_data on fees.date = defillama_data.date
 left join supply_data on fees.date = supply_data.date
+{{ ez_metrics_incremental('fees.date', backfill_date) }}
+and fees.date < to_date(sysdate())

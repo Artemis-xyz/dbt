@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse = 'MORPHO',
         database = 'MORPHO',
         schema = 'core',
-        alias = 'ez_metrics'
+        alias = 'ez_metrics',
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
  }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with morpho_data as (
     select
@@ -18,6 +27,7 @@ with morpho_data as (
         , sum(supply_amount_usd) + sum(collat_amount_usd) as deposit_amount_usd
         , sum(fees_usd) as fees
     from {{ ref("fact_morpho_data") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 
@@ -33,6 +43,7 @@ with morpho_data as (
         , sum(amount_native) as token_incentives_native
         , sum(amount_usd) as token_incentives
     from all_token_incentives
+    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 
@@ -61,6 +72,7 @@ with morpho_data as (
         , net_supply_change_native
         , circulating_supply_native
     from {{ ref("fact_morpho_supply_data") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 , date_spine as (
@@ -78,7 +90,6 @@ select
     , supplies as total_available_supply
     , deposits
     , fees
-
     -- Standardized metrics
     , dau as lending_dau
     , txns as lending_txns
@@ -86,17 +97,14 @@ select
     , supplies as lending_loan_capacity
     , deposits as lending_deposits
     , tvl
-    
     -- Cash Flow Metrics (Interest goes to Liquidity Suppliers (Lenders) + Vaults Performance Fees)
     , fees as lending_interest_fees
     , 0 as revenue
     , revenue - token_incentives as earnings
-    
     -- Supply Metrics
     , msd.premine_unlocks_native
     , msd.net_supply_change_native
     , msd.circulating_supply_native
-
     -- Market Metrics
     , mdd.price
     , mdd.market_cap
@@ -104,11 +112,15 @@ select
     , mdd.token_turnover_circulating
     , mdd.token_turnover_fdv
     , mdd.token_volume
-
     , token_incentives_native
     , token_incentives
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 left join cumulative_metrics using (date)
 left join morpho_market_data mdd using (date)
 left join morpho_supply_data msd using (date)
 left join morpho_token_incentives using (date)
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

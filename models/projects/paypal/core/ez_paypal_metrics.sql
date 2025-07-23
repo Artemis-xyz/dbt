@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="PAYPAL",
         database="paypal",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with paypal as (
     select
@@ -117,4 +126,6 @@ select
     date, 
     transfer_volume 
 from combined_result
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())
 order by date

@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="marinade",
         database="marinade",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with tvl as (
     select
@@ -15,6 +24,7 @@ with tvl as (
         , native
         , tvl
     from {{ ref("fact_marinade_tvl") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 dau as (
     select
@@ -22,6 +32,7 @@ dau as (
         , dau
         , txns
     from {{ ref("fact_marinade_dau_txns") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 v1_fees as (
     select
@@ -29,12 +40,14 @@ v1_fees as (
         , coalesce(unstaking_fees, 0) as unstaking_fees_native
         , coalesce(fees_native, 0) as fees_native
     from {{ ref("fact_marinade_v1_fees") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 v2_fees as (
     select
         date
         , fees_native   
     from {{ ref("fact_marinade_fees") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 fees as (
     select
@@ -49,6 +62,7 @@ circulating_supply as (
         date
         , circulating_supply
     from {{ ref("fact_marinade_circulating_supply") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 price as (
     select * from ({{ get_coingecko_price_with_latest("solana") }}) 
@@ -59,7 +73,6 @@ market_metrics as (
 
 select
     date
-
     --Old metrics needed for compatibility
     , liquid
     , native
@@ -76,17 +89,13 @@ select
     -- when v2 fees are active, 100% goes to the protocol
         else fees 
     end as revenue
-
-
     --Standardized Metrics
-
     --Market Metrics
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
     , market_metrics.token_volume
     , circulating_supply as circulating_supply
-
     --Usage Metrics
     , tvl * price as tvl
     , tvl * price as lst_tvl
@@ -94,12 +103,10 @@ select
     , tvl as lst_tvl_native
     , coalesce(tvl - lag(tvl) over (order by date), 0) as lst_tvl_net_change
     , coalesce(tvl_native - lag(tvl_native) over (order by date), 0) as lst_tvl_native_net_change
-
     , dau as lst_dau
     , txns as lst_txns
     , liquid as tvl_liquid_stake
     , native as tvl_native_stake
-
     --Cash Flow Metrics
     , unstaking_fees_native * price as unstaking_fees
     , fees_native * price as lst_fees
@@ -114,14 +121,17 @@ select
     -- when v2 fees are active, 100% goes to the protocol
         else 0 
     end as service_fee_allocation
-    
     --Other Metrics
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from tvl
 left join dau using (date)
 left join fees using (date)
 left join circulating_supply using (date)
 left join price using (date)
 left join market_metrics using (date)
-order by date desc
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())
