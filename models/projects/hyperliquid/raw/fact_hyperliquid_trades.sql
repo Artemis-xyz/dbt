@@ -1,7 +1,7 @@
 {{ 
     config(
         materialized="incremental",
-        snowflake_warehouse="HYPERLIQUID",
+        snowflake_warehouse="ANALYTICS_XL",
         database="hyperliquid",
         schema="raw",
         alias="fact_hyperliquid_trades",
@@ -32,5 +32,5 @@ from {{ source('SNOWPIPE_DB', 'FACT_HYPERLIQUID_TRADES') }}
 where
     1=1 
     {% if is_incremental() %}
-    AND _load_timestamp_utc >= (SELECT MAX(_load_timestamp_utc) FROM {{ this }})
+    AND trade_timestamp > (SELECT MAX(trade_timestamp) FROM {{ this }})
     {% endif %}
