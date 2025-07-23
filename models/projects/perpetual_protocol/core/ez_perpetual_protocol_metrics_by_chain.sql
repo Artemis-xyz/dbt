@@ -52,23 +52,26 @@ with
 
 select
     base.date as date
-    , 'perpetual_protocol' as app
-    , 'DeFi' as category
     , base.chain
-    , coalesce(tvd.trading_volume, 0) as trading_volume
-    , coalesce(utd.unique_traders, 0) as unique_traders
-    , coalesce(fd.fees, 0) * 0.2 as revenue -- https://support.perp.com/general/legacy-reward-programs#how-it-works search '20%'
     , (coalesce(tvl_data.tvl, 0) - LAG(coalesce(tvl_data.tvl, 0)) OVER (PARTITION BY base.chain ORDER BY base.date)) / NULLIF(LAG(coalesce(tvl_data.tvl, 0)) OVER (PARTITION BY base.chain ORDER BY base.date), 0) * 100 as tvl_growth
-    -- standardize metrics
+    
+    -- Standardized Metrics
+    -- Usage Metrics
     , coalesce(tvd.trading_volume, 0) as perp_volume
     , coalesce(utd.unique_traders, 0) as perp_dau
     , coalesce(tvl_data.tvl, 0) as tvl
     , (coalesce(tvl_data.tvl, 0) - LAG(coalesce(tvl_data.tvl, 0)) OVER (PARTITION BY base.chain ORDER BY base.date)) / NULLIF(LAG(coalesce(tvl_data.tvl, 0)) OVER (PARTITION BY base.chain ORDER BY base.date), 0) * 100 as tvl_pct_change
-    , coalesce(fd.fees, 0) as fees
+    
+    -- Fees Metrics
+    , coalesce(fd.fees, 0) as perp_fees
     , coalesce(fd.fees, 0) * 0.2 * 0.8 as staking_fee_allocation
     , coalesce(fd.fees, 0) * 0.8 as service_fee_allocation
     , coalesce(fd.fees, 0) * 0.2 * 0.2 as treasury_fee_allocation
+    
+    -- Financial Metrics
+    , coalesce(fd.fees, 0) * 0.2 as revenue -- https://support.perp.com/general/legacy-reward-programs#how-it-works search '20%'
     , coalesce(ti.token_incentives, 0) as token_incentives
+    , coalesce(fd.fees, 0) - coalesce(ti.token_incentives, 0) as earnings
 from all_date_chain_combinations base
 left join trading_volume_data tvd on tvd.date = base.date and tvd.chain = base.chain
 left join unique_traders_data utd on utd.date = base.date and utd.chain = base.chain

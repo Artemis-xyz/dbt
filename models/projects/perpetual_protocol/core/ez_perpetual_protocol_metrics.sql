@@ -33,7 +33,7 @@ WITH
         WHERE date < to_date(sysdate())
         GROUP BY 1, 2, 3
     )
-    , price as ({{ get_coingecko_metrics("perpetual-protocol") }})
+    , market_data as ({{ get_coingecko_metrics("perpetual-protocol") }})
 
     , token_incentives as (
         select
@@ -45,33 +45,33 @@ WITH
 
 SELECT
     date
-    , app
-    , category
-    , trading_volume
-    , unique_traders
-    , fees
-    , revenue
-    , tvl_growth
-    -- standardize metrics
-    , perp_volume
-    , perp_dau
-    , tvl
-    , tvl_pct_change
 
-    , staking_fee_allocation
-    , service_fee_allocation
-    , treasury_fee_allocation
-    , coalesce(revenue, 0) - coalesce(token_incentives.token_incentives, 0) as earnings
+    -- Standardized Metrics
+    , perp_data.perp_dau
+    , perp_data.perp_volume
+    , perp_data.tvl
+    , perp_data.tvl_pct_change
+
+    -- Fees Metrics
+    , perp_data.fees as perp_fees
+    , perp_data.fees
+    , perp_data.staking_fee_allocation
+    , perp_data.service_fee_allocation
+    , perp_data.treasury_fee_allocation
+    
+    -- Financial Metrics
+    , perp_data.revenue
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
+    , coalesce(perp_data.revenue, 0) - coalesce(token_incentives.token_incentives, 0) as earnings
 
     -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
-    , token_volume
-    , coalesce(token_incentives.token_incentives, 0) as token_incentives
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
+    , market_data.token_volume
 FROM perp_data
-LEFT JOIN price USING(date)
+LEFT JOIN market_data USING(date)
 LEFT JOIN token_incentives USING(date)
 WHERE date < to_date(sysdate())
