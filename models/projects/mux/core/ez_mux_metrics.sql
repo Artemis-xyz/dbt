@@ -28,9 +28,7 @@ with
     )
 select
     date
-    , 'mux' as app
-    , 'DeFi' as category
-
+    -- Standardized Metrics
     -- Usage Metrics
     , trading_volume as perp_volume
     , unique_traders as perp_dau
@@ -43,7 +41,7 @@ select
     , price.token_turnover_fdv
     , price.token_volume
 
-    -- Cashflow Metrics
+    -- Financial Metrics
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
 
 from mux_data

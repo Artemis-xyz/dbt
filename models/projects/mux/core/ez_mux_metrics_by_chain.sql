@@ -25,15 +25,11 @@ with
 
 select
     date
-    , 'mux' as app
-    , 'DeFi' as category
     , chain
-    , trading_volume
-    , unique_traders
-    -- standardize metrics
+    -- Standardized Metrics
+    -- Usage Metrics
     , trading_volume as perp_volume
     , unique_traders as perp_dau
-    , coalesce(token_incentives.token_incentives, 0) as token_incentives
 from mux_data
 left join token_incentives using(date, chain)
 where date < to_date(sysdate())
