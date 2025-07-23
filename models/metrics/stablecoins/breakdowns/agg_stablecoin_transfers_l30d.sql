@@ -31,6 +31,22 @@ with stablecoin_transfers as (
     {{ l30d_stablecoin_transfers('mantle') }}
     union all
     {{ l30d_stablecoin_transfers('sui') }}
+    union all
+    {{ l30d_stablecoin_transfers('stellar') }}
+    union all
+    {{ l30d_stablecoin_transfers('sei') }}
+    union all
+    {{ l30d_stablecoin_transfers('hyperevm') }}
+    union all
+    {{ l30d_stablecoin_transfers('katana') }}
+    union all
+    {{ l30d_stablecoin_transfers('aptos') }}
+    union all
+    {{ l30d_stablecoin_transfers('ripple') }}
+    union all
+    {{ l30d_stablecoin_transfers('kaia') }}
+    union all
+    {{ l30d_stablecoin_transfers('sonic') }}
 )
 select
     stablecoin_transfers.date
