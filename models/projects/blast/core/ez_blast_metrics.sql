@@ -15,7 +15,7 @@ with
     , market_data as ({{ get_coingecko_metrics("blast") }})
     , eth_price as ({{ get_coingecko_metrics("ethereum") }})
     , contract_data as ({{ get_contract_metrics("blast") }})
-    -- NOTE, this says l1 data cost, but that's inaccurate
+    -- NOTE, this says l1 data cost, but that's inaccurate 
     -- its both data and execution cost, but I'm following convention for now and we don't publish 
     -- this field anywhere, we only use it to derive revenue
     , expenses_data as (
@@ -39,11 +39,6 @@ select
         expenses_data.date
     )) as date
 
-    , l1_data_cost_native
-    , l1_data_cost
-    , coalesce(fees_native, 0) - l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    , coalesce(fees, 0) - l1_data_cost as revenue
-
     -- Standardized Metrics
 
     -- Market Data 
@@ -51,29 +46,27 @@ select
     , market_data.market_cap
     , market_data.fdmc
     , market_data.token_volume as token_volume
-    , tvl
 
     -- Usage Data
     , daa AS chain_dau
+    , wau AS chain_wau
+    , mau AS chain_mau
     , daa AS dau
     , txns AS chain_txns
     , txns 
+    , tvl AS chain_tvl
+    , tvl
     , dune_dex_volumes_blast.dex_volumes as chain_spot_volume
-    , dune_dex_volumes_blast.adjusted_dex_volumes as adjusted_chain_spot_volume
+    , dune_dex_volumes_blast.adjusted_dex_volumes as chain_spot_volume_adjusted
 
     -- Fee Data
-    , fees_native
+    , fees_native                                                                              
     , fees_native * eth_price.price AS fees
-  
-    -- Cashflow metrics
-    , fees_native AS ecosystem_revenue_native
-    , fees AS ecosystem_revenue
-    , revenue_native AS burned_fee_allocation_native
-    , revenue AS burned_fee_allocation
-    , l1_data_cost_native AS l1_fee_allocation_native
     , l1_data_cost AS l1_fee_allocation
-    , revenue_native AS foundation_fee_allocation_native
-    , revenue AS foundation_fee_allocation
+    , (fees_native * eth_price.price) - l1_data_cost AS foundation_fee_allocation
+
+    -- Financial Statements
+    , 0 as revenue
 
     -- Supply Metrics
     , premine_unlocks_native
