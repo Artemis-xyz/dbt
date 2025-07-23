@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="RENDER",
         unique_key=["tx_id", "index", "inner_index"]    
     )
 }}
