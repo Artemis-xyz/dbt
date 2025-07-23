@@ -57,7 +57,7 @@ select
     , weekly_developers_sub_ecosystem
 
     -- Stablecoin Metrics
-    , stablecoin_total_supply
+    , stablecoin_total_supply as stablecoin_supply
     , stablecoin_txns
     , stablecoin_dau
     , stablecoin_mau
