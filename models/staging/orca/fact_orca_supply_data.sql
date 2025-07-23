@@ -10,7 +10,7 @@ with locked as (
         date
         -- , address
         , sum(balance_native) as locked_tokens
-    FROM pc_dbt_db.prod.fact_orca_treasury_balance
+    FROM {{ ref("fact_orca_treasury_balance") }}
     GROUP BY 1
     -- , 2
     ORDER BY 1 DESC
