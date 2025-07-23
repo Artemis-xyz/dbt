@@ -117,7 +117,11 @@ with trading_volume_data as (
     select date, new_users
     from {{ ref("fact_hyperliquid_new_users") }}
 )
-
+, open_interest_data as (
+    select date, sum(open_interest) as open_interest
+    from {{ ref("fact_hyperliquid_open_interest") }}
+    group by 1
+)
     
 select
     date_spine.date
@@ -157,7 +161,8 @@ select
     , chain_tvl.tvl as chain_tvl
     , coalesce(perps_tvl_data.tvl, 0) as tvl
     , new_users
-    
+    , open_interest
+
     -- Cash Flow Metrics
     , perp_fees
     , spot_fees
@@ -197,4 +202,5 @@ left join daily_assistance_fund_data using(date)
 left join perps_tvl_data using(date)
 left join chain_tvl using(date)
 left join new_users_data using(date)
+left join open_interest_data using(date)
 where date_spine.date < to_date(sysdate())
