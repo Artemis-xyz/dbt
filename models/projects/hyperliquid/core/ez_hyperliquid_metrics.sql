@@ -78,8 +78,8 @@ with trading_volume_data as (
     SELECT
         date,
         'hyperliquid' as chain
-    FROM {{ref("dim_date_spine")}}
-    WHERE date between '2024-11-29' and to_date(sysdate())
+    FROM {{ref("dim_date_spine")}}  
+    WHERE date between '2023-06-13' and to_date(sysdate())
 )
 , hyperevm_fundamental_metrics_data as (
     select date, chain, daa, txns, hyperevm_burns, hyperevm_burns_native
