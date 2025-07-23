@@ -32,5 +32,5 @@ from {{ source('SNOWPIPE_DB', 'FACT_HYPERLIQUID_TRADES') }}
 where
     1=1 
     {% if is_incremental() %}
-    AND last_updated <= (SELECT MAX(_load_timestamp_utc) FROM {{ this }})
+    AND _load_timestamp_utc <= (SELECT MAX(_load_timestamp_utc) FROM {{ this }})
     {% endif %}
