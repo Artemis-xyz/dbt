@@ -26,37 +26,38 @@ with
 select
     fundamental_data.date
     , fundamental_data.chain
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees
-    , revenue
-    , avg_txn_fee
-    , celo_dex_volumes.dex_volumes
-    , celo_dex_volumes.adjusted_dex_volumes
+
+
     -- Standardized Metrics
-    -- Market Data Metrics
+    -- Market Data 
     , price
     , market_cap
     , fdmc
     , tvl
     -- Chain Usage Metrics
     , txns AS chain_txns
+    , txns
     , dau AS chain_dau
+    , dau
     , wau AS chain_wau
     , mau AS chain_mau
     , avg_txn_fee AS chain_avg_txn_fee
     , celo_dex_volumes.dex_volumes AS chain_spot_volume
+
     -- Cashflow metrics
     , fees AS chain_fees
-    , fees AS ecosystem_revenue
+    , fees
     , revenue AS burned_fee_allocation
+
+    -- Financial Metrics
+    , revenue
+
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
+
     -- Stablecoin Metrics
     , stablecoin_total_supply
     , stablecoin_txns
@@ -73,6 +74,9 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , p2p_stablecoin_transfer_volume
+
+    -- Legacy Metrics
+    , celo_dex_volumes.adjusted_dex_volumes
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
