@@ -18,13 +18,20 @@ with hyperliquid_genesis as (
 )
 
 , unvested_tokens as (
-    select
-        date(extraction_date) as date
-        , sum(try_to_decimal(f.value[1]::string)) as unvested_tokens
-    from {{ source('PROD_LANDING', 'raw_hyperliquid_supply_data') }},
-        lateral flatten(input => source_json:nonCirculatingUserBalances) as f
-    where f.value[0] = '0x43e9abea1910387c4292bca4b94de81462f8a251'
-    group by date(extraction_date)
+    select 
+        date
+        , sum(unvested) as unvested_tokens
+    from (
+        select 
+            date(extraction_date) as date
+            , f.value[0] as address
+            , max_by(try_to_decimal(f.value[1]::string), extraction_date) as unvested
+        from {{ source('PROD_LANDING', 'raw_hyperliquid_supply_data') }} t
+            , lateral flatten(input => t.source_json:nonCirculatingUserBalances) f
+        where f.value[0] = '0x43e9abea1910387c4292bca4b94de81462f8a251'
+        group by 1, 2
+    ) tmp
+    group by date
 )
 
 , dead_tokens as (
@@ -32,7 +39,7 @@ with hyperliquid_genesis as (
         date(extraction_date) as date
         , sum(try_to_decimal(f.value[1]::string)) as dead_tokens
     from {{ source('PROD_LANDING', 'raw_hyperliquid_supply_data') }}
-        lateral flatten(input => source_json:nonCirculatingUserBalances) as f
+        , lateral flatten(input => source_json:nonCirculatingUserBalances) as f
     where f.value[0] in ('0x0000000000000000000000000000000000000000', '0x000000000000000000000000000000000000dead')
     group by date(extraction_date)
 )
@@ -50,16 +57,23 @@ with hyperliquid_genesis as (
 
 , foundation_owned as (
     select
-        date(extraction_date) as date
-        , sum(try_to_decimal(f.value[1]::string)) as foundation_owned
-    from {{ source('PROD_LANDING', 'raw_hyperliquid_supply_data') }} supply,
-        lateral flatten(input => source_json:genesis.userBalances) as f
-    where f.value[0] in (
-        '0xd57ecca444a9acb7208d286be439de12dd09de5d', 
-        '0xa20fcfa0507fe762011962cc581b95bbbc3bbdba', 
-        '0xffffffffffffffffffffffffffffffffffffffff'
-    )
-    group by date(extraction_date)
+        date
+        , sum(balance) as foundation_owned
+    from (
+        select
+            date(extraction_date) as date
+            , f.value[0] as address
+            , max_by(try_to_decimal(f.value[1]::string), extraction_date) as balance
+        from {{ source('PROD_LANDING', 'raw_hyperliquid_supply_data') }} t
+            , lateral flatten(input => t.source_json:genesis.userBalances) f
+        where f.value[0] in (
+            '0xd57ecca444a9acb7208d286be439de12dd09de5d', 
+            '0xa20fcfa0507fe762011962cc581b95bbbc3bbdba', 
+            '0xffffffffffffffffffffffffffffffffffffffff'
+        )
+        group by 1, 2
+    ) tmp
+    group by date
 )
 
 , burn_tokens as (
@@ -100,10 +114,10 @@ with hyperliquid_genesis as (
 
 , date_spine as (
     select
-            date
-        from {{ ref("dim_date_spine") }}
-        -- '2024-11-29' is the hyperliquid genesis date
-        where date < to_date(sysdate()) and date >= '2024-11-29'
+        date
+    from {{ ref("dim_date_spine") }}
+    -- '2024-11-29' is the hyperliquid genesis date
+    where date < to_date(sysdate()) and date >= '2024-11-29'
 )
 
 , date_spine_with_supply_data as (
@@ -156,6 +170,13 @@ with hyperliquid_genesis as (
     from with_backfill
 )
 
+, final_with_net_change as (
+    select
+        *
+        , circulating_supply - lag(circulating_supply) over (order by date) as net_supply_change_native
+    from final_backfill
+)
+
 select
     date
     , max_supply
@@ -165,6 +186,7 @@ select
     , foundation_owned
     , issued_supply
     , unvested_tokens
+    , net_supply_change_native
     , circulating_supply
-from final_backfill
+from final_with_net_change
 order by date desc
