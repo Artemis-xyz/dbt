@@ -25,8 +25,6 @@ with
     )
 select
     fundamental_data.date
-    , fundamental_data.chain
-
 
     -- Standardized Metrics
     -- Market Data 

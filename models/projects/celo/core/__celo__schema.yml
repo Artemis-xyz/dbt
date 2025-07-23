@@ -218,7 +218,6 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
   - name: ez_celo_metrics_by_category_v2
     description: "This table stores metrics for the CELO protocol"
     columns:
@@ -228,7 +227,6 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
   - name: ez_celo_metrics
     description: "This table stores metrics for the CELO protocol"
     columns:
@@ -265,7 +263,6 @@ models:
       - *weekly_commits_sub_ecosystem
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-
   - name: ez_celo_metrics_by_subcategory
     description: "This table stores metrics for the CELO protocol"
     columns:
@@ -275,11 +272,9 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
   - name: ez_celo_stablecoin_metrics_by_address_with_labels
     description: "This table stores metrics for the CELO protocol"
     columns:
       - *artemis_stablecoin_transfer_volume
       - *p2p_stablecoin_transfer_volume
       - *stablecoin_transfer_volume
-
