@@ -1,7 +1,7 @@
 {{ 
     config(
         materialized="incremental",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="HYPERLIQUID",
         database="hyperliquid",
         schema="raw",
         alias="fact_hyperliquid_trades",
