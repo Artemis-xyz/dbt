@@ -1,6 +1,6 @@
 {{ config(materialized="incremental", unique_key=["unique_id", "chain"], snowflake_warehouse="STABLECOIN_V2_LG") }}
 
-{% set chain_list = ['arbitrum', 'avalanche', 'base', 'bsc', 'celo', 'ethereum', 'mantle', 'optimism', 'polygon', 'solana', 'sui', 'ton', 'tron', 'sonic', 'kaia', 'aptos', 'ripple', 'katana', 'sei', 'hyperevm', stellar] %}
+{% set chain_list = ['arbitrum', 'avalanche', 'base', 'bsc', 'celo', 'ethereum', 'mantle', 'optimism', 'polygon', 'solana', 'sui', 'ton', 'tron', 'sonic', 'kaia', 'aptos', 'ripple', 'katana', 'sei', 'hyperevm', 'stellar'] %}
 
 with
     stablecoin_balances as (
