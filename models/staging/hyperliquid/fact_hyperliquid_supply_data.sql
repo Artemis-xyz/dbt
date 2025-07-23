@@ -67,9 +67,9 @@ with hyperliquid_genesis as (
         from {{ source('PROD_LANDING', 'raw_hyperliquid_supply_data') }} t
             , lateral flatten(input => t.source_json:genesis.userBalances) f
         where f.value[0] in (
-            '0xd57ecca444a9acb7208d286be439de12dd09de5d', 
-            '0xa20fcfa0507fe762011962cc581b95bbbc3bbdba', 
-            '0xffffffffffffffffffffffffffffffffffffffff'
+            '0xd57ecca444a9acb7208d286be439de12dd09de5d', -- Hyperliquid Foundation
+            '0xa20fcfa0507fe762011962cc581b95bbbc3bbdba', -- Community Grants
+            '0xffffffffffffffffffffffffffffffffffffffff' -- HIP-2: Hyperliquidity
         )
         group by 1, 2
     ) tmp
