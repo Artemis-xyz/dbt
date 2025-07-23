@@ -9,7 +9,8 @@ with prices as (
 )
 select
     f.date,
-    f.fees_native * p.price as fees_usd
+    f.fees_native,
+    f.fees_native * p.price as fees
 from {{ref("fact_chiliz_fees_native")}} f
 left join prices p on p.date = f.date
 where f.date < to_date(sysdate())

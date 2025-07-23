@@ -17,7 +17,8 @@ with date_spine as(
 , fees as (
     select
         date,
-        fees_usd
+        fees_native,
+        fees
     from {{ref("fact_chiliz_fees")}}
 ),
 txns as (
@@ -59,38 +60,42 @@ txns as (
 )
 select
     ds.date
-    , dau
-    , txns
-    , fees_usd as fees
-    , coalesce(revenue, 0) as revenue
-    , coalesce(burns_native, 0) as burns_native
-    , usd_balance as treasury_value
-    , usd_balance_change as treasury_value_native_change
     
     -- Standardized Metrics
     
-    -- Market Data Metrics
+    -- Market Data 
     , price
     , market_cap
     , fdmc
+    , token_volume
     
-    -- Chain Usage Metrics
-    , txns AS chain_txns
+    -- Usage Data
     , dau AS chain_dau
+    , dau
+    , txns AS chain_txns
+    , txns 
     
-    -- Cashflow metrics
+    -- Fee Data
+    , fees_native
+    , fees
     , fees AS chain_fees
-    , fees_usd AS ecosystem_revenue
     , revenue AS burned_fee_allocation
-    , burns_native AS burned_fee_allocation_native
+
+    -- Financial Statements
+    , revenue 
     
-    -- Protocol Metrics
+    -- Treasury Data
     , usd_balance AS treasury
-    , usd_balance_change AS treasury_native_change
 
     -- Supply metrics
     , gross_emissions_native
+    , gross_emissions_native * price AS gross_emissions 
     , circulating_supply_native
+    , burns_native 
+
+    -- Turnover Data
+    , token_turnover_circulating
+    , token_turnover_fdv
 from date_spine ds
 left join fees using (date)
 left join txns using (date)
