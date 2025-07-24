@@ -34,35 +34,29 @@ WITH
             operating_expenses,
             total_expenses
         FROM {{ ref('fact_maker_fees_revenue_expenses') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , treasury_usd AS (
         SELECT date, treasury_usd FROM {{ ref('fact_treasury_usd') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , treasury_native AS (
         SELECT date, sum(amount_native) as treasury_native 
         FROM {{ ref('fact_treasury_mkr') }} 
-        {{ ez_metrics_incremental('date', backfill_date) }} 
         group by 1
     )
     , net_treasury AS (
         SELECT date, net_treasury_usd 
         FROM {{ ref('fact_net_treasury_usd') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , tvl_metrics AS (
         SELECT 
             date, 
             sum(balance) as tvl
         FROM {{ ref('fact_maker_tvl_by_address_balance') }} 
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , outstanding_supply AS (
         SELECT date, outstanding_supply 
         FROM {{ ref('fact_dai_supply') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , token_turnover_metrics as (
         select
@@ -71,7 +65,6 @@ WITH
             , token_turnover_fdv
             , token_volume
         from {{ ref("fact_maker_fdv_and_turnover")}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("maker") }})
     , token_holder_data as (
@@ -79,7 +72,6 @@ WITH
             date
             , tokenholder_count
         from {{ ref("fact_mkr_tokenholder_count")}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , token_supply as (
         select
@@ -87,7 +79,6 @@ WITH
             , issued_supply_sky_less_converter as sky_issued_supply
             , circulating_supply_sky_less_converter as sky_circulating_supply
         from {{ ref("fact_maker_supply_data")}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 
 
@@ -157,5 +148,6 @@ left join token_turnover_metrics using (date)
 left join price_data using (date)
 left join fees_revenue_expenses using (date)
 left join token_supply using (date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

@@ -34,7 +34,6 @@ with
             , sum(daily_borrows_usd) as daily_borrows_usd
             , sum(daily_supply_usd) as daily_supply_usd
         from spark_by_chain
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
 
@@ -51,5 +50,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from spark_metrics
+where true
 {{ ez_metrics_incremental('spark_metrics.date', backfill_date) }}
 and spark_metrics.date < to_date(sysdate())

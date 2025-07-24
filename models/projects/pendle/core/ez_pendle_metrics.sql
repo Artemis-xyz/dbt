@@ -27,7 +27,6 @@ with
             , SUM(volume) as swap_volume
         FROM
         {{ ref('fact_pendle_trades') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , yield_fees as (
@@ -36,7 +35,6 @@ with
             , SUM(fees) as yield_revenue
         FROM
             {{ ref('fact_pendle_yield_fees') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , daus_txns as (
@@ -46,7 +44,6 @@ with
             , SUM(daily_txns) as daily_txns
         FROM
             {{ ref('fact_pendle_daus_txns') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , token_incentives_cte as (
@@ -56,7 +53,6 @@ with
             , SUM(token_incentives_native) as token_incentives_native
         FROM
             {{ref('fact_pendle_token_incentives_by_chain')}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , tvl as (
@@ -66,7 +62,6 @@ with
             , SUM(tvl_usd) as net_deposits
         FROM
             {{ref('fact_pendle_tvl_by_token_and_chain')}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , treasury_value_cte as (
@@ -74,7 +69,6 @@ with
             date,
             sum(balance) as treasury_value
         from {{ref('fact_pendle_treasury')}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , net_treasury_value_cte as (
@@ -82,8 +76,7 @@ with
             date,
             sum(balance) as net_treasury_value
         from {{ref('fact_pendle_treasury')}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and token <> 'PENDLE'
+        where token <> 'PENDLE'
         group by 1
     )
     , treasury_value_native_cte as (
@@ -92,8 +85,7 @@ with
             sum(balance_native) as treasury_value_native,
             sum(balance) as native_treasury_value
         from {{ref('fact_pendle_treasury')}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and token = 'PENDLE'
+        where token = 'PENDLE'
         group by 1
     )
     , price_data_cte as(
@@ -102,7 +94,6 @@ with
     , tokenholder_count as (
         select * 
         from {{ref('fact_pendle_token_holders')}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , supply_data as (
         SELECT
@@ -199,5 +190,6 @@ LEFT JOIN net_treasury_value_cte nt USING (date)
 LEFT JOIN treasury_value_native_cte tn USING (date) 
 LEFT JOIN tokenholder_count tc using(date) 
 LEFT JOIN supply_data sd using(date)
+where true
 {{ ez_metrics_incremental('p.date', backfill_date) }}
 and p.date < to_date(sysdate())

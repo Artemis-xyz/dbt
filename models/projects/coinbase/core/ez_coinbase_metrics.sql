@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
@@ -28,7 +26,6 @@ with
             sum(num_staked_eth_net_change) as num_staked_eth_net_change,
             sum(amount_staked_usd_net_change) as amount_staked_usd_net_change
         from {{ ref('fact_coinbase_staked_eth_count_with_usd_and_change') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
 select
@@ -48,4 +45,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from staked_eth_metrics
-where staked_eth_metrics.date < to_date(sysdate())
+where true 
+{{ ez_metrics_incremental('staked_eth_metrics.date', backfill_date) }}
+and staked_eth_metrics.date < to_date(sysdate())

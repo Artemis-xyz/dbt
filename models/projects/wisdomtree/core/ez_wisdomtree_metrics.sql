@@ -22,6 +22,7 @@ SELECT
     sum(tokenized_mcap_change) as tokenized_mcap_change,
     sum(tokenized_mcap) as tokenized_mcap
 FROM {{ ref('ez_wisdomtree_metrics_by_chain') }}
+WHERE true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())
 GROUP BY 1

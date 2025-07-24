@@ -29,5 +29,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from econia_tvl
+where true
 {{ ez_metrics_incremental('econia_tvl.date', backfill_date) }}
-    and econia_tvl.date < to_date(sysdate())
+and econia_tvl.date < to_date(sysdate())

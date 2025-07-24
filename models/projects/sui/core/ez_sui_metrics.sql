@@ -23,7 +23,6 @@ with
             * EXCLUDE date, 
             TO_TIMESTAMP_NTZ(date) AS date 
         from {{ source('PROD_LANDING', 'ez_sui_metrics') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics("sui") }}),
     defillama_data as ({{ get_defillama_metrics("sui") }}),
@@ -38,7 +37,6 @@ with
             , unvested_tokens_native
             , gross_emissions_native
         from {{ ref("fact_sui_supply_data") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     fundamental_data.date
@@ -110,5 +108,6 @@ left join defillama_data on fundamental_data.date = defillama_data.date
 left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join github_data on fundamental_data.date = github_data.date
 left join supply_data on fundamental_data.date = supply_data.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

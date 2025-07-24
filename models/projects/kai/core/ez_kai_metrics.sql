@@ -23,8 +23,7 @@ WITH
             date, 
             SUM(tvl) AS tvl
         FROM {{ ref("fact_defillama_protocol_tvls") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        AND defillama_protocol_id = 3740
+        WHERE defillama_protocol_id = 3740
             -- This includes AlphaFi Liquid Staking and AlphaFi Yield Aggregator
         GROUP BY 1
     )
@@ -45,7 +44,6 @@ WITH
             ) AS tvl
         FROM date_spine d
         LEFT JOIN defillama_tvl t ON d.date = t.date
-        {{ ez_metrics_incremental('d.date', backfill_date) }}
     )   
 
 SELECT
@@ -57,5 +55,6 @@ SELECT
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM defillama_tvl_forwardfill d
+where true
 {{ ez_metrics_incremental('d.date', backfill_date) }}
 and d.date < to_date(sysdate())

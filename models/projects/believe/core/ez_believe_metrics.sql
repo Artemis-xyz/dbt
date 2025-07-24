@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
@@ -27,7 +25,6 @@ with
             , count(distinct trader) as unique_traders
             , count(distinct tx_id) as txns
         from {{ ref('fact_believe_trades') }}
-        {{ ez_metrics_incremental('date(block_timestamp)', backfill_date) }}
         group by 1
     )
     , believe_coins_minted as (
@@ -35,7 +32,6 @@ with
             date(block_timestamp) as date
             , count(distinct coins_minted_address) as coins_minted
         from {{ ref('fact_believe_coins_minted') }}
-        {{ ez_metrics_incremental('date(block_timestamp)', backfill_date) }}
         group by 1
     )
     , believe_fees as (
@@ -44,7 +40,6 @@ with
             , sum(amount_native) as fees_native
             , sum(amount_usd) as ecosystem_revenue
         from {{ ref('fact_believe_fees') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , market_metrics as (
@@ -79,5 +74,6 @@ left join market_metrics mm
     on bst.date = mm.date
 left join believe_fees bf
     on bst.date = bf.date
+where true
 {{ ez_metrics_incremental('bst.date', backfill_date) }}
 and bst.date < to_date(sysdate())

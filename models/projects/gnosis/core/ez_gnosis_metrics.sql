@@ -29,7 +29,6 @@ with
             , revenue
         from {{ ref("fact_gnosis_daa_txns_gas_gas_usd") }}
         left join {{ ref("agg_daily_gnosis_revenue") }} using (date)
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , github_data as ({{ get_github_metrics("gnosis") }})
     , defillama_data as ({{ get_defillama_metrics("gnosis") }})
@@ -38,7 +37,6 @@ with
     , gnosis_dex_volumes as (
         select date, daily_volume as dex_volumes
         from {{ ref("fact_gnosis_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 
 select
@@ -86,5 +84,6 @@ left join defillama_data using (date)
 left join price_data using (date)
 left join rolling_metrics using (date)
 left join gnosis_dex_volumes as dune_dex_volumes_gnosis on fundamental_data.date = dune_dex_volumes_gnosis.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

@@ -23,7 +23,6 @@ with usde_metrics as (
         stablecoin_txns,
         stablecoin_dau
     from {{ ref('ez_usde_metrics') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , ena_metrics as (
     SELECT
@@ -31,7 +30,6 @@ with usde_metrics as (
         sum(coalesce(collateral_fees.collateral_fee, 0) + coalesce(yield_fees.fees, 0)) as fees
     FROM  {{ ref('fact_ethena_yield_fees') }} yield_fees
     left join  {{ ref('fact_ethena_collateral_fees') }} collateral_fees using(date)
-    {{ ez_metrics_incremental('yield_fees.date', backfill_date) }}
     group by 1
 )
 , ena_cashflow as (
@@ -40,19 +38,16 @@ with usde_metrics as (
         service_fee_allocation,
         foundation_fee_allocation
     FROM {{ ref('fact_ethena_yield_fees') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , tvl as (
     SELECT
         date,
         stablecoin_total_supply
     FROM {{ ref('ez_usde_metrics') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , supply_data as (
     select *
     from {{ ref('fact_ethena_supply') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 select
     usde_metrics.date,
@@ -77,5 +72,7 @@ left join ena_metrics using(date)
 left join ena_cashflow using(date)
 left join tvl using(date)
 left join supply_data using(date)
-where usde_metrics.date < to_date(sysdate())
+where true 
+{{ ez_metrics_incremental('usde_metrics.date', backfill_date) }}
+and usde_metrics.date < to_date(sysdate())
 order by 1 desc

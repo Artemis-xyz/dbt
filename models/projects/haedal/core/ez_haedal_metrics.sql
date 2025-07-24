@@ -23,8 +23,7 @@ WITH
             date, 
             SUM(tvl) AS tvl
         FROM {{ ref("fact_defillama_protocol_tvls") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        AND defillama_protocol_id = 3489 OR defillama_protocol_id = 5967 OR defillama_protocol_id = 5784
+        WHERE defillama_protocol_id = 3489 OR defillama_protocol_id = 5967 OR defillama_protocol_id = 5784
             -- This includes Haedal Protocol (Liquid Staking), Haedal AMM, and Haedal Vault (Farming)
         GROUP BY 1
     )
@@ -45,7 +44,6 @@ WITH
             ) AS tvl
         FROM date_spine d
         LEFT JOIN defillama_tvl t ON d.date = t.date
-        {{ ez_metrics_incremental('d.date', backfill_date) }}
     )
 
     , market_data AS (
@@ -68,5 +66,6 @@ SELECT
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM defillama_tvl_forwardfill d
 LEFT JOIN market_data m USING (date)
+where true
 {{ ez_metrics_incremental('d.date', backfill_date) }}
 and d.date < to_date(sysdate())

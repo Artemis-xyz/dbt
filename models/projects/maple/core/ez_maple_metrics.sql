@@ -26,7 +26,6 @@ with fees as (
         SUM(platform_fees_usd) AS platform_fees,
         SUM(delegate_fees_usd) AS delegate_fees
     FROM {{ ref('fact_maple_fees') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY 1
 )
 , revenues as (
@@ -34,7 +33,6 @@ with fees as (
         date,
         SUM(revenue) AS revenue
     FROM {{ ref('fact_maple_revenue') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY 1
 )
 , token_incentives as (
@@ -43,7 +41,6 @@ with fees as (
         , sum(incentive_native) as token_incentives_native
         , sum(incentive_usd) as token_incentives
     from {{ ref('fact_maple_token_incentives') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , tvl as (
@@ -52,7 +49,6 @@ with fees as (
         SUM(tvl) AS tvl,
         SUM(outstanding_supply) AS outstanding_supply
     FROM {{ ref('fact_maple_agg_tvl') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY 1
 )
 , treasury as (
@@ -61,7 +57,6 @@ with fees as (
         SUM(usd_balance) AS treasury, 
         SUM(native_balance) AS treasury_native
     FROM {{ ref('fact_maple_treasury') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY 1
 )
 , net_treasury as (
@@ -70,8 +65,7 @@ with fees as (
         SUM(usd_balance) AS net_treasury,
         SUM(native_balance) AS net_treasury_native
     FROM {{ ref('fact_maple_treasury') }}   
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    AND token <> 'SYRUP'
+    WHERE token <> 'SYRUP'
     GROUP BY 1
 )
 , treasury_native as (
@@ -80,8 +74,7 @@ with fees as (
         SUM(native_balance) AS own_token_treasury_native,
         SUM(usd_balance) AS own_token_treasury
     FROM {{ ref('fact_maple_treasury') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    AND token = 'SYRUP'
+    WHERE token = 'SYRUP'
     GROUP BY 1
 )
 , price as(
@@ -89,11 +82,9 @@ with fees as (
 )
 , tokenholders as (
     SELECT * FROM {{ ref('fact_maple_tokenholder_count')}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , supply_data as (
     SELECT * FROM {{ ref('fact_maple_supply')}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 SELECT 
@@ -162,5 +153,6 @@ LEFT JOIN treasury_native USING(date)
 LEFT JOIN net_treasury USING(date)
 LEFT JOIN tokenholders USING(date)
 LEFT JOIN supply_data USING(date)
+where true
 {{ ez_metrics_incremental('price.date', backfill_date) }}
 and price.date < to_date(sysdate())

@@ -32,14 +32,12 @@ with
     revenue_data as (
         select date, revenue, native_token_burn as revenue_native
         from {{ ref("agg_daily_ethereum_revenue") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     github_data as ({{ get_github_metrics("ethereum") }}),
     contract_data as ({{ get_contract_metrics("ethereum") }}),
     validator_queue_data as (
         select date, queue_entry_amount, queue_exit_amount, queue_active_amount
         from {{ ref("fact_ethereum_beacon_chain_queue_entry_active_exit_silver") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     nft_metrics as ({{ get_nft_metrics("ethereum") }}),
     p2p_metrics as ({{ get_p2p_metrics("ethereum") }}),
@@ -47,7 +45,6 @@ with
     da_metrics as (
         select date, blob_fees_native, blob_fees, blob_size_mib, avg_mib_per_second, avg_cost_per_mib, avg_cost_per_mib_gwei, submitters
         from {{ ref("fact_ethereum_da_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     etf_metrics as (
         SELECT
@@ -57,36 +54,30 @@ with
             sum(cumulative_etf_flow_native) as cumulative_etf_flow_native,
             sum(cumulative_etf_flow) as cumulative_etf_flow
         FROM {{ ref("ez_ethereum_etf_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     ),
     ethereum_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_ethereum_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     block_rewards_data as (
         select date, block_rewards_native
         from {{ ref("fact_ethereum_block_rewards") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     adjusted_dau_metrics as (
         select date, adj_daus as adjusted_dau
         from {{ ref("ez_ethereum_adjusted_dau") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , eth_supply as (
         select date, issued_supply, circulating_supply
         from {{ ref("fact_ethereum_eth_supply_estimated") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , application_fees AS (
         SELECT 
             DATE_TRUNC(DAY, date) AS date 
             , SUM(COALESCE(fees, 0)) AS application_fees
         FROM {{ ref("ez_protocol_datahub_by_chain") }}
-        {{ ez_metrics_incremental('DATE_TRUNC(DAY, date)', backfill_date) }}
-            AND chain = 'ethereum'
+        WHERE chain = 'ethereum'
         GROUP BY 1
     )
 
@@ -228,5 +219,6 @@ left join block_rewards_data on fundamental_data.date = block_rewards_data.date
 left join eth_supply on fundamental_data.date = eth_supply.date
 left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 left join application_fees on fundamental_data.date = application_fees.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
-    and fundamental_data.date < to_date(sysdate())
+and fundamental_data.date < to_date(sysdate())

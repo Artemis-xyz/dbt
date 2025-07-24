@@ -36,5 +36,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from nft_metrics
 left join price_data using (date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

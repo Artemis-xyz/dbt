@@ -26,7 +26,6 @@ with
             chain_dau,
             chain_txns
         from {{ ref("fact_ripple_fundamental_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("ripple") }})
     , supply_data as (
@@ -35,7 +34,6 @@ with
             issued_supply,
             circulating_supply
         from {{ ref("fact_ripple_supply_data") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     fundamental_data.date -- goes back to Jan 2013
@@ -77,5 +75,6 @@ select
 FROM fundamental_data
 left join price_data using(date)
 left join supply_data using(date)
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

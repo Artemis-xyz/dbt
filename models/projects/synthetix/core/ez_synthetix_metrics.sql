@@ -21,12 +21,10 @@ with
     trading_volume_data as (
         select date, trading_volume
         from {{ ref("fact_synthetix_trading_volume") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , unique_traders_data as (
         select date, unique_traders
         from {{ ref("fact_synthetix_unique_traders") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , tvl as (
         select 
@@ -35,7 +33,6 @@ with
             , sum(balance_native) as tvl_native
             , sum(balance) as tvl
         from {{ ref("fact_synthetix_tvl_by_token_and_chain") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1 
     )
     , token_holders as (
@@ -43,7 +40,6 @@ with
             date,
             sum(token_holder_count) as token_holder_count
         from {{ ref('fact_synthetix_tokenholders_by_chain') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , fees as (
@@ -52,7 +48,6 @@ with
             sum(fees_usd) as fees,
             sum(fees_native) as fees_native
         from {{ ref('fact_synthetix_fees_by_token_and_chain') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , token_incentives as (
@@ -60,7 +55,6 @@ with
             date,
             sum(token_incentives) as token_incentives
         from {{ ref("fact_synthetix_token_incentives_by_chain") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , treasury as (
@@ -73,7 +67,6 @@ with
             , sum(own_token_treasury) as own_token_treasury
             , sum(own_token_treasury_native) as own_token_treasury_native
         from {{ ref('ez_synthetix_metrics_by_token') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , token_cashflow as (
@@ -81,7 +74,6 @@ with
             date,
             sum(fee_allocation) as token_cashflow
         from {{ ref("fact_synthetix_token_cashflow_by_token_and_chain") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , service_cashflow as (
@@ -89,7 +81,6 @@ with
             date,
             sum(service_cashflow) as service_cashflow
         from {{ ref("fact_synthetix_service_cashflow_by_token_and_chain") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , treasury_cashflow as (
@@ -97,7 +88,6 @@ with
             date,
             sum(treasury_cashflow) as treasury_cashflow
         from {{ ref("fact_synthetix_treasury_cashflow_by_token_and_chain") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , fee_sharing_cashflow as (
@@ -105,7 +95,6 @@ with
             date,
             sum(fee_sharing_fee_allocation) as fee_sharing_fee_allocation
         from {{ ref("fact_synthetix_fee_sharing_cashflow_by_token_and_chain") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , mints as (
@@ -114,7 +103,6 @@ with
             sum(mints) as mints, 
             sum(mints_native) as mints_native
         from {{ ref("fact_synthetix_snx_mints") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , market_data as (
@@ -198,5 +186,6 @@ left join service_cashflow using(date)
 left join treasury_cashflow using(date)
 left join fee_sharing_cashflow using(date)
 left join mints using(date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 select
@@ -48,6 +46,7 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from {{ ref("fact_abstract_fundamental_metrics") }} as f
+where true
 {{ ez_metrics_incremental("f.date", backfill_date) }}
-    and f.date  < to_date(sysdate())
+and f.date  < to_date(sysdate())
 

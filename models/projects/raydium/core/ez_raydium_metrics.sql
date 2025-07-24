@@ -32,7 +32,6 @@ with buyback_from_pair as (
                 end
         ) as treasury_fee_allocation
     from {{ ref("fact_raydium_metrics_by_pair") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , buyback as ( --> buyback by tracking the direct RAY deposit, due to RAY price, will be the most accurate for amount usd, but it's less frequent
@@ -41,7 +40,6 @@ with buyback_from_pair as (
         token_mint_address,
         sum(amount_raw) as buyback_native
     FROM {{ ref("fact_raydium_buyback") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY 1,2
 )
 , treasury as (
@@ -50,7 +48,6 @@ with buyback_from_pair as (
         token_mint_address,
         sum(amount_raw) as treasury_fees_native
     FROM {{ ref("fact_raydium_treasury_fees") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY 1,2
 )
 , pool_creation as (
@@ -59,7 +56,6 @@ with buyback_from_pair as (
         token_mint_address,
         sum(amount_raw) as pool_creation_fees_native
     FROM {{ ref("fact_raydium_pool_creation_fees") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY 1,2
 )
 , trading_volume as (
@@ -69,7 +65,6 @@ with buyback_from_pair as (
         , unique_traders
         , number_of_swaps
     from {{ ref("fact_raydium_trading_volumes") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 , tvl as (
@@ -78,7 +73,6 @@ with buyback_from_pair as (
         avg(t.tvl) as tvl
     from pc_dbt_db.prod.fact_defillama_protocol_tvls t
     join pc_dbt_db.prod.fact_defillama_protocols p on p.id = t.DEFILLAMA_PROTOCOL_ID and p.name ilike '%raydium%'
-    {{ ez_metrics_incremental('t.date', backfill_date) }}
     group by 1  -- duplicate entry in source tvl table causing issues with incremental merge
 )
 
@@ -99,7 +93,6 @@ with buyback_from_pair as (
         , premine_unlocks_native
         , circulating_supply_native
     from {{ ref("fact_raydium_supply") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 select 
@@ -170,6 +163,7 @@ left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pt on pt.token_address = t.toke
 left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pc on pc.token_address = c.token_mint_address
         and pc.hour = c.date and pc.blockchain = 'solana'
 left join supply_data using (date)
+where true
 {{ ez_metrics_incremental('ds.date', backfill_date) }}
 and ds.date < to_date(sysdate())
 order by 1 desc 

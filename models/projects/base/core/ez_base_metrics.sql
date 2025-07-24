@@ -16,8 +16,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
@@ -28,7 +26,6 @@ with
     expenses_data as (
         select date, chain, l1_data_cost_native, l1_data_cost
         from {{ ref("fact_base_l1_data_cost") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     ),  -- supply side revenue and fees
     nft_metrics as ({{ get_nft_metrics("base") }}),
     p2p_metrics as ({{ get_p2p_metrics("base") }}),
@@ -36,23 +33,19 @@ with
     bridge_volume_metrics as (
         select date, bridge_volume
         from {{ ref("fact_base_bridge_bridge_volume") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
-            and chain is null
+        where chain is null
     ),
     bridge_daa_metrics as (
         select date, bridge_daa
         from {{ ref("fact_base_bridge_bridge_daa") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     ),
     base_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_base_daily_dex_volumes") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     ),
     adjusted_dau_metrics as (
         select date, adj_daus as adjusted_dau
         from {{ ref("ez_base_adjusted_dau") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
 
 select
@@ -141,5 +134,6 @@ left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join base_dex_volumes as dune_dex_volumes_base on fundamental_data.date = dune_dex_volumes_base.date
 left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
-    and fundamental_data.date < to_date(sysdate())
+and fundamental_data.date < to_date(sysdate())

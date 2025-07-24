@@ -15,15 +15,12 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with 
     boba_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_boba_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics('boba-network') }})
 select
@@ -45,4 +42,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from boba_dex_volumes d
 left join price_data using(d.date)
-where d.date < to_date(sysdate())
+where true 
+{{ ez_metrics_incremental('d.date', backfill_date) }}
+and d.date < to_date(sysdate())

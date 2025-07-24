@@ -27,7 +27,6 @@ with
             num_staked_eth_net_change,
             amount_staked_usd_net_change
         from {{ ref('fact_stakewise_staked_eth_count_with_USD_and_change') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     market_data as ({{ get_coingecko_metrics('stakewise') }})
 select
@@ -64,5 +63,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from staked_eth_metrics
 left join market_data using (date)
+where true
 {{ ez_metrics_incremental('staked_eth_metrics.date', backfill_date) }}
 and staked_eth_metrics.date < to_date(sysdate())

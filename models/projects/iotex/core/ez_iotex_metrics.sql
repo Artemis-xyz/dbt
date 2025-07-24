@@ -40,7 +40,6 @@ with price as (
             end as secondary_supply_side_revenue -- 30% of fees go to app developers
     from {{ ref("fact_iotex_metrics") }} m
     left join price p on p.date = m.date
-    {{ ez_metrics_incremental('m.date', backfill_date) }}
 )
 , supply as (
     select
@@ -52,23 +51,20 @@ with price as (
         s.mints * p.price as mints_usd
     from {{ ref("fact_iotex_supply") }} s
     left join price p on p.date = s.date
-    {{ ez_metrics_incremental('s.date', backfill_date) }}
 )
 , defillama_tvl as (
     SELECT
         date,
         tvl
     FROM pc_dbt_db.prod.fact_defillama_chain_tvls
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    and defillama_chain_name ILIKE 'iotex'
+    WHERE defillama_chain_name ILIKE 'iotex'
 )
 , defillama_dex_volume as (
     SELECT
         date,
         dex_volumes
     FROM pc_dbt_db.prod.fact_defillama_chain_dex_volumes
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    and defillama_chain_name ILIKE 'iotex'
+    WHERE defillama_chain_name ILIKE 'iotex'
 )
 , date_spine as (
     select
@@ -119,5 +115,6 @@ left join defillama_dex_volume using (date)
 left join defillama_tvl using (date)
 left join metrics using (date)
 left join supply using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

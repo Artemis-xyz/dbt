@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
@@ -43,7 +41,6 @@ with
                     )
                 }}
             )
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     ),
     price_data as ({{ get_coingecko_metrics("cosmos") }}),
@@ -91,5 +88,6 @@ from fundamental_data f
 left join price_data on f.date = price_data.date
 left join defillama_data on f.date = defillama_data.date
 left join github_data on f.date = github_data.date
+where true
 {{ ez_metrics_incremental("f.date", backfill_date) }}
-    and f.date < to_date(sysdate())
+and f.date < to_date(sysdate())

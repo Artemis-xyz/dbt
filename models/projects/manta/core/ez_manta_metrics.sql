@@ -28,7 +28,6 @@ with
             , net_supply_change_native
             , circulating_supply_native
         from {{ ref('fact_manta_supply_data') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 SELECT
     date
@@ -62,5 +61,6 @@ FROM {{ ref('fact_manta_txns_daa') }}
 LEFT JOIN price_data using (date)
 LEFT JOIN defillama_data using (date)
 LEFT JOIN supply_data using (date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

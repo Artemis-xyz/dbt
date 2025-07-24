@@ -16,7 +16,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
 
 {% set backfill_date = var("backfill_date", None) %}
 
@@ -25,7 +24,6 @@ with
         select
             date, chain, daa, txns, fees_native, fees_usd as fees, fees_native * .2 as revenue_native, fees_usd * .2 as revenue
         from {{ ref("fact_acala_fundamental_metrics") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     ),
     rolling_metrics as ({{ get_rolling_active_address_metrics("acala") }}),
     price_data as ({{ get_coingecko_metrics("acala") }})
@@ -63,6 +61,7 @@ select
 from fundamental_data
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join price_data on fundamental_data.date = price_data.date
+where true
 {{ ez_metrics_incremental("fundamental_data.date", backfill_date) }}
-    and fundamental_data.date < to_date(sysdate())
+and fundamental_data.date < to_date(sysdate())
 

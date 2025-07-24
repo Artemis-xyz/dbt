@@ -24,13 +24,11 @@
 with trading_volume_data as (
     select date, sum(trading_volume) as trading_volume
     from {{ ref("fact_vertex_trading_volume") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by date
 )
 , unique_traders_data as (
     select date, sum(unique_traders) as unique_traders
     from {{ ref("fact_vertex_unique_traders") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by date
 )
 , token_incentives as (
@@ -39,7 +37,6 @@ with trading_volume_data as (
         sum(amount) as token_incentives_native,
         sum(amount_usd) as token_incentives
     from {{ ref("fact_vertex_token_incentives") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by date
 )
 , date_spine as (
@@ -81,5 +78,6 @@ left join market_metrics using(date)
 left join trading_volume_data using(date)
 left join unique_traders_data using(date)
 left join token_incentives using(date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

@@ -21,7 +21,6 @@ with
     ink_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_ink_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     date
@@ -44,5 +43,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from {{ ref("fact_ink_fundamental_metrics") }}
 left join ink_dex_volumes using (date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

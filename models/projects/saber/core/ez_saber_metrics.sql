@@ -44,5 +44,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on  
 from saber_tvl
 left join saber_market_data smd using (date)
+where true
 {{ ez_metrics_incremental('saber_tvl.date', backfill_date) }}
 and saber_tvl.date < to_date(sysdate())

@@ -20,19 +20,16 @@ with txns_data as (
         date,
         txns
     from {{ ref("fact_wormhole_txns") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , daa as (
     select
         date,
         bridge_daa
     from {{ ref("fact_wormhole_bridge_daa_gold") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , bridge_volume as (
     select date, sum(bridge_volume) as bridge_volume, sum(fees) as fees
     from {{ ref("fact_wormhole_bridge_volume_gold") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , supply_data as (
@@ -42,7 +39,6 @@ with txns_data as (
         , net_supply_change_native
         , circulating_supply_native
     from {{ ref("fact_wormhole_supply_data") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , price_data as ({{ get_coingecko_metrics("wormhole") }})
 
@@ -77,5 +73,6 @@ left join daa on txns_data.date = daa.date
 left join bridge_volume on txns_data.date = bridge_volume.date
 left join price_data on txns_data.date = price_data.date
 left join supply_data on txns_data.date = supply_data.date
+where true
 {{ ez_metrics_incremental('txns_data.date', backfill_date) }}
 and coalesce(txns_data.date, daa.date) < to_date(sysdate())

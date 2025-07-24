@@ -20,7 +20,6 @@
 with nova_dex_volumes as (
     select date, daily_volume as dex_volumes
     from {{ ref("fact_nova_daily_dex_volumes") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , nova_market_data as (
     {{ get_coingecko_metrics('novadex') }}
@@ -42,5 +41,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from nova_dex_volumes   
 left join nova_market_data nmd using (date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

@@ -54,7 +54,6 @@ with all_trade_metrics as (
         sum(CASE WHEN trade_type = 'aggregator' THEN dau ELSE 0 END) as aggregator_unique_traders, -- Aggregator specific metric
         sum(dau) as dau
     from {{ ref("fact_jupiter_all_trade_metrics") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , aggregator_volume_data as (
@@ -63,7 +62,6 @@ select
         overall,
         single
     from {{ ref("fact_jupiter_aggregator_metrics") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , daily_supply_data as (
     select
@@ -72,7 +70,6 @@ select
         premine_unlocks as premine_unlocks_native,
         0 as burns_native    
     from {{ ref("fact_jupiter_premine_unlocks") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , date_spine as (
     select
@@ -85,8 +82,7 @@ select
         date,
             sum(balance) as perp_tvl
         from {{ ref("fact_jupiter_perps_tvl") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and balance > 2 and balance is not null
+        where balance > 2 and balance is not null
         and contract_address not ilike '%solana%' -- Perps holds WSOL not SOL, but there's a bug in the balances table that includes both WSOL and SOL
         group by date
 )
@@ -96,8 +92,7 @@ select
         sum(balance) as lst_tvl,
         sum(balance_native) as lst_tvl_native
     from {{ ref("fact_jupiter_lst_tvl") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    and balance_native > 2 and balance_native is not null
+    where balance_native > 2 and balance_native is not null
     group by date
 )
 , tvl as (
@@ -187,5 +182,6 @@ left join all_trade_metrics using (date)
 left join daily_supply_data using (date)
 left join tvl using (date)
 left join solana_price sp using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

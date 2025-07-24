@@ -15,7 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
 {% set backfill_date = var("backfill_date", None) %}
 
 WITH
@@ -25,7 +24,6 @@ WITH
             * EXCLUDE date,
             TO_TIMESTAMP_NTZ(date) AS date
         FROM {{ source('PROD_LANDING', 'ez_algorand_metrics') }}
-        {{ ez_metrics_incremental("TO_TIMESTAMP_NTZ(date)", backfill_date) }}
     ),
 
     price as ({{ get_coingecko_metrics("algorand") }})
@@ -70,4 +68,6 @@ SELECT
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM fundamental_data
 LEFT JOIN price USING (date)
-WHERE fundamental_data.date < to_date(sysdate())
+WHERE true
+{{ ez_metrics_incremental("fundamental_data.date", backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

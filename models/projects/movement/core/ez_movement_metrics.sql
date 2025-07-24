@@ -25,7 +25,6 @@ with movement_data as (
         , sum(gas_native) as gas_native
         , sum(gas) as gas
     from {{ ref("fact_movement_fundamental_data") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , prices as (
@@ -59,5 +58,6 @@ select
 from date_spine ds
 left join movement_data using (date)
 left join prices using (date)
+where true
 {{ ez_metrics_incremental('ds.date', backfill_date) }}
 and ds.date < to_date(sysdate())

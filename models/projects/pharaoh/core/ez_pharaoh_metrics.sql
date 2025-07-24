@@ -44,5 +44,6 @@ select
     , to_timestamp_ntz(current_timestamp()) as modified_on
 from pharaoh_tvl
 left join pharaoh_market_data pmd using (date)
+where true
 {{ ez_metrics_incremental('pharaoh_tvl.date', backfill_date) }}
 and pharaoh_tvl.date < to_date(sysdate())

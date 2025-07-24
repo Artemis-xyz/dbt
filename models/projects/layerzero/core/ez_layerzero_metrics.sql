@@ -22,7 +22,6 @@ with bridge_volume as (
         date,
         avg(bridge_volume) as bridge_volume
     FROM {{ ref('fact_layerzero_bridge_volume_all_chains') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY 1
 )
 , bridge_metrics as (
@@ -32,7 +31,6 @@ with bridge_volume as (
         , sum(fees) as fees
         , sum(bridge_txns) as bridge_txns
     FROM {{ ref('ez_layerzero_metrics_by_chain') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY 1
 )
 , daily_supply_data as (
@@ -42,7 +40,6 @@ with bridge_volume as (
         , premine_unlocks as premine_unlocks_native
         , 0 as burns_native
     FROM {{ ref('fact_layerzero_daily_premine_unlocks') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , date_spine as (
     SELECT * 
@@ -95,6 +92,7 @@ left join market_metrics using (date)
 left join bridge_metrics using (date)
 left join bridge_volume using (date)
 left join daily_supply_data using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())
 order by 1

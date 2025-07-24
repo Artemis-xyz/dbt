@@ -28,25 +28,21 @@ WITH
     , spot_trading_volume AS (
         SELECT date, SUM(volume_usd) AS spot_dex_volumes
         FROM {{ ref("fact_momentum_spot_volume") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , spot_dau_txns AS (
         SELECT date, daily_dau AS dau, daily_txns AS txns
         FROM {{ ref("fact_momentum_spot_dau_txns") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         QUALIFY ROW_NUMBER() OVER (PARTITION BY date ORDER BY date DESC) = 1
     )
     , spot_fees_revenue AS (
         SELECT date, SUM(fees) AS fees, SUM(service_fee_allocation) AS service_fee_allocation, SUM(foundation_fee_allocation) AS foundation_fee_allocation
         FROM {{ ref("fact_momentum_spot_fees_revenue") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , tvl AS (
         SELECT date, SUM(tvl) AS tvl
         FROM {{ ref("fact_momentum_spot_tvl") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
 select
@@ -74,5 +70,6 @@ LEFT JOIN spot_trading_volume USING(date)
 LEFT JOIN spot_dau_txns USING(date)
 LEFT JOIN spot_fees_revenue USING(date)
 LEFT JOIN tvl USING(date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

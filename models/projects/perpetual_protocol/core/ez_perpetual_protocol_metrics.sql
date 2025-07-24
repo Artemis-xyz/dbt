@@ -39,8 +39,7 @@ WITH
             , sum(treasury_fee_allocation) as treasury_fee_allocation
             , sum(service_fee_allocation) as service_fee_allocation
         FROM {{ ref("ez_perpetual_protocol_metrics_by_chain") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and date < to_date(sysdate())
+        WHERE date < to_date(sysdate())
         GROUP BY 1, 2, 3
     )
     , price as ({{ get_coingecko_metrics("perpetual-protocol") }})
@@ -50,7 +49,6 @@ WITH
             date,
             SUM(total_token_incentives) as token_incentives
         from {{ref('fact_perpetual_token_incentives')}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
 
@@ -89,5 +87,6 @@ SELECT
 FROM perp_data
 LEFT JOIN price USING(date)
 LEFT JOIN token_incentives USING(date)
+WHERE true
 {{ ez_metrics_incremental('date', backfill_date) }}
 AND date < to_date(sysdate())

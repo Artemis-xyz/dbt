@@ -21,7 +21,6 @@ with
     kaia_dex_volumes as (
         select date, daily_volume as dex_volumes
         from {{ ref("fact_kaia_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ), 
     price_data as ({{ get_coingecko_metrics("kaia") }})
 select
@@ -39,5 +38,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from kaia_dex_volumes   
 left join price_data using (date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

@@ -24,7 +24,6 @@ with fees_revenue_data as (
         total_fees_usd as fees, 
         fees_burned_usd as revenue
     from {{ ref("fact_flow_fees_revs") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 ,    dau_txn_data as (
     select 
@@ -33,7 +32,6 @@ with fees_revenue_data as (
         daa as dau, 
         txns 
     from {{ ref("fact_flow_daa_txns") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , daily_supply_data as (
     select
@@ -44,7 +42,6 @@ with fees_revenue_data as (
         net_supply_change_native,
         circulating_supply
     from {{ ref('fact_flow_daily_supply_data') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , date_spine as (
     select
@@ -110,5 +107,6 @@ left join daily_supply_data on date_spine.date = daily_supply_data.date
 left join defillama_data on date_spine.date = defillama_data.date
 left join github_data on date_spine.date = github_data.date
 left join nft_metrics on date_spine.date = nft_metrics.date
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
-    and date_spine.date < to_date(sysdate())
+and date_spine.date < to_date(sysdate())

@@ -42,7 +42,6 @@ WITH
             date,
             sum(trading_fees) as fees
         FROM fees
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , dau_txns_volume as (
@@ -52,7 +51,6 @@ WITH
             , count( distinct tx_hash) as spot_txns
             , sum(trading_volume) as spot_volume
         FROM {{ ref('ez_uniswap_dex_swaps') }}
-        {{ ez_metrics_incremental('block_timestamp::date', backfill_date) }}
         GROUP BY 1
     )
     , token_incentives_cte as (
@@ -60,14 +58,12 @@ WITH
             date,
             token_incentives_usd
         FROM {{ ref('fact_uniswap_token_incentives') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , treasury_usd_cte AS (
         SELECT
             date,
             SUM(treasury_usd) as treasury_usd
         FROM {{ ref('fact_uniswap_treasury_usd') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , treasury_native_cte AS(
@@ -76,8 +72,7 @@ WITH
             sum(treasury_native) as treasury_native,
             sum(usd_balance) as own_token_treasury
         FROM {{ ref('fact_uniswap_treasury_by_token') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        AND token = 'UNI'
+        WHERE token = 'UNI'
         GROUP BY 1
     )
     , net_treasury_cte AS (
@@ -85,8 +80,7 @@ WITH
             date,
             sum(usd_balance) as net_treasury_usd
         FROM {{ ref('fact_uniswap_treasury_by_token') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        AND token <> 'UNI'
+        WHERE token <> 'UNI'
         GROUP BY 1
     )
     , tvl_cte AS (
@@ -94,14 +88,12 @@ WITH
             date,
             sum(tvl) AS tvl
         FROM {{ ref('ez_uniswap_metrics_by_chain') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , price_data_cte as ({{ get_coingecko_metrics("uniswap") }})
     , tokenholder_cte as (
         SELECT * 
         FROM {{ ref('fact_uni_tokenholder_count') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , supply_metrics as (
         SELECT
@@ -111,7 +103,6 @@ WITH
             issued_supply,
             circulating_supply
         FROM {{ ref("fact_uniswap_supply_data") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 SELECT
     date
@@ -183,5 +174,6 @@ LEFT JOIN tvl_cte using(date)
 LEFT JOIN price_data_cte using(date)
 LEFT JOIN tokenholder_cte using(date)
 LEFT JOIN supply_metrics using(date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

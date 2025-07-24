@@ -21,7 +21,6 @@ with
     ronin_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_ronin_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics("ronin") }})
 select
@@ -43,5 +42,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from ronin_dex_volumes   
 left join price_data on ronin_dex_volumes.date = price_data.date
+where true
 {{ ez_metrics_incremental('ronin_dex_volumes.date', backfill_date) }}
 and ronin_dex_volumes.date < to_date(sysdate())

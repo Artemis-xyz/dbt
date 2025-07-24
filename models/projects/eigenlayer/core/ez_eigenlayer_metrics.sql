@@ -34,7 +34,6 @@ WITH date_spine AS (
         , SUM(num_restaked_eth) AS num_restaked_eth
         , SUM(amount_restaked_usd) AS amount_restaked_usd
     FROM {{ref('fact_eigenlayer_restaked_assets')}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY date, protocol, category
 )
 , eigenlayer_supply_data AS (
@@ -45,15 +44,13 @@ WITH date_spine AS (
         , net_supply_change_native
         , circulating_supply
     FROM {{ ref('fact_eigenlayer_supply_data') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , avs_rewards_submitted AS (
     SELECT 
         date
         , SUM(amount_usd) AS avs_rewards_submitted
     FROM {{ ref('fact_eigenlayer_avs_rewards_submitted') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-        AND event_name ilike '%AVS%'
+    WHERE event_name ilike '%AVS%'
     GROUP BY date
 )
 , avs_rewards_claimed AS (
@@ -61,7 +58,6 @@ WITH date_spine AS (
         date
         , SUM(amount_usd) AS avs_rewards_claimed
     FROM {{ ref('fact_eigenlayer_avs_rewards_claimed') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY date
 )
 , avs_and_operator_counts AS (
@@ -70,7 +66,6 @@ WITH date_spine AS (
         , SUM(active_operators) AS active_operators
         , SUM(active_avs) AS active_avs
     FROM {{ ref('fact_eigenlayer_avs_and_operator_counts') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY date
 )
 , market_data as (
@@ -82,8 +77,7 @@ WITH date_spine AS (
         , SUM(amount_aduj) AS token_incentives_native
         , SUM(amount_usd) AS token_incentives
     FROM {{ ref('fact_eigenlayer_avs_rewards_submitted') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-        AND event_name not ilike '%AVS%'
+    WHERE event_name not ilike '%AVS%'
     GROUP BY date
 )
 
@@ -129,6 +123,7 @@ LEFT JOIN avs_rewards_claimed using (date)
 LEFT JOIN avs_and_operator_counts using (date)
 LEFT JOIN avs_rewards_submitted using (date)
 LEFT JOIN market_data using (date)
+where true
 {{ ez_metrics_incremental('d.date', backfill_date) }}
-    AND d.date < CURRENT_DATE()
+and d.date < CURRENT_DATE()
 ORDER BY d.date

@@ -27,7 +27,6 @@ with bridge_volume_fees as (
         , bridge_dau
         , ecosystem_revenue as fees
     from {{ ref("fact_debridge_fundamental_metrics") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 , price_data as ({{ get_coingecko_metrics("debridge") }})
@@ -52,5 +51,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from bridge_volume_fees
 left join price_data on bridge_volume_fees.date = price_data.date
+where true
 {{ ez_metrics_incremental('bridge_volume_fees.date', backfill_date) }}
-    and bridge_volume_fees.date < to_date(sysdate())
+and bridge_volume_fees.date < to_date(sysdate())

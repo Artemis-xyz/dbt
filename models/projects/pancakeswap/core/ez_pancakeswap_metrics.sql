@@ -42,7 +42,6 @@ with trading_volume_pool as (
         , sum(trading_volume_pool.gas_cost_native) as gas_cost_native
         , sum(trading_volume_pool.gas_cost_usd) as gas_cost_usd
     from trading_volume_pool
-    {{ ez_metrics_incremental('trading_volume_pool.date', backfill_date) }}
     group by trading_volume_pool.date
 )
 , tvl_by_pool as (
@@ -66,7 +65,6 @@ with trading_volume_pool as (
         tvl_by_pool.date
         , sum(tvl_by_pool.tvl) as tvl
     from tvl_by_pool
-    {{ ez_metrics_incremental('tvl_by_pool.date', backfill_date) }}
     group by tvl_by_pool.date
 )
 , token_incentives as (
@@ -74,7 +72,6 @@ with trading_volume_pool as (
         date
         , sum(amount_usd) as token_incentives_usd
     from {{ ref('fact_pancakeswap_token_incentives') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by date
 )
 , fees_revenue as (
@@ -107,7 +104,6 @@ with trading_volume_pool as (
             end
         ) as treasury_fee_allocation
     from {{ ref('ez_pancakeswap_dex_swaps') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by date
 )
 select
@@ -133,5 +129,6 @@ from tvl
 left join trading_volume using(date)
 left join token_incentives using(date)
 left join fees_revenue using(date)
+where true
 {{ ez_metrics_incremental('tvl.date', backfill_date) }}
 and tvl.date < to_date(sysdate())

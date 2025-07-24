@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 WITH 
@@ -25,8 +23,7 @@ WITH
             date, 
             SUM(tvl) AS tvl
         FROM {{ ref("fact_defillama_protocol_tvls") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
-        AND defillama_protocol_id = 5511 OR defillama_protocol_id = 4848
+        WHERE defillama_protocol_id = 5511 OR defillama_protocol_id = 4848
         -- This includes AlphaFi Liquid Staking and AlphaFi Yield Aggregator
         GROUP BY 1
     )
@@ -58,4 +55,6 @@ SELECT
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM defillama_tvl_forwardfill d
-WHERE d.date < to_date(sysdate())
+WHERE true 
+{{ ez_metrics_incremental("d.date", backfill_date) }}
+and d.date < to_date(sysdate())

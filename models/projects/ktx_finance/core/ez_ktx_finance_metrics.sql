@@ -21,13 +21,11 @@ with
     trading_volume_data as (
         select date, sum(trading_volume) as trading_volume
         from {{ ref("fact_ktx_finance_trading_volume") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by date
     )
     , unique_traders_data as (
         select date, sum(unique_traders) as unique_traders
         from {{ ref("fact_ktx_finance_unique_traders") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by date
     )
     , price as ({{ get_coingecko_metrics("ktx-finance") }})
@@ -51,5 +49,6 @@ select
 from trading_volume_data
 left join unique_traders_data using(date)
 left join price using(date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

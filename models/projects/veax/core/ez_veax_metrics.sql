@@ -31,5 +31,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from veax_tvl
+where true
 {{ ez_metrics_incremental('veax_tvl.date', backfill_date) }}
 and veax_tvl.date < to_date(sysdate())

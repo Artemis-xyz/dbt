@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 WITH
@@ -30,13 +28,11 @@ WITH
     , perp_trading_volume AS (
         SELECT date, SUM(trading_volume) AS trading_volume
         FROM {{ ref("fact_bluefin_trading_volume_silver") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , spot_trading_volume AS (
         SELECT date, SUM(volume_usd) AS spot_dex_volumes
         FROM {{ ref("fact_bluefin_spot_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , spot_dau_txns AS (
@@ -47,13 +43,11 @@ WITH
     , spot_fees_revenue AS (
         SELECT date, SUM(fees) AS fees, SUM(foundation_fee_allocation) AS foundation_fee_allocation, SUM(service_fee_allocation) AS service_fee_allocation
         FROM {{ ref("fact_bluefin_spot_fees_revenue") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , tvl AS (
         SELECT date, SUM(tvl) AS tvl
         FROM {{ ref("fact_bluefin_spot_tvl") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , market_data AS ({{ get_coingecko_metrics("bluefin") }})
@@ -94,5 +88,6 @@ LEFT JOIN spot_dau_txns USING(date)
 LEFT JOIN spot_fees_revenue USING(date)
 LEFT JOIN tvl USING(date)
 LEFT JOIN market_data USING(date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

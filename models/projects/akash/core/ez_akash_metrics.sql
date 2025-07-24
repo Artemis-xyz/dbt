@@ -15,87 +15,72 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 WITH
 active_providers AS (
     SELECT * 
     FROM {{ ref("fact_akash_active_providers_silver") }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
 , active_leases AS (
     SELECT * 
     FROM {{ ref("fact_akash_active_leases_silver") }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
 , new_leases AS (
     SELECT * 
     FROM {{ ref("fact_akash_new_leases_silver") }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
 , compute_fees_native AS (
     SELECT * 
     FROM {{ ref("fact_akash_compute_fees_native_silver") }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
 , compute_fees_usdc AS (
     SELECT * 
     FROM {{ ref("fact_akash_compute_fees_usdc_silver") }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
 , compute_fees_total_usd AS (
     SELECT * 
     FROM {{ ref("fact_akash_compute_fees_total_usd_silver") }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
 , validator_fees_native AS (
     SELECT * 
     FROM {{ ref("fact_akash_validator_fees_native_silver") }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 , validator_fees AS (
     SELECT * 
     FROM {{ ref("fact_akash_validator_fees_silver") }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
 , total_fees AS (
     SELECT * 
     FROM {{ ref("fact_akash_total_fees_silver") }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
 , revenue AS (
     SELECT * 
     FROM {{ ref("fact_akash_revenue_silver") }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
 , mints AS (
     SELECT * 
     FROM {{ ref("fact_akash_mints_silver") }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
 , burns AS (
     SELECT * 
     FROM {{ ref("fact_akash_burns_native_silver") }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 , price as ({{ get_coingecko_metrics("akash-network") }})
 
 , premine_unlocks AS (
     SELECT * 
     FROM {{ ref("fact_akash_premine_unlocks") }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 
 SELECT
@@ -160,5 +145,7 @@ LEFT JOIN burns ON mints.date = burns.date
 LEFT JOIN active_leases ON mints.date = active_leases.date
 LEFT JOIN price ON mints.date = price.date
 LEFT JOIN premine_unlocks ON mints.date = premine_unlocks.date
-WHERE mints.date < to_date(sysdate())
+WHERE true
+{{ ez_metrics_incremental("mints.date", backfill_date) }}
+and mints.date < to_date(sysdate())
 ORDER BY date DESC

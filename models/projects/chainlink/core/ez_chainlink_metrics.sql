@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
@@ -41,7 +39,6 @@ with
             , sum(token_amount) as ocr_fees_native
             , sum(usd_amount) as ocr_fees
         from ocr_models
-        {{ ez_metrics_incremental('date_start', backfill_date) }}
         group by 1
     )
     , fm_models as(
@@ -64,7 +61,6 @@ with
             date_start as date
             , sum(usd_amount) as fm_fees
         from fm_models
-        {{ ez_metrics_incremental('date_start', backfill_date) }}
         group by 1
     )
     , automation_models as(
@@ -85,7 +81,6 @@ with
             , sum(token_amount) as automation_fees_native
             , sum(usd_amount) as automation_fees
         from automation_models
-        {{ ez_metrics_incremental('date_start', backfill_date) }}
         group by 1
     )
     , ccip_models as(
@@ -109,7 +104,6 @@ with
             -- different tokens are paid out in ccip fees
             , sum(usd_amount) as ccip_fees
         from ccip_models
-        {{ ez_metrics_incremental('date_start', backfill_date) }}
         group by 1
     )
     , vrf_models as (
@@ -132,7 +126,6 @@ with
             date
             , sum(usd_amount) as vrf_fees
         from vrf_models
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , direct_models as (
@@ -155,7 +148,6 @@ with
             date
             , sum(usd_amount) as direct_fees
         from direct_models
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , staking_incentive_models as (
@@ -172,7 +164,6 @@ with
             date
             , sum(staking_rewards) as token_incentives
         from staking_incentive_models
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , treasury_data as (
@@ -181,7 +172,6 @@ with
             , treasury_usd
             , treasury_link
         from {{ ref("fact_chainlink_treasury_native_usd")}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , token_turnover_metrics as (
         select
@@ -190,7 +180,6 @@ with
             , token_turnover_fdv
             , token_volume
         from {{ ref("fact_chainlink_fdv_and_turnover")}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("chainlink") }})
     , token_holder_data as (
@@ -198,26 +187,22 @@ with
             date
             , tokenholder_count
         from {{ ref("fact_chainlink_tokenholder_count")}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , daily_txns_data as (
         select
             date
             , daily_txns
         from {{ ref("fact_chainlink_daily_txns")}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     dau_data as (
         select
             date
             , dau
         from {{ ref("fact_chainlink_dau")}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ), 
     supply_data as (
         select *
         from {{ ref("fact_chainlink_supply")}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 
 select
@@ -284,5 +269,6 @@ left join token_holder_data using (date)
 left join daily_txns_data using (date)
 left join dau_data using (date)
 left join supply_data using (date)
+where true
 {{ ez_metrics_incremental('fm_fees_data.date', backfill_date) }}
-    and date < to_date(sysdate())
+and date < to_date(sysdate())

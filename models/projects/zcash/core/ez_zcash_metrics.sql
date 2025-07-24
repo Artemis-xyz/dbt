@@ -26,7 +26,6 @@ with
             , gas_usd as fees
             , gas as fees_native
         from {{ ref("fact_zcash_gas_gas_usd_txns") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , github_data as ({{ get_github_metrics("zcash") }})
     , price_data as ({{ get_coingecko_metrics('zcash') }})
@@ -57,5 +56,6 @@ select
 from fundamental_data f
 left join github_data using (date)
 left join price_data on f.date = price_data.date
+where true
 {{ ez_metrics_incremental('f.date', backfill_date) }}
 and f.date < to_date(sysdate())

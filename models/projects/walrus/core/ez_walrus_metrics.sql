@@ -61,5 +61,6 @@ SELECT DISTINCT
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM clean_parquet
 LEFT JOIN market_data ON clean_parquet.date = market_data.date
+WHERE true
 {{ ez_metrics_incremental('clean_parquet.date', backfill_date) }}
 and clean_parquet.date < to_date(sysdate())

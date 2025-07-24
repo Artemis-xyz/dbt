@@ -36,7 +36,7 @@ with mau as (
         , p2p_stablecoin_supply as p2p_stablecoin_total_supply
         , stablecoin_supply as stablecoin_total_supply
     from {{ ref("agg_daily_stablecoin_breakdown_" ~ breakdown) }}
-    {{ ez_metrics_incremental("date_granularity", backfill_date) }}
+    where true
     {% if breakdown == "chain" %}
         and lower(chain) = lower('{{ identifier }}')
     {% elif breakdown == "symbol" %}
@@ -73,5 +73,7 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from daily_metrics
 left join mau on daily_metrics.date = mau.date
-where daily_metrics.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental("daily_metrics.date", backfill_date) }}
+and daily_metrics.date < to_date(sysdate())
 {% endmacro %}

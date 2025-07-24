@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with date_spine as (
@@ -31,7 +29,6 @@ with date_spine as (
         sum(revenue) as revenue,
         sum(primary_supply_side_fees) as primary_supply_side_fees
     from {{ ref('fact_convex_revenue') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , token_incentives as (
@@ -39,7 +36,6 @@ with date_spine as (
         date,
         sum(token_incentives) as token_incentives
     from {{ ref('fact_convex_token_incentives') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , tvl as (
@@ -47,7 +43,6 @@ with date_spine as (
         date,
         sum(tvl) as tvl
     from {{ ref('fact_convex_combined_tvl') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , treasury as (
@@ -60,7 +55,6 @@ with date_spine as (
         , sum(own_token_treasury) as own_token_treasury
         , sum(own_token_treasury_native) as own_token_treasury_native
     from {{ ref('ez_convex_metrics_by_token') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , token_holders as (
@@ -68,7 +62,6 @@ with date_spine as (
         date,
         token_holder_count
     FROM {{ ref('fact_convex_token_holders') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , market_data as (
     {{ get_coingecko_metrics('convex-finance') }}
@@ -120,5 +113,6 @@ left join fees_and_revenue using (date)
 left join token_incentives using (date)
 left join tvl using (date)
 left join market_data using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

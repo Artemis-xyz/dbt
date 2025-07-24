@@ -45,6 +45,7 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from thorchain_tvl tt
 left join market_metrics mm using (date)
+where true
 {{ ez_metrics_incremental('tt.date', backfill_date) }}
 and tt.date < to_date(sysdate())
 and tt.name = 'thorchain' -- macro above returns data for 'Thorchain Lending' too, so we filter by name

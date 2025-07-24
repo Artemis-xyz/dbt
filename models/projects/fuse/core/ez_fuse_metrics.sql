@@ -26,7 +26,6 @@ with
             , gas_usd as fees
             , gas as fees_native
         from {{ ref("fact_fuse_daa_txns_gas_gas_usd") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , github_data as ({{ get_github_metrics("fuse") }})
     , defillama_data as ({{ get_defillama_metrics("fuse") }})
@@ -71,5 +70,6 @@ from fundamental_data
 left join github_data using (date)
 left join defillama_data using (date)
 left join price_data using (date)
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
-    and fundamental_data.date < to_date(sysdate())
+and fundamental_data.date < to_date(sysdate())

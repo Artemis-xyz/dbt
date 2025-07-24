@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with 
@@ -24,7 +22,6 @@ with
      dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_berachain_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
      ),
      supply_data as (
         select 
@@ -35,11 +32,9 @@ with
             , net_supply_change_native
             , circulating_supply_native
         from {{ ref('fact_berachain_supply_data') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
      )
      , fundamental_metrics as (
         select * from {{ ref("fact_berachain_fundamental_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
      )
 select
     f.date
@@ -81,5 +76,6 @@ from {{ ref("fact_berachain_fundamental_metrics") }} as f
 left join price_data on f.date = price_data.date
 left join dex_volumes on f.date = dex_volumes.date
 left join supply_data on f.date = supply_data.date
+where true
 {{ ez_metrics_incremental('f.date', backfill_date) }}
-    and f.date  < to_date(sysdate())
+and f.date  < to_date(sysdate())

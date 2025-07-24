@@ -21,13 +21,11 @@ with
     bridge_volume as (
         select date, bridge_volume
         from {{ ref("fact_rainbow_bridge_bridge_volume") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and chain is null
+        where chain is null
     ),
     bridge_dau as (
         select date, bridge_dau
         from {{ ref("fact_rainbow_bridge_bridge_dau") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     bridge_volume.date as date,
@@ -40,5 +38,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from bridge_volume
 left join bridge_dau on bridge_volume.date = bridge_dau.date
+where true
 {{ ez_metrics_incremental('bridge_volume.date', backfill_date) }}
 and bridge_volume.date < to_date(sysdate())

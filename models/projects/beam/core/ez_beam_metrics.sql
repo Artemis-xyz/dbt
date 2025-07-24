@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
@@ -24,19 +22,16 @@ with
         select
             date, chain, dau, txns, fees_native
         from {{ ref("fact_beam_fundamental_metrics") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("beam-2") }})
     , defillama_data as ({{ get_defillama_metrics("beam") }})
     , premine_unlocks as (
         select *
         from {{ ref("fact_beam_premine_unlocks") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , burns as (
         select *
         from {{ ref("fact_beam_burns") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , date_spine as (
         select date
@@ -84,5 +79,6 @@ left join price_data using (date)
 left join defillama_data using (date)
 left join premine_unlocks using (date)
 left join burns using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

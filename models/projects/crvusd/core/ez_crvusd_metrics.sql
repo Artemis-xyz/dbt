@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 {{ get_stablecoin_metrics("crvUSD", breakdown='symbol', backfill_date=backfill_date) }}

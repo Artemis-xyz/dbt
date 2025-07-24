@@ -44,5 +44,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from deepbook_tvl
 left join deepbook_market_data dmd using (date)
+where true
 {{ ez_metrics_incremental('deepbook_tvl.date', backfill_date) }}
-    and deepbook_tvl.date < to_date(sysdate())
+and deepbook_tvl.date < to_date(sysdate())

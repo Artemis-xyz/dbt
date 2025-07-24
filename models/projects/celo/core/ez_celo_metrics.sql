@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
@@ -24,7 +22,6 @@ with
         select
             date, chain, gas_usd as fees, revenue, txns, dau, avg_txn_fee
         from {{ ref("fact_celo_dau_txns_gas_usd_revenue_avg_txn_fee") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics("celo") }}),
     defillama_data as ({{ get_defillama_metrics("celo") }}),
@@ -34,7 +31,6 @@ with
     celo_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_celo_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     fundamental_data.date
@@ -96,5 +92,6 @@ left join github_data on fundamental_data.date = github_data.date
 left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join celo_dex_volumes on fundamental_data.date = celo_dex_volumes.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
-    and fundamental_data.date < to_date(sysdate())
+and fundamental_data.date < to_date(sysdate())

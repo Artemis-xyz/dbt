@@ -15,14 +15,11 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with corn_dex_volumes as (
     select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_corn_daily_dex_volumes") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , corn_market_data as (
     {{ get_coingecko_metrics('corn-3') }}
@@ -47,5 +44,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from corn_dex_volumes
 left join corn_market_data cmd using (date)
+where true
 {{ ez_metrics_incremental("date", backfill_date) }}
 and date < to_date(sysdate())

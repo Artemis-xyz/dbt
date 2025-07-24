@@ -41,5 +41,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from velodrome_tvl
 left join velodrome_market_data using (date) 
+where true
 {{ ez_metrics_incremental('velodrome_tvl.date', backfill_date) }}
 and velodrome_tvl.date < to_date(sysdate())

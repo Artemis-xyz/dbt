@@ -27,7 +27,6 @@ with fees_tvl_metrics as(
         AVG(net_deposits) as net_deposits,
         AVG(tvl) as tvl
     FROM {{ ref('fact_goldfinch_metrics') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY date
 )
 , token_incentives_cte as (
@@ -35,7 +34,6 @@ with fees_tvl_metrics as(
         date,
         SUM(amount_usd) as token_incentives
     FROM {{ ref('fact_goldfinch_token_incentives') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY date
 )
 , treasury as (
@@ -48,7 +46,6 @@ with fees_tvl_metrics as(
         , sum(own_token_treasury) as own_token_treasury
         , sum(own_token_treasury_native) as own_token_treasury_native
     from {{ ref('ez_goldfinch_metrics_by_token') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , price_data as ({{ get_coingecko_metrics("goldfinch") }})
@@ -57,7 +54,6 @@ with fees_tvl_metrics as(
         date
         , token_holder_count
     from {{ ref("fact_goldfinch_tokenholders")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 SELECT
@@ -118,5 +114,6 @@ LEFT JOIN token_incentives_cte ti using (date)
 LEFT JOIN treasury t using (date)
 LEFT JOIN token_holder_data th using (date)
 LEFT JOIN price_data pd using (date)
+where true
 {{ ez_metrics_incremental('m.date', backfill_date) }}
 and m.date < to_date(sysdate())

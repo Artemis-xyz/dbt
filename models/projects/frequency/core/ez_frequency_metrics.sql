@@ -25,7 +25,6 @@ with
             daa, 
             fees_native
         from {{ ref("fact_frequency_fundamental_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     date
@@ -42,5 +41,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
-    and fundamental_data.date < to_date(sysdate())
+and fundamental_data.date < to_date(sysdate())

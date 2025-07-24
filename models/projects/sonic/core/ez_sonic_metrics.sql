@@ -21,7 +21,6 @@ with
     sonic_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_sonic_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , fundamentals as (
         SELECT
@@ -30,7 +29,6 @@ with
             txns,
             dau
         FROM {{ ref("fact_sonic_fundamental_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , supply_data as (
         select
@@ -40,7 +38,6 @@ with
             net_supply_change_native,
             circulating_supply_native
         from {{ ref("fact_sonic_supply_data") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("sonic-3") }})
 select
@@ -77,5 +74,6 @@ from fundamentals
 left join sonic_dex_volumes on fundamentals.date = sonic_dex_volumes.date
 left join price_data on fundamentals.date = price_data.date
 left join supply_data on fundamentals.date = supply_data.date
+where true
 {{ ez_metrics_incremental('fundamentals.date', backfill_date) }}
 and fundamentals.date < to_date(sysdate())

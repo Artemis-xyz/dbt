@@ -15,22 +15,18 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
     bridge_volume as (
         select date, bridge_volume
         from {{ ref("fact_across_bridge_volume") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
-            and chain is null
+        where chain is null
         
     ),
     bridge_daa as (
         select date, bridge_daa
         from {{ ref("fact_across_bridge_daa") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("across") }})
 select
@@ -53,4 +49,6 @@ select
 from bridge_volume
 left join bridge_daa on bridge_volume.date = bridge_daa.date
 left join price_data on bridge_volume.date = price_data.date
-where bridge_volume.date < to_date(sysdate())
+where true 
+{{ ez_metrics_incremental("bridge_volume.date", backfill_date) }}
+and bridge_volume.date < to_date(sysdate())

@@ -28,7 +28,6 @@ with
     revenue_data as (
         select date, native_token_burn as revenue_native, revenue
         from {{ ref("agg_daily_polygon_revenue") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     l1_cost_data as (
         select
@@ -36,8 +35,7 @@ with
             sum(tx_fee) as l1_data_cost_native,
             sum(gas_usd) as l1_data_cost
         from {{ref("fact_ethereum_transactions_v2")}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and lower(contract_address) = lower('0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287')   
+        where lower(contract_address) = lower('0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287')   
         group by date
     ),
     nft_metrics as ({{ get_nft_metrics("polygon") }}),
@@ -46,25 +44,21 @@ with
     bridge_volume_metrics as (
         select date, bridge_volume
         from {{ ref("fact_polygon_pos_bridge_bridge_volume") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and chain is null
+        where chain is null
     ),
     bridge_daa_metrics as (
         select date, bridge_daa
         from {{ ref("fact_polygon_pos_bridge_bridge_daa") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     polygon_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_polygon_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     token_incentives as (
         select
             date,
             token_incentives
         from {{ref('fact_polygon_token_incentives')}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 
 select
@@ -167,5 +161,6 @@ left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join polygon_dex_volumes as dune_dex_volumes_polygon on fundamental_data.date = dune_dex_volumes_polygon.date
 left join token_incentives ti on fundamental_data.date = ti.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

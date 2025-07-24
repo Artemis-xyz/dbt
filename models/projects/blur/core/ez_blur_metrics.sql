@@ -15,30 +15,24 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
     blur_fees as (
         select *
         from {{ ref("fact_blur_fees") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , blur_daus as (
         select *
         from {{ ref("fact_blur_daus") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , blur_daily_txns as (
         select *
         from {{ ref("fact_blur_daily_txns") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , blur_daily_supply as (
         select *
         from {{ ref("fact_blur_daily_supply") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , market_data as (
         {{ get_coingecko_metrics("blur") }}
@@ -76,6 +70,7 @@ left join blur_daily_txns using (date)
 left join blur_fees using (date)
 left join blur_daily_supply using (date)
 left join market_data using (date)
+where true
 {{ ez_metrics_incremental('blur_daus.date', backfill_date) }}
 and blur_daus.date < to_date(sysdate())
-order by date desc
+order by blur_daus.date desc

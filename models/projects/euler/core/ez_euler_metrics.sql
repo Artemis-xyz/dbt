@@ -24,7 +24,6 @@ with lending_metrics as (
         , sum(borrow_amount_cumulative) as lending_loans
         , sum(supplied_amount_cumulative - borrow_amount_cumulative) as tvl
     from {{ ref("fact_euler_borrow_and_lending_metrics_by_chain") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , market_metrics as (
@@ -48,5 +47,6 @@ select
 from date_spine ds
 left join lending_metrics using (date)
 left join market_metrics using (date)
+where true
 {{ ez_metrics_incremental('ds.date', backfill_date) }}
-    and ds.date < to_date(sysdate())
+and ds.date < to_date(sysdate())

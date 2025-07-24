@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with swap_metrics as (
@@ -27,7 +25,6 @@ with swap_metrics as (
         SUM(amount_in_usd) as daily_volume_usd,
         SUM(fee_usd) as daily_fees_usd
     FROM {{ ref('fact_aerodrome_swaps') }}
-    {{ ez_metrics_incremental("block_timestamp::date", backfill_date) }}
     GROUP BY 1
 )
 , tvl_metrics as (
@@ -35,7 +32,6 @@ with swap_metrics as (
         date,
         SUM(token_balance_usd) as tvl_usd
     FROM {{ ref('fact_aerodrome_tvl') }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
     GROUP BY date
 )
 , market_metrics as (
@@ -52,21 +48,18 @@ with swap_metrics as (
         buybacks_native, 
         buybacks
     FROM {{ ref('fact_aerodrome_supply_data') }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 , pools_metrics as (
     SELECT
         date,
         cumulative_count
     FROM {{ ref('fact_aerodrome_pools') }}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 , token_incentives as (
     select
         day as date,
         usd_value as token_incentives
     from {{ref('fact_aerodrome_token_incentives')}}
-    {{ ez_metrics_incremental("date", backfill_date) }}
 )
 , date_spine as (
     SELECT
@@ -141,4 +134,6 @@ LEFT JOIN market_metrics mm using (date)
 LEFT JOIN supply_metrics sp using (date)
 LEFT JOIN pools_metrics pm using (date)
 LEFT JOIN token_incentives ti using (date)
-WHERE ds.date < to_date(sysdate())
+WHERE true 
+{{ ez_metrics_incremental("ds.date", backfill_date) }}
+and ds.date < to_date(sysdate())

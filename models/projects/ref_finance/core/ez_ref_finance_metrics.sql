@@ -24,7 +24,6 @@ with dau_txns_volume as(
         unique_traders,
         volume
     from {{ ref('fact_ref_finance_dau_txns_volume') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ), price as (
     {{ get_coingecko_metrics('ref-finance') }}
 )
@@ -51,6 +50,7 @@ select
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from dau_txns_volume d
-left join price p on d.date = p.date        
+left join price p on d.date = p.date   
+where true     
 {{ ez_metrics_incremental('d.date', backfill_date) }}
 and d.date < to_date(sysdate())

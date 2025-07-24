@@ -16,8 +16,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
@@ -43,7 +41,6 @@ with
                     )
                 }}
             )
-        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     ),
     issuance_data as ({{ get_issuance_metrics("bitcoin") }}),
@@ -59,7 +56,6 @@ with
             sum(cumulative_etf_flow_native) as cumulative_etf_flow_native,
             sum(cumulative_etf_flow) as cumulative_etf_flow
         FROM {{ ref("ez_bitcoin_etf_metrics") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
         GROUP BY 1
     ), 
     bitcoin_dex_volumes as (
@@ -67,7 +63,6 @@ with
             date,
             volume_usd as dex_volumes
         FROM {{ ref("fact_bitcoin_dex_volumes") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
 select
     fundamental_data.date
@@ -126,5 +121,6 @@ left join github_data on fundamental_data.date = github_data.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join etf_metrics on fundamental_data.date = etf_metrics.date
 left join bitcoin_dex_volumes on fundamental_data.date = bitcoin_dex_volumes.date
+where true
 {{ ez_metrics_incremental("fundamental_data.date", backfill_date) }}
-    and fundamental_data.date < to_date(sysdate())
+and fundamental_data.date < to_date(sysdate())

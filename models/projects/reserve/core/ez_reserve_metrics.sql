@@ -123,5 +123,6 @@ select
 from forward_filled_data
 left join protocol_revenue using (date)
 left join supply_data using (date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

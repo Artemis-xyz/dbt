@@ -28,7 +28,6 @@ WITH magiceden_metrics AS (
         SUM(total_fees_usd) AS fees
     FROM
         {{ ref('fact_magiceden_metrics_by_chain') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY
         date
 )
@@ -39,7 +38,6 @@ WITH magiceden_metrics AS (
         , premine_unlocks as premine_unlocks_native
         , 0 as burns_native
     FROM {{ ref('fact_magiceden_daily_premine_unlocks') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , date_spine AS (
     SELECT * 
@@ -89,6 +87,7 @@ from date_spine
 left join market_metrics on date_spine.date = market_metrics.date
 left join magiceden_metrics on date_spine.date = magiceden_metrics.date
 left join daily_supply_data on date_spine.date = daily_supply_data.date
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())
 order by date_spine.date

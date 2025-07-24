@@ -27,7 +27,6 @@ with morpho_data as (
         , sum(supply_amount_usd) + sum(collat_amount_usd) as deposit_amount_usd
         , sum(fees_usd) as fees
     from {{ ref("fact_morpho_data") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 
@@ -43,7 +42,6 @@ with morpho_data as (
         , sum(amount_native) as token_incentives_native
         , sum(amount_usd) as token_incentives
     from all_token_incentives
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 
@@ -72,7 +70,6 @@ with morpho_data as (
         , net_supply_change_native
         , circulating_supply_native
     from {{ ref("fact_morpho_supply_data") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 , date_spine as (
@@ -122,5 +119,6 @@ left join cumulative_metrics using (date)
 left join morpho_market_data mdd using (date)
 left join morpho_supply_data msd using (date)
 left join morpho_token_incentives using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

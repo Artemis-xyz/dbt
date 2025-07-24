@@ -23,7 +23,6 @@ with
             date
             , withdraw_management_fees
         FROM {{ ref('fact_jito_mgmt_withdraw_fees') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , jito_dau_txns_fees_fee_allocation as ( -- Tips
         SELECT 
@@ -45,7 +44,6 @@ with
                     ELSE tip_fees * 0.003 -- 94% to validators + 0.3% to SOL/JTO vault operators
                 END) as strategy_fee_allocation
         FROM {{ ref('fact_jito_dau_txns_fees')}}
-        {{ ez_metrics_incremental('day', backfill_date) }}
         group by day
     )
     , jito_dau_txns_fees as ( -- Tips
@@ -57,7 +55,6 @@ with
             , tip_revenue
             , tip_supply_side_fees
         FROM {{ ref('fact_jito_dau_txns_fees')}}
-        {{ ez_metrics_incremental('day', backfill_date) }}
     )
     , jito_tvl as (
         SELECT
@@ -65,7 +62,6 @@ with
             , sum(balance) as tvl
             , tvl - lag(tvl) over (order by date) as tvl_change
         FROM {{ ref('fact_jitosol_tvl') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , date_spine as (
@@ -81,7 +77,6 @@ with
             , pre_mine_unlocks as premine_unlocks_native
             , 0 as burns_native
         FROM {{ ref('fact_jito_daily_premine_unlocks') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , market_metrics as (
         {{get_coingecko_metrics('jito-governance-token')}}
@@ -140,5 +135,6 @@ LEFT JOIN jito_dau_txns_fees using (date)
 LEFT JOIN jito_tvl using (date)
 LEFT JOIN daily_supply_data using (date)
 LEFT JOIN market_metrics using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

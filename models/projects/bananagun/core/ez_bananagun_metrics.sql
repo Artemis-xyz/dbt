@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 WITH metrics AS (
@@ -27,7 +25,6 @@ WITH metrics AS (
         , SUM(daily_txns) AS daily_txns
         , SUM(fees_usd) AS fees_usd
     FROM {{ ref('fact_bananagun_all_metrics') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     GROUP BY date
 )
 , coin_metrics AS (
@@ -40,7 +37,6 @@ WITH metrics AS (
         , pre_mine_unlocks
         , burns_usd
     FROM {{ ref('fact_bananagun_coin_metrics') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , market_data as (
     {{ get_coingecko_metrics('banana-gun') }}
@@ -86,6 +82,7 @@ SELECT
 FROM metrics
 LEFT JOIN coin_metrics using (date)
 LEFT JOIN market_data using (date)
+WHERE true
 {{ ez_metrics_incremental('metrics.date', backfill_date) }}
 and metrics.date < to_date(sysdate())
 ORDER BY metrics.date DESC

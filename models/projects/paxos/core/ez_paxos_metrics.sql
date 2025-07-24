@@ -24,6 +24,7 @@ SELECT
     to_timestamp_ntz(current_timestamp()) as created_on,
     to_timestamp_ntz(current_timestamp()) as modified_on
 FROM {{ ref('ez_paxos_metrics_by_chain') }}
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())
 GROUP BY 1

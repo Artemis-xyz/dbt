@@ -39,7 +39,6 @@ with protocol_data as (
         , sum(gas_cost) as gas_cost
 
     from {{ ref("ez_trader_joe_metrics_by_chain") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1, 2, 3
 )
 , supply_data as (
@@ -51,14 +50,12 @@ with protocol_data as (
         , net_supply_change_native
         , circulating_supply_native
     from {{ ref("fact_trader_joe_supply_data") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , token_incentives as (
     select
         date
         , sum(amount_usd) as token_incentives
     from {{ ref("fact_trader_joe_token_incentives") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by date
 )
 , date_spine as (
@@ -125,5 +122,6 @@ left join protocol_data using(date)
 left join market_metrics using(date)
 left join token_incentives using(date)
 left join supply_data using(date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

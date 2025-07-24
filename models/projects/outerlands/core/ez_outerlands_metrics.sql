@@ -22,5 +22,6 @@ SELECT date, cumulative_index_value as price,
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM {{ ref('fact_outerlands_fundamental_index_performance') }}
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

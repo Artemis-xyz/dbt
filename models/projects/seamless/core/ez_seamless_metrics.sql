@@ -33,7 +33,6 @@ with
             , sum(daily_borrows_usd) as daily_borrows_usd
             , sum(daily_supply_usd) as daily_supply_usd
         from seamless_by_chain
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
 
@@ -57,5 +56,6 @@ select
 from seamless_metrics
 left join price_data
     on seamless_metrics.date = price_data.date
+where true
 {{ ez_metrics_incremental('seamless_metrics.date', backfill_date) }}
 and seamless_metrics.date < to_date(sysdate())

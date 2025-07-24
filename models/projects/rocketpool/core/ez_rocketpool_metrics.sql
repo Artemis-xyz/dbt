@@ -26,7 +26,6 @@ with
             , num_staked_eth_net_change
             , amount_staked_usd_net_change
         from {{ ref('fact_rocketpool_staked_eth_count_with_USD_and_change') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , fees_revs_cte as (
         select
@@ -40,7 +39,6 @@ with
             , total_node_rewards_usd + deposit_fees as total_supply_side_revenue
         from {{ ref('fact_rocketpool_fees_revs') }}
         left join {{ ref('fact_rocketpool_deposit_fees') }} d using(date)
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , token_incentives_cte as (
         SELECT
@@ -48,7 +46,6 @@ with
             , token_incentives_usd
         FROM
             {{ ref('fact_rocketpool_expenses') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , outstanding_supply_cte as (
         SELECT
@@ -56,7 +53,6 @@ with
             , reth_supply
         FROM
             {{ ref('fact_reth_outstanding') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , treasury_cte as (
         SELECT
@@ -64,7 +60,6 @@ with
             , sum(usd_balance) as treasury_value
         FROM
             {{ ref('fact_rocketpool_treasury') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , treasury_native_cte as (
@@ -73,8 +68,7 @@ with
             , native_balance as treasury_native
         FROM
             {{ ref('fact_rocketpool_treasury') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        AND token = 'RPL'
+        WHERE token = 'RPL'
     )
     , net_treasury_cte as (
         SELECT
@@ -82,8 +76,7 @@ with
             , sum(usd_balance) as net_treasury_value
         FROM
             {{ ref('fact_rocketpool_treasury') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        AND token <> 'RPL'
+        WHERE token <> 'RPL'
         GROUP BY 1
     )
     , prices_cte as (
@@ -95,7 +88,6 @@ with
             , token_holder_count
         FROM
             {{ ref('fact_rocketpool_token_holders') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     p.date
@@ -163,5 +155,6 @@ left join treasury_native_cte tn using(date)
 left join net_treasury_cte nt using(date)
 left join outstanding_supply_cte os using(date)
 left join token_holders_cte th using(date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and p.date < to_date(sysdate())

@@ -129,6 +129,7 @@ select
     to_timestamp_ntz(current_timestamp()) as created_on
     , to_timestamp_ntz(current_timestamp()) as modified_on
 from combined_result
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())
 order by date

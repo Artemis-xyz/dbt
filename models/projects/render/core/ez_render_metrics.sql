@@ -24,7 +24,6 @@ with
             sum(amount_native) as total_burns,
             sum(amount) as revenue
         from {{ ref("fact_render_burns") }}
-        {{ ez_metrics_incremental('block_timestamp::date', backfill_date) }}
         group by 1
     )
     , price_data as (
@@ -41,5 +40,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from burn_data
 left join price_data using(date)
+where true
 {{ ez_metrics_incremental('burn_data.date', backfill_date) }}
 and burn_data.date < to_date(sysdate())

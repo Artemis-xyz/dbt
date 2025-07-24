@@ -23,7 +23,6 @@ with token_incentives as (
         token_incentives_native,
         token_incentives
     from {{ ref("fact_dimo_token_incentives") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , airdrop as (
     select
@@ -31,7 +30,6 @@ with token_incentives as (
         daily_airdrop_amount,
         daily_airdrop_amount_native
     from {{ ref("fact_dimo_airdrop") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , market_metrics as (
     {{ get_coingecko_metrics("dimo") }}
@@ -60,5 +58,6 @@ from date_spine
 left join market_metrics using(date)
 left join token_incentives using(date)
 left join airdrop using(date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

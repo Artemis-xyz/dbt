@@ -16,8 +16,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
@@ -32,18 +30,15 @@ with
     , expenses_data as (
         select date, chain, l1_data_cost_native, l1_data_cost
         from {{ ref("fact_blast_l1_data_cost") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )  -- supply side revenue and fees
     , rolling_metrics as ({{ get_rolling_active_address_metrics("blast") }})
     , blast_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_blast_daily_dex_volumes") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     ),
     premine_emissions as (
         select date, premine_unlocks_native, circulating_supply_native
         from {{ ref("fact_blast_daily_supply_data") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
 select
     DATE(coalesce(
@@ -113,5 +108,6 @@ left join blast_dex_volumes as dune_dex_volumes_blast on fundamental_data.date =
 left join price_data on fundamental_data.date = price_data.date
 left join eth_price on fundamental_data.date = eth_price.date
 left join premine_emissions on fundamental_data.date = premine_emissions.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
-    and fundamental_data.date < to_date(sysdate())
+and fundamental_data.date < to_date(sysdate())

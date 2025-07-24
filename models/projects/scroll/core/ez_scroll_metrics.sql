@@ -33,7 +33,6 @@ with
         from {{ ref("fact_scroll_txns") }}
         left join {{ ref("fact_scroll_daa") }} using (date)
         left join {{ ref("fact_scroll_gas_gas_usd_revenue") }} using (date)
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , github_data as ({{ get_github_metrics("scroll") }})
     , contract_data as ({{ get_contract_metrics("scroll") }})
@@ -42,7 +41,6 @@ with
     , scroll_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_scroll_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("scroll") }})
 select
@@ -106,5 +104,6 @@ left join defillama_data dd on fd.date = dd.date
 left join rolling_metrics rm on fd.date = rm.date
 left join scroll_dex_volumes dsv on fd.date = dsv.date
 left join price_data pd on fd.date = pd.date
+where true
 {{ ez_metrics_incremental('fd.date', backfill_date) }}
 and fd.date < to_date(sysdate())

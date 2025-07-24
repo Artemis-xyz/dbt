@@ -20,7 +20,6 @@
 with 
     dau_txns as (
         SELECT * FROM {{ ref('fact_pyth_txns_dau') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , date_spine as (
         SELECT
@@ -36,7 +35,6 @@ with
             date,
             dfl_tvs
         FROM {{ ref('fact_pyth_dfl_tvs') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , supply_data as (
         SELECT
@@ -45,7 +43,6 @@ with
             net_supply_change_native,
             circulating_supply_native
         FROM {{ ref('fact_pyth_supply_data') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 
 SELECT
@@ -90,5 +87,6 @@ LEFT JOIN dau_txns ON date_spine.date = dau_txns.date
 LEFT JOIN market_metrics ON date_spine.date = market_metrics.date
 LEFT JOIN dfl_tvs ON date_spine.date = dfl_tvs.date
 LEFT JOIN supply_data ON date_spine.date = supply_data.date
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

@@ -24,7 +24,6 @@ with swap_metrics as (
         count(distinct swapper) as dau,
         sum(amount_usd) as volume_usd,
     from {{ref('fact_dodo_swap_metrics')}}
-    {{ ez_metrics_incremental('block_timestamp::date', backfill_date) }}
     group by date
 )
 , token_incentives as (
@@ -32,7 +31,6 @@ with swap_metrics as (
         block_timestamp::date as date,
         sum(amount_usd) as token_incentives
     from {{ref('fact_dodo_token_incentives')}}
-    {{ ez_metrics_incremental('block_timestamp::date', backfill_date) }}
     group by date
 )
 , date_spine as (
@@ -65,6 +63,7 @@ from date_spine
 left join market_metrics using (date)
 left join swap_metrics using (date)
 left join token_incentives using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
-    and date_spine.date <= to_date(sysdate())
+and date_spine.date <= to_date(sysdate())
     

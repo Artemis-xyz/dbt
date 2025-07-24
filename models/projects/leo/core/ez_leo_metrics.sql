@@ -28,7 +28,6 @@ with
             date, 
             SUM(leo_burn_amount) AS revenue_native
         FROM {{ ref("fact_leo_revenue") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , market_data as (
@@ -65,5 +64,6 @@ with
     from date_spine
     left join leo_revenue using (date)
     left join market_data using (date)
+    where true
     {{ ez_metrics_incremental('date', backfill_date) }}
     and date < to_date(sysdate())

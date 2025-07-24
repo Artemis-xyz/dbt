@@ -22,12 +22,10 @@ with fundamental_data as (
         * EXCLUDE date,
         TO_TIMESTAMP_NTZ(date) AS date 
     from {{ source('PROD_LANDING', 'ez_stellar_metrics') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , rwa_tvl as (
     select * 
     from {{ ref('fact_stellar_rwa_tvl') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , stablecoin_tvl as (
     -- Sum mktcap in USD across all stablecoins 
@@ -35,7 +33,6 @@ with fundamental_data as (
         date,
         sum(total_circulating_usd) as stablecoin_mc
     from {{ ref ('fact_stellar_stablecoin_tvl') }} 
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 
         date 
 )
@@ -47,7 +44,6 @@ with fundamental_data as (
         issued_supply as issued_supply_native,
         circulating_supply_native as circulating_supply_native
     from {{ ref('fact_stellar_issued_supply_and_float_dbt') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , prices as ({{ get_coingecko_price_with_latest("stellar") }})
 , price_data as ( {{ get_coingecko_metrics("stellar") }} )
@@ -118,5 +114,6 @@ left join price_data on fundamental_data.date = price_data.date
 left join rwa_tvl on fundamental_data.date = rwa_tvl.date
 left join stablecoin_tvl on fundamental_data.date = stablecoin_tvl.date
 left join issued_supply_metrics on fundamental_data.date = issued_supply_metrics.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

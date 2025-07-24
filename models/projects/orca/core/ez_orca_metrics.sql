@@ -32,7 +32,6 @@ with date_spine as (
         total_fees, 
         volume 
     from {{ ref("fact_orca_fees_and_volume") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , dau_txns as (
     select 
@@ -40,12 +39,10 @@ with date_spine as (
         num_swaps, 
         unique_traders 
     from {{ ref("fact_orca_dau_txns") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , tvl as (
     select t.date, t.tvl from {{ ref("fact_defillama_protocol_tvls") }} t
     join {{ ref("fact_defillama_protocols") }} p on p.id = t.defillama_protocol_id and p.name = 'Orca'
-    {{ ez_metrics_incremental('t.date', backfill_date) }}
 )
 , market_data as (
     {{ get_coingecko_metrics('orca')}}
@@ -57,7 +54,6 @@ with date_spine as (
         , net_change
         , circulating_supply_native
     from {{ ref("fact_orca_supply_data") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 select
     ds.date
@@ -105,5 +101,6 @@ left join dau_txns using (date)
 left join tvl using (date)
 left join supply_data using (date)
 left join market_data using (date)
+where true
 {{ ez_metrics_incremental('ds.date', backfill_date) }}
 and ds.date < to_date(sysdate())

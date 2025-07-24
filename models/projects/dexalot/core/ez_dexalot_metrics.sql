@@ -22,7 +22,6 @@ with
         select
             date, chain, dau, txns, fees_native
         from {{ ref("fact_dexalot_fundamental_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics("dexalot") }})
 select
@@ -54,4 +53,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data f
 left join price_data on f.date = price_data.date
-where f.date < to_date(sysdate())
+where true 
+{{ ez_metrics_incremental('f.date', backfill_date) }}
+and f.date < to_date(sysdate())

@@ -21,27 +21,22 @@ with
     trading_volume_data as (
         select date, trading_volume
         from {{ ref("fact_dydx_v4_trading_volume") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , fees_data as (
         select date, maker_fees, taker_fees, fees
         from {{ ref("fact_dydx_v4_fees") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , chain_data as (
         select date, maker_fees, maker_rebates, txn_fees
         from {{ ref("fact_dydx_v4_txn_fees") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , trading_fees as (
         select date, total_fees
         from {{ ref("fact_dydx_v4_trading_fees") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , unique_traders_data as (
         select date, unique_traders
         from {{ ref("fact_dydx_v4_unique_traders") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 
 select 
@@ -67,4 +62,6 @@ from trading_volume_data
 left join fees_data on trading_volume_data.date = fees_data.date
 left join chain_data on trading_volume_data.date = chain_data.date
 left join unique_traders_data on trading_volume_data.date = unique_traders_data.date
-where unique_traders_data.date < to_date(sysdate())
+where true 
+{{ ez_metrics_incremental('unique_traders_data.date', backfill_date) }}
+and unique_traders_data.date < to_date(sysdate())

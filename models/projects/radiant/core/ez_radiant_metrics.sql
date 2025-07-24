@@ -32,7 +32,6 @@ with
     , token_incentives as (
         select date, sum(amount_native) as amount_native, sum(amount_usd) as amount_usd 
         from {{ ref("fact_radiant_token_incentives") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , radiant_metrics as (
@@ -41,7 +40,6 @@ with
             , sum(daily_borrows_usd) as daily_borrows_usd
             , sum(daily_supply_usd) as daily_supply_usd
         from radiant_by_chain
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , price_data as ({{ get_coingecko_metrics("radiant") }})
@@ -72,5 +70,6 @@ left join price_data
     on token_incentives.date = price_data.date
 left join radiant_metrics
     on token_incentives.date = radiant_metrics.date
+where true
 {{ ez_metrics_incremental('token_incentives.date', backfill_date) }}
 and token_incentives.date < to_date(sysdate())

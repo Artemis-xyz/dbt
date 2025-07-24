@@ -20,7 +20,6 @@
 with lifinity_dex_volumes as (
     select date, daily_volume as dex_volumes
     from {{ ref("fact_lifinity_dex_volumes") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , lifinity_market_data as (
     {{ get_coingecko_metrics('lifinity') }}
@@ -43,5 +42,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from lifinity_dex_volumes   
 left join lifinity_market_data lmd using (date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

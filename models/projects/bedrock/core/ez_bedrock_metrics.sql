@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with restaked_eth_metrics as (
@@ -28,7 +26,6 @@ with restaked_eth_metrics as (
         num_restaked_eth_net_change,
         amount_restaked_usd_net_change
     from {{ ref('fact_bedrock_restaked_eth_count_with_usd_and_change') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , market_metrics as (
     {{get_coingecko_metrics('bedrock-token')}}
@@ -68,5 +65,6 @@ select
 from date_spine
 left join restaked_eth_metrics using(date)
 left join market_metrics using(date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
-    and date_spine.date < to_date(sysdate())
+and date_spine.date < to_date(sysdate())

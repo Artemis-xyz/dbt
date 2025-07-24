@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
@@ -28,7 +26,6 @@ with
             fees_native, 
             fees_usd
         from {{ ref("fact_centrifuge_fundamental_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , market_data as (
         {{ get_coingecko_metrics("centrifuge") }}
@@ -62,5 +59,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join market_data using (date)
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
-    and fundamental_data.date < to_date(sysdate())
+and fundamental_data.date < to_date(sysdate())

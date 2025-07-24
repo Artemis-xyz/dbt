@@ -29,7 +29,6 @@ WITH issued_supply_metrics AS (
         unvested_balances as unvested_balances_native,
         circulating_supply_native
     FROM {{ ref('fact_hedera_issued_supply_and_float') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , date_spine AS (
     select * 
@@ -61,5 +60,6 @@ SELECT
 FROM date_spine
 left join issued_supply_metrics using (date)
 left join market_metrics using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

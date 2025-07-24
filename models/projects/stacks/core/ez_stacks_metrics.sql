@@ -37,7 +37,6 @@ with
                     )
                 }}
             )
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     ),
     price_data as ({{ get_coingecko_metrics("blockstack") }}),
@@ -94,5 +93,6 @@ left join price_data pd on fundamental_data.date = pd.date
 left join defillama_data dd on fundamental_data.date = dd.date
 left join github_data gd on fundamental_data.date = gd.date
 left join rolling_metrics rm on fundamental_data.date = rm.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

@@ -24,7 +24,6 @@ with
     defillama_data as ({{ get_defillama_metrics("near") }}),
     revenue_data as (
         select date, revenue_native, revenue from {{ ref("fact_near_revenue") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     github_data as ({{ get_github_metrics("near") }}),
     contract_data as ({{ get_contract_metrics("near") }}),
@@ -33,20 +32,17 @@ with
     da_metrics as (
         select date, blob_fees_native, blob_fees, blob_size_mib, avg_mib_per_second, avg_cost_per_mib_native, avg_cost_per_mib, submitters
         from {{ ref("fact_near_da_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ), 
     near_dex_volumes as (
         select date, volume_usd as dex_volumes
         from {{ ref("fact_near_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     application_fees AS (
     SELECT 
         DATE_TRUNC(DAY, date) AS date 
         , SUM(COALESCE(fees, 0)) AS application_fees
     FROM {{ ref("ez_protocol_datahub_by_chain") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    AND chain = 'near'
+    WHERE chain = 'near'
     GROUP BY 1
     )
 
@@ -121,5 +117,6 @@ left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join da_metrics on fundamental_data.date = da_metrics.date
 left join near_dex_volumes on fundamental_data.date = near_dex_volumes.date
 left join application_fees on fundamental_data.date = application_fees.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

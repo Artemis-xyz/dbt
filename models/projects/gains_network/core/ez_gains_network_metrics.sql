@@ -32,13 +32,11 @@ with date_spine as (
         with agg as (
             select date, sum(trading_volume) as trading_volume, sum(unique_traders) as unique_traders
             from {{ ref("fact_gains_trading_volume_unique_traders") }} -- V7
-            {{ ez_metrics_incremental('date', backfill_date) }}
-                and chain is not null
+            where chain is not null
             group by date
             UNION ALL
             SELECT date, sum(trading_volume) as trading_volume, sum(unique_traders) as unique_traders
             from {{ ref("fact_gains_data_v8_v9") }} -- V8 and V9
-            {{ ez_metrics_incremental('date', backfill_date) }}
             group by date
         )
         SELECT
@@ -61,12 +59,10 @@ with date_spine as (
             , referral_fees
             , nft_bot_fees
         from {{ ref("fact_gains_fees") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , gains_tvl as (
         select date, sum(usd_balance) as tvl
         from {{ ref("fact_gains_tvl") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by date
     )
 
@@ -97,5 +93,6 @@ from date_spine ds
 left join gains_data gd using (date)
 left join gains_fees gf using (date)
 left join gains_tvl gt using (date)
+where true
 {{ ez_metrics_incremental('ds.date', backfill_date) }}
 and ds.date < to_date(sysdate())

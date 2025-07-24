@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with date_spine as (
@@ -37,7 +35,6 @@ with date_spine as (
         sum(treasury_cash_flow) as treasury_fee_allocation,
         sum(vebal_cash_flow) as vebal_fee_allocation
     FROM {{ ref('ez_balancer_dex_swaps') }}
-    {{ ez_metrics_incremental('block_timestamp::date', backfill_date) }}
     group by 1
 )
 , token_incentives as (
@@ -45,7 +42,6 @@ with date_spine as (
         date,
         sum(amount_usd) as token_incentives_usd
     FROM {{ ref('fact_balancer_token_incentives_all_chains') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , all_tvl as (
@@ -53,7 +49,6 @@ with date_spine as (
         date,
         sum(amount_usd) as tvl_usd
     FROM {{ ref('fact_balancer_tvl_by_chain_and_token') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , treasury as (
@@ -61,7 +56,6 @@ with date_spine as (
         date,
         sum(usd_balance) as net_treasury_usd
     FROM {{ ref('fact_balancer_treasury_by_token') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , treasury_native as (
@@ -70,8 +64,7 @@ with date_spine as (
         sum(native_balance) as treasury_native,
         sum(usd_balance) as own_token_treasury
     FROM {{ ref('fact_balancer_treasury_by_token') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-        and token = 'BAL'
+    WHERE token = 'BAL'
     group by 1
 )
 , net_treasury as (
@@ -79,8 +72,7 @@ with date_spine as (
         date,
         sum(usd_balance) as net_treasury_usd
     FROM {{ ref('fact_balancer_treasury_by_token') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-        and token <> 'BAL'
+    WHERE token <> 'BAL'
     group by 1
 )
 , token_holders as (
@@ -88,7 +80,6 @@ with date_spine as (
         date,
         token_holder_count
     FROM {{ ref('fact_balancer_token_holders') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , market_data as (
     {{ get_coingecko_metrics('balancer') }}
@@ -145,5 +136,6 @@ left join token_holders using (date)
 left join market_data using (date)
 left join swap_metrics using (date)
 left join token_incentives using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

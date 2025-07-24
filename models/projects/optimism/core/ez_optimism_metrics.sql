@@ -28,7 +28,6 @@ with
     expenses_data as (
         select date, chain, l1_data_cost_native, l1_data_cost
         from {{ ref("fact_optimism_l1_data_cost") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),  -- supply side revenue and fees
     nft_metrics as ({{ get_nft_metrics("optimism") }}),
     p2p_metrics as ({{ get_p2p_metrics("optimism") }}),
@@ -36,30 +35,25 @@ with
     bridge_volume_metrics as (
         select date, bridge_volume
         from {{ ref("fact_optimism_bridge_bridge_volume") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and chain is null
+        where chain is null
     ),
     bridge_daa_metrics as (
         select date, bridge_daa
         from {{ ref("fact_optimism_bridge_bridge_daa") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     optimism_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_optimism_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     adjusted_dau_metrics as (
         select date, adj_daus as adjusted_dau
         from {{ ref("ez_optimism_adjusted_dau") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , token_incentives as (
         select 
             date, 
             sum(token_incentives) as token_incentives
         from {{ ref("fact_optimism_token_incentives") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , revenue_share as (
@@ -68,7 +62,6 @@ with
             sum(revenue_share_native) as revenue_share_native,
             sum(revenue_share) as revenue_share
         from {{ ref("fact_optimism_revenue_share") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , mints_burns as (
@@ -79,7 +72,6 @@ with
             cumulative_mints_native,
             cumulative_burns_native
         from {{ ref("fact_optimism_mints_burns") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , unvested_supply as (
         select
@@ -87,23 +79,20 @@ with
             total_vested_supply, 
             1545523296 - total_vested_supply AS total_unvested_supply
         from {{ ref("fact_optimism_all_supply_events") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , owned_supply as (
         select
             date, 
             native_balance AS foundation_owned_supply_native
         from {{ ref("fact_optimism_owned_supply") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and contract_address = '0x4200000000000000000000000000000000000042'
+        where contract_address = '0x4200000000000000000000000000000000000042'
     )
     , application_fees AS (
         SELECT 
             DATE_TRUNC(DAY, date) AS date 
             , SUM(COALESCE(fees, 0)) AS application_fees
         FROM {{ ref("ez_protocol_datahub_by_chain") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and chain = 'optimism'
+        where chain = 'optimism'
         GROUP BY 1
     )
 
@@ -229,5 +218,6 @@ left join mints_burns on fundamental_data.date = mints_burns.date
 left join unvested_supply on fundamental_data.date = unvested_supply.date
 left join owned_supply on fundamental_data.date = owned_supply.date
 left join application_fees on fundamental_data.date = application_fees.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

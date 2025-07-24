@@ -23,7 +23,6 @@ with
             date,
             data_collected_tb
         from {{ ref("fact_grass_data_scraped") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 , market_data as (
     {{ get_coingecko_metrics('grass')}}
@@ -45,5 +44,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from market_data
 left join data_collected on market_data.date = data_collected.date
+where true
 {{ ez_metrics_incremental('market_data.date', backfill_date) }}
 and market_data.date < to_date(sysdate())

@@ -24,7 +24,6 @@ first_seen AS (
         src_address, 
         min(src_block_timestamp::date) AS first_seen_date
     FROM {{ ref("fact_stargate_v2_transfers") }}
-    {{ ez_metrics_incremental('src_block_timestamp::date', backfill_date) }}
     GROUP BY src_address
 )
 
@@ -34,7 +33,6 @@ first_seen AS (
         first_seen_date AS transaction_date, 
         COUNT(DISTINCT src_address) AS new_addresses
     FROM first_seen
-    {{ ez_metrics_incremental('first_seen_date', backfill_date) }}
     GROUP BY transaction_date
 )
 
@@ -47,7 +45,6 @@ first_seen AS (
     JOIN first_seen f 
         ON t.src_address = f.src_address
         AND t.src_block_timestamp::date > f.first_seen_date
-    {{ ez_metrics_incremental('src_block_timestamp::date', backfill_date) }}
     GROUP BY transaction_date
 )
 
@@ -67,7 +64,6 @@ first_seen AS (
         SUM(fees) * 1/6 AS supply_side_fee,
         SUM(fees) * 5/6 AS revenue,
     FROM {{ ref("fact_stargate_v2_transfers") }} t
-    {{ ez_metrics_incremental('dst_block_timestamp::date', backfill_date) }}
     GROUP BY transaction_date
 )
 , treasury_models as (
@@ -91,8 +87,7 @@ first_seen AS (
         date
         , sum(balance) as treasury_usd
     from treasury_models
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    and balance > 2 and balance is not null
+    where balance > 2 and balance is not null
     group by date
 )
 
@@ -116,33 +111,27 @@ first_seen AS (
 , total_stg_staked as (
     select *
     from {{ ref("fact_stargate_polygon_stg_balances") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    and lower(address) = lower('0x3ab2da31bbd886a7edf68a6b60d3cde657d3a15d')
+    where lower(address) = lower('0x3ab2da31bbd886a7edf68a6b60d3cde657d3a15d')
     union all
     select *
     from {{ ref("fact_stargate_arbitrum_stg_balances") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    and lower(address) = lower('0xfbd849e6007f9bc3cc2d6eb159c045b8dc660268')
+    where lower(address) = lower('0xfbd849e6007f9bc3cc2d6eb159c045b8dc660268')
     union all
     select *
     from {{ ref("fact_stargate_avalanche_stg_balances") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    and lower(address) = lower('0xca0f57d295bbce554da2c07b005b7d6565a58fce')
+    where lower(address) = lower('0xca0f57d295bbce554da2c07b005b7d6565a58fce')
     union all
     select *
     from {{ ref("fact_stargate_bsc_stg_balances") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    and lower(address) = lower('0xD4888870C8686c748232719051b677791dBDa26D')
+    where lower(address) = lower('0xD4888870C8686c748232719051b677791dBDa26D')
     union all
     select *
     from {{ ref("fact_stargate_ethereum_stg_balances") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    and lower(address) = lower('0x0e42acbd23faee03249daff896b78d7e79fbd58e')
+    where lower(address) = lower('0x0e42acbd23faee03249daff896b78d7e79fbd58e')
     union all
     select *
     from {{ ref("fact_stargate_optimism_stg_balances") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    and lower(address) = lower('0x43d2761ed16c89a2c4342e2b16a3c61ccf88f05b')
+    where lower(address) = lower('0x43d2761ed16c89a2c4342e2b16a3c61ccf88f05b')
 )
 , total_stg_staked_metrics as (
     select
@@ -150,7 +139,6 @@ first_seen AS (
         , sum(balance_native) as staked_native
         , sum(balance) as staked_usd
     from total_stg_staked
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by date
 )
 , tvl_metrics as (
@@ -158,8 +146,7 @@ first_seen AS (
         date
         , sum(balance) as tvl
     from tvl_models
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    and balance > 2 and balance is not null
+    where balance > 2 and balance is not null
     group by date
 )
 -- Weekly metrics (directly from raw data)
@@ -194,7 +181,6 @@ first_seen AS (
         fees,
         token_rewards
     FROM daily_metrics
-    {{ ez_metrics_incremental('transaction_date', backfill_date) }}
 )
 
 -- Transaction Bucket Counts (Pre-Aggregated)
@@ -207,7 +193,6 @@ first_seen AS (
         COUNT(CASE WHEN amount_sent BETWEEN 10000 AND 100000 THEN 1 END) AS count_10K_100K,
         COUNT(CASE WHEN amount_sent >= 100000 THEN 1 END) AS count_100K_plus
     FROM {{ ref("fact_stargate_v2_transfers") }}
-    {{ ez_metrics_incremental('src_block_timestamp::date', backfill_date) }}
     GROUP BY transaction_date
 )
 , circulating_supply_metrics as (
@@ -215,7 +200,6 @@ first_seen AS (
         date
         , sum(circulating_supply) as circulating_supply
     from {{ ref("fact_stargate_circulating_supply") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by date
 )
 , supply_data as (
@@ -227,7 +211,6 @@ first_seen AS (
         , net_supply_change_native
         , circulating_supply_native
     from {{ ref("fact_stargate_supply_data") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , price_data as ({{ get_coingecko_metrics("stargate-finance") }})
 , hydra_models as (
@@ -245,7 +228,6 @@ first_seen AS (
         date
         , sum(amount) as hydra_locked_assets
     from hydra_models
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by date
 )
 -- Final output with simplified GROUP BY
@@ -313,6 +295,7 @@ LEFT JOIN supply_data sd ON t.date = sd.date
 LEFT JOIN circulating_supply_metrics cs ON t.date = cs.date
 LEFT JOIN price_data pd ON t.date = pd.date
 LEFT JOIN hydra_metrics h ON t.date = h.date
+where true
 {{ ez_metrics_incremental('t.date', backfill_date) }}
 and t.date < to_date(sysdate())
 ORDER BY t.date DESC

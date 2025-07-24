@@ -21,20 +21,17 @@ with
     kamino_tvl as (
         select date, sum(usd_balance) as tvl
         from {{ ref("fact_kamino_tvl") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by date
     ),
 
     klend_fees_and_revenue as (
         select date, klend_fees_usd as fees, klend_revenue_usd as revenue
         from {{ ref("fact_kamino_fees_and_revenues") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
 
     kamino_transactions as (    
         select date, tx_count as txn, dau
         from {{ ref("dim_kamino_transactions") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
 
     market_data as (
@@ -60,5 +57,6 @@ with
     left join klend_fees_and_revenue using (date)
     left join market_data using (date)
     left join kamino_transactions using (date)
+    where true
     {{ ez_metrics_incremental('date', backfill_date) }}
     and date < to_date(sysdate())

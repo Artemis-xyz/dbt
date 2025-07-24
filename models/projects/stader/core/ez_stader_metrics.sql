@@ -27,7 +27,6 @@ with
             num_staked_eth_net_change,
             amount_staked_usd_net_change
         from {{ ref('fact_ethx_staked_eth_count_with_usd_and_change') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , market_metrics as (
         {{ get_coingecko_metrics('stader') }}
@@ -79,5 +78,6 @@ select
 from date_spine
 left join staked_eth_metrics using (date)
 left join market_metrics using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

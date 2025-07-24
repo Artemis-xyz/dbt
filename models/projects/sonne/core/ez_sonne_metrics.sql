@@ -34,7 +34,6 @@ with
             , sum(daily_borrows_usd) as daily_borrows_usd
             , sum(daily_supply_usd) as daily_supply_usd
         from sonne_by_chain
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , price_data as ({{ get_coingecko_metrics("sonne-finance") }})
@@ -56,5 +55,6 @@ select
 from sonne_metrics
 left join price_data
     on sonne_metrics.date = price_data.date
+where true
 {{ ez_metrics_incremental('sonne_metrics.date', backfill_date) }}
 and sonne_metrics.date < to_date(sysdate())

@@ -27,7 +27,6 @@ with
             sum(trading_fees) as trading_fees,
             sum(gas_cost_native) as gas_cost_native
         from {{ ref("ez_quickswap_dex_swaps") }}
-        {{ ez_metrics_incremental('block_timestamp::date', backfill_date) }}
         group by 1
     )
     , tvl as (
@@ -35,7 +34,6 @@ with
             date,
             sum(tvl) as tvl
         from {{ ref("fact_quickswap_polygon_tvl_by_pool") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by date
     )
     , market_metrics as (
@@ -46,7 +44,6 @@ with
             day as date,
             sum(TOTAL_DAILY_TOKEN_INCENTIVE) as token_incentives
         from {{ ref("fact_quickswap_polygon_token_incentives") }}
-        {{ ez_metrics_incremental('day', backfill_date) }}
         group by 1
     )
 SELECT
@@ -75,5 +72,6 @@ from dex_swaps
 left join tvl using(date)
 left join market_metrics using(date)
 left join token_incentives using(date)
+where true
 {{ ez_metrics_incremental('dex_swaps.date', backfill_date) }}
 and dex_swaps.date < to_date(sysdate())

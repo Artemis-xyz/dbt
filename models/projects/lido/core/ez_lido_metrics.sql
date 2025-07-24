@@ -32,7 +32,6 @@ with
             , secondary_supply_side_revenue
             , total_supply_side_revenue
         FROM {{ ref('fact_lido_fees_revs_expenses') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , staked_eth_metrics as (
         select
@@ -42,7 +41,6 @@ with
             , num_staked_eth_net_change
             , amount_staked_usd_net_change
         from {{ ref('fact_lido_staked_eth_count_with_USD_and_change') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , treasury_cte as (
         SELECT
@@ -50,7 +48,6 @@ with
             , sum(usd_balance) as treasury_value
         FROM
             {{ ref('fact_lido_dao_treasury') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , treasury_native_cte as (
@@ -59,8 +56,7 @@ with
             , sum(native_balance) as treasury_native
         FROM
             {{ ref('fact_lido_dao_treasury') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and token = 'LDO'
+        WHERE token = 'LDO'
         GROUP BY 1
     )
     , net_treasury_cte as (
@@ -68,8 +64,7 @@ with
             date
             , sum(usd_balance) as net_treasury_value
         FROM {{ ref('fact_lido_dao_treasury') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and token <> 'LDO'
+        WHERE token <> 'LDO'
         group by 1
     )
     , token_incentives_cte as (
@@ -78,7 +73,6 @@ with
             , sum(amount_usd) as token_incentives
         FROM
             {{ ref('fact_lido_token_incentives') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , price_data as (
@@ -90,7 +84,6 @@ with
             token_holder_count
         FROM
             {{ ref('fact_ldo_tokenholder_count')}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     s.date
@@ -151,5 +144,6 @@ left join net_treasury_cte nt using(date)
 left join token_incentives_cte ti using(date)
 left join price_data p using(date)
 left join tokenholder_cte th using(date)
+where true
 {{ ez_metrics_incremental('s.date', backfill_date) }}
 and s.date < to_date(sysdate())

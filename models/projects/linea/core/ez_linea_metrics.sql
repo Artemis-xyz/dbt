@@ -32,7 +32,6 @@ with
         from {{ ref("fact_linea_txns") }}
         left join {{ ref("fact_linea_daa") }} using (date)
         left join {{ ref("fact_linea_gas_gas_usd_revenue") }} using (date)
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , github_data as ({{ get_github_metrics("linea") }})
     , contract_data as ({{ get_contract_metrics("linea") }})
@@ -41,7 +40,6 @@ with
     , linea_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_linea_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     
 select 
@@ -93,5 +91,6 @@ left join contract_data using (date)
 left join defillama_data using (date)
 left join rolling_metrics using (date)
 left join linea_dex_volumes as dune_dex_volumes_linea on fundamental_data.date = dune_dex_volumes_linea.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

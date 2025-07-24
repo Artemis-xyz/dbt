@@ -16,8 +16,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
@@ -32,7 +30,6 @@ with
     binance_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_binance_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , staked_eth_metrics as (
         select
@@ -42,7 +39,6 @@ with
             sum(num_staked_eth_net_change) as num_staked_eth_net_change,
             sum(amount_staked_usd_net_change) as amount_staked_usd_net_change
         from {{ ref('fact_binance_staked_eth_count_with_usd_and_change') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
 select
@@ -131,5 +127,6 @@ left join nft_metrics on fundamental_data.date = nft_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join binance_dex_volumes as dune_dex_volumes_binance on fundamental_data.date = dune_dex_volumes_binance.date
 left join staked_eth_metrics on fundamental_data.date = staked_eth_metrics.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
     and fundamental_data.date < to_date(sysdate())

@@ -26,7 +26,6 @@ with restaked_eth_metrics as (
         num_restaked_eth_net_change,
         amount_restaked_usd_net_change
     from {{ ref('fact_rsweth_restaked_eth_count_with_usd_and_change') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 staked_eth_metrics as (
     select
@@ -37,7 +36,6 @@ staked_eth_metrics as (
         num_staked_eth_net_change,
         amount_staked_usd_net_change
     from {{ ref('fact_sweth_staked_eth_count_with_usd_and_change') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 market_metrics as (
     {{get_coingecko_metrics('swell-network')}}
@@ -100,5 +98,6 @@ from date_spine
 left join restaked_eth_metrics on date_spine.date = restaked_eth_metrics.date
 left join staked_eth_metrics on date_spine.date = staked_eth_metrics.date and restaked_eth_metrics.chain = staked_eth_metrics.chain
 left join market_metrics on date_spine.date = market_metrics.date
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with bitflow_tvl as (
@@ -32,5 +30,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from bitflow_tvl
+where true
 {{ ez_metrics_incremental('bitflow_tvl.date', backfill_date) }}
-    and bitflow_tvl.date < to_date(sysdate())
+and bitflow_tvl.date < to_date(sysdate())

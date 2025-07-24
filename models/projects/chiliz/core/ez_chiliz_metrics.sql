@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with date_spine as(
@@ -30,22 +28,19 @@ with date_spine as(
         date,
         fees_usd
     from {{ref("fact_chiliz_fees")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 txns as (
     select
         date,
         txns
     from {{ref("fact_chiliz_txns")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 daus as (
     select
         date,
         dau
     from {{ref("fact_chiliz_dau")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-        and dau < 170000 -- There is a DQ issue with the Chiliz dau data: 2 days with > 170k DAU while the rest of the data around those days is < 1k
+    where dau < 170000 -- There is a DQ issue with the Chiliz dau data: 2 days with > 170k DAU while the rest of the data around those days is < 1k
 ),
 burns as (
     select
@@ -53,7 +48,6 @@ burns as (
         burns_native,
         revenue
     from {{ref("fact_chiliz_burns")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 treasury as (
     select
@@ -63,7 +57,6 @@ treasury as (
         usd_balance,
         usd_balance_change
     from {{ref("fact_chiliz_treasury")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 price_data as ({{ get_coingecko_metrics("chiliz") }}),
 supply_data as (
@@ -72,7 +65,6 @@ supply_data as (
         gross_emissions_native,
         circulating_supply_native
     from {{ref("fact_chiliz_supply")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 select
     ds.date
@@ -119,5 +111,6 @@ left join burns using (date)
 left join treasury using (date)
 left join price_data using (date)
 left join supply_data using (date)
+where true
 {{ ez_metrics_incremental('ds.date', backfill_date) }}
 and ds.date < to_date(sysdate())

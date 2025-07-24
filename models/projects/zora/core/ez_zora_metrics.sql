@@ -33,7 +33,6 @@ with
         from {{ ref("fact_zora_txns") }}
         left join {{ ref("fact_zora_daa") }} using (date)
         left join {{ ref("fact_zora_gas_gas_usd_revenue") }} using (date)
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , github_data as ({{ get_github_metrics("zora") }})
     , contract_data as ({{ get_contract_metrics("zora") }})
@@ -42,7 +41,6 @@ with
     , zora_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_zora_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     fundamental_data.date
@@ -94,5 +92,6 @@ left join contract_data using (date)
 left join defillama_data using (date)
 left join rolling_metrics using (date)
 left join zora_dex_volumes as dune_dex_volumes_zora on fundamental_data.date = dune_dex_volumes_zora.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

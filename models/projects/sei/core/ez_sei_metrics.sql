@@ -23,41 +23,34 @@ with
     , sei_fundamental_metrics as (
         select * 
         from {{ ref("fact_sei_daa_txns_gas_gas_usd_revenue") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , rolling_metrics as ({{ get_rolling_active_address_metrics("sei") }})
     , contract_data as ({{ get_contract_metrics("sei") }})
     , sei_avg_block_time as (
         select * 
         from {{ ref("fact_sei_avg_block_time_silver") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("sei-network") }})
     , defillama_data as ({{ get_defillama_metrics("sei") }})
     , sei_evm_fundamental_metrics as (
         select * 
         from {{ref("fact_sei_evm_fundamental_metrics_silver")}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , sei_evm_avg_block_time as (
         select * 
         from {{ ref("fact_sei_evm_avg_block_time_silver") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , sei_emissions as (
         select date, rewards_amount as mints_native 
         from {{ ref("fact_sei_emissions") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , sei_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_sei_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , sei_supply as (
         select date, premine_unlocks_native, net_supply_change_native, burns_native, circulating_supply_native 
         from {{ ref("fact_sei_supply_data") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     coalesce(combined.date, wasm.date, evm.date, sei_avg_block_time.date, price.date, defillama.date, contracts.date) as date
@@ -142,5 +135,6 @@ full join defillama_data as defillama using (date)
 full join sei_emissions using (date)
 left join sei_dex_volumes as dune_dex_volumes_sei using (date)
 full join sei_supply as sei_supply using (date)
+where true
 {{ ez_metrics_incremental('coalesce(combined.date, wasm.date, evm.date, sei_avg_block_time.date, price.date, defillama.date, contracts.date)', backfill_date) }}
 and coalesce(combined.date, wasm.date, evm.date, sei_avg_block_time.date, price.date, defillama.date, contracts.date) < date(sysdate())

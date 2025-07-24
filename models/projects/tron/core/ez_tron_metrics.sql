@@ -32,7 +32,6 @@ with fundamental_data as (
         date,
         sum(token_incentives) as token_incentives,
     from {{ ref("fact_tron_token_incentives") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by date
 )
 , issued_supply_metrics as (
@@ -43,15 +42,13 @@ with fundamental_data as (
         issued_supply as issued_supply_native,
         floating_supply as circulating_supply_native,
     from {{ ref("fact_tron_issued_supply_and_float") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , application_fees AS (
     SELECT 
         DATE_TRUNC(DAY, date) AS date 
         , SUM(COALESCE(fees, 0)) AS application_fees
     FROM {{ ref("ez_protocol_datahub_by_chain") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    AND chain = 'tron'
+    WHERE chain = 'tron'
     GROUP BY 1
 )
 
@@ -155,5 +152,6 @@ left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join token_incentives on fundamental_data.date = token_incentives.date
 left join issued_supply_metrics on fundamental_data.date = issued_supply_metrics.date
 left join application_fees on fundamental_data.date = application_fees.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

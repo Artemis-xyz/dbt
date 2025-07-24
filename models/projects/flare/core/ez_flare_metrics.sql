@@ -22,21 +22,18 @@ with fees as (
         date,
         fees_usd
     from {{ref("fact_flare_fees")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , txns as (
     select
         date,
         txns
     from {{ref("fact_flare_txns")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , daus as (
     select
         date,
         dau
     from {{ref("fact_flare_dau")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , dex_volumes as (
     select
@@ -44,14 +41,12 @@ with fees as (
         daily_volume as dex_volumes,
         daily_volume_adjusted as adjusted_dex_volumes
     from {{ref("fact_flare_daily_dex_volumes")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , defillama_tvl as (
     select
         date,
         tvl
     from {{ref("fact_flare_tvl")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , daily_supply_data as (
     select
@@ -62,7 +57,6 @@ with fees as (
         net_supply_change_native,
         circulating_supply
     from {{ ref('fact_flare_daily_supply_data') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , date_spine as (
     select
@@ -111,5 +105,6 @@ left join dex_volumes on date_spine.date = dex_volumes.date
 left join market_metrics on date_spine.date = market_metrics.date
 left join daily_supply_data on date_spine.date = daily_supply_data.date
 left join defillama_tvl on date_spine.date = defillama_tvl.date
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
-    and date_spine.date < to_date(sysdate())
+and date_spine.date < to_date(sysdate())

@@ -22,12 +22,10 @@ with fundamental_data as (
         TO_TIMESTAMP_NTZ(date) AS date, 
         * EXCLUDE date
     from {{ source('PROD_LANDING', 'ez_injective_metrics') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , daily_txns as (
     select * 
     from {{ ref("fact_injective_daily_txns_silver") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , revenue as (
     select
@@ -38,19 +36,16 @@ with fundamental_data as (
         revenue as auction_fees,
         (revenue * 5/3) * 2/5 as dapp_fees
     from {{ ref("fact_injective_revenue_silver") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , mints AS (
     SELECT *
     FROM {{ ref("fact_injective_mints_silver") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , unlocks as (
     select
         date,
         outflows
     from {{ ref("fact_injective_unlocks") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , defillama_metrics as (
     with dfl as (
@@ -132,5 +127,6 @@ left join defillama_metrics using (date)
 left join revenue using (date)
 left join mints using (date)
 left join unlocks using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

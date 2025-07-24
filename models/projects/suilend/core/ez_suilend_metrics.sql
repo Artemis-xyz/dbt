@@ -62,5 +62,6 @@ SELECT
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM defillama_tvl_forwardfill d
 LEFT JOIN market_data m USING (date)
+where true
 {{ ez_metrics_incremental('d.date', backfill_date) }}
 and d.date < to_date(sysdate())

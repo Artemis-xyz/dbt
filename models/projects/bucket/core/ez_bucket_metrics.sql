@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 WITH 
@@ -27,7 +25,6 @@ WITH
         FROM {{ ref("fact_defillama_protocol_tvls") }}
         WHERE defillama_protocol_id = 3206 OR defillama_protocol_id = 5530
             -- This includes Bucket CDP and Bucket Farm
-        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
 
@@ -58,5 +55,6 @@ SELECT
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM defillama_tvl_forwardfill d
+where true
 {{ ez_metrics_incremental('d.date', backfill_date) }}
 and d.date < to_date(sysdate())

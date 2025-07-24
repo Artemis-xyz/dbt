@@ -20,49 +20,40 @@
 with trading_volume_data as (
     select date, trading_volume as perp_volume, chain
     from {{ ref("fact_hyperliquid_trading_volume") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , unique_traders_data as (
     select date, unique_traders, chain
     from {{ ref("fact_hyperliquid_unique_traders") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , daily_transactions_data as (
     select date, trades, chain
     from {{ ref("fact_hyperliquid_daily_transactions") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , fees_data as (
     select date, chain, trading_fees, spot_fees, perp_fees
     from {{ ref("fact_hyperliquid_fees") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , auction_fees_data as (
     select date, chain, sum(auction_fees) as auction_fees
     from {{ ref("fact_hyperliquid_auction_fees") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1, 2
 )
 , hypercore_spot_burns_data as (
     select date, hypercore_burns_native, chain
     from {{ ref("fact_hyperliquid_hypercore_burns") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , daily_assistance_fund_data as (
     select date, daily_balance as daily_buybacks_native, balance as assistance_fund_balance, chain
     from {{ ref("fact_hyperliquid_assistance_fund_balance") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , hype_staked_data as (
     -- snapshot data only starts as early as 2024-01-06
     select date, chain, staked_hype, num_stakers
     from {{ ref("fact_hyperliquid_hype_staked") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , spot_trading_volume_data as (
     select date, spot_trading_volume, chain
     from {{ ref("fact_hyperliquid_spot_trading_volume") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , first_principles_supply_data as (
     select
@@ -70,7 +61,6 @@ with trading_volume_data as (
         emissions_native,
         premine_unlocks_native,
     from {{ref('fact_hyperliquid_daily_supply_data')}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , hyperliquid_api_supply_data as (
     select 
@@ -85,12 +75,10 @@ with trading_volume_data as (
         , net_supply_change_native
         , circulating_supply
     from {{ref('fact_hyperliquid_supply_data')}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , perps_tvl_data as (
     select date, tvl
-    from {{ ref("fact_hyperliquid_perps_tvl") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
+    from {{ ref("fact_hyperliquid_perps_tvl") }}    
 )
 , market_metrics as (
     ({{ get_coingecko_metrics("hyperliquid") }}) 
@@ -105,7 +93,6 @@ with trading_volume_data as (
 , hyperevm_fundamental_metrics_data as (
     select date, chain, daa, txns, hyperevm_burns, hyperevm_burns_native
     from {{ ref("fact_hyperliquid_hyperevm_fundamental_metrics") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 , chain_tvl as (
@@ -114,16 +101,14 @@ with trading_volume_data as (
             date
             , tvl 
         FROM {{ref('fact_defillama_chain_tvls')}}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        AND defillama_chain_name ilike '%hype%'
+        WHERE defillama_chain_name ilike '%hype%'
         UNION ALL
         SELECT 
             t.date
             , -sum(tvl) as tvl 
         FROM {{ref('fact_defillama_protocol_tvls')}} t
         JOIN {{ref('fact_defillama_protocols')}} p ON p.id = t.defillama_protocol_id
-        {{ ez_metrics_incremental('t.date', backfill_date) }}
-        AND name in (
+        WHERE name in (
             'Hyperliquid HLP'
         , 'Hyperliquid Spot Orderbook'
         )
@@ -140,7 +125,6 @@ with trading_volume_data as (
 , new_users_data as (
     select date, new_users
     from {{ ref("fact_hyperliquid_new_users") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , open_interest_data as (
     select date, sum(open_interest) as open_interest
@@ -225,5 +209,6 @@ left join perps_tvl_data using(date)
 left join chain_tvl using(date)
 left join new_users_data using(date)
 left join open_interest_data using(date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

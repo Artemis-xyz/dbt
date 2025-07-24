@@ -27,7 +27,6 @@ with dlmm_metrics as (
         number_of_swaps,
         trading_volume
     from {{ref('fact_meteora_dlmm_metrics')}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , amm_metrics as (
     select
@@ -37,7 +36,6 @@ with dlmm_metrics as (
         number_of_swaps,
         trading_volume,
     from {{ ref('fact_meteora_amm_metrics') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , spot_metrics as (
     select
@@ -46,7 +44,6 @@ with dlmm_metrics as (
         number_of_swaps,
         trading_volume
     from {{ ref('fact_meteora_spot_swap_metrics') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , date_spine as (
     select date_spine.date
@@ -87,5 +84,6 @@ from date_spine
 left join dlmm_metrics using(date)
 left join amm_metrics using(date)
 left join spot_metrics using(date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

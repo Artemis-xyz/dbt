@@ -23,26 +23,22 @@ with
         select
             date, chain, daa
         from {{ ref("fact_fantom_daa") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     txns_gold as (
         select
             date, chain, txns
         from {{ ref("fact_fantom_txns") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     gas_gold as (
         select
             date, chain, gas, gas_usd, fees, revenue
         from {{ ref("fact_fantom_gas_gas_usd_fees_revenue") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     contract_data as ({{ get_contract_metrics("fantom") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("fantom") }}),
     fantom_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_fantom_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics("fantom") }})
 select
@@ -91,5 +87,6 @@ left join txns_gold using (d.date)
 left join gas_gold using (d.date)
 left join rolling_metrics using (d.date)
 left join fantom_dex_volumes using (d.date)
+where true
 {{ ez_metrics_incremental('d.date', backfill_date) }}
-    and d.date < to_date(sysdate())
+and d.date < to_date(sysdate())

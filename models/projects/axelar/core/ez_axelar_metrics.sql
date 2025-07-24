@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
@@ -28,7 +26,6 @@ with
             , volume as bridge_volume
             , fees
         from {{ ref("fact_axelar_crosschain_dau_txns_fees_volume") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , axelar_chain_data as (
         select
@@ -36,28 +33,24 @@ with
             , txns
             , daa as dau
         from {{ ref("fact_axelar_daa_txns") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , mints_data as (
         select
             date
             , mints
         from {{ ref("fact_axelar_mints") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , validator_fees_data as (
         select
             date
             , validator_fees
         from {{ ref("fact_axelar_validator_fees") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , github_data as ({{ get_github_metrics("Axelar Network") }})
     , price_data as ({{ get_coingecko_metrics("axelar") }})
     , supply_data as (
         select * 
         from {{ ref("fact_axelar_supply") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
 select 
     crosschain_data.date
@@ -115,5 +108,6 @@ left join price_data using (date)
 left join validator_fees_data using (date)
 left join mints_data using (date)
 left join supply_data using (date)
+where true
 {{ ez_metrics_incremental("crosschain_data.date", backfill_date) }}
 and crosschain_data.date < to_date(sysdate())

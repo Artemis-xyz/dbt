@@ -22,21 +22,18 @@ with fees as (
         date,
         fees_usd
     from {{ref("fact_metis_fees")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 txns as (
     select
         date,
         txns
     from {{ref("fact_metis_txns")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , daus as (
     select
         date,
         dau
     from {{ref("fact_metis_dau")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , defillama_data as (
     {{ get_defillama_metrics("metis") }}
@@ -48,7 +45,6 @@ txns as (
         , net_supply_change_native
         , circulating_supply_native
     from {{ref("fact_metis_supply_data")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , price_data as ({{ get_coingecko_metrics("metis-token") }})
 
@@ -90,5 +86,6 @@ left join daus on fees.date = daus.date
 left join price_data on fees.date = price_data.date
 left join defillama_data on fees.date = defillama_data.date
 left join supply_data on fees.date = supply_data.date
+where true
 {{ ez_metrics_incremental('fees.date', backfill_date) }}
 and fees.date < to_date(sysdate())

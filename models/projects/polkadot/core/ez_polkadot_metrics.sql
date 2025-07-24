@@ -31,7 +31,6 @@ with
             fees_usd * .8 as revenue,
             fees_native * .8 as revenue_native
         from {{ ref("fact_polkadot_fundamental_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     collectives_fundamental_data as (
         select
@@ -41,7 +40,6 @@ with
             fees_native, 
             fees_usd as fees
         from {{ ref("fact_collectives_fundamental_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     people_fundamental_data as (
         select
@@ -51,7 +49,6 @@ with
             fees_native, 
             fees_usd as fees
         from {{ ref("fact_people_fundamental_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     coretime_fundamental_data as (
         select
@@ -61,7 +58,6 @@ with
             fees_native, 
             fees_usd as fees
         from {{ ref("fact_coretime_fundamental_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     bridgehub_fundamental_data as (
         select
@@ -71,7 +67,6 @@ with
             fees_native, 
             fees_usd as fees
         from {{ ref("fact_polkadot_bridgehub_fundamental_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     asset_hub_fundamental_data as (
         select
@@ -81,7 +76,6 @@ with
             fees_native, 
             fees_usd as fees
         from {{ ref("fact_polkadot_asset_hub_fundamental_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     issued_supply_metrics as (
         select 
@@ -91,7 +85,6 @@ with
             issued_supply as issued_supply_native,
             float as circulating_supply_native
         from {{ ref("fact_polkadot_issued_supply_and_float") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics("polkadot") }}),
     defillama_data as ({{ get_defillama_metrics("polkadot") }}),
@@ -154,5 +147,6 @@ left join defillama_data on fundamental_data.date = defillama_data.date
 left join github_data on fundamental_data.date = github_data.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join issued_supply_metrics on fundamental_data.date = issued_supply_metrics.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

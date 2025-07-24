@@ -22,21 +22,18 @@ with txns as (
         date
         , txns
     from {{ ref("fact_safe_txns") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , safes_created as (
     select
         date
         , safes_created
     from {{ ref("fact_safe_daily_safes_created") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , tvl as (
     select
         date
         , sum(tvl) as tvl
     from {{ ref("fact_safe_tvl_by_chain") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by date
 )
 , supply_data as (
@@ -48,7 +45,6 @@ with txns as (
         , net_supply_change_native
         , circulating_supply_native
     from {{ ref("fact_safe_supply_data") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 , market_data as (
@@ -84,5 +80,6 @@ left join safes_created using (date)
 left join tvl using (date)
 left join market_data using (date)
 left join supply_data using (date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

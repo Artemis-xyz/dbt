@@ -22,7 +22,6 @@ with revenue as (
         date,
         fees
     FROM {{ ref("fact_glow_compute_revenue") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 ,  date_spine as (
     SELECT date
@@ -38,5 +37,6 @@ SELECT
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM date_spine
 LEFT JOIN revenue USING(date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

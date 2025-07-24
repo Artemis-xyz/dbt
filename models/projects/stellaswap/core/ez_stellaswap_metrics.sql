@@ -44,5 +44,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from stellaswap_tvl
 left join stellaswap_market_data using (date)
+where true
 {{ ez_metrics_incremental('stellaswap_tvl.date', backfill_date) }}
 and stellaswap_tvl.date < to_date(sysdate())

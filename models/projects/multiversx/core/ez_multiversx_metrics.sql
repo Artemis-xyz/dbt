@@ -29,7 +29,6 @@ with
         from {{ ref("fact_multiversx_txns") }}
         left join {{ ref("fact_multiversx_daa") }} using (date)
         left join {{ ref("fact_multiversx_gas_gas_usd") }} using (date)
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , github_data as ({{ get_github_metrics("elrond") }})
     , defillama_data as ({{ get_defillama_metrics("elrond") }})
@@ -74,5 +73,6 @@ from fundamental_data f
 left join github_data using (f.date)
 left join defillama_data using (f.date)
 left join price_data using (f.date)
+where true
 {{ ez_metrics_incremental('f.date', backfill_date) }}
 and f.date < to_date(sysdate())

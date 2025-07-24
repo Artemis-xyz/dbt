@@ -41,5 +41,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from liquidswap_tvl
 left join liquidswap_market_data lmd using (date)
+where true
 {{ ez_metrics_incremental('liquidswap_tvl.date', backfill_date) }}
 and liquidswap_tvl.date < to_date(sysdate())

@@ -26,7 +26,6 @@ with restaked_eth_metrics as (
         num_restaked_eth_net_change,
         amount_restaked_usd_net_change
     from {{ ref('fact_puffer_finance_restaked_eth_count_with_usd_and_change') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , date_spine as (
     select
@@ -75,5 +74,6 @@ select
 from date_spine
 left join restaked_eth_metrics using(date)
 left join market_metrics using(date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

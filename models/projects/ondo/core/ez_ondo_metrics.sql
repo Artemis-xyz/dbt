@@ -25,7 +25,6 @@ with date_spine as (
 )
 , fees as (
     select date, fee as fees from {{ ref("fact_ondo_ousg_fees") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , tvl as (
     select
@@ -33,7 +32,6 @@ with date_spine as (
         sum(tokenized_mcap_change) as tokenized_mcap_change,
         sum(tokenized_mcap) as tokenized_mcap,
     from {{ ref("ez_ondo_metrics_by_chain") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , ff_defillama_metrics as (
@@ -41,8 +39,7 @@ with date_spine as (
         date,
         avg(tvl) as tvl
     from {{ ref("fact_defillama_protocol_tvls") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    and defillama_protocol_id = 2537
+    where defillama_protocol_id = 2537
     group by 1
 )
 , supply as (
@@ -52,7 +49,6 @@ with date_spine as (
         net_supply_change_native,
         circulating_supply_native
     from {{ ref("fact_ondo_daily_supply") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 select
@@ -72,5 +68,6 @@ left join fees using (date)
 left join tvl using (date)
 left join ff_defillama_metrics using (date)
 left join supply using (date)
+where true
 {{ ez_metrics_incremental('ds.date', backfill_date) }}
 and ds.date < to_date(sysdate())

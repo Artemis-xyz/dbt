@@ -21,13 +21,11 @@ with
     bridge_volume_metrics as (
         select date, bridge_volume
         from {{ ref("fact_synapse_bridge_volume") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and chain is null
+        where chain is null
     ),
     bridge_daa_metrics as (
         select date, bridge_daa
         from {{ ref("fact_synapse_bridge_daa") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("synapse-2") }})
 select
@@ -50,5 +48,6 @@ select
 from bridge_volume_metrics
 left join bridge_daa_metrics on bridge_volume_metrics.date = bridge_daa_metrics.date
 left join price_data on bridge_volume_metrics.date = price_data.date
+where true
 {{ ez_metrics_incremental('bridge_daa_metrics.date', backfill_date) }}
 and bridge_daa_metrics.date < to_date(sysdate())

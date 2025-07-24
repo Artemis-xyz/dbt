@@ -43,7 +43,6 @@ with
                     )
                 }}
             )
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     ),
     price_data as ({{ get_coingecko_metrics("osmosis") }}),
@@ -121,5 +120,6 @@ left join fundamental_data using (date)
 left join price_data using (date)
 left join defillama_data using (date)
 left join github_data using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

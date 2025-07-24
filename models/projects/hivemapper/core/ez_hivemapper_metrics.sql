@@ -61,7 +61,6 @@ with bme_reward_types_cte as (
         ) AS contributors
     from
         {{ ref('fact_hivemapper_stats') }}
-    {{ ez_metrics_incremental('block_timestamp::date', backfill_date) }}
     GROUP BY
         1
 )
@@ -70,7 +69,6 @@ with bme_reward_types_cte as (
         date,
         premine_unlocks_native,
     from {{ref('fact_hivemapper_daily_supply_data')}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , km_data as (
     select
@@ -78,7 +76,6 @@ with bme_reward_types_cte as (
         total_km,
         total_unique_km
     from {{ref('fact_hivemapper_KM_data')}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 , date_spine as ( 
@@ -128,5 +125,6 @@ left join market_metrics on date_spine.date = market_metrics.date
 left join stats on date_spine.date = stats.date
 left join km_data on date_spine.date = km_data.date
 left join daily_supply_data on date_spine.date = daily_supply_data.date
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

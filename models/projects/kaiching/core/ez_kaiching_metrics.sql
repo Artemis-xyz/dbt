@@ -37,5 +37,6 @@ SELECT
 FROM 
     fundamental_data as fd
 left join rolling_wau_mau as rwa on fd.date = rwa.date
+where true
 {{ ez_metrics_incremental('fd.date', backfill_date) }}
 and fd.date < to_date(sysdate())

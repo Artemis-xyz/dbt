@@ -26,31 +26,25 @@ with
     revenue_data as (
         select date, hnt_burned, revenue
         from {{ ref("fact_helium_revenue_silver") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     fees_data as(
         select date, fees
         from {{ ref("fact_helium_fees_silver") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     new_mobile_subscribers_data as (
         select date, new_subscribers
         from {{ ref("fact_helium_new_mobile_subscribers") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     new_hotspot_onboards_data as (
         select date, device_onboards
         from {{ ref("fact_helium_new_hotspot_onboards") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     mints_data as (
         select date, mints_native
         from {{ ref("fact_helium_mints") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     daily_supply_data as (
         select * from {{ ref("fact_helium_daily_supply_data") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics("helium") }})
 select
@@ -92,6 +86,7 @@ left join new_mobile_subscribers_data using (date)
 left join new_hotspot_onboards_data using (date)
 left join mints_data using (date)
 left join daily_supply_data using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
-and revenue_data.date < to_date(sysdate())
+and date_spine.date < to_date(sysdate())
 order by 1 desc

@@ -24,7 +24,6 @@ with tvl as (
         , native
         , tvl
     from {{ ref("fact_marinade_tvl") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 dau as (
     select
@@ -32,7 +31,6 @@ dau as (
         , dau
         , txns
     from {{ ref("fact_marinade_dau_txns") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 v1_fees as (
     select
@@ -40,14 +38,12 @@ v1_fees as (
         , coalesce(unstaking_fees, 0) as unstaking_fees_native
         , coalesce(fees_native, 0) as fees_native
     from {{ ref("fact_marinade_v1_fees") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 v2_fees as (
     select
         date
         , fees_native   
     from {{ ref("fact_marinade_fees") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 fees as (
     select
@@ -62,7 +58,6 @@ circulating_supply as (
         date
         , circulating_supply
     from {{ ref("fact_marinade_circulating_supply") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 price as (
     select * from ({{ get_coingecko_price_with_latest("solana") }}) 
@@ -137,5 +132,6 @@ left join fees using (date)
 left join circulating_supply using (date)
 left join price using (date)
 left join market_metrics using (date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

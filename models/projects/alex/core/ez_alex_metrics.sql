@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with alex_tvl as (
@@ -46,5 +44,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from alex_tvl
 left join alex_market_data using (date)
+where true
 {{ ez_metrics_incremental("alex_tvl.date", backfill_date) }}
-    and alex_tvl.date < to_date(sysdate())
+and alex_tvl.date < to_date(sysdate())

@@ -22,7 +22,6 @@ with
     fundamental_data as (
         select date, chain, daa as dau, txns, gas as fees_native, gas_usd as fees
         from {{ ref("fact_polygon_zk_daa_txns_gas_usd") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics("matic-network") }}),
     defillama_data as ({{ get_defillama_metrics("polygon zkevm") }}),
@@ -32,13 +31,11 @@ with
             l1_data_cost_native,
             l1_data_cost
         from {{ ref("fact_polygon_zk_l1_data_cost") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     github_data as ({{ get_github_metrics("Polygon Hermez") }}),
     polygon_zk_dex_volumes as (
         select date, daily_volume as dex_volumes
         from {{ ref("fact_polygon_zk_daily_dex_volumes") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     fundamental_data.date
@@ -85,5 +82,6 @@ left join defillama_data on fundamental_data.date = defillama_data.date
 left join l1_data_cost on fundamental_data.date = l1_data_cost.date
 left join github_data on fundamental_data.date = github_data.date
 left join polygon_zk_dex_volumes as dune_dex_volumes_polygon_zk on fundamental_data.date = dune_dex_volumes_polygon_zk.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

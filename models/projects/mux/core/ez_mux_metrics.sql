@@ -24,8 +24,7 @@ with
             , sum(trading_volume) as trading_volume
             , sum(unique_traders) as unique_traders
         from {{ ref("fact_mux_trading_volume_unique_traders") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and chain is not null
+        where chain is not null
         group by 1
     )
     , price as ({{ get_coingecko_metrics("mcdex") }})
@@ -34,7 +33,6 @@ with
             date,
             sum(token_incentives) as token_incentives
         from {{ ref("fact_mux_token_incentives") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
 select
@@ -59,5 +57,6 @@ select
 from mux_data
 left join price using(date)
 left join token_incentives using(date)
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

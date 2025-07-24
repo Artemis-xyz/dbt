@@ -23,7 +23,6 @@ with market_data as (
         date,
         fees
     FROM {{ ref("fact_livepeer_revenue") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 SELECT
     market_data.date,
@@ -36,5 +35,6 @@ SELECT
     market_data.token_volume
 FROM market_data
 LEFT JOIN revenue USING(date)
+where true
 {{ ez_metrics_incremental('market_data.date', backfill_date) }}
 and market_data.date < to_date(sysdate())

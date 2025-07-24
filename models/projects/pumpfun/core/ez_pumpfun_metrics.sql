@@ -24,7 +24,6 @@ with date_spine as (
 trades as (
     select *
     from {{ ref('fact_pumpfun_trades') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 swap_metrics as (
     select 
@@ -36,7 +35,6 @@ swap_metrics as (
         SUM(amount_usd_artemis) as trading_volume_usd, 
         AVG(amount_usd_artemis) as average_traded_volume_usd 
     from trades
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1, 2
 ),
 daily_revenues as (
@@ -45,7 +43,6 @@ daily_revenues as (
         'pump.fun' as version,
         fees as launchpad_fees
     from {{ ref('fact_pumpfun_dailyrevenues') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 pumpswap_metrics as (
     select
@@ -56,7 +53,6 @@ pumpswap_metrics as (
         spot_volume,
         spot_fees
     from {{ ref('fact_pumpswap_metrics') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 -- Final combined query with one row per day
@@ -76,6 +72,7 @@ from date_spine
 left join swap_metrics using(date)
 left join daily_revenues using(date)
 left join pumpswap_metrics using(date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())
 order by date desc

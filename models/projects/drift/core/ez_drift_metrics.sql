@@ -27,7 +27,6 @@ WITH parsed_log_metrics AS (
         SUM(IFF(market_type = 0, total_taker_fee, 0)) AS spot_revenue,
         SUM(IFF(market_type = 0, total_volume, 0)) AS spot_trading_volume
     FROM {{ ref("fact_drift_parsed_logs") }}
-    {{ ez_metrics_incremental('block_date', backfill_date) }}
     GROUP BY
         block_date
 ),
@@ -35,7 +34,6 @@ WITH parsed_log_metrics AS (
     defillama_data as ({{ get_defillama_protocol_metrics("drift trade") }}),
     supply_data as ( 
         select * from {{ ref("fact_drift_supply_data") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 SELECT 
     coalesce(
@@ -106,5 +104,6 @@ FULL JOIN parsed_log_metrics
     ON price_data.date = parsed_log_metrics.date
 LEFT JOIN supply_data
     ON price_data.date = supply_data.date
+where true
 {{ ez_metrics_incremental('price_data.date', backfill_date) }}
 and price_data.date < to_date(sysdate())

@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
@@ -53,7 +51,6 @@ with
             , sum(interest_rate_fees) as interest_rate_fees
             , sum(reserve_factor_revenue) as reserve_factor_revenue
         from deposits_borrows_lender_revenue
-        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , flashloan_fees as (
@@ -82,7 +79,6 @@ with
             date
             , sum(amount_usd) as flashloan_fees
         from flashloan_fees
-        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , liquidation_revenue as (
@@ -113,7 +109,6 @@ with
             date
             , sum(liquidation_revenue) as liquidation_revenue
         from liquidation_revenue
-        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , ecosystem_incentives as (
@@ -154,7 +149,6 @@ with
             , sum(case when token_address = lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') then amount_usd else 0 end) as treasury_value_native
             , sum(amount_usd) as treasury_value
         from aave_treasury
-        {{ ez_metrics_incremental("date", backfill_date) }}
         group by date
     )
     , aave_net_treasury as (
@@ -167,7 +161,6 @@ with
             date
             , sum(amount_usd) as net_treasury_value
         from aave_net_treasury
-        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , aave_ecosystem_incentives as (
@@ -175,7 +168,6 @@ with
             date
             , sum(amount_usd) as ecosystem_incentives
         from ecosystem_incentives
-        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , dao_trading_revenue as (
@@ -183,7 +175,6 @@ with
             date
             , sum(trading_fees_usd) as trading_fees
         from {{ ref("fact_aave_dao_balancer_trading_fees")}}
-        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , safety_incentives as (
@@ -191,7 +182,6 @@ with
             date
             , sum(amount_usd) as safety_incentives
         from {{ ref("fact_aave_dao_safety_incentives")}}
-        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , gho_treasury_revenue as (
@@ -199,7 +189,6 @@ with
             date
             , sum(amount_usd) as gho_revenue
         from {{ ref("fact_aave_gho_treasury_revenue")}}
-        {{ ez_metrics_incremental("date", backfill_date) }}
         group by 1
     )
     , aave_token_holders as (
@@ -207,7 +196,6 @@ with
             date
             , token_holder_count
         from {{ ref("fact_aave_token_holders")}}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , coingecko_metrics as (
         select 
@@ -304,4 +292,6 @@ left join treasury using (date)
 left join net_treasury_data using (date)
 left join aave_token_holders using (date)
 left join coingecko_metrics using (date)
-where aave_outstanding_supply_net_deposits_deposit_revenue.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental("aave_outstanding_supply_net_deposits_deposit_revenue.date", backfill_date) }}
+and aave_outstanding_supply_net_deposits_deposit_revenue.date < to_date(sysdate())

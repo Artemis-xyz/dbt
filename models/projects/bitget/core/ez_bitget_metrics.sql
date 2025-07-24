@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with price as (
@@ -27,7 +25,6 @@ with price as (
         burns_native,
         revenue
     from {{ref("fact_bitget_burns")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 supply_data as (
     select
@@ -38,7 +35,6 @@ supply_data as (
         float_supply,
         cumulative_burn
     from {{ref("fact_bitget_supply")}}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 select
     price.date
@@ -61,6 +57,7 @@ select
 from price
 left join revenue_data using(date)
 left join supply_data using(date)
+where true
 {{ ez_metrics_incremental('price.date', backfill_date) }}
-    and price.date > TO_DATE('2024-06-30','YYYY-MM-DD')
-    and price.date < TO_DATE(SYSDATE())
+and price.date > TO_DATE('2024-06-30','YYYY-MM-DD')
+and price.date < TO_DATE(SYSDATE())

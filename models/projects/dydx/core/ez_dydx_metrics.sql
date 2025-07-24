@@ -27,39 +27,32 @@ WITH
     , trading_volume_data_v4 as (
         select date, trading_volume
         from {{ ref("fact_dydx_v4_trading_volume") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , fees_data_v4 as (
         select date, maker_fees, taker_fees, fees
         from {{ ref("fact_dydx_v4_fees") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , chain_data_v4 as (
         select date, maker_fees, maker_rebates, txn_fees
         from {{ ref("fact_dydx_v4_txn_fees") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , trading_fees_v4 as (
         select date, total_fees
         from {{ ref("fact_dydx_v4_trading_fees") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , unique_traders_data_v4 as (
         select date, unique_traders
         from {{ ref("fact_dydx_v4_unique_traders") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , trading_volume_data as (
         select date, trading_volume
         from {{ ref("fact_dydx_trading_volume") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-            and market_pair is null
+        where market_pair is null
     )
     , unique_traders_data as (
         select date, unique_traders
         from {{ ref("fact_dydx_unique_traders") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-            and unique_traders < 1e5
+        where unique_traders < 1e5
     )
     , dydx_supply_data AS (
         SELECT
@@ -67,7 +60,6 @@ WITH
             , premine_unlocks_native
             , circulating_supply_native
         FROM {{ ref('fact_dydx_supply_data') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , price_data as (
         {{ get_coingecko_metrics("dydx-chain") }}
@@ -77,7 +69,6 @@ WITH
             day as date,
             sum(total_usd) as token_incentives
         from {{ref('fact_dydx_token_incentives')}}
-        {{ ez_metrics_incremental('day', backfill_date) }}
         group by date
     )
 
@@ -123,5 +114,6 @@ left join unique_traders_data_v4 on date_spine.date = unique_traders_data_v4.dat
 left join dydx_supply_data on date_spine.date = dydx_supply_data.date
 left join price_data on date_spine.date = price_data.date
 LEFT JOIN token_incentives ON date_spine.date = token_incentives.date
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
-    and date_spine.date < to_date(sysdate())
+and date_spine.date < to_date(sysdate())

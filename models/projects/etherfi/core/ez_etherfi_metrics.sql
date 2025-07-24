@@ -26,7 +26,6 @@ with restaked_eth_metrics as (
         num_restaked_eth_net_change,
         amount_restaked_usd_net_change
     from {{ ref('fact_etherfi_restaked_eth_count_with_usd_and_change') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , daily_supply_data as (
     select
@@ -37,21 +36,18 @@ with restaked_eth_metrics as (
         net_supply_change_native,
         circulating_supply
     from {{ ref('fact_etherfi_daily_supply_data') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , liquidity_pool_fees as (
     select
         date,
         fees_usd
     from {{ ref('fact_etherfi_liquidity_pool_fees') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , auction_fees as (
     select
         date,
         fees_usd
     from {{ ref('fact_etherfi_auction_fees') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , defillama_tvl as (
     select
@@ -60,7 +56,6 @@ with restaked_eth_metrics as (
         liquid_tvl,
         liquid_tvl * 0.000055 as liquid_fees_usd
     from {{ ref('fact_etherfi_tvl') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , date_spine as (
     select
@@ -115,6 +110,7 @@ left join auction_fees using(date)
 left join defillama_tvl using(date)
 left join daily_supply_data using(date)
 left join market_metrics using(date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
-    and date < to_date(sysdate())
+and date_spine.date < to_date(sysdate())
 

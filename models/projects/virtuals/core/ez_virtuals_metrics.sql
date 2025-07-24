@@ -27,14 +27,12 @@ with date_spine as (
         date
         , daily_agents
     from {{ ref("fact_virtuals_daily_agents") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 dau as (
     select
         date
         , dau
     from {{ ref("fact_virtuals_dau") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 ),
 volume as (
     select
@@ -42,7 +40,6 @@ volume as (
         , volume_native
         , volume_usd
     from {{ ref("fact_virtuals_volume") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , fees as (
     select
@@ -52,7 +49,6 @@ volume as (
         , tax_usd
         , fees
     from {{ ref("fact_virtuals_fees") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , market_data as (
     {{ get_coingecko_metrics('virtual-protocol') }}
@@ -66,7 +62,6 @@ volume as (
         , net_supply_change_native
         , circulating_supply_native
     from {{ ref("fact_virtuals_supply_data") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 select
@@ -117,5 +112,6 @@ left join volume using (date)
 left join fees using (date)
 left join market_data using (date)
 left join supply_data using (date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

@@ -28,7 +28,6 @@ with dim_date_spine as (
         date,
         token_holder_count
     from {{ ref('fact_enzyme_token_holders') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , market_data as (
     {{ get_coingecko_metrics('melon') }}
@@ -54,5 +53,6 @@ select
 from dim_date_spine ds
 left join token_holders th using (date)
 left join market_data md using (date)
+where true
 {{ ez_metrics_incremental('ds.date', backfill_date) }}
-    and ds.date < to_date(sysdate())
+and ds.date < to_date(sysdate())

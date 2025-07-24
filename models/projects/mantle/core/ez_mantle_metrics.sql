@@ -23,7 +23,6 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle", "v2") }})
 , expenses_data as (
     select date, chain, l1_data_cost_native, l1_data_cost
     from {{ ref("fact_mantle_l1_data_cost") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , treasury_data as (
     SELECT   
@@ -31,8 +30,7 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle", "v2") }})
         sum(native_balance) as treasury_value_native,
         sum(native_balance) - lag(sum(native_balance)) over (order by date) as treasury_value_native_change,
     FROM {{ ref("fact_mantle_treasury_balance") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
-    AND token = 'MNT'
+    WHERE token = 'MNT'
     GROUP BY 1
 )
 , github_data as ({{ get_github_metrics("mantle") }})
@@ -43,7 +41,6 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle", "v2") }})
 , mantle_dex_volumes as (
     select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
     from {{ ref("fact_mantle_daily_dex_volumes") }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , staked_eth_metrics as (
     select
@@ -53,7 +50,6 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle", "v2") }})
         num_staked_eth_net_change,
         amount_staked_usd_net_change
     from {{ ref('fact_meth_staked_eth_count_with_USD_and_change') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 select
@@ -141,5 +137,6 @@ left join rolling_metrics using (date)
 left join treasury_data using (date)
 left join mantle_dex_volumes as dune_dex_volumes_mantle on fundamental_data.date = dune_dex_volumes_mantle.date
 left join staked_eth_metrics on fundamental_data.date = staked_eth_metrics.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

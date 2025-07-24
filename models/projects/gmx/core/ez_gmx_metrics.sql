@@ -23,13 +23,11 @@ with
         select date, trading_volume, unique_traders
         from {{ ref("fact_gmx_trading_volume") }}
         left join {{ ref("fact_gmx_unique_traders") }} using(date)
-        {{ ez_metrics_incremental('date', backfill_date) }}
         and chain is not null
     ),
     v2_data as (
         select date, trading_volume, unique_traders
         from {{ ref("fact_gmx_v2_trading_volume_unique_traders") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         and chain is not null
     ),
     combined_data as (
@@ -133,7 +131,6 @@ with
                 else 0
             end) as net_treasury_usd
         from {{ ref('fact_gmx_treasury_data') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , treasury_native as (
@@ -141,14 +138,12 @@ with
             date,
             sum(native_balance) as own_token_treasury_native
         from {{ ref('fact_gmx_treasury_data') }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         and token = 'GMX'
         group by 1
     )
     , fees_data as (
         select date, fees, revenue, supply_side_revenue
         from {{ ref("fact_gmx_all_versions_fees") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 
     , token_incentives as (
@@ -156,7 +151,6 @@ with
             claim_date as date,
             SUM(token_incentive_usd) as token_incentives
         from {{ref('fact_gmx_token_incentives')}}
-        {{ ez_metrics_incremental('claim_date', backfill_date) }}
         group by 1
     )
     
@@ -216,5 +210,6 @@ left join treasury_native using(date)
 left join combined_data using(date)
 left join fees_data using(date)
 left join market_metrics using(date)
+where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
-and date < to_date(sysdate())
+and date_spine.date < to_date(sysdate())

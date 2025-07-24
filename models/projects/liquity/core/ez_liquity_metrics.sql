@@ -22,7 +22,6 @@ with tvl as (
         date,
         sum(tvl_usd) as tvl
     from {{ ref('fact_liquity_tvl') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , outstanding_supply as (
@@ -30,7 +29,6 @@ with tvl as (
         date,
         sum(outstanding_supply) as outstanding_supply
     from {{ ref('fact_liquity_outstanding_supply') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , fees_and_revs as (
@@ -38,7 +36,6 @@ with tvl as (
         date,
         sum(revenue_usd) as revenue_usd
     from {{ ref('fact_liquity_fees_and_revs') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , token_incentives as (
@@ -46,7 +43,6 @@ with tvl as (
         date,
         sum(token_incentives) as token_incentives
     from {{ ref('fact_liquity_token_incentives') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , treasury as (
@@ -59,7 +55,6 @@ with tvl as (
         , sum(own_token_treasury) as own_token_treasury
         , sum(own_token_treasury_native) as own_token_treasury_native
     from {{ ref('ez_liquity_metrics_by_token') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 1
 )
 , token_holders as (
@@ -67,7 +62,6 @@ with tvl as (
         date,
         token_holder_count
     from {{ ref('fact_liquity_token_holders') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , market_data as (
     {{ get_coingecko_metrics('liquity') }}
@@ -129,5 +123,6 @@ left join token_holders th using (date)
 left join market_data md using (date)
 left join token_incentives ti using (date)
 left join treasury t using (date)
+where true
 {{ ez_metrics_incremental('ds.date', backfill_date) }}
 and ds.date < to_date(sysdate())

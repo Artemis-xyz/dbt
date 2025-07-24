@@ -30,7 +30,6 @@ with
             0 as revenue_native, -- Revenue in LTC
             'litecoin' as chain
         from {{ ref("fact_litecoin_transactions") }}
-        {{ ez_metrics_incremental('block_timestamp::date', backfill_date) }}
         group by 1
     ),
     -- Block metrics and issuance
@@ -51,7 +50,6 @@ with
                 else 1.5625
             end) as issuance
         from {{ ref("fact_litecoin_blocks") }}
-        {{ ez_metrics_incremental('timestamp::date', backfill_date) }}
         group by 1
     ),
     -- Calculate active addresses (unique addresses in inputs)
@@ -61,7 +59,6 @@ with
             count(distinct f.value) as dau
         from {{ ref("fact_litecoin_inputs") }}, 
              lateral flatten(input => addresses) f
-        {{ ez_metrics_incremental('block_timestamp::date', backfill_date) }}
         group by 1
     ),
     -- Calculate rolling metrics (7-day and 30-day)
@@ -81,7 +78,6 @@ with
             issued_supply,
             circulating_supply
         FROM {{ ref("fact_litecoin_supply") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     transaction_metrics.date,
@@ -115,5 +111,6 @@ left join active_addresses on transaction_metrics.date = active_addresses.date
 left join rolling_metrics on transaction_metrics.date = rolling_metrics.date
 left join price_data on transaction_metrics.date = price_data.date
 left join github_data on transaction_metrics.date = github_data.date
+where true
 {{ ez_metrics_incremental('transaction_metrics.date', backfill_date) }}
 and transaction_metrics.date < to_date(sysdate()) 

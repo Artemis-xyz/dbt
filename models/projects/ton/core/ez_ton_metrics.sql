@@ -23,7 +23,6 @@ with
             date,
             txns as transaction_nodes
         from {{ ref("fact_ton_daa_txns_gas_gas_usd_revenue_revenue_native") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ), 
     ton_apps_fundamental_data as (
         select 
@@ -33,7 +32,6 @@ with
             , txns
             , avg_txn_fee_native
         from {{ ref("fact_ton_fundamental_metrics") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics("the-open-network") }}),
     defillama_data as ({{ get_defillama_metrics("ton") }}),
@@ -43,7 +41,6 @@ with
     , block_rewards_data as (
         select date, block_rewards_native
         from {{ ref("fact_ton_minted") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , supply_data as (
         select 
@@ -59,7 +56,6 @@ with
             , unvested_tokens
             , circulating_supply_native
         from {{ ref("fact_ton_supply_data") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     supply.date
@@ -140,5 +136,6 @@ left join fundamental_data on supply.date = fundamental_data.date
 left join stablecoin_data on supply.date = stablecoin_data.date
 left join rolling_metrics on supply.date = rolling_metrics.date
 left join block_rewards_data on supply.date = block_rewards_data.date
+where true
 {{ ez_metrics_incremental('supply.date', backfill_date) }}
 and supply.date < to_date(sysdate())

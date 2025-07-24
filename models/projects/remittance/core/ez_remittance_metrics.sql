@@ -126,6 +126,7 @@ select
     date, 
     transfer_volume 
 from combined_result
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())
 order by date

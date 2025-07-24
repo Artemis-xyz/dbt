@@ -21,7 +21,6 @@ with
     revenue_data as (
         select date, fees, revenue, protocol
         from {{ ref("fact_geodnet_fees_revenue") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics("geodnet") }})
 select
@@ -46,5 +45,6 @@ select
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from revenue_data
 left join price_data on revenue_data.date = price_data.date
+where true
 {{ ez_metrics_incremental('revenue_data.date', backfill_date) }}
 and revenue_data.date < to_date(sysdate())

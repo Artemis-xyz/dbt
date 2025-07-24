@@ -25,31 +25,26 @@ with
     expenses_data as (
         select date, chain, l1_data_cost_native, l1_data_cost
         from {{ ref("fact_starknet_l1_data_cost") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     github_data as ({{ get_github_metrics("starknet") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("starknet") }}),
     bridge_volume_metrics as (
         select date, bridge_volume
         from {{ ref("fact_starknet_bridge_bridge_volume") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and chain is null
+        where chain is null
     ),
     bridge_daa_metrics as (
         select date, bridge_daa
         from {{ ref("fact_starknet_bridge_bridge_daa") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     fees_data as (
         select date
         , fees_native
         from {{ ref("fact_starknet_fees") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , supply_data as (
         select date, gross_emissions_native, premine_unlocks_native, burns_native, net_supply_change_native, circulating_supply_native
         from {{ ref("fact_starknet_supply_data") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 
 select
@@ -121,5 +116,6 @@ left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join fees_data on fundamental_data.date = fees_data.date
 left join supply_data on fundamental_data.date = supply_data.date
+where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())

@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with tvl_data as (
@@ -26,7 +24,6 @@ with tvl_data as (
         tvl - LAG(tvl) 
         OVER (ORDER BY date) AS tvl_net_change
     from {{ ref('fact_babylon_tvl') }}
-    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , date_spine AS (
     SELECT
@@ -58,5 +55,6 @@ SELECT
 FROM date_spine
 LEFT JOIN market_metrics using (date)
 LEFT JOIN tvl_data using (date)
+WHERE true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
-    AND date_spine.date <= to_date(sysdate())
+and date_spine.date <= to_date(sysdate())
