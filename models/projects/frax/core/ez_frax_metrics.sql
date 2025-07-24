@@ -88,6 +88,15 @@ with dex_data as (
     FROM
         {{ ref("fact_frax_L2_transactions") }}
 )
+, yield_data as (
+    select
+        ds.date,
+        sum(coalesce(fsy.yield_generated, 0)) as yield_generated,
+        sum(coalesce(fsy.yield_generated, 0) * 0.1) as lst_fees
+    from {{ ref("dim_date_spine") }} ds
+    left join {{ ref("fact_frax_staking_yield") }} fsy on fsy.block_timestamp::date = ds.date
+    group by 1
+)
 , date_spine as (
     select
         ds.date
@@ -121,10 +130,12 @@ SELECT
     , tvl_data.tvl as spot_tvl
     , stablecoin_supply_data.stablecoin_total_supply as stablecoin_total_supply
     , veFXS_daily_supply_data.circulating_supply as veFXS_total_supply
+    , yield_data.yield_generated as yield_generated
 
     --Cashflow Metrics
     , dex_data.spot_fees as spot_fees
-    , spot_fees as ecosystem_revenue
+    , yield_data.lst_fees as lst_fees
+    , spot_fees + lst_fees as fees
 
     -- Other Metrics
     , dex_data.gas_cost_native
@@ -147,4 +158,5 @@ left join tvl_data using (date)
 left join stablecoin_supply_data using (date)
 left join veFXS_daily_supply_data using (date)
 left join fxs_daily_supply_data using (date)
+left join yield_data using (date)
 where date_spine.date < to_date(sysdate())
