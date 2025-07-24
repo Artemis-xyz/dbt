@@ -175,8 +175,12 @@ select
     , market_metrics.token_turnover_circulating
 
     -- Bespoke Metrics
+<<<<<<< Updated upstream
     , new_users_data.new_users
     , open_interest_data.open_interest
+=======
+    , new_users_data.new_users as new_users
+>>>>>>> Stashed changes
 
 from date_spine
 left join market_metrics using(date)
