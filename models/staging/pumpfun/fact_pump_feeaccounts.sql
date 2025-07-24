@@ -1,10 +1,8 @@
 {{
     config(
         materialized='table',
-        snowflake_warehouse='PUMPFUN',
-        database='PUMPFUN',
-        schema='raw',
-        alias='fact_pumpfun_feeaccounts',
+        snowflake_warehouse='ANALYTICS_XL',
+        alias='fact_pump_feeaccounts',
     )
  }}
 
