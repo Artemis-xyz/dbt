@@ -21,5 +21,16 @@ with
         from {{ source("PROD_LANDING", "raw_publiccomps_data") }}
         where extraction_date = (select max_date from max_extraction)
     )
-select * from data
-qualify row_number() over (partition by ticker, fiscal_year, fiscal_quarter, metric, value order by extraction_date desc) = 1
+select 
+    concat(
+        coalesce(cast(ticker as string), '_this_is_null_'),
+        '|',
+        coalesce(cast(fiscal_year as string), '_this_is_null_'),
+        '|',
+        coalesce(cast(fiscal_quarter as string), '_this_is_null_'),
+        '|',
+        coalesce(cast(metric as string), '_this_is_null_')
+    ) as unique_id,
+    * 
+from data
+qualify row_number() over (partition by ticker, fiscal_year, fiscal_quarter, metric order by extraction_date desc) = 1
