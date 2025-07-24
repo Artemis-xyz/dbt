@@ -92,7 +92,7 @@ with dex_data as (
     select
         ds.date
     from {{ ref('dim_date_spine') }} ds
-    where ds.date between (select min(date) from tvl_data) and to_date(sysdate())
+    where ds.date between (select min(date) from stablecoin_supply_data) and to_date(sysdate())
 )
 , market_metrics as (
     {{ get_coingecko_metrics('frax-share')}}

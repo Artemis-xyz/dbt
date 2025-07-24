@@ -68,12 +68,6 @@ column_definitions:
     name: spot_volume
     description: "The total volume on a spot dex"
 
-  stablecoin_total_supply: &stablecoin_total_supply
-    name: stablecoin_total_supply
-    description: "The total supply of a stablecoin on a chain"
-    tags:
-      - artemis_gaap
-
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
     description: "The turnover of a token in USD, based on the token's circulating supply."
@@ -124,7 +118,6 @@ models:
       - *spot_fees
       - *spot_txns
       - *spot_volume
-      - *stablecoin_total_supply
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
