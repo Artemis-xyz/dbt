@@ -83,23 +83,19 @@ WITH
 select
     date
     , token
-    , COALESCE(primary_revenue, 0) AS primary_revenue
-    , COALESCE(other_revenue, 0) AS other_revenue
-    
-    , COALESCE(treasury, 0) as treasury_value
-    , COALESCE(net_treasury, 0) as net_treasury
-    , COALESCE(treasury_native, 0) AS treasury_native
-    , COALESCE(tvl, 0) as net_deposits
-    , COALESCE(outstanding_supply,0) as outstanding_supply
-
     -- Standardized metrics
-    , 'Maker' as app
-    , 'DeFi' as category
+    -- Usage Metrics
+    , COALESCE(tvl, 0) AS tvl
+    , COALESCE(tvl, 0) AS lending_deposits
+    , COALESCE(outstanding_supply, 0) AS lending_loans
+
+    -- Fees Metrics
     , COALESCE(stability_fees,0) as stability_fees
     , COALESCE(trading_fees, 0) AS trading_fees
     , COALESCE(fees, 0) AS fees
     , COALESCE(protocol_revenue, 0) AS treasury_fee_allocation 
 
+    -- Financial Metrics
     , COALESCE(protocol_revenue, 0) AS revenue
     , COALESCE(token_incentives, 0) AS token_incentives
     , COALESCE(operating_expenses, 0) AS operating_expenses
@@ -107,12 +103,9 @@ select
     , COALESCE(total_expenses, 0) AS total_expenses
     , COALESCE(revenue - total_expenses, 0) AS earnings
     
+    -- Treasury Metrics
     , COALESCE(treasury, 0) AS treasury
     , COALESCE(treasury_native, 0) AS own_token_treasury_native
-
-    , COALESCE(tvl, 0) AS lending_deposits
-    , COALESCE(outstanding_supply, 0) AS lending_loans
-
 from fees_revenue_expenses
 full join treasury using (date, token)
 full join treasury_native using (date, token)
