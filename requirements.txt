@@ -67,6 +67,8 @@ referencing==0.35.1       # via jsonschema, jsonschema-specifications
 regex==2024.11.6          # via sqlfluff
 requests==2.32.3          # via dbt-common, dbt-core, snowflake-connector-python, snowplow-tracker
 rpds-py==0.22.3           # via jsonschema, referencing
+ruamel-yaml==0.18.14      # via -r requirements.in
+ruamel-yaml-clib==0.2.12  # via ruamel-yaml
 six==1.17.0               # via isodate, python-dateutil
 snowflake-connector-python[secure-local-storage]==3.12.4  # via dbt-snowflake, -r requirements.in
 snowplow-tracker==1.0.4   # via dbt-core

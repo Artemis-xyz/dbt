@@ -1,0 +1,16 @@
+rules:
+  
+
+  - name: fact_table_recent_data
+    when:
+      table_type: fact
+      columns:
+        - name: date
+    tests:
+      - dbt_expectations.expect_row_values_to_have_recent_data:
+          datepart: day
+          interval: 3
+          description: "Ensures fact table has recent data (within 3 days)"
+    severity: warn
+
+  
