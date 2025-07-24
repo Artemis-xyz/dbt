@@ -12,19 +12,26 @@ WITH market_data as ({{ get_coingecko_metrics("walrus-2") }})
 
 -- Have to filter out parquet rows where tvl_net_change is not null because it caused duplicates
 , clean_parquet AS (
-    SELECT *
+    SELECT
+        parquet_raw:date::date AS date
+        , MODE(parquet_raw:active_blobs::int) AS active_blobs
+        , MODE(parquet_raw:dau::int) AS dau
+        , MODE(parquet_raw:txns::int) AS txns
+        , MODE(parquet_raw:fees::float) AS fees
+        , MODE(parquet_raw:tvl::float) AS tvl
     FROM {{source('PROD_LANDING', 'raw_sui_ez_walrus_metrics_parquet')}}
     WHERE parquet_raw:tvl_net_change::float IS NULL
+    GROUP BY 1
 )
 
 SELECT DISTINCT
-    parquet_raw:date::date AS date
-    , parquet_raw:active_blobs::int AS active_blobs
-    , parquet_raw:dau::int AS dau
-    , parquet_raw:txns::int AS txns
+    clean_parquet.date
+    , clean_parquet.active_blobs
+    , clean_parquet.dau
+    , clean_parquet.txns
 
     -- Standardized Metrics
-    , (COALESCE(parquet_raw:fees::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS fees
+    , (COALESCE(clean_parquet.fees, 0) / 1e9) * COALESCE(market_data.price, 0) AS fees
 
     -- Token Metrics
     , COALESCE(market_data.price, 0) AS price
@@ -33,11 +40,11 @@ SELECT DISTINCT
     , COALESCE(market_data.token_volume, 0) AS token_volume
 
     -- Chain Metrics
-    , (COALESCE(parquet_raw:tvl::float, 0) / 1e9) AS total_staked_native
-    , (COALESCE(parquet_raw:tvl::float, 0) / 1e9) * COALESCE(market_data.price, 0) AS total_staked
+    , (COALESCE(clean_parquet.tvl, 0) / 1e9) AS total_staked_native
+    , (COALESCE(clean_parquet.tvl, 0) / 1e9) * COALESCE(market_data.price, 0) AS total_staked
     
     --Turnover Metrics
     , COALESCE(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
     , COALESCE(market_data.token_turnover_fdv, 0) AS token_turnover_fdv
 FROM clean_parquet
-LEFT JOIN market_data ON parquet_raw:date::date = market_data.date
+LEFT JOIN market_data ON clean_parquet.date = market_data.date

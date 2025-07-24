@@ -78,7 +78,7 @@ select
 , perps_tvl as (
     select
         date,
-            sum(balance) as perps_tvl
+            sum(balance) as perp_tvl
         from {{ ref("fact_jupiter_perps_tvl") }}
         where balance > 2 and balance is not null
         and contract_address not ilike '%solana%' -- Perps holds WSOL not SOL, but there's a bug in the balances table that includes both WSOL and SOL
@@ -87,10 +87,20 @@ select
 , lst_tvl as (
     select
         date,
+        sum(balance) as lst_tvl,
         sum(balance_native) as lst_tvl_native
     from {{ ref("fact_jupiter_lst_tvl") }}
     where balance_native > 2 and balance_native is not null
     group by date
+)
+, tvl as (
+    select
+        date,
+        perp_tvl,
+        lst_tvl,
+        coalesce(perp_tvl, 0) + (coalesce(lst_tvl, 0)) as tvl
+    from perps_tvl
+    left join lst_tvl using (date)
 )
 , market_metrics as ({{ get_coingecko_metrics("jupiter-exchange-solana") }}
 )
@@ -140,9 +150,9 @@ select
     , all_trade_metrics.unique_traders as perp_dau -- perps specific metric
     , all_trade_metrics.aggregator_unique_traders as aggregator_dau -- aggregator specific metric
     , aggregator_dau + perp_dau as dau -- necessary for OL index pipeline
-    , pt.perps_tvl
-    , lst.lst_tvl_native * sp.price as lst_tvl
-    , pt.perps_tvl + (lst.lst_tvl_native * sp.price) as tvl
+    , tvl.perp_tvl
+    , tvl.lst_tvl
+    , tvl.tvl
 
     -- Cashflow Metrics
     , all_trade_metrics.perp_fees
@@ -175,6 +185,5 @@ left join market_metrics using (date)
 left join aggregator_volume_data using (date)
 left join all_trade_metrics using (date)
 left join daily_supply_data using (date)
-left join perps_tvl pt using (date)
-left join lst_tvl lst using (date)
+left join tvl using (date)
 left join solana_price sp using (date)
