@@ -158,12 +158,10 @@ select
 
     -- Supply Data
     , first_principles_supply_data.emissions_native as gross_emissions_native
-    , first_principles_supply_data.emissions_native * market_metrics.price as gross_emissions
-    , first_principles_supply_data.premine_unlocks_native
     , hyperliquid_api_supply_data.max_supply_native
     , hyperliquid_api_supply_data.total_supply_native
     , hyperliquid_api_supply_data.issued_supply_native
-    , hyperliquid_api_supply_data.net_supply_change_native
+    , first_principles_supply_data.premine_unlocks_native
     , hyperliquid_api_supply_data.circulating_supply_native
 
     -- Token Turnover
