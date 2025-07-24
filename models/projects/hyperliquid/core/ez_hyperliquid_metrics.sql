@@ -146,7 +146,8 @@ select
     , chain_tvl.tvl as chain_tvl
     , perps_tvl_data.tvl + chain_tvl.tvl as tvl
     , hype_staked_data.num_stakers
-    , hype_staked_data.staked_hype
+    , hype_staked_data.staked_hype as total_staked_native
+    , hype_staked_data.staked_hype * market_metrics.price as total_staked
     
     -- Fee Data
     , perp_fees
@@ -157,14 +158,14 @@ select
     , trading_fees * 0.03 as service_fee_allocation
 
     -- Financial Statements
-    , hypercore_spot_burns_data.hypercore_burns_native + hyperevm_data.hyperevm_burns_native as burns_native
     , (daily_buybacks_native) as buybacks_native
     , (daily_buybacks_native * market_metrics.price) as buybacks
-    , (daily_buybacks_native * market_metrics.price) + (burns_native * market_metrics.price) as revenue -- burns + buybacks
+    , (daily_buybacks_native * market_metrics.price) + ((hypercore_spot_burns_data.hypercore_burns_native + hyperevm_data.hyperevm_burns_native) * market_metrics.price) as revenue -- burns + buybacks
 
     -- Supply Data
     , first_principles_supply_data.emissions_native as gross_emissions_native
     , hyperliquid_api_supply_data.max_supply_native
+    , hypercore_spot_burns_data.hypercore_burns_native + hyperevm_data.hyperevm_burns_native as burns_native
     , hyperliquid_api_supply_data.total_supply_native
     , hyperliquid_api_supply_data.issued_supply_native
     , first_principles_supply_data.premine_unlocks_native
@@ -175,12 +176,8 @@ select
     , market_metrics.token_turnover_circulating
 
     -- Bespoke Metrics
-<<<<<<< Updated upstream
-    , new_users_data.new_users
     , open_interest_data.open_interest
-=======
     , new_users_data.new_users as new_users
->>>>>>> Stashed changes
 
 from date_spine
 left join market_metrics using(date)
