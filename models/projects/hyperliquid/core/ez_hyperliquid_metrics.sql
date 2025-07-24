@@ -145,14 +145,10 @@ select
     , perps_tvl_data.tvl as perps_tvl
     , chain_tvl.tvl as chain_tvl
     , perps_tvl_data.tvl + chain_tvl.tvl as tvl
+    , hype_staked_data.num_stakers
+    , hype_staked_data.staked_hype
     
     -- Fee Data
-
-    , coalesce(perps_tvl_data.tvl, 0) as tvl
-    , new_users
-    , open_interest
-
-    -- Cash Flow Metrics
     , perp_fees
     , spot_fees
     , auction_fees
@@ -179,9 +175,8 @@ select
     , market_metrics.token_turnover_circulating
 
     -- Bespoke Metrics
-    , new_users_data.new_users as new_users
-    , hype_staked_data.num_stakers
-    , hype_staked_data.staked_hype
+    , new_users_data.new_users
+    , open_interest_data.open_interest
 
 from date_spine
 left join market_metrics using(date)
