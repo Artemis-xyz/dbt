@@ -50,12 +50,29 @@ with dex_data as (
     FROM
         {{ ref("fact_fxs_daily_supply_data") }}
 )
-, frax_daily_supply_data as (
-    SELECT
+, stablecoin_supply_data as (
+    with frax_data as (
+        {{ get_stablecoin_metrics("FRAX", breakdown='symbol') }}
+    )
+    , frxusd_data as (
+        {{ get_stablecoin_metrics("FRXUSD", breakdown='symbol') }}
+    )
+    , agg as (
+        select
+            date,
+            stablecoin_total_supply
+        from frax_data
+        union all
+        select
+            date,
+            stablecoin_total_supply
+        from frxusd_data
+    )
+    select
         date,
-        supply as frax_circulating_supply
-    FROM
-        {{ ref("fact_frax_circulating_supply") }}
+        sum(stablecoin_total_supply) as stablecoin_total_supply
+    from agg
+    group by 1
 )
 , veFXS_daily_supply_data as (
     SELECT
@@ -102,7 +119,7 @@ SELECT
     , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
     , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
     , tvl_data.tvl as spot_tvl
-    , frax_daily_supply_data.frax_circulating_supply as stablecoin_total_supply
+    , stablecoin_supply_data.stablecoin_total_supply as stablecoin_total_supply
     , veFXS_daily_supply_data.circulating_supply as veFXS_total_supply
 
     --Cashflow Metrics
@@ -127,7 +144,7 @@ left join dex_data using (date)
 left join fractal_l2_txns using (date)
 left join staked_eth_metrics using (date)
 left join tvl_data using (date)
-left join frax_daily_supply_data using (date)
+left join stablecoin_supply_data using (date)
 left join veFXS_daily_supply_data using (date)
 left join fxs_daily_supply_data using (date)
 where date_spine.date < to_date(sysdate())
