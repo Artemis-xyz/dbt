@@ -101,6 +101,7 @@ with
     )
 select
     date
+    , 'synthetix' as artemis_id
 
     -- Standardized Metrics
 
@@ -113,19 +114,17 @@ select
     -- Usage Data
     , unique_traders as perp_dau
     , unique_traders as dau
-    , trading_volume as perp_volume
-    , trading_volume as volume
     , tvl as perp_tvl
     , tvl as tvl
     , tvl - lag(tvl) over (order by date) as tvl_net_change
 
     -- Fee Data
+    , fees.fees_native as fees_native
     , fees.fees as perp_fees
     , fees.fees as fees
-    , fees.fees_native as fees_native
-    , token_cashflow as token_fee_allocation
-    , service_cashflow as service_fee_allocation
-    , treasury_cashflow as treasury_fee_allocation
+    , token_cashflow as tokenholder_fee_allocation
+    , service_cashflow as lp_fee_allocation
+    , treasury_cashflow as dao_fee_allocation
     , fee_sharing_fee_allocation as staking_fee_allocation
 
     -- Financial Statements
@@ -135,11 +134,8 @@ select
 
     -- Treasury Data
     , treasury.treasury as treasury
-    , treasury.treasury_native as treasury_native
     , treasury.net_treasury as net_treasury
-    , treasury.net_treasury_native as net_treasury_native
     , treasury.own_token_treasury as own_token_treasury
-    , treasury.own_token_treasury_native as own_token_treasury_native
 
     -- Supply Metrics
     , mints as gross_emissions

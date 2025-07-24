@@ -35,6 +35,7 @@ WITH metrics AS (
 
 SELECT
     metrics.date
+    , 'bananagun' as artemis_id
     
     --Standardized Metrics
 
@@ -49,13 +50,11 @@ SELECT
     , coalesce(metrics.dau, 0) AS dau
     , coalesce(metrics.daily_txns, 0) AS aggregator_txns
     , coalesce(metrics.daily_txns, 0) AS txns
-    , coalesce(metrics.trading_volume, 0) AS aggregator_volume
-    , coalesce(metrics.trading_volume, 0) AS volume
 
     -- Fee Data 
     , coalesce(metrics.fees_usd, 0) AS fees
-    , coalesce(metrics.fees_usd, 0) * 0.6 AS treasury_fee_allocation
-    , coalesce(metrics.fees_usd, 0) * 0.4 AS token_fee_allocation
+    , coalesce(metrics.fees_usd, 0) * 0.6 AS foundation_fee_allocation
+    , coalesce(metrics.fees_usd, 0) * 0.4 AS tokenholder_fee_allocation
     , coalesce(coin_metrics.burns_usd, 0) AS burned_fee_allocation
 
     -- Financial Statements

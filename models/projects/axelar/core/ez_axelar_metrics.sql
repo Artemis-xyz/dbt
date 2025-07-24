@@ -45,6 +45,7 @@ with
     )
 select 
     crosschain_data.date
+    'axelar' as artemis_id
 
     -- Standardized Metrics
 
@@ -62,9 +63,9 @@ select
     , axelar_chain_data.txns as chain_txns
     , coalesce(crosschain_data.bridge_txns, 0) + coalesce(axelar_chain_data.txns, 0) as txns
     , crosschain_data.bridge_volume as bridge_volume
-    , crosschain_data.bridge_volume as volume
 
     -- Fee Data
+    , coalesce(crosschain_data.fees / market_data.price, 0) + coalesce(validator_fees_data.validator_fees / market_data.price, 0) as fees_native
     , crosschain_data.fees as bridge_fees
     , validator_fees_data.validator_fees as chain_fees
     , coalesce(crosschain_data.fees, 0) + coalesce(validator_fees_data.validator_fees, 0) as fees

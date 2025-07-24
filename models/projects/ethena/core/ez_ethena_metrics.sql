@@ -46,6 +46,7 @@ with usde_metrics as (
 )
 select
     usde_metrics.date
+    'ethena' as artemis_id
 
     -- Standardized Metrics
 
@@ -60,8 +61,8 @@ select
     , usde_metrics.stablecoin_dau as dau
     , usde_metrics.stablecoin_txns as stablecoin_txns
     , usde_metrics.stablecoin_txns as txns
+    , tvl.stablecoin_total_supply as stablecoin_tvl 
     , tvl.stablecoin_total_supply as tvl
-    , {{ daily_pct_change('tvl.stablecoin_total_supply') }} as tvl_growth
 
     -- Fee Data
     , ena_metrics.collateral_fee as collateral_fee

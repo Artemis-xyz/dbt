@@ -60,6 +60,7 @@ txns as (
 )
 select
     ds.date
+    , 'chiliz' as artemis_id
     
     -- Standardized Metrics
     
