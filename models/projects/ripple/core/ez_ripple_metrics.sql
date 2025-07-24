@@ -1,12 +1,21 @@
 {{
     config( 
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="RIPPLE",
         database="ripple",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as (
@@ -17,6 +26,7 @@ with
             chain_dau,
             chain_txns
         from {{ ref("fact_ripple_fundamental_metrics") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("ripple") }})
     , supply_data as (
@@ -25,6 +35,7 @@ with
             issued_supply,
             circulating_supply
         from {{ ref("fact_ripple_supply_data") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     fundamental_data.date -- goes back to Jan 2013
@@ -59,7 +70,12 @@ select
     -- Other Metrics
     , price_data.token_turnover_circulating
     , price_data.token_turnover_fdv
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM fundamental_data
 left join price_data using(date)
 left join supply_data using(date)
-where fundamental_data.date < to_date(sysdate())
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

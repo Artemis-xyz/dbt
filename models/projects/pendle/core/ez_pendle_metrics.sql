@@ -184,6 +184,10 @@ SELECT
     , p.token_turnover_circulating
     , tc.token_holder_count
 
+    -- timestamp columns
+    , to_timestamp_ntz(current_timestamp()) as created_on
+    , to_timestamp_ntz(current_timestamp()) as modified_on
+
 FROM price_data_cte p
 LEFT JOIN swap_fees f using(date)
 LEFT JOIN yield_fees yf using(date)

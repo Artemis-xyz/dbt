@@ -1,15 +1,30 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="SUI",
         database="sui",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
 
+{% set backfill_date = var("backfill_date", None) %}
+
 with
-    fundamental_data as (select * EXCLUDE date, TO_TIMESTAMP_NTZ(date) AS date from {{ source('PROD_LANDING', 'ez_sui_metrics') }}),
+    fundamental_data as (
+        select 
+            * EXCLUDE date, 
+            TO_TIMESTAMP_NTZ(date) AS date 
+        from {{ source('PROD_LANDING', 'ez_sui_metrics') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
+    ),
     price_data as ({{ get_coingecko_metrics("sui") }}),
     defillama_data as ({{ get_defillama_metrics("sui") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("sui") }}),
@@ -23,6 +38,7 @@ with
             , unvested_tokens_native
             , gross_emissions_native
         from {{ ref("fact_sui_supply_data") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     fundamental_data.date
@@ -85,10 +101,14 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , p2p_stablecoin_transfer_volume
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join github_data on fundamental_data.date = github_data.date
 left join supply_data on fundamental_data.date = supply_data.date
-where fundamental_data.date < to_date(sysdate())
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

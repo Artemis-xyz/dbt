@@ -1,15 +1,22 @@
 -- depends_on {{ ref('fact_solana_transactions_v2') }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         unique_key="date",
         snowflake_warehouse="SOLANA",
         database="solana",
         schema="core",
         alias="ez_metrics",
-        on_schema_change='append_new_columns'
+        incremental_strategy="merge",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     contract_data as ({{ get_contract_metrics("solana") }}),
@@ -19,7 +26,9 @@ with
     price as ({{ get_coingecko_metrics("solana") }}),
     staking_data as ({{ get_staking_metrics("solana") }}),
     issuance_data as (
-        select date, chain, issuance from {{ ref("fact_solana_issuance_silver") }}
+        select date, chain, issuance 
+        from {{ ref("fact_solana_issuance_silver") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     nft_metrics as ({{ get_nft_metrics("solana") }}),
     p2p_metrics as ({{ get_p2p_metrics("solana") }}),
@@ -37,27 +46,32 @@ with
             new_users,
             vote_tx_fee_native
         from {{ ref('fact_solana_fundamental_data') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     ), 
     solana_dex_volumes as (
         select date, daily_volume_usd as dex_volumes
         from {{ ref("fact_solana_dex_volumes") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , jito_tips as (
         SELECT
             day as date,
             tip_fees
         FROM {{ ref('fact_jito_dau_txns_fees')}}
+        {{ ez_metrics_incremental('day', backfill_date) }}
     )
     , supply_data as (
         select date, issued_supply, circulating_supply
         from {{ ref('fact_solana_supply_data') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , application_fees AS (
         SELECT 
             DATE_TRUNC(DAY, date) AS date 
             , SUM(COALESCE(fees, 0)) AS application_fees
         FROM {{ ref("ez_protocol_datahub_by_chain") }}
-        WHERE chain = 'solana'
+        {{ ez_metrics_incremental('date', backfill_date) }}
+            AND chain = 'solana'
         -- excluding solana dex's to avoid double counting. It looks like these are included in dex_volumes above as dex_volumes defaults to the greater usd value of token_bought and token_sold
         -- this does not appear to be an issue for EVM based chains that rely on Dune dex.trades as that defaults to using the token_bought amount which is net of fees
             AND artemis_id NOT IN ('raydium', 'jupiter', 'saber', 'pumpfun')
@@ -158,6 +172,9 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_usage 
 left join defillama_data on fundamental_usage.date = defillama_data.date
 left join stablecoin_data on fundamental_usage.date = stablecoin_data.date
@@ -173,4 +190,5 @@ left join solana_dex_volumes on fundamental_usage.date = solana_dex_volumes.date
 left join jito_tips on fundamental_usage.date = jito_tips.date
 left join supply_data on fundamental_usage.date = supply_data.date
 left join application_fees on fundamental_usage.date = application_fees.date
-where fundamental_usage.date < to_date(sysdate())
+{{ ez_metrics_incremental('fundamental_usage.date', backfill_date) }}
+and fundamental_usage.date < to_date(sysdate())

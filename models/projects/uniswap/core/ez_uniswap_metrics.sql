@@ -1,13 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="UNISWAP_SM",
         database="uniswap",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
 
+{% set backfill_date = var("backfill_date", None) %}
 
 WITH
     fees as (
@@ -34,6 +42,7 @@ WITH
             date,
             sum(trading_fees) as fees
         FROM fees
+        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , dau_txns_volume as (
@@ -43,6 +52,7 @@ WITH
             , count( distinct tx_hash) as spot_txns
             , sum(trading_volume) as spot_volume
         FROM {{ ref('ez_uniswap_dex_swaps') }}
+        {{ ez_metrics_incremental('block_timestamp::date', backfill_date) }}
         GROUP BY 1
     )
     , token_incentives_cte as (
@@ -50,12 +60,14 @@ WITH
             date,
             token_incentives_usd
         FROM {{ ref('fact_uniswap_token_incentives') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , treasury_usd_cte AS (
         SELECT
             date,
             SUM(treasury_usd) as treasury_usd
         FROM {{ ref('fact_uniswap_treasury_usd') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , treasury_native_cte AS(
@@ -64,7 +76,8 @@ WITH
             sum(treasury_native) as treasury_native,
             sum(usd_balance) as own_token_treasury
         FROM {{ ref('fact_uniswap_treasury_by_token') }}
-        WHERE token = 'UNI'
+        {{ ez_metrics_incremental('date', backfill_date) }}
+        AND token = 'UNI'
         GROUP BY 1
     )
     , net_treasury_cte AS (
@@ -72,7 +85,8 @@ WITH
             date,
             sum(usd_balance) as net_treasury_usd
         FROM {{ ref('fact_uniswap_treasury_by_token') }}
-        WHERE token <> 'UNI'
+        {{ ez_metrics_incremental('date', backfill_date) }}
+        AND token <> 'UNI'
         GROUP BY 1
     )
     , tvl_cte AS (
@@ -80,11 +94,14 @@ WITH
             date,
             sum(tvl) AS tvl
         FROM {{ ref('ez_uniswap_metrics_by_chain') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
         GROUP BY 1
     )
     , price_data_cte as ({{ get_coingecko_metrics("uniswap") }})
     , tokenholder_cte as (
-        SELECT * FROM {{ ref('fact_uni_tokenholder_count') }}
+        SELECT * 
+        FROM {{ ref('fact_uni_tokenholder_count') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , supply_metrics as (
         SELECT
@@ -94,6 +111,7 @@ WITH
             issued_supply,
             circulating_supply
         FROM {{ ref("fact_uniswap_supply_data") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 SELECT
     date
@@ -151,6 +169,10 @@ SELECT
     , price_data_cte.token_turnover_circulating
     , tokenholder_cte.token_holder_count
 
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
 FROM fees_agg
 LEFT JOIN dau_txns_volume using(date)
 LEFT JOIN token_incentives_cte using(date)
@@ -161,4 +183,5 @@ LEFT JOIN tvl_cte using(date)
 LEFT JOIN price_data_cte using(date)
 LEFT JOIN tokenholder_cte using(date)
 LEFT JOIN supply_metrics using(date)
-WHERE date < to_date(sysdate())
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())

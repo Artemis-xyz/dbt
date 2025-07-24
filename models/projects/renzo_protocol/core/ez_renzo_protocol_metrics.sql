@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="RENZO_PROTOCOL",
         database="renzo_protocol",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     restaked_eth_metrics_by_chain as (
@@ -17,6 +26,7 @@ with
             sum(num_restaked_eth_net_change) as num_restaked_eth_net_change,
             sum(amount_restaked_usd_net_change) as amount_restaked_usd_net_change
         from {{ ref('fact_renzo_protocol_ethereum_restaked_eth_count_with_usd_and_change') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
         union all
         select
@@ -26,6 +36,7 @@ with
             sum(num_restaked_eth_net_change) as num_restaked_eth_net_change,
             sum(amount_restaked_usd_net_change) as amount_restaked_usd_net_change
         from {{ ref('fact_renzo_protocol_arbitrum_restaked_eth_count_with_usd_and_change') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
         union all
         select
@@ -35,6 +46,7 @@ with
             sum(num_restaked_eth_net_change) as num_restaked_eth_net_change,
             sum(amount_restaked_usd_net_change) as amount_restaked_usd_net_change
         from {{ ref('fact_renzo_protocol_base_restaked_eth_count_with_usd_and_change') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
         union all
         select
@@ -44,6 +56,7 @@ with
             sum(num_restaked_eth_net_change) as num_restaked_eth_net_change,
             sum(amount_restaked_usd_net_change) as amount_restaked_usd_net_change
         from {{ ref('fact_renzo_protocol_blast_restaked_eth_count_with_usd_and_change') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
         union all
         select
@@ -53,6 +66,7 @@ with
             sum(num_restaked_eth_net_change) as num_restaked_eth_net_change,
             sum(amount_restaked_usd_net_change) as amount_restaked_usd_net_change
         from {{ ref('fact_renzo_protocol_bsc_restaked_eth_count_with_usd_and_change') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
         union all
         select
@@ -62,6 +76,7 @@ with
             sum(num_restaked_eth_net_change) as num_restaked_eth_net_change,
             sum(amount_restaked_usd_net_change) as amount_restaked_usd_net_change
         from {{ ref('fact_renzo_protocol_linea_restaked_eth_count_with_usd_and_change') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
         union all
         select
@@ -71,6 +86,7 @@ with
             sum(num_restaked_eth_net_change) as num_restaked_eth_net_change,
             sum(amount_restaked_usd_net_change) as amount_restaked_usd_net_change
         from {{ ref('fact_renzo_protocol_mode_restaked_eth_count_with_usd_and_change') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     ),
     restaked_eth_metrics as (
@@ -81,6 +97,7 @@ with
             sum(num_restaked_eth_net_change) as num_restaked_eth_net_change,
             sum(amount_restaked_usd_net_change) as amount_restaked_usd_net_change
         from restaked_eth_metrics_by_chain
+        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     ),
     market_metrics as (
@@ -122,9 +139,13 @@ select
     --Other Metrics
     , market_metrics.token_turnover_circulating as token_turnover_circulating
     , market_metrics.token_turnover_fdv as token_turnover_fdv
-    
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 --left join restaked_eth_metrics_by_chain using(date)
 left join restaked_eth_metrics using(date)
 left join market_metrics using(date)
-where date_spine.date < to_date(sysdate())
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

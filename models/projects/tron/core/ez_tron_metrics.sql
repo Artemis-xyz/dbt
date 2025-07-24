@@ -1,13 +1,22 @@
 -- depends_on {{ ref("fact_tron_transactions_v2") }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="BAM_TRANSACTION_XLG",
         database="tron",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with fundamental_data as (
     {{ get_fundamental_data_for_chain("tron", "v2") }}
@@ -23,6 +32,7 @@ with fundamental_data as (
         date,
         sum(token_incentives) as token_incentives,
     from {{ ref("fact_tron_token_incentives") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
     group by date
 )
 , issued_supply_metrics as (
@@ -33,13 +43,15 @@ with fundamental_data as (
         issued_supply as issued_supply_native,
         floating_supply as circulating_supply_native,
     from {{ ref("fact_tron_issued_supply_and_float") }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , application_fees AS (
     SELECT 
         DATE_TRUNC(DAY, date) AS date 
         , SUM(COALESCE(fees, 0)) AS application_fees
     FROM {{ ref("ez_protocol_datahub_by_chain") }}
-    WHERE chain = 'tron'
+    {{ ez_metrics_incremental('date', backfill_date) }}
+    AND chain = 'tron'
     GROUP BY 1
 )
 
@@ -130,8 +142,9 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
-
-
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join market_metrics on fundamental_data.date = market_metrics.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -142,4 +155,5 @@ left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join token_incentives on fundamental_data.date = token_incentives.date
 left join issued_supply_metrics on fundamental_data.date = issued_supply_metrics.date
 left join application_fees on fundamental_data.date = application_fees.date
-where fundamental_data.date < to_date(sysdate())
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

@@ -124,7 +124,10 @@ combined_result as (
 -- Final output
 select 
     date, 
-    transfer_volume 
+    transfer_volume,
+    -- timestamp columns
+    to_timestamp_ntz(current_timestamp()) as created_on
+    , to_timestamp_ntz(current_timestamp()) as modified_on
 from combined_result
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

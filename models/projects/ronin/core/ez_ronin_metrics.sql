@@ -1,17 +1,27 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="RONIN",
         database="ronin",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with 
     ronin_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_ronin_daily_dex_volumes") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics("ronin") }})
 select
@@ -27,6 +37,11 @@ select
     , token_turnover_circulating
     -- Chain Usage Metrics
     , dex_volumes AS chain_spot_volume
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from ronin_dex_volumes   
 left join price_data on ronin_dex_volumes.date = price_data.date
-where ronin_dex_volumes.date < to_date(sysdate())
+{{ ez_metrics_incremental('ronin_dex_volumes.date', backfill_date) }}
+and ronin_dex_volumes.date < to_date(sysdate())

@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="WALRUS",
         database="walrus",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 WITH market_data as ({{ get_coingecko_metrics("walrus-2") }})
 
@@ -46,5 +55,11 @@ SELECT DISTINCT
     --Turnover Metrics
     , COALESCE(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
     , COALESCE(market_data.token_turnover_fdv, 0) AS token_turnover_fdv
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM clean_parquet
 LEFT JOIN market_data ON clean_parquet.date = market_data.date
+{{ ez_metrics_incremental('clean_parquet.date', backfill_date) }}
+and clean_parquet.date < to_date(sysdate())

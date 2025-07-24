@@ -1,13 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="TON",
         database="ton",
         schema="core",
         alias="ez_metrics",
-        unique_key="date"
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as (
@@ -15,6 +23,7 @@ with
             date,
             txns as transaction_nodes
         from {{ ref("fact_ton_daa_txns_gas_gas_usd_revenue_revenue_native") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     ), 
     ton_apps_fundamental_data as (
         select 
@@ -24,6 +33,7 @@ with
             , txns
             , avg_txn_fee_native
         from {{ ref("fact_ton_fundamental_metrics") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     price_data as ({{ get_coingecko_metrics("the-open-network") }}),
     defillama_data as ({{ get_defillama_metrics("ton") }}),
@@ -33,6 +43,7 @@ with
     , block_rewards_data as (
         select date, block_rewards_native
         from {{ ref("fact_ton_minted") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , supply_data as (
         select 
@@ -48,6 +59,7 @@ with
             , unvested_tokens
             , circulating_supply_native
         from {{ ref("fact_ton_supply_data") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 select
     supply.date
@@ -116,6 +128,9 @@ select
     , p2p_stablecoin_mau
     , p2p_stablecoin_transfer_volume
     , p2p_stablecoin_tokenholder_count
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from supply_data as supply
 left join ton_apps_fundamental_data as ton on supply.date = ton.date
 left join price_data on supply.date = price_data.date
@@ -125,4 +140,5 @@ left join fundamental_data on supply.date = fundamental_data.date
 left join stablecoin_data on supply.date = stablecoin_data.date
 left join rolling_metrics on supply.date = rolling_metrics.date
 left join block_rewards_data on supply.date = block_rewards_data.date
-where supply.date < to_date(sysdate())
+{{ ez_metrics_incremental('supply.date', backfill_date) }}
+and supply.date < to_date(sysdate())

@@ -1,38 +1,47 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="VISA",
         database="visa",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
 
+{% set backfill_date = var("backfill_date", None) %}
+
 with visa as (
     select
-    date,
-    type,
-    transfer_volume,
-    transfer_volume * 1e6 / 
-    case 
-      when extract(month from date) in (1, 4, 7, 10) then 
+        date,
+        type,
+        transfer_volume,
+        transfer_volume * 1e6 / 
         case 
-          when extract(month from date) = 1 and
-               extract(year from date) % 4 = 0 and 
-               (extract(year from date) % 100 != 0 or extract(year from date) % 400 = 0)
-          then 91
-          else 90
-        end
-      when extract(month from date) in (2, 5, 8, 11) then 91
-      when extract(month from date) in (3, 6, 9, 12) then 
-        case 
-          when extract(month from date) = 3 and
-               extract(year from date) % 4 = 0 and 
-               (extract(year from date) % 100 != 0 or extract(year from date) % 400 = 0)
-          then 92
-          else 91
-        end
-    end as daily_avg_volume
+        when extract(month from date) in (1, 4, 7, 10) then 
+            case 
+            when extract(month from date) = 1 and
+                extract(year from date) % 4 = 0 and 
+                (extract(year from date) % 100 != 0 or extract(year from date) % 400 = 0)
+            then 91
+            else 90
+            end
+        when extract(month from date) in (2, 5, 8, 11) then 91
+        when extract(month from date) in (3, 6, 9, 12) then 
+            case 
+            when extract(month from date) = 3 and
+                extract(year from date) % 4 = 0 and 
+                (extract(year from date) % 100 != 0 or extract(year from date) % 400 = 0)
+            then 92
+            else 91
+            end
+        end as daily_avg_volume
     from {{ ref("benchmark_seed") }}
     where type = 'VISA'
 ),
@@ -130,4 +139,6 @@ select
     date, 
     transfer_volume 
 from combined_result
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())
 order by date

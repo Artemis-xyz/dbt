@@ -1,12 +1,21 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='USUAL',
         database='usual',
         schema='core',
-        alias='ez_metrics'
+        alias='ez_metrics',
+        incremental_strategy='merge',
+        unique_key='date',
+        on_schema_change='append_new_columns',
+        merge_update_columns=var('backfill_columns', []),
+        merge_exclude_columns=['created_on'] | reject('in', var('backfill_columns', [])) | list,
+        full_refresh=false,
+        tags=['ez_metrics']
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with usd0_metrics as (
     select
@@ -15,6 +24,7 @@ with usd0_metrics as (
         , stablecoin_dau
         , stablecoin_total_supply as usd0_tvl
     from {{ ref('ez_usd0_metrics') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 , usd0pp_metrics as (
@@ -22,6 +32,7 @@ with usd0_metrics as (
         date
         , usd0pp_tvl as usd0pp_tvl
     from {{ ref('fact_usd0pp_tvl') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 , usual_fees as (
@@ -34,6 +45,7 @@ with usd0_metrics as (
         , usualx_unstake_fees_daily
         , treasury_fee
     from {{ ref('fact_usual_fees') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 ) 
 
 , usual_burn_mint as (
@@ -47,6 +59,7 @@ with usd0_metrics as (
         , daily_treasury_usualstar
         , daily_treasury_usualx
     from {{ ref('fact_usual_burn_mint') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 
 , market_metrics as (
@@ -97,3 +110,5 @@ left join usd0pp_metrics usd0pp on usd0.date = usd0pp.date
 left join usual_fees usual on usd0.date = usual.date
 left join usual_burn_mint ubm on usd0.date = ubm.date
 left join market_metrics mm on usd0.date = mm.date
+{{ ez_metrics_incremental('usd0.date', backfill_date) }}
+and usd0.date < to_date(sysdate())

@@ -1,22 +1,33 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="RABBIT_X",
         database="rabbit_x",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     trading_volume_data as (
         select date, sum(trading_volume) as trading_volume
         from {{ ref("fact_rabbitx_trading_volume") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
         group by date
     )
     , unique_traders_data as (
         select date, sum(unique_traders) as unique_traders
         from {{ ref("fact_rabbitx_unique_traders") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
         group by date
     )
     , price as ({{ get_coingecko_metrics("rabbitx") }})
@@ -34,7 +45,11 @@ select
     , token_turnover_circulating
     , token_turnover_fdv
     , token_volume
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from trading_volume_data
 left join unique_traders_data using(date)
 left join price using(date)
-where date < to_date(sysdate())
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())

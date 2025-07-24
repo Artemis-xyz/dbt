@@ -1,17 +1,27 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="SONIC",
         database="sonic",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with 
     sonic_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_sonic_daily_dex_volumes") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , fundamentals as (
         SELECT
@@ -20,6 +30,7 @@ with
             txns,
             dau
         FROM {{ ref("fact_sonic_fundamental_metrics") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , supply_data as (
         select
@@ -29,6 +40,7 @@ with
             net_supply_change_native,
             circulating_supply_native
         from {{ ref("fact_sonic_supply_data") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("sonic-3") }})
 select
@@ -58,8 +70,12 @@ select
     , price_data.token_turnover_circulating
     , price_data.token_turnover_fdv
     , price_data.token_volume
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamentals
 left join sonic_dex_volumes on fundamentals.date = sonic_dex_volumes.date
 left join price_data on fundamentals.date = price_data.date
 left join supply_data on fundamentals.date = supply_data.date
-where fundamentals.date < to_date(sysdate())
+{{ ez_metrics_incremental('fundamentals.date', backfill_date) }}
+and fundamentals.date < to_date(sysdate())

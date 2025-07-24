@@ -1,16 +1,26 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='PYTH',
         database='pyth',
         schema='core',
         alias='ez_metrics',
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with 
     dau_txns as (
         SELECT * FROM {{ ref('fact_pyth_txns_dau') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , date_spine as (
         SELECT
@@ -26,6 +36,7 @@ with
             date,
             dfl_tvs
         FROM {{ ref('fact_pyth_dfl_tvs') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , supply_data as (
         SELECT
@@ -34,6 +45,7 @@ with
             net_supply_change_native,
             circulating_supply_native
         FROM {{ ref('fact_pyth_supply_data') }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 
 SELECT
@@ -69,8 +81,14 @@ SELECT
     --Other Metrics
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM date_spine
 LEFT JOIN dau_txns ON date_spine.date = dau_txns.date
 LEFT JOIN market_metrics ON date_spine.date = market_metrics.date
 LEFT JOIN dfl_tvs ON date_spine.date = dfl_tvs.date
 LEFT JOIN supply_data ON date_spine.date = supply_data.date
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

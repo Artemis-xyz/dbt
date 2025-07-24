@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="SUSHISWAP_SM",
         database="sushiswap",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with trading_volume_by_pool as (
     {{
@@ -30,6 +39,7 @@ trading_volume as (
         sum(trading_volume_by_pool.gas_cost_native) as gas_cost_native,
         sum(trading_volume_by_pool.gas_cost_usd) as gas_cost_usd
     from trading_volume_by_pool
+    {{ ez_metrics_incremental('trading_volume_by_pool.date', backfill_date) }}
     group by trading_volume_by_pool.date
 ),
 tvl_by_pool as (
@@ -51,6 +61,7 @@ tvl_data as (
         tvl_by_pool.date,
         sum(tvl_by_pool.tvl) as tvl
     from tvl_by_pool
+    {{ ez_metrics_incremental('tvl_by_pool.date', backfill_date) }}
     group by tvl_by_pool.date
 )
 , cashflow_metrics as (
@@ -70,6 +81,7 @@ tvl_data as (
                 sum(trading_fees * 0.0005 / 0.0030)
         end as staking_fee_allocation
     from trading_volume
+    {{ ez_metrics_incremental('trading_volume.date', backfill_date) }}
     group by date
 )
 , token_incentives as (
@@ -77,6 +89,7 @@ tvl_data as (
         date,
         sum(incentives_usd) as token_incentives
     from {{ ref('fact_sushiswap_token_incentives') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
     group by date
 )
 , date_spine AS (
@@ -126,10 +139,14 @@ select
     , token_incentives.token_incentives as token_incentives
     , revenue - token_incentives as earnings
 
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 left join tvl_data tvl using(date)
 left join cashflow_metrics using(date)
 left join trading_volume using(date)
 left join token_incentives using(date)
 left join market_metrics using(date)
-where date_spine.date < to_date(sysdate())
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

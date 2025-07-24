@@ -1,13 +1,22 @@
 -- depends_on {{ ref("ez_starknet_transactions") }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="STARKNET",
         database="starknet",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as ({{ get_fundamental_data_for_chain("starknet") }}),
@@ -16,26 +25,31 @@ with
     expenses_data as (
         select date, chain, l1_data_cost_native, l1_data_cost
         from {{ ref("fact_starknet_l1_data_cost") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     github_data as ({{ get_github_metrics("starknet") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("starknet") }}),
     bridge_volume_metrics as (
         select date, bridge_volume
         from {{ ref("fact_starknet_bridge_bridge_volume") }}
-        where chain is null
+        {{ ez_metrics_incremental('date', backfill_date) }}
+        and chain is null
     ),
     bridge_daa_metrics as (
         select date, bridge_daa
         from {{ ref("fact_starknet_bridge_bridge_daa") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     fees_data as (
         select date
         , fees_native
         from {{ ref("fact_starknet_fees") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , supply_data as (
         select date, gross_emissions_native, premine_unlocks_native, burns_native, net_supply_change_native, circulating_supply_native
         from {{ ref("fact_starknet_supply_data") }}
+        {{ ez_metrics_incremental('date', backfill_date) }}
     )
 
 select
@@ -93,6 +107,10 @@ select
     , burns_native
     , net_supply_change_native
     , circulating_supply_native
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -103,4 +121,5 @@ left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join fees_data on fundamental_data.date = fees_data.date
 left join supply_data on fundamental_data.date = supply_data.date
-where fundamental_data.date < to_date(sysdate())
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

@@ -1,20 +1,33 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="STELLAR",
         database="stellar",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
+
 with fundamental_data as (
     select 
         * EXCLUDE date,
         TO_TIMESTAMP_NTZ(date) AS date 
     from {{ source('PROD_LANDING', 'ez_stellar_metrics') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , rwa_tvl as (
-    select * from {{ ref('fact_stellar_rwa_tvl') }}
+    select * 
+    from {{ ref('fact_stellar_rwa_tvl') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , stablecoin_tvl as (
     -- Sum mktcap in USD across all stablecoins 
@@ -22,6 +35,7 @@ with fundamental_data as (
         date,
         sum(total_circulating_usd) as stablecoin_mc
     from {{ ref ('fact_stellar_stablecoin_tvl') }} 
+    {{ ez_metrics_incremental('date', backfill_date) }}
     group by 
         date 
 )
@@ -33,6 +47,7 @@ with fundamental_data as (
         issued_supply as issued_supply_native,
         circulating_supply_native as circulating_supply_native
     from {{ ref('fact_stellar_issued_supply_and_float_dbt') }}
+    {{ ez_metrics_incremental('date', backfill_date) }}
 )
 , prices as ({{ get_coingecko_price_with_latest("stellar") }})
 , price_data as ( {{ get_coingecko_metrics("stellar") }} )
@@ -94,9 +109,14 @@ select
     , price_data.token_turnover_circulating
     , price_data.token_turnover_fdv
 
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join prices using(date)
 left join price_data on fundamental_data.date = price_data.date
 left join rwa_tvl on fundamental_data.date = rwa_tvl.date
 left join stablecoin_tvl on fundamental_data.date = stablecoin_tvl.date
 left join issued_supply_metrics on fundamental_data.date = issued_supply_metrics.date
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())
