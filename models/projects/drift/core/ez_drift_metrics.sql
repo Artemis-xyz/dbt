@@ -19,10 +19,11 @@ WITH parsed_log_metrics AS (
     FROM {{ ref("fact_drift_parsed_logs") }}
     GROUP BY
         block_date
-),
-    price_data as ({{ get_coingecko_metrics("drift-protocol") }}),
-    defillama_data as ({{ get_defillama_protocol_metrics("drift trade") }}),
-    supply_data as ( select * from {{ ref("fact_drift_supply_data") }})
+)
+, price_data as ({{ get_coingecko_metrics("drift-protocol") }})
+, defillama_data as ({{ get_defillama_protocol_metrics("drift trade") }})
+, supply_data as ( select * from {{ ref("fact_drift_supply_data") }})
+, open_interest as ( select * from {{ref("fact_drift_open_interest")}})
 SELECT 
     coalesce(
         price_data.date,
@@ -83,7 +84,7 @@ SELECT
     -- Other Metrics
     , token_turnover_circulating
     , token_turnover_fdv
-    
+    , open_interest
 FROM price_data 
 LEFT JOIN {{ ref("fact_drift_amm_revenue") }} as fact_drift_amm_revenue
     ON price_data.date = fact_drift_amm_revenue.date
@@ -95,4 +96,12 @@ FULL JOIN parsed_log_metrics
     ON price_data.date = parsed_log_metrics.date
 LEFT JOIN supply_data
     ON price_data.date = supply_data.date
-    
+LEFT JOIN open_interest
+    ON price_data.date = open_interest.date
+where coalesce(
+        price_data.date,
+        fact_drift_float_borrow_lending_revenue.date,
+        defillama_data.date,
+        parsed_log_metrics.date,
+        fact_drift_amm_revenue.date
+    ) is not null
