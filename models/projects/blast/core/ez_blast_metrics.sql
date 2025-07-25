@@ -1,13 +1,22 @@
 -- depends_on {{ ref("fact_blast_transactions_v2") }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="blast",
         database="blast",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as ({{ get_goldsky_chain_fundamental_metrics("blast", "_v2") }})
@@ -26,8 +35,8 @@ with
     , blast_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_blast_daily_dex_volumes") }}
-    )
-    , premine_emissions as (
+    ),
+    premine_emissions as (
         select date, premine_unlocks_native, circulating_supply_native
         from {{ ref("fact_blast_daily_supply_data") }}
     )
@@ -83,11 +92,13 @@ select
     -- Developer metrics
     , weekly_contracts_deployed
     , weekly_contract_deployers
-
     -- Supply Metrics
     , premine_unlocks_native
     , premine_unlocks_native as net_supply_change_native
     , circulating_supply_native
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join contract_data on fundamental_data.date = contract_data.date
@@ -97,4 +108,6 @@ left join blast_dex_volumes as dune_dex_volumes_blast on fundamental_data.date =
 left join price_data on fundamental_data.date = price_data.date
 left join eth_price on fundamental_data.date = eth_price.date
 left join premine_emissions on fundamental_data.date = premine_emissions.date
-where fundamental_data.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

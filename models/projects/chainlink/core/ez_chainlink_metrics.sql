@@ -1,12 +1,22 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="CHAINLINK",
         database="chainlink",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
+
 with
     ocr_models as(
         {{
@@ -195,12 +205,10 @@ with
         from {{ ref("fact_chainlink_supply")}}
     )
 
-
 select
     date
     , 'chainlink' as app
     , 'Oracle' as category
-
     --Old Metrics needed for compatibility
     , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue
@@ -210,18 +218,15 @@ select
     , dau
     , treasury_usd
     , treasury_link
-
     -- Standardized Metrics
     -- Market Metrics
     , price
     , market_cap
     , fdmc
     , token_volume
-
     -- Usage Metrics
     , dau as oracle_dau
     , daily_txns as oracle_txns
-
     -- Cash Flow Metrics
     , coalesce(automation_fees, 0) as automation_fees
     , coalesce(ccip_fees, 0) as ccip_fees
@@ -230,29 +235,26 @@ select
     , coalesce(ocr_fees, 0) as ocr_fees
     , coalesce(fm_fees, 0) as fm_fees
     , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as oracle_fees
-
     , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as ecosystem_revenue
     , ecosystem_revenue as service_fee_allocation
-
     , 0 as revenue
-
     , token_incentives
     , primary_supply_side_revenue as operating_expenses
     , revenue - token_incentives - operating_expenses as earnings
-
     -- Treasury Metrics
     , treasury_usd as treasury
     , treasury_link as treasury_native
-
     -- Supply Metrics
     , premine_unlocks_native
     , circulating_supply_native - lag(circulating_supply_native) over (order by date) as net_supply_change_native
     , circulating_supply_native
-
     -- Other Metrics
     , token_turnover_circulating
     , token_turnover_fdv
     , tokenholder_count
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fm_fees_data
 left join orc_fees_data using (date)
 left join automation_fees_data using (date)
@@ -267,4 +269,6 @@ left join token_holder_data using (date)
 left join daily_txns_data using (date)
 left join dau_data using (date)
 left join supply_data using (date)
-where date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('fm_fees_data.date', backfill_date) }}
+and date < to_date(sysdate())

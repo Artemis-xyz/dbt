@@ -1,12 +1,21 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='USUAL',
         database='usual',
         schema='core',
-        alias='ez_metrics'
+        alias='ez_metrics',
+        incremental_strategy='merge',
+        unique_key='date',
+        on_schema_change='append_new_columns',
+        merge_update_columns=var('backfill_columns', []),
+        merge_exclude_columns=['created_on'] | reject('in', var('backfill_columns', [])) | list,
+        full_refresh=false,
+        tags=['ez_metrics']
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with usd0_metrics as (
     select
@@ -97,3 +106,6 @@ left join usd0pp_metrics usd0pp on usd0.date = usd0pp.date
 left join usual_fees usual on usd0.date = usual.date
 left join usual_burn_mint ubm on usd0.date = ubm.date
 left join market_metrics mm on usd0.date = mm.date
+where true
+{{ ez_metrics_incremental('usd0.date', backfill_date) }}
+and usd0.date < to_date(sysdate())
