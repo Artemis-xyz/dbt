@@ -30,33 +30,23 @@ with
     ),
     market_data as ({{ get_coingecko_metrics('stakewise') }})
 select
-    staked_eth_metrics.date,
-    'stakewise' as app,
-    'DeFi' as category,
-    
-    --Old metrics needed for compatibility
-    staked_eth_metrics.num_staked_eth,
-    staked_eth_metrics.amount_staked_usd,
-    staked_eth_metrics.num_staked_eth_net_change,
-    staked_eth_metrics.amount_staked_usd_net_change
+    staked_eth_metrics.date
+    , 'stakewise' as artemis_id
 
-    --Standardized Metrics
-
-    --Market Metrics
+    --Market Data
     , market_data.price
-    , market_data.token_volume
     , market_data.market_cap
     , market_data.fdmc
+    , market_data.token_volume
 
-    --Usage Metrics
+    --Usage Data
     , staked_eth_metrics.num_staked_eth as tvl_native
     , staked_eth_metrics.amount_staked_usd as tvl
-    , staked_eth_metrics.num_staked_eth_net_change as tvl_native_net_change
-    , staked_eth_metrics.amount_staked_usd_net_change as tvl_net_change
 
-    --Other Metrics
-    , market_data.token_turnover_circulating
+    --Other Data
     , market_data.token_turnover_fdv
+    , market_data.token_turnover_circulating
+
     
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
