@@ -32,7 +32,10 @@ SELECT
     market_data.fdmc,
     market_data.token_turnover_circulating,
     market_data.token_turnover_fdv,
-    market_data.token_volume
+    market_data.token_volume,
+    -- timestamp columns
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM market_data
 LEFT JOIN revenue USING(date)
 where true

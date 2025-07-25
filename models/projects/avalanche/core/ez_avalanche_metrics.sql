@@ -38,7 +38,7 @@ with fundamental_data as (
 , bridge_volume_metrics as (
     select date, bridge_volume
     from {{ ref("fact_avalanche_bridge_bridge_volume") }}
-    and chain is null
+    where chain is null
 )
 , bridge_daa_metrics as (
     select date, bridge_daa
