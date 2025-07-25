@@ -1,12 +1,21 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='BANANAGUN',
         database='BANANAGUN',
         schema='core',
-        alias='ez_metrics'
+        alias='ez_metrics',
+        incremental_strategy='merge',
+        unique_key='date',
+        on_schema_change='append_new_columns',
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 WITH metrics AS (
     SELECT
@@ -70,8 +79,13 @@ SELECT
     -- Turnover Metrics
     , coalesce(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
     , coalesce(market_data.token_turnover_fdv, 0) AS token_turnover_fdv
-
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM metrics
 LEFT JOIN coin_metrics using (date)
 LEFT JOIN market_data using (date)
+WHERE true
+{{ ez_metrics_incremental('metrics.date', backfill_date) }}
+and metrics.date < to_date(sysdate())
 ORDER BY metrics.date DESC

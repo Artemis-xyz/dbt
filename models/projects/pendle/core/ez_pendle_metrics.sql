@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="PENDLE",
         database="pendle",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     swap_fees as (
@@ -83,7 +92,8 @@ with
         {{ get_coingecko_metrics('pendle') }}
     )
     , tokenholder_count as (
-        select * from {{ref('fact_pendle_token_holders')}}
+        select * 
+        from {{ref('fact_pendle_token_holders')}}
     )
     , supply_data as (
         SELECT
@@ -165,6 +175,10 @@ SELECT
     , p.token_turnover_circulating
     , tc.token_holder_count
 
+    -- timestamp columns
+    , to_timestamp_ntz(current_timestamp()) as created_on
+    , to_timestamp_ntz(current_timestamp()) as modified_on
+
 FROM price_data_cte p
 LEFT JOIN swap_fees f using(date)
 LEFT JOIN yield_fees yf using(date)
@@ -176,3 +190,6 @@ LEFT JOIN net_treasury_value_cte nt USING (date)
 LEFT JOIN treasury_value_native_cte tn USING (date) 
 LEFT JOIN tokenholder_count tc using(date) 
 LEFT JOIN supply_data sd using(date)
+where true
+{{ ez_metrics_incremental('p.date', backfill_date) }}
+and p.date < to_date(sysdate())

@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="RADIANT",
         database="radiant",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     radiant_by_chain as (
@@ -21,7 +30,8 @@ with
         }}
     )
     , token_incentives as (
-        select date, sum(amount_native) as amount_native, sum(amount_usd) as amount_usd from {{ ref("fact_radiant_token_incentives") }}
+        select date, sum(amount_native) as amount_native, sum(amount_usd) as amount_usd 
+        from {{ ref("fact_radiant_token_incentives") }}
         group by 1
     )
     , radiant_metrics as (
@@ -52,9 +62,14 @@ select
     , token_incentives.amount_native as gross_emissions_native
     , token_incentives.amount_usd as gross_emissions
 
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from token_incentives
 left join price_data
     on token_incentives.date = price_data.date
 left join radiant_metrics
     on token_incentives.date = radiant_metrics.date
-where token_incentives.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('token_incentives.date', backfill_date) }}
+and token_incentives.date < to_date(sysdate())

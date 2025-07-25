@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table"
+        materialized="incremental"
         , snowflake_warehouse="AXELAR"
         , database="axelar"
         , schema="core"
         , alias="ez_metrics"
+        , incremental_strategy="merge"
+        , unique_key="date"
+        , on_schema_change="append_new_columns"
+        , merge_update_columns=var("backfill_columns", [])
+        , merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list
+        , full_refresh=false
+        , tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     crosschain_data as (
@@ -89,6 +98,10 @@ select
     , market_data.token_turnover_circulating as token_turnover_circulating
     , market_data.token_turnover_fdv as token_turnover_fdv
 
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from crosschain_data
 left join axelar_chain_data using (date)
 left join github_data using (date)
@@ -96,4 +109,6 @@ left join market_data using (date)
 left join validator_fees_data using (date)
 left join mints_data using (date)
 left join supply_data using (date)
-where crosschain_data.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental("crosschain_data.date", backfill_date) }}
+and crosschain_data.date < to_date(sysdate())

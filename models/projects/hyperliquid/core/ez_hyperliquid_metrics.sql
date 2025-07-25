@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="HYPERLIQUID",
         database="hyperliquid",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with trading_volume_data as (
     select date, trading_volume as perp_volume, chain
@@ -69,7 +78,7 @@ with trading_volume_data as (
 )
 , perps_tvl_data as (
     select date, tvl
-    from {{ ref("fact_hyperliquid_perps_tvl") }}
+    from {{ ref("fact_hyperliquid_perps_tvl") }}    
 )
 , market_metrics as (
     ({{ get_coingecko_metrics("hyperliquid") }}) 
@@ -127,7 +136,6 @@ select
     date_spine.date
     , 'hyperliquid' as app
     , 'DeFi' as category
-
     --Old metrics needed for compatibility
     , coalesce(perp_volume, 0) + coalesce(spot_trading_volume, 0) as trading_volume
     , unique_traders::string as unique_traders
@@ -142,9 +150,7 @@ select
      , daily_buybacks_native
      , num_stakers
      , staked_hype
-
     -- Standardized Metrics
-
     -- Market Metrics
     , price
     , token_volume
@@ -152,7 +158,6 @@ select
     , fdmc
     , token_turnover_circulating
     , token_turnover_fdv
-
     -- Usage Metrics
     , unique_traders::string + hyperevm_data.daa as perp_dau
     , perp_volume as perp_volume
@@ -174,7 +179,6 @@ select
      , daily_buybacks_native as buyback_native
      , daily_burns_native as burned_fee_allocation_native
      , daily_burns_native * mm.price as burned_fee_allocation
-
     --HYPE Token Supply Data
     , coalesce(emissions_native, 0) as emissions_native
     , coalesce(premine_unlocks_native, 0) as premine_unlocks_native
@@ -184,7 +188,9 @@ select
     , coalesce(hyperliquid_api_supply_data.issued_supply, 0) as issued_supply_native
     , coalesce(hyperliquid_api_supply_data.circulating_supply, 0) as circulating_supply_native
     --, sum(coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(burns_native, 0)) over (order by daily_supply_data.date) as circulating_supply_native
-
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 left join market_metrics mm using(date)
 left join unique_traders_data using(date)
@@ -203,4 +209,6 @@ left join perps_tvl_data using(date)
 left join chain_tvl using(date)
 left join new_users_data using(date)
 left join open_interest_data using(date)
-where date_spine.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())
