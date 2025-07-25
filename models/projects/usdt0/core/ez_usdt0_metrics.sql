@@ -22,7 +22,6 @@ with raw_data as (
         count(*) as bridge_txns,
         sum(amount_sent) as bridge_volume,
     from {{ ref("fact_usdt0_transfers") }}
-    {{ ez_metrics_incremental('src_block_timestamp::date', backfill_date) }}
     group by date
 )
 select
@@ -31,10 +30,11 @@ select
     'Bridge' as category,
     bridge_dau,
     bridge_txns,
-    bridge_volume
+    bridge_volume,
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from raw_data
+where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

@@ -34,10 +34,10 @@ select
     burn_data.date,
     price_data.price,
     burn_data.total_burns as burns_native,
-    burn_data.revenue
+    burn_data.revenue,
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from burn_data
 left join price_data using(date)
 where true
