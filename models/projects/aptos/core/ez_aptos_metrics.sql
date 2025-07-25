@@ -15,8 +15,6 @@
     )
 }}
 
--- NOTE: When running a backfill, add merge_update_columns=[<columns>] to the config and set the backfill date below
-
 {% set backfill_date = var("backfill_date", None) %}
 
 with
@@ -32,7 +30,6 @@ with
             , revenue
             , gas as revenue_native
         from {{ ref("fact_aptos_daa_txns_gas_gas_usd_revenue") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
     , price_data as ({{ get_coingecko_metrics("aptos") }})
     , defillama_data as ({{ get_defillama_metrics("aptos") }})
@@ -43,7 +40,6 @@ with
             date
             , volume_usd as dex_volumes
         from {{ ref("fact_aptos_dex_volumes") }}
-        {{ ez_metrics_incremental("date", backfill_date) }}
     )
 select
     fundamental_data.date
@@ -104,5 +100,6 @@ left join defillama_data on fundamental_data.date = defillama_data.date
 left join github_data on fundamental_data.date = github_data.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join aptos_dex_volumes on fundamental_data.date = aptos_dex_volumes.date
+where true
 {{ ez_metrics_incremental("fundamental_data.date", backfill_date) }}
-    and fundamental_data.date < to_date(sysdate())
+and fundamental_data.date < to_date(sysdate())

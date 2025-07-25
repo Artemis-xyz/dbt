@@ -101,6 +101,9 @@ select
     , mm.token_turnover_circulating
     , mm.token_turnover_fdv
 
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from usd0_metrics usd0 
 left join usd0pp_metrics usd0pp on usd0.date = usd0pp.date
 left join usual_fees usual on usd0.date = usual.date
