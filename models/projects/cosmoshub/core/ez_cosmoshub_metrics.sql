@@ -43,49 +43,52 @@ with
             )
         group by 1
     ),
-    price_data as ({{ get_coingecko_metrics("cosmos") }}),
+    market_data as ({{ get_coingecko_metrics("cosmos") }}),
     defillama_data as ({{ get_defillama_metrics("cosmos") }}),
     github_data as ({{ get_github_metrics("cosmos") }})
 select
     f.date
     , f.chain
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees
-    , fees / txns as avg_txn_fee
-    , revenue
     -- Standardized Metrics
     -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_volume
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
     -- Chain Metrics
-    , txns as chain_txns
-    , dau as chain_dau
-    , wau as chain_wau
-    , mau as chain_mau
-    , avg_txn_fee as chain_avg_txn_fee
-    -- Cash Flow Metrics
-    , fees as chain_fees
-    , fees as ecosystem_revenue
-    , revenue as treasury_fee_allocation
+    , f.txns as chain_txns
+    , f.txns
+    , f.daa as chain_dau
+    , f.daa
+    , f.wau as chain_wau
+    , f.mau as chain_mau
+    , f.avg_txn_fee as chain_avg_txn_fee
+
+    -- Fee Metrics
+    , f.fees as chain_fees
+    , f.fees as fees
+    , f.revenue as treasury_fee_allocation
+
+    -- Financial Metrics
+    , f.revenue
+
     -- Crypto Metrics
-    , tvl
+    , defillama_data.tvl
     -- Developer Metrics
-    , weekly_commits_core_ecosystem
-    , weekly_commits_sub_ecosystem
-    , weekly_developers_core_ecosystem
-    , weekly_developers_sub_ecosystem
-    , token_turnover_circulating
-    , token_turnover_fdv
+    , github_data.weekly_commits_core_ecosystem
+    , github_data.weekly_commits_sub_ecosystem
+    , github_data.weekly_developers_core_ecosystem
+    , github_data.weekly_developers_sub_ecosystem
+    
+    -- Other Metrics
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data f
-left join price_data on f.date = price_data.date
+left join market_data on f.date = market_data.date
 left join defillama_data on f.date = defillama_data.date
 left join github_data on f.date = github_data.date
 where true
