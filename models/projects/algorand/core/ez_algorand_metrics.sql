@@ -48,7 +48,7 @@ WITH
         SELECT *, 
             10000000000 - cumulative_burns.cumulative_burns - unvested_supply AS issued_supply_native, 
             10000000000 - cumulative_burns.cumulative_burns - unvested_supply AS circulating_supply_native
-        FROM {{ ref('fact_algorand_supply') }}
+        FROM {{ ref('fact_algorand_supply_data') }}
         LEFT JOIN cumulative_burns USING (date)
     )
     , market_data as (
