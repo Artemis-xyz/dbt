@@ -7,6 +7,8 @@
 }}
 
 {% set token_addresses = var('token_addresses_list', []) %}
+{% set start_date = var('start_date', '') %}
+{% set end_date = var('end_date', '') %}
 
 
 -- NOTE: owner_addresses here are either program_ids (via PDAs), or EOAs
@@ -28,8 +30,15 @@ forward_filled_balances AS (
             ON a.address = all_addresses.address
     {% endif %}
     WHERE 1=1
-    {% if is_incremental() %}
-        AND a.block_timestamp >= dateadd(day, -3, to_date(sysdate()))
+    {% if start_date %}
+        AND ab.block_timestamp >= to_date('{{ start_date }}')
+        {% if end_date %}
+            AND ab.block_timestamp <= to_date('{{ end_date }}')
+        {% else %}
+            AND ab.block_timestamp <= dateadd(day, 30, to_date('{{ start_date }}'))
+        {% endif %}
+    {% elif is_incremental() %}
+        AND ab.block_timestamp > dateadd(day, -3, to_date(sysdate()))
     {% endif %}
 ),
 l0 AS (
