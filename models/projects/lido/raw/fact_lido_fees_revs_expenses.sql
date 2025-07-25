@@ -4,7 +4,7 @@
         snowflake_warehouse="LIDO",
         database="lido",
         schema="raw",
-        alias="fact_fees_revs_expenses",
+        alias="fact_lido_fees_revs_expenses",
         unique_key="date",
     )
 }}
