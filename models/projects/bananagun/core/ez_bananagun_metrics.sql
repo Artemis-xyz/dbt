@@ -79,6 +79,7 @@ SELECT
     -- Turnover Metrics
     , coalesce(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
     , coalesce(market_data.token_turnover_fdv, 0) AS token_turnover_fdv
+    
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
