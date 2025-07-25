@@ -134,7 +134,7 @@ with trading_volume_data as (
     
 select
     date_spine.date
-    , 'hyperliquid' as app
+    , 'hyperliquid' as artemis_id
 
     -- Standardized Metrics
 
