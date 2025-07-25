@@ -59,12 +59,29 @@ with dex_data as (
     FROM
         {{ ref("fact_fxs_daily_supply_data") }}
 )
-, frax_daily_supply_data as (
-    SELECT
+, stablecoin_supply_data as (
+    with frax_data as (
+        {{ get_stablecoin_metrics("FRAX", breakdown='symbol') }}
+    )
+    , frxusd_data as (
+        {{ get_stablecoin_metrics("FRXUSD", breakdown='symbol') }}
+    )
+    , agg as (
+        select
+            date,
+            stablecoin_total_supply
+        from frax_data
+        union all
+        select
+            date,
+            stablecoin_total_supply
+        from frxusd_data
+    )
+    select
         date,
-        supply as frax_circulating_supply
-    FROM
-        {{ ref("fact_frax_circulating_supply") }}
+        sum(stablecoin_total_supply) as stablecoin_total_supply
+    from agg
+    group by 1
 )
 , veFXS_daily_supply_data as (
     SELECT
@@ -80,11 +97,20 @@ with dex_data as (
     FROM
         {{ ref("fact_frax_L2_transactions") }}
 )
+, yield_data as (
+    select
+        ds.date,
+        sum(coalesce(fsy.yield_generated, 0)) as yield_generated,
+        sum(coalesce(fsy.yield_generated, 0) * 0.1) as lst_fees
+    from {{ ref("dim_date_spine") }} ds
+    left join {{ ref("fact_frax_staking_yield") }} fsy on fsy.block_timestamp::date = ds.date
+    group by 1
+)
 , date_spine as (
     select
         ds.date
     from {{ ref('dim_date_spine') }} ds
-    where ds.date between (select min(date) from tvl_data) and to_date(sysdate())
+    where ds.date between (select min(date) from stablecoin_supply_data) and to_date(sysdate())
 )
 , market_metrics as (
     {{ get_coingecko_metrics('frax-share')}}
@@ -108,11 +134,14 @@ SELECT
     , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
     , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
     , tvl_data.tvl as spot_tvl
-    , frax_daily_supply_data.frax_circulating_supply as stablecoin_total_supply
+    , stablecoin_supply_data.stablecoin_total_supply as stablecoin_total_supply
     , veFXS_daily_supply_data.circulating_supply as veFXS_total_supply
+    , yield_data.yield_generated as yield_generated
+
     --Cashflow Metrics
     , dex_data.spot_fees as spot_fees
-    , spot_fees as ecosystem_revenue
+    , yield_data.lst_fees as lst_fees
+    , spot_fees + lst_fees as fees
     -- Other Metrics
     , dex_data.gas_cost_native
     , market_metrics.token_turnover_circulating
@@ -133,9 +162,10 @@ left join dex_data using (date)
 left join fractal_l2_txns using (date)
 left join staked_eth_metrics using (date)
 left join tvl_data using (date)
-left join frax_daily_supply_data using (date)
+left join stablecoin_supply_data using (date)
 left join veFXS_daily_supply_data using (date)
 left join fxs_daily_supply_data using (date)
+left join yield_data using (date)
 where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())
