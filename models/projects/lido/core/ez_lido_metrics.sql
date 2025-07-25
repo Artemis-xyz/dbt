@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        snowflake_warehouse="SOLANA_XLG",
+        snowflake_warehouse="LIDO",
         database="lido",
         schema="core",
         alias="ez_metrics",
