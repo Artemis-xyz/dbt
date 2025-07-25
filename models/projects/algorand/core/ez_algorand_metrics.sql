@@ -107,6 +107,7 @@ WITH
     )
 SELECT
     DATE(DATE_TRUNC('DAY', fundamental_data.date)) AS date
+    , 'algorand' as artemis_id
     
     -- Standardized Metrics
 
@@ -139,6 +140,10 @@ SELECT
     -- The unvested supply exists in the foundation_owned_balance, so it must be added back to get issued supply and does not need to be subtracted from circulating supply
     , 10000000000 - cumulative_burns - foundation_owned_balance AS circulating_supply_native
 
+    -- Turnover Data
+    , token_turnover_circulating
+    , token_turnover_fdv
+    
     -- Bespoke metrics
     , unique_eoas
     , unique_senders
@@ -147,6 +152,7 @@ SELECT
     , unique_pairs
     , unique_eoa_pairs
     , unique_tokens
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
