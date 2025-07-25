@@ -1,15 +1,22 @@
 -- depends_on {{ ref('fact_solana_transactions_v2') }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         unique_key="date",
         snowflake_warehouse="SOLANA",
         database="solana",
         schema="core",
         alias="ez_metrics",
-        on_schema_change='append_new_columns'
+        incremental_strategy="merge",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     contract_data as ({{ get_contract_metrics("solana") }}),
@@ -19,7 +26,8 @@ with
     price as ({{ get_coingecko_metrics("solana") }}),
     staking_data as ({{ get_staking_metrics("solana") }}),
     issuance_data as (
-        select date, chain, issuance from {{ ref("fact_solana_issuance_silver") }}
+        select date, chain, issuance 
+        from {{ ref("fact_solana_issuance_silver") }}
     ),
     nft_metrics as ({{ get_nft_metrics("solana") }}),
     p2p_metrics as ({{ get_p2p_metrics("solana") }}),
@@ -158,6 +166,9 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_usage 
 left join defillama_data on fundamental_usage.date = defillama_data.date
 left join stablecoin_data on fundamental_usage.date = stablecoin_data.date
@@ -173,4 +184,6 @@ left join solana_dex_volumes on fundamental_usage.date = solana_dex_volumes.date
 left join jito_tips on fundamental_usage.date = jito_tips.date
 left join supply_data on fundamental_usage.date = supply_data.date
 left join application_fees on fundamental_usage.date = application_fees.date
-where fundamental_usage.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('fundamental_usage.date', backfill_date) }}
+and fundamental_usage.date < to_date(sysdate())

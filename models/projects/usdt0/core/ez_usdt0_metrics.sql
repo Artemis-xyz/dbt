@@ -1,10 +1,19 @@
 {{ config(
-    materialized="table",
+    materialized="incremental",
     warehouse="USDT0",
     database="USDT0",
     schema="core",
-    alias="ez_metrics"
+    alias="ez_metrics",
+    incremental_strategy="merge",
+    unique_key="date",
+    on_schema_change="append_new_columns",
+    merge_update_columns=var("backfill_columns", []),
+    merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+    full_refresh=false,
+    tags=["ez_metrics"]
 ) }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with raw_data as (
     select
@@ -13,6 +22,7 @@ with raw_data as (
         count(*) as bridge_txns,
         sum(amount_sent) as bridge_volume,
     from {{ ref("fact_usdt0_transfers") }}
+    {{ ez_metrics_incremental('src_block_timestamp::date', backfill_date) }}
     group by date
 )
 select
@@ -22,5 +32,9 @@ select
     bridge_dau,
     bridge_txns,
     bridge_volume
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from raw_data
-where date < to_date(sysdate())
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())

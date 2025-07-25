@@ -1,13 +1,23 @@
 --depends_on: {{ ref("fact_acala_rolling_active_addresses") }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="ACALA",
         database="acala",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as (
@@ -45,7 +55,13 @@ select
     , fees AS ecosystem_revenue
     , revenue_native AS burned_fee_allocation_native
     , revenue AS burned_fee_allocation
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join price_data on fundamental_data.date = price_data.date
-where fundamental_data.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental("fundamental_data.date", backfill_date) }}
+and fundamental_data.date < to_date(sysdate())
+

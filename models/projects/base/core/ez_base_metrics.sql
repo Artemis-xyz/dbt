@@ -1,13 +1,22 @@
 -- depends_on {{ ref("fact_base_transactions_v2") }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="BASE",
         database="base",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as ({{ get_fundamental_data_for_chain("base", "v2") }}),
@@ -110,6 +119,9 @@ select
     -- Bridge Metrics
     , bridge_volume
     , bridge_daa
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join stablecoin_data on fundamental_data.date = stablecoin_data.date
@@ -122,4 +134,6 @@ left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join base_dex_volumes as dune_dex_volumes_base on fundamental_data.date = dune_dex_volumes_base.date
 left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
-where fundamental_data.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

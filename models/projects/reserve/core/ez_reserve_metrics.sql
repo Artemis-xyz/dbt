@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         database = 'RESERVE',
         schema = 'core',
         snowflake_warehouse = 'RESERVE',
-        alias = 'ez_metrics'
+        alias = 'ez_metrics',
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with date_spine as (
     select date
@@ -108,6 +117,12 @@ select
     , net_supply_change_native
     , circulating_supply_native
 
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from forward_filled_data
 left join protocol_revenue using (date)
 left join supply_data using (date)
+where true
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())

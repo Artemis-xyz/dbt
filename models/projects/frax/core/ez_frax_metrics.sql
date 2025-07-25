@@ -1,14 +1,23 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="FRAX",
         database="frax",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
 
-with dex_data as (
+{% set backfill_date = var("backfill_date", None) %}
+
+with dex_data as (  
     SELECT
         block_timestamp::date as date,
         count(distinct sender) as spot_dau,
@@ -83,15 +92,12 @@ with dex_data as (
 
 SELECT
     date_spine.date
-
     -- Standardized Metrics
-
     -- Price Metrics
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
     , market_metrics.token_volume
-
     -- Usage Metrics
     , dex_data.spot_txns as spot_txns
     , dex_data.spot_dau as spot_dau
@@ -104,22 +110,22 @@ SELECT
     , tvl_data.tvl as spot_tvl
     , frax_daily_supply_data.frax_circulating_supply as stablecoin_total_supply
     , veFXS_daily_supply_data.circulating_supply as veFXS_total_supply
-
     --Cashflow Metrics
     , dex_data.spot_fees as spot_fees
     , spot_fees as ecosystem_revenue
-
     -- Other Metrics
     , dex_data.gas_cost_native
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
-
     --FXS Token Supply Data
     , fxs_daily_supply_data.emissions_native as emissions_native
     , fxs_daily_supply_data.total_premine_unlocks as premine_unlocks_native
     , fxs_daily_supply_data.burns_native as burns_native
     , fxs_daily_supply_data.net_supply_change_native as net_supply_change_native
     , fxs_daily_supply_data.total_circulating_supply as circulating_supply_native   
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 
 from date_spine
 left join market_metrics using (date)
@@ -130,4 +136,6 @@ left join tvl_data using (date)
 left join frax_daily_supply_data using (date)
 left join veFXS_daily_supply_data using (date)
 left join fxs_daily_supply_data using (date)
-where date_spine.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

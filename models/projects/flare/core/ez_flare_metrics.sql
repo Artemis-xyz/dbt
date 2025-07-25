@@ -1,12 +1,21 @@
 {{
     config(
-        materialized = "table",
+        materialized = "incremental",
         snowflake_warehouse = "FLARE",
         database = "FLARE",
         schema = "core",
-        alias = "ez_metrics"
+        alias = "ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with fees as (
     select
@@ -64,13 +73,11 @@ select
     date_spine.date
 
     -- Standardized Metrics
-
     -- Market Metrics
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
     , market_metrics.token_volume
-
     -- Usage Metrics
     , daus.dau AS chain_dau
     , txns.txns AS chain_txns
@@ -96,6 +103,10 @@ select
     , market_metrics.token_turnover_fdv
     , market_metrics.token_turnover_circulating
 
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
 from date_spine
 left join fees on date_spine.date = fees.date
 left join txns on date_spine.date = txns.date
@@ -104,3 +115,6 @@ left join dune_dex_volumes on date_spine.date = dune_dex_volumes.date
 left join market_metrics on date_spine.date = market_metrics.date
 left join defillama_tvl on date_spine.date = defillama_tvl.date
 left join issued_supply_metrics on date_spine.date = issued_supply_metrics.date
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

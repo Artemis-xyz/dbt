@@ -1,17 +1,25 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="LITECOIN",
         database="litecoin",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     github_data as ({{ get_github_metrics("litecoin") }}),
     price_data as ({{ get_coingecko_metrics("litecoin") }}),
-    
     -- Daily transaction metrics from transactions
     transaction_metrics as (
         select
@@ -24,7 +32,6 @@ with
         from {{ ref("fact_litecoin_transactions") }}
         group by 1
     ),
-    
     -- Block metrics and issuance
     block_metrics as (
         select
@@ -45,7 +52,6 @@ with
         from {{ ref("fact_litecoin_blocks") }}
         group by 1
     ),
-    
     -- Calculate active addresses (unique addresses in inputs)
     active_addresses as (
         select
@@ -55,7 +61,6 @@ with
              lateral flatten(input => addresses) f
         group by 1
     ),
-    
     -- Calculate rolling metrics (7-day and 30-day)
     rolling_metrics as (
         select
@@ -74,7 +79,6 @@ with
             circulating_supply
         FROM {{ ref("fact_litecoin_supply") }}
     )
-    
 select
     transaction_metrics.date,
     transaction_metrics.chain,
@@ -96,7 +100,10 @@ select
     github_data.weekly_developers_sub_ecosystem,
     price_data.price,
     price_data.price * supply_metrics.circulating_supply as market_cap,
-    price_data.price * supply_metrics.circulating_supply as fdmc
+    price_data.price * supply_metrics.circulating_supply as fdmc,
+    -- timestamp columns
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from transaction_metrics
 left join block_metrics on transaction_metrics.date = block_metrics.date
 left join supply_metrics on transaction_metrics.date = supply_metrics.date
@@ -104,4 +111,6 @@ left join active_addresses on transaction_metrics.date = active_addresses.date
 left join rolling_metrics on transaction_metrics.date = rolling_metrics.date
 left join price_data on transaction_metrics.date = price_data.date
 left join github_data on transaction_metrics.date = github_data.date
-where transaction_metrics.date < to_date(sysdate()) 
+where true
+{{ ez_metrics_incremental('transaction_metrics.date', backfill_date) }}
+and transaction_metrics.date < to_date(sysdate()) 
