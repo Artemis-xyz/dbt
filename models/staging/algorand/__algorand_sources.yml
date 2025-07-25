@@ -8,3 +8,8 @@ sources:
         meta:
           dagster:
             asset_key: ["PROD_LANDING", "bulk_load_fact_algorand_foundation_address_flow"]
+  - name: MANUAL_STATIC_TABLES
+    schema: prod
+    database: pc_dbt_db
+    tables:
+      - name: algorand_monthly_unlocks

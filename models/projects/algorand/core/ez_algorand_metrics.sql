@@ -28,64 +28,10 @@ WITH
         FROM {{ ref('dim_date_spine') }}
         WHERE date >= '2019-06-01' AND date < TO_DATE(SYSDATE())
     )
-    , foundation_balances AS (
-        SELECT
-            date
-            , SUM(balance) AS foundation_owned_balance
-        FROM {{ ref('fact_algorand_foundation_balances') }}
-        GROUP BY 1
+    , supply_data AS (
+        SELECT *
+        FROM {{ ref('fact_algorand_supply') }}
     )
-    , unvested_supply AS (
-        WITH monthly_unlocks AS (
-            SELECT
-                date,
-                ROUND(
-                    SUM(end_user_grant)
-                    + SUM(foundation)
-                    + SUM(node_running_grant)
-                    + SUM(participation_rewards)
-                    + SUM(public_sale)
-                    + SUM(team_and_investors)
-                    , 0
-                ) AS vested_supply,
-                10000000000 
-                - ROUND(
-                    SUM(end_user_grant)
-                    + SUM(foundation)
-                    + SUM(node_running_grant)
-                    + SUM(participation_rewards)
-                    + SUM(public_sale)
-                    + SUM(team_and_investors)
-                    , 0
-                ) AS unvested_supply
-            FROM {{ ref('algorand_monthly_unlocks') }}
-            GROUP BY date
-        )
-
-        , backfilled_supply AS (
-            SELECT
-            ds.date,
-            LAST_VALUE(vested_supply IGNORE NULLS) OVER (
-                ORDER BY ds.date 
-                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-            ) AS vested_supply, 
-            LAST_VALUE(unvested_supply IGNORE NULLS) OVER (
-                ORDER BY ds.date 
-                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-            ) AS unvested_supply, 
-            FROM date_spine AS ds
-            LEFT JOIN monthly_unlocks
-                ON ds.date = monthly_unlocks.date
-            ORDER BY ds.date DESC
-        )
-
-        SELECT 
-            date, 
-            unvested_supply, 
-            vested_supply - LAG(vested_supply) OVER (ORDER BY date) AS premine_unlocks
-        FROM backfilled_supply
-        ORDER BY date DESC
-    ) 
     , cumulative_burns AS (
         WITH revenue AS (
             SELECT
@@ -102,64 +48,64 @@ WITH
         FROM revenue
         ORDER BY date
     )
-    , price as (
+    , market_data as (
         {{ get_coingecko_metrics("algorand") }}
     )
 SELECT
-    DATE(DATE_TRUNC('DAY', fundamental_data.date)) AS date
+    date_spine.date
     , 'algorand' as artemis_id
     
     -- Standardized Metrics
 
     -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_volume
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
 
     -- Usage Data
-    , dau AS chain_dau
-    , dau
-    , txns AS chain_txns
-    , txns
+    , fundamental_data.dau AS chain_dau
+    , fundamental_data.dau
+    , fundamental_data.txns AS chain_txns
+    , fundamental_data.txns
 
     -- Fee Data
-    , fees_native * price AS chain_fees
-    , fees_native * price AS fees
-    , rewards_algo * price AS validator_fee_allocation
+    , fundamental_data.fees_native * market_data.price AS chain_fees
+    , fundamental_data.fees_native * market_data.price AS fees
+    , fundamental_data.rewards_algo * market_data.price AS validator_fee_allocation
 
     -- Financial Statements
     , CASE 
-        WHEN date > '2024-12-31' THEN 0.5 * fees
+        WHEN date_spine.date > '2024-12-31' THEN 0.5 * fees
         ELSE fees
     END AS revenue
 
     -- Supply Data
-    , COALESCE(premine_unlocks, 0) AS premine_unlocks
-    , 10000000000 - cumulative_burns - foundation_owned_balance + unvested_supply AS issued_supply_native
+    , COALESCE(supply_data.premine_unlocks, 0) AS premine_unlocks
+    , 10000000000 - cumulative_burns.cumulative_burns - supply_data.unvested_supply AS issued_supply_native
     -- The unvested supply exists in the foundation_owned_balance, so it must be added back to get issued supply and does not need to be subtracted from circulating supply
-    , 10000000000 - cumulative_burns - foundation_owned_balance AS circulating_supply_native
+    , 10000000000 - cumulative_burns.cumulative_burns - supply_data.unvested_supply AS circulating_supply_native
 
     -- Turnover Data
-    , token_turnover_circulating
-    , token_turnover_fdv
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
     
     -- Bespoke metrics
-    , unique_eoas
-    , unique_senders
-    , unique_receivers
-    , new_eoas
-    , unique_pairs
-    , unique_eoa_pairs
-    , unique_tokens
+    , fundamental_data.unique_eoas
+    , fundamental_data.unique_senders
+    , fundamental_data.unique_receivers
+    , fundamental_data.new_eoas
+    , fundamental_data.unique_pairs
+    , fundamental_data.unique_eoa_pairs
+    , fundamental_data.unique_tokens
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-FROM fundamental_data
-LEFT JOIN price USING (date)
-LEFT JOIN foundation_balances USING (date)
-LEFt JOIN unvested_supply USING (date)
+FROM date_spine
+LEFT JOIN fundamental_data USING (date)
+LEFT JOIN market_data USING (date)
+LEFT JOIN supply_data USING (date)
 LEFT JOIN cumulative_burns USING (date)WHERE true
 {{ ez_metrics_incremental("fundamental_data.date", backfill_date) }}
 and fundamental_data.date < to_date(sysdate())
