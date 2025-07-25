@@ -28,10 +28,6 @@ WITH
         FROM {{ ref('dim_date_spine') }}
         WHERE date >= '2019-06-01' AND date < TO_DATE(SYSDATE())
     )
-    , supply_data AS (
-        SELECT *
-        FROM {{ ref('fact_algorand_supply') }}
-    )
     , cumulative_burns AS (
         WITH revenue AS (
             SELECT
@@ -47,6 +43,13 @@ WITH
             SUM(revenue_native) OVER (ORDER BY date) AS cumulative_burns
         FROM revenue
         ORDER BY date
+    )
+    , supply_data AS (
+        SELECT *, 
+            10000000000 - cumulative_burns.cumulative_burns - unvested_supply AS issued_supply_native, 
+            10000000000 - cumulative_burns.cumulative_burns - unvested_supply AS circulating_supply_native
+        FROM {{ ref('fact_algorand_supply') }}
+        LEFT JOIN cumulative_burns USING (date)
     )
     , market_data as (
         {{ get_coingecko_metrics("algorand") }}
@@ -82,9 +85,8 @@ SELECT
 
     -- Supply Data
     , COALESCE(supply_data.premine_unlocks, 0) AS premine_unlocks
-    , 10000000000 - cumulative_burns.cumulative_burns - supply_data.unvested_supply AS issued_supply_native
-    -- The unvested supply exists in the foundation_owned_balance, so it must be added back to get issued supply and does not need to be subtracted from circulating supply
-    , 10000000000 - cumulative_burns.cumulative_burns - supply_data.unvested_supply AS circulating_supply_native
+    , supply_data.issued_supply_native
+    , supply_data.circulating_supply_native
 
     -- Turnover Data
     , market_data.token_turnover_circulating
