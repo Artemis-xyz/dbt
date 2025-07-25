@@ -13,3 +13,4 @@ sources:
     database: pc_dbt_db
     tables:
       - name: flare_daily_supply_data
+      - name: flare_daily_supply_data_2

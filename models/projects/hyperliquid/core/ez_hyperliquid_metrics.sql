@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="HYPERLIQUID",
         database="hyperliquid",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with trading_volume_data as (
     select date, trading_volume as perp_volume, chain
@@ -180,6 +189,9 @@ select
     , open_interest_data.open_interest
     , new_users_data.new_users as new_users
 
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 left join market_metrics using(date)
 left join unique_traders_data using(date)
@@ -198,4 +210,6 @@ left join perps_tvl_data using(date)
 left join chain_tvl using(date)
 left join new_users_data using(date)
 left join open_interest_data using(date)
-where date_spine.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())
