@@ -1,13 +1,22 @@
 --depends_on: {{ ref("fact_fantom_rolling_active_addresses") }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="FANTOM",
         database="fantom",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     daa_gold as (
@@ -68,6 +77,9 @@ select
     , weekly_contract_deployers
     , token_turnover_circulating
     , token_turnover_fdv
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from daa_gold d
 left join price_data using (d.date)
 left join contract_data using (d.date)
@@ -75,4 +87,6 @@ left join txns_gold using (d.date)
 left join gas_gold using (d.date)
 left join rolling_metrics using (d.date)
 left join fantom_dex_volumes using (d.date)
-where d.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('d.date', backfill_date) }}
+and d.date < to_date(sysdate())

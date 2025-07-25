@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="PERPETUAL_PROTOCOL",
         database="perpetual_protocol",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 WITH 
     perp_data as (
@@ -71,7 +80,13 @@ SELECT
     , token_turnover_fdv
     , token_volume
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
+
+    -- timestamp columns
+    , to_timestamp_ntz(current_timestamp()) as created_on
+    , to_timestamp_ntz(current_timestamp()) as modified_on
 FROM perp_data
 LEFT JOIN price USING(date)
 LEFT JOIN token_incentives USING(date)
-WHERE date < to_date(sysdate())
+WHERE true
+{{ ez_metrics_incremental('date', backfill_date) }}
+AND date < to_date(sysdate())

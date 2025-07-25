@@ -1,13 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="SCROLL",
         database="scroll",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
 
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as (
@@ -86,6 +94,9 @@ select
     , cd.weekly_contracts_deployed
     , cd.weekly_contract_deployers
 
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data fd
 left join github_data gd on fd.date = gd.date
 left join contract_data cd on fd.date = cd.date
@@ -93,4 +104,6 @@ left join defillama_data dd on fd.date = dd.date
 left join rolling_metrics rm on fd.date = rm.date
 left join scroll_dex_volumes dsv on fd.date = dsv.date
 left join price_data pd on fd.date = pd.date
-where fd.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('fd.date', backfill_date) }}
+and fd.date < to_date(sysdate())
