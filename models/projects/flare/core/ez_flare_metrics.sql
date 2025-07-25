@@ -86,6 +86,7 @@ select
 
     -- Cashflow Metrics
     , fees.fees_usd AS chain_fees
+    , fees.fees_usd AS fees
 
     -- Issued Supply Metrics
     , issued_supply_metrics.daily_inflation as gross_emissions_native
