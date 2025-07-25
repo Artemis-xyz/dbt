@@ -141,31 +141,6 @@ models:
       - *tvl_native
       - *validator_fee_allocation_native
       - *yield_generated_native
-
-  - name: ez_lido_metrics
-    description: "This table stores metrics for the LIDO protocol"
-    columns:
-      - *earnings
-      - *fdmc
-      - *fees
-      - *lst_tvl
-      - *market_cap
-      - *net_treasury
-      - *own_token_treasury_native
-      - *price
-      - *revenue
-      - *token_incentives
-      - *token_turnover_circulating
-      - *token_turnover_fdv
-      - *token_volume
-      - *treasury
-      - *treasury_fee_allocation
-      - *treasury_native
-      - *tvl
-      - *tvl_native
-      - *validator_fee_allocation
-      - *yield_generated
-
   - name: ez_lido_metrics_by_chain
     description: "This table stores metrics for the LIDO protocol"
     columns:
@@ -189,4 +164,3 @@ models:
       - *tvl_native
       - *validator_fee_allocation
       - *yield_generated
-
