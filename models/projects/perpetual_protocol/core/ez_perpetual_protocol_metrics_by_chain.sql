@@ -64,6 +64,7 @@ select
     
     -- Fees Metrics
     , coalesce(fd.fees, 0) as perp_fees
+    , coalesce(fd.fees, 0) as fees
     , coalesce(fd.fees, 0) * 0.2 * 0.8 as staking_fee_allocation
     , coalesce(fd.fees, 0) * 0.8 as service_fee_allocation
     , coalesce(fd.fees, 0) * 0.2 * 0.2 as treasury_fee_allocation

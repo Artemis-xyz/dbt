@@ -5,7 +5,7 @@
         database="hyperliquid",
         schema="raw",
         alias="fact_hyperliquid_trades",
-        unique_key=["transaction_hash", "trade_id"],
+        unique_key=["transaction_hash", "trade_id", "order_id"],
     )
 }}
 select 
@@ -32,5 +32,5 @@ from {{ source('SNOWPIPE_DB', 'FACT_HYPERLIQUID_TRADES') }}
 where
     1=1 
     {% if is_incremental() %}
-    AND last_updated <= (SELECT MAX(_load_timestamp_utc) FROM {{ this }})
+    AND trade_timestamp > (SELECT MAX(trade_timestamp) FROM {{ this }})
     {% endif %}

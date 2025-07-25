@@ -64,6 +64,9 @@ with
         * 100 AS stablecoin_txns_pct_chg
         
         , stablecoin_supply
+        , ((stablecoin_supply - LAG(stablecoin_supply) OVER (partition by app_or_address, chain, symbol  ORDER BY month_number desc)) / 
+            NULLIF(LAG(stablecoin_supply) OVER (partition by app_or_address, chain, symbol  ORDER BY month_number desc), 0)) 
+        * 100 AS stablecoin_supply_pct_chg
         , historical_L_30_stablecoin_supply
     from monthly_data
 )
@@ -80,6 +83,7 @@ select
     , stablecoin_txns_pct_chg
     
     , stablecoin_supply
+    , stablecoin_supply_pct_chg
     , historical_L_30_stablecoin_supply
 from data
 where month_number = 0

@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="MAKER",
         database="maker",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 WITH
     fees_revenue_expenses AS (
@@ -30,12 +39,14 @@ WITH
         SELECT date, treasury_usd FROM {{ ref('fact_treasury_usd') }}
     )
     , treasury_native AS (
-        SELECT date, sum(amount) as own_token_treasury FROM {{ ref('fact_treasury_mkr') }} 
+        SELECT date, sum(amount_native) as own_token_treasury 
+        FROM {{ ref('fact_treasury_mkr') }} 
         WHERE token in ('MKR', 'SKY')
         group by 1
     )
     , net_treasury AS (
-        SELECT date, net_treasury_usd FROM {{ ref('fact_net_treasury_usd') }}
+        SELECT date, net_treasury_usd 
+        FROM {{ ref('fact_net_treasury_usd') }}
     )
     , tvl_metrics AS (
         SELECT 
@@ -45,7 +56,8 @@ WITH
         GROUP BY 1
     )
     , outstanding_supply AS (
-        SELECT date, outstanding_supply FROM {{ ref('fact_dai_supply') }}
+        SELECT date, outstanding_supply 
+        FROM {{ ref('fact_dai_supply') }}
     )
     , token_turnover_metrics as (
         select
@@ -86,7 +98,7 @@ select
     , COALESCE(outstanding_supply, 0) AS lending_loans
 
     -- Fees Metrics
-    , COALESCE(fees.stability_fees,0) as stability_fees
+    , COALESCE(fees.stability_fees,0) as lending_fees
     , COALESCE(fees.trading_fees, 0) AS trading_fees
     , COALESCE(fees.fees, 0) AS fees
     , COALESCE(fees.fees, 0) AS treasury_fee_allocation 
@@ -97,7 +109,7 @@ select
     , COALESCE(fees.operating_expenses, 0) AS operating_expenses
     , COALESCE(fees.direct_expenses, 0) AS direct_expenses
     , COALESCE(fees.total_expenses, 0) AS total_expenses
-    , COALESCE(fees.revenue - fees.total_expenses, 0) AS earnings
+    , COALESCE(fees.protocol_revenue - fees.total_expenses, 0) AS earnings
     
 
     -- Treasury Metrics
@@ -114,6 +126,9 @@ select
 
     , COALESCE(tokenholder_count, 0) AS tokenholder_count
     
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM token_holder_data
 left join treasury_usd using (date)
 left join treasury_native using (date)
@@ -124,4 +139,6 @@ left join token_turnover_metrics turnover using (date)
 left join market_data using (date)
 left join fees_revenue_expenses fees using (date)
 left join token_supply using (date)
-where date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())

@@ -24,7 +24,7 @@ select
     , market_data.price
     , market_data.market_cap
     , market_data.fdmc
-    , market_data.tvl
+    , defillama_data.tvl
 
     -- Chain Usage Metrics
     , dau AS chain_dau
@@ -60,7 +60,6 @@ select
     , neuron_funds_staked_native as neuron_funds_staked_native
     , neuron_funds_staked_native * price as neuron_funds_staked
     , total_canister_state_tib
-    , total_icp_burned as total_burned_native
     , total_registered_canister_count -- total cannister count 
     , canister_memory_usage_gb -- cannister state
     , one_year_staking_apy
