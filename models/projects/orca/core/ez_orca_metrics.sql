@@ -57,21 +57,16 @@ with date_spine as (
 )
 select
     ds.date
-    , fees_and_volume.total_fees as trading_fees
-    , fees_and_volume.climate_fund_fees
-    , fees_and_volume.dao_treasury_fees as revenue
-    , fees_and_volume.lp_fees as total_supply_side_revenue
-    , fees_and_volume.total_fees as fees
-    , fees_and_volume.volume as trading_volume
-    , dau_txns.num_swaps as number_of_swaps
-    , dau_txns.unique_traders
+    , 'orca' as artemis_id
+
     -- Standardized Metrics
     -- Market Metrics
     , market_data.price
     , market_data.market_cap
     , market_data.fdmc
     , market_data.token_volume
-    -- Usage/Sector Metrics
+
+    -- Usage Metrics
     , coalesce(dau_txns.unique_traders, 0) as spot_dau
     , coalesce(dau_txns.num_swaps, 0) as spot_txns
     , coalesce(fees_and_volume.volume, 0) as spot_volume
@@ -79,20 +74,27 @@ select
         last_value(tvl ignore nulls) over (
             order by date desc rows between unbounded preceding and current row
         )) as tvl
-    -- Money Metrics
+    
+    -- Fee Metrics
     , coalesce(fees_and_volume.total_fees, 0) as spot_fees
-    , coalesce(fees_and_volume.total_fees, 0) as ecosystem_revenue
-    , coalesce(fees_and_volume.lp_fees, 0) as service_fee_allocation
+    , fees_and_volume.total_fees as fees
+    , coalesce(fees_and_volume.lp_fees, 0) as lp_fee_allocation
     , coalesce(fees_and_volume.dao_treasury_fees, 0) as treasury_fee_allocation
     , coalesce(fees_and_volume.climate_fund_fees, 0) as other_fee_allocation
+    
+    -- Financial Statement Metrics
+    , fees_and_volume.dao_treasury_fees as revenue
+
     -- Supply Metrics
     , coalesce(supply_data.premine_unlocks_native, 0) as premine_unlocks_native
-    , coalesce(supply_data.net_change, 0) as net_change
+    , coalesce(supply_data.net_change, 0) as net_supply_change_native
     , coalesce(supply_data.circulating_supply_native, 0) as circulating_supply_native
+
     -- Other Metrics
     , market_data.token_turnover_circulating
     , market_data.token_turnover_fdv
-    -- timestamp columns
+
+    -- Timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine ds

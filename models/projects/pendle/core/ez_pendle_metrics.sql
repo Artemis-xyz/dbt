@@ -108,7 +108,7 @@ with
     )
 SELECT
     p.date
-
+    , 'pendle' as artemis_id
 
     -- Standardized Metrics
 

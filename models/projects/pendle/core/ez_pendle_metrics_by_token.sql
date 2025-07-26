@@ -75,6 +75,7 @@ with
 
 SELECT
     dts.date
+    , 'pendle' as artemis_id
     , dts.token
 
     -- Standardized Metrics
