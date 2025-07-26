@@ -39,27 +39,27 @@ with
     )
 select
     tvl_by_chain.date
-    , 'quickswap' as app
-    , 'DeFi' as category
+    , 'quickswap' as artemis_id
     , tvl_by_chain.chain
-    , trading_volume_by_chain.trading_volume
-    , trading_volume_by_chain.trading_fees
-    , trading_volume_by_chain.unique_traders
-    , trading_volume_by_chain.gas_cost_usd
+
+    -- Usage Metrics
 
     -- Standardized Metrics
     -- Usage/Sector Metrics
     , trading_volume_by_chain.unique_traders as spot_dau
+    , trading_volume_by_chain.unique_traders as dau
     , trading_volume_by_chain.trading_volume as spot_volume
     , tvl_by_chain.tvl
+    , trading_volume_by_chain.gas_cost_native
+    , trading_volume_by_chain.gas_cost_usd as gas_cost
     
-    -- Money Metrics
+    -- Fee Metrics
     , trading_volume_by_chain.trading_fees as spot_fees
     , trading_volume_by_chain.trading_fees as fees
     -- We only track v2 where all fees go to LPs
-    , trading_volume_by_chain.trading_fees as service_fee_allocation
-    , trading_volume_by_chain.gas_cost_native
-    , trading_volume_by_chain.gas_cost_usd as gas_cost
+    , trading_volume_by_chain.trading_fees as lp_fee_allocation
+
+    -- Token Incentives
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
 
 from tvl_by_chain

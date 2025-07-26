@@ -48,24 +48,30 @@ with
     )
 SELECT
     dex_swaps.date
-    , 'quickswap' as app
-    , 'DeFi' as category
+    , 'quickswap' as artemis_id
+
+    -- Standardized Metrics
+    -- Market Data Metrics
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
     , market_metrics.token_volume
+
+    -- Usage Metrics
     , dex_swaps.unique_traders as spot_dau
     , dex_swaps.number_of_swaps as spot_txns
     , dex_swaps.trading_volume as spot_volume
     , tvl.tvl
+
+    -- Fee Metrics
     , dex_swaps.trading_fees as spot_fees
     , dex_swaps.trading_fees as fees
-    
-    -- We only track v2 where all fees go to LPs
-    , dex_swaps.trading_fees as service_fee_allocation
+    , dex_swaps.trading_fees as lp_fee_allocation
+
+    -- Token Incentives
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
 
-    -- timestamp columns
+    -- Timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from dex_swaps
