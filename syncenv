@@ -9,3 +9,6 @@ chmod +x dbt_scripts/run_sqlfluff_on_changed_files.sh
 source .env.local
 
 dbt deps
+
+make clean-dev-schema
+
