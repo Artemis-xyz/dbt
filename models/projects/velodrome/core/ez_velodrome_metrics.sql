@@ -26,19 +26,26 @@ with velodrome_tvl as (
 
 select
     velodrome_tvl.date,
+    'velodrome' as artemis_id,
     'Defillama' as source,
 
     -- Standardized Metrics
-    velodrome_tvl.tvl,
+    -- Market Metrics
     velodrome_market_data.price,
     velodrome_market_data.market_cap,
     velodrome_market_data.fdmc,
+    velodrome_market_data.token_volume
+    
+    -- Usage Metrics
+    velodrome_tvl.tvl,
+    
+    -- Other Metrics
     velodrome_market_data.token_turnover_circulating,
     velodrome_market_data.token_turnover_fdv,
-    velodrome_market_data.token_volume
-    -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
+    -- Timestamp columns
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from velodrome_tvl
 left join velodrome_market_data using (date) 
 where true

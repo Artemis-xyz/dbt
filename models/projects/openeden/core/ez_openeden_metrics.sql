@@ -19,9 +19,13 @@
 
 SELECT
     date,
+    'openeden' as artemis_id,
+
+    -- Standardized Metrics
     sum(tokenized_mcap_change) as tokenized_mcap_change,
     sum(tokenized_mcap) as tokenized_mcap,
-    -- timestamp columns
+
+    -- Timestamp columns
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM {{ ref('ez_openeden_metrics_by_chain') }}
