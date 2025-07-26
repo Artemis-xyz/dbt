@@ -30,13 +30,18 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of a token in USD"
+    tags:
+      - artemis_gaap
+
 models:
   - name: ez_moonwell_metrics_by_chain
     description: "This table stores metrics for the MOONWELL protocol"
     columns:
       - *lending_deposits
       - *lending_loans
-
   - name: ez_moonwell_metrics
     description: "This table stores metrics for the MOONWELL protocol"
     columns:
@@ -45,4 +50,4 @@ models:
       - *lending_loans
       - *market_cap
       - *price
-
+      - *token_volume
