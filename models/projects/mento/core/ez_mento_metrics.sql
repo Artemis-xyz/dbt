@@ -1,10 +1,17 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="MENTO",
         database="MENTO",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
 
@@ -47,4 +54,6 @@ select
     , artemis_stablecoin_daily_txns
 from stablecoin_metrics
 left join spot_volume_spot_txn_spot_dau using (date)
-where date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())
