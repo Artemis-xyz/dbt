@@ -62,22 +62,12 @@ with
 SELECT
     f.date
     , f.chain
-    , COALESCE(d.daus, 0) as dau
-    , COALESCE(d.daily_txns, 0) as daily_txns
-    , COALESCE(f.swap_fees, 0) as swap_fees
-    , COALESCE(f.supply_side_fees, 0) as primary_supply_side_revenue
-    , 0 as secondary_supply_side_revenue
-    , COALESCE(f.supply_side_fees, 0) as total_supply_side_revenue
-    , COALESCE(f.swap_revenue, 0) as swap_revenue_vependle
-    , COALESCE(yf.yield_revenue, 0) as yield_revenue_vependle
-    , swap_revenue_vependle + yield_revenue_vependle as total_revenue_vependle
-    , COALESCE(t.tvl, 0) as net_deposits
-    , 0 as outstanding_supply
-
     -- Standardized Metrics
     -- Usage/Sector Metrics
     , COALESCE(d.daus, 0) as spot_dau
+    , COALESCE(d.daus, 0) as dau
     , COALESCE(d.daily_txns, 0) as spot_txns
+    , COALESCE(d.daily_txns, 0) as txns
     , COALESCE(t.tvl, 0) as tvl
 
     -- Financial Metrics
