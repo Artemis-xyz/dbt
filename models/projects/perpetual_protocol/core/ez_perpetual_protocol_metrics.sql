@@ -52,6 +52,7 @@ WITH
 
 SELECT
     date
+    , 'perpetual-protocol' as artemis_id
 
     -- Standardized Metrics
     , perp_data.perp_dau

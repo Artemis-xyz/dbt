@@ -52,8 +52,8 @@ with
 
 select
     base.date as date
+    , 'perpetual-protocol' as artemis_id
     , base.chain
-    , (coalesce(tvl_data.tvl, 0) - LAG(coalesce(tvl_data.tvl, 0)) OVER (PARTITION BY base.chain ORDER BY base.date)) / NULLIF(LAG(coalesce(tvl_data.tvl, 0)) OVER (PARTITION BY base.chain ORDER BY base.date), 0) * 100 as tvl_growth
     
     -- Standardized Metrics
     -- Usage Metrics

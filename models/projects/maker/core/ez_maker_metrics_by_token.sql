@@ -82,6 +82,7 @@ WITH
 
 select
     date
+    , 'maker' as artemis_id
     , token
     -- Standardized metrics
     -- Usage Metrics

@@ -28,6 +28,7 @@ with
     )
 select
     date
+    , 'frequency' as artemis_id
 
     -- Standardized Metrics
     -- Usage Metrics

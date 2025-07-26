@@ -36,7 +36,7 @@ with
 
 select
     f.date
-
+    , 'multiversx' as artemis_id
     -- Standardized Metrics
     -- Market Data
     , price

@@ -61,6 +61,7 @@ WITH
 
 select
     date
+    , 'maker' as artemis_id
     , 'ethereum' as chain
 
     -- Standardized metrics

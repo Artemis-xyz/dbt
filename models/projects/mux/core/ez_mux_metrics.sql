@@ -37,6 +37,8 @@ with
     )
 select
     date
+    , 'mux' as artemis_id
+
     -- Standardized Metrics
     -- Usage Metrics
     , trading_volume as perp_volume

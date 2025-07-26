@@ -34,6 +34,7 @@ with
     )
 select
     fundamental_data.date
+    , 'celo' as artemis_id
 
     -- Standardized Metrics
     -- Market Data 

@@ -19,6 +19,8 @@
 
 select
     f.date
+    , 'abstract' as artemis_id
+
     -- Standardized Metrics
 
     -- Usage Metrics

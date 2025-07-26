@@ -17,7 +17,7 @@ with
     , defillama_data as ({{ get_defillama_metrics("icp") }})
 select
     coalesce(market_data.date, defillama_data.date, icp_metrics.date, icp_total_canister_state.date, icp_neuron_funds.date, icp_blocks.date) as date
-    , 'internet_computer' as chain
+    , 'internet_computer' as artemis_id
 
     -- Standardized Metrics
     -- Market Data Metrics

@@ -25,6 +25,7 @@ with
 
 select
     date
+    , 'mux' as artemis_id
     , chain
     -- Standardized Metrics
     -- Usage Metrics

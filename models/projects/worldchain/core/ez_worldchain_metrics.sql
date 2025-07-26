@@ -25,6 +25,8 @@ with
     )
 select
     f.date
+    , 'worldchain' as artemis_id
+
     -- Standardized Metrics
     -- Market Data
     , market_data.price

@@ -85,6 +85,8 @@ WITH
 
 select
     date
+    , 'maker' as artemis_id
+
     -- Standardized metrics
     -- Market Metrics
     , COALESCE(market_data.price, 0) AS price

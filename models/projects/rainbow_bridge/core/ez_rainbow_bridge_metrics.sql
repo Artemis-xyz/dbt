@@ -29,11 +29,13 @@ with
     )
 select
     bridge_volume.date as date,
-    'rainbow_bridge' as app,
-    'Bridge' as category,
+    'rainbow_bridge' as artemis_id,
+    
+    -- Usage Metrics
     bridge_volume.bridge_volume,
     bridge_dau.bridge_dau
-    -- timestamp columns
+
+    -- Timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from bridge_volume

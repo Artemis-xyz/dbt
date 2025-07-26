@@ -48,7 +48,7 @@ with
     github_data as ({{ get_github_metrics("cosmos") }})
 select
     f.date
-    , f.chain
+    , 'cosmoshub' as artemis_id
     -- Standardized Metrics
     -- Market Data
     , market_data.price
