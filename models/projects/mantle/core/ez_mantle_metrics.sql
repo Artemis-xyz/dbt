@@ -54,21 +54,8 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle", "v2") }})
 
 select
     fundamental_data.date
-    , 'mantle' as chain
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees
-    , fees_native
-    , l1_data_cost
-    , l1_data_cost_native
-    , coalesce(fees_native, 0) - l1_data_cost_native as revenue_native -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    , coalesce(fees, 0) - l1_data_cost as revenue
-    , avg_txn_fee
-    , treasury_data.treasury_value_native
-    , treasury_data.treasury_value_native_change
-    , dune_dex_volumes_mantle.dex_volumes
+    , 'mantle' as artemis_id
+
     , dune_dex_volumes_mantle.adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
@@ -76,38 +63,50 @@ select
     , market_cap
     , fdmc
     , tvl
+
     -- Chain Usage Metrics
     , dau AS chain_dau
+    , dau
     , wau AS chain_wau
     , mau AS chain_mau
     , txns AS chain_txns
+    , txns
     , returning_users
     , new_users
     , avg_txn_fee AS chain_avg_txn_fee
     , dune_dex_volumes_mantle.dex_volumes AS chain_spot_volume
-    -- LST Metrics
+
+    -- LST Usage Metrics
     , staked_eth_metrics.num_staked_eth as tvl_native
     , staked_eth_metrics.num_staked_eth as lst_tvl_native
     , staked_eth_metrics.amount_staked_usd as lst_tvl
     , staked_eth_metrics.num_staked_eth_net_change as tvl_native_net_change
     , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
     , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
-    -- Cashflow Metrics
+    
+    -- Fee Metrics
     , fees as chain_fees
-    , fees_native AS ecosystem_revenue_native
-    , fees AS ecosystem_revenue
+    , fees
+    , fees_native
     , coalesce(fees_native, 0) - l1_data_cost_native as validator_fee_allocation_native -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     , coalesce(fees, 0) - l1_data_cost as validator_fee_allocation
     , l1_data_cost_native AS l1_fee_allocation_native
     , l1_data_cost AS l1_fee_allocation
-    -- Protocol Metrics 
+    
+    -- Financial Metrics
+    , coalesce(fees, 0) - l1_data_cost as revenue
+    , coalesce(fees_native, 0) - l1_data_cost_native as revenue_native -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    
+    -- Treasury Metrics 
     , treasury_data.treasury_value_native AS treasury_native
     , treasury_data.treasury_value_native_change AS treasury_native_change
+    
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
+
     -- Stablecoin Metrics
     , stablecoin_total_supply
     , stablecoin_txns
@@ -124,6 +123,7 @@ select
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
     , p2p_stablecoin_tokenholder_count
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
