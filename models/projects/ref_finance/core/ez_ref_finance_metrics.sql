@@ -30,9 +30,6 @@ with dau_txns_volume as(
 
 select
     d.date,
-    d.daily_swaps,
-    d.unique_traders,
-    d.volume as trading_volume,
 
     -- Standardized Metrics
     d.unique_traders as spot_dau,

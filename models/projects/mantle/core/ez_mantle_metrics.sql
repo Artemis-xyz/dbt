@@ -65,32 +65,32 @@ select
     , tvl
 
     -- Chain Usage Metrics
-    , dau AS chain_dau
-    , dau
-    , wau AS chain_wau
-    , mau AS chain_mau
-    , txns AS chain_txns
-    , txns
-    , returning_users
-    , new_users
-    , avg_txn_fee AS chain_avg_txn_fee
+    , f.dau AS chain_dau
+    , f.dau
+    , rolling.wau AS chain_wau
+    , rolling.mau AS chain_mau
+    , f.txns AS chain_txns
+    , f.txns
+    , f.returning_users
+    , f.new_users
+    , f.avg_txn_fee AS chain_avg_txn_fee
     , dune_dex_volumes_mantle.dex_volumes AS chain_spot_volume
 
     -- LST Usage Metrics
-    , staked_eth_metrics.num_staked_eth as tvl_native
-    , staked_eth_metrics.num_staked_eth as lst_tvl_native
-    , staked_eth_metrics.amount_staked_usd as lst_tvl
-    , staked_eth_metrics.amount_staked_usd as tvl
+    , staking.num_staked_eth as tvl_native
+    , staking.num_staked_eth as lst_tvl_native
+    , staking.amount_staked_usd as lst_tvl
+    , staking.amount_staked_usd as tvl
 
     
     -- Fee Metrics
-    , fees as chain_fees
-    , fees
-    , fees_native
-    , coalesce(fees_native, 0) - l1_data_cost_native as validator_fee_allocation_native -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    , coalesce(fees, 0) - l1_data_cost as validator_fee_allocation
-    , l1_data_cost_native AS l1_fee_allocation_native
-    , l1_data_cost AS l1_fee_allocation
+    , f.fees as chain_fees
+    , f.fees
+    , f.fees_native
+    , coalesce(f.fees_native, 0) - expenses_data.l1_data_cost_native as validator_fee_allocation_native -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(f.fees, 0) - expenses_data.l1_data_cost as validator_fee_allocation
+    , expenses_data.l1_data_cost_native AS l1_fee_allocation_native
+    , expenses_data.l1_data_cost AS l1_fee_allocation
     
     -- Financial Metrics
     , coalesce(fees, 0) - l1_data_cost as revenue
@@ -126,16 +126,16 @@ select
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from fundamental_data
+from fundamental_data f
 left join github_data using (date)
 left join defillama_data using (date)
 left join stablecoin_data using (date)
 left join price_data using (date)
 left join expenses_data using (date)
-left join rolling_metrics using (date)
+left join rolling_metrics rolling using (date)
 left join treasury_data using (date)
 left join mantle_dex_volumes as dune_dex_volumes_mantle on fundamental_data.date = dune_dex_volumes_mantle.date
-left join staked_eth_metrics on fundamental_data.date = staked_eth_metrics.date
+left join staked_eth_metrics as staking on fundamental_data.date = staking.date
 where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())
