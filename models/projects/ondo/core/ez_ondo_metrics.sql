@@ -56,7 +56,10 @@ select
     coalesce(fees.fees, 0) as fees,
     coalesce(tvl.tokenized_mcap_change, 0) as tokenized_mcap_change,
     coalesce(tvl.tokenized_mcap, 0) as tokenized_mcap,
-    coalesce(ff_defillama_metrics.tvl, 0) as flux_finance_tvl,
+    coalesce(ff_defillama_metrics.tvl, 0) as lending_tvl, -- Flux Finance TVL
+    coalesce(ff_defillama_metrics.tvl, 0) as tvl,
+
+    -- Supply Metrics
     coalesce(supply.premine_unlocks_native, 0) as premine_unlocks_native,
     coalesce(supply.net_supply_change_native, 0) as net_supply_change_native,
     coalesce(supply.circulating_supply_native, 0) as circulating_supply_native,
