@@ -41,6 +41,10 @@ def extract_sql_columns(sql_file_path):
     # Take the last SELECT statement
     select_clause = select_matches[-1]
 
+    # If the last select clause is from the incremental macro, use the second to last
+    if 'max(this.date)' in select_clause.lower() and len(select_matches) > 1:
+        select_clause = select_matches[-2]
+
     print("Processing SELECT clause:", select_clause)
 
     # Extract column names (handling various alias patterns)
