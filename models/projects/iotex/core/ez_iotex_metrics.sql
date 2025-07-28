@@ -93,6 +93,7 @@ select
     , metrics.txns as chain_txns
     , defillama_dex_volume.dex_volumes as chain_spot_volume
     , defillama_tvl.tvl as chain_tvl
+    , defillama_tvl.tvl as tvl 
     -- Cashflow Metrics
     , metrics.fees
     , metrics.primary_supply_side_revenue AS validator_fee_allocation
