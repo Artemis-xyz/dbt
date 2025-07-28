@@ -32,23 +32,32 @@ WITH issued_supply_metrics AS (
 
 SELECT
     f.date,
+    'story' as artemis_id,
+
+    --Usage Data
     f.txns,
     f.daa AS dau,
+
+    --Fee Data
     f.fees_native,
     f.fees,
+    
+    --Financial Statments
     i.revenue,
+
+    --Supply Data
     i.max_supply_native,
     i.total_supply_native,
     i.native_burns,
     i.issued_supply_native,
     i.circulating_supply_native,
+
+    
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on,
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
 FROM {{ ref("fact_story_fundamental_metrics") }} f
 LEFT JOIN issued_supply_metrics i
     ON DATE(f.date) = DATE(i.date)
 WHERE TRUE
-{% if is_incremental() and backfill_date is not none %}
-  AND f.date >= {{ backfill_date }}
-{% endif %}
+{{ ez_metrics_incremental('f.date', backfill_date) }}
 AND f.date < TO_DATE(SYSDATE())

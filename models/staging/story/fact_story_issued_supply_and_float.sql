@@ -2,14 +2,16 @@
     config(
         materialized="table"
 
+
     )
 }}
 
 WITH date_spine AS (
-  SELECT 
-    DATEADD(DAY, ROW_NUMBER() OVER (ORDER BY SEQ4()) - 1, DATE '2025-01-19') AS date
-  FROM TABLE(GENERATOR(ROWCOUNT => 1460))
+  SELECT date
+  FROM {{ ref('dim_date_spine') }}
+  WHERE date BETWEEN DATE '2025-01-19' AND TO_DATE(SYSDATE())
 ),
+
 
 gas_burns AS (
   SELECT
