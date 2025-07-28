@@ -4,7 +4,7 @@ import re
 from typing import Iterator, Dict, Any
 
 def extract_sql_columns(sql_file_path: str) -> list[str]:
-    """Return list of column names found in the *last* SELECT of a model."""
+    """Return list of column names found in the main SELECT of a model, handling incremental logic."""
     def _strip_comments(s: str) -> str:
         s = re.sub(r'--.*?$', '', s, flags=re.MULTILINE)
         return re.sub(r'/\*.*?\*/', '', s, flags=re.DOTALL)
@@ -17,7 +17,18 @@ def extract_sql_columns(sql_file_path: str) -> list[str]:
     if not matches:
         return []
 
-    select_clause = matches[-1]
+    # Check if the last SELECT contains incremental logic
+    last_select = matches[-1]
+    # Use regex to detect any MAX() function pattern (more flexible than hardcoded strings)
+    incremental_pattern = r"\bmax\s*\(\s*\w+\s*\)"
+    is_incremental = re.search(incremental_pattern, last_select, re.IGNORECASE) is not None
+    
+    # Use second-to-last SELECT if incremental logic is detected, otherwise use last SELECT
+    if is_incremental and len(matches) > 1:
+        select_clause = matches[-2]  # Use second-to-last SELECT
+    else:
+        select_clause = matches[-1]  # Use last SELECT
+    
     cols: set[str] = set()
 
     for line in select_clause.splitlines():
