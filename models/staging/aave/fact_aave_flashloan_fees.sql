@@ -1,6 +1,7 @@
 {{
     config(
         materialized="table",
+        snowflake_warehouse="AAVE",
     )
 }}
 
@@ -14,25 +15,25 @@ WITH premium_updates AS (
 ),
 
 flashloan_fees AS (
-    SELECT * FROM AAVE.PROD_RAW.FACT_V3_ARBITRUM_FLASHLOAN_FEES
-    UNION ALL
-    SELECT * FROM AAVE.PROD_RAW.FACT_V2_AVALANCHE_FLASHLOAN_FEES
-    UNION ALL
-    SELECT * FROM AAVE.PROD_RAW.FACT_V3_AVALANCHE_FLASHLOAN_FEES
-    UNION ALL
-    SELECT * FROM AAVE.PROD_RAW.FACT_V3_BASE_FLASHLOAN_FEES
-    UNION ALL
-    SELECT * FROM AAVE.PROD_RAW.FACT_V2_ETHEREUM_FLASHLOAN_FEES
-    UNION ALL
-    SELECT * FROM AAVE.PROD_RAW.FACT_V3_ETHEREUM_FLASHLOAN_FEES
-    UNION ALL
-    SELECT * FROM AAVE.PROD_RAW.FACT_V3_GNOSIS_FLASHLOAN_FEES
-    UNION ALL
-    SELECT * FROM AAVE.PROD_RAW.FACT_V3_OPTIMISM_FLASHLOAN_FEES
-    UNION ALL
-    SELECT * FROM AAVE.PROD_RAW.FACT_V2_POLYGON_FLASHLOAN_FEES
-    UNION ALL
-    SELECT * FROM AAVE.PROD_RAW.FACT_V3_POLYGON_FLASHLOAN_FEES
+  select * from {{ref("fact_aave_v3_arbitrum_flashloan_fees")}}
+  union all
+  select * from {{ref("fact_aave_v2_avalanche_flashloan_fees")}}
+  union all
+  select * from {{ref("fact_aave_v3_avalanche_flashloan_fees")}}
+  union all
+  select * from {{ref("fact_aave_v3_base_flashloan_fees")}}
+  union all
+  select * from {{ref("fact_aave_v2_ethereum_flashloan_fees")}}
+  union all
+  select * from {{ref("fact_aave_v3_ethereum_flashloan_fees")}}
+  union all
+  select * from {{ref("fact_aave_v3_gnosis_flashloan_fees")}}
+  union all
+  select * from {{ref("fact_aave_v3_optimism_flashloan_fees")}}
+  union all
+  select * from {{ref("fact_aave_v2_polygon_flashloan_fees")}}
+  union all
+  select * from {{ref("fact_aave_v3_polygon_flashloan_fees")}}
 ),
 
 flashloan_with_bps AS (

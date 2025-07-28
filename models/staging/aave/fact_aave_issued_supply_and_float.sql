@@ -1,6 +1,7 @@
 {{
     config(
         materialized="table",
+        snowflake_warehouse="AAVE",
     )
 }}
 
@@ -29,18 +30,18 @@ date_spine AS (
 migration_contract AS (
     SELECT 
         BLOCK_TIMESTAMP::date AS date,
-        MEDIAN(Balance) / 1e18 AS balance
-    FROM {{ source("ETHEREUM_FLIPSIDE", "fact_token_balances" ) }} 
-    WHERE user_address = lower('0x317625234562b1526ea2fac4030ea499c5291de4')
+        MEDIAN(BALANCE_TOKEN) / 1e18 AS balance
+    FROM {{ ref("fact_ethereum_address_balances_by_token") }}
+    WHERE address = lower('0x317625234562b1526ea2fac4030ea499c5291de4')
       AND contract_address = lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9')
     GROUP BY date
 ),
 foundation_balance AS (
     SELECT 
         BLOCK_TIMESTAMP::date AS date,
-        MEDIAN(Balance) / 1e18 AS balance
-    FROM {{ source("ETHEREUM_FLIPSIDE", "fact_token_balances" ) }} 
-    WHERE user_address = lower('0x25F2226B597E8F9514B3F68F00f494cF4f286491')
+        MEDIAN(BALANCE_TOKEN) / 1e18 AS balance
+    FROM {{ ref("fact_ethereum_address_balances_by_token") }}
+    WHERE address = lower('0x25F2226B597E8F9514B3F68F00f494cF4f286491')
       AND contract_address = lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9')
     GROUP BY date
 ),
