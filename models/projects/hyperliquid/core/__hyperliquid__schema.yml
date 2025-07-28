@@ -250,7 +250,6 @@ models:
       - *token_turnover_fdv
       - *token_volume
       - *total_supply_native
-      - *tvl
     tests:
       - not_null:
           column_name: date
