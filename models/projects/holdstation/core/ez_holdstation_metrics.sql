@@ -18,9 +18,23 @@
 {% set backfill_date = var("backfill_date", None) %}
 
 with
-    trading_volume_data as (
+    zk_sync_volume_data as (
         select date, sum(trading_volume) as trading_volume
         from {{ ref("fact_holdstation_trading_volume") }}
+        group by date
+    )
+    , bera_trading_volume_data as (
+        select date, sum(perp_volume) as perp_volume
+        from {{ ref("fact_holdstation_bera_perp_volume") }}
+        group by date
+    )
+    , agg_volume_data as (
+        select date, sum(trading_volume) as perp_volume
+        from zk_sync_volume_data
+        group by date
+        union all
+        select date, sum(perp_volume) as perp_volume
+        from bera_trading_volume_data
         group by date
     )
     , unique_traders_data as (
@@ -34,7 +48,7 @@ select
     , 'holdstation' as app
     , 'DeFi' as category
     -- standardize metrics
-    , trading_volume as perp_volume
+    , perp_volume
     , unique_traders as perp_dau
     -- Market Data
     , price
@@ -46,7 +60,7 @@ select
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from trading_volume_data
+from agg_volume_data
 left join unique_traders_data using(date)
 left join price using(date)
 where true
