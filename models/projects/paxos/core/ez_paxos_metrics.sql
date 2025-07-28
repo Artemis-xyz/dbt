@@ -19,10 +19,15 @@
 
 SELECT
     date,
-    sum(tokenized_mcap_change) as tokenized_mcap_change,
-    sum(tokenized_mcap) as tokenized_mcap,
-    to_timestamp_ntz(current_timestamp()) as created_on,
-    to_timestamp_ntz(current_timestamp()) as modified_on
+    'paxos' as artemis_id,
+
+    -- Standardized Metrics
+    , sum(tokenized_mcap_change) as tokenized_mcap_change
+    , sum(tokenized_mcap) as tokenized_mcap
+
+    -- Timestamp columns
+    , to_timestamp_ntz(current_timestamp()) as created_on
+    , to_timestamp_ntz(current_timestamp()) as modified_on
 FROM {{ ref('ez_paxos_metrics_by_chain') }}
 where true
 {{ ez_metrics_incremental('date', backfill_date) }}
