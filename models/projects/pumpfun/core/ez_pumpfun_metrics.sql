@@ -1,10 +1,17 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='PUMPFUN',
         database='PUMPFUN',
         schema='core',
         alias='ez_metrics',
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
  }}
 
@@ -28,7 +35,6 @@ swap_metrics as (
         SUM(amount_usd_artemis) as trading_volume_usd, 
         AVG(amount_usd_artemis) as average_traded_volume_usd 
     from trades
-    where date > '2024-05-31'
     group by 1, 2
 ),
 daily_revenues as (
@@ -37,7 +43,6 @@ daily_revenues as (
         'pump.fun' as version,
         fees as launchpad_fees
     from {{ ref('fact_pumpfun_dailyrevenues') }}
-    where date > '2024-05-31'
 ),
 pumpswap_metrics as (
     select
@@ -48,7 +53,6 @@ pumpswap_metrics as (
         spot_volume,
         spot_fees
     from {{ ref('fact_pumpswap_metrics') }}
-    where date >= '2025-03-20'
 )
 
 -- Final combined query with one row per day
@@ -63,10 +67,15 @@ select
     coalesce(pumpswap_metrics.spot_volume, 0) as spot_volume,
     coalesce(daily_revenues.launchpad_fees, 0) as launchpad_fees,
     coalesce(pumpswap_metrics.spot_fees, 0) as spot_fees,
-    coalesce(daily_revenues.launchpad_fees, 0) + coalesce(pumpswap_metrics.spot_fees, 0) as ecosystem_revenue
+    coalesce(daily_revenues.launchpad_fees, 0) + coalesce(pumpswap_metrics.spot_fees, 0) as ecosystem_revenue,
+    -- timestamp columns
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 left join swap_metrics using(date)
 left join daily_revenues using(date)
 left join pumpswap_metrics using(date)
-where date_spine.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())
 order by date desc
