@@ -11,7 +11,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
-        full_refresh=false,
+        full_refresh=true,
         tags=["ez_metrics"]
     )
 }}
@@ -63,59 +63,46 @@ with
 
 select
     fundamental_data.date
-    , fundamental_data.chain
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees_native
-    , fees
-    , avg_txn_fee
-    , median_txn_fee
-    , revenue_native
-    , revenue
-    , l1_data_cost_native
-    , l1_data_cost
+    , 'polygon' as artemis_id
+
     , dau_over_100
     , nft_trading_volume
     , dune_dex_volumes_polygon.dex_volumes
 
     -- Standardized Metrics
-    -- Market Data Metrics
+
+    -- Market Data
     , price
     , market_cap
     , fdmc
     , tvl
-    -- Chain Usage Metrics
+
+    -- Usage Data
     , dau AS chain_dau
+    , dau
     , wau AS chain_wau
     , mau AS chain_mau
     , txns AS chain_txns
-    , avg_txn_fee AS chain_avg_txn_fee
-    , median_txn_fee AS chain_median_txn_fee
-    , returning_users
-    , new_users
-    , sybil_users
-    , non_sybil_users
-    , low_sleep_users
-    , high_sleep_users
-    , dau_over_100 AS dau_over_100_balance
+    , txns
     , nft_trading_volume AS chain_nft_trading_volume
     , p2p_native_transfer_volume
     , p2p_token_transfer_volume
     , p2p_transfer_volume
+    , dune_dex_volumes_polygon.dex_volumes AS chain_spot_volume
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_polygon.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
-    , dune_dex_volumes_polygon.dex_volumes AS chain_spot_volume
-    , coalesce(ti.token_incentives, 0) as token_incentives
-    -- Cashflow Metrics
+
+    -- Fee Data
+    , fees_native
+    , fees
     , fees AS chain_fees
-    , revenue - token_incentives AS earnings
-    , fees AS ecosystem_revenue
-    , revenue_native AS validator_fee_allocation_native
     , revenue AS validator_fee_allocation
-    , l1_data_cost_native AS l1_fee_allocation_native
     , l1_data_cost AS l1_fee_allocation
+
+    -- Financial Statement
+    , revenue
+    , ti.token_incentives
+    , coalesce(revenue, 0) - coalesce(ti.token_incentives, 0) AS earnings
 
     -- Developer Metrics
     , weekly_commits_core_ecosystem
@@ -124,7 +111,8 @@ select
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
-    -- Stablecoin Metrics
+
+    -- Stablecoin Data
     , stablecoin_total_supply
     , stablecoin_txns
     , stablecoin_dau
@@ -140,9 +128,20 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
-    -- Bridge Metrics
+
+    -- Bridge Data
     , bridge_volume
     , bridge_daa
+
+    -- Bespoke Data
+    , returning_users
+    , new_users
+    , sybil_users
+    , non_sybil_users
+    , low_sleep_users
+    , high_sleep_users
+    , dau_over_100
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
