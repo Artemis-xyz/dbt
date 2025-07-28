@@ -3,7 +3,6 @@ import re
 import os
 import subprocess
 import requests
-from generate_tests import generate_tests_for_schema
 
 def load_global_schema(global_schema_path):
     """ Load and flatten the global schema into a set of metric names. """
