@@ -5,4 +5,4 @@
     )
 }}
 
-select * from {{source('MANUAL_STATIC_TABLES', 'jito_daily_premine_unlocks')}}
+select * from {{source('MANUAL_STATIC_TABLES', 'jito_unlock_supply_schedule')}}

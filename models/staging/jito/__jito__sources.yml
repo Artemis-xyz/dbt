@@ -3,4 +3,4 @@ sources:
     schema: PROD
     database: pc_dbt_db
     tables:
-      - name: jito_daily_premine_unlocks
+      - name: jito_unlock_supply_schedule
