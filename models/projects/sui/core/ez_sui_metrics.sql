@@ -111,3 +111,4 @@ left join supply_data on fundamental_data.date = supply_data.date
 where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())
+group by all
