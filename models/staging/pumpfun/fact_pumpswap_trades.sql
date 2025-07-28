@@ -36,7 +36,7 @@ with encoded_swaps as (
         encoded_swaps.*,
         CASE 
             WHEN encoded_swaps.block_timestamp::date < '2025-05-12' THEN PARSE_JSON(DECODE_SOLANA_INNER_INSTRUCTION(pumpswap_idl_old.idl::STRING, encoded_data))
-            WHEN encoded_swaps.block_timestamp::date > '2025-05-12' THEN PARSE_JSON(DECODE_SOLANA_INNER_INSTRUCTION(pumpswap_idl.idl::STRING, encoded_data))
+            WHEN encoded_swaps.block_timestamp::date >= '2025-05-12' THEN PARSE_JSON(DECODE_SOLANA_INNER_INSTRUCTION(pumpswap_idl.idl::STRING, encoded_data))
         END AS decoded_data
     FROM encoded_swaps, pumpswap_idl, pumpswap_idl_old
 )

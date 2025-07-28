@@ -20,7 +20,7 @@
             decoded_instruction:accounts[1]['pubkey']::STRING as fee_recipient
         from {{ source('SOLANA_FLIPSIDE', 'fact_decoded_instructions') }}
         where program_id = '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P'
-        and ((event_type = 'buy') or (event_type = 'sell'))
+        and event_type in ('buy', 'sell')
         and block_timestamp::date < '2025-05-12'
     )
 
@@ -41,5 +41,5 @@
     ) select * from trade_with_fee_recipient_2
 
 {% else %}
-    select * from {{ this }}
+    select * from {{ this }} where false -- prevents dbt from inserting anything
 {% endif %}

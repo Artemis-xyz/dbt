@@ -3,7 +3,7 @@
     config(
         materialized="incremental",
         unique_key=['ez_swaps_id'],
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="MEDIUM",
         alias="fact_pumpfun_trades_encoded",
     )
 }}
