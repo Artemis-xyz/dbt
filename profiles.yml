@@ -1,5 +1,5 @@
 snowflake-dagster:
-  target: prod
+  target: dev
   outputs:
     prod:
       type: snowflake
