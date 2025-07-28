@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         database = 'orca',
         schema = 'core',
         snowflake_warehouse = 'ORCA',
-        alias = 'ez_metrics'
+        alias = 'ez_metrics',
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with date_spine as (
     select
@@ -14,7 +23,6 @@ with date_spine as (
     from {{ ref("dim_date_spine") }}
     where date between '2021-04-15' and to_date(sysdate())
 )
-
 , fees_and_volume as (
     select 
         date, 
@@ -57,14 +65,12 @@ select
     , fees_and_volume.volume as trading_volume
     , dau_txns.num_swaps as number_of_swaps
     , dau_txns.unique_traders
-
     -- Standardized Metrics
     -- Market Metrics
     , market_data.price
     , market_data.market_cap
     , market_data.fdmc
     , market_data.token_volume
-    
     -- Usage/Sector Metrics
     , coalesce(dau_txns.unique_traders, 0) as spot_dau
     , coalesce(dau_txns.num_swaps, 0) as spot_txns
@@ -73,26 +79,28 @@ select
         last_value(tvl ignore nulls) over (
             order by date desc rows between unbounded preceding and current row
         )) as tvl
-
-
     -- Money Metrics
     , coalesce(fees_and_volume.total_fees, 0) as spot_fees
     , coalesce(fees_and_volume.total_fees, 0) as ecosystem_revenue
     , coalesce(fees_and_volume.lp_fees, 0) as service_fee_allocation
     , coalesce(fees_and_volume.dao_treasury_fees, 0) as treasury_fee_allocation
     , coalesce(fees_and_volume.climate_fund_fees, 0) as other_fee_allocation
-
     -- Supply Metrics
     , coalesce(supply_data.premine_unlocks_native, 0) as premine_unlocks_native
     , coalesce(supply_data.net_change, 0) as net_change
     , coalesce(supply_data.circulating_supply_native, 0) as circulating_supply_native
-    
     -- Other Metrics
     , market_data.token_turnover_circulating
     , market_data.token_turnover_fdv
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine ds
 left join fees_and_volume using (date)
 left join dau_txns using (date)
 left join tvl using (date)
 left join supply_data using (date)
 left join market_data using (date)
+where true
+{{ ez_metrics_incremental('ds.date', backfill_date) }}
+and ds.date < to_date(sysdate())

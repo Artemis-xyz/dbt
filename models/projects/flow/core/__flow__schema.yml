@@ -34,9 +34,19 @@ column_definitions:
     name: chain_spot_volume
     description: "Total spot dex volume on a chain"
 
+  chain_tvl: &chain_tvl
+    name: chain_tvl
+    description: "The total value locked in a chain"
+
   chain_txns: &chain_txns
     name: chain_txns
     description: "Daily transactions on a chain"
+
+  circulating_supply_native: &circulating_supply_native
+    name: circulating_supply_native
+    description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+    tags:
+      - artemis_gaap
 
   fdmc: &fdmc
     name: fdmc
@@ -125,7 +135,9 @@ models:
       - *chain_fees
       - *chain_nft_trading_volume
       - *chain_spot_volume
+      - *chain_tvl
       - *chain_txns
+      - *circulating_supply_native
       - *fdmc
       - *fees
       - *market_cap
@@ -140,4 +152,18 @@ models:
       - *weekly_commits_sub_ecosystem
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error

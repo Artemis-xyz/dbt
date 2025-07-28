@@ -2,8 +2,7 @@ with
     latest_source_json as (
         select extraction_date, source_url, source_json
         from {{ source("PROD_LANDING", "raw_hyperliquid_daily_transactions") }}
-        order by extraction_date desc
-        limit 1
+        where extraction_date = (select max(extraction_date) from {{ source("PROD_LANDING", "raw_hyperliquid_daily_transactions") }})
     ),
 
     extracted_daily_transactions as (

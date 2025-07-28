@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="PENDLE",
         database="pendle",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     swap_fees as (
@@ -58,14 +67,14 @@ with
     , treasury_value_cte as (
         select
             date,
-            sum(usd_balance) as treasury_value
+            sum(balance) as treasury_value
         from {{ref('fact_pendle_treasury')}}
         group by 1
     )
     , net_treasury_value_cte as (
         select
             date,
-            sum(usd_balance) as net_treasury_value
+            sum(balance) as net_treasury_value
         from {{ref('fact_pendle_treasury')}}
         where token <> 'PENDLE'
         group by 1
@@ -73,8 +82,8 @@ with
     , treasury_value_native_cte as (
         select
             date,
-            sum(native_balance) as treasury_value_native,
-            sum(usd_balance) as native_treasury_value
+            sum(balance_native) as treasury_value_native,
+            sum(balance) as native_treasury_value
         from {{ref('fact_pendle_treasury')}}
         where token = 'PENDLE'
         group by 1
@@ -83,9 +92,20 @@ with
         {{ get_coingecko_metrics('pendle') }}
     )
     , tokenholder_count as (
-        select * from {{ref('fact_pendle_token_holders')}}
+        select * 
+        from {{ref('fact_pendle_token_holders')}}
     )
-
+    , supply_data as (
+        SELECT
+            date,
+            emissions_native,
+            unlocks_native,
+            pendle_locked,
+            total_supply_native,
+            issued_supply_native,
+            circulating_supply_native
+        FROM {{ ref('fact_pendle_supply_data')}}
+    )
 SELECT
     p.date
     , d.daus as dau
@@ -136,7 +156,16 @@ SELECT
     -- Treasury Metrics
     , tv.treasury_value as treasury
     , tn.native_treasury_value as own_token_treasury
+    , tn.treasury_value_native as own_token_treasury_native
     , nt.net_treasury_value as net_treasury
+
+    -- Supply Metrics
+    , emissions_native
+    , unlocks_native as premine_unlocks_native
+    , pendle_locked as locked_supply_native
+    , total_supply_native
+    , issued_supply_native
+    , circulating_supply_native
 
     -- Other Metrics
     , coalesce(ti.token_incentives, 0) as gross_emissions
@@ -145,6 +174,10 @@ SELECT
     , p.token_turnover_fdv
     , p.token_turnover_circulating
     , tc.token_holder_count
+
+    -- timestamp columns
+    , to_timestamp_ntz(current_timestamp()) as created_on
+    , to_timestamp_ntz(current_timestamp()) as modified_on
 
 FROM price_data_cte p
 LEFT JOIN swap_fees f using(date)
@@ -156,3 +189,7 @@ LEFT JOIN treasury_value_cte tv USING (date)
 LEFT JOIN net_treasury_value_cte nt USING (date)
 LEFT JOIN treasury_value_native_cte tn USING (date) 
 LEFT JOIN tokenholder_count tc using(date) 
+LEFT JOIN supply_data sd using(date)
+where true
+{{ ez_metrics_incremental('p.date', backfill_date) }}
+and p.date < to_date(sysdate())

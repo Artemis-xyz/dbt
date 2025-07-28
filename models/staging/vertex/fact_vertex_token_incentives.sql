@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", enabled=false) }}
 
 --Initial mint of 1,000,000,000 VRTX tokens
 with vertex_initial_mint as (

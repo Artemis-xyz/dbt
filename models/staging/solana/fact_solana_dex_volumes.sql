@@ -3,126 +3,197 @@
 
 {{ config(materialized="table", snowflake_warehouse="SOLANA") }}
 
-with scaled_down_volume as (
-    select
-        date_trunc('day', block_timestamp) as date, 
-        sum(
-            case
-                when swap_from_amount_usd is not null and swap_to_amount_usd is not null then greatest(swap_from_amount_usd, swap_to_amount_usd)
-                else coalesce(swap_from_amount_usd, swap_to_amount_usd)
-            end
-        ) as trading_volume
-    from solana_flipside.defi.ez_dex_swaps
-    where
-        greatest(
-            coalesce(swap_from_amount_usd, 0),
-            coalesce(swap_to_amount_usd, 0)
-        )
-        /
-        nullif(
-            least(
-                coalesce(swap_from_amount_usd, 0),
-                coalesce(swap_to_amount_usd, 0)
-            ),
-            0
-        ) < 100 
-        and swap_program in (
-            'raydium constant product market maker',
-            'raydium concentrated liquidity',
-            'Raydium Liquidity Pool V4',
-            'raydium liquidity pool program id v5',
-            'meteora dlmm pools program', 
-            'meteora pools program',
-            'phoenix'
-        )
-    group by date
-    order by date asc
+WITH raydium_volume AS (
+    WITH all_marginfi_flash_loans AS (
+        SELECT *
+        FROM solana_flipside.core.ez_events_decoded
+        WHERE program_id = 'MFv2hWf31Z9kbCa1snEPYctwafyhdvnV7FZnsebVacA' and event_type = 'lendingAccountStartFlashloan'
+    )
+
+    SELECT
+        DATE_TRUNC('day', block_timestamp) AS date, 
+        SUM(
+            CASE
+                WHEN swap_from_amount_usd IS NOT NULL AND swap_to_amount_usd IS NOT NULL THEN swap_to_amount_usd
+                ELSE COALESCE(swap_from_amount_usd, swap_to_amount_usd)
+            END
+        ) AS trading_volume
+    FROM solana_flipside.defi.ez_dex_swaps
+    WHERE
+    CASE
+        WHEN swap_to_amount_usd IS NOT NULL AND swap_from_amount_usd IS NOT NULL AND swap_from_amount_usd > 0 THEN swap_to_amount_usd / swap_from_amount_usd BETWEEN 0.6 AND 1.6
+        ELSE COALESCE(swap_to_amount_usd, swap_from_amount_usd) < 10000000  
+    END 
+    AND swap_program IN (
+        'raydium constant product market maker',
+        'raydium concentrated liquidity',
+        'Raydium Liquidity Pool V4',
+        'raydium liquidity pool program id v5'
+    )
+    AND tx_id NOT IN (SELECT tx_id FROM all_marginfi_flash_loans)
+    GROUP BY 1
+), 
+
+orca_volume AS (
+    WITH all_marginfi_flash_loans AS (
+        SELECT *
+        FROM solana_flipside.core.ez_events_decoded
+        WHERE program_id = 'MFv2hWf31Z9kbCa1snEPYctwafyhdvnV7FZnsebVacA' and event_type = 'lendingAccountStartFlashloan'
+    )
+
+    SELECT
+        DATE_TRUNC('day', block_timestamp) AS date, 
+        SUM(
+            CASE
+                WHEN swap_from_amount_usd IS NOT NULL AND swap_to_amount_usd IS NOT NULL THEN swap_to_amount_usd
+                ELSE COALESCE(swap_from_amount_usd, swap_to_amount_usd)
+            END
+        ) AS trading_volume
+    FROM solana_flipside.defi.ez_dex_swaps
+    WHERE
+    CASE
+        WHEN swap_to_amount_usd IS NOT NULL AND swap_from_amount_usd IS NOT NULL AND swap_from_amount_usd > 0 THEN swap_to_amount_usd / swap_from_amount_usd BETWEEN 0.6 AND 1.6
+        ELSE COALESCE(swap_to_amount_usd, swap_from_amount_usd) < 10000000  
+    END 
+    AND swap_program IN (
+        'orca token swap',
+        'ORCA Token Swap V2',
+        'orca whirlpool program'
+    )
+    AND tx_id NOT IN (SELECT tx_id FROM all_marginfi_flash_loans)
+    GROUP BY 1
+), 
+
+other_volume AS (
+    WITH all_marginfi_flash_loans AS (
+        SELECT *
+        FROM solana_flipside.core.ez_events_decoded
+        WHERE program_id = 'MFv2hWf31Z9kbCa1snEPYctwafyhdvnV7FZnsebVacA' and event_type = 'lendingAccountStartFlashloan'
+    )
+
+    SELECT
+        DATE_TRUNC('day', block_timestamp) AS date, 
+        SUM(
+            CASE
+                WHEN swap_from_amount_usd IS NOT NULL AND swap_to_amount_usd IS NOT NULL THEN swap_to_amount_usd
+                ELSE COALESCE(swap_from_amount_usd, swap_to_amount_usd)
+            END
+        ) AS trading_volume
+    FROM solana_flipside.defi.ez_dex_swaps
+    WHERE
+    CASE
+        WHEN swap_to_amount_usd IS NOT NULL AND swap_from_amount_usd IS NOT NULL AND swap_from_amount_usd > 0 THEN swap_to_amount_usd / swap_from_amount_usd BETWEEN 0.6 AND 1.6
+        ELSE COALESCE(swap_to_amount_usd, swap_from_amount_usd) < 10000000  
+    END 
+    AND swap_program IN (
+        'Saber Stable Swap',
+        'phoenix',
+        'stepn swap',
+        'bonkswap'
+    )
+    AND tx_id NOT IN (SELECT tx_id FROM all_marginfi_flash_loans)
+    GROUP BY 1
 ), 
 
 pump_fun_volume as (
-    select
-        date_trunc('day', block_timestamp) as date, 
-        sum(
-            case
-                when swap_from_amount_usd is not null and swap_to_amount_usd is not null then greatest(swap_from_amount_usd, swap_to_amount_usd)
-                else coalesce(swap_from_amount_usd, swap_to_amount_usd)
-            end
-        ) as trading_volume
-    from solana_flipside.defi.ez_dex_swaps
-    where swap_program = 'pump.fun'
-    group by date
-    order by date asc
-), 
+    SELECT
+        DATE_TRUNC('day', block_timestamp) AS date, 
+        SUM(
+            CASE
+                WHEN swap_from_amount_usd IS NOT NULL AND swap_to_amount_usd IS NOT NULL THEN swap_to_amount_usd
+                ELSE COALESCE(swap_from_amount_usd, swap_to_amount_usd)
+            END
+        ) AS trading_volume
+    FROM solana_flipside.defi.ez_dex_swaps
+    WHERE swap_program IN ('pump.fun')
+    GROUP BY 1
+    ORDER BY 1 ASC
+),  
 
-excluded_marginfi_volume as (
-    with all_marginfi_flash_loans as (
-        select *
-        from solana_flipside.core.ez_events_decoded
-        where program_id = 'MFv2hWf31Z9kbCa1snEPYctwafyhdvnV7FZnsebVacA' and event_type = 'lendingAccountStartFlashloan'
-    )
-    
-    select
-        date_trunc('day', block_timestamp) as date, 
-        sum(
-            case
-                when swap_from_amount_usd is not null and swap_to_amount_usd is not null then greatest(swap_from_amount_usd, swap_to_amount_usd)
-                when swap_from_amount_usd is null then swap_to_amount_usd
-                when swap_to_amount_usd is null then swap_from_amount_usd
-                else 0
-            end
-        ) as trading_volume
-        
-    from solana_flipside.defi.ez_dex_swaps
-    where tx_id not in (select tx_id from all_marginfi_flash_loans) 
-        and abs(coalesce(swap_from_amount_usd,0) - coalesce(swap_to_amount_usd,0)) < 1000
-        and swap_program not in (
-            'raydium constant product market maker',
-            'raydium concentrated liquidity',
-            'Raydium Liquidity Pool V4',
-            'raydium liquidity pool program id v5', 
-            'meteora dlmm pools program', 
-            'meteora pools program',
-            'phoenix', 
-            'pump.fun', 
-            'orca token swap', 
-            'ORCA Token Swap V2', 
-            'orca whirlpool program'
-        )
-    group by date
-    order by date asc 
-), 
+pumpswap_volume as (
+    WITH included_pump_txs AS (
+        SELECT DISTINCT tx_id
+        FROM SOLANA_FLIPSIDE.CORE.EZ_EVENTS_DECODED e,
+        LATERAL FLATTEN(input => e.decoded_instruction:accounts) AS flattened
+        WHERE
+        LOWER(e.program_id) = LOWER('pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA')
+        AND flattened.value:name::STRING = 'quote_mint'
+        AND (e.decoded_instruction:name = 'sell' OR e.decoded_instruction:name = 'buy')
+        AND LOWER(flattened.value:pubkey::STRING) IN (LOWER('So11111111111111111111111111111111111111112'), 
+                                                LOWER('mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So'),
+                                                LOWER('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'),
+                                                LOWER('Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'),
+                                                LOWER('DEkqHyPN7GMRJ5cArtQFAWefqbZb33Hyf6s5iCwjEonT')
+            )
+    ) 
 
-orca_volume as (
-    select 
-        date,
-        trading_volume
-    from orca.prod_core.ez_metrics
-    order by date asc
+    SELECT
+        DATE_TRUNC('day', block_timestamp) AS date, 
+        SUM(
+            CASE
+                WHEN swap_from_amount_usd IS NOT NULL AND swap_to_amount_usd IS NOT NULL THEN swap_to_amount_usd
+                WHEN swap_from_amount_usd IS NULL AND swap_to_amount_usd IS NOT NULL THEN swap_to_amount_usd
+                WHEN swap_to_amount_usd IS NULL AND swap_from_amount_usd IS NOT NULL THEN swap_from_amount_usd
+                ELSE 0
+            END
+        ) AS trading_volume
+    FROM solana_flipside.defi.ez_dex_swaps AS ez
+    INNER JOIN included_pump_txs AS ipt 
+        ON LOWER(ez.tx_id) = LOWER(ipt.tx_id)
+    WHERE swap_program IN ('pumpswap')
+    GROUP BY 1
+    ORDER BY 1 DESC
 ), 
 
 lifinity_volume as (
-    select
+    SELECT
         date, 
-        daily_volume as trading_volume
-    from pc_dbt_db.prod.fact_lifinity_dex_volumes   
-    order by date asc
+        daily_volume AS trading_volume
+    FROM pc_dbt_db.prod.fact_lifinity_dex_volumes   
+    ORDER BY 1 ASC
+), 
+
+meteora_volume as (
+    SELECT
+        date, 
+        spot_volume AS trading_volume
+    FROM meteora.prod_core.ez_metrics
+    ORDER BY 1 ASC
+), 
+
+jupiter_volume as (
+    SELECT
+        date, 
+        trading_volume + aggregator_volume_overall AS trading_volume
+    FROM jupiter.prod_core.ez_metrics
+    ORDER BY 1 ASC
 )
 
-select
-    coalesce(sd.date, pump.date, margin.date, orca.date, lifinity.date) as date, 
-    sum((coalesce(sd.trading_volume,0) + 
-        coalesce(pump.trading_volume,0) + 
-        coalesce(margin.trading_volume,0) + 
-        coalesce(orca.trading_volume,0) + 
-        coalesce(lifinity.trading_volume,0))) as daily_volume_usd
-from scaled_down_volume as sd
-full join pump_fun_volume as pump
-    on sd.date = pump.date
-full join excluded_marginfi_volume as margin
-    on sd.date = margin.date
-full join orca_volume as orca
-    on sd.date = orca.date
-full join lifinity_volume as lifinity
-    on sd.date = lifinity.date
-group by 1
-order by date asc
+SELECT
+    COALESCE(raydium.date, orca.date, other.date, pump_fun.date, lifinity.date, pumpswap.date, meteora.date, jupiter.date) AS date, 
+    SUM(
+        COALESCE(raydium.trading_volume, 0) + 
+        COALESCE(orca.trading_volume, 0) + 
+        COALESCE(other.trading_volume, 0) + 
+        COALESCE(pump_fun.trading_volume, 0) + 
+        COALESCE(lifinity.trading_volume, 0) + 
+        COALESCE(pumpswap.trading_volume, 0) + 
+        COALESCE(meteora.trading_volume, 0) + 
+        COALESCE(jupiter.trading_volume, 0)
+    ) AS daily_volume_usd
+FROM raydium_volume AS raydium
+FULL JOIN orca_volume AS orca
+    ON raydium.date = orca.date
+FULL JOIN other_volume AS other
+    ON raydium.date = other.date
+FULL JOIN pump_fun_volume AS pump_fun
+    ON raydium.date = pump_fun.date
+FULL JOIN lifinity_volume AS lifinity
+    ON raydium.date = lifinity.date
+FULL JOIN pumpswap_volume AS pumpswap
+    ON raydium.date = pumpswap.date
+FULL JOIN meteora_volume AS meteora
+    ON raydium.date = meteora.date
+FULL JOIN jupiter_volume AS jupiter
+    ON raydium.date = jupiter.date
+GROUP BY 1

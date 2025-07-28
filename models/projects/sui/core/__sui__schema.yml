@@ -249,6 +249,21 @@ models:
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
 
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_sui_stablecoin_metrics_by_address_with_labels
     description: "This table stores metrics for the SUI protocol"
     columns:
@@ -256,3 +271,82 @@ models:
       - *p2p_stablecoin_transfer_volume
       - *stablecoin_transfer_volume
 
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
+  - name: ez_sui_metrics_by_category_v2
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
+  - name: ez_sui_metrics_by_contract_v2
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
+  - name: ez_sui_metrics_by_subcategory
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
+  - name: ez_sui_metrics_by_application_v2
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error

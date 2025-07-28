@@ -20,6 +20,9 @@ with prices as (
     from {{ ref("fact_" ~ chain ~ "_decoded_events") }} a
     where lower(contract_address) = lower('{{ contract_address }}')
         and event_name = 'OFTSent'
+        {% if is_incremental() %}
+            and block_timestamp >= (select DATEADD('day', -3, max(block_timestamp)) from {{ this }})
+        {% endif %}
 )
 
 

@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", enabled=false) }}
 with
     trading_volume_data as (
         select

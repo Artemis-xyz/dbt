@@ -5,13 +5,22 @@
 
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="ETHEREUM",
         database="ethereum",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as ({{ get_fundamental_data_for_chain("ethereum", "v2") }}),
@@ -63,6 +72,15 @@ with
         select date, issued_supply, circulating_supply
         from {{ ref("fact_ethereum_eth_supply_estimated") }}
     )
+    , application_fees AS (
+        SELECT 
+            DATE_TRUNC(DAY, date) AS date 
+            , SUM(COALESCE(fees, 0)) AS application_fees
+        FROM {{ ref("ez_protocol_datahub_by_chain") }}
+        WHERE chain = 'ethereum'
+        GROUP BY 1
+    )
+
 select
     fundamental_data.date
     , fundamental_data.chain
@@ -71,12 +89,8 @@ select
     , adjusted_dau
     , wau
     , mau
-    , fees_native
-    , case when fees is null then (coalesce(blob_fees_native, 0) + fees_native) * price else fees + coalesce(blob_fees, 0) end as fees
     , avg_txn_fee
     , median_txn_fee
-    , revenue_native + coalesce(blob_fees_native, 0) as revenue_native
-    , revenue + coalesce(blob_fees, 0) as revenue
     , case
         when fees is null then (fees_native * price) - revenue else fees - revenue
     end as priority_fee_usd
@@ -135,14 +149,20 @@ select
     , avg_cost_per_mib
     , submitters as da_dau
     , dune_dex_volumes_ethereum.dex_volumes AS chain_spot_volume
+    , coalesce(fees, 0) + coalesce(blob_fees, 0) + coalesce(priority_fee_usd, 0) + coalesce(settlement_volume, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
     -- Cashflow metrics
     , fees as chain_fees
-    , fees_native AS ecosystem_revenue_native
-    , fees AS ecosystem_revenue
+    , case when fees is null then (coalesce(blob_fees_native, 0) + fees_native) * price else fees + coalesce(blob_fees, 0) end as fees
+    , fees_native
     , revenue_native AS burned_fee_allocation_native
     , revenue AS burned_fee_allocation
-    , fees_native - revenue_native as priority_fee_native
-    , priority_fee_usd AS priority_fee
+    , fees_native - revenue_native as priority_fees_native
+    , priority_fee_usd AS priority_fees
+    -- Financial Statement Metrics
+    , revenue_native + coalesce(blob_fees_native, 0) as revenue_native
+    , revenue + coalesce(blob_fees, 0) as revenue
+    , block_rewards_native  * price AS token_incentives
+    , revenue - token_incentives AS earnings
     -- Developer metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -169,7 +189,6 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
-
     , eth_supply.issued_supply as issued_supply_native
     , eth_supply.circulating_supply as circulating_supply_native
     -- ETF Metrics
@@ -177,6 +196,9 @@ select
     , net_etf_flow
     , cumulative_etf_flow_native
     , cumulative_etf_flow
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -196,4 +218,7 @@ left join ethereum_dex_volumes as dune_dex_volumes_ethereum on fundamental_data.
 left join block_rewards_data on fundamental_data.date = block_rewards_data.date
 left join eth_supply on fundamental_data.date = eth_supply.date
 left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
-where fundamental_data.date < to_date(sysdate())
+left join application_fees on fundamental_data.date = application_fees.date
+where true
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

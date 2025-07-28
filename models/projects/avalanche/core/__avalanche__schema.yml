@@ -254,6 +254,10 @@ column_definitions:
     name: sybil_users
     description: "The number of sybil users on a chain"
 
+  total_economic_activity: &total_economic_activity
+    name: total_economic_activity
+    description: "The total value of all economic activity on a chain"
+
   total_staked: &total_staked
     name: total_staked
     description: "The total amount of USD value staked on a chain"
@@ -315,7 +319,21 @@ models:
       - *artemis_stablecoin_transfer_volume
       - *p2p_stablecoin_transfer_volume
       - *stablecoin_transfer_volume
-
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_avalanche_metrics_by_subcategory
     description: "This table stores metrics for the AVALANCHE protocol"
     columns:
@@ -325,7 +343,21 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_avalanche_metrics_by_application_v2
     description: "This table stores metrics for the AVALANCHE protocol"
     columns:
@@ -335,7 +367,21 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_avalanche_metrics_by_category_v2
     description: "This table stores metrics for the AVALANCHE protocol"
     columns:
@@ -345,13 +391,45 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_avalanche_metrics_by_chain
     description: "This table stores metrics for the AVALANCHE protocol"
     columns:
       - *inflow
       - *outflow
-
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
+      - not_null:
+          column_name: chain
+          description: "Ensures that the chain column is not null for by_chain tables"
+          severity: error
   - name: ez_avalanche_metrics
     description: "This table stores metrics for the AVALANCHE protocol"
     columns:
@@ -403,6 +481,7 @@ models:
       - *stablecoin_transfer_volume
       - *stablecoin_txns
       - *sybil_users
+      - *total_economic_activity
       - *total_staked
       - *total_staked_native
       - *total_supply_native
@@ -413,9 +492,38 @@ models:
       - *weekly_contracts_deployed
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: fact_avalanche_staking_metrics_by_type
     description: "This table stores metrics for the AVALANCHE protocol"
     columns:
       - *total_staked_native
-
+  - name: ez_avalanche_metrics_by_contract_v2
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
