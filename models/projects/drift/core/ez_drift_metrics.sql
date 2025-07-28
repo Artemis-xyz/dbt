@@ -47,14 +47,8 @@ SELECT
 
     parsed_log_metrics.spot_revenue,
 
-    coalesce(float_revenue, 0) + 
-    coalesce(lending_revenue, 0) +
-    coalesce(parsed_log_metrics.perp_revenue, 0) +
-    coalesce(parsed_log_metrics.spot_revenue, 0) as revenue,
-    total_revenue - (coalesce(float_revenue, 0) + 
-    coalesce(lending_revenue, 0) +
-    coalesce(parsed_log_metrics.perp_revenue, 0) +
-    coalesce(parsed_log_metrics.spot_revenue, 0)) as amm_revenue,
+    coalesce(float_revenue, 0) + coalesce(lending_revenue, 0) + coalesce(parsed_log_metrics.perp_revenue, 0) + coalesce(parsed_log_metrics.spot_revenue, 0) as revenue,
+    total_revenue - (coalesce(float_revenue, 0) +  coalesce(lending_revenue, 0) + coalesce(parsed_log_metrics.perp_revenue, 0) + coalesce(parsed_log_metrics.spot_revenue, 0)) as amm_revenue,
 
     -- Standardized Metrics
     -- Market Data
