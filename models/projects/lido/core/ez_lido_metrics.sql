@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="LIDO",
         database="lido",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fees_revenue_expenses as (
@@ -47,7 +56,7 @@ with
             , sum(native_balance) as treasury_native
         FROM
             {{ ref('fact_lido_dao_treasury') }}
-        where token = 'LDO'
+        WHERE token = 'LDO'
         GROUP BY 1
     )
     , net_treasury_cte as (
@@ -55,7 +64,7 @@ with
             date
             , sum(usd_balance) as net_treasury_value
         FROM {{ ref('fact_lido_dao_treasury') }}
-        where token <> 'LDO'
+        WHERE token <> 'LDO'
         group by 1
     )
     , token_incentives_cte as (
@@ -78,7 +87,6 @@ with
     )
 select
     s.date
-
     --Old metrics needed for compatibility
     , COALESCE(f.primary_supply_side_revenue, 0) as primary_supply_side_revenue
     , COALESCE(f.secondary_supply_side_revenue, 0) as secondary_supply_side_revenue
@@ -92,15 +100,12 @@ select
     , COALESCE(s.num_staked_eth, 0) as num_staked_eth
     , COALESCE(s.amount_staked_usd_net_change, 0) as amount_staked_usd_net_change
     , COALESCE(s.num_staked_eth_net_change, 0) as num_staked_eth_net_change
-
     --Standardized Metrics
-
     --Market Metrics
     , COALESCE(p.price, 0) as price
     , COALESCE(p.fdmc, 0) as fdmc
     , COALESCE(p.market_cap, 0) as market_cap
     , COALESCE(p.token_volume, 0) as token_volume
-
     --Usage Metrics
     , COALESCE(s.amount_staked_usd, 0) as lst_tvl
     , COALESCE(s.amount_staked_usd, 0) as tvl
@@ -109,30 +114,28 @@ select
     , COALESCE(s.amount_staked_usd_net_change, 0) as lst_tvl_net_change
     , COALESCE(s.num_staked_eth_net_change, 0) as lst_tvl_native_net_change
     , COALESCE(f.yield_generated, 0) as yield_generated
-
     --Cash Flow Metrics
     , COALESCE(f.mev_priority_fees, 0) as mev_priority_fees
     , COALESCE(f.block_rewards, 0) as block_rewards
     , COALESCE(f.fees, 0) as fees
-
     , COALESCE(f.treasury_fee_allocation, 0) as treasury_fee_allocation
     , COALESCE(f.validator_fee_allocation, 0) as validator_fee_allocation
-
     -- Financial Statement Metrics
     , COALESCE(f.protocol_revenue, 0) as revenue
     , COALESCE(ti.token_incentives, 0) as token_incentives
     , COALESCE(ti.token_incentives, 0) as total_expenses
     , COALESCE(f.protocol_revenue, 0) - COALESCE(ti.token_incentives, 0) as earnings
-
     --Treasury Metrics
     , COALESCE(t.treasury_value, 0) as treasury
     , COALESCE(tn.treasury_native, 0) as own_token_treasury_native
     , COALESCE(nt.net_treasury_value, 0) as net_treasury
-
     --Other Metrics
     , COALESCE(p.token_turnover_fdv, 0) as token_turnover_fdv
     , COALESCE(p.token_turnover_circulating, 0) as token_turnover_circulating
     , COALESCE(th.token_holder_count, 0) as token_holder_count
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from staked_eth_metrics s
 left join fees_revenue_expenses f  using(date)
 left join treasury_cte t using(date)
@@ -141,4 +144,6 @@ left join net_treasury_cte nt using(date)
 left join token_incentives_cte ti using(date)
 left join price_data p using(date)
 left join tokenholder_cte th using(date)
-where s.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('s.date', backfill_date) }}
+and s.date < to_date(sysdate())

@@ -1,13 +1,22 @@
 -- depends_on {{ ref("fact_bitcoin_issuance_circulating_supply_silver") }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="BITCOIN",
         database="bitcoin",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as (
@@ -101,6 +110,9 @@ select
     , net_etf_flow
     , cumulative_etf_flow_native
     , cumulative_etf_flow
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join issuance_data on fundamental_data.date = issuance_data.date
 left join price_data on fundamental_data.date = price_data.date
@@ -109,4 +121,6 @@ left join github_data on fundamental_data.date = github_data.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join etf_metrics on fundamental_data.date = etf_metrics.date
 left join bitcoin_dex_volumes on fundamental_data.date = bitcoin_dex_volumes.date
-where fundamental_data.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental("fundamental_data.date", backfill_date) }}
+and fundamental_data.date < to_date(sysdate())
