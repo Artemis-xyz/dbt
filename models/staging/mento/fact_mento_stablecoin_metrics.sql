@@ -1,4 +1,4 @@
-{{config(materialized="incremental", unique_key=["date", "chain"], snowflake_warehouse="MENTO")}}
+{{config(materialized="incremental", unique_key=["date"], snowflake_warehouse="MENTO")}}
 
 with
     contract_addresses_mento as (
