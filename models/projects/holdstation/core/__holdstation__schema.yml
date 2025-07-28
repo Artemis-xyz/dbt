@@ -54,7 +54,6 @@ models:
     columns:
       - *perp_dau
       - *perp_volume
-
   - name: ez_holdstation_metrics
     description: "This table stores metrics for the HOLDSTATION protocol"
     columns:
@@ -66,4 +65,3 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-
