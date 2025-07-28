@@ -55,6 +55,7 @@ models:
       - *perp_dau
       - *perp_volume
 
+
   - name: ez_level_finance_metrics
     description: "This table stores metrics for the LEVEL_FINANCE protocol"
     columns:
