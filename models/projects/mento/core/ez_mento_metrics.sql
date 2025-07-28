@@ -1,6 +1,6 @@
 {{
     config(
-        materialized="incremental",
+        materialized="table",
         snowflake_warehouse="MENTO",
         database="MENTO",
         schema="core",
@@ -22,6 +22,7 @@ with
             , sum(spot_volume) as spot_volume
             , sum(spot_txns) as spot_txns
             , sum(spot_dau) as spot_dau
+            , sum(cumulative_spot_volume) as cumulative_spot_volume
         from {{ref("fact_mento_spot_volume_spot_txn_spot_dau")}}
         group by 1
     )
@@ -45,6 +46,7 @@ select
     , spot_volume
     , spot_txns
     , spot_dau
+    , cumulative_spot_volume
     , stablecoin_transfer_volume
     , stablecoin_daily_txns
     , stablecoin_supply
