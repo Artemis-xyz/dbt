@@ -23,12 +23,12 @@ with
         select date, trading_volume, unique_traders
         from {{ ref("fact_gmx_trading_volume") }}
         left join {{ ref("fact_gmx_unique_traders") }} using(date)
-        and chain is not null
+        where chain is not null
     ),
     v2_data as (
         select date, trading_volume, unique_traders
         from {{ ref("fact_gmx_v2_trading_volume_unique_traders") }}
-        and chain is not null
+        where chain is not null
     ),
     combined_data as (
         select 
@@ -53,7 +53,6 @@ with
             sum(spot_oracle_fee_allocation) as spot_oracle_fee_allocation,
             sum(spot_treasury_fee_allocation) as spot_treasury_fee_allocation
         from {{ ref("fact_gmx_all_versions_dex_cash_flows") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , perp_data as (
@@ -68,7 +67,6 @@ with
             sum(perp_oracle_fee_allocation) as perp_oracle_fee_allocation,
             sum(perp_treasury_fee_allocation) as perp_treasury_fee_allocation
         from {{ ref("fact_gmx_all_versions_perp_cash_flows") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
         group by 1
     )
     , txns_and_dau_data as (
@@ -81,19 +79,16 @@ with
             spot_txns,
             perp_txns
         from {{ ref("fact_gmx_all_versions_txns_and_dau") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     )
     , treasury_metrics as (
         select * from {{ ref("fact_gmx_treasury_data") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
     ),
     tvl_metrics as (
         select
             date,
             sum(tvl_token_adjusted) as tvl
         from {{ ref("fact_gmx_all_versions_tvl") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and version = 'v2'
+        where version = 'v2'
         group by 1
 
         union all   
@@ -102,8 +97,7 @@ with
             date,
             sum(tvl_token_adjusted) as tvl
         from {{ ref("fact_gmx_all_versions_tvl") }}
-        {{ ez_metrics_incremental('date', backfill_date) }}
-        and version = 'v1'
+        where version = 'v1'
         group by 1
     ),
     tvl_metrics_grouped as (
@@ -138,7 +132,7 @@ with
             date,
             sum(native_balance) as own_token_treasury_native
         from {{ ref('fact_gmx_treasury_data') }}
-        and token = 'GMX'
+        where token = 'GMX'
         group by 1
     )
     , fees_data as (

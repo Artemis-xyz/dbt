@@ -5,7 +5,7 @@
         database="hyperliquid",
         schema="raw",
         alias="fact_hyperliquid_trades",
-        unique_key=["transaction_hash", "trade_id"],
+        unique_key=["transaction_hash", "trade_id", "order_id"],
     )
 }}
 select 
