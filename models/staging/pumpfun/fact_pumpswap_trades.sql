@@ -28,15 +28,15 @@ with encoded_swaps as (
   SELECT 
     PARSE_JSON(idls.parquet_raw::STRING) AS idl
   FROM {{ source('SNOWPIPE_DB', 'FACT_ARTEMIS_ABIS') }} idls
-  WHERE contract_address = 'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA_v2'
+  WHERE contract_address = 'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA_old'
 )
 
 , decoded_swaps as (
     SELECT
         encoded_swaps.*,
         CASE 
-            WHEN encoded_swaps.block_timestamp::date < '2025-05-12' THEN PARSE_JSON(DECODE_SOLANA_INNER_INSTRUCTION(pumpswap_idl_old.idl::STRING, encoded_data))
-            WHEN encoded_swaps.block_timestamp::date >= '2025-05-12' THEN PARSE_JSON(DECODE_SOLANA_INNER_INSTRUCTION(pumpswap_idl.idl::STRING, encoded_data))
+            WHEN encoded_swaps.block_timestamp < '2025-05-12 12:00:00.000' THEN PARSE_JSON(DECODE_SOLANA_INNER_INSTRUCTION(pumpswap_idl_old.idl::STRING, encoded_data))
+            WHEN encoded_swaps.block_timestamp >= '2025-05-12 12:00:00.000' THEN PARSE_JSON(DECODE_SOLANA_INNER_INSTRUCTION(pumpswap_idl.idl::STRING, encoded_data))
         END AS decoded_data
     FROM encoded_swaps, pumpswap_idl, pumpswap_idl_old
 )
