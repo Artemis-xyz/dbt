@@ -66,15 +66,15 @@ with
         where not equal_null(category, 'EOA') and app is not null
         group by month_date, app
     ),
-    app_tvl as (
-        select
-            date,
-            app,
-            sum(balance) as tvl
-        from {{ ref('fact_solana_address_balances_by_token_with_labels') }}
-        where not equal_null(category, 'EOA') and app is not null
-        group by date, app
-    )
+    -- app_tvl as (
+    --     select
+    --         date,
+    --         app,
+    --         sum(balance) as tvl
+    --     from {{ ref('fact_solana_address_balances_by_token_with_labels') }}
+    --     where not equal_null(category, 'EOA') and app is not null
+    --     group by date, app
+    -- )
 select
     agg_data.raw_date as date,
     agg_data.app,
@@ -104,7 +104,7 @@ select
     (dau - low_sleep_users) as high_sleep_users,
     sybil_users,
     (dau - sybil_users) as non_sybil_users,
-    app_tvl.tvl
+    NULL AS tvl
 from agg_data
 left join
     new_users
@@ -120,8 +120,8 @@ left join
     monthly_users
     on equal_null(agg_data.app, monthly_users.app)
     and date_trunc('month', agg_data.raw_date) = monthly_users.month_date
-left join
-    app_tvl
-    on equal_null(agg_data.app, app_tvl.app)
-    and agg_data.raw_date = app_tvl.date
+-- left join
+--     app_tvl
+--     on equal_null(agg_data.app, app_tvl.app)
+--     and agg_data.raw_date = app_tvl.date
 
