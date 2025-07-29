@@ -18,7 +18,13 @@
 {% set backfill_date = var("backfill_date", None) %}
 
 WITH
-    fundamental_data AS (
+    dim_date_spine AS (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date >= '2022-03-12'
+          AND date < to_date(sysdate())
+    )
+    , fundamental_data AS (
         SELECT
             date
             , txns
