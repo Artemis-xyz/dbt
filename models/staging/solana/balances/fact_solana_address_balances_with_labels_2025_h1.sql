@@ -11,7 +11,8 @@
 
 {% set max_date = '2025-06-30' %}
 {% set min_date = '2025-01-01' %}
+{% set table_date_range = '2025_h1' %}
 
 -- Sample run: dbt run -s fact_solana_address_balances_with_labels_2025_h1 --vars '{"start_date": "2025-01-01", "end_date": "2025-02-01"}'
 
-{{ solana_address_balances_with_labels(start_date, end_date, max_date, min_date) }}
+{{ solana_address_balances_with_labels(start_date, end_date, max_date, min_date, table_date_range) }}

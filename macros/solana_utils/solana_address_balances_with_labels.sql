@@ -1,4 +1,4 @@
-{% macro solana_address_balances_with_labels(start_date, end_date, max_date, min_date) %}
+{% macro solana_address_balances_with_labels(start_date, end_date, max_date, min_date, table_date_range) %}
 
 -- This model covers the following possibilities:
 -- 1. Full refresh with start and end date (for historical backfilling)
@@ -17,7 +17,7 @@ cleaned_up_token_owner_hierarchy AS (
 ),
 forward_filled_balances AS (
     SELECT *
-    FROM {{ ref("fact_solana_address_balances_forward_filled_2024_h1") }} a
+    FROM {{ ref("fact_solana_address_balances_forward_filled_" ~ table_date_range) }} a
     WHERE 1=1
     {% if start_date and end_date %}
         AND date >= to_date('{{ start_date }}')
