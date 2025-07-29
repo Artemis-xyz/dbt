@@ -8,12 +8,15 @@ yaml.indent(mapping=2, sequence=4, offset=2)
 # Prevent ruamel from wrapping quoted strings onto multiple lines
 yaml.width = 4096  # effectively disables automatic line splitting
 
-# Helper to recursively double-quote all 'description' values
+# Configure YAML to not quote certain fields
+yaml.default_flow_style = False
+
+# Helper to recursively double-quote only 'description' values
 def ensure_quoted_descriptions(obj):
     """
     Recursively traverse *obj* and convert every string value found under a
     'description' key into a DoubleQuotedScalarString so ruamel.yaml writes it
-    with explicit quotes.
+    with explicit quotes. Other fields like 'field', 'severity', etc. remain unquoted.
     """
     if isinstance(obj, dict):
         for k, v in obj.items():
@@ -24,6 +27,47 @@ def ensure_quoted_descriptions(obj):
     elif isinstance(obj, list):
         for item in obj:
             ensure_quoted_descriptions(item)
+
+def normalize_test_definition(test_def):
+    """
+    Normalize a test definition for comparison by sorting keys and handling nested structures.
+    This helps in detecting duplicate tests even if they have different key orders.
+    """
+    if isinstance(test_def, dict):
+        # Sort the keys to ensure consistent comparison
+        normalized = {}
+        for key in sorted(test_def.keys()):
+            value = test_def[key]
+            if isinstance(value, dict):
+                normalized[key] = normalize_test_definition(value)
+            else:
+                normalized[key] = value
+        return normalized
+    return test_def
+
+def tests_are_equivalent(test1, test2):
+    """
+    Compare two test definitions to determine if they are equivalent.
+    Ignores severity and description differences for comparison.
+    """
+    def clean_for_comparison(test_def):
+        """Remove severity and description for comparison purposes"""
+        if isinstance(test_def, dict):
+            cleaned = {}
+            for key, value in test_def.items():
+                if key not in ['severity', 'description']:
+                    if isinstance(value, dict):
+                        cleaned[key] = clean_for_comparison(value)
+                    else:
+                        cleaned[key] = value
+            return cleaned
+        return test_def
+    
+    # Normalize both tests
+    norm1 = normalize_test_definition(clean_for_comparison(test1))
+    norm2 = normalize_test_definition(clean_for_comparison(test2))
+    
+    return norm1 == norm2
 
 class YamlRenderer:
     def write_tests(self, model, tests):
@@ -61,20 +105,39 @@ class YamlRenderer:
                 if "tests" not in existing_model:
                     existing_model["tests"] = []
                 
-                # Build test list with proper dbt YAML structure
+                # Get existing test definitions for comparison
+                existing_tests = existing_model["tests"]
+                
+                # Build test list with proper dbt YAML structure, avoiding duplicates
+                new_tests_added = 0
                 for t in tests:
                     test_def = t["definition"].copy()
                     # Add severity to the test definition
                     for test_name, test_config in test_def.items():
                         if isinstance(test_config, dict):
                             test_config["severity"] = t["severity"]
-                            # Ensure description is quoted if present
+                            # Ensure only description is quoted, other fields remain unquoted
                             if "description" in test_config:
                                 test_config["description"] = DoubleQuotedScalarString(test_config["description"])
                         else:
                             # If test_config is not a dict, make it one
                             test_def[test_name] = {"severity": t["severity"]}
-                    existing_model["tests"].append(test_def)
+                    
+                    # Check if this test already exists
+                    is_duplicate = False
+                    for existing_test in existing_tests:
+                        if tests_are_equivalent(test_def, existing_test):
+                            is_duplicate = True
+                            break
+                    
+                    if not is_duplicate:
+                        existing_model["tests"].append(test_def)
+                        new_tests_added += 1
+                
+                if new_tests_added > 0:
+                    print(f"📝 added {new_tests_added} new tests to {model['name']}")
+                else:
+                    print(f"✅ no new tests needed for {model['name']} (all tests already exist)")
                 
                 model_found = True
                 break
@@ -89,7 +152,7 @@ class YamlRenderer:
                 for test_name, test_config in test_def.items():
                     if isinstance(test_config, dict):
                         test_config["severity"] = t["severity"]
-                        # Ensure description is quoted if present
+                        # Ensure only description is quoted, other fields remain unquoted
                         if "description" in test_config:
                             test_config["description"] = DoubleQuotedScalarString(test_config["description"])
                     else:
@@ -101,6 +164,7 @@ class YamlRenderer:
                 "name": model["name"],
                 "tests": test_list,
             })
+            print(f"📝 created new model {model['name']} with {len(test_list)} tests")
         
         # Ensure every description string is double‑quoted
         ensure_quoted_descriptions(existing_schema)

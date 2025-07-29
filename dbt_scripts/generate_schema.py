@@ -106,6 +106,22 @@ def load_existing_overrides(project_schema_path):
 
     return overrides
 
+def load_existing_tests(project_schema_path):
+    """Load existing tests from the project schema to preserve them."""
+    if not os.path.exists(project_schema_path):
+        return {}
+
+    with open(project_schema_path, 'r') as f:
+        existing_schema = yaml.safe_load(f)
+
+    existing_tests = {}
+    # Extract existing tests for each model
+    for model in existing_schema.get('models', []):
+        if 'name' in model and 'tests' in model:
+            existing_tests[model['name']] = model['tests']
+
+    return existing_tests
+
 def get_project_sql_files(project_name):
     """Get all SQL files in the project's core directory"""
     dbt_root = get_dbt_root()
@@ -125,8 +141,9 @@ def generate_project_schema(project_name, global_schema_path, sql_files):
     output_dir = os.path.join(dbt_root, 'models', 'projects', project_name, 'core')
     output_path = os.path.join(output_dir, f"__{project_name}__schema.yml")
 
-    # Load any existing overrides
+    # Load any existing overrides and tests
     existing_overrides = load_existing_overrides(output_path)
+    existing_tests = load_existing_tests(output_path)
 
     # Read global schema to get column definitions
     with open(global_schema_path, 'r') as f:
@@ -197,17 +214,33 @@ def generate_project_schema(project_name, global_schema_path, sql_files):
                 f.write("    columns:\n")
                 for col_name in sorted(matching_columns):
                     f.write(f"      - *{col_name}\n")
-                # NOTE: Removing generated tests because they caused a ton of dimension-related jobs to break
-                # Needs fixing before we can uncomment this
-
-                # Add tests block using abstracted test generation
-                # from generate_tests import generate_all_tests
-                # f.write(generate_all_tests(table_name=model_name))
-                # f.write("\n")
+                
+                # Preserve existing tests if they exist
+                if model_name in existing_tests:
+                    f.write("    tests:\n")
+                    for test in existing_tests[model_name]:
+                        # Handle different test formats
+                        if isinstance(test, dict):
+                            for test_name, test_config in test.items():
+                                f.write(f"      - {test_name}:\n")
+                                if isinstance(test_config, dict):
+                                    for key, value in test_config.items():
+                                        # Only quote description, everything else should be unquoted
+                                        if isinstance(value, str) and key == 'description':
+                                            f.write(f"          {key}: \"{value}\"\n")
+                                        else:
+                                            f.write(f"          {key}: {value}\n")
+                                else:
+                                    f.write(f"          {test_config}\n")
+                        else:
+                            f.write(f"      - {test}\n")
+                    print(f"✅ Preserved {len(existing_tests[model_name])} existing tests for {model_name}")
 
     print(f"Generated schema file: {output_path}")
     if existing_overrides:
         print(f"Preserved {len(existing_overrides)} column overrides")
+    if existing_tests:
+        print(f"Preserved tests for {len(existing_tests)} models")
     
 def get_dbt_root():
     """Find the dbt project root directory by looking for dbt_project.yml"""
