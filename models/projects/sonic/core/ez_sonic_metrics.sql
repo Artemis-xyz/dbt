@@ -42,31 +42,36 @@ with
     , price_data as ({{ get_coingecko_metrics("sonic-3") }})
 select
     fundamentals.date
-    , fundamentals.fees
-    , fundamentals.txns
-    , fundamentals.dau
-    , sonic_dex_volumes.dex_volumes
-    , sonic_dex_volumes.adjusted_dex_volumes
+    , 'sonic' AS artemis_id
+
     -- Standardized Metrics
-    -- Market Data Metrics
+
+    -- Market Data
     , price_data.price
     , price_data.market_cap
     , price_data.fdmc
-    -- Chain Usage Metrics
+    , price_data.token_volume
+
+    -- Usage Data
     , fundamentals.dau AS chain_dau
+    , fundamentals.dau
     , fundamentals.txns AS chain_txns
+    , fundamentals.txns
     , sonic_dex_volumes.dex_volumes AS chain_spot_volume
-    -- Cashflow metrics
-    , fundamentals.fees AS ecosystem_revenue
-    -- Supply Metrics
+    , sonic_dex_volumes.adjusted_dex_volumes AS chain_spot_volume_adjusted
+
+    -- Fee Data
+    , fundamentals.fees
+
+    -- Supply Data
     , supply_data.emissions_native
     , supply_data.premine_unlocks_native
-    , supply_data.net_supply_change_native
     , supply_data.circulating_supply_native
-    -- Token Metrics
+
+    -- Turnover Data
     , price_data.token_turnover_circulating
     , price_data.token_turnover_fdv
-    , price_data.token_volume
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
