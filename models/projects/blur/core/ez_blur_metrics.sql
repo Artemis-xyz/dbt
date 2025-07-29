@@ -40,28 +40,35 @@ with
 
 select
     blur_daus.date
-    , coalesce(blur_daus.dau, 0) as dau
-    , coalesce(blur_daily_txns.daily_txns, 0) as txns
-    , coalesce(blur_fees.fees, 0) as fees
-    -- Token Metrics
-    , coalesce(market_data.price, 0) as price
-    , coalesce(market_data.market_cap, 0) as market_cap
-    , coalesce(market_data.fdmc, 0) as fdmc
-    , coalesce(market_data.token_volume, 0) as token_volume 
-    -- NFT Metrics
-    , coalesce(blur_daus.dau, 0) as nft_dau
-    , coalesce(blur_daily_txns.daily_txns, 0) as nft_txns
-    , coalesce(blur_fees.fees, 0) as nft_fees
-    -- Cash Flow Metrics
-    , coalesce(blur_fees.fees, 0) as ecosystem_revenue
-    , coalesce(blur_fees.fees, 0) as service_fee_allocation
-    -- Supply Metrics
-    , coalesce(blur_daily_supply.premine_unlocks_native, 0) as premine_unlocks_native
-    , coalesce(blur_daily_supply.circulating_supply_native, 0) as circulating_supply_native
-    , coalesce(blur_daily_supply.net_supply_change_native, 0) as net_supply_change_native
+    , 'blur' AS artemis_id
+
+    -- Standardized Metrics
+
+    -- Market Data
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume 
+
+    -- Usage Data
+    , blur_daus.dau AS nft_dau
+    , blur_daus.dau
+    , blur_daily_txns.daily_txns AS nft_txns
+    , blur_daily_txns.daily_txns AS txns
+
+    -- Fee Data
+    , blur_fees.fees AS fees
+    , blur_fees.fees AS nft_fees
+    , blur_fees.fees AS other_fee_allocation
+
+    -- Supply Data
+    , COALESCE(blur_daily_supply.premine_unlocks_native, 0) AS premine_unlocks_native
+    , blur_daily_supply.circulating_supply_native
+
     -- Turnover Metrics
-    , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
-    , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
