@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -19,29 +19,36 @@
 
 with 
     boba_dex_volumes as (
-        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
+        select date, coalesce(daily_volume, 0) as dex_volumes, coalesce(daily_volume_adjusted, 0) as adjusted_dex_volumes
         from {{ ref("fact_boba_daily_dex_volumes") }}
-    ),
-    price_data as ({{ get_coingecko_metrics('boba-network') }})
+    )
+    , market_metrics as ({{ get_coingecko_metrics('boba-network') }})
 select
-    d.date
-    , dex_volumes
-    , adjusted_dex_volumes
+    date
+    , 'boba' as artemis_id
+
     -- Standardized Metrics
+
     -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_volume
-    -- Chain Metrics
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
+
+    -- Usage Data
     , dex_volumes as chain_spot_volume
-    , token_turnover_circulating
-    , token_turnover_fdv
+    , adjusted_dex_volumes
+
+    -- Token Turnover/Other Data
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
+    
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from boba_dex_volumes d
-left join price_data using(d.date)
+
+from boba_dex_volumes
+left join market_metrics using(date)
 where true 
-{{ ez_metrics_incremental('d.date', backfill_date) }}
-and d.date < to_date(sysdate())
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())

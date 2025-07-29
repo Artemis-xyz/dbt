@@ -49,13 +49,6 @@ models:
     description: "This table stores metrics for the BOBA protocol"
     columns:
       - *chain_spot_volume
-      - *fdmc
-      - *market_cap
-      - *price
-      - *token_turnover_circulating
-      - *token_turnover_fdv
-      - *token_volume
-
   - name: ez_boba_metrics
     description: "This table stores metrics for the BOBA protocol"
     columns:
@@ -66,4 +59,3 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-
