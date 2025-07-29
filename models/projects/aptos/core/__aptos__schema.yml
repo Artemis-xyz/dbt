@@ -48,6 +48,10 @@ column_definitions:
     name: chain_spot_volume
     description: "Total spot dex volume on a chain"
 
+  chain_tvl: &chain_tvl
+    name: chain_tvl
+    description: "The total value locked in a chain"
+
   chain_txns: &chain_txns
     name: chain_txns
     description: "Daily transactions on Aptos"
@@ -169,6 +173,7 @@ models:
       - *chain_fees
       - *chain_mau
       - *chain_spot_volume
+      - *chain_tvl
       - *chain_txns
       - *chain_wau
       - *fdmc
@@ -184,7 +189,6 @@ models:
       - *weekly_commits_sub_ecosystem
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-
     tests:
       - not_null:
           column_name: date
@@ -206,7 +210,6 @@ models:
       - *artemis_stablecoin_transfer_volume
       - *p2p_stablecoin_transfer_volume
       - *stablecoin_transfer_volume
-
     tests:
       - not_null:
           column_name: date
