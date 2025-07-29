@@ -1,15 +1,22 @@
 
 {{ 
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='MAPLE',
         database='MAPLE',
         schema='core',
-        alias='ez_metrics'
+        alias='ez_metrics',
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
 
-
+{% set backfill_date = var("backfill_date", None) %}
 
 with fees as (
     SELECT
@@ -57,7 +64,7 @@ with fees as (
         date,
         SUM(usd_balance) AS net_treasury,
         SUM(native_balance) AS net_treasury_native
-    FROM {{ ref('fact_maple_treasury') }}
+    FROM {{ ref('fact_maple_treasury') }}   
     WHERE token <> 'SYRUP'
     GROUP BY 1
 )
@@ -99,26 +106,21 @@ SELECT
     , coalesce(tvl.tvl, 0) as net_deposits
     , coalesce(tvl.outstanding_supply, 0) as outstanding_supply
     , coalesce(tokenholders.token_holder_count, 0) as token_holder_count
-
     -- Token Metrics
     , coalesce(price.price, 0) as price
     , coalesce(price.market_cap, 0) as market_cap
     , coalesce(price.fdmc, 0) as fdmc
     , coalesce(price.token_volume, 0) as token_volume
-
     --Lending Metrics
     , coalesce(tvl.outstanding_supply, 0) as lending_loans
     , coalesce(tvl.tvl, 0) as lending_deposits
-
     --Cashflow Metrics
     , (coalesce(interest_fees, 0) - coalesce(platform_fees, 0) - coalesce(delegate_fees, 0)) as staking_fee_allocation
     , coalesce(fees.platform_fees, 0) as treasury_fee_allocation
     , 0.33 * coalesce(fees.delegate_fees, 0) as service_fee_allocation
     , 0.66 * coalesce(fees.delegate_fees, 0) as token_fee_allocation
-
     , coalesce(supply_data.buybacks_native, 0) as buybacks_native
     , coalesce(supply_data.buybacks, 0) as buybacks
-
     --Crypto Metrics
     , coalesce(tvl.tvl, 0) as tvl
     , coalesce(tvl.tvl, 0) - LAG(coalesce(tvl.tvl, 0)) OVER (ORDER BY date) as tvl_net_change
@@ -129,17 +131,18 @@ SELECT
     , coalesce(net_treasury.net_treasury_native, 0) as net_treasury_native
     , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
     , coalesce(treasury_native.own_token_treasury_native, 0) as own_token_treasury_native
-
     --Turnover Metrics
     , coalesce(price.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(price.token_turnover_fdv, 0) as token_turnover_fdv
-
     --Supply Metrics
     , coalesce(supply_data.premine_unlocks_native, 0) as premine_unlocks_native
     , coalesce(supply_data.locked_syrup_native, 0) as locked_syrup_native
     , coalesce(supply_data.emissions_native, 0) as gross_emissions_native
     , coalesce(supply_data.emissions_native, 0) * coalesce(price.price, 0) as gross_emissions
     , coalesce(supply_data.circulating_supply_native, 0) as circulating_supply_native
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM price
 LEFT JOIN fees USING(date)
 LEFT JOIN revenues USING(date)
@@ -150,3 +153,6 @@ LEFT JOIN treasury_native USING(date)
 LEFT JOIN net_treasury USING(date)
 LEFT JOIN tokenholders USING(date)
 LEFT JOIN supply_data USING(date)
+where true
+{{ ez_metrics_incremental('price.date', backfill_date) }}
+and price.date < to_date(sysdate())

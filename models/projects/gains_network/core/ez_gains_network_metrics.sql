@@ -1,10 +1,17 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="GAINS_NETWORK",
         database="gains_network",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
 
@@ -12,6 +19,8 @@
 -- 55% of revenue to stakers before
 -- Post Jul 12, 2024 this shifted to 60% and of that 60% 90% goes to buyback and burn. 10% to treasury
 -- rest of the fees goes to 
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with date_spine as (
     select date
@@ -77,7 +86,13 @@ select
     , gf.staking_fee_allocation
     , gf.service_fee_allocation
     , gf.treasury_fee_allocation
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine ds
 left join gains_data gd using (date)
 left join gains_fees gf using (date)
 left join gains_tvl gt using (date)
+where true
+{{ ez_metrics_incremental('ds.date', backfill_date) }}
+and ds.date < to_date(sysdate())

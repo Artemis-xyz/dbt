@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="marinade",
         database="marinade",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with tvl as (
     select
@@ -59,7 +68,6 @@ market_metrics as (
 
 select
     date
-
     --Old metrics needed for compatibility
     , liquid
     , native
@@ -76,10 +84,7 @@ select
     -- when v2 fees are active, 100% goes to the protocol
         else fees 
     end as revenue
-
-
     --Standardized Metrics
-
     --Market Metrics
     , market_metrics.price
     , market_metrics.market_cap
@@ -93,12 +98,10 @@ select
     , tvl as lst_tvl_native
     , coalesce(tvl - lag(tvl) over (order by date), 0) as lst_tvl_net_change
     , coalesce(tvl_native - lag(tvl_native) over (order by date), 0) as lst_tvl_native_net_change
-
     , dau as lst_dau
     , txns as lst_txns
     , liquid as tvl_liquid_stake
     , native as tvl_native_stake
-
     --Cash Flow Metrics
     , unstaking_fees_native * price as unstaking_fees
     , fees_native * price as lst_fees
@@ -120,10 +123,15 @@ select
     --Other Metrics
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from tvl
 left join dau using (date)
 left join fees using (date)
 left join circulating_supply using (date)
 left join price using (date)
 left join market_metrics using (date)
-order by date desc
+where true
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())

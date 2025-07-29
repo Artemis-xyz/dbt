@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="AAVE",
         database="aave",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     deposits_borrows_lender_revenue as (
@@ -268,6 +277,10 @@ select
     , fdmc
     , token_turnover_circulating
     , token_turnover_fdv
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from aave_outstanding_supply_net_deposits_deposit_revenue
 left join aave_flashloan_fees using (date)
 left join aave_liquidation_supply_side_revenue using (date)
@@ -279,4 +292,6 @@ left join treasury using (date)
 left join net_treasury_data using (date)
 left join aave_token_holders using (date)
 left join coingecko_metrics using (date)
-where aave_outstanding_supply_net_deposits_deposit_revenue.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental("aave_outstanding_supply_net_deposits_deposit_revenue.date", backfill_date) }}
+and aave_outstanding_supply_net_deposits_deposit_revenue.date < to_date(sysdate())

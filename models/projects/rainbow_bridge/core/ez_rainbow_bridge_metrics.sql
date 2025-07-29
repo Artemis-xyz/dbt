@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="RAINBOW_BRIDGE",
         database="rainbow_bridge",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     bridge_volume as (
@@ -24,6 +33,11 @@ select
     'Bridge' as category,
     bridge_volume.bridge_volume,
     bridge_dau.bridge_dau
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from bridge_volume
 left join bridge_dau on bridge_volume.date = bridge_dau.date
-where bridge_volume.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('bridge_volume.date', backfill_date) }}
+and bridge_volume.date < to_date(sysdate())
