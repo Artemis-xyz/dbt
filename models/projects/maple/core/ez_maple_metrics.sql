@@ -18,32 +18,36 @@
 
 {% set backfill_date = var("backfill_date", None) %}
 
-with fees as (
+WITH date_spine AS (
+    SELECT date
+    FROM {{ ref('dim_date_spine') }}
+    WHERE date >= '2024-11-13' AND date < TO_DATE(SYSDATE())
+)
+, fees AS (
     SELECT
         date,
-        SUM(net_interest_usd) AS fees,
-        SUM(net_interest_usd) AS supply_side_fees,
+        SUM(net_interest_usd) AS interest_fees,
         SUM(platform_fees_usd) AS platform_fees,
         SUM(delegate_fees_usd) AS delegate_fees
     FROM {{ ref('fact_maple_fees') }}
     GROUP BY 1
 )
-, revenues as (
+, revenues AS (
     SELECT
         date,
         SUM(revenue) AS revenue
     FROM {{ ref('fact_maple_revenue') }}
     GROUP BY 1
 )
-, token_incentives as (
-    select
+, token_incentives AS (
+    SELECT
         date
         , sum(incentive_native) as token_incentives_native
         , sum(incentive_usd) as token_incentives
-    from {{ ref('fact_maple_token_incentives') }}
-    group by 1
+    FROM {{ ref('fact_maple_token_incentives') }}
+    GROUP BY 1
 )
-, tvl as (
+, tvl AS (
     SELECT
         date,
         SUM(tvl) AS tvl,
@@ -51,7 +55,7 @@ with fees as (
     FROM {{ ref('fact_maple_agg_tvl') }}
     GROUP BY 1
 )
-, treasury as (
+, treasury AS (
     SELECT
         date,
         SUM(usd_balance) AS treasury, 
@@ -59,7 +63,7 @@ with fees as (
     FROM {{ ref('fact_maple_treasury') }}
     GROUP BY 1
 )
-, net_treasury as (
+, net_treasury AS (
     SELECT
         date,
         SUM(usd_balance) AS net_treasury,
@@ -68,7 +72,7 @@ with fees as (
     WHERE token <> 'SYRUP'
     GROUP BY 1
 )
-, treasury_native as (
+, treasury_native AS (
     SELECT
         date,
         SUM(native_balance) AS own_token_treasury_native,
@@ -77,73 +81,69 @@ with fees as (
     WHERE token = 'SYRUP'
     GROUP BY 1
 )
-, price as(
+, market_data AS (
     {{ get_coingecko_metrics('syrup')}}
 )
-, tokenholders as (
+, tokenholders AS (
     SELECT * FROM {{ ref('fact_maple_tokenholder_count')}}
 )
-, supply_data as (
+, supply_data AS (
     SELECT * FROM {{ ref('fact_maple_supply')}}
 )
 
 SELECT 
-    price.date
-    , coalesce(fees.fees, 0) as interest_fees
-    , coalesce(fees.platform_fees, 0) as platform_fees
-    , coalesce(fees.delegate_fees, 0) as delegate_fees
-    , coalesce(fees.fees, 0) as fees
-    , coalesce(interest_fees, 0) - coalesce(platform_fees, 0) - coalesce(delegate_fees, 0) as primary_supply_side_revenue
-    , coalesce(primary_supply_side_revenue, 0) as total_supply_side_revenue
-    , coalesce(revenues.revenue, 0) as revenue
-    , coalesce(token_incentives.token_incentives_native, 0) as token_incentives_native
-    , coalesce(token_incentives.token_incentives, 0) as token_incentives
-    , coalesce(token_incentives.token_incentives, 0) as total_expenses
-    , coalesce(revenue, 0) - coalesce(token_incentives.token_incentives, 0) as earnings
-    , coalesce(treasury.treasury, 0) as treasury_value
-    , coalesce(treasury_native.own_token_treasury_native, 0) as treasury_value_native
-    , coalesce(net_treasury.net_treasury, 0) as net_treasury_value
-    , coalesce(tvl.tvl, 0) as net_deposits
-    , coalesce(tvl.outstanding_supply, 0) as outstanding_supply
-    , coalesce(tokenholders.token_holder_count, 0) as token_holder_count
-    -- Token Metrics
-    , coalesce(price.price, 0) as price
-    , coalesce(price.market_cap, 0) as market_cap
-    , coalesce(price.fdmc, 0) as fdmc
-    , coalesce(price.token_volume, 0) as token_volume
-    --Lending Metrics
-    , coalesce(tvl.outstanding_supply, 0) as lending_loans
-    , coalesce(tvl.tvl, 0) as lending_deposits
-    --Cashflow Metrics
-    , (coalesce(interest_fees, 0) - coalesce(platform_fees, 0) - coalesce(delegate_fees, 0)) as staking_fee_allocation
-    , coalesce(fees.platform_fees, 0) as treasury_fee_allocation
-    , 0.33 * coalesce(fees.delegate_fees, 0) as service_fee_allocation
-    , 0.66 * coalesce(fees.delegate_fees, 0) as token_fee_allocation
-    , coalesce(supply_data.buybacks_native, 0) as buybacks_native
-    , coalesce(supply_data.buybacks, 0) as buybacks
-    --Crypto Metrics
-    , coalesce(tvl.tvl, 0) as tvl
-    , coalesce(tvl.tvl, 0) - LAG(coalesce(tvl.tvl, 0)) OVER (ORDER BY date) as tvl_net_change
-    --Protocol metrics
-    , coalesce(treasury.treasury, 0) as treasury
-    , coalesce(treasury.treasury_native, 0) as treasury_native
-    , coalesce(net_treasury.net_treasury, 0) as net_treasury
-    , coalesce(net_treasury.net_treasury_native, 0) as net_treasury_native
-    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
-    , coalesce(treasury_native.own_token_treasury_native, 0) as own_token_treasury_native
-    --Turnover Metrics
-    , coalesce(price.token_turnover_circulating, 0) as token_turnover_circulating
-    , coalesce(price.token_turnover_fdv, 0) as token_turnover_fdv
-    --Supply Metrics
-    , coalesce(supply_data.premine_unlocks_native, 0) as premine_unlocks_native
-    , coalesce(supply_data.locked_syrup_native, 0) as locked_syrup_native
-    , coalesce(supply_data.emissions_native, 0) as gross_emissions_native
-    , coalesce(supply_data.emissions_native, 0) * coalesce(price.price, 0) as gross_emissions
-    , coalesce(supply_data.circulating_supply_native, 0) as circulating_supply_native
+    date_spine.date
+    , 'maple' AS artemis_id
+
+    -- Market Data
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
+
+    -- Usage Data
+    , tokenholders.token_holder_count
+    , tvl.outstanding_supply AS lending_loans
+    , tvl.outstanding_supply + tvl.tvl AS lending_loan_capacity
+
+    -- Fee Data
+    , fees.interest_fees
+    , fees.platform_fees
+    , fees.delegate_fees
+    , fees.interest_fees + fees.platform_fees + fees.delegate_fees AS fees
+    , fees.interest_fees AS staking_fee_allocation
+    , fees.platform_fees AS treasury_fee_allocation
+    , 0.33 * fees.delegate_fees AS other_fee_allocation
+        -- 33% of delegate fees goes to the pool delegates
+    , 0.66 * fees.delegate_fees AS dao_fee_allocation
+    , COALESCE(supply_data.buybacks, 0) as buybacks
+    
+    -- Fees
+    , COALESCE(revenues.revenue, 0) + COALESCE(supply_data.buybacks, 0) + COALESCE(dao_fee_allocation, 0) AS revenue
+    , COALESCE(token_incentives.token_incentives, 0) AS token_incentives
+    , COALESCE(token_incentives.token_incentives, 0) AS total_expenses
+    , COALESCE(revenue, 0) - COALESCE(token_incentives.token_incentives, 0) AS earnings
+
+    -- Treasury Data
+    , treasury.treasury
+    , net_treasury.net_treasury
+    , treasury_native.own_token_treasury
+
+    --Supply Data
+    , COALESCE(supply_data.premine_unlocks_native, 0) AS premine_unlocks_native
+    , COALESCE(supply_data.emissions_native, 0) AS gross_emissions_native
+    , COALESCE(supply_data.emissions_native, 0) * COALESCE(price.price, 0) AS gross_emissions
+    , COALESCE(supply_data.circulating_supply_native, 0) AS circulating_supply_native
+
+    --Turnover Data
+    , price.token_turnover_circulating
+    , price.token_turnover_fdv
+    
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-FROM price
+FROM date_spine
+LEFT JOIN market_data USING(date)
 LEFT JOIN fees USING(date)
 LEFT JOIN revenues USING(date)
 LEFT JOIN token_incentives USING(date)
@@ -154,5 +154,5 @@ LEFT JOIN net_treasury USING(date)
 LEFT JOIN tokenholders USING(date)
 LEFT JOIN supply_data USING(date)
 where true
-{{ ez_metrics_incremental('price.date', backfill_date) }}
-and price.date < to_date(sysdate())
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())
