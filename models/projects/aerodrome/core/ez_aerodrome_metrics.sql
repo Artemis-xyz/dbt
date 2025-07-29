@@ -34,7 +34,7 @@ with swap_metrics as (
     FROM {{ ref('fact_aerodrome_tvl') }}
     GROUP BY date
 )
-, market_metrics as (
+, market_data as (
     {{get_coingecko_metrics('aerodrome-finance')}}
 )
 , supply_metrics as (
@@ -79,50 +79,50 @@ with swap_metrics as (
 
 SELECT
     ds.date
-
-    -- Old metrics needed for compatibility
-    , coalesce(sm.unique_traders, 0) as unique_traders
-    , coalesce(sm.total_swaps, 0) as number_of_swaps
-    , coalesce(sm.daily_volume_usd, 0) as trading_volume
-    , coalesce(sm.daily_fees_usd, 0) as trading_fees
+    , 'aerodrome' AS artemis_id
 
     -- Standardized Metrics
-    -- Market Metrics
-    , coalesce(mm.price, 0) as price
-    , coalesce(mm.market_cap, 0) as market_cap
-    , coalesce(mm.fdmc, 0) as fdmc
-    , coalesce(mm.token_volume, 0) as token_volume
 
-    -- Usage/Sector Metrics
-    , coalesce(sm.unique_traders, 0) as spot_dau
-    , coalesce(sm.total_swaps, 0) as spot_txns
-    , coalesce(sm.daily_volume_usd, 0) as spot_volume
-    , coalesce(tm.tvl_usd, 0) as tvl
+    -- Market Data
+    , md.price
+    , md.market_cap
+    , md.fdmc
+    , md.token_volume
+
+    -- Usage Data
+    , sm.unique_traders as spot_dau
+    , sm.unique_traders as dau
+    , sm.total_swaps as spot_txns
+    , sm.total_swaps as txns
+    , tm.tvl_usd as spot_tvl
+    , tm.tvl_usd as tvl
+    , sm.daily_volume_usd as spot_volume
 
     -- Cash Flow Metrics
-    , coalesce(sm.daily_fees_usd, 0) as spot_fees
-    , coalesce(sm.daily_fees_usd, 0) as fees
-    , coalesce(sm.daily_fees_usd, 0) as staking_fee_allocation
-    , coalesce(sp.buybacks_native, 0) as buybacks_native
-    , coalesce(sp.buybacks, 0) as buybacks
-    , (coalesce(sm.daily_fees_usd, 0) + coalesce(sp.buybacks, 0)) as revenue
-    , (coalesce(sp.buybacks, 0)) - ti.token_incentives as earnings
+    , sm.daily_fees_usd as fees
+    , sm.daily_fees_usd as spot_fees
+    , sm.daily_fees_usd as staking_fee_allocation
+    , sp.buybacks AS buybacks
+
+    -- Financial Statements
+    , (COALESCE(sm.daily_fees_usd, 0) + COALESCE(sp.buybacks, 0)) as revenue
+    , ti.token_incentives
+    , (COALESCE(sp.buybacks, 0)) - COALESCE(ti.token_incentives, 0) as earnings
     -- NOTE: We do not track bribes as a part of revenue here. 
 
     -- Supply Metrics
-    , coalesce(sp.emissions_native, 0) as gross_emissions_native
-    , coalesce(sp.emissions_native, 0) * coalesce(mm.price, 0) as gross_emissions
-    , coalesce(sp.pre_mine_unlocks, 0) as premine_unlocks_native
-    , coalesce(sp.circulating_supply_native, 0) - lag(coalesce(sp.circulating_supply_native, 0)) over (order by date) as net_supply_change_native
-    , coalesce(sp.circulating_supply_native, 0) as circulating_supply_native
-    , coalesce(sp.locked_supply, 0) as locked_supply
-    , coalesce(sp.total_supply, 0) as total_supply
+    , COALESCE(sp.emissions_native, 0) AS gross_emissions_native
+    , COALESCE(sp.emissions_native, 0) * COALESCE(md.price, 0) AS gross_emissions
+    , sp.total_supply AS total_supply
+    , COALESCE(sp.pre_mine_unlocks, 0) AS premine_unlocks_native
+    , sp.circulating_supply_native AS circulating_supply_native
 
-    -- Other Metrics
-    , coalesce(mm.token_turnover_circulating, 0) as token_turnover_circulating
-    , coalesce(mm.token_turnover_fdv, 0) as token_turnover_fdv
-    , coalesce(pm.cumulative_count, 0) as total_pools
-    , coalesce(ti.token_incentives, 0) as token_incentives
+    -- Turnover Data
+    , md.token_turnover_circulating
+    , md.token_turnover_fdv
+
+    -- Bespoke Metrics
+    , pm.cumulative_count as total_pools
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
@@ -130,7 +130,7 @@ SELECT
 FROM date_spine ds
 LEFT JOIN swap_metrics sm using (date)
 LEFT JOIN tvl_metrics tm using (date)
-LEFT JOIN market_metrics mm using (date)
+LEFT JOIN market_data md using (date)
 LEFT JOIN supply_metrics sp using (date)
 LEFT JOIN pools_metrics pm using (date)
 LEFT JOIN token_incentives ti using (date)
