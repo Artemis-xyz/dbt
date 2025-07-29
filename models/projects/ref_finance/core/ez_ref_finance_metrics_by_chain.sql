@@ -22,9 +22,9 @@ select
     , token_volume
 
     -- Usage Metrics
-    , unique_traders as spot_dau
-    , daily_swaps as spot_txns
-    , volume as spot_volume
+    , spot_dau
+    , spot_txns
+    , spot_volume
 
     -- Other Metrics
     , token_turnover_circulating

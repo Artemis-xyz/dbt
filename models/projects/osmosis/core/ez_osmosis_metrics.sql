@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -82,7 +82,7 @@ select
     -- Market Data
     , m.price
     , m.market_cap
-    , m.fully_diluted_market_cap
+    , m.fdmc
     , m.token_volume
 
     -- Chain Metrics
@@ -90,7 +90,7 @@ select
     , f.txns as txns
     , f.dau as chain_dau
     , f.dau as dau
-    , f.avg_txn_fee as chain_avg_txn_fee
+    , f.fees / f.txns as chain_avg_txn_fee
     , d.dex_volumes as chain_spot_volume -- Osmosis is both a DEX and a chain
     , d.dex_volumes as spot_volume
     , d.tvl
@@ -111,8 +111,6 @@ select
     , g.weekly_commits_sub_ecosystem
     , g.weekly_developers_core_ecosystem
     , g.weekly_developers_sub_ecosystem
-    , p.token_turnover_circulating
-    , p.token_turnover_fdv
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on

@@ -80,9 +80,9 @@ with
         where ds.date between (select min(date) from restaked_eth_metrics_by_chain) and to_date(sysdate())
     )
 select
-    date_spine.date,
-    'renzo' as artemis_id,
-    restaked_eth_metrics_by_chain.chain,
+    date_spine.date
+    , 'renzo' as artemis_id
+    , restaked_eth_metrics_by_chain.chain
 
     --Standardized Metrics
 

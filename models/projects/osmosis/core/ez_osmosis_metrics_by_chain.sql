@@ -22,17 +22,17 @@ SELECT
     , txns as txns
     , dau as chain_dau
     , dau as dau
-    , avg_txn_fee as chain_avg_txn_fee
-    , dex_volumes as chain_spot_volume -- Osmosis is both a DEX and a chain
-    , dex_volumes as spot_volume
+    , fees / txns as chain_avg_txn_fee
+    , chain_spot_volume -- Osmosis is both a DEX and a chain
+    , spot_volume
     , tvl
 
     -- Fee Metrics
-    , gas_usd as chain_fees
-    , trading_fees as spot_fees
+    , chain_fees
+    , spot_fees
     , fees as fees
-    , trading_fees as service_fee_allocation
-    , gas_usd as validator_fee_allocation
+    , lp_fee_allocation
+    , validator_fee_allocation
 
     -- Financial Metrics
     , revenue
@@ -43,6 +43,4 @@ SELECT
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
-    , token_turnover_circulating
-    , token_turnover_fdv
 FROM {{ ref("ez_osmosis_metrics") }}

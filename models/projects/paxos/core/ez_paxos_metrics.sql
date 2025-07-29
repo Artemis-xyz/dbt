@@ -6,7 +6,7 @@
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
         on_schema_change = "append_new_columns",
-        full_refresh = false,
+        full_refresh = var("full_refresh", false),
         database = 'paxos',
         schema = 'core',
         snowflake_warehouse = 'PAXOS',
@@ -18,8 +18,8 @@
 {% set backfill_date = var("backfill_date", none) %}
 
 SELECT
-    date,
-    'paxos' as artemis_id,
+    date
+    , 'paxos' as artemis_id
 
     -- Standardized Metrics
     , sum(tokenized_mcap_change) as tokenized_mcap_change

@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -58,11 +58,11 @@ select
     -- Chain Metrics
     , f.txns as chain_txns
     , f.txns
-    , f.daa as chain_dau
-    , f.daa
+    , f.dau as chain_dau
+    , f.dau
     , f.wau as chain_wau
     , f.mau as chain_mau
-    , f.avg_txn_fee as chain_avg_txn_fee
+    , f.fees / f.txns as chain_avg_txn_fee
 
     -- Fee Metrics
     , f.fees as chain_fees

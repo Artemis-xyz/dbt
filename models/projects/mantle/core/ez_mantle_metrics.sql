@@ -11,7 +11,7 @@
         , on_schema_change="append_new_columns"
         , merge_update_columns=var("backfill_columns", [])
         , merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none
-        , full_refresh=false
+        , full_refresh=var("full_refresh", false)
         , tags=["ez_metrics"]
     )
 }}
@@ -37,7 +37,7 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle", "v2") }})
 , rolling_metrics as ({{ get_rolling_active_address_metrics("mantle") }})
 , defillama_data as ({{ get_defillama_metrics("mantle") }})
 , stablecoin_data as ({{ get_stablecoin_metrics("mantle") }})
-, price_data as ({{ get_coingecko_metrics("mantle") }})
+, market_data as ({{ get_coingecko_metrics("mantle") }})
 , mantle_dex_volumes as (
     select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
     from {{ ref("fact_mantle_daily_dex_volumes") }}
@@ -53,16 +53,16 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle", "v2") }})
 )
 
 select
-    fundamental_data.date
+    f.date
     , 'mantle' as artemis_id
 
     , dune_dex_volumes_mantle.adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
-    , price
-    , market_cap
-    , fdmc
-    , tvl
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
 
     -- Chain Usage Metrics
     , f.dau AS chain_dau
@@ -130,12 +130,12 @@ from fundamental_data f
 left join github_data using (date)
 left join defillama_data using (date)
 left join stablecoin_data using (date)
-left join price_data using (date)
+left join market_data using (date)
 left join expenses_data using (date)
 left join rolling_metrics rolling using (date)
 left join treasury_data using (date)
-left join mantle_dex_volumes as dune_dex_volumes_mantle on fundamental_data.date = dune_dex_volumes_mantle.date
-left join staked_eth_metrics as staking on fundamental_data.date = staking.date
+left join mantle_dex_volumes as dune_dex_volumes_mantle using (date)
+left join staked_eth_metrics as staking using (date)
 where true
-{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
-and fundamental_data.date < to_date(sysdate())
+{{ ez_metrics_incremental('f.date', backfill_date) }}
+and f.date < to_date(sysdate())

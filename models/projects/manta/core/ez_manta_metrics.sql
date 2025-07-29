@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -33,7 +33,7 @@ with
         select
             date
             , fees
-            , txns
+            , daily_txns
             , dau
         from {{ ref('fact_manta_txns_daa') }}
     )
@@ -47,8 +47,8 @@ SELECT
     , market_data.token_volume
 
     -- Usage Metrics
-    , f.txns AS chain_txns
-    , f.txns as txns
+    , f.daily_txns AS chain_txns
+    , f.daily_txns as txns
     , f.dau AS chain_dau
     , f.dau
     , defillama_data.dex_volumes as chain_spot_volume

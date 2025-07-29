@@ -13,10 +13,10 @@ with stellaswap_tvl as (
 )
 
 select
-    stellaswap_tvl.date,
-    'stellaswap' as artemis_id,
-    'Defillama' as source,
-    'moonbeam' as chain,
+    stellaswap_tvl.date
+    , 'stellaswap' as artemis_id
+    , 'Defillama' as source
+    , 'moonbeam' as chain
 
     -- Standardized Metrics
     -- Usage Metrics

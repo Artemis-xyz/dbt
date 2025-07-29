@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -21,12 +21,11 @@ WITH
     perp_data as (
         SELECT
             date
-            , sum(trading_volume) as trading_volume
-            , sum(unique_traders) as unique_traders
+            , sum(perp_volume) as perp_volume
+            , sum(perp_dau) as perp_dau
             , sum(fees) as fees
             , sum(revenue) as revenue
             , sum(tvl) as tvl
-            , sum(tvl_growth) as tvl_growth
             -- standardize metrics
             , sum(perp_volume) as perp_volume
             , sum(perp_dau) as perp_dau
@@ -38,7 +37,7 @@ WITH
             , sum(service_fee_allocation) as service_fee_allocation
         FROM {{ ref("ez_perpetual_protocol_metrics_by_chain") }}
         WHERE date < to_date(sysdate())
-        GROUP BY 1, 2, 3
+        GROUP BY 1
     )
     , market_data as ({{ get_coingecko_metrics("perpetual-protocol") }})
 
@@ -79,7 +78,6 @@ SELECT
     , token_turnover_circulating
     , token_turnover_fdv
     , token_volume
-    , coalesce(token_incentives.token_incentives, 0) as token_incentives
 
     -- timestamp columns
     , to_timestamp_ntz(current_timestamp()) as created_on
