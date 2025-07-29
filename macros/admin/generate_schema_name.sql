@@ -2,8 +2,8 @@
 
     {%- set default_schema = target.schema -%}
 
-    {# 'If there is no custom schema set, use the default schema' #}
-    {%- if custom_schema_name is none -%}
+    {# 'If there is no custom schema set and we are not in dev, use the default schema' #}
+    {%- if custom_schema_name is none and target.name != "dev" -%}
 
         {{ default_schema }}
 

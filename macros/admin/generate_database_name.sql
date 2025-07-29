@@ -2,8 +2,8 @@
 
     {%- set default_database = target.database -%}
 
-    {# 'If there is no custom db set, use the default db' #}
-    {%- if custom_database_name is none -%}
+    {# 'If there is no custom db set and we are not in dev, use the default db' #}
+    {%- if custom_database_name is none and target.name != "dev" -%}
 
         {{ default_database }}
 
