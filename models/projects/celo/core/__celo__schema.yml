@@ -295,8 +295,6 @@ models:
       - *weekly_commits_sub_ecosystem
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-<<<<<<< HEAD
-=======
 
     tests:
       - not_null:
@@ -313,7 +311,6 @@ models:
           expression: date = cast(date as date)
           description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
           severity: error
->>>>>>> 199ad339d1c4a131235ddc8155cd691ebfa93f4b
   - name: ez_celo_metrics_by_subcategory
     description: "This table stores metrics for the CELO protocol"
     columns:
@@ -323,8 +320,6 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-<<<<<<< HEAD
-=======
 
     tests:
       - not_null:
@@ -341,15 +336,12 @@ models:
           expression: date = cast(date as date)
           description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
           severity: error
->>>>>>> 199ad339d1c4a131235ddc8155cd691ebfa93f4b
   - name: ez_celo_stablecoin_metrics_by_address_with_labels
     description: "This table stores metrics for the CELO protocol"
     columns:
       - *artemis_stablecoin_transfer_volume
       - *p2p_stablecoin_transfer_volume
       - *stablecoin_transfer_volume
-<<<<<<< HEAD
-=======
 
     tests:
       - not_null:
@@ -382,4 +374,3 @@ models:
           expression: date = cast(date as date)
           description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
           severity: error
->>>>>>> 199ad339d1c4a131235ddc8155cd691ebfa93f4b
