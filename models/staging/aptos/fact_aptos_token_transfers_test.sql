@@ -5,16 +5,14 @@
 ) }}
 
 WITH
--- 0) metadata (ADJUST to your source if different)
 token_meta AS (
   SELECT
       LOWER(token_address)        AS token_address,
-      COALESCE(decimals, 6)       AS decimals,     -- fallback sensible for stables
+      COALESCE(decimals, 6)       AS decimals,    
       symbol
-  FROM aptos_flipside.core.dim_tokens    -- or PC_DBT_DB.PROD.DIM_APTOS_TOKENS
+  FROM aptos_flipside.core.dim_tokens   
 ),
 
-/* ==== your existing CTEs unchanged up to complex_txs ==== */
 
 deposit_events AS (
   SELECT
@@ -28,9 +26,7 @@ deposit_events AS (
   WHERE transfer_event = 'DepositEvent'
     AND amount > 0 AND amount < 1e18
     {% if is_incremental() %}
-      AND block_timestamp > (SELECT DATEADD('day', -7, MAX(block_timestamp)) FROM {{ this }})
-    {% else %}
-      AND block_timestamp >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+      AND block_timestamp > (SELECT MAX(block_timestamp) FROM {{ this }})
     {% endif %}
 ),
 withdraw_events AS (
@@ -45,9 +41,7 @@ withdraw_events AS (
   WHERE transfer_event = 'WithdrawEvent'
     AND amount > 0 AND amount < 1e18
     {% if is_incremental() %}
-      AND block_timestamp > (SELECT DATEADD('day', -7, MAX(block_timestamp)) FROM {{ this }})
-    {% else %}
-      AND block_timestamp >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+      AND block_timestamp > (SELECT MAX(block_timestamp) FROM {{ this }})
     {% endif %}
 ),
 tx_event_counts AS (
@@ -60,9 +54,7 @@ tx_event_counts AS (
   WHERE transfer_event IN ('DepositEvent','WithdrawEvent')
     AND amount > 0 AND amount < 1e18
     {% if is_incremental() %}
-      AND block_timestamp > (SELECT DATEADD('day', -7, MAX(block_timestamp)) FROM {{ this }})
-    {% else %}
-      AND block_timestamp >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+      AND block_timestamp > (SELECT MAX(block_timestamp) FROM {{ this }})
     {% endif %}
   GROUP BY tx_hash, token_address
 ),
@@ -143,9 +135,7 @@ all_events AS (
   WHERE transfer_event IN ('DepositEvent','WithdrawEvent')
     AND amount > 0 AND amount < 1e18
     {% if is_incremental() %}
-      AND block_timestamp > (SELECT DATEADD('day', -7, MAX(block_timestamp)) FROM {{ this }})
-    {% else %}
-      AND block_timestamp >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+      AND block_timestamp > (SELECT MAX(block_timestamp) FROM {{ this }})
     {% endif %}
     AND tx_hash IN (
       SELECT tx_hash
@@ -153,9 +143,7 @@ all_events AS (
       WHERE transfer_event IN ('DepositEvent','WithdrawEvent')
         AND amount > 0 AND amount < 1e18
         {% if is_incremental() %}
-          AND block_timestamp > (SELECT DATEADD('day', -7, MAX(block_timestamp)) FROM {{ this }})
-        {% else %}
-          AND block_timestamp >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+          AND block_timestamp > (SELECT MAX(block_timestamp) FROM {{ this }})
         {% endif %}
       GROUP BY tx_hash, token_address
       HAVING COUNT_IF(transfer_event='WithdrawEvent') > 0
