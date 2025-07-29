@@ -10,7 +10,7 @@
         on_schema_change='append_new_columns',
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -23,12 +23,16 @@ with bitflow_tvl as (
 
 select
     bitflow_tvl.date
+    , 'bitflow' as artemis_id
     , 'Defillama' as source
+
     -- Standardized Metrics
     , bitflow_tvl.tvl
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    
 from bitflow_tvl
 where true
 {{ ez_metrics_incremental('bitflow_tvl.date', backfill_date) }}
