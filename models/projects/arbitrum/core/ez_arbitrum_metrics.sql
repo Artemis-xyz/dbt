@@ -11,7 +11,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -20,7 +20,7 @@
 
 with
     fundamental_data as ({{ get_fundamental_data_for_chain("arbitrum", "v2") }}),
-    price_data as ({{ get_coingecko_metrics("arbitrum") }}),
+    market_metrics as ({{ get_coingecko_metrics("arbitrum") }}),
     defillama_data as ({{ get_defillama_metrics("arbitrum") }}),
     stablecoin_data as ({{ get_stablecoin_metrics("arbitrum") }}),
     expenses_data as (
@@ -33,24 +33,24 @@ with
     p2p_metrics as ({{ get_p2p_metrics("arbitrum") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("arbitrum") }}),
     bridge_volume_metrics as (
-        select date, bridge_volume
+        select date, coalesce(bridge_volume, 0) as bridge_volume
         from {{ ref("fact_arbitrum_one_bridge_bridge_volume") }}
             where chain is null
     ),
     bridge_daa_metrics as (
-        select date, bridge_daa
+        select date, coalesce(bridge_daa, 0) as bridge_daa
         from {{ ref("fact_arbitrum_one_bridge_bridge_daa") }}
     ),
     arbitrum_dex_volumes as (
-        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
+        select date, coalesce(daily_volume, 0) as dex_volumes, coalesce(daily_volume_adjusted, 0) as adjusted_dex_volumes
         from {{ ref("fact_arbitrum_daily_dex_volumes") }}
     ),
     adjusted_dau_metrics as (
-        select date, adj_daus as adjusted_dau
+        select date, coalesce(adj_daus, 0) as adjusted_dau
         from {{ ref("ez_arbitrum_adjusted_dau") }}
     ),
     timeboost_fees as (
-        select date, timeboost_fees AS timeboost_fees_native, timeboost_fees_usd AS timeboost_fees
+        select date, coalesce(timeboost_fees, 0) AS timeboost_fees_native, coalesce(timeboost_fees_usd, 0) AS timeboost_fees
         from {{ ref("fact_arbitrum_timeboost_fees") }}
     )
     , unvested_supply as (
@@ -58,12 +58,12 @@ with
         from {{ ref("ez_arbitrum_circulating_supply_metrics") }}
     )
     , burns_mints as (
-        select date, SUM(burns_native) as burns_native, SUM(mints_native) as mints_native, SUM(burns) as burns, SUM(mints) as mints, SUM(cumulative_burns_native) as cumulative_burns_native, SUM(cumulative_mints_native) as cumulative_mints_native, SUM(cumulative_burns) as cumulative_burns, SUM(cumulative_mints) as cumulative_mints
+        select date, coalesce(SUM(burns_native), 0) as burns_native, coalesce(SUM(mints_native), 0) as mints_native, coalesce(SUM(burns), 0) as burns, coalesce(SUM(mints), 0) as mints, coalesce(SUM(cumulative_burns_native), 0) as cumulative_burns_native, coalesce(SUM(cumulative_mints_native), 0) as cumulative_mints_native, coalesce(SUM(cumulative_burns), 0) as cumulative_burns, coalesce(SUM(cumulative_mints), 0) as cumulative_mints
         from {{ ref("fact_arbitrum_burns_mints") }}
         group by 1
     )
     , foundation_owned_supply as (
-        select date, native_balance as foundation_owned_supply_native, usd_balance as foundation_owned_supply
+        select date, coalesce(native_balance, 0) as foundation_owned_supply_native, coalesce(usd_balance, 0) as foundation_owned_supply
         from {{ ref("fact_arbitrum_owned_supply") }}
         WHERE LOWER(contract_address) = LOWER('0x912ce59144191c1204e64559fe8253a0e49e6548')
         QUALIFY ROW_NUMBER() OVER (PARTITION BY date ORDER BY native_balance DESC) = 1
@@ -71,7 +71,7 @@ with
     , application_fees AS (
         SELECT 
             DATE_TRUNC(DAY, date) AS date 
-            , SUM(COALESCE(fees, 0)) AS application_fees
+            , coalesce(SUM(COALESCE(fees, 0)), 0) AS application_fees
         FROM {{ ref("ez_protocol_datahub_by_chain") }}
         WHERE chain = 'arbitrum'
         GROUP BY 1
@@ -79,74 +79,56 @@ with
 
 select
     fundamental_data.date
-    , fundamental_data.chain
-    , txns
-    , dau
-    , adjusted_dau
-    , wau
-    , mau
-    , coalesce(fees_native, 0) + coalesce(timeboost_fees_native, 0) as fees_native
-    , coalesce(fees, 0) + coalesce(timeboost_fees, 0) as fees
-    , l1_data_cost_native
-    , l1_data_cost
-    , coalesce(fees_native, 0) - l1_data_cost_native + coalesce(0.97 * timeboost_fees_native, 0) as revenue_native
-    , coalesce(fees, 0) - l1_data_cost + coalesce(0.97 * timeboost_fees, 0) as revenue
-    , avg_txn_fee
-    , median_txn_fee
-    , dau_over_100
-    , nft_trading_volume
-    , dune_dex_volumes_arbitrum.dex_volumes
-    , dune_dex_volumes_arbitrum.adjusted_dex_volumes
-    , bridge_daa
+    , 'arbitrum' as artemis_id
+
     -- Standardized Metrics
-    -- Market Data Metrics
-    , price
-    , market_cap
-    , fdmc
-    , tvl
-    -- Chain Usage Metrics
-    , dau AS chain_dau
-    , wau AS chain_wau
-    , mau AS chain_mau
-    , txns AS chain_txns
-    , avg_txn_fee AS chain_avg_txn_fee  
-    , median_txn_fee AS chain_median_txn_fee
-    , dune_dex_volumes_arbitrum.dex_volumes AS chain_spot_volume
-    , returning_users
-    , new_users
-    , low_sleep_users
-    , high_sleep_users
-    , sybil_users
-    , non_sybil_users
-    , dau_over_100 AS dau_over_100_balance
-    , nft_trading_volume AS chain_nft_trading_volume
-    , p2p_native_transfer_volume
-    , p2p_token_transfer_volume
-    , p2p_transfer_volume
-    , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
-    , coalesce(dune_dex_volumes_arbitrum.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
-    , coalesce(revenue, 0) + coalesce(settlement_volume, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
-    -- Cashflow Metrics
-    , coalesce(fees_native, 0) + coalesce(timeboost_fees_native, 0) AS chain_fees
-    , coalesce(fees_native, 0) + coalesce(timeboost_fees_native, 0) AS ecosystem_revenue_native -- Total gas fees paid on L2 by users (L2 Fees)
-    , coalesce(fees, 0) + coalesce(timeboost_fees, 0) AS ecosystem_revenue
-    , coalesce(fees_native, 0) - l1_data_cost_native + coalesce(0.97 * timeboost_fees_native, 0) as treasury_fee_allocation_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    , coalesce(fees, 0) - l1_data_cost + coalesce(0.97 * timeboost_fees, 0) as treasury_fee_allocation
-    , l1_data_cost_native AS l1_fee_allocation_native -- fees paid to l1 by sequencer (L1 Fees)
-    , l1_data_cost AS l1_fee_allocation
-    , coalesce(timeboost_fees_native, 0) as timeboost_fees_native
-    , coalesce(timeboost_fees, 0) as timeboost_fees
-    , coalesce(burns_native, 0) as burns_native
-    , coalesce(mints_native, 0) as mints_native
-    , coalesce(burns, 0) as burns
-    , coalesce(mints, 0) as mints
-    -- Developer Metrics
-    , weekly_commits_core_ecosystem
-    , weekly_commits_sub_ecosystem
-    , weekly_developers_core_ecosystem
-    , weekly_developers_sub_ecosystem
-    , weekly_contracts_deployed
-    , weekly_contract_deployers
+    
+    -- Market Data
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
+
+    -- Usage Data
+    , fundamental_data.dau as chain_dau
+    , adjusted_dau_metrics.adjusted_dau as adjusted_dau
+    , fundamental_data.dau as dau
+    , rolling_metrics.wau as chain_wau
+    , rolling_metrics.mau as chain_mau
+    , fundamental_data.txns as chain_txns
+    , fundamental_data.txns as txns
+    , fundamental_data.avg_txn_fee as chain_avg_txn_fee  
+    , fundamental_data.median_txn_fee as chain_median_txn_fee
+    , arbitrum_dex_volumes.dex_volumes as chain_spot_volume
+    , fundamental_data.returning_users
+    , fundamental_data.new_users
+    , fundamental_data.low_sleep_users
+    , fundamental_data.high_sleep_users
+    , fundamental_data.sybil_users
+    , fundamental_data.non_sybil_users
+    , fundamental_data.dau_over_100 as dau_over_100_balance
+    , nft_metrics.nft_trading_volume as chain_nft_trading_volume
+    , p2p_metrics.p2p_native_transfer_volume
+    , p2p_metrics.p2p_token_transfer_volume
+    , p2p_metrics.p2p_transfer_volume
+    , stablecoin_data.artemis_stablecoin_transfer_volume - stablecoin_data.p2p_stablecoin_transfer_volume as non_p2p_stablecoin_transfer_volume
+    , arbitrum_dex_volumes.dex_volumes + nft_metrics.nft_trading_volume + p2p_metrics.p2p_transfer_volume as settlement_volume
+    
+    -- Fee Data
+    , fundamental_data.fees_native + timeboost_fees_native as fees_native
+    , fundamental_data.fees+ timeboost_fees as chain_fees
+    , fundamental_data.fees + timeboost_fees as fees
+    , fees_native - l1_data_cost_native + 0.97 * timeboost_fees_native as treasury_fee_allocation_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , fees - l1_data_cost + 0.97 * timeboost_fees as treasury_fee_allocation
+    , l1_data_cost_native as l1_fee_allocation_native -- fees paid to l1 by sequencer (L1 Fees)
+    , l1_data_cost as l1_fee_allocation
+    , timeboost_fees_native as timeboost_fees_native
+    , timeboost_fees as timeboost_fees
+
+    -- Financial Statements
+    , fees_native - l1_data_cost_native + 0.97 * timeboost_fees_native as revenue_native
+    , fees - l1_data_cost + 0.97 * timeboost_fees as revenue
+
     -- Stablecoin metrics
     , stablecoin_total_supply
     , stablecoin_txns
@@ -163,10 +145,18 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
-    -- Bridge Metrics
-    , bridge_volume_metrics.bridge_volume as bridge_volume
-    , bridge_daa_metrics.bridge_daa as bridge_dau
-    -- Supply Metrics
+
+    -- Developer Data
+    , github_data.weekly_commits_core_ecosystem
+    , github_data.weekly_commits_sub_ecosystem
+    , github_data.weekly_developers_core_ecosystem
+    , github_data.weekly_developers_sub_ecosystem
+    , contract_data.weekly_contracts_deployed
+    , contract_data.weekly_contract_deployers
+
+    -- Supply Data
+    , burns_mints.mints_native as gross_emissions_native
+    , burns_mints.mints as gross_emissions
     , CASE
         WHEN fundamental_data.date > '2023-03-22' THEN 10000000000 
         ELSE 0 
@@ -175,14 +165,28 @@ select
         WHEN fundamental_data.date > '2023-03-22' THEN 10000000000 
         ELSE 0 
     END AS total_supply_native
-    , COALESCE(total_supply_native, 0) - COALESCE(foundation_owned_supply_native, 0) - COALESCE(cumulative_burns_native, 0) AS issued_supply_native
-    , COALESCE(total_supply_native, 0) - COALESCE(foundation_owned_supply_native, 0) - COALESCE(cumulative_burns_native, 0) - COALESCE(unvested_supply_native, 0) AS circulating_supply_native
+    , burns_mints.burns_native as burns_native
+    , burns_mints.burns as burns
+    , total_supply_native - foundation_owned_supply_native - cumulative_burns_native AS issued_supply_native
+    , total_supply_native - foundation_owned_supply_native - cumulative_burns_native - unvested_supply_native AS circulating_supply_native
+
+    -- Token Turnover/Other Data
+    , market_metrics.token_turnover_fdv
+    , market_metrics.token_turnover_circulating
+
+    -- Bespoke Metrics
+    , bridge_volume_metrics.bridge_volume as bridge_volume
+    , bridge_daa_metrics.bridge_daa as bridge_dau
+    , arbitrum_dex_volumes.dex_volumes
+    , arbitrum_dex_volumes.adjusted_dex_volumes
+    , revenue + settlement_volume + application_fees.application_fees as total_economic_activity    
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    
 from fundamental_data
-left join price_data on fundamental_data.date = price_data.date
+left join market_metrics on fundamental_data.date = market_metrics.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join expenses_data on fundamental_data.date = expenses_data.date
@@ -193,7 +197,7 @@ left join p2p_metrics on fundamental_data.date = p2p_metrics.date
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
-left join arbitrum_dex_volumes as dune_dex_volumes_arbitrum on fundamental_data.date = dune_dex_volumes_arbitrum.date
+left join arbitrum_dex_volumes on fundamental_data.date = arbitrum_dex_volumes.date
 left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 left join timeboost_fees on fundamental_data.date = timeboost_fees.date
 left join unvested_supply on fundamental_data.date = unvested_supply.date
