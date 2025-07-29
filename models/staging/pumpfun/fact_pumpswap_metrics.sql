@@ -2,45 +2,40 @@
     config(
         materialized="table",
         snowflake_warehouse="PUMPFUN",
-        database="PUMPFUN",
-        schema="raw",
         alias="fact_pumpswap_metrics",
     )
 }}
 
-with fees as (
+with txns as (
     select
-        date,
-        daily_lp_fees_usd,
-        daily_protocol_fees_usd,
-        daily_lp_fees_usd + daily_protocol_fees_usd as spot_fees
-    from {{ ref('fact_pumpswap_fees') }}
+        block_timestamp::date as date,
+        count(*) as spot_txns,
+        count(distinct swapper) as spot_dau,
+    from {{ source("SOLANA_FLIPSIDE_DEFI", "ez_dex_swaps") }}
+    where program_id = 'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA'
+    group by date
 )
-, volume as (
+
+, pumpswap_metrics as (
     select
-        date,
-        daily_volume_usd as spot_volume
-    from {{ ref('fact_pumpswap_volume') }}
+        block_timestamp::date as date,
+        sum(coalesce(swap_to_amount_usd, swap_from_amount_usd)) as spot_volume,
+        sum(fee) as spot_fees,
+        sum( ( lp_fee / POW(10, p.decimals)) * p.price) as spot_lp_fees,
+        count(distinct creator) as spot_creators,
+    from {{ ref('fact_pumpswap_trades') }} d
+    left join {{ source('SOLANA_FLIPSIDE_PRICE', 'ez_prices_hourly') }} p
+        on p.hour = date_trunc('hour', block_timestamp) and p.token_address = d.quote_mint
+    group by date
 )
-, dau as (
-    select
-        date,
-        spot_dau
-    from {{ ref('fact_pumpswap_dau') }}
-)
-, txns as (
-    select
-        date,
-        daily_txns as spot_txns
-    from {{ ref('fact_pumpswap_txns') }}
-)
-    select
-        date,
-        spot_dau,
-        spot_txns,
-        spot_volume,
-        spot_fees
-    from dau
-    left join txns using(date)
-    left join volume using(date)
-    left join fees using(date)
+
+select
+    date,
+    spot_dau,
+    spot_txns,
+    spot_volume,
+    spot_fees,
+    spot_lp_fees,
+    spot_creators
+from pumpswap_metrics
+left join txns using(date)
