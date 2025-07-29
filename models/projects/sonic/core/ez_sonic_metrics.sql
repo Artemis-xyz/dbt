@@ -18,11 +18,16 @@
 {% set backfill_date = var("backfill_date", None) %}
 
 with 
-    sonic_dex_volumes as (
-        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
-        from {{ ref("fact_sonic_daily_dex_volumes") }}
+    date_spine AS (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date >= '2024-12-01' AND date < to_date(sysdate())
     )
-    , fundamentals as (
+    , sonic_dex_volumes AS (
+        SELECT date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
+        FROM {{ ref("fact_sonic_daily_dex_volumes") }}
+    )
+    , fundamentals AS (
         SELECT
             date,
             fees,
@@ -30,17 +35,18 @@ with
             dau
         FROM {{ ref("fact_sonic_fundamental_metrics") }}
     )
-    , supply_data as (
-        select
+    , supply_data AS (
+        SELECT
             date,
             emissions_native,
             premine_unlocks_native,
             net_supply_change_native,
             circulating_supply_native
-        from {{ ref("fact_sonic_supply_data") }}
+        FROM {{ ref("fact_sonic_supply_data") }}
     )
-    , price_data as ({{ get_coingecko_metrics("sonic-3") }})
-select
+    , price_data AS ({{ get_coingecko_metrics("sonic-3") }})
+
+SELECT
     fundamentals.date
     , 'sonic' AS artemis_id
 
@@ -75,10 +81,11 @@ select
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from fundamentals
-left join sonic_dex_volumes on fundamentals.date = sonic_dex_volumes.date
-left join price_data on fundamentals.date = price_data.date
-left join supply_data on fundamentals.date = supply_data.date
-where true
+FROM date_spine
+LEFT JOIN fundamentals USING (date)
+LEFT JOIN sonic_dex_volumes USING (date)
+LEFT JOIN price_data USING (date)
+LEFT JOIN supply_data USING (date)
+WHERE true
 {{ ez_metrics_incremental('fundamentals.date', backfill_date) }}
-and fundamentals.date < to_date(sysdate())
+AND fundamentals.date < to_date(sysdate())
