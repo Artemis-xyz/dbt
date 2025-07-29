@@ -1,35 +1,32 @@
-{{
-    config(
-        materialized="incremental",
-        unique_key=["date", "contract_address", "address"],
-        snowflake_warehouse="SOLANA_2XLG"
-    )
-}}
+{% macro solana_address_balances_with_labels(start_date, end_date, max_date, min_date, table_date_range) %}
 
-{% set token_addresses = var('token_addresses_list', []) %}
+-- This model covers the following possibilities:
+-- 1. Full refresh with start and end date (for historical backfilling)
+-- 2. Incremental refresh with start and end date (for historical backfilling)
+-- 3. Incremental refresh for current day (for incremental runs)
 
+-- What will be caught and will fail
+-- 1. Full refresh without start and end date
+   -- This is because a full refresh will be too massive to handle, so it should fail
 
 -- NOTE: owner_addresses here are either program_ids (via PDAs), or EOAs
 
 WITH 
-{% if token_addresses | length > 0 %}
-    all_addresses AS (
-        {{ get_all_addresses_under_owners(token_addresses) }}
-    ),
-{% endif %}
 cleaned_up_token_owner_hierarchy AS (
     {{ get_valid_solana_token_account_owners() }}
 ),
 forward_filled_balances AS (
     SELECT *
-    FROM {{ ref("fact_solana_address_balances_by_token_forward_filled") }} a
-    {% if token_addresses | length > 0 %}
-        INNER JOIN all_addresses
-            ON a.address = all_addresses.address
-    {% endif %}
+    FROM {{ ref("fact_solana_address_balances_forward_filled_" ~ table_date_range) }} a
     WHERE 1=1
-    {% if is_incremental() %}
-        AND a.block_timestamp >= dateadd(day, -3, to_date(sysdate()))
+    {% if start_date and end_date %}
+        AND date >= to_date('{{ start_date }}')
+        AND date <= to_date('{{ end_date }}')
+    {% elif is_incremental() %}
+        AND date >= dateadd(day, -3, to_date(sysdate()))
+    {% else %}
+        -- this is expected to break. We don't want to full refresh without start + end date range
+        WHERE 1=1
     {% endif %}
 ),
 l0 AS (
@@ -99,3 +96,5 @@ select
 from balances_with_owner_address bwa
 left join app_contracts as owner_app_contracts on lower(bwa.owner_address) = lower(owner_app_contracts.address)
 left join app_contracts on lower(bwa.address) = lower(app_contracts.address)
+
+{% endmacro %}

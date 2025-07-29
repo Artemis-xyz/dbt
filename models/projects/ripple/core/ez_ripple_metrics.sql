@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"]
     )
 }}
@@ -38,10 +38,6 @@ with
 select
     fundamental_data.date -- goes back to Jan 2013
 
-    -- Old metrics for compatibility
-    , chain_dau as dau
-    , chain_txns as txns
-
     -- Market Metrics
     , price_data.price
     , price_data.market_cap
@@ -50,7 +46,9 @@ select
 
     -- Usage Metrics
     , chain_dau
+    , chain_dau as dau
     , chain_txns
+    , chain_txns as txns
     
     -- Cash Flow Metrics
     , chain_fees

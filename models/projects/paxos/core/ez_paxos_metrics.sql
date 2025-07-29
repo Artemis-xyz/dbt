@@ -6,7 +6,7 @@
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
         on_schema_change = "append_new_columns",
-        full_refresh = false,
+        full_refresh = var("full_refresh", false),
         database = 'paxos',
         schema = 'core',
         snowflake_warehouse = 'PAXOS',
@@ -18,11 +18,16 @@
 {% set backfill_date = var("backfill_date", none) %}
 
 SELECT
-    date,
-    sum(tokenized_mcap_change) as tokenized_mcap_change,
-    sum(tokenized_mcap) as tokenized_mcap,
-    to_timestamp_ntz(current_timestamp()) as created_on,
-    to_timestamp_ntz(current_timestamp()) as modified_on
+    date
+    , 'paxos' as artemis_id
+
+    -- Standardized Metrics
+    , sum(tokenized_mcap_change) as tokenized_mcap_change
+    , sum(tokenized_mcap) as tokenized_mcap
+
+    -- Timestamp columns
+    , to_timestamp_ntz(current_timestamp()) as created_on
+    , to_timestamp_ntz(current_timestamp()) as modified_on
 FROM {{ ref('ez_paxos_metrics_by_chain') }}
 where true
 {{ ez_metrics_incremental('date', backfill_date) }}

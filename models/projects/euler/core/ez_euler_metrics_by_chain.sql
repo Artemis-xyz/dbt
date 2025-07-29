@@ -22,6 +22,8 @@ with lending_metrics as (
 select
     lm.date
     , lm.chain
+
+    -- Standardized Metrics
     , lm.lending_deposits
     , lm.lending_loans 
     , lm.tvl

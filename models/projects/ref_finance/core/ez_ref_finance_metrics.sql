@@ -10,7 +10,7 @@
         on_schema_change = 'append_new_columns',
         merge_update_columns = var('backfill_columns', []),
         merge_exclude_columns=['created_on'] if not var('backfill_columns', []) else none,
-        full_refresh = false,
+        full_refresh = var("full_refresh", false),
         tags = ['ez_metrics']
     )
 }}
@@ -30,9 +30,6 @@ with dau_txns_volume as(
 
 select
     d.date,
-    d.daily_swaps,
-    d.unique_traders,
-    d.volume as trading_volume,
 
     -- Standardized Metrics
     d.unique_traders as spot_dau,

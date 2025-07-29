@@ -40,6 +40,12 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  lp_fee_allocation: &lp_fee_allocation
+    name: lp_fee_allocation
+    description: "Revenue distributed to liquidity providers of the protocol."
+    tags:
+      - artemis_gaap
+
   market_cap: &market_cap
     name: market_cap
     description: "The market cap of PENDLE in USD"
@@ -161,15 +167,14 @@ models:
     columns:
       - *earnings
       - *fees
+      - *lp_fee_allocation
       - *revenue
-      - *service_fee_allocation
       - *spot_fees
       - *spot_volume
       - *staking_fee_allocation
       - *staking_revenue
       - *token_incentives
       - *tvl
-
   - name: ez_pendle_metrics
     description: "This table stores metrics for the PENDLE protocol"
     columns:
@@ -180,6 +185,7 @@ models:
       - *gross_emissions
       - *gross_emissions_native
       - *issued_supply_native
+      - *lp_fee_allocation
       - *market_cap
       - *net_treasury
       - *own_token_treasury
@@ -187,7 +193,6 @@ models:
       - *premine_unlocks_native
       - *price
       - *revenue
-      - *service_fee_allocation
       - *spot_dau
       - *spot_fees
       - *spot_txns
@@ -201,7 +206,6 @@ models:
       - *total_supply_native
       - *treasury
       - *tvl
-
   - name: ez_pendle_metrics_by_chain
     description: "This table stores metrics for the PENDLE protocol"
     columns:
@@ -218,4 +222,3 @@ models:
       - *staking_revenue
       - *token_incentives
       - *tvl
-

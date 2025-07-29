@@ -8,6 +8,10 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
+  chain_fees: &chain_fees
+    name: chain_fees
+    description: "The total transaction fees paid on a chain"
+
   chain_spot_volume: &chain_spot_volume
     name: chain_spot_volume
     description: "Total spot dex volume on a chain"
@@ -97,11 +101,11 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-
   - name: ez_worldchain_metrics
     description: "This table stores metrics for the WORLDCHAIN protocol"
     columns:
       - *chain_dau
+      - *chain_fees
       - *chain_spot_volume
       - *chain_txns
       - *fdmc
@@ -115,4 +119,3 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-

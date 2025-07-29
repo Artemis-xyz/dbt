@@ -17,6 +17,7 @@ with rainbow_bridge_transfers as (
         , amount
         , amount_usd
         , ez_bridge_activity_id
+        , symbol
     from near_flipside.defi.ez_bridge_activity 
     where platform = 'rainbow' and RECEIPT_SUCCEEDED
         and tx_hash not in ('qrJ4Hwh4xiPHnfWQC7PeXEinspBu1SkJvz3qbPRaGT8', 'DA4UvCkTrJ5py6H7M5RMj4RgdG8r9LNReVQKtWtsYvDy')
@@ -34,5 +35,6 @@ select
     token_address,
     amount,
     amount_usd,
-    ez_bridge_activity_id
+    ez_bridge_activity_id,
+    symbol
 from rainbow_bridge_transfers

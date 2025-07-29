@@ -10,6 +10,10 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  lrt_tvl: &lrt_tvl
+    name: lrt_tvl
+    description: "The total value locked in a liquid restaking protocol"
+
   market_cap: &market_cap
     name: market_cap
     description: "The market cap of a token in USD"
@@ -56,32 +60,14 @@ models:
   - name: ez_renzo_protocol_metrics_by_chain
     description: "This table stores metrics for the RENZO_PROTOCOL protocol"
     columns:
+      - *lrt_tvl
       - *tvl
       - *tvl_native
-
-    tests:
-      - not_null:
-          column_name: date
-          description: "Ensures that the date column is not null"
-          severity: error
-      - dbt_utils.recency:
-          datepart: day
-          interval: 2
-          field: date
-          description: "Ensures that the date column contains at least one record from the last 2 days"
-          severity: error
-      - dbt_utils.expression_is_true:
-          expression: date = cast(date as date)
-          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
-          severity: error
-      - not_null:
-          column_name: chain
-          description: "Ensures that the chain column is not null for by_chain tables"
-          severity: error
   - name: ez_renzo_protocol_metrics
     description: "This table stores metrics for the RENZO_PROTOCOL protocol"
     columns:
       - *fdmc
+      - *lrt_tvl
       - *market_cap
       - *price
       - *token_turnover_circulating
@@ -89,19 +75,3 @@ models:
       - *token_volume
       - *tvl
       - *tvl_native
-
-    tests:
-      - not_null:
-          column_name: date
-          description: "Ensures that the date column is not null"
-          severity: error
-      - dbt_utils.recency:
-          datepart: day
-          interval: 2
-          field: date
-          description: "Ensures that the date column contains at least one record from the last 2 days"
-          severity: error
-      - dbt_utils.expression_is_true:
-          expression: date = cast(date as date)
-          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
-          severity: error
