@@ -1,12 +1,21 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='SABER',
         database='SABER',
         schema='core',
-        alias='ez_metrics'
+        alias='ez_metrics',
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with saber_tvl as (
     {{ get_defillama_protocol_tvl('saber') }}
@@ -29,6 +38,12 @@ select
     , smd.token_turnover_circulating
     , smd.token_turnover_fdv
     , smd.token_volume
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on  
 from saber_tvl
 left join saber_market_data smd using (date)
-where saber_tvl.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('saber_tvl.date', backfill_date) }}
+and saber_tvl.date < to_date(sysdate())

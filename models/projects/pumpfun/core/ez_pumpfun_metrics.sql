@@ -1,10 +1,17 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='PUMPFUN',
         database='PUMPFUN',
         schema='core',
         alias='ez_metrics',
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
  }}
 
@@ -13,6 +20,7 @@ with date_spine as (
     from {{ ref('dim_date_spine') }} date_spine
     where date_spine.date between '2023-10-01' and (to_date(sysdate()) - 1)
 )
+
 
 , pumpswap_metrics as (
     select
@@ -24,6 +32,7 @@ with date_spine as (
         coalesce(spot_fees, 0) as spot_protocol_fees,
         coalesce(spot_lp_fees, 0) as spot_lp_fees
     from {{ ref('fact_pumpswap_metrics') }}
+
 )
 , pumpfun_metrics as (
     select
@@ -33,6 +42,8 @@ with date_spine as (
         coalesce(launchpad_volume, 0) as launchpad_volume,
         coalesce(launchpad_fees, 0) as launchpad_fees
     from {{ ref('fact_pumpfun_metrics') }}
+
+
 )
 
 

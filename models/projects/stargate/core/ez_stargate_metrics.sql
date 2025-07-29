@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="STARGATE",
         database="stargate",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 WITH 
 -- First seen date for each address
@@ -130,7 +139,6 @@ first_seen AS (
         , sum(balance_native) as staked_native
         , sum(balance) as staked_usd
     from total_stg_staked
-
     group by date
 )
 , tvl_metrics as (
@@ -270,6 +278,10 @@ SELECT
     , pd.fdmc
     , pd.token_turnover_circulating
     , pd.token_turnover_fdv
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM treasury_metrics t
 full outer join daily_growth d ON d.transaction_date = t.date
 LEFT JOIN new_addresses n ON t.date = n.transaction_date
@@ -283,5 +295,7 @@ LEFT JOIN supply_data sd ON t.date = sd.date
 LEFT JOIN circulating_supply_metrics cs ON t.date = cs.date
 LEFT JOIN price_data pd ON t.date = pd.date
 LEFT JOIN hydra_metrics h ON t.date = h.date
-where t.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('t.date', backfill_date) }}
+and t.date < to_date(sysdate())
 ORDER BY t.date DESC

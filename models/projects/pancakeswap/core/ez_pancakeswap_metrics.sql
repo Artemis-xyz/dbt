@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
+        incremental_strategy="merge",
+        unique_key=["date"],
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        on_schema_change="append_new_columns",
+        full_refresh=false,
         snowflake_warehouse="PANCAKESWAP_SM",
         database="pancakeswap",
         schema="core",
         alias="ez_metrics",
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", none) %}
 
 with trading_volume_pool as (
     {{
@@ -102,10 +111,8 @@ select
     , 'pancakeswap' as app
     , 'DeFi' as category
     , tvl.tvl
-    
     , trading_volume.trading_volume as spot_volume
     , trading_volume.unique_traders as spot_dau
-    
     , fees_revenue.fees as spot_fees
     , fees_revenue.fees as fees
     -- About 68% of fees go to LPs
@@ -113,16 +120,15 @@ select
     , fees_revenue.burned_fee_allocation
     , fees_revenue.treasury_fee_allocation
     , fees_revenue.burned_fee_allocation + fees_revenue.treasury_fee_allocation as revenue
-    -- TODO: the remaining 32% of fees are distributed differently depending on the fee tier of the pool. We currently have the fee tier in
-    -- pancakeswap's ez_dex_swap. This needs to be pulled forward to the correct tables.
-    -- The remaining fees are distributed among CAKE burns, Treasury, and Fixed Term CAKE Stakers
-    -- https://docs.pancakeswap.finance/products/pancakeswap-exchange/pancakeswap-pools
-    
     , token_incentives.token_incentives_usd as token_incentives
     , trading_volume.gas_cost_native as gas_cost_native
     , trading_volume.gas_cost_usd as gas_cost
+    , to_timestamp_ntz(current_timestamp()) as created_on
+    , to_timestamp_ntz(current_timestamp()) as modified_on
 from tvl
 left join trading_volume using(date)
 left join token_incentives using(date)
 left join fees_revenue using(date)
-where tvl.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('tvl.date', backfill_date) }}
+and tvl.date < to_date(sysdate())

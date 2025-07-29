@@ -6,7 +6,7 @@ select
     , chain
     , null as abi_type
     , parquet_raw as abi
-from SNOWPIPE_DB.PUBLIC.FACT_ARTEMIS_ABIS 
+from {{ source('SNOWPIPE_DB', 'FACT_ARTEMIS_ABIS') }}
 union all
 select null as contract_address, null as chain, 'ERC20_Standard' as abi_type, parse_json('[
   {

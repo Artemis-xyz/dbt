@@ -1,10 +1,19 @@
 {{ config(
-    materialized="table",
+    materialized="incremental",
     warehouse="USDT0",
     database="USDT0",
     schema="core",
-    alias="ez_metrics"
+    alias="ez_metrics",
+    incremental_strategy="merge",
+    unique_key="date",
+    on_schema_change="append_new_columns",
+    merge_update_columns=var("backfill_columns", []),
+    merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+    full_refresh=false,
+    tags=["ez_metrics"]
 ) }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with raw_data as (
     select
@@ -21,6 +30,11 @@ select
     'Bridge' as category,
     bridge_dau,
     bridge_txns,
-    bridge_volume
+    bridge_volume,
+    -- timestamp columns
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from raw_data
-where date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())

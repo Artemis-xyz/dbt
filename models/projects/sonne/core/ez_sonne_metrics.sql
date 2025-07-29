@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="SONNE_FINANCE",
         database="sonne_finance",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     sonne_by_chain as (
@@ -40,7 +49,12 @@ select
     , price_data.price
     , price_data.market_cap
     , price_data.fdmc
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from sonne_metrics
 left join price_data
     on sonne_metrics.date = price_data.date
-where sonne_metrics.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('sonne_metrics.date', backfill_date) }}
+and sonne_metrics.date < to_date(sysdate())

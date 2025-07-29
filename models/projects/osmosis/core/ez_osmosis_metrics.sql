@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="OSMOSIS",
         database="osmosis",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=var("full_refresh", false),
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     date_spine as (
@@ -36,7 +45,7 @@ with
             )
         group by 1
     ),
-    price_data as ({{ get_coingecko_metrics("osmosis") }}),
+    market_data as ({{ get_coingecko_metrics("osmosis") }}),
     defillama_data as (
         with raw as ({{ get_defillama_metrics("osmosis") }})
         , sparse_data as (
@@ -67,45 +76,50 @@ with
     , github_data as ({{ get_github_metrics("osmosis") }})
 select
     date_spine.date
-    , fundamental_data.chain
-    , txns
-    , dau
-    , gas_usd
-    , trading_fees
-    , fees
-    , fees / txns as avg_txn_fee
-    , revenue
-    , dex_volumes
+    , 'osmosis' as artemis_id
     -- Standardized Metrics
+
     -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_volume
+    , m.price
+    , m.market_cap
+    , m.fdmc
+    , m.token_volume
+
     -- Chain Metrics
-    , txns as chain_txns
-    , dau as chain_dau
-    , avg_txn_fee as chain_avg_txn_fee
-    , dex_volumes as chain_spot_volume -- Osmosis is both a DEX and a chain
-    , dex_volumes as spot_volume
+    , f.txns as chain_txns
+    , f.txns as txns
+    , f.dau as chain_dau
+    , f.dau as dau
+    , f.fees / f.txns as chain_avg_txn_fee
+    , d.dex_volumes as chain_spot_volume -- Osmosis is both a DEX and a chain
+    , d.dex_volumes as spot_volume
+    , d.tvl
+
     -- Cash Flow Metrics
-    , gas_usd as chain_fees
-    , trading_fees as spot_fees
-    , fees as ecosystem_revenue
-    , trading_fees as service_fee_allocation
-    , gas_usd as validator_fee_allocation
+    , f.gas_usd as chain_fees
+    , f.trading_fees as spot_fees
+    , f.fees as fees
+    , f.trading_fees as lp_fee_allocation
+    , f.gas_usd as validator_fee_allocation
     -- Crypto Metrics
-    , tvl
+
+    -- Financial Metrics
+    , f.revenue
+
     -- Developer Metrics
-    , weekly_commits_core_ecosystem
-    , weekly_commits_sub_ecosystem
-    , weekly_developers_core_ecosystem
-    , weekly_developers_sub_ecosystem
-    , token_turnover_circulating
-    , token_turnover_fdv
+    , g.weekly_commits_core_ecosystem
+    , g.weekly_commits_sub_ecosystem
+    , g.weekly_developers_core_ecosystem
+    , g.weekly_developers_sub_ecosystem
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
-left join fundamental_data using (date)
-left join price_data using (date)
-left join defillama_data using (date)
-left join github_data using (date)
-where date_spine.date < to_date(sysdate())
+left join fundamental_data f using (date)
+left join market_data m using (date)
+left join defillama_data d using (date)
+left join github_data g using (date)
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

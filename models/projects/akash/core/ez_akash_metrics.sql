@@ -1,52 +1,87 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="AKASH",
         database="akash",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
 
+{% set backfill_date = var("backfill_date", None) %}
+
 WITH
 active_providers AS (
-    SELECT * FROM {{ ref("fact_akash_active_providers_silver") }}
+    SELECT * 
+    FROM {{ ref("fact_akash_active_providers_silver") }}
 )
 
-, active_leases AS (SELECT * FROM {{ ref("fact_akash_active_leases_silver") }})
+, active_leases AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_active_leases_silver") }}
+)
 
-, new_leases AS (SELECT * FROM {{ ref("fact_akash_new_leases_silver") }})
+, new_leases AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_new_leases_silver") }}
+)
 
 , compute_fees_native AS (
-    SELECT * FROM {{ ref("fact_akash_compute_fees_native_silver") }}
+    SELECT * 
+    FROM {{ ref("fact_akash_compute_fees_native_silver") }}
 )
 
 , compute_fees_usdc AS (
-    SELECT * FROM {{ ref("fact_akash_compute_fees_usdc_silver") }}
+    SELECT * 
+    FROM {{ ref("fact_akash_compute_fees_usdc_silver") }}
 )
 
 , compute_fees_total_usd AS (
-    SELECT * FROM {{ ref("fact_akash_compute_fees_total_usd_silver") }}
+    SELECT * 
+    FROM {{ ref("fact_akash_compute_fees_total_usd_silver") }}
 )
 
 , validator_fees_native AS (
-    SELECT * FROM {{ ref("fact_akash_validator_fees_native_silver") }}
+    SELECT * 
+    FROM {{ ref("fact_akash_validator_fees_native_silver") }}
+)
+, validator_fees AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_validator_fees_silver") }}
 )
 
-, validator_fees AS (SELECT * FROM {{ ref("fact_akash_validator_fees_silver") }}
+, total_fees AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_total_fees_silver") }}
 )
 
-, total_fees AS (SELECT * FROM {{ ref("fact_akash_total_fees_silver") }})
+, revenue AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_revenue_silver") }}
+)
 
-, revenue AS (SELECT * FROM {{ ref("fact_akash_revenue_silver") }})
+, mints AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_mints_silver") }}
+)
 
-, mints AS (SELECT * FROM {{ ref("fact_akash_mints_silver") }})
-
-, burns AS (SELECT * FROM {{ ref("fact_akash_burns_native_silver") }})
-
+, burns AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_burns_native_silver") }}
+)
 , price as ({{ get_coingecko_metrics("akash-network") }})
 
-, premine_unlocks AS (SELECT * FROM {{ ref("fact_akash_premine_unlocks") }})
+, premine_unlocks AS (
+    SELECT * 
+    FROM {{ ref("fact_akash_premine_unlocks") }}
+)
 
 SELECT
     mints.date
@@ -92,6 +127,10 @@ SELECT
     -- Turnover Metrics
     , coalesce(token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(token_turnover_fdv, 0) as token_turnover_fdv 
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM mints
 LEFT JOIN active_providers ON mints.date = active_providers.date
 LEFT JOIN new_leases ON mints.date = new_leases.date
@@ -106,5 +145,7 @@ LEFT JOIN burns ON mints.date = burns.date
 LEFT JOIN active_leases ON mints.date = active_leases.date
 LEFT JOIN price ON mints.date = price.date
 LEFT JOIN premine_unlocks ON mints.date = premine_unlocks.date
-WHERE mints.date < to_date(sysdate())
+WHERE true
+{{ ez_metrics_incremental("mints.date", backfill_date) }}
+and mints.date < to_date(sysdate())
 ORDER BY date DESC

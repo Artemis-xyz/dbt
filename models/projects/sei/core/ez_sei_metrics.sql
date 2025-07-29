@@ -1,24 +1,49 @@
 -- depends_on {{ ref("fact_sei_transactions_v2") }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="SEI",
         database="sei",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
+
 with
     sei_combined_fundamental_metrics as ( {{ get_fundamental_data_for_chain("sei", "v2") }} )
-    , sei_fundamental_metrics as (select * from {{ ref("fact_sei_daa_txns_gas_gas_usd_revenue") }})
+    , sei_fundamental_metrics as (
+        select * 
+        from {{ ref("fact_sei_daa_txns_gas_gas_usd_revenue") }}
+    )
     , rolling_metrics as ({{ get_rolling_active_address_metrics("sei") }})
     , contract_data as ({{ get_contract_metrics("sei") }})
-    , sei_avg_block_time as (select * from {{ ref("fact_sei_avg_block_time_silver") }})
+    , sei_avg_block_time as (
+        select * 
+        from {{ ref("fact_sei_avg_block_time_silver") }}
+    )
     , price_data as ({{ get_coingecko_metrics("sei-network") }})
     , defillama_data as ({{ get_defillama_metrics("sei") }})
-    , sei_evm_fundamental_metrics as (select * from {{ref("fact_sei_evm_fundamental_metrics_silver")}})
-    , sei_evm_avg_block_time as (select * from {{ ref("fact_sei_evm_avg_block_time_silver") }})
-    , sei_emissions as (select date, rewards_amount as mints_native from {{ ref("fact_sei_emissions") }})
+    , sei_evm_fundamental_metrics as (
+        select * 
+        from {{ref("fact_sei_evm_fundamental_metrics_silver")}}
+    )
+    , sei_evm_avg_block_time as (
+        select * 
+        from {{ ref("fact_sei_evm_avg_block_time_silver") }}
+    )
+    , sei_emissions as (
+        select date, rewards_amount as mints_native 
+        from {{ ref("fact_sei_emissions") }}
+    )
     , sei_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_sei_daily_dex_volumes") }}
@@ -95,6 +120,9 @@ select
     -- Developer Metrics
     , weekly_contracts_deployed
     , weekly_contract_deployers
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from sei_combined_fundamental_metrics as combined
 full join contract_data as contracts using (date)
 full join sei_fundamental_metrics as wasm using (date)
@@ -107,5 +135,6 @@ full join defillama_data as defillama using (date)
 full join sei_emissions using (date)
 left join sei_dex_volumes as dune_dex_volumes_sei using (date)
 full join sei_supply as sei_supply using (date)
-where 
-coalesce(combined.date, wasm.date, evm.date, sei_avg_block_time.date, price.date, defillama.date, contracts.date) < date(sysdate())
+where true
+{{ ez_metrics_incremental('coalesce(combined.date, wasm.date, evm.date, sei_avg_block_time.date, price.date, defillama.date, contracts.date)', backfill_date) }}
+and coalesce(combined.date, wasm.date, evm.date, sei_avg_block_time.date, price.date, defillama.date, contracts.date) < date(sysdate())

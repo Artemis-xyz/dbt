@@ -12,7 +12,7 @@ with
     swap_fees as (
         SELECT
             date
-            , token
+            , lower(token) as token
             , SUM(fees) as swap_fees
             , SUM(fees_native) as swap_fees_native
             , SUM(supply_side_fees) as supply_side_fees
@@ -28,7 +28,7 @@ with
     , yield_fees as (
         SELECT
             date
-            , token
+            , lower(token) as token
             , SUM(fees_native) as yield_revenue
         FROM
             {{ ref('fact_pendle_yield_fees') }}
@@ -37,7 +37,7 @@ with
     , tvl as (
         SELECT
             date
-            , symbol as token
+            , lower(symbol) as token
             , SUM(tvl_usd) as tvl
         FROM
             {{ref('fact_pendle_tvl_by_token_and_chain')}}
@@ -46,26 +46,39 @@ with
     , token_incentives_cte as (
         SELECT
             date
-            , token
+            , lower(token) as token
             , token_incentives
         FROM
             {{ref('fact_pendle_token_incentives_by_chain')}}
     )
-
+    , date_token_spine as (
+        SELECT
+            distinct
+            date,
+            token
+        FROM dim_date_spine
+        CROSS JOIN (
+            SELECT distinct token
+            FROM swap_fees
+            UNION ALL
+            SELECT distinct token
+            FROM yield_fees
+            UNION ALL
+            SELECT distinct token
+            FROM tvl
+            UNION ALL
+            SELECT distinct token
+            FROM token_incentives_cte
+        )
+        WHERE date between '2022-11-28' and to_date(sysdate())
+    )
 
 SELECT
-    f.date
-    , f.token
-    , COALESCE(f.swap_fees, 0) as swap_fees
-    , COALESCE(f.supply_side_fees, 0) as primary_supply_side_revenue
-    , 0 as secondary_supply_side_revenue
-    , COALESCE(f.supply_side_fees, 0) as total_supply_side_revenue
-    , COALESCE(f.swap_revenue, 0) as swap_revenue_vependle
-    , COALESCE(yf.yield_revenue, 0) as yield_revenue_vependle
-    , swap_revenue_vependle + yield_revenue_vependle as total_revenue_vependle
+    dts.date
+    , 'pendle' as artemis_id
+    , dts.token
 
     -- Standardized Metrics
-    
     -- Usage/Sector Metrics
     , COALESCE(t.tvl, 0) as tvl
     , coalesce(f.swap_volume, 0) as spot_volume
@@ -75,18 +88,18 @@ SELECT
     , f.swap_fees as spot_fees
     , COALESCE(yf.yield_revenue, 0) as yield_fees
     , coalesce(f.swap_fees, 0) + coalesce(yf.yield_revenue, 0) as fees
+    , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as staking_fee_allocation
+    , f.supply_side_fees as lp_fee_allocation
+
+    -- Financial Statement Metrics
+    , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as staking_revenue
     , 0 as revenue
     , COALESCE(ti.token_incentives, 0) as token_incentives
     , revenue - token_incentives as earnings
-    , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as staking_revenue
 
-    -- Fee Allocation Metrics
-    , coalesce(f.swap_revenue, 0) + coalesce(yf.yield_revenue, 0) as staking_fee_allocation
-    , coalesce(f.swap_revenue, 0) as spot_staking_fee_allocation
-    , coalesce(yf.yield_revenue, 0) as yield_staking_fee_allocation
-    , f.supply_side_fees as service_fee_allocation
-
-FROM swap_fees f
-FULL JOIN yield_fees yf USING (date, token)
-FULL JOIN token_incentives_cte ti USING (date, token)
-FULL JOIN tvl t USING (date, token)
+FROM date_token_spine dts
+LEFT JOIN swap_fees f USING (date, token)
+LEFT JOIN yield_fees yf USING (date, token)
+LEFT JOIN token_incentives_cte ti USING (date, token)
+LEFT JOIN tvl t USING (date, token)
+WHERE dts.date < to_date(sysdate())

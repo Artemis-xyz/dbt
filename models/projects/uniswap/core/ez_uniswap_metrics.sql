@@ -1,13 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="UNISWAP_SM",
         database="uniswap",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
 
+{% set backfill_date = var("backfill_date", None) %}
 
 WITH
     fees as (
@@ -84,7 +92,8 @@ WITH
     )
     , price_data_cte as ({{ get_coingecko_metrics("uniswap") }})
     , tokenholder_cte as (
-        SELECT * FROM {{ ref('fact_uni_tokenholder_count') }}
+        SELECT * 
+        FROM {{ ref('fact_uni_tokenholder_count') }}
     )
     , supply_metrics as (
         SELECT
@@ -151,6 +160,10 @@ SELECT
     , price_data_cte.token_turnover_circulating
     , tokenholder_cte.token_holder_count
 
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
 FROM fees_agg
 LEFT JOIN dau_txns_volume using(date)
 LEFT JOIN token_incentives_cte using(date)
@@ -161,4 +174,6 @@ LEFT JOIN tvl_cte using(date)
 LEFT JOIN price_data_cte using(date)
 LEFT JOIN tokenholder_cte using(date)
 LEFT JOIN supply_metrics using(date)
-WHERE date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())

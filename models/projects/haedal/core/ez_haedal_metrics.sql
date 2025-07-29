@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="HAEDAL",
         database="haedal",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 WITH 
     defillama_tvl AS (
@@ -51,6 +60,12 @@ SELECT
     COALESCE(m.token_volume, 0) AS token_volume,
     COALESCE(m.token_turnover_circulating, 0) AS token_turnover_circulating,
     COALESCE(m.token_turnover_fdv, 0) AS token_turnover_fdv,
-    COALESCE(d.tvl, 0) AS tvl
+    COALESCE(d.tvl, 0) AS tvl,
+    -- timestamp columns
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 FROM defillama_tvl_forwardfill d
 LEFT JOIN market_data m USING (date)
+where true
+{{ ez_metrics_incremental('d.date', backfill_date) }}
+and d.date < to_date(sysdate())

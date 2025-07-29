@@ -1,13 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="TON",
         database="ton",
         schema="core",
         alias="ez_metrics",
-        unique_key="date"
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as (
@@ -116,6 +124,9 @@ select
     , p2p_stablecoin_mau
     , p2p_stablecoin_transfer_volume
     , p2p_stablecoin_tokenholder_count
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from supply_data as supply
 left join ton_apps_fundamental_data as ton on supply.date = ton.date
 left join price_data on supply.date = price_data.date
@@ -125,4 +136,6 @@ left join fundamental_data on supply.date = fundamental_data.date
 left join stablecoin_data on supply.date = stablecoin_data.date
 left join rolling_metrics on supply.date = rolling_metrics.date
 left join block_rewards_data on supply.date = block_rewards_data.date
-where supply.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('supply.date', backfill_date) }}
+and supply.date < to_date(sysdate())

@@ -29,7 +29,7 @@ with
                 when ab.contract_address = 'native_token' and '{{chain}}' = 'base' then 'eip155:8453:native'
                 when ab.contract_address = 'native_token' and '{{chain}}' = 'optimism' then 'eip155:10:native'
                 when ab.contract_address = 'native_token' and '{{chain}}' = 'solana' then 'solana:5eykt4usfv8p8njdtrepy1vzqkqzkvdp:native'
-                else ab.contract_address
+                else lower(ab.contract_address)
             end as contract_address
             , block_timestamp
             {%if chain == 'solana' %} -- note Solana balances are already decimals adjusted
