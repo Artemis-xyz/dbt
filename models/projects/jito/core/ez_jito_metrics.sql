@@ -73,10 +73,10 @@ with
     , daily_supply_data as (
         SELECT 
             date
+            , premine_unlocks as premine_unlocks_native
             , 0 as emissions_native
-            , pre_mine_unlocks as premine_unlocks_native
             , 0 as burns_native
-        FROM {{ ref('fact_jito_daily_premine_unlocks') }}
+        FROM {{ ref('fact_jito_unlock_schedule') }}
     )
     , market_metrics as (
         {{get_coingecko_metrics('jito-governance-token')}}
