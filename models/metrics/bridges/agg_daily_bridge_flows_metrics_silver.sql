@@ -94,6 +94,7 @@ select
     category,
     lower(symbol) as symbol,
     amount_usd,
+    fee_usd,
     date::string
     || '-'
     || app
