@@ -32,18 +32,6 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_fee_allocation: &service_fee_allocation
-    name: service_fee_allocation
-    description: "The share of protocol revenue accrued to service providers of the protocol."
-    tags:
-      - artemis_gaap
-
-  service_fee_allocation_native: &service_fee_allocation_native
-    name: service_fee_allocation_native
-    description: "The share of protocol revenue accrued to service providers of the protocol in native tokens."
-    tags:
-      - artemis_gaap
-
   spot_dau: &spot_dau
     name: spot_dau
     description: "The number of daily active traders on a spot dex"
@@ -91,40 +79,28 @@ models:
     description: "This table stores metrics for the CETUS protocol"
     columns:
       - *foundation_fee_allocation
-      - *service_fee_allocation
-      - *service_fee_allocation_native
       - *spot_dau
       - *spot_fees
       - *spot_txns
       - *spot_volume
-
   - name: ez_cetus_metrics_by_pool
     description: "This table stores metrics for the CETUS protocol"
     columns:
       - *foundation_fee_allocation
-      - *service_fee_allocation
       - *spot_dau
       - *spot_fees
       - *spot_txns
       - *spot_volume
-
   - name: ez_cetus_metrics_by_chain
     description: "This table stores metrics for the CETUS protocol"
     columns:
-      - *fdmc
       - *fees
       - *foundation_fee_allocation
-      - *market_cap
-      - *price
-      - *service_fee_allocation
       - *spot_dau
-      - *spot_fees
       - *spot_txns
       - *spot_volume
-      - *token_volume
       - *tvl
       - *tvl_net_change
-
   - name: ez_cetus_metrics
     description: "This table stores metrics for the CETUS protocol"
     columns:
@@ -133,9 +109,7 @@ models:
       - *foundation_fee_allocation
       - *market_cap
       - *price
-      - *service_fee_allocation
       - *spot_dau
-      - *spot_fees
       - *spot_txns
       - *spot_volume
       - *token_turnover_circulating
@@ -143,4 +117,3 @@ models:
       - *token_volume
       - *tvl
       - *tvl_net_change
-

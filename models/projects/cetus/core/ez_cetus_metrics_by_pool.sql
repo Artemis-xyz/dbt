@@ -34,17 +34,27 @@ WITH
     )
 
     SELECT
-        spot_volumes.date, 
-        spot_volumes.pool_address AS pool, 
-        tvl.symbol_a,
-        tvl.symbol_b,
-        spot_volumes.volume_usd AS spot_volume,
-        spot_dau_txns.dau AS spot_dau, 
-        spot_dau_txns.txns AS spot_txns, 
-        spot_fees_revenue.fees AS spot_fees, 
-        spot_fees_revenue.service_fee_allocation AS service_fee_allocation, 
-        spot_fees_revenue.foundation_fee_allocation AS foundation_fee_allocation, 
-        tvl.tvl AS spot_tvl
+        spot_volumes.date
+        , 'cetus' as artemis_id
+        , spot_volumes.pool_address as pool
+        , tvl.symbol_a
+        , tvl.symbol_b
+
+        -- Standardized Metrics
+
+        -- Usage Data
+        , spot_dau_txns.dau as spot_dau
+        , spot_dau_txns.dau as dau
+        , spot_dau_txns.txns as spot_txns
+        , spot_dau_txns.txns as txns
+        , tvl.tvl as spot_tvl
+        , spot_volumes.volume_usd as spot_volume
+
+        -- Fee Data
+        , spot_fees_revenue.fees as spot_fees
+        , spot_fees_revenue.service_fee_allocation as service_fee_allocation
+        , spot_fees_revenue.foundation_fee_allocation as foundation_fee_allocation
+        
     FROM spot_volumes
     LEFT JOIN spot_dau_txns USING (date, pool_address)
     LEFT JOIN spot_fees_revenue USING (date, pool_address)

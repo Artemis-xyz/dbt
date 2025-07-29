@@ -78,20 +78,30 @@ WITH
     )
 
     SELECT
-        spot_volumes.date, 
-        spot_volumes.token, 
-        SUM(spot_volumes.volume_native) AS spot_volume_native, 
-        SUM(spot_volumes.volume_usd) AS spot_volume,
-        SUM(spot_dau_txns.dau) AS spot_dau, 
-        SUM(spot_dau_txns.txns) AS spot_txns, 
-        SUM(spot_fees_revenue.fees_native) AS spot_fees_native, 
-        SUM(spot_fees_revenue.fees) AS spot_fees, 
-        SUM(spot_fees_revenue.service_fee_allocation_native) AS service_fee_allocation_native, 
-        SUM(spot_fees_revenue.service_fee_allocation) AS service_fee_allocation, 
-        SUM(spot_fees_revenue.foundation_fee_allocation_native) AS foundation_fee_allocation_native, 
-        SUM(spot_fees_revenue.foundation_fee_allocation) AS foundation_fee_allocation, 
-        SUM(tvl.tvl_native) AS spot_tvl_native, 
-        SUM(tvl.tvl) AS spot_tvl
+        spot_volumes.date
+        , 'cetus' as artemis_id
+        , spot_volumes.token
+
+        -- Standardized Metrics
+
+        -- Usage Data
+        , SUM(spot_dau_txns.dau) AS spot_dau
+        , SUM(spot_dau_txns.dau) AS dau
+        , SUM(spot_dau_txns.txns) AS spot_txns
+        , SUM(spot_dau_txns.txns) AS txns
+        , SUM(spot_volumes.volume_native) AS spot_volume_native
+        , SUM(spot_volumes.volume_usd) AS spot_volume
+        , SUM(tvl.tvl_native) AS spot_tvl_native
+        , SUM(tvl.tvl) AS spot_tvl
+
+        -- Fee Data
+        , SUM(spot_fees_revenue.fees_native) AS spot_fees_native
+        , SUM(spot_fees_revenue.fees) AS spot_fees
+        , SUM(spot_fees_revenue.service_fee_allocation_native) AS service_fee_allocation_native
+        , SUM(spot_fees_revenue.service_fee_allocation) AS service_fee_allocation
+        , SUM(spot_fees_revenue.foundation_fee_allocation_native) AS foundation_fee_allocation_native
+        , SUM(spot_fees_revenue.foundation_fee_allocation) AS foundation_fee_allocation
+        
     FROM spot_volumes
     LEFT JOIN spot_dau_txns ON spot_volumes.date = spot_dau_txns.date AND lower(spot_volumes.token) = lower(spot_dau_txns.token)
     LEFT JOIN spot_fees_revenue ON spot_volumes.date = spot_fees_revenue.date AND lower(spot_volumes.token) = lower(spot_fees_revenue.token)
