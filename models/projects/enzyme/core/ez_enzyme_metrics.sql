@@ -35,13 +35,18 @@ with dim_date_spine as (
 
 select
     ds.date
-    , th.token_holder_count
+    , 'enzyme' AS artemis_id
 
-    -- Token Metrics
+    -- Standardized Metrics
+
+    -- Token Data
     , md.price
     , md.market_cap
     , md.fdmc
     , md.token_volume
+
+    -- Usage Data
+    , th.token_holder_count
 
     -- Turnover Metrics
     , md.token_turnover_circulating

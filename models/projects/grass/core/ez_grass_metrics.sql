@@ -30,15 +30,23 @@ with
 
 select
     market_data.date
-    , data_collected.data_collected_tb
-    -- Token Metrics
+    , 'grass' AS artemis_id
+
+    -- Standardized Metrics
+
+    -- Market Data
     , market_data.price
     , market_data.market_cap
     , market_data.fdmc
     , market_data.token_volume
-    -- Turnover Metrics
+
+    -- Turnover Data
     , market_data.token_turnover_circulating
     , market_data.token_turnover_fdv
+
+    -- Bespoke Data
+    , data_collected.data_collected_tb
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
