@@ -4,7 +4,7 @@
         incremental_strategy = 'merge',
         unique_key = ["date"],
         merge_update_columns=var("backfill_columns", []),
-        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
         on_schema_change = "append_new_columns",
         full_refresh = false,
         database = 'paxos',

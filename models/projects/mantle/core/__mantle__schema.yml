@@ -288,18 +288,70 @@ models:
       - *weekly_commits_sub_ecosystem
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
+
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_mantle_stablecoin_metrics_by_address_with_labels
     description: "This table stores metrics for the MANTLE protocol"
     columns:
       - *artemis_stablecoin_transfer_volume
       - *p2p_stablecoin_transfer_volume
       - *stablecoin_transfer_volume
+
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_mantle_metrics_by_chain
     description: "This table stores metrics for the MANTLE protocol"
     columns:
       - *lst_tvl
       - *tvl_native
       - *tvl_native_net_change
+
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
+      - not_null:
+          column_name: chain
+          description: "Ensures that the chain column is not null for by_chain tables"
+          severity: error
   - name: ez_mantle_metrics_by_subcategory
     description: "This table stores metrics for the MANTLE protocol"
     columns:
@@ -309,6 +361,22 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
+
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_mantle_metrics_by_application_v2
     description: "This table stores metrics for the MANTLE protocol"
     columns:
@@ -318,6 +386,22 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
+
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_mantle_metrics_by_category_v2
     description: "This table stores metrics for the MANTLE protocol"
     columns:
@@ -327,3 +411,35 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
+
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
+  - name: ez_mantle_metrics_by_contract_v2
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error

@@ -9,7 +9,7 @@
         unique_key="date",
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
-        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
         full_refresh=false,
         tags=["ez_metrics"]
     )
@@ -111,3 +111,4 @@ left join supply_data on fundamental_data.date = supply_data.date
 where true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
 and fundamental_data.date < to_date(sysdate())
+group by all
