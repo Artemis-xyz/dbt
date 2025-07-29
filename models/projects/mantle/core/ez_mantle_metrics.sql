@@ -11,7 +11,7 @@
         , on_schema_change="append_new_columns"
         , merge_update_columns=var("backfill_columns", [])
         , merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none
-        , full_refresh=false
+        , full_refresh=var("full_refresh", false)
         , tags=["ez_metrics"]
     )
 }}
@@ -37,7 +37,7 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle", "v2") }})
 , rolling_metrics as ({{ get_rolling_active_address_metrics("mantle") }})
 , defillama_data as ({{ get_defillama_metrics("mantle") }})
 , stablecoin_data as ({{ get_stablecoin_metrics("mantle") }})
-, price_data as ({{ get_coingecko_metrics("mantle") }})
+, market_data as ({{ get_coingecko_metrics("mantle") }})
 , mantle_dex_volumes as (
     select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
     from {{ ref("fact_mantle_daily_dex_volumes") }}
@@ -53,61 +53,59 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle", "v2") }})
 )
 
 select
-    fundamental_data.date
-    , 'mantle' as chain
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees
-    , fees_native
-    , l1_data_cost
-    , l1_data_cost_native
-    , coalesce(fees_native, 0) - l1_data_cost_native as revenue_native -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    , coalesce(fees, 0) - l1_data_cost as revenue
-    , avg_txn_fee
-    , treasury_data.treasury_value_native
-    , treasury_data.treasury_value_native_change
-    , dune_dex_volumes_mantle.dex_volumes
+    f.date
+    , 'mantle' as artemis_id
+
     , dune_dex_volumes_mantle.adjusted_dex_volumes
     -- Standardized Metrics
     -- Market Data Metrics
-    , price
-    , market_cap
-    , fdmc
-    , tvl
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
+
     -- Chain Usage Metrics
-    , dau AS chain_dau
-    , wau AS chain_wau
-    , mau AS chain_mau
-    , txns AS chain_txns
-    , returning_users
-    , new_users
-    , avg_txn_fee AS chain_avg_txn_fee
+    , f.dau AS chain_dau
+    , f.dau
+    , rolling.wau AS chain_wau
+    , rolling.mau AS chain_mau
+    , f.txns AS chain_txns
+    , f.txns
+    , f.returning_users
+    , f.new_users
+    , f.avg_txn_fee AS chain_avg_txn_fee
     , dune_dex_volumes_mantle.dex_volumes AS chain_spot_volume
-    -- LST Metrics
-    , staked_eth_metrics.num_staked_eth as tvl_native
-    , staked_eth_metrics.num_staked_eth as lst_tvl_native
-    , staked_eth_metrics.amount_staked_usd as lst_tvl
-    , staked_eth_metrics.num_staked_eth_net_change as tvl_native_net_change
-    , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
-    , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
-    -- Cashflow Metrics
-    , fees as chain_fees
-    , fees_native AS ecosystem_revenue_native
-    , fees AS ecosystem_revenue
-    , coalesce(fees_native, 0) - l1_data_cost_native as validator_fee_allocation_native -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    , coalesce(fees, 0) - l1_data_cost as validator_fee_allocation
-    , l1_data_cost_native AS l1_fee_allocation_native
-    , l1_data_cost AS l1_fee_allocation
-    -- Protocol Metrics 
+
+    -- LST Usage Metrics
+    , staking.num_staked_eth as tvl_native
+    , staking.num_staked_eth as lst_tvl_native
+    , staking.amount_staked_usd as lst_tvl
+    , staking.amount_staked_usd as tvl
+
+    
+    -- Fee Metrics
+    , f.fees as chain_fees
+    , f.fees
+    , f.fees_native
+    , coalesce(f.fees_native, 0) - expenses_data.l1_data_cost_native as validator_fee_allocation_native -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(f.fees, 0) - expenses_data.l1_data_cost as validator_fee_allocation
+    , expenses_data.l1_data_cost_native AS l1_fee_allocation_native
+    , expenses_data.l1_data_cost AS l1_fee_allocation
+    
+    -- Financial Metrics
+    , coalesce(fees, 0) - l1_data_cost as revenue
+    , coalesce(fees_native, 0) - l1_data_cost_native as revenue_native -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    
+    -- Treasury Metrics 
     , treasury_data.treasury_value_native AS treasury_native
     , treasury_data.treasury_value_native_change AS treasury_native_change
+    
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
+
     -- Stablecoin Metrics
     , stablecoin_total_supply
     , stablecoin_txns
@@ -124,19 +122,20 @@ select
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
     , p2p_stablecoin_tokenholder_count
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from fundamental_data
+from fundamental_data f
 left join github_data using (date)
 left join defillama_data using (date)
 left join stablecoin_data using (date)
-left join price_data using (date)
+left join market_data using (date)
 left join expenses_data using (date)
-left join rolling_metrics using (date)
+left join rolling_metrics rolling using (date)
 left join treasury_data using (date)
-left join mantle_dex_volumes as dune_dex_volumes_mantle on fundamental_data.date = dune_dex_volumes_mantle.date
-left join staked_eth_metrics on fundamental_data.date = staked_eth_metrics.date
+left join mantle_dex_volumes as dune_dex_volumes_mantle using (date)
+left join staked_eth_metrics as staking using (date)
 where true
-{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
-and fundamental_data.date < to_date(sysdate())
+{{ ez_metrics_incremental('f.date', backfill_date) }}
+and f.date < to_date(sysdate())

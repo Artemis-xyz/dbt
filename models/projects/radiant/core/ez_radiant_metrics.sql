@@ -46,10 +46,7 @@ with
 
 select
     token_incentives.date
-    , 'radiant' as app
-    , 'DeFi' as category
-    , radiant_metrics.daily_borrows_usd
-    , radiant_metrics.daily_supply_usd
+    , 'radiant' as artemis_id
     -- Standardized metrics
 
     , radiant_metrics.daily_borrows_usd as lending_loans

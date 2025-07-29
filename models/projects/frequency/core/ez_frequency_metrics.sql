@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -28,14 +28,16 @@ with
     )
 select
     date
-    , txns
-    , daa as dau
-    , coalesce(fees_native, 0) as fees_native
+    , 'frequency' as artemis_id
+
     -- Standardized Metrics
-    -- Chain Metrics
+    -- Usage Metrics
     , txns as chain_txns
-    , dau as chain_dau
+    , txns
+    , daa as chain_dau
+    , daa as dau
     -- Cash Flow Metrics
+    , coalesce(fees_native, 0) as fees_native
     , fees_native as ecosystem_revenue_native
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on

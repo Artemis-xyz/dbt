@@ -17,6 +17,10 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  burns_native: &burns_native
+    name: burns_native
+    description: "The amount of native tokens burned"
+
   chain_avg_txn_fee: &chain_avg_txn_fee
     name: chain_avg_txn_fee
     description: "The average transaction fee on ICP."
@@ -89,6 +93,7 @@ models:
     columns:
       - *burned_fee_allocation
       - *burned_fee_allocation_native
+      - *burns_native
       - *chain_avg_txn_fee
       - *chain_dau
       - *chain_fees

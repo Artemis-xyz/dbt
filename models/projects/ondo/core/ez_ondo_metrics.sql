@@ -50,16 +50,34 @@ with date_spine as (
         circulating_supply_native
     from {{ ref("fact_ondo_daily_supply") }}
 )
+, market_data as (
+    {{ get_coingecko_metrics("ondo-finance") }}
+)
 
 select
     ds.date,
-    coalesce(fees.fees, 0) as fees,
+
+    -- Standardized Metrics
+    -- Market Metrics
+    market_data.price,
+    market_data.market_cap,
+    market_data.fdmc,
+    market_data.token_volume,
+
+    -- Usage Metrics
     coalesce(tvl.tokenized_mcap_change, 0) as tokenized_mcap_change,
     coalesce(tvl.tokenized_mcap, 0) as tokenized_mcap,
-    coalesce(ff_defillama_metrics.tvl, 0) as flux_finance_tvl,
+    coalesce(ff_defillama_metrics.tvl, 0) as lending_tvl, -- Flux Finance TVL
+    coalesce(ff_defillama_metrics.tvl, 0) as tvl,
+
+    -- Fee Metrics
+    coalesce(fees.fees, 0) as fees,
+
+    -- Supply Metrics
     coalesce(supply.premine_unlocks_native, 0) as premine_unlocks_native,
     coalesce(supply.net_supply_change_native, 0) as net_supply_change_native,
     coalesce(supply.circulating_supply_native, 0) as circulating_supply_native,
+
     -- timestamp columns
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
@@ -68,6 +86,7 @@ left join fees using (date)
 left join tvl using (date)
 left join ff_defillama_metrics using (date)
 left join supply using (date)
+left join market_data using (date)
 where true
 {{ ez_metrics_incremental('ds.date', backfill_date) }}
 and ds.date < to_date(sysdate())

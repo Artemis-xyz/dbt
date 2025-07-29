@@ -10,7 +10,7 @@
         on_schema_change='append_new_columns',
         merge_update_columns=var('backfill_columns', []),
         merge_exclude_columns=['created_on'] if not var('backfill_columns', []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=['ez_metrics']
     )
 }}
@@ -25,18 +25,25 @@ with velodrome_tvl as (
 )
 
 select
-    velodrome_tvl.date,
-    'Defillama' as source,
+    velodrome_tvl.date
+    , 'velodrome' as artemis_id
+    , 'Defillama' as source
 
     -- Standardized Metrics
-    velodrome_tvl.tvl,
-    velodrome_market_data.price,
-    velodrome_market_data.market_cap,
-    velodrome_market_data.fdmc,
-    velodrome_market_data.token_turnover_circulating,
-    velodrome_market_data.token_turnover_fdv,
-    velodrome_market_data.token_volume
-    -- timestamp columns
+    -- Market Metrics
+    , velodrome_market_data.price
+    , velodrome_market_data.market_cap
+    , velodrome_market_data.fdmc
+    , velodrome_market_data.token_volume
+    
+    -- Usage Metrics
+    , velodrome_tvl.tvl
+    
+    -- Other Metrics
+    , velodrome_market_data.token_turnover_circulating
+    , velodrome_market_data.token_turnover_fdv
+
+    -- Timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from velodrome_tvl

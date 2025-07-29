@@ -25,7 +25,8 @@ with
     price_data as ({{ get_coingecko_metrics("kaia") }})
 select
     date
-    , kaia_dex_volumes.dex_volumes
+    , 'kaia' as artemis_id
+
     -- Standardized Metrics
     -- Market Data Metrics
     , price

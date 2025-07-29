@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -37,8 +37,9 @@ with
     )
 select
     date
-    , 'mux' as app
-    , 'DeFi' as category
+    , 'mux' as artemis_id
+
+    -- Standardized Metrics
     -- Usage Metrics
     , trading_volume as perp_volume
     , unique_traders as perp_dau
@@ -49,7 +50,8 @@ select
     , price.token_turnover_circulating
     , price.token_turnover_fdv
     , price.token_volume
-    -- Cashflow Metrics
+
+    -- Financial Metrics
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on

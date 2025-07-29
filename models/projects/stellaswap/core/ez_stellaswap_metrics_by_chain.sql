@@ -13,11 +13,13 @@ with stellaswap_tvl as (
 )
 
 select
-    stellaswap_tvl.date,
-    'Defillama' as source,
-    'moonbeam' as chain,
+    stellaswap_tvl.date
+    , 'stellaswap' as artemis_id
+    , 'Defillama' as source
+    , 'moonbeam' as chain
 
     -- Standardized Metrics
-    stellaswap_tvl.tvl
+    -- Usage Metrics
+    , stellaswap_tvl.tvl
 from stellaswap_tvl
 where stellaswap_tvl.date < to_date(sysdate())  
