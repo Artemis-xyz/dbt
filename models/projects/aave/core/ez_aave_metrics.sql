@@ -17,188 +17,193 @@
 
 {% set backfill_date = var("backfill_date", None) %}
 
-with
-    deposits_borrows_lender_revenue as (
-        select * from {{ref("fact_aave_v3_arbitrum_deposits_borrows_lender_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v2_avalanche_deposits_borrows_lender_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_avalanche_deposits_borrows_lender_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_base_deposits_borrows_lender_revenue")}}
-        union all 
-        select * from {{ref("fact_aave_v3_bsc_deposits_borrows_lender_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v2_ethereum_deposits_borrows_lender_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_ethereum_deposits_borrows_lender_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_gnosis_deposits_borrows_lender_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_optimism_deposits_borrows_lender_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v2_polygon_deposits_borrows_lender_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_polygon_deposits_borrows_lender_revenue")}}
+WITH
+    date_spine AS (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date >= '2020-12-03' AND date < to_date(sysdate())
     )
-    , aave_outstanding_supply_net_deposits_deposit_revenue as (
-        select
+    , deposits_borrows_lender_revenue AS (
+        SELECT * FROM {{ref("fact_aave_v3_arbitrum_deposits_borrows_lender_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v2_avalanche_deposits_borrows_lender_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_avalanche_deposits_borrows_lender_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_base_deposits_borrows_lender_revenue")}}
+        UNION ALL 
+        SELECT * FROM {{ref("fact_aave_v3_bsc_deposits_borrows_lender_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v2_ethereum_deposits_borrows_lender_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_ethereum_deposits_borrows_lender_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_gnosis_deposits_borrows_lender_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_optimism_deposits_borrows_lender_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v2_polygon_deposits_borrows_lender_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_polygon_deposits_borrows_lender_revenue")}}
+    )
+    , aave_outstanding_supply_net_deposits_deposit_revenue AS (
+        SELECT
             date
-            , sum(borrows_usd) as outstanding_supply
-            , sum(supply_usd) as net_deposits
+            , SUM(borrows_usd) as outstanding_supply
+            , SUM(supply_usd) as net_deposits
             , net_deposits - outstanding_supply as tvl
-            , sum(deposit_revenue) as supply_side_deposit_revenue
-            , sum(interest_rate_fees) as interest_rate_fees
-            , sum(reserve_factor_revenue) as reserve_factor_revenue
-        from deposits_borrows_lender_revenue
-        group by 1
+            , SUM(deposit_revenue) as supply_side_deposit_revenue
+            , SUM(interest_rate_fees) as interest_rate_fees
+            , SUM(reserve_factor_revenue) as reserve_factor_revenue
+        FROM deposits_borrows_lender_revenue
+        GROUP BY 1
     )
-    , flashloan_fees as (
-        select * from {{ref("fact_aave_v3_arbitrum_flashloan_fees")}}
-        union all
-        select * from {{ref("fact_aave_v2_avalanche_flashloan_fees")}}
-        union all
-        select * from {{ref("fact_aave_v3_avalanche_flashloan_fees")}}
-        union all
-        select * from {{ref("fact_aave_v3_base_flashloan_fees")}}
-        union all
-        select * from {{ref("fact_aave_v2_ethereum_flashloan_fees")}}
-        union all
-        select * from {{ref("fact_aave_v3_ethereum_flashloan_fees")}}
-        union all
-        select * from {{ref("fact_aave_v3_gnosis_flashloan_fees")}}
-        union all
-        select * from {{ref("fact_aave_v3_optimism_flashloan_fees")}}
-        union all
-        select * from {{ref("fact_aave_v2_polygon_flashloan_fees")}}
-        union all
-        select * from {{ref("fact_aave_v3_polygon_flashloan_fees")}}
+    , flashloan_fees AS (
+        SELECT * FROM {{ref("fact_aave_v3_arbitrum_flashloan_fees")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v2_avalanche_flashloan_fees")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_avalanche_flashloan_fees")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_base_flashloan_fees")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v2_ethereum_flashloan_fees")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_ethereum_flashloan_fees")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_gnosis_flashloan_fees")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_optimism_flashloan_fees")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v2_polygon_flashloan_fees")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_polygon_flashloan_fees")}}
     )
-    , aave_flashloan_fees as (
-        select 
+    , aave_flashloan_fees AS (
+        SELECT 
             date
-            , sum(amount_usd) as flashloan_fees
-        from flashloan_fees
-        group by 1
+            , SUM(amount_usd) AS flashloan_fees
+        FROM flashloan_fees
+        GROUP BY 1
     )
-    , liquidation_revenue as (
-        select * from {{ref("fact_aave_v3_arbitrum_liquidation_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v2_avalanche_liquidation_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_avalanche_liquidation_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_base_liquidation_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_bsc_liquidation_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v2_ethereum_liquidation_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_ethereum_liquidation_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_gnosis_liquidation_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_optimism_liquidation_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v2_polygon_liquidation_revenue")}}
-        union all
-        select * from {{ref("fact_aave_v3_polygon_liquidation_revenue")}}
+    , liquidation_revenue AS (
+        SELECT * FROM {{ref("fact_aave_v3_arbitrum_liquidation_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v2_avalanche_liquidation_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_avalanche_liquidation_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_base_liquidation_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_bsc_liquidation_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v2_ethereum_liquidation_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_ethereum_liquidation_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_gnosis_liquidation_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_optimism_liquidation_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v2_polygon_liquidation_revenue")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_polygon_liquidation_revenue")}}
     )
-    , aave_liquidation_supply_side_revenue as (
-        select 
+    , aave_liquidation_supply_side_revenue AS (
+        SELECT 
             date
-            , sum(liquidation_revenue) as liquidation_revenue
-        from liquidation_revenue
-        group by 1
+            , SUM(liquidation_revenue) AS liquidation_revenue
+        FROM liquidation_revenue
+        GROUP BY 1
     )
-    , ecosystem_incentives as (
-        select * from {{ref("fact_aave_v3_arbitrum_ecosystem_incentives")}}
-        union all
-        select * from {{ref("fact_aave_v2_avalanche_ecosystem_incentives")}}
-        union all
-        select * from {{ref("fact_aave_v3_avalanche_ecosystem_incentives")}}
-        union all
-        select * from {{ref("fact_aave_v3_base_ecosystem_incentives")}}
-        union all
-        select * from {{ref("fact_aave_v3_bsc_ecosystem_incentives")}}
-        union all
-        select * from {{ref("fact_aave_v2_ethereum_ecosystem_incentives")}}
-        union all
-        select * from {{ref("fact_aave_v3_ethereum_ecosystem_incentives")}}
-        union all
-        select * from {{ref("fact_aave_v3_gnosis_ecosystem_incentives")}}
-        union all
-        select * from {{ref("fact_aave_v3_optimism_ecosystem_incentives")}}
-        union all
-        select * from {{ref("fact_aave_v2_polygon_ecosystem_incentives")}}
-        union all
-        select * from {{ref("fact_aave_v3_polygon_ecosystem_incentives")}}
+    , ecosystem_incentives AS (
+        SELECT * FROM {{ref("fact_aave_v3_arbitrum_ecosystem_incentives")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v2_avalanche_ecosystem_incentives")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_avalanche_ecosystem_incentives")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_base_ecosystem_incentives")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_bsc_ecosystem_incentives")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v2_ethereum_ecosystem_incentives")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_ethereum_ecosystem_incentives")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_gnosis_ecosystem_incentives")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_optimism_ecosystem_incentives")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v2_polygon_ecosystem_incentives")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v3_polygon_ecosystem_incentives")}}
     )
-    , aave_treasury as (
-        select * from {{ref("fact_aave_aavura_treasury")}}
-        union all
-        select * from {{ref("fact_aave_v2_collector")}}
-        union all
-        select * from {{ref("fact_aave_safety_module")}}
-        union all
-        select * from {{ref("fact_aave_ecosystem_reserve")}}
+    , aave_treasury AS (
+        SELECT * FROM {{ref("fact_aave_aavura_treasury")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_v2_collector")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_safety_module")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_ecosystem_reserve")}}
     )
-    , treasury as (
-        select
+    , treasury AS (
+        SELECT
             date
-            , sum(case when token_address = lower('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') then amount_usd else 0 end) as treasury_value_native
-            , sum(amount_usd) as treasury_value
-        from aave_treasury
-        group by date
+            , SUM(CASE WHEN LOWER(token_address) = LOWER('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') THEN amount_usd ELSE 0 END) AS treasury_value_native
+            , SUM(amount_usd) AS treasury_value
+        FROM aave_treasury
+        GROUP BY 1
     )
-    , aave_net_treasury as (
-        select * from {{ref("fact_aave_v2_collector")}}
-        union all
-        select * from {{ref("fact_aave_aavura_treasury")}}
+    , aave_net_treasury AS (
+        SELECT * FROM {{ref("fact_aave_v2_collector")}}
+        UNION ALL
+        SELECT * FROM {{ref("fact_aave_aavura_treasury")}}
     )
-    , net_treasury_data as (
-        select
+    , net_treasury_data AS (
+        SELECT
             date
-            , sum(amount_usd) as net_treasury_value
-        from aave_net_treasury
-        group by 1
+            , SUM(amount_usd) AS net_treasury_value
+        FROM aave_net_treasury
+        GROUP BY 1
     )
-    , aave_ecosystem_incentives as (
-        select 
+    , aave_ecosystem_incentives AS (
+        SELECT 
             date
-            , sum(amount_usd) as ecosystem_incentives
-        from ecosystem_incentives
-        group by 1
+            , SUM(amount_usd) AS ecosystem_incentives
+        FROM ecosystem_incentives
+        GROUP BY 1
     )
-    , dao_trading_revenue as (
-        select
+    , dao_trading_revenue AS (
+        SELECT
             date
-            , sum(trading_fees_usd) as trading_fees
-        from {{ ref("fact_aave_dao_balancer_trading_fees")}}
-        group by 1
+            , SUM(trading_fees_usd) AS trading_fees
+        FROM {{ ref("fact_aave_dao_balancer_trading_fees")}}
+        GROUP BY 1
     )
-    , safety_incentives as (
-        select
+    , safety_incentives AS (
+        SELECT
             date
-            , sum(amount_usd) as safety_incentives
-        from {{ ref("fact_aave_dao_safety_incentives")}}
-        group by 1
+            , SUM(amount_usd) AS safety_incentives
+        FROM {{ ref("fact_aave_dao_safety_incentives")}}
+        GROUP BY 1
     )
-    , gho_treasury_revenue as (
-        select
+    , gho_treasury_revenue AS (
+        SELECT
             date
-            , sum(amount_usd) as gho_revenue
-        from {{ ref("fact_aave_gho_treasury_revenue")}}
-        group by 1
+            , SUM(amount_usd) AS gho_revenue
+        FROM {{ ref("fact_aave_gho_treasury_revenue")}}
+        GROUP BY 1
     )
-    , aave_token_holders as (
-        select
+    , aave_token_holders AS (
+        SELECT
             date
             , token_holder_count
-        from {{ ref("fact_aave_token_holders")}}
+        FROM {{ ref("fact_aave_token_holders")}}
     )
-    , coingecko_metrics as (
-        select 
+    , market_data AS (
+        SELECT 
             date
             , shifted_token_price_usd as price
             , shifted_token_h24_volume_usd as h24_volume
@@ -206,92 +211,89 @@ with
             , t2.total_supply * price as fdmc
             , shifted_token_h24_volume_usd / market_cap as token_turnover_circulating
             , shifted_token_h24_volume_usd / fdmc as token_turnover_fdv
-        from {{ ref("fact_coingecko_token_date_adjusted_gold") }} t1
-        inner join
+        FROM {{ ref("fact_coingecko_token_date_adjusted_gold") }} t1
+        INNER JOIN
             (
-                select
-                    token_id, coalesce(token_max_supply, token_total_supply) as total_supply
-                from {{ ref("fact_coingecko_token_realtime_data") }}
-                where token_id = 'aave'
+                SELECT
+                    token_id
+                    , coalesce(token_max_supply, token_total_supply) AS total_supply
+                FROM {{ ref("fact_coingecko_token_realtime_data") }}
+                WHERE token_id = 'aave'
             ) t2
             on t1.coingecko_id = t2.token_id
-        where
+        WHERE
             coingecko_id = 'aave'
-            and date < dateadd(day, -1, to_date(sysdate()))
+            AND date < dateadd(day, -1, to_date(sysdate()))
     )
-select
-    aave_outstanding_supply_net_deposits_deposit_revenue.date
-    , supply_side_deposit_revenue
-    , coalesce(supply_side_deposit_revenue, 0) as primary_supply_side_revenue
-    , flashloan_fees as flashloan_supply_side_revenue
-    , liquidation_revenue as liquidation_supply_side_revenue
-    , ecosystem_incentives as ecosystem_supply_side_revenue
-    , coalesce(flashloan_fees, 0) + coalesce(gho_revenue, 0) + coalesce(liquidation_revenue, 0) + coalesce(ecosystem_incentives, 0) as secondary_supply_side_revenue
-    , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
-    , trading_fees as dao_trading_revenue
-    , gho_revenue
-    , coalesce(reserve_factor_revenue, 0) as reserve_factor_revenue
-    
-    -- Currently don't take into account incentives
+SELECT
+    date_spine.date
+    , 'aave' AS artemis_id
 
-    , outstanding_supply
-    , net_deposits
-    
-    , treasury_value
-    , treasury_value_native
-    , net_treasury_value
-    , token_holder_count
-    , h24_volume
-    -- Standardized metrics
-    , interest_rate_fees as interest_rate_fees
-    , flashloan_fees
-    , gho_revenue as gho_fees
-    , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_revenue, 0) as fees
-    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as revenue
+    -- Standardized Metrics
 
+    -- Market Data
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
 
-    , supply_side_deposit_revenue + flashloan_fees as service_fee_allocation
-    , liquidation_revenue as liquidator_fee_allocation
-    
-    , reserve_factor_revenue as reserve_factor_treasury_fee_allocation
-    , dao_trading_revenue as dao_treasury_fee_allocation
-    , gho_revenue as gho_treasury_fee_allocation
-    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as treasury_fee_allocation
-
-    , ecosystem_incentives
-    , safety_incentives
-    , coalesce(ecosystem_incentives, 0) + coalesce(safety_incentives, 0) as token_incentives
-    , revenue - token_incentives as earnings
-    
+    -- Usage Data
     , outstanding_supply as lending_loans
     , net_deposits as lending_deposits
-    , tvl
+    , outstanding_supply + tvl AS lending_loan_capacity
+    , tvl AS lending_tvl
+    , tvl AS tvl 
+    , token_holder_count
 
+    -- Fee Data
+    , interest_rate_fees AS interest_rate_fees
+    , supply_side_deposit_revenue AS deposit_fees
+    , flashloan_fees
+    , gho_revenue AS gho_fees
+    , trading_fees AS dao_trading_revenue
+    , liquidation_revenue AS liquidator_fees
+    , reserve_factor_revenue AS reserve_factor_fees
+    , coalesce(interest_rate_fees, 0) 
+        + coalesce(supply_side_deposit_revenue, 0)
+        + coalesce(flashloan_fees, 0) 
+        + coalesce(gho_revenue, 0) 
+        + coalesce(trading_fees, 0) 
+        + coalesce(liquidation_revenue, 0) 
+        + coalesce(reserve_factor_revenue, 0)
+    AS fees
+    , deposit_fees + flashloan_fees AS lp_fee_allocation
+    , dao_trading_revenue AS dao_fee_allocation
+    , gho_revenue + reserve_factor_revenue AS treasury_fee_allocation
+    , liquidation_revenue AS liquidator_fee_allocation
+
+    -- Financial Statements
+    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) AS revenue
+    , coalesce(ecosystem_incentives, 0) + coalesce(safety_incentives, 0) AS token_incentives
+    , revenue - token_incentives AS earnings
+
+    -- Treasury Data
     , treasury_value as treasury
-    , treasury_value_native as treasury_native
     , net_treasury_value as net_treasury
 
-    , h24_volume as token_volume
-    , price
-    , market_cap
-    , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
+    -- Turnover Metrics
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from aave_outstanding_supply_net_deposits_deposit_revenue
-left join aave_flashloan_fees using (date)
-left join aave_liquidation_supply_side_revenue using (date)
-left join aave_ecosystem_incentives using (date)
-left join dao_trading_revenue using (date)
-left join safety_incentives using (date)
-left join gho_treasury_revenue using (date)
-left join treasury using (date)
-left join net_treasury_data using (date)
-left join aave_token_holders using (date)
-left join coingecko_metrics using (date)
-where true
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
+FROM date_spine
+LEFT JOIN aave_outstanding_supply_net_deposits_deposit_revenue USING (date)
+LEFT JOIN aave_flashloan_fees USING (date)
+LEFT JOIN aave_liquidation_supply_side_revenue USING (date)
+LEFT JOIN aave_ecosystem_incentives USING (date)
+LEFT JOIN dao_trading_revenue USING (date)
+LEFT JOIN safety_incentives USING (date)
+LEFT JOIN gho_treasury_revenue USING (date)
+LEFT JOIN treasury USING (date)
+LEFT JOIN net_treasury_data USING (date)
+LEFT JOIN aave_token_holders USING (date)
+LEFT JOIN market_data USING (date)
+WHERE true
 {{ ez_metrics_incremental("aave_outstanding_supply_net_deposits_deposit_revenue.date", backfill_date) }}
-and aave_outstanding_supply_net_deposits_deposit_revenue.date < to_date(sysdate())
+AND aave_outstanding_supply_net_deposits_deposit_revenue.date < to_date(sysdate())
