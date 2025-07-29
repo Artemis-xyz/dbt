@@ -1,4 +1,4 @@
-{% macro ref(model_name) %}
+    {% macro ref(model_name) %}
     -- 'Wrap the logic in the execute flag so that the code only executes at run-time, not parse time
     -- https://docs.getdbt.com/reference/dbt-jinja-functions/graph#accessing-models'
     {%- if execute -%}
@@ -32,13 +32,12 @@
             {%- set prod_schema = 'PROD_' ~ node.config.schema -%}
         {%- endif -%}
 
+        -- Set the name of the prod relation in the ref to the alias if it exists, otherwise use the model name
         {%- set prod_model_name = node.config.alias or model_name -%}
 
-        {%- set prod_model_name = node.alias or model_name -%}
-
         -- Return the below as a relation
-        {% set relation = api.Relation.create(database=prod_database, schema=prod_schema, identifier=prod_model_name) %}
-        {{ return(relation) }}
+        {% set new_relation = api.Relation.create(database=prod_database, schema=prod_schema, identifier=prod_model_name) %}
+        {{ return(new_relation) }}
     {%- endif -%}
   {%- else -%}
     {{ return(builtins.ref(model_name)) }}
