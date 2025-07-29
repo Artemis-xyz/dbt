@@ -7,8 +7,3 @@ sources:
       - name: raw_pumpswap_fees
       - name: raw_pumpswap_dau
       - name: raw_pumpswap_txns
-  - name: SNOWPIPE_DB
-    schema: PUBLIC
-    database: SNOWPIPE_DB
-    tables:
-      - name: FACT_ARTEMIS_ABIS
