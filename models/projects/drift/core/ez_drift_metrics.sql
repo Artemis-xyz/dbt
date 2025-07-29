@@ -36,19 +36,10 @@ WITH parsed_log_metrics AS (
 , open_interest as ( select * from {{ref("fact_drift_open_interest")}})
 , date_spine as (select distinct date from {{ ref("dim_date_spine") }} WHERE date between '2024-01-01' and to_date(sysdate()))
 SELECT 
-    ds.date as date,
-    'drift' AS artemis_id,
+    ds.date as date
+    , 'drift' AS artemis_id
     
-    daily_avg_float_revenue as float_revenue,  -- USDC that they put into a vaulta and generate interest onez
 
-    daily_avg_lending_revenue as lending_revenue, -- Funding rate
-    
-    parsed_log_metrics.perp_revenue as perp_revenue,
-
-    parsed_log_metrics.spot_revenue as spot_revenue,
-
-    coalesce(float_revenue, 0) + coalesce(lending_revenue, 0) + coalesce(parsed_log_metrics.perp_revenue, 0) + coalesce(parsed_log_metrics.spot_revenue, 0) as revenue,
-    total_revenue - (coalesce(float_revenue, 0) +  coalesce(lending_revenue, 0) + coalesce(parsed_log_metrics.perp_revenue, 0) + coalesce(parsed_log_metrics.spot_revenue, 0)) as amm_revenue
 
     -- Standardized Metrics
     -- Market Data
@@ -67,7 +58,13 @@ SELECT
     , parsed_log_metrics.spot_fees as spot_fees
     , coalesce(parsed_log_metrics.perp_fees + parsed_log_metrics.spot_fees, 0) as fees
 
-    -- TODO: Add cashflows to individual entities
+    -- Financial Statements
+    , daily_avg_float_revenue as float_revenue -- USDC that they put into a vaulta and generate interest onez
+    , daily_avg_lending_revenue as lending_revenue -- Funding rate
+    , parsed_log_metrics.perp_revenue as perp_revenue
+    , parsed_log_metrics.spot_revenue as spot_revenue
+    , total_revenue - (coalesce(float_revenue, 0) +  coalesce(lending_revenue, 0) + coalesce(parsed_log_metrics.perp_revenue, 0) + coalesce(parsed_log_metrics.spot_revenue, 0)) as amm_revenue
+    , coalesce(float_revenue, 0) + coalesce(lending_revenue, 0) + coalesce(parsed_log_metrics.perp_revenue, 0) + coalesce(parsed_log_metrics.spot_revenue, 0) as revenue
 
     -- Supply Metrics
     , supply_data.premine_unlocks

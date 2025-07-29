@@ -75,6 +75,10 @@ select
     , total_internet_identity_user_count
     , icp_blocks.block_count
     , 5 as storage_cost
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from market_data
 left join icp_metrics on market_data.date = icp_metrics.date
 left join icp_blocks on market_data.date = icp_blocks.date
