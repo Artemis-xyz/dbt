@@ -30,6 +30,12 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of a token in USD"
+    tags:
+      - artemis_gaap
+
 models:
   - name: ez_moonwell_metrics_by_chain
     description: "This table stores metrics for the MOONWELL protocol"
@@ -37,6 +43,25 @@ models:
       - *lending_deposits
       - *lending_loans
 
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
+      - not_null:
+          column_name: chain
+          description: "Ensures that the chain column is not null for by_chain tables"
+          severity: error
   - name: ez_moonwell_metrics
     description: "This table stores metrics for the MOONWELL protocol"
     columns:
@@ -46,3 +71,18 @@ models:
       - *market_cap
       - *price
 
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error

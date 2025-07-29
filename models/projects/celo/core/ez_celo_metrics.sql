@@ -9,8 +9,8 @@
         unique_key="date",
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
-        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
-        full_refresh=false,
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -34,40 +34,40 @@ with
     )
 select
     fundamental_data.date
-    , fundamental_data.chain
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees
-    , revenue
-    , avg_txn_fee
-    , celo_dex_volumes.dex_volumes
-    , celo_dex_volumes.adjusted_dex_volumes
+    , 'celo' as artemis_id
+
     -- Standardized Metrics
-    -- Market Data Metrics
+    -- Market Data 
     , price
     , market_cap
     , fdmc
     , tvl
     -- Chain Usage Metrics
     , txns AS chain_txns
+    , txns
     , dau AS chain_dau
+    , dau
     , wau AS chain_wau
     , mau AS chain_mau
     , avg_txn_fee AS chain_avg_txn_fee
     , celo_dex_volumes.dex_volumes AS chain_spot_volume
+
     -- Cashflow metrics
     , fees AS chain_fees
-    , fees AS ecosystem_revenue
+    , fees
     , revenue AS burned_fee_allocation
+
+    -- Financial Metrics
+    , revenue
+
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
+
     -- Stablecoin Metrics
-    , stablecoin_total_supply
+    , stablecoin_total_supply as stablecoin_supply
     , stablecoin_txns
     , stablecoin_dau
     , stablecoin_mau
@@ -82,6 +82,10 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , p2p_stablecoin_transfer_volume
+
+    -- Legacy Metrics
+    , celo_dex_volumes.adjusted_dex_volumes
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

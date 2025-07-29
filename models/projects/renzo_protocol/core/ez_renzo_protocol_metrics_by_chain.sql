@@ -80,16 +80,9 @@ with
         where ds.date between (select min(date) from restaked_eth_metrics_by_chain) and to_date(sysdate())
     )
 select
-    date_spine.date,
-    restaked_eth_metrics_by_chain.chain,
-    'renzo_protocol' as app,
-    'DeFi' as category,
-
-    --Old metrics needed for compatibility
-    restaked_eth_metrics_by_chain.num_restaked_eth,
-    restaked_eth_metrics_by_chain.amount_restaked_usd,
-    restaked_eth_metrics_by_chain.num_restaked_eth_net_change,
-    restaked_eth_metrics_by_chain.amount_restaked_usd_net_change 
+    date_spine.date
+    , 'renzo' as artemis_id
+    , restaked_eth_metrics_by_chain.chain
 
     --Standardized Metrics
 
@@ -98,8 +91,6 @@ select
     , restaked_eth_metrics_by_chain.num_restaked_eth as lrt_tvl_native
     , restaked_eth_metrics_by_chain.amount_restaked_usd as tvl
     , restaked_eth_metrics_by_chain.amount_restaked_usd as lrt_tvl
-    , restaked_eth_metrics_by_chain.num_restaked_eth_net_change as lrt_tvl_native_net_change
-    , restaked_eth_metrics_by_chain.amount_restaked_usd_net_change as lrt_tvl_net_change
 from date_spine
 left join restaked_eth_metrics_by_chain using(date)
 where date_spine.date < to_date(sysdate())
