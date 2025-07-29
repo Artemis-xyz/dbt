@@ -13,6 +13,7 @@ with bitflow_tvl as (
 )
 select
     bitflow_tvl.date
+    , 'bitflow' as artemis_id
     , 'Defillama' as source
     , 'stacks' as chain
 
