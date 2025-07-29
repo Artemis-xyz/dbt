@@ -14,10 +14,14 @@ with cellana_tvl as (
 
 select
     cellana_tvl.date
+    , 'cellana' as artemis_id
     , 'Defillama' as source
     , 'aptos' as chain
 
     -- Standardized Metrics
-    , cellana_tvl.tvl
+
+    -- Usage Data
+    , cellana_tvl.tvl as tvl
+
 from cellana_tvl
 where cellana_tvl.date < to_date(sysdate())
