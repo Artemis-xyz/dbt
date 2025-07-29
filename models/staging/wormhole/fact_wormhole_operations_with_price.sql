@@ -111,6 +111,7 @@ select
     , extraction_date
     , case when contains(coalesce(lower(prices.symbol), lower(ops.symbol)), 'usd') then 'Stablecoin' else 'Token' end as category
     , concat(coalesce(ops.id, 'null'), '|' , 'wormhole') as unique_id
+    , coalesce(prices.symbol, ops.symbol) as symbol
 from {{ref('fact_wormhole_operations')}} as ops
 left join chain_ids as f_chain on f_chain.wormhole_chain_id = ops.from_chain
 left join chain_ids as t_chain on t_chain.wormhole_chain_id = ops.to_chain
