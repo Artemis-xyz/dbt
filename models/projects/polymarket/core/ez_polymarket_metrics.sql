@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"]
     )
 }}
@@ -18,17 +18,22 @@
 {% set backfill_date = var("backfill_date", None) %}
 
 SELECT 
-    date,
-    'polymarket' AS app,
-    'DeFi' AS category,
-    trump_prediction_market_100k_buy_order_price,
-    kamala_prediction_market_100k_buy_order_price,
-    trump_prediction_market_100k_sell_order_price,
-    kamala_prediction_market_100k_sell_order_price,
+    polymarket_prediction_markets.date
+    , 'polymarket' as artemis_id
+
+    -- Standardized Metrics
+
+    -- Bespoke Metrics
+    , trump_prediction_market_100k_buy_order_price
+    , kamala_prediction_market_100k_buy_order_price
+    , trump_prediction_market_100k_sell_order_price
+    , kamala_prediction_market_100k_sell_order_price
+
     -- timestamp columns
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,    
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-FROM {{ ref("fact_polymarket_prediction_markets") }}
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
+FROM {{ ref("fact_polymarket_prediction_markets") }} polymarket_prediction_markets
 where true
-{{ ez_metrics_incremental('date', backfill_date) }}
-and date < to_date(sysdate())
+{{ ez_metrics_incremental('polymarket_prediction_markets.date', backfill_date) }}
+and polymarket_prediction_markets.date < to_date(sysdate())
