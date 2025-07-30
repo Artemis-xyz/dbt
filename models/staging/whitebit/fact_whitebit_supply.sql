@@ -18,10 +18,8 @@ with supply_data as (
     select
         date
     from {{ ref("dim_date_spine") }}
-    where date between 
-        (select min(date) from supply_data)
-        and 
-        (select max(date) from supply_data)
+    where date >= (select min(date) from supply_data)
+    and date < to_date(sysdate())
 )
 
 , joined as (

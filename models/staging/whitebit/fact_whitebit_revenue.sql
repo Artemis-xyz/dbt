@@ -5,7 +5,7 @@
 WITH 
     date_spine as (
         SELECT * FROM {{ ref("dim_date_spine") }}
-        WHERE date >= '2022-08-05' AND date < SYSDATE()
+        WHERE date >= '2022-08-05' AND date < to_date(sysdate())
     )
     , revenue_data as (
         SELECT 
