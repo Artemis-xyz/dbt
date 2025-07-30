@@ -14,10 +14,12 @@ with liquidswap_tvl as (
 
 select
     liquidswap_tvl.date
-    , 'Defillama' as source
+    , 'liquidswap' as artemis_id
     , 'aptos' as chain
 
     -- Standardized Metrics
+    
+    -- Usage Data
     , liquidswap_tvl.tvl
     
 from liquidswap_tvl

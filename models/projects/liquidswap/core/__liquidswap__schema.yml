@@ -22,6 +22,10 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  spot_volume: &spot_volume
+    name: spot_volume
+    description: "The total volume on a spot dex"
+
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
     description: "The turnover of a token in USD, based on the token's circulating supply."
@@ -49,7 +53,6 @@ models:
     description: "This table stores metrics for the LIQUIDSWAP protocol"
     columns:
       - *tvl
-
     tests:
       - not_null:
           column_name: date
@@ -75,11 +78,11 @@ models:
       - *fdmc
       - *market_cap
       - *price
+      - *spot_volume
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
       - *tvl
-
     tests:
       - not_null:
           column_name: date
