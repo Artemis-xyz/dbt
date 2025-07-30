@@ -19,121 +19,126 @@
 {% set backfill_date = var("backfill_date", None) %}
 
 with
-    fundamental_data as ({{ get_fundamental_data_for_chain("base", "v2") }}),
-    defillama_data as ({{ get_defillama_metrics("base") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("base") }}),
-    contract_data as ({{ get_contract_metrics("base") }}),
-    expenses_data as (
-        select date, chain, l1_data_cost_native, l1_data_cost
-        from {{ ref("fact_base_l1_data_cost") }}
-    ),  -- supply side revenue and fees
-    nft_metrics as ({{ get_nft_metrics("base") }}),
-    p2p_metrics as ({{ get_p2p_metrics("base") }}),
-    rolling_metrics as ({{ get_rolling_active_address_metrics("base") }}),
-    bridge_volume_metrics as (
-        select date, bridge_volume
-        from {{ ref("fact_base_bridge_bridge_volume") }}
-        where chain is null
-    ),
-    bridge_daa_metrics as (
-        select date, bridge_daa
-        from {{ ref("fact_base_bridge_bridge_daa") }}
-    ),
-    base_dex_volumes as (
-        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
-        from {{ ref("fact_base_daily_dex_volumes") }}
-    ),
-    adjusted_dau_metrics as (
-        select date, adj_daus as adjusted_dau
-        from {{ ref("ez_base_adjusted_dau") }}
+    date_spine AS (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date >= '2023-06-15' AND date < TO_DATE(SYSDATE())
+    )
+    , fundamental_data AS ({{ get_fundamental_data_for_chain("base", "v2") }})
+    , defillama_data AS ({{ get_defillama_metrics("base") }})
+    , stablecoin_data AS ({{ get_stablecoin_metrics("base") }})
+    , contract_data AS ({{ get_contract_metrics("base") }})
+    , expenses_data AS (
+        SELECT date, chain, l1_data_cost_native, l1_data_cost
+        FROM {{ ref("fact_base_l1_data_cost") }}
+    )  -- supply side revenue and fees
+    , nft_metrics AS ({{ get_nft_metrics("base") }})
+    , p2p_metrics AS ({{ get_p2p_metrics("base") }})
+    , rolling_metrics AS ({{ get_rolling_active_address_metrics("base") }})
+    , bridge_volume_metrics AS (
+        SELECT date, bridge_volume
+        FROM {{ ref("fact_base_bridge_bridge_volume") }}
+        WHERE chain IS NULL
+    )
+    , bridge_daa_metrics AS (
+        SELECT date, bridge_daa
+        FROM {{ ref("fact_base_bridge_bridge_daa") }}
+    )
+    , base_dex_volumes AS (
+        SELECT date, daily_volume AS dex_volumes, daily_volume_adjusted AS adjusted_dex_volumes
+        FROM {{ ref("fact_base_daily_dex_volumes") }}
+    )
+    , adjusted_dau_metrics AS (
+        SELECT date, adj_daus AS adjusted_dau
+        FROM {{ ref("ez_base_adjusted_dau") }}
     )
 
-select
-    fundamental_data.date
-    , fundamental_data.chain
-    , txns
-    , dau
-    , adjusted_dau
-    , wau
-    , mau
-    , fees_native
-    , fees
-    , l1_data_cost_native
-    , l1_data_cost
-    , coalesce(fees_native, 0) - l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    , coalesce(fees, 0) - l1_data_cost as revenue
-    , avg_txn_fee
-    , median_txn_fee
-    , dau_over_100
-    , nft_trading_volume
-    , dune_dex_volumes_base.dex_volumes AS dex_volumes
-    , dune_dex_volumes_base.adjusted_dex_volumes AS adjusted_dex_volumes
+SELECT
+    date_spine.date
+    , 'base' AS artemis_id
+    
     -- Standardized Metrics
-    -- Market Data Metrics
-    , tvl
-    -- Chain Usage Metrics
-    , dau as chain_dau
-    , txns as chain_txns
-    , avg_txn_fee as chain_avg_txn_fee
-    , median_txn_fee as chain_median_txn_fee
-    , dau_over_100 as chain_dau_over_100_balance
-    , nft_trading_volume as chain_nft_trading_volume
-    , sybil_users
-    , non_sybil_users
-    , returning_users
-    , new_users
-    , low_sleep_users
-    , high_sleep_users
-    , p2p_native_transfer_volume
-    , p2p_token_transfer_volume
-    , p2p_transfer_volume
-    , dune_dex_volumes_base.dex_volumes AS chain_spot_volume
-    , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
-    , coalesce(dune_dex_volumes_base.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
-    -- Cashflow Metrics
-    , fees_native as ecosystem_revenue_native
-    , fees as ecosystem_revenue
-    , l1_data_cost_native AS l1_fee_allocation_native  -- fees paid to l1 by sequencer (L1 Fees)
-    , l1_data_cost AS l1_fee_allocation
-    , coalesce(fees_native, 0) - coalesce(l1_data_cost_native, 0) as treasury_fee_allocation_native
-    , coalesce(fees, 0) - coalesce(l1_data_cost, 0) as treasury_fee_allocation
+
+    -- Usage Data
+    , fundamental_data.dau AS chain_dau
+    , adjusted_dau_metrics.adjusted_dau AS chain_dau_adjusted
+    , fundamental_data.wau AS chain_wau
+    , fundamental_data.mau AS chain_mau
+    , fundamental_data.dau
+    , fundamental_data.txns AS chain_txns
+    , fundamental_data.txns
+    , base_dex_volumes.dex_volumes AS chain_spot_volume
+    , base_dex_volumes.adjusted_dex_volumes AS chain_spot_volume_adjusted
+    , nft_metrics.nft_trading_volume AS chain_nft_trading_volume
+    , fundamental_data.tvl AS chain_tvl
+    , fundamental_data.tvl
+    , fundamental_data.avg_txn_fee AS chain_avg_txn_fee
+    , fundamental_data.median_txn_fee AS chain_median_txn_fee
+    , fundamental_data.dau_over_100 AS chain_dau_over_100_balance
+    , fundamental_data.sybil_users
+    , fundamental_data.non_sybil_users
+    , fundamental_data.returning_users
+    , fundamental_data.new_users
+    , fundamental_data.low_sleep_users
+    , fundamental_data.high_sleep_users
+    , p2p_metrics.p2p_native_transfer_volume
+    , p2p_metrics.p2p_token_transfer_volume
+    , p2p_metrics.p2p_transfer_volume
+    , COALESCE(artemis_stablecoin_transfer_volume, 0) - COALESCE(stablecoin_data.p2p_stablecoin_transfer_volume, 0) AS non_p2p_stablecoin_transfer_volume
+    , COALESCE(base_dex_volumes.dex_volumes, 0) + COALESCE(nft_metrics.nft_trading_volume, 0) + COALESCE(p2p_metrics.p2p_transfer_volume, 0) AS settlement_volume
+
+    -- Fee Data
+    , fundamental_data.fees_native
+    , fundamental_data.fees
+    , expenses_data.l1_data_cost AS l1_fee_allocation
+    , COALESCE(fundamental_data.fees_native, 0) - COALESCE(expenses_data.l1_data_cost_native, 0) AS treasury_fee_allocation_native
+    , COALESCE(fundamental_data.fees, 0) - COALESCE(expenses_data.l1_data_cost, 0) AS treasury_fee_allocation
+
+    -- Financial Statements
+    , COALESCE(fundamental_data.fees, 0) - COALESCE(expenses_data.l1_data_cost, 0) AS revenue
+    , revenue AS earnings
+
     -- Developer Metrics
-    , weekly_contracts_deployed
-    , weekly_contract_deployers
+    , contract_data.weekly_contracts_deployed
+    , contract_data.weekly_contract_deployers
+
     -- Stablecoin Metrics
-    , stablecoin_total_supply
-    , stablecoin_txns
-    , stablecoin_dau
-    , stablecoin_mau
-    , stablecoin_transfer_volume
-    , stablecoin_tokenholder_count
-    , artemis_stablecoin_txns
-    , artemis_stablecoin_dau
-    , artemis_stablecoin_mau
-    , artemis_stablecoin_transfer_volume
-    , p2p_stablecoin_tokenholder_count
-    , p2p_stablecoin_txns
-    , p2p_stablecoin_dau
-    , p2p_stablecoin_mau
+    , stablecoin_data.stablecoin_total_supply
+    , stablecoin_data.stablecoin_txns
+    , stablecoin_data.stablecoin_dau
+    , stablecoin_data.stablecoin_mau
+    , stablecoin_data.stablecoin_transfer_volume
+    , stablecoin_data.stablecoin_tokenholder_count
+    , stablecoin_data.artemis_stablecoin_txns
+    , stablecoin_data.artemis_stablecoin_dau
+    , stablecoin_data.artemis_stablecoin_mau
+    , stablecoin_data.artemis_stablecoin_transfer_volume
+    , stablecoin_data.p2p_stablecoin_tokenholder_count
+    , stablecoin_data.p2p_stablecoin_txns
+    , stablecoin_data.p2p_stablecoin_dau
+    , stablecoin_data.p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
+
     -- Bridge Metrics
-    , bridge_volume
-    , bridge_daa
+    , bridge_volume_metrics.bridge_volume
+    , bridge_daa_metrics.bridge_daa
+
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from fundamental_data
-left join defillama_data on fundamental_data.date = defillama_data.date
-left join stablecoin_data on fundamental_data.date = stablecoin_data.date
-left join expenses_data on fundamental_data.date = expenses_data.date
-left join contract_data on fundamental_data.date = contract_data.date
-left join nft_metrics on fundamental_data.date = nft_metrics.date
-left join p2p_metrics on fundamental_data.date = p2p_metrics.date
-left join rolling_metrics on fundamental_data.date = rolling_metrics.date
-left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics.date
-left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
-left join base_dex_volumes as dune_dex_volumes_base on fundamental_data.date = dune_dex_volumes_base.date
-left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
-where true
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
+FROM date_spine
+LEFT JOIN fundamental_data USING (date)
+LEFT JOIN defillama_data USING (date)
+LEFT JOIN stablecoin_data USING (date)
+LEFT JOIN expenses_data USING (date)
+LEFT JOIN contract_data USING (date)
+LEFT JOIN nft_metrics USING (date)
+LEFT JOIN p2p_metrics USING (date)
+LEFT JOIN rolling_metrics USING (date)
+LEFT JOIN bridge_volume_metrics USING (date)
+LEFT JOIN bridge_daa_metrics USING (date)
+LEFT JOIN base_dex_volumes USING (date)
+LEFT JOIN adjusted_dau_metrics USING (date)
+WHERE true
 {{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
-and fundamental_data.date < to_date(sysdate())
+AND fundamental_data.date < TO_DATE(SYSDATE())
