@@ -10,7 +10,6 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
-        full_refresh=false,
         tags=["ez_metrics"]
     )
 }}
@@ -29,10 +28,19 @@ WITH issued_supply_metrics AS (
         circulating_supply AS circulating_supply_native
     FROM {{ ref('fact_story_issued_supply_and_float') }}
 )
+, story_market_data as (
+    {{ get_coingecko_metrics('story-2') }}
+)
 
 SELECT
     f.date,
     'story' as artemis_id,
+
+    --Market Data
+    smd.price, 
+    smd.market_cap as mc, 
+    smd.fdmc,
+    smd.token_volume,
 
     --Usage Data
     f.txns,
@@ -58,6 +66,9 @@ SELECT
 FROM {{ ref("fact_story_fundamental_metrics") }} f
 LEFT JOIN issued_supply_metrics i
     ON DATE(f.date) = DATE(i.date)
+LEFT JOIN story_market_data smd 
+    ON DATE(smd.date) = DATE(i.date)
+
 WHERE TRUE
 {{ ez_metrics_incremental('f.date', backfill_date) }}
 AND f.date < TO_DATE(SYSDATE())
