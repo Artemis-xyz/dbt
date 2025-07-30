@@ -18,51 +18,65 @@
 {% set backfill_date = var("backfill_date", None) %}
 
 with
-    zk_sync_volume_data as (
-        select date, sum(trading_volume) as trading_volume
-        from {{ ref("fact_holdstation_trading_volume") }}
-        group by date
+    date_spine AS (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date >= '2023-05-09' AND date < TO_DATE(SYSDATE())
     )
-    , bera_trading_volume_data as (
-        select date, sum(perp_volume) as perp_volume
-        from {{ ref("fact_holdstation_bera_perp_volume") }}
-        group by date
+    , zk_sync_volume_data AS (
+        SELECT date, SUM(trading_volume) AS trading_volume
+        FROM {{ ref("fact_holdstation_trading_volume") }}
+        GROUP BY date
     )
-    , agg_volume_data as (
-        select date, sum(trading_volume) as perp_volume
-        from zk_sync_volume_data
-        group by date
-        union all
-        select date, sum(perp_volume) as perp_volume
-        from bera_trading_volume_data
-        group by date
+    , bera_trading_volume_data AS (
+        SELECT date, SUM(perp_volume) AS perp_volume
+        FROM {{ ref("fact_holdstation_bera_perp_volume") }}
+        GROUP BY date
     )
-    , unique_traders_data as (
-        select date, sum(unique_traders) as unique_traders
-        from {{ ref("fact_holdstation_unique_traders") }}
-        group by date
+    , agg_volume_data AS (
+        SELECT date, SUM(trading_volume) AS perp_volume
+        FROM zk_sync_volume_data
+        GROUP BY date
+        UNION ALL
+        SELECT date, SUM(perp_volume) AS perp_volume
+        FROM bera_trading_volume_data
+        GROUP BY date
     )
-    , price as ({{ get_coingecko_metrics("holdstation") }})
-select
-    date
-    , 'holdstation' as app
-    , 'DeFi' as category
-    -- standardize metrics
-    , perp_volume
-    , unique_traders as perp_dau
+    , unique_traders_data AS (
+        SELECT date, SUM(unique_traders) AS unique_traders
+        FROM {{ ref("fact_holdstation_unique_traders") }}
+        GROUP BY date
+    )
+    , market_data AS ({{ get_coingecko_metrics("holdstation") }})
+    
+SELECT
+    date_spine.date
+    , 'holdstation' as artemis_id
+
+    -- Standardized Metrics
+
     -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
-    , token_volume
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
+
+    -- Usage Data
+    , unique_traders_data.unique_traders AS perp_dau
+    , unique_traders_data.unique_traders AS dau
+    , agg_volume_data.perp_volume
+
+    -- Turnover Data
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
+
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from agg_volume_data
-left join unique_traders_data using(date)
-left join price using(date)
-where true
-{{ ez_metrics_incremental('date', backfill_date) }}
-and date < to_date(sysdate())
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
+FROM date_spine
+LEFT JOIN agg_volume_data USING (date)
+LEFT JOIN unique_traders_data USING (date)
+LEFT JOIN market_data USING (date)
+WHERE true
+{{ ez_metrics_incremental('agg_volume_data.date', backfill_date) }}
+AND date < TO_DATE(SYSDATE())
