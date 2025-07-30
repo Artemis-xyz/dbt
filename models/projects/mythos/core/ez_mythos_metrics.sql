@@ -17,42 +17,56 @@
 
 {% set backfill_date = var("backfill_date", None) %}
 
-with
-    fundamental_data as (
-        select
+WITH
+    date_spine AS (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date >= '2024-03-20'
+        AND date < to_date(sysdate())
+    )
+    , fundamental_data AS (
+        SELECT
             date, 
             txns,
             daa, 
             fees_native, 
-            fees_usd
-        from {{ ref("fact_mythos_fundamental_metrics") }}
-    ),
-    price_data as ({{ get_coingecko_metrics('mythos') }})
-select
-    f.date
-    , txns
-    , daa as dau
-    , coalesce(fees_native, 0) as fees_native
-    , coalesce(fees_usd, 0) as fees
+            fees_usd AS fees 
+        FROM {{ ref("fact_mythos_fundamental_metrics") }}
+    )
+    , market_data AS ({{ get_coingecko_metrics('mythos') }})
+
+SELECT
+    date_spine.date
+    , 'mythos' AS artemis_id
+
     -- Standardized Metrics
+
     -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_volume
-    -- Chain Metrics
-    , txns as chain_txns
-    , dau as chain_dau
-    -- Cash Flow Metrics
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
-    , token_turnover_circulating
-    , token_turnover_fdv
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
+
+    -- Usage Data
+    , daa AS chain_dau
+    , daa AS dau
+    , txns AS chain_txns
+    , txns
+
+    -- Fee Data
+    , fundamental_data.fees_native 
+    , fundamental_data.fees 
+
+    -- Turnover Data
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
+
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from fundamental_data f 
-left join price_data using(f.date)
-where true
-{{ ez_metrics_incremental('f.date', backfill_date) }}
-and f.date < to_date(sysdate())
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
+FROM date_spine
+LEFT JOIN fundamental_data USING (date)
+LEFT JOIN market_data USING (date)
+WHERE true
+{{ ez_metrics_incremental("date", backfill_date) }}
+AND date < to_date(sysdate())
