@@ -9,7 +9,7 @@
         unique_key="date",
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
-        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
         full_refresh=false,
         tags=["ez_metrics"]
     )
@@ -46,10 +46,7 @@ with
 
 select
     token_incentives.date
-    , 'radiant' as app
-    , 'DeFi' as category
-    , radiant_metrics.daily_borrows_usd
-    , radiant_metrics.daily_supply_usd
+    , 'radiant' as artemis_id
     -- Standardized metrics
 
     , radiant_metrics.daily_borrows_usd as lending_loans

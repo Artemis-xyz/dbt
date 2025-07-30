@@ -9,7 +9,7 @@
         unique_key="date",
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
-        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
         full_refresh=false,
         tags=["ez_metrics"],
     )
@@ -73,10 +73,10 @@ with
     , daily_supply_data as (
         SELECT 
             date
+            , premine_unlocks as premine_unlocks_native
             , 0 as emissions_native
-            , pre_mine_unlocks as premine_unlocks_native
             , 0 as burns_native
-        FROM {{ ref('fact_jito_daily_premine_unlocks') }}
+        FROM {{ ref('fact_jito_unlock_schedule') }}
     )
     , market_metrics as (
         {{get_coingecko_metrics('jito-governance-token')}}

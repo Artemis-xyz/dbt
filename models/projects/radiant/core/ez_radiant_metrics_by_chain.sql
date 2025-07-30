@@ -25,8 +25,7 @@ with
     )
 select
     token_incentives.date
-    , 'radiant' as app
-    , 'DeFi' as category
+    , 'radiant' as artemis_id
     , token_incentives.chain
     , radiant_by_chain.daily_borrows_usd
     , radiant_by_chain.daily_supply_usd

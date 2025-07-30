@@ -9,7 +9,7 @@
         unique_key="date",
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
-        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
         full_refresh=false,
         tags=["ez_metrics"],
     )
@@ -25,7 +25,8 @@ with
     price_data as ({{ get_coingecko_metrics("kaia") }})
 select
     date
-    , kaia_dex_volumes.dex_volumes
+    , 'kaia' as artemis_id
+
     -- Standardized Metrics
     -- Market Data Metrics
     , price

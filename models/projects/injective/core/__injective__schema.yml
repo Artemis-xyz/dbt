@@ -186,7 +186,6 @@ models:
       - *tvl
       - *validator_fee_allocation
 
-
     tests:
       - not_null:
           column_name: date

@@ -9,14 +9,8 @@
 }}
 SELECT
     date
+    , 'osmosis' as artemis_id
     , 'osmosis' as chain
-    , txns
-    , dau
-    , gas_usd
-    , trading_fees
-    , fees / txns as avg_txn_fee
-    , revenue
-    , dex_volumes
     -- Standardized Metrics
     -- Market Data
     , price
@@ -25,23 +19,28 @@ SELECT
     , token_volume
     -- Chain Metrics
     , txns as chain_txns
+    , txns as txns
     , dau as chain_dau
-    , avg_txn_fee as chain_avg_txn_fee
-    , dex_volumes as chain_spot_volume -- Osmosis is both a DEX and a chain
-    , dex_volumes as spot_volume
-    -- Cash Flow Metrics
-    , gas_usd as chain_fees
-    , trading_fees as spot_fees
-    , fees as fees
-    , trading_fees as service_fee_allocation
-    , gas_usd as validator_fee_allocation
-    -- Crypto Metrics
+    , dau as dau
+    , fees / txns as chain_avg_txn_fee
+    , chain_spot_volume -- Osmosis is both a DEX and a chain
+    , spot_volume
     , tvl
+
+    -- Fee Metrics
+    , chain_fees
+    , spot_fees
+    , fees as fees
+    , lp_fee_allocation
+    , validator_fee_allocation
+
+    -- Financial Metrics
+    , revenue
+
+    -- Crypto Metrics
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
-    , token_turnover_circulating
-    , token_turnover_fdv
 FROM {{ ref("ez_osmosis_metrics") }}

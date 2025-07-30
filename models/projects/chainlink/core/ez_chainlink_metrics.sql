@@ -9,7 +9,7 @@
         unique_key="date",
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
-        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
         full_refresh=false,
         tags=["ez_metrics"],
     )
@@ -181,6 +181,18 @@ with
             , token_volume
         from {{ ref("fact_chainlink_fdv_and_turnover")}}
     )
+
+    ,issued_supply_metrics as (
+        select 
+            date,
+            max_supply_to_date as max_supply_native,
+            total_supply as total_supply_native,
+            issued_supply as issued_supply_native,
+            floating_supply as circulating_supply_native
+        from {{ ref('fact_link_issued_supply_and_float') }}
+    )
+
+    
     , price_data as ({{ get_coingecko_metrics("chainlink") }})
     , token_holder_data as (
         select
@@ -246,8 +258,10 @@ select
     , treasury_link as treasury_native
     -- Supply Metrics
     , premine_unlocks_native
-    , circulating_supply_native - lag(circulating_supply_native) over (order by date) as net_supply_change_native
-    , circulating_supply_native
+    , issued_supply_metrics.max_supply_native
+    , issued_supply_metrics.total_supply_native
+    , issued_supply_metrics.issued_supply_native
+    , issued_supply_metrics.circulating_supply_native
     -- Other Metrics
     , token_turnover_circulating
     , token_turnover_fdv
@@ -269,6 +283,7 @@ left join token_holder_data using (date)
 left join daily_txns_data using (date)
 left join dau_data using (date)
 left join supply_data using (date)
+left join issued_supply_metrics using (date)
 where true
 {{ ez_metrics_incremental('fm_fees_data.date', backfill_date) }}
 and date < to_date(sysdate())

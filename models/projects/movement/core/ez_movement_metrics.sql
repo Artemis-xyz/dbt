@@ -9,8 +9,8 @@
         unique_key="date",
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
-        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
-        full_refresh=false,
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
  }}
@@ -40,11 +40,14 @@ select
     ds.date
     -- Usage Metrics
     , dau as chain_dau
+    , dau as dau
     , txns as chain_txns
+    , txns as txns
     -- Cash Flow Metrics
-    , gas_native as chain_fees_native
     , gas as chain_fees
-    , gas as ecosystem_revenue
+    , gas_native as chain_fees_native
+    , gas as fees
+    , gas_native as fees_native
     -- Market Metrics
     , price
     , market_cap

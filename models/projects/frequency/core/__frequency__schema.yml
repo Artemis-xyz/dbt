@@ -18,10 +18,8 @@ models:
     columns:
       - *chain_dau
       - *chain_txns
-
   - name: ez_frequency_metrics
     description: "This table stores metrics for the FREQUENCY protocol"
     columns:
       - *chain_dau
       - *chain_txns
-

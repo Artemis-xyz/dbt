@@ -9,7 +9,7 @@
         unique_key="date",
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
-        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
         full_refresh=false,
         tags=["ez_metrics"],
     )
@@ -93,6 +93,7 @@ select
     , metrics.txns as chain_txns
     , defillama_dex_volume.dex_volumes as chain_spot_volume
     , defillama_tvl.tvl as chain_tvl
+    , defillama_tvl.tvl as tvl 
     -- Cashflow Metrics
     , metrics.fees
     , metrics.primary_supply_side_revenue AS validator_fee_allocation

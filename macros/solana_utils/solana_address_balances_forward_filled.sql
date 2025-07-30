@@ -1,20 +1,15 @@
-{{
-    config(
-        materialized="incremental",
-        unique_key=["date", "contract_address", "address"],
-        snowflake_warehouse="SOLANA_2XLG"
-    )
-}}
+{% macro solana_address_balances_forward_filled(start_date, end_date, max_date, min_date) %}
 
-{% set token_addresses = var('token_addresses_list', []) %}
+-- This model covers the following possibilities:
+-- 1. Full refresh with start and end date (for historical backfilling)
+-- 2. Incremental refresh with start and end date (for historical backfilling)
+-- 3. Incremental refresh for current day (for incremental runs)
 
-WITH 
-{% if token_addresses | length > 0 %}
-    all_addresses AS (
-        {{ get_all_addresses_under_owners(token_addresses) }}
-    ),
-{% endif %}
-address_balances AS (
+-- What will be caught and will fail
+-- 1. Full refresh without start and end date
+   -- This is because a full refresh will be too massive to handle, so it should fail
+
+WITH address_balances AS (
     SELECT
         ab.address,
         CASE
@@ -26,17 +21,50 @@ address_balances AS (
         ab.amount AS balance_native,
         ab.decimals
     FROM {{ ref("fact_solana_address_balances_by_token") }} ab
-    {% if token_addresses | length > 0 %}
-    INNER JOIN all_addresses
-        ON ab.address = all_addresses.address
-    {% endif %}
-    WHERE ab.block_timestamp < to_date(sysdate())
-    {% if is_incremental() %}
+    WHERE ab.block_timestamp <= '{{ max_date }}'
+    {% if start_date and end_date%}
+        AND ab.block_timestamp >= to_date('{{ start_date }}')
+        AND ab.block_timestamp <= to_date('{{ end_date }}')
+    {% elif is_incremental() %}
+        -- This will cause the model to return nothing for historical dates
         AND ab.block_timestamp > dateadd(day, -3, to_date(sysdate()))
     {% endif %}
 ),
-{% if is_incremental() %}
-    --Get the most recent data in the existing table
+-- If user inputs start and end date, regardless of it's full refresh or incremental...
+{% if start_date and end_date %}
+    -- If user inputs start date is the min date, we need full address + contract_address from history
+    -- Setting block_timestamp as min_date is fine because it is 00:00:00 so any overlap will prefer the later timestamp
+    {% if start_date == min_date %}
+        stale_balances AS (
+            SELECT 
+                ab.address,
+                CASE
+                    WHEN ab.contract_address = 'native_token' THEN 'solana:5eykt4usfv8p8njdtrepy1vzqkqzkvdp:native'
+                    ELSE ab.contract_address
+                END AS contract_address,
+                '{{ min_date }} 00:00:00'::TIMESTAMP_NTZ AS block_timestamp,
+                ab.amount AS balance_raw,
+                ab.amount AS balance_native,
+                ab.decimals
+            FROM {{ ref("fact_solana_address_balances_by_token") }} ab
+            WHERE block_timestamp <= '{{ min_date }}'
+            QUALIFY ROW_NUMBER() OVER (PARTITION BY address, contract_address ORDER BY block_timestamp DESC) = 1
+        ),
+    {% else %}
+        -- If user inputs start date is not the min date, then we just overlap T-1
+        stale_balances AS (
+            select 
+                date as block_timestamp
+                , t.contract_address
+                , t.address
+                , t.balance_raw
+                , t.balance_native
+            from {{ this }} t
+            where date = (select dateadd('day', -1, to_date('{{ start_date }}')))
+        ),
+    {% endif %}
+{% elif is_incremental() %}
+    -- This is the base incremental case where we look at T-3
     stale_balances as (
         select 
             date as block_timestamp
@@ -59,16 +87,16 @@ heal_balance_table as (
         , balance_raw
         , balance_native
     from address_balances
-    {% if is_incremental() %}
-        union
-        select 
-            block_timestamp
-            , contract_address
-            , address
-            , balance_raw
-            , balance_native
-        from stale_balances
-    {% endif %}
+    union all
+    select 
+        block_timestamp
+        , contract_address
+        , address
+        , balance_raw
+        , balance_native
+    from stale_balances
+    -- in the conditions above, if a user does not full/incremental refresh with start + end date OR incremental refresh for current day
+    -- then this will break because stale_balances won't be valid. THIS IS INTENDED.
 ), 
 balances as (
     select 
@@ -108,7 +136,12 @@ date_range AS (
         GROUP BY contract_address, address
     ) min_dates
     JOIN date_spine ds
-        ON ds.date BETWEEN min_dates.start_date AND to_date(sysdate()) - 1
+        ON ds.date BETWEEN min_dates.start_date 
+        {% if start_date and end_date %}
+            AND to_date('{{ end_date }}')
+        {% elif is_incremental() %}
+            AND to_date(sysdate()) - 1
+        {% endif %}
     WHERE ds.date < to_date(sysdate())
 ),
 historical_supply_by_address_balances as (
@@ -162,4 +195,4 @@ select
     , balance
 from address_balances_with_prices
 
-
+{% endmacro %}

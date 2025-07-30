@@ -9,7 +9,7 @@
         unique_key="date",
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
-        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
         full_refresh=false,
         tags=["ez_metrics"],
     )
@@ -68,24 +68,27 @@ with date_spine as (
 
 select
     ds.date
-    , 'gains-network' as app
-    , 'DeFi' as category
-    , gd.trading_volume
-    , gd.unique_traders
-    , gf.fees
-    , gf.revenue
-    , gt.tvl
-    -- standardize metrics
+    , 'gains-network' as artemis_id
+    -- Standardized Metrics
+
+    -- Usage Metrics
     , gd.trading_volume as perp_volume
     , gd.unique_traders as perp_dau
+    , gt.tvl
+
+    -- Fee Metrics
     , gf.referral_fees
     , gf.nft_bot_fees
-    , gf.fees as ecosystem_revenue
+    , gf.fees
     , gf.buybacks as buyback_fee_allocation
     , gf.foundation_fee_allocation
     , gf.staking_fee_allocation
     , gf.service_fee_allocation
     , gf.treasury_fee_allocation
+    
+    -- Financial Metrics
+    , gf.revenue
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

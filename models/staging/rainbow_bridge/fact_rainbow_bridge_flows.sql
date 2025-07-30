@@ -14,7 +14,8 @@ with
             source_chain,
             destination_chain,
             coalesce(c.category, 'Not Categorized') as category,
-            coalesce(amount_usd, 0) as usd_amount
+            coalesce(amount_usd, 0) as usd_amount,
+            symbol
         from {{ ref("fact_rainbow_bridge_transfers") }} t
         left join dim_contracts c on lower(t.token_address) = lower(c.address) and c.chain = 'ethereum' --only using l1token
     )
@@ -25,8 +26,9 @@ select
     source_chain,
     destination_chain,
     category,
+    symbol,
     sum(usd_amount) as amount_usd,
     null as fee_usd
 from volume_and_fees_by_chain_and_symbol
-group by 1, 2, 3, 4, 5
+group by 1, 2, 3, 4, 5, 6
 having amount_usd is not null

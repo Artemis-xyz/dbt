@@ -420,12 +420,42 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_ethereum_stablecoin_metrics_by_address_with_labels
     description: "This table stores metrics for the ETHEREUM protocol"
     columns:
       - *artemis_stablecoin_transfer_volume
       - *p2p_stablecoin_transfer_volume
       - *stablecoin_transfer_volume
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_ethereum_metrics_by_application_v2
     description: "This table stores metrics for the ETHEREUM protocol"
     columns:
@@ -435,6 +465,21 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_ethereum_metrics_by_category_v2
     description: "This table stores metrics for the ETHEREUM protocol"
     columns:
@@ -444,6 +489,21 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_ethereum_metrics
     description: "This table stores metrics for the ETHEREUM protocol"
     columns:
@@ -531,3 +591,50 @@ models:
       - *weekly_contracts_deployed
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
+  - name: ez_ethereum_metrics_by_contract_v2
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
+  - name: ez_ethereum_block_metrics_by_block_producers
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error

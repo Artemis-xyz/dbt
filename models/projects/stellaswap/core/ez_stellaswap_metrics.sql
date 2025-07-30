@@ -9,7 +9,7 @@
         unique_key="date",
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
-        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
         full_refresh=false,
         tags=["ez_metrics"]
     )
@@ -26,6 +26,7 @@ with stellaswap_tvl as (
 
 select
     stellaswap_tvl.date
+    , 'stellaswap' as artemis_id
     , 'Defillama' as source
 
     -- Standardized Metrics
@@ -34,8 +35,10 @@ select
     , stellaswap_market_data.market_cap
     , stellaswap_market_data.fdmc
 
+    -- Usage Metrics
     , stellaswap_tvl.tvl
 
+    -- Other Metrics
     , stellaswap_market_data.token_turnover_circulating
     , stellaswap_market_data.token_turnover_fdv
 

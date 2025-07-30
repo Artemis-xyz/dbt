@@ -9,7 +9,7 @@
         unique_key="date",
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
-        merge_exclude_columns=["created_on"] | reject('in', var("backfill_columns", [])) | list,
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
         full_refresh=false,
         tags=["ez_metrics"]
     )
@@ -29,11 +29,13 @@ with
     )
 select
     bridge_volume.date as date,
-    'rainbow_bridge' as app,
-    'Bridge' as category,
+    'rainbow_bridge' as artemis_id,
+    
+    -- Usage Metrics
     bridge_volume.bridge_volume,
     bridge_dau.bridge_dau
-    -- timestamp columns
+
+    -- Timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from bridge_volume
