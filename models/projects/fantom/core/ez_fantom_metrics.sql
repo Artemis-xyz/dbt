@@ -43,40 +43,47 @@ with
     price_data as ({{ get_coingecko_metrics("fantom") }})
 select
     d.date
-    , d.chain
-    , daa as dau
-    , txns
-    , gas as fees_native
-    , fees
-    , fees / txns as avg_txn_fee
-    , revenue
-    , wau
-    , mau
-    , dex_volumes
-    -- Standardized Metrics
+    , 'fantom' as artemis_id
+
     -- Market Data
     , price
     , market_cap
     , fdmc
     , token_volume
-    -- Chain Metrics
-    , txns as chain_txns
+
+    --Usage Data
     , dau as chain_dau
+    , dau
     , wau as chain_wau
+    , wau
     , mau as chain_mau
+    , mau
+    , txns as chain_txns
+    , txns
     , avg_txn_fee as chain_avg_txn_fee
-    , dex_volumes as chain_spot_volume
-    , adjusted_dex_volumes as chain_spot_volume_adjusted
-    -- Cash Flow Metrics
-    , fees as chain_fees
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
-    , revenue as foundation_fee_allocation
+    , avg_txn_fee
+    , dex_volumes as spot_volume
+    , adjusted_dex_volumes as spot_volume_adjusted
+
+    --Fee Data
+    , fees_native as fees_native
+    , fees as fees
+
+    --Fee Allocation
+    , fees as foundation_fee_allocation
+
+    --Financial Statements
+    , fees_native as revenue_native
+    , fees as revenue
+
     -- Developer Metrics
     , weekly_contracts_deployed
     , weekly_contract_deployers
+
+    --TOKEN TURNOVER/OTHER DATA
     , token_turnover_circulating
     , token_turnover_fdv
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

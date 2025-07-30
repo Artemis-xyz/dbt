@@ -95,6 +95,7 @@ with  fees_and_revs as (
 
 select
     dts.date
+    , 'liquity' as artemis_id
     , dts.token
     , fr.revenue_usd as fees
     , fr.revenue_native as fees_native
@@ -107,29 +108,28 @@ select
     , net_treasury.net_treasury as net_treasury_value
     , os.outstanding_supply
 
-    -- Standardized Metrics
-
-    -- Lending Metrics
+    --Usage Data
+    , tvl.tvl
     , tvl.tvl as lending_deposits
-    , fr.revenue_usd as lending_fees
     , os.outstanding_supply as lending_loans
 
-    -- Crypto Metrics
-    , tvl.tvl
-    , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
+    --Fee Data
+    , fr.revenue_native as fee_native
+    , fr.revenue_usd as lending_fees
+    , fr.revenue_usd as fees
 
-    -- Cash Flow Metrics
-    , fr.revenue_usd as ecosystem_revenue
-    , fr.revenue_native as ecosystem_revenue_native
+    --Fee Allocation
     , ti.token_incentives_native as staking_fee_allocation_native
 
-    -- Protocol Metrics
-    , coalesce(treasury_by_token.treasury, 0) as treasury
+    --Treasury Data
     , coalesce(treasury_by_token.treasury_native, 0) as treasury_native
-    , coalesce(net_treasury.net_treasury, 0) as net_treasury
+    , coalesce(treasury_by_token.treasury, 0) as treasury
     , coalesce(net_treasury.net_treasury_native, 0) as net_treasury_native
-    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
+    , coalesce(net_treasury.net_treasury, 0) as net_treasury
     , coalesce(treasury_native.own_token_treasury_native, 0) as own_token_treasury_native
+    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
+
+
 from date_token_spine dts
 left join tvl using (date, token)
 left join outstanding_supply os using (date, token)

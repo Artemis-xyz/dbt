@@ -53,59 +53,56 @@ with
 
 select
     f.date
-    , f.chain
-    , txns
-    , dau
-    , fees_native
-    , fees
-    , revenue
-    , revenue_native
-    , fees / txns as avg_txn_fee
-    , dex_volumes
-    , nft_trading_volume
-    -- Standardized Metrics
-    
-    -- Market Data
+    , 'cardano' as artemis_id
+
+    --Market Data
     , price
-    , market_cap
+    , market_cap as mc
     , fdmc
     , token_volume
-    
-    -- Chain Metrics
-    , txns as chain_txns
+
+    --Usage Data
     , dau as chain_dau
+    , dau
+    , txns as chain_txns
+    , txns
+    , tvl
     , avg_txn_fee as chain_avg_txn_fee
+    , avg_txn_fee
     , dex_volumes as chain_spot_volume
     , nft_trading_volume as chain_nft_trading_volume
-    
-    -- Cash Flow Metrics
+
+    --Fee Data
+    , fees_native
     , fees as chain_fees
-    
-    -- Crypto Metrics
-    , tvl
-    
-    -- Supply Metrics
+    , fees
+
+    --Financial Statement
+    , revenue_native
+    , revenue
+
+    --Supply Data
     , max_supply_native
     , total_supply_native
     , issued_supply_native
-    -- There are no unvested tokens
     , issued_supply_native - 0 AS circulating_supply_native
-    
-    -- Protocol Metrics
-    , treasury_native
-    , treasury_native * price AS treasury
-    , treasury_native AS own_token_treasury_native
-    , treasury_native * price AS own_token_treasury
-    , 0 AS net_treasury_native
-    , 0 * price AS net_treasury
 
-    -- Developer Metrics
+    --Treasury Data
+    , treasury_native * price AS treasury
+    , 0 * price AS net_treasury
+    , treasury_native * price AS own_token_treasury
+
+     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
+
+    --Token Turnover/Other Data
     , token_turnover_circulating
     , token_turnover_fdv
+
+   
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

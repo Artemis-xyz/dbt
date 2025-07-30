@@ -66,31 +66,31 @@ with trading_volume_by_pool as (
 
 select
     tvl_by_chain.date
+    , 'curve' as artemis_id
     , tvl_by_chain.chain
-    , 'curve' as app
-    , 'DeFi' as category
     
-
-    --Old metrics needed for compatibility
-    , trading_volume_by_chain.trading_volume
-    , trading_volume_by_chain.trading_fees
-    , trading_volume_by_chain.unique_traders
-
-    -- Standardized Metrics
-
-    -- Usage Metrics
-    , trading_volume_by_chain.trading_volume as spot_volume
+     --Usage Data
     , trading_volume_by_chain.unique_traders as spot_dau
+    , trading_volume_by_chain.unique_traders as dau
     , tvl_by_chain.tvl
-
-    -- Cashflow Metrics
-    , trading_volume_by_chain.trading_fees as spot_fees
-    , trading_volume_by_chain.trading_fees as fees
-    , trading_volume_by_chain.trading_fees * 0.5 as staking_fee_allocation
-    , trading_volume_by_chain.trading_fees * 0.5 as service_fee_allocation
+    , trading_volume_by_chain.trading_volume as spot_volume
     , trading_volume_by_chain.gas_cost_native
     , trading_volume_by_chain.gas_cost_usd as gas_cost
+
+    --Fee Data
+    , trading_volume_by_chain.trading_fees as spot_fees
+    , trading_volume_by_chain.trading_fees as fees
+
+    --Fee Allocation
+    , trading_volume_by_chain.trading_fees * 0.5 as staking_fee_allocation
+    , trading_volume_by_chain.trading_fees * 0.5 as lp_fee_allocation
+
+    --Financial Statements
+    , 0 as revenue_native
+    , 0 as revenue
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
+    , revenue - token_incentives as earnings
+   
 
 from tvl_by_chain
 left join trading_volume_by_chain on tvl_by_chain.date = trading_volume_by_chain.date and tvl_by_chain.chain = trading_volume_by_chain.chain

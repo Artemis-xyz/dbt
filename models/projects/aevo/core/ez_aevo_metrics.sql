@@ -26,18 +26,21 @@ with
     , price as ({{ get_coingecko_metrics("aevo-exchange") }})
 select
     date
-    , 'aevo' as app
-    , 'DeFi' as category
-    , trading_volume
-    -- standardize metrics
-    , trading_volume as perp_volume
-    -- Market Data
+    , 'aevo' as artemis_id
+
+    --Market Data
     , price
-    , market_cap
+    , market_cap as mc
     , fdmc
+    , token_volume
+
+    --Usage Data
+    , trading_volume as perp_volume
+
+    --Token Turnover/Other Data
     , token_turnover_circulating
     , token_turnover_fdv
-    , token_volume
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

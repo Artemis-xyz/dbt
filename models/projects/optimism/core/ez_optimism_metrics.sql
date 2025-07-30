@@ -105,40 +105,28 @@ select
         stablecoin_data.date,
         github_data.date,
         contract_data.date
-    ) as date,
-    'optimism' as chain
-    , txns
-    , dau
-    , adjusted_dau
-    , wau
-    , mau
-    , fees_native
-    , fees
-    , l1_data_cost_native
-    , l1_data_cost
-    , avg_txn_fee
-    , median_txn_fee
-    , dau_over_100
-    , coalesce(fees_native, 0) + coalesce(revenue_share_native, 0) - l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
-    , coalesce(fees, 0) + (coalesce(revenue_share, 0)) - l1_data_cost as revenue
-    , coalesce(revenue_share_native, 0) as revenue_share_native
-    , coalesce(revenue_share, 0) as revenue_share
-    , nft_trading_volume
-    , dune_dex_volumes_optimism.dex_volumes
-    , dune_dex_volumes_optimism.adjusted_dex_volumes
-    -- Standardized Metrics
-    -- Market Data Metrics
+    ) as date
+    , 'optimism' as artemis_id
+
+    --Market Data
     , price
-    , market_cap
+    , market_cap as mc
     , fdmc
     , tvl
-    -- Chain Usage Metrics
-    , txns AS chain_txns
+
+    --Usage Data
     , dau AS chain_dau
+    , dau
     , wau AS chain_wau
+    , wau
     , mau AS chain_mau
+    , mau
+    , txns AS chain_txns
+    , txns
     , avg_txn_fee AS chain_avg_txn_fee
+    , avg_txn_fee
     , median_txn_fee AS chain_median_txn_fee
+    , median_txn_fee
     , returning_users
     , new_users
     , sybil_users
@@ -154,22 +142,39 @@ select
     , coalesce(dune_dex_volumes_optimism.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     , dune_dex_volumes_optimism.dex_volumes AS chain_spot_volume
     , coalesce(fees, 0) - coalesce(l1_data_cost, 0) + coalesce(settlement_volume, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
-    -- Cashflow Metrics
+
+    --Fee Data
+    , fees / price as fees_native
     , fees AS chain_fees
-    , revenue - token_incentives.token_incentives as earnings
-    , l1_data_cost_native AS l1_fee_allocation_native
+    , fees
+
+    --Fee Allocation
     , l1_data_cost AS l1_fee_allocation
-    , coalesce(fees_native, 0) - l1_data_cost_native as treasury_fee_allocation_native
-    , coalesce(fees, 0) - l1_data_cost as treasury_fee_allocation
+    , coalesce(fees, 0) - l1_data_cost as foundation_fee_allocation
+    
+    --Financial Statements
+    , coalesce(fees_native, 0) + coalesce(revenue_share_native, 0) - l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
+    , coalesce(fees, 0) + (coalesce(revenue_share, 0)) - l1_data_cost as revenue
     , token_incentives.token_incentives
-    -- Developer Metrics
+    , revenue - token_incentives.token_incentives as earnings    
+
+    -- Supply Metrics
+    , cumulative_mints_native AS max_supply_native
+    , cumulative_mints_native AS total_supply_native
+    , foundation_owned_supply_native
+    , cumulative_mints_native - cumulative_burns_native - foundation_owned_supply_native AS issued_supply_native
+    , cumulative_mints_native - cumulative_burns_native - foundation_owned_supply_native - total_unvested_supply AS circulating_supply_native
+    , total_unvested_supply
+
+    --Developer Data
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
-    -- Stablecoin metrics
+
+    --Stablecoin Data
     , stablecoin_total_supply
     , stablecoin_txns
     , stablecoin_dau
@@ -185,16 +190,11 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
-    -- Bridge Metrics
+    
+    --Bridge Data
     , bridge_volume
     , bridge_daa
-    -- Supply Metrics
-    , cumulative_mints_native AS max_supply_native
-    , cumulative_mints_native AS total_supply_native
-    , cumulative_mints_native - cumulative_burns_native - foundation_owned_supply_native AS issued_supply_native
-    , cumulative_mints_native - cumulative_burns_native - foundation_owned_supply_native - total_unvested_supply AS circulating_supply_native
-    , total_unvested_supply
-    , foundation_owned_supply_native
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

@@ -74,33 +74,37 @@ WITH
 
 SELECT
     date_spine.date as date
-    , 'dydx' as app
-    , 'DeFi' as category
-    -- Not accounting for v4 to support backwards compitability. When we shift in the adapter we will delete v4.
-    , trading_volume_data.trading_volume as trading_volume
-    , unique_traders_data.unique_traders as unique_traders
-    , fees as trading_fees
-    , txn_fees as txn_fees
-    -- standardize metrics
-    -- Market Metrics
+    , 'dydx' as artemis_id
+
+    --Market Data
     , price_data.price
-    , price_data.market_cap
+    , price_data.market_cap as mc
     , price_data.fdmc
     , price_data.token_volume
-    -- Cash Flow Metrics
-    , fees as perp_fees
-    , txn_fees as chain_fees
-    , coalesce(trading_volume_data.trading_volume, 0) + coalesce(trading_volume_data_v4.trading_volume, 0) as perp_volume
+
+    --Usage Data
     , coalesce(unique_traders_data.unique_traders, 0) + coalesce(unique_traders_data_v4.unique_traders, 0) as perp_dau
+    , coalesce(unique_traders_data.unique_traders, 0) + coalesce(unique_traders_data_v4.unique_traders, 0) as dau
+    , coalesce(trading_volume_data.trading_volume, 0) + coalesce(trading_volume_data_v4.trading_volume, 0) as perp_volume
+
+    --Fee Data
+    , fees as trading_fees
+    , txn_fees as chain_fees
     , coalesce(txn_fees, 0) + coalesce(fees, 0) as fees
+
     , case when date_spine.date >= '2022-03-25' then fees * 0.25 else 0 end as buybacks
+
+    --Financial Statements
+    , (coalesce(txn_fees, 0) + coalesce(fees, 0)) / price as revenue_native
+    , (coalesce(txn_fees, 0) + coalesce(fees, 0)) as revenue
+    , token_incentives.token_incentives as token_incentives
     , (coalesce(txn_fees, 0) + coalesce(fees, 0))
             - COALESCE(token_incentives.token_incentives, 0) AS earnings     
+            
     -- Supply Metrics
-    , dydx_supply_data.circulating_supply_native - lag(dydx_supply_data.circulating_supply_native) over (order by date_spine.date) as net_supply_change_native
     , dydx_supply_data.premine_unlocks_native as premine_unlocks_native
     , dydx_supply_data.circulating_supply_native as circulating_supply_native
-    , token_incentives.token_incentives as token_incentives
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

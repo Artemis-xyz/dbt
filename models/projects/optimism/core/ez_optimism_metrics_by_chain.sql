@@ -16,9 +16,10 @@ with
     )
 select
     date,
-    'optimism' as app,
-    'Bridge' as category,
+    'optimism' as artemis_id,
     chain,
+
+    --Bride Data
     inflow,
     outflow
 from bridge_volume_metrics

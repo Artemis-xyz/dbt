@@ -73,39 +73,28 @@ with fundamental_data as (
 
 select
     staking_data.date
-    , coalesce(fundamental_data.chain, 'avalanche') as chain
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees_native
-    , case when fees is null then fees_native * price else fees end as fees
-    , avg_txn_fee
-    , median_txn_fee
-    , fees_native as revenue_native
-    , fees as revenue
-    , dau_over_100
-    , dune_dex_volumes_avalanche_c.dex_volumes
-    , dune_dex_volumes_avalanche_c.adjusted_dex_volumes
-    , nft_trading_volume
-    , total_staked_usd
-    , issuance
+    , 'avalanche' as artemis_id
 
-    -- Standardized Metrics
-
-    -- Market Data Metrics
+    --Market Data 
     , price
-    , market_cap
+    , market_cap as mc
     , fdmc
-    , tvl
+    
 
-    -- Chain Usage Metrics
+    --Chain Data 
     , dau AS chain_dau
+    , dau
     , wau AS chain_wau
+    , wau
     , mau AS chain_mau
+    , mau
     , txns AS chain_txns
+    , txns
     , avg_txn_fee AS chain_avg_txn_fee
+    , avg_txn_fee
     , median_txn_fee AS chain_median_txn_fee
+    , median_txn_fee
+    , tvl
     , returning_users
     , new_users
     , sybil_users
@@ -123,33 +112,23 @@ select
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_avalanche_c.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     , coalesce(fees, 0) + coalesce(settlement_volume, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
-
-    -- Cash Flow Metrics
+    
+    --Fee Data
+    , fees_native
     , case when fees is null then fees_native * price else fees end as chain_fees
-    , fees_native AS ecosystem_revenue_native
-    , case when fees is null then fees_native * price else fees end as ecosystem_revenue
-    , fees_native AS burned_fee_allocation_native
+    , case when fees is null then fees_native * price else fees end as fees
+
+    --Fee Allocation
     , case when fees is null then fees_native * price else fees end as burned_fee_allocation
 
-    -- Issued Supply Metrics
+    --Supply Data
+    , issuance * price AS gross_emissions
     , issued_supply_metrics.max_supply_native
     , issued_supply_metrics.total_supply_native
     , issued_supply_metrics.issued_supply_native
     , issued_supply_metrics.circulating_supply_native
 
-    -- Supply Metrics
-    , issuance AS emissions_native
-    , issuance * price AS gross_emissions
-
-    -- Developer Metrics
-    , weekly_commits_core_ecosystem
-    , weekly_commits_sub_ecosystem
-    , weekly_developers_core_ecosystem
-    , weekly_developers_sub_ecosystem
-    , weekly_contracts_deployed
-    , weekly_contract_deployers
-
-    -- Stablecoin Metrics
+    --Stablecoin Data
     , stablecoin_total_supply
     , stablecoin_txns
     , stablecoin_dau
@@ -166,7 +145,15 @@ select
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
 
-    -- Bridge Metrics
+    --Developer Data
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
+    , weekly_contracts_deployed
+    , weekly_contract_deployers
+
+    --Bridge Data
     , bridge_volume
     , bridge_daa
 

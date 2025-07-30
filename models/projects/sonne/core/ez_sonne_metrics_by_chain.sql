@@ -21,12 +21,10 @@ with
     )
 select
     sonne_by_chain.date
-    , 'sonne' as app
-    , 'DeFi' as category
+    , 'sonne' as artemis_id
     , sonne_by_chain.chain
-    , sonne_by_chain.daily_borrows_usd
-    , sonne_by_chain.daily_supply_usd
-    -- Standardized metrics
+
+    --Usage Data
     , sonne_by_chain.daily_borrows_usd as lending_loans
     , sonne_by_chain.daily_supply_usd as lending_deposits
 from sonne_by_chain

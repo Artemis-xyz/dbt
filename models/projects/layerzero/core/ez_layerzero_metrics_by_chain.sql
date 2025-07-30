@@ -26,18 +26,19 @@ with fees as (
 
 SELECT
     coalesce(f.date, d.date) as date
+    , 'layerzero' as artemis_id
     , d.chain
-    , coalesce(d.dau, 0) as bridge_daa
 
-    -- Standardized Metrics
+    --Usage Data
+    , coalesce(d.dau, 0) as bridge_dau
+    , coalesce(d.dau, 0) as dau
+    , coalesce(d.txns, 0) as bridge_txns
+    , coalesce(d.txns, 0) as txns
 
-    -- Cash Flow Metrics
+    --Fee Data
+    , coalesce(f.fees, 0) as bridge_fees
     , coalesce(f.fees, 0) as fees
     
-    -- Bridge Metrics
-    , coalesce(d.dau, 0) as bridge_dau
-    , coalesce(f.fees, 0) as bridge_fees
-    , coalesce(d.txns, 0) as bridge_txns
 FROM dau_txns d
 LEFT JOIN  fees f using (date, chain)
 WHERE coalesce(f.date, d.date) < to_date(sysdate())

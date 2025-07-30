@@ -91,39 +91,38 @@ with swap_metrics as (
 
 select
     date_chain_spine.date
+    , 'balancer' as artemis_id
     , date_chain_spine.chain
-    , swap_metrics.number_of_swaps
-    , swap_metrics.trading_volume
-    , swap_metrics.unique_traders
-    , swap_metrics.trading_fees
-    , swap_metrics.primary_supply_side_revenue
-    , swap_metrics.primary_supply_side_revenue as total_supply_side_revenue
-    , swap_metrics.revenue
-    , swap_metrics.revenue - token_incentives.token_incentives as earnings
-    , tvl.tvl_usd as net_deposits
-    , treasury_by_chain.usd_balance as treasury_value
-    , treasury_native.treasury_native as treasury_native
-    , net_treasury.net_treasury_usd as net_treasury_value
 
-    -- Standardized Metrics
-    -- Usage/Sector Metrics
+    --Usage Data
     , coalesce(swap_metrics.unique_traders, 0) as spot_dau
+    , coalesce(swap_metrics.unique_traders, 0) as dau
     , coalesce(swap_metrics.number_of_swaps, 0) as spot_txns
-    , coalesce(swap_metrics.trading_volume, 0) as spot_volume
+    , coalesce(swap_metrics.number_of_swaps, 0) as txns
     , coalesce(tvl.tvl_usd, 0) as tvl
+    , coalesce(swap_metrics.trading_volume, 0) as spot_volume
 
-    -- Money Metrics
+    --Fee Data
     , coalesce(swap_metrics.trading_fees, 0) as spot_fees
     , coalesce(swap_metrics.trading_fees, 0) as fees
-    , coalesce(swap_metrics.service_fee_allocation, 0) as service_fee_allocation
-    , coalesce(swap_metrics.treasury_fee_allocation, 0) as treasury_fee_allocation
+
+    --Fee Allocation
+    , coalesce(swap_metrics.service_fee_allocation, 0) as lp_fee_allocation
+    , coalesce(swap_metrics.treasury_fee_allocation, 0) as foundation_fee_allocation
     , coalesce(swap_metrics.vebal_fee_allocation, 0) as staking_fee_allocation
+
+    --Financial Statements
+    , coalesce(swap_metrics.revenue, 0) as revenue
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
+    , coalesce(swap_metrics.revenue, 0) - coalesce(token_incentives.token_incentives_usd, 0) as earnings
 
     -- Treasury Metrics
     , coalesce(net_treasury.net_treasury_usd, 0) as treasury
     , coalesce(net_treasury.net_treasury_usd, 0) as net_treasury
     , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
+
+
+
 from date_chain_spine
 left join treasury_by_chain using (date, chain)
 left join treasury_native using (date, chain)

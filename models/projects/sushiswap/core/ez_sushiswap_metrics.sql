@@ -100,38 +100,34 @@ tvl_data as (
     
 select
     date_spine.date
-    , 'sushiswap' as app
-    , 'DeFi' as category
+    , 'sushiswap' as artemis_id
 
-    -- Old metrics needed for compatibility
-    , trading_volume.gas_cost_native
-    , trading_volume.gas_cost_usd
-    , trading_volume.trading_volume
-    , trading_volume.trading_fees
-    , trading_volume.unique_traders
 
-    -- Standardized Metrics
-
-    -- Market Metrics
+     --Market Data
     , market_metrics.price
-    , market_metrics.market_cap
+    , market_metrics.market_cap as mc
     , market_metrics.fdmc
     , market_metrics.token_volume
 
-    -- Usage Metrics
+     --Usage Data
     , trading_volume.unique_traders as spot_dau
-    , trading_volume.trading_volume as spot_volume
+    , trading_volume.unique_traders as dau
     , tvl.tvl
+    , trading_volume.trading_volume as spot_volume
+    , trading_volume.gas_cost_native
+    , trading_volume.gas_cost_usd
 
-    -- Cashflow Metrics
+    --Fee Data
     , trading_volume.trading_fees as spot_fees
-    , cashflow_metrics.service_fee_allocation as service_fee_allocation
+    , trading_volume.trading_fees as fees
+
+    --Fee Allocation
+    , cashflow_metrics.service_fee_allocation as lp_fee_allocation
     , cashflow_metrics.staking_fee_allocation as staking_fee_allocation
 
-    -- Financial Statement Metrics
-    , cashflow_metrics.ecosystem_revenue as fees
+    --Financial Statement
+    , 0 as revenue_native
     , 0 as revenue
-    , cashflow_metrics.staking_fee_allocation as staking_revenue
     , token_incentives.token_incentives as token_incentives
     , revenue - token_incentives as earnings
 

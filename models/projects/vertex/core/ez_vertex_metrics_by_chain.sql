@@ -30,14 +30,15 @@ with
     )
 select
     date
-    , 'vertex' as app
-    , 'DeFi' as category
+    , 'vertex' as artemis_id
     , chain
-    , trading_volume
-    , unique_traders
-    -- standardize metrics
-    , trading_volume as perp_volume
+
+    --Usage Data
     , unique_traders as perp_dau
+    , unique_traders as dau
+    , trading_volume as perp_volume
+
+    --Financial Statements
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
 from unique_traders_data
 left join trading_volume_data using(date, chain)

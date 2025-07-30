@@ -104,31 +104,30 @@ with trading_volume_by_pool as (
 )
 select
     tvl_by_chain.date
-    , 'pancakeswap' as app
-    , 'DeFi' as category
+    , 'pancakeswap' as artemis_id
     , tvl_by_chain.chain
-    , tvl_by_chain.tvl
-    , trading_volume_by_chain.trading_volume    
-    , trading_volume_by_chain.trading_fees
-    , trading_volume_by_chain.unique_traders
-    , trading_volume_by_chain.gas_cost_usd
 
-    -- Standardized Metrics
-
-    -- Usage Metrics
+    --Usage Data
     , trading_volume_by_chain.unique_traders as spot_dau
+    , trading_volume_by_chain.unique_traders as dau
+    , tvl_by_chain.tvl
     , trading_volume_by_chain.trading_volume as spot_volume
     , trading_volume_by_chain.gas_cost_usd as gas_cost
     , trading_volume_by_chain.gas_cost_native
 
-    -- Cashflow Metrics
+    --Fee Data
     , fees_revenue.fees as spot_fees
     , fees_revenue.fees as fees
-    , fees_revenue.service_fee_allocation
+
+    --Fee Allocation
+    , fees_revenue.service_fee_allocation as lp_fee_allocation
     , fees_revenue.burned_fee_allocation
-    , fees_revenue.treasury_fee_allocation
+    , fees_revenue.treasury_fee_allocation as foundation_fee_allocation
+
+    --Financial Statements
     , fees_revenue.burned_fee_allocation + fees_revenue.treasury_fee_allocation as revenue
     , token_incentives.token_incentives_usd as token_incentives
+    
 
 from tvl_by_chain
 left join trading_volume_by_chain using(date, chain)

@@ -26,18 +26,21 @@ saber_market_data as (
 
 select
     saber_tvl.date
+    , 'saber' as artemis_id
     , 'Defillama' as source
-
-    -- Standardized Metrics
-    , saber_tvl.tvl
 
     -- Market Metrics
     , smd.price
-    , smd.market_cap
+    , smd.market_cap as mc
     , smd.fdmc
+    , smd.token_volume
+
+    --Usage Data
+    , saber_tvl.tvl
+
+    --Token Turnover/Other Data
     , smd.token_turnover_circulating
     , smd.token_turnover_fdv
-    , smd.token_volume
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on

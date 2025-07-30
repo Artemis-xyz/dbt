@@ -26,18 +26,21 @@ with pharaoh_tvl as (
 
 select
     pharaoh_tvl.date
+    , 'pharaoh' as artemis_id
     , 'Defillama' as source
 
-    -- Standardized Metrics
+    --Market Data
+    , pmd.price
+    , pmd.market_cap as mc
+    , pmd.fdmc
+    , pmd.token_volume
+
+    --Usage Data
     , pharaoh_tvl.tvl
 
-    -- Market Metrics
-    , pmd.price
-    , pmd.market_cap
-    , pmd.fdmc
+    --Token Turnover/Other Data
     , pmd.token_turnover_circulating
     , pmd.token_turnover_fdv
-    , pmd.token_volume
 
     -- timestamp columns
     , to_timestamp_ntz(current_timestamp()) as created_on

@@ -38,33 +38,37 @@ with
      )
 select
     f.date
-    , txns
-    , daa as dau
-    , fees_native
-    , fees
-    , dex_volumes
-    , adjusted_dex_volumes
-    , emission_native
-    , burns_native
-    -- Standardized Metrics
-    -- Market Data
+    , 'berachain' as artemis_id
+
+    --Market Data
     , price
-    , market_cap
+    , market_cap as mc
     , fdmc
     , token_volume
-    -- Chain Metrics
-    , txns as chain_txns
-    , daa as chain_dau
-    -- Cash Flow Metrics
-    , fees as chain_fees
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
+
+    --Usage Data
+    , daa
+    , txns
+    , dex_volumes as spot_volume
+    , adjusted_dex_volumes as adjusted_spot_volume
+
+    --Fee Data
+    , fees_native
+    , fees
+
+    --Fee Allocation
     , burns_native as burned_fee_allocation_native
-    -- Supply Metrics
+
+    --Financial Statements
+    , burns_native as revenue_native
+    , burns_native * price as revenue
+
+    --Supply Data
     , premine_unlocks_native
-    , emission_native as emissions_native
-    , net_supply_change_native
+    , emission_native as gross_emissions_native
     , circulating_supply_native
+
+    --TOKEN TURNOVER/OTHER DATA
     , token_turnover_circulating
     , token_turnover_fdv
 

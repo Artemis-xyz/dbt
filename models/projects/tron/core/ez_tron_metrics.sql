@@ -60,34 +60,27 @@ select
         stablecoin_data.date,
         github_data.date
     ) as date
-    , 'tron' as chain
+    , 'tron' as artemis_id
 
-    --Old Metrics needed for backwards compatibility
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees_native
-    , fees_native AS revenue_native
-    , avg_txn_fee
-    , median_txn_fee
-    , dex_volumes
-
-    -- Standardized Metrics
-
-    -- Market Metrics
+    --Market Data
     , market_metrics.price
-    , market_metrics.market_cap
+    , market_metrics.market_cap as mc
     , market_metrics.fdmc
-    
-    -- Chain Usage Metrics
+
+    --Usage Data
     , dau AS chain_dau
+    , dau
     , wau AS chain_wau
+    , wau
     , mau AS chain_mau
+    , mau
     , tvl
     , txns AS chain_txns
+    , txns
     , avg_txn_fee AS chain_avg_txn_fee
+    , avg_txn_fee
     , median_txn_fee AS chain_median_txn_fee
+    , median_txn_fee
     , returning_users
     , new_users
     , p2p_native_transfer_volume
@@ -96,34 +89,35 @@ select
     , dex_volumes AS chain_spot_volume
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dex_volumes, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
-
-    -- Cash Flow Metrics
-    , fees as chain_fees
-    , fees_native AS burned_fee_allocation_native
-    , fees AS burned_fee_allocation
-
-    -- TEA
     , coalesce(fees, 0) + coalesce(settlement_volume, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
 
-    -- Financial Statement Metrics
+    --Fee Data
+    , fees_native as fees_native
+    , fees as chain_fees
     , fees as fees
-    , burned_fee_allocation as revenue
+
+    --Fee Allocation
+    , fees AS burned_fee_allocation
+
+    --Financial Statement
+    , fees_native as revenue_native
+    , fees as revenue
     , token_incentives.token_incentives as token_incentives
     , revenue - token_incentives as earnings
 
-    -- Issued Supply Metrics
+     --Supply Data
     , issued_supply_metrics.max_supply_native
     , issued_supply_metrics.total_supply_native
     , issued_supply_metrics.issued_supply_native
     , issued_supply_metrics.circulating_supply_native
-
-    -- Developer Metrics
+   
+    --Developer Data
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
 
-    -- Stablecoin Metrics
+    --Stablecoin Data
     , stablecoin_total_supply
     , stablecoin_txns
     , stablecoin_dau
@@ -139,6 +133,7 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

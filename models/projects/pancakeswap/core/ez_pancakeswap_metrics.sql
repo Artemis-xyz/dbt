@@ -108,21 +108,29 @@ with trading_volume_pool as (
 )
 select
     tvl.date
-    , 'pancakeswap' as app
-    , 'DeFi' as category
+    , 'pancakeswap' as artemis_id
+
+    --Usage Data
+    , trading_volume.unique_traders as spot_dau
+    , trading_volume.unique_traders as dau
     , tvl.tvl
     , trading_volume.trading_volume as spot_volume
-    , trading_volume.unique_traders as spot_dau
-    , fees_revenue.fees as spot_fees
-    , fees_revenue.fees as fees
-    -- About 68% of fees go to LPs
-    , fees_revenue.service_fee_allocation
-    , fees_revenue.burned_fee_allocation
-    , fees_revenue.treasury_fee_allocation
-    , fees_revenue.burned_fee_allocation + fees_revenue.treasury_fee_allocation as revenue
-    , token_incentives.token_incentives_usd as token_incentives
     , trading_volume.gas_cost_native as gas_cost_native
     , trading_volume.gas_cost_usd as gas_cost
+
+    --Fee Data
+    , fees_revenue.fees as spot_fees
+    , fees_revenue.fees as fees
+
+    --Fee Allocation
+    , fees_revenue.service_fee_allocation as lp_fee_allocation
+    , fees_revenue.burned_fee_allocation
+    , fees_revenue.treasury_fee_allocation as foundation_fee_allocation
+
+    --Financial Statements
+    , fees_revenue.burned_fee_allocation + fees_revenue.treasury_fee_allocation as revenue
+    , token_incentives.token_incentives_usd as token_incentives
+
     , to_timestamp_ntz(current_timestamp()) as created_on
     , to_timestamp_ntz(current_timestamp()) as modified_on
 from tvl

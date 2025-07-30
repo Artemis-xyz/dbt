@@ -101,40 +101,49 @@ with trading_volume_by_pool as (
 
 select
     date_spine.date
-    , 'curve' as app
-    , 'DeFi' as category
-    -- Standardized Metrics
-    -- Market Metrics
+    , 'curve' as artemis_id
+
+    --Market Data
     , market_metrics.price
-    , market_metrics.market_cap
+    , market_metrics.market_cap as mc
     , market_metrics.fdmc
     , market_metrics.token_volume
-    -- Usage Metrics
+
+    --Usage Data
     , ez_dex_swaps.unique_traders as spot_dau
+    , ez_dex_swaps.unique_traders as dau
     , ez_dex_swaps.spot_txns
-    , trading_volume.trading_volume as spot_volume
+    , ez_dex_swaps.spot_txns as txns
     , tvl.tvl
-    -- Cashflow Metrics
-    , trading_volume.trading_fees as spot_fees
-    , trading_volume.trading_fees as ecosystem_revenue
-    , trading_volume.trading_fees * 0.5 as staking_fee_allocation
-    , trading_volume.trading_fees * 0.5 as service_fee_allocation
-    , token_incentives.token_incentives_native
+    , trading_volume.trading_volume as spot_volume
     , trading_volume.gas_cost_native
     , trading_volume.gas_cost_usd as gas_cost
-    -- Issued Supply Metrics
+
+    --Fee Data
+    , trading_volume.trading_fees / price as fees_native
+    , trading_volume.trading_fees as spot_fees
+    , trading_volume.trading_fees as spot_fees as fees
+
+    --Fee Allocation
+    , trading_volume.trading_fees * 0.5 as staking_fee_allocation
+    , trading_volume.trading_fees * 0.5 as lp_fee_allocation
+
+    --Financial Statement
+    , 0 as revenue_native
+    , 0 as revenue
+    , token_incentives.token_incentives as token_incentives
+    , revenue - token_incentives as earnings
+
+    --Supply Data
     , issued_supply_metrics.max_supply_native
     , issued_supply_metrics.total_supply_native
     , issued_supply_metrics.issued_supply_native
     , issued_supply_metrics.circulating_supply_native
-    -- Financial Statement Metrics
-    , trading_volume.trading_fees as fees
-    , trading_volume.trading_fees * 0.5 as revenue
-    , token_incentives.token_incentives as token_incentives
-    , revenue - token_incentives as earnings
-    -- Other Metrics
+
+    --Token Turnover/Other Data
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
+    
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

@@ -30,24 +30,28 @@ with
     price_data as ({{ get_coingecko_metrics('moonbeam') }})
 select
     f.date
-    , txns
-    , daa as dau
-    , coalesce(fees_native, 0) as fees_native
-    , coalesce(fees_usd, 0) as fees
-    -- Standardized Metrics
+    , 'moonbeam' as artemis_id
+
     -- Market Data
     , price
-    , market_cap
+    , market_cap as mc
     , fdmc
     , token_volume
-    -- Chain Metrics
-    , txns as chain_txns
+
+    --Usage Data
     , dau as chain_dau
-    -- Cash Flow Metrics
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
+    , dau
+    , txns as chain_txns
+    , txns
+    
+    --Fee Data
+    , coalesce(fees_native, 0) as fees_native
+    , coalesce(fees_usd, 0) as fees
+    
+    --Token Turnover/Other Data
     , token_turnover_circulating
     , token_turnover_fdv
+    
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

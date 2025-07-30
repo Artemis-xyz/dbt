@@ -22,15 +22,16 @@ with
     price_data as ({{ get_coingecko_metrics("immutable-x") }})
 select
     date
-    , 'immutable_x' as chain
-    , nft_trading_volume
-    -- Standardized Metrics
+    , 'immutable_x' as artemis_id
+
     -- Market Data Metrics
     , price
-    , market_cap
+    , market_cap as mc
     , fdmc
-    -- Chain Metrics
+
+    --Usage Data
     , nft_trading_volume AS chain_nft_trading_volume
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

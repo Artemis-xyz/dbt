@@ -39,16 +39,18 @@ with
     , price_data as ({{ get_coingecko_metrics("sonne-finance") }})
 select
     sonne_metrics.date
-    , 'sonne' as app
-    , 'DeFi' as category
-    , sonne_metrics.daily_borrows_usd
-    , sonne_metrics.daily_supply_usd
-    -- Standardized metrics
+    , 'sonne' as artemis_id
+
+    --Market Data
+    , price_data.price
+    , price_data.market_cap as mc
+    , price_data.fdmc
+
+    --Usage Data
     , sonne_metrics.daily_borrows_usd as lending_loans
     , sonne_metrics.daily_supply_usd as lending_deposits
-    , price_data.price
-    , price_data.market_cap
-    , price_data.fdmc
+
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

@@ -26,27 +26,30 @@ with
     price_data as ({{ get_coingecko_metrics("defi-kingdoms") }})
 select
     f.date
-    , chain
-    , dau
-    , txns
-    , fees_native
-    , fees_native * price as fees
-    , fees / txns as avg_txn_fee
-    -- Standardized Metrics
-    -- Market Data
+    , 'dfk' as artemis_id
+
+    --Market Data
     , price
-    , market_cap
+    , market_cap as mc
     , fdmc
     , token_volume
-    -- Chain Metrics
-    , txns as chain_txns
+
+    --Usage Data  
     , dau as chain_dau
-    , avg_txn_fee as chain_avg_txn_fee
-    -- Cash Flow Metrics
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
+    , dau
+    , txns as chain_txns
+    , txns
+    , fees / txns as chain_avg_txn_fee
+    , fees / txns as avg_txn_fee
+
+    --Fee Data
+    , fees_native
+    , fees_native * price as fees
+
+    --Token Turnover/Other Data
     , token_turnover_circulating
     , token_turnover_fdv
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

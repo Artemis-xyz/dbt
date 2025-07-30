@@ -85,45 +85,49 @@ with date_spine as (
     {{ get_coingecko_metrics('balancer') }}
 )
 select
-    date_spine.date,
-    coalesce(swap_metrics.unique_traders, 0) as unique_traders,
-    coalesce(swap_metrics.number_of_swaps, 0) as number_of_swaps,
-    coalesce(swap_metrics.trading_volume, 0) as trading_volume,
-    coalesce(swap_metrics.trading_fees, 0) as trading_fees,
-    coalesce(swap_metrics.trading_fees, 0) as fees,
-    coalesce(swap_metrics.primary_supply_side_revenue, 0) as primary_supply_side_revenue,
-    coalesce(swap_metrics.revenue, 0) as revenue,
-    coalesce(token_incentives.token_incentives_usd, 0) as expenses,
-    coalesce(swap_metrics.revenue, 0) - coalesce(token_incentives.token_incentives_usd, 0) as earnings,
-    coalesce(all_tvl.tvl_usd, 0) as net_deposits,
-    coalesce(treasury.net_treasury_usd, 0) as treasury_value,
-    coalesce(net_treasury.net_treasury_usd, 0) as net_treasury_value,
-    coalesce(treasury_native.treasury_native, 0) as treasury_value_native
-    -- Standardized Metrics
-    -- Market Metrics
+    date_spine.date
+    , 'balancer' as artemis_id
+
+    --Market Data
     , coalesce(market_data.price, 0) as price
-    , coalesce(market_data.market_cap, 0) as market_cap
+    , coalesce(market_data.market_cap, 0) as mc
     , coalesce(market_data.fdmc, 0) as fdmc
     , coalesce(market_data.token_volume, 0) as token_volume
-    -- Usage/Sector Metrics
+
+    --Usage Data
     , coalesce(swap_metrics.unique_traders, 0) as spot_dau
+    , coalesce(swap_metrics.unique_traders, 0) as dau
     , coalesce(swap_metrics.number_of_swaps, 0) as spot_txns
-    , coalesce(swap_metrics.trading_volume, 0) as spot_volume
+    , coalesce(swap_metrics.number_of_swaps, 0) as txns
     , coalesce(all_tvl.tvl_usd, 0) as tvl
-    -- Money Metrics
+    , coalesce(swap_metrics.trading_volume, 0) as spot_volume
+
+    --Fee Data
+    , coalesce(swap_metrics.trading_fees, 0) / price as fees_native
     , coalesce(swap_metrics.trading_fees, 0) as spot_fees
-    , coalesce(swap_metrics.service_fee_allocation, 0) as service_fee_allocation
-    , coalesce(swap_metrics.treasury_fee_allocation, 0) as treasury_fee_allocation
+    , coalesce(swap_metrics.trading_fees, 0) as fees
+
+    --Fee Allocation
+    , coalesce(swap_metrics.service_fee_allocation, 0) as lp_fee_allocation
+    , coalesce(swap_metrics.treasury_fee_allocation, 0) as foundation_fee_allocation
     , coalesce(swap_metrics.vebal_fee_allocation, 0) as staking_fee_allocation
+
+    --Financial Statements
+    , coalesce(swap_metrics.revenue, 0) / price as revenue_native
+    , coalesce(swap_metrics.revenue, 0) as revenue
     , coalesce(token_incentives.token_incentives_usd, 0) as token_incentives
-    -- Treasury Metrics
+    , coalesce(swap_metrics.revenue, 0) - coalesce(token_incentives.token_incentives_usd, 0) as earnings
+
+    --Treasury Data
     , coalesce(treasury.net_treasury_usd, 0) as treasury
-    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
     , coalesce(net_treasury.net_treasury_usd, 0) as net_treasury
-    -- Other Metrics
+    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
+
+    --Token Turnover/Other Data
     , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
     , coalesce(token_holders.token_holder_count, 0) as tokenholder_count
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

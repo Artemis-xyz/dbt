@@ -16,11 +16,11 @@ with
     )
 select
     date,
-    'aevo' as app,
-    'DeFi' as category,
+    'aevo' as artemis_id,
     chain,
-    trading_volume
-    -- standardize metrics
-    , trading_volume as perp_volume
+
+    --Usage Data
+    trading_volume as perp_volume
+
 from trading_volume_data
 where date < to_date(sysdate())

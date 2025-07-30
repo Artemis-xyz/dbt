@@ -106,42 +106,35 @@ WITH
     )
 SELECT
     date
-    , dau_txns_volume.spot_dau as dau
-    , dau_txns_volume.spot_txns as txns
-    , fees as trading_fees
-    , fees
-    , fees as primary_supply_side_revenue
-    , 0 as secondary_supply_side_revenue
-    , fees as total_supply_side_revenue
-    , 0 as operating_expenses
-    , token_incentives_usd + operating_expenses as total_expenses
-    , treasury_usd as treausry_value
-    , treasury_native as treasury_native_value
-    , net_treasury_usd as net_treasury_value
-    , tvl as net_deposits
+    , 'uniswap' as artemis_id
 
-    -- Standardized Metrics
-    
-    -- Market Metrics
+    --Market Data
     , price_data_cte.price
-    , price_data_cte.market_cap
+    , price_data_cte.market_cap as mc
     , price_data_cte.fdmc
     , price_data_cte.token_volume
-    
-    -- Usage/Sector Metrics
+
+    --Usage Data
     , dau_txns_volume.spot_dau
+    , dau_txns_volume.spot_dau as dau
     , dau_txns_volume.spot_txns
-    , dau_txns_volume.spot_volume
+    , dau_txns_volume.spot_txns as txns
     , tvl
+    , dau_txns_volume.spot_volume
 
-
-    -- Money Metrics
+    --Fee Data
+    , fees / price as fees_native
     , fees as spot_fees
-    , fees as service_fee_allocation
+    , fees as fees
 
-    --Financial Statement Metrics
+    --Fee Allocation
+    , fees as lp_fee_allocation
+
+    --Financial Statement
+    , 0 as revenue_native
     , 0 as revenue
     , token_incentives_usd as token_incentives
+    , 0 as operating_expenses
     , revenue - token_incentives as earnings
 
     -- Treasury Metrics
@@ -155,7 +148,7 @@ SELECT
     , supply_metrics.issued_supply as issued_supply_native
     , supply_metrics.circulating_supply as circulating_supply_native
 
-    -- Other Metrics
+    --Token Turnover/Other Data
     , price_data_cte.token_turnover_fdv
     , price_data_cte.token_turnover_circulating
     , tokenholder_cte.token_holder_count

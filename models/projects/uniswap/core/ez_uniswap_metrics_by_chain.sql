@@ -104,46 +104,34 @@ with
     )
 select
     tvl_by_chain.date
-    , 'uniswap' as app
-    , 'DeFi' as category
+    , 'uniswap' as artemis_id
     , tvl_by_chain.chain
-    , trading_fees
-    , trading_fees as primary_supply_side_revenue
-    , trading_fees as total_supply_side_revenue
-    , 0 as secondary_supply_side_revenue
-    , 0 as operating_expenses
-    , token_incentives_usd + operating_expenses as total_expenses
-    , token_incentives_usd as token_incentives
-    , -token_incentives_usd as earnings
-    , tvl_by_chain.tvl
-    , treasury_value
-    , treasury_native_value
-    , net_treasury_value
-    , tvl_by_chain.tvl as net_deposits
-    , trading_volume_by_chain.trading_volume
-    , trading_volume_by_chain.unique_traders
-    , trading_volume_by_chain.gas_cost_usd
 
-    -- Standardized Metrics
-
-    -- Usage Metrics
+    --Usage Data
     , trading_volume_by_chain.unique_traders as spot_dau
+    , trading_volume_by_chain.unique_traders as dau
+    , tvl_by_chain.tvl
     , trading_volume_by_chain.trading_volume as spot_volume
+
+    --Fee Data
     , trading_volume_by_chain.trading_fees as spot_fees
     , trading_volume_by_chain.trading_fees as fees
-    , trading_volume_by_chain.trading_fees as service_fee_allocation
 
-    --Financial Statement Metrics
+    --Fee Allocation
+    , trading_volume_by_chain.trading_fees as lp_fee_allocation
+
+    --Financial Statements
+    , 0 as revenue_native
     , 0 as revenue
+    , token_incentives_usd as token_incentives
+    , 0 as operating_expenses
+    , revenue - token_incentives as earnings
 
-    -- Treasury Metrics
+    --Treasury Data
     , treasury_value as treasury
-    , own_token_treasury
     , net_treasury_value as net_treasury
+    , own_token_treasury
 
-    -- Protocol Metrics
-    , trading_volume_by_chain.gas_cost_usd as gas_cost
-    , trading_volume_by_chain.gas_cost_native
 from tvl_by_chain
 left join token_incentives_cte using(date, chain)
 left join trading_volume_by_chain using(date, chain)
