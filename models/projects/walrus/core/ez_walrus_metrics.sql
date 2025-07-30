@@ -79,5 +79,5 @@ FROM date_spine
 LEFT JOIN clean_parquet USING (date)
 LEFT JOIN market_data USING (date)
 WHERE true
-{{ ez_metrics_incremental("date", backfill_date) }}
-AND date < to_date(sysdate())
+{{ ez_metrics_incremental("date_spine.date", backfill_date) }}
+AND date_spine.date < to_date(sysdate())
