@@ -32,13 +32,13 @@ compare_dev_schema_target:
 	# Checkout main and generate manifest
 	git checkout main
 	mkdir -p manifests/
-	dbt parse --target prod && mv target/manifest.json manifests/manifest.json
+	dbt compile --target prod && mv target/manifest.json manifests/manifest.json
 
 	# Checkout branch
 	git checkout $(cat branch_name.txt)
 
 	# Compare prod manifest on feature branch with prod manifest on main
-	dbt ls --select state:modified.body --state ./manifests/ --target prod 
+	dbt ls --select state:modified.body --state ./manifests/ --target prod
 
 	# Clean up
 	rm branch_name.txt
