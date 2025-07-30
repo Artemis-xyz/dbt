@@ -42,19 +42,19 @@ with
         , fdmc
         , token_volume
         -- Fee Allocation Metrics
-        , revenue_native
-        , revenue_native * price as revenue
-        , revenue_native AS burns_native
-        , revenue_native AS buybacks_native
-        , revenue_native * price AS buybacks
+        , coalesce(revenue_native, 0) AS revenue_native
+        , coalesce(revenue_native, 0) * price as revenue
+        , coalesce(revenue_native, 0) AS burns_native
+        , coalesce(revenue_native, 0) AS buybacks_native
+        , coalesce(revenue_native, 0) * price AS buybacks
         -- Supply metrics
         -- The 1B is the total LEO tokens sold during their Initial Exchange Offering (IEO) in a Private Sale. 
         , 1000000000 AS max_supply_native
         , 1000000000 AS total_supply_native
         -- There is a 2,469,394.1 discrepancy between the 1B - Burns calculation, but this can be attributed to burns events that happened on the exchange directly through
         -- recovered funds from Crypto Capital and the Bitfinex Hack. (https://www.bitfinex.com/wp-2019-05.pdf)
-        , 1000000000 - SUM(revenue_native) OVER (ORDER BY date ROWS UNBOUNDED PRECEDING)  - 2469394.1 AS issued_supply_native
-        , 1000000000 - SUM(revenue_native) OVER (ORDER BY date ROWS UNBOUNDED PRECEDING) - 2469394.1 AS circulating_supply_native
+        , 1000000000 - SUM(coalesce(revenue_native, 0)) OVER (ORDER BY date ROWS UNBOUNDED PRECEDING)  - 2469394.1 AS issued_supply_native
+        , 1000000000 - SUM(coalesce(revenue_native, 0)) OVER (ORDER BY date ROWS UNBOUNDED PRECEDING) - 2469394.1 AS circulating_supply_native
         -- Token Turnover Metrics
         , token_turnover_circulating
         , token_turnover_fdv

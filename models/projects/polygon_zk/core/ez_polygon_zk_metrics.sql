@@ -11,7 +11,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"]
     )
 }}
@@ -55,6 +55,36 @@ SELECT
     date_spine.date
     , 'polygon_zk' AS artemis_id
 
+with
+    fundamental_data as (
+        select date, chain, daa as dau, txns, gas as fees_native, gas_usd as fees
+        from {{ ref("fact_polygon_zk_daa_txns_gas_usd") }}
+    ),
+    price_data as ({{ get_coingecko_metrics("matic-network") }}),
+    defillama_data as ({{ get_defillama_metrics("polygon zkevm") }}),
+    l1_data_cost as (
+        select
+            date,
+            l1_data_cost_native,
+            l1_data_cost
+        from {{ ref("fact_polygon_zk_l1_data_cost") }}
+    ),
+    github_data as ({{ get_github_metrics("Polygon Hermez") }}),
+    polygon_zk_dex_volumes as (
+        select date, DAILY_VOLUME_ADJUSTED_WITH_NULLS as dex_volumes
+        from {{ ref("fact_polygon_zk_daily_dex_volumes") }}
+    )
+select
+    fundamental_data.date
+    , fundamental_data.chain
+    , txns
+    , dau
+    , l1_data_cost_native
+    , l1_data_cost
+    , fees
+    , fees / txns as avg_txn_fee
+    , coalesce(fees, 0) - l1_data_cost as revenue
+    , dune_dex_volumes_polygon_zk.dex_volumes
     -- Standardized Metrics
 
     -- Market Data
