@@ -21,13 +21,14 @@ with
     )
 select
     spark_by_chain.date
-    , 'spark' as app
-    , 'DeFi' as category
+    , 'spark' as artemis_id
     , spark_by_chain.chain
-    , spark_by_chain.daily_borrows_usd
-    , spark_by_chain.daily_supply_usd
-    -- Standardized metrics
+
+    -- Standardized Metrics
+
+    -- Usage Data
     , spark_by_chain.daily_borrows_usd as lending_loans
     , spark_by_chain.daily_supply_usd as lending_deposits
+
 from spark_by_chain
 where spark_by_chain.date < to_date(sysdate())
