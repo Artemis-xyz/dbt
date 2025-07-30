@@ -13,7 +13,6 @@ models:
     description: "This table stores metrics for the ECONIA protocol"
     columns:
       - *tvl
-
     tests:
       - not_null:
           column_name: date
@@ -33,7 +32,6 @@ models:
     description: "This table stores metrics for the ECONIA protocol"
     columns:
       - *tvl
-
     tests:
       - not_null:
           column_name: date
