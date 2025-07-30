@@ -42,12 +42,6 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  service_fee_allocation: &service_fee_allocation
-    name: service_fee_allocation
-    description: "The share of protocol revenue accrued to service providers of the protocol."
-    tags:
-      - artemis_gaap
-
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
     description: "The turnover of a token in USD, based on the token's circulating supply."
@@ -79,25 +73,22 @@ column_definitions:
       - artemis_gaap
       - override
 
-  tvl_native: &tvl_native
-    name: tvl_native
-    description: "The total value in sol locked in the Marinade protocol, including both liquid stake and native stack"
-    tags:
-      - artemis_gaap
-      - override
-
 models:
   - name: ez_marinade_metrics_by_chain
     description: "This table stores metrics for the MARINADE protocol"
     columns:
       - *circulating_supply_native
+      - *fdmc
       - *fees
       - *lst_tvl
+      - *market_cap
+      - *price
       - *revenue
-      - *service_fee_allocation
+      - *token_turnover_circulating
+      - *token_turnover_fdv
+      - *token_volume
       - *treasury_fee_allocation
       - *tvl
-      - *tvl_native
     tests:
       - not_null:
           column_name: date
@@ -127,13 +118,11 @@ models:
       - *market_cap
       - *price
       - *revenue
-      - *service_fee_allocation
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
       - *treasury_fee_allocation
       - *tvl
-      - *tvl_native
     tests:
       - not_null:
           column_name: date

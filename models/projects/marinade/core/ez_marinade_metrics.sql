@@ -10,128 +10,118 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
 
 {% set backfill_date = var("backfill_date", None) %}
 
-with tvl as (
+with marinade_tvl as (
     select
         date
-        , liquid
-        , native
-        , tvl
+        , coalesce(liquid, 0) as liquid
+        , coalesce(native, 0) as native
+        , coalesce(tvl, 0) as tvl
     from {{ ref("fact_marinade_tvl") }}
-),
-dau as (
+)
+, marinade_dau_txns as (
     select
         date
-        , dau
-        , txns
+        , coalesce(dau, 0) as dau
+        , coalesce(txns, 0) as txns
     from {{ ref("fact_marinade_dau_txns") }}
-),
-v1_fees as (
+)
+, marinade_v1_fees as (
     select
         date
         , coalesce(unstaking_fees, 0) as unstaking_fees_native
         , coalesce(fees_native, 0) as fees_native
     from {{ ref("fact_marinade_v1_fees") }}
-),
-v2_fees as (
+)
+, marinade_v2_fees as (
     select
         date
-        , fees_native   
+        , coalesce(fees_native, 0) as fees_native
     from {{ ref("fact_marinade_fees") }}
-),
-fees as (
+)
+, marinade_fees as (
     select
-        coalesce(v1_fees.date, v2_fees.date) as date,
-        coalesce(v1_fees.unstaking_fees_native, 0) as unstaking_fees_native,
-        coalesce(v1_fees.fees_native, 0) + coalesce(v2_fees.fees_native, 0) as fees_native,
+        coalesce(v1_fees.date, v2_fees.date) as date
+        , coalesce(v1_fees.unstaking_fees_native, 0) as unstaking_fees_native
+        , coalesce(v1_fees.fees_native, 0) + coalesce(v2_fees.fees_native, 0) as fees_native
     from v1_fees
     full outer join v2_fees using (date)
-),
-circulating_supply as (
+)
+, marinade_circulating_supply as (
     select
         date
-        , circulating_supply
+        , coalesce(circulating_supply, 0) as circulating_supply
     from {{ ref("fact_marinade_circulating_supply") }}
-),
-price as (
+)
+, solana_price as (
     select * from ({{ get_coingecko_price_with_latest("solana") }}) 
-),
-market_metrics as (
+)
+, market_metrics as (
     {{ get_coingecko_metrics("marinade") }}
 )
 
 select
-    date
-    --Old metrics needed for compatibility
-    , liquid
-    , native
-    , dau
-    , txns
-    , fees_native
-    -- v1 fees (2024-08-17 and before) - commission + unstaking fees, v2 fees (2024-08-18 and after) - validator bids
-    -- v2 fees - 100% goes to the protocol
-    , (unstaking_fees_native * price) + (fees_native * price) as fees
-    -- v1 - unstaking fees 75% goes to LP (Fees to Suppliers), 25% goes to treasury (Fees to Holders)
-    , unstaking_fees_native * 0.75 * price as supply_side_fee
-    , case when 
-        date < '2024-08-18' then unstaking_fees_native * price * 0.25 + fees
-    -- when v2 fees are active, 100% goes to the protocol
-        else fees 
-    end as revenue
-    --Standardized Metrics
-    --Market Metrics
+    marinade_tvl.date
+    , 'marinade' as artemis_id
+    
+    -- Standardized Metrics
+    
+    -- Market Data
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
     , market_metrics.token_volume
 
-    --Usage Metrics
-    , tvl * price as tvl
-    , tvl * price as lst_tvl
-    , tvl as tvl_native
-    , tvl as lst_tvl_native
-    , coalesce(tvl - lag(tvl) over (order by date), 0) as lst_tvl_net_change
-    , coalesce(tvl_native - lag(tvl_native) over (order by date), 0) as lst_tvl_native_net_change
-    , dau as lst_dau
-    , txns as lst_txns
-    , liquid as tvl_liquid_stake
-    , native as tvl_native_stake
-    --Cash Flow Metrics
-    , unstaking_fees_native * price as unstaking_fees
-    , fees_native * price as lst_fees
-    , unstaking_fees + lst_fees as ecosystem_revenue
+    -- Usage Data
+    , marinade_dau_txns.dau as lst_dau
+    , marinade_dau_txns.dau as dau
+    , marinade_dau_txns.txns as lst_txns
+    , marinade_dau_txns.txns as txns
+    , marinade_tvl.tvl * solana_price.price as lst_tvl
+    , marinade_tvl.tvl * solana_price.price as tvl
+    , marinade_tvl.tvl - lag(marinade_tvl.tvl) over (order by marinade_tvl.date) as lst_tvl_net_change    
+    , marinade_tvl.liquid * solana_price.price as tvl_liquid_stake
+    , marinade_tvl.native * solana_price.price as tvl_native_stake
+
+    -- Fee Data
+    , marinade_fees.unstaking_fees_native * solana_price.price as unstaking_fees
+    , marinade_fees.fees_native * solana_price.price as lst_fees
+    , marinade_fees.unstaking_fees_native * solana_price.price + marinade_fees.fees_native * solana_price.price as fees
     , case when 
-        date < '2024-08-18' then unstaking_fees * 0.25 + lst_fees
-    -- when v2 fees are active, 100% goes to the protocol
-        else unstaking_fees + lst_fees 
+        marinade_tvl.date < '2024-08-18' then marinade_fees.unstaking_fees_native * solana_price.price * 0.25 + marinade_fees.fees_native * solana_price.price -- v1 - 25% goes to treasury (Fees to Holders)
+        else marinade_fees.fees_native * solana_price.price -- v2 fees (2024-08-18 and after) - validator bids
     end as treasury_fee_allocation
     , case when 
-        date < '2024-08-18' then unstaking_fees * 0.75
-    -- when v2 fees are active, 100% goes to the protocol
-        else 0 
+        marinade_tvl.date < '2024-08-18' then marinade_fees.unstaking_fees_native * solana_price.price * 0.75  -- v1 - unstaking fees 75% goes to LP (Fees to Suppliers) 
+        else 0  -- when v2 fees are active, none goes to LP (Fees to Suppliers)
     end as service_fee_allocation
 
+    -- Financial Statements
+    , treasury_fee_allocation as revenue
+
     -- Supply Metrics
-    , circulating_supply as circulating_supply_native
+    , marinade_circulating_supply.circulating_supply as circulating_supply_native
     
-    --Other Metrics
+    -- Token Turnover/Other Data
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from tvl
-left join dau using (date)
-left join fees using (date)
-left join circulating_supply using (date)
+
+from marinade_tvl
+left join marinade_dau_txns using (date)
+left join marinade_fees using (date)
+left join marinade_circulating_supply using (date)
 left join price using (date)
 left join market_metrics using (date)
 where true
-{{ ez_metrics_incremental('date', backfill_date) }}
-and date < to_date(sysdate())
+{{ ez_metrics_incremental('marinade_tvl.date', backfill_date) }}
+and marinade_tvl.date < to_date(sysdate())
