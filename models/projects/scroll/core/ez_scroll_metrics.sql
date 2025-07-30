@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"]
     )
 }}
@@ -42,68 +42,63 @@ with
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_scroll_daily_dex_volumes") }}
     )
-    , price_data as ({{ get_coingecko_metrics("scroll") }})
+    , market_metrics as ({{ get_coingecko_metrics("scroll") }})
 select
-    fd.date
+    fundamental_data.date
+    , 'scroll' as artemis_id
     , 'scroll' as chain
-    , fd.txns
-    , fd.dau
-    , rm.wau
-    , rm.mau
-    , fd.fees
-    , fd.fees / fd.txns as avg_txn_fee
-    , fd.median_txn_fee
-    , fd.fees_native
-    , fd.revenue
-    , fd.revenue_native
-    , dsv.dex_volumes
-    , dsv.adjusted_dex_volumes
-    , fd.l1_data_cost
-    , fd.l1_data_cost_native
 
     -- Standardized Metrics
+    
     -- Market Data
-    , pd.price
-    , pd.market_cap
-    , pd.fdmc
-    , pd.token_volume
-    , pd.token_turnover_circulating
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
+    
+    -- Usage Data
+    , fundamental_data.dau as chain_dau
+    , fundamental_data.dau as dau
+    , rolling_metrics.wau as chain_wau
+    , rolling_metrics.mau as chain_mau
+    , fundamental_data.txns as chain_txns
+    , fundamental_data.txns as txns
+    , scroll_dex_volumes.dex_volumes as chain_spot_volume
+    , scroll_dex_volumes.adjusted_dex_volumes as adjusted_dex_volumes
 
-    -- Chain Metrics
-    , fd.dau as chain_dau
-    , rm.wau as chain_wau
-    , rm.mau as chain_mau
-    , fd.txns as chain_txns
-    , dsv.dex_volumes as chain_spot_volume
-
-    -- Cashflow Metrics
-    , fd.fees as chain_fees
-    , fd.fees as ecosystem_revenue
-    , fd.fees_native as ecosystem_revenue_native
-    , avg_txn_fee as chain_avg_txn_fee
-    , fd.median_txn_fee as chain_median_txn_fee
-    , fd.l1_data_cost as l1_fee_allocation
-    , fd.l1_data_cost_native as l1_fee_allocation_native
-    , coalesce(fd.fees, 0) - coalesce(fd.l1_data_cost, 0) as equity_fee_allocation
+    -- Fee Data
+    , fundamental_data.fees_native as fees_native
+    , fundamental_data.fees as chain_fees
+    , fundamental_data.fees as fees
+    , fundamental_data.fees / fundamental_data.txns as chain_avg_txn_fee
+    , fundamental_data.median_txn_fee as chain_median_txn_fee
+    , fundamental_data.l1_data_cost_native as l1_fee_allocation_native
+    , fundamental_data.l1_data_cost as l1_fee_allocation
+    , fundamental_data.fees - fundamental_data.l1_data_cost as equity_fee_allocation
     
     -- Developer Metrics
-    , gd.weekly_commits_core_ecosystem
-    , gd.weekly_commits_sub_ecosystem
-    , gd.weekly_developers_core_ecosystem
-    , gd.weekly_developers_sub_ecosystem
-    , cd.weekly_contracts_deployed
-    , cd.weekly_contract_deployers
+    , github_data.weekly_commits_core_ecosystem
+    , github_data.weekly_commits_sub_ecosystem
+    , github_data.weekly_developers_core_ecosystem
+    , github_data.weekly_developers_sub_ecosystem
+    , contract_data.weekly_contracts_deployed
+    , contract_data.weekly_contract_deployers
+
+    -- Token Turnover/Other Data
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from fundamental_data fd
-left join github_data gd on fd.date = gd.date
-left join contract_data cd on fd.date = cd.date
-left join defillama_data dd on fd.date = dd.date
-left join rolling_metrics rm on fd.date = rm.date
-left join scroll_dex_volumes dsv on fd.date = dsv.date
-left join price_data pd on fd.date = pd.date
+    
+from fundamental_data
+left join github_data using (date)
+left join contract_data using (date)
+left join defillama_data using (date)
+left join rolling_metrics using (date)
+left join scroll_dex_volumes using (date)
+left join market_metrics using (date)
 where true
-{{ ez_metrics_incremental('fd.date', backfill_date) }}
-and fd.date < to_date(sysdate())
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())
