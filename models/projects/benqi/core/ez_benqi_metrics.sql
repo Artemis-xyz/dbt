@@ -39,7 +39,7 @@ with
 
 select
     benqi_metrics.date
-    , 'benqi' as artemis_id
+    , 'benqi_finance' as artemis_id
 
     -- Standardized Metrics
 

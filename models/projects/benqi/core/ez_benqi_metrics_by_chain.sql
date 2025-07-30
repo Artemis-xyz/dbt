@@ -21,7 +21,7 @@ with
 
 select
     benqi_by_chain.date
-    , 'benqi' as artemis_id
+    , 'benqi_finance' as artemis_id
     , benqi_by_chain.chain
 
     -- Standardized Metrics
