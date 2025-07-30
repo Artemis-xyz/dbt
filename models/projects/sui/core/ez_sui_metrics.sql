@@ -17,73 +17,70 @@
 
 {% set backfill_date = var("backfill_date", None) %}
 
-with
-    fundamental_data as (
-        select 
-            * EXCLUDE date, 
-            TO_TIMESTAMP_NTZ(date) AS date 
-        from {{ source('PROD_LANDING', 'ez_sui_metrics') }}
-    ),
-    price_data as ({{ get_coingecko_metrics("sui") }}),
-    defillama_data as ({{ get_defillama_metrics("sui") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("sui") }}),
-    github_data as ({{ get_github_metrics("sui") }})
-    , supply_data as (
-        select 
+WITH
+    date_spine AS (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date >= '2023-04-12'
+        AND date < to_date(sysdate())
+    )
+    , fundamental_data AS (
+        SELECT 
+            * EXCLUDE date
+            , TO_TIMESTAMP_NTZ(date) AS date 
+        FROM {{ source('PROD_LANDING', 'ez_sui_metrics') }}
+    )
+    , market_data AS ({{ get_coingecko_metrics("sui") }})
+    , defillama_data AS ({{ get_defillama_metrics("sui") }})
+    , stablecoin_data AS ({{ get_stablecoin_metrics("sui") }})
+    , github_data AS ({{ get_github_metrics("sui") }})
+    , supply_data AS (
+        SELECT 
             date
             , max_supply_native
             , total_supply_native
             , foundation_owned_supply_native
             , unvested_tokens_native
             , gross_emissions_native
-        from {{ ref("fact_sui_supply_data") }}
+        FROM {{ ref("fact_sui_supply_data") }}
     )
-select
+SELECT
     fundamental_data.date
-    , 'sui' as chain
-    , avg_txn_fee
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees_native
-    , fees
-    , revenue_native
-    , revenue
-    , dex_volumes
+    , 'sui' AS artemis_id
+
     -- Standardized Metrics
-    -- Market Data Metrics
-    , price
-    , market_cap
-    , fdmc
-    , tvl
-    -- Chain Usage Metrics
+
+    -- Market Data 
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
+
+    -- Usage Data
     , dau AS chain_dau
+    , dau
     , wau AS chain_wau
     , mau AS chain_mau
     , txns AS chain_txns
+    , txns
+    , tvl AS chain_tvl
+    , tvl
     , dex_volumes AS chain_spot_volume
+    , avg_txn_fee AS chain_avg_txn_fee
     , returning_users
     , new_users
-    -- Cashflow Metrics
-    , fees as chain_fees
-    , fees_native AS ecosystem_revenue_native
-    , fees AS ecosystem_revenue
+
+    -- Fee Data
+    , fees_native
+    , fees AS chain_fees
+    , fees 
     , revenue AS burned_fee_allocation
-    , revenue_native AS burned_fee_allocation_native
-    , avg_txn_fee AS chain_avg_txn_fee
-    -- Supply Metrics
-    , max_supply_native
-    , total_supply_native
-    , gross_emissions_native
-    , total_supply_native - foundation_owned_supply_native - burned_fee_allocation_native as issued_supply_native
-    , total_supply_native - foundation_owned_supply_native - burned_fee_allocation_native - unvested_tokens_native as circulating_supply_native
-    -- Developer Metrics
-    , weekly_commits_core_ecosystem
-    , weekly_commits_sub_ecosystem
-    , weekly_developers_core_ecosystem
-    , weekly_developers_sub_ecosystem
-    -- Stablecoin Metrics
+
+    -- Financial Statements
+    , revenue_native
+    , revenue
+
+    -- Stablecoin Data
     , stablecoin_total_supply
     , stablecoin_txns
     , stablecoin_dau
@@ -99,16 +96,35 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , p2p_stablecoin_transfer_volume
+
+    -- Developer Data
+    , weekly_commits_core_ecosystem
+    , weekly_commits_sub_ecosystem
+    , weekly_developers_core_ecosystem
+    , weekly_developers_sub_ecosystem
+
+    -- Supply Data
+    , max_supply_native
+    , total_supply_native
+    , gross_emissions_native
+    , total_supply_native - foundation_owned_supply_native - burned_fee_allocation_native as issued_supply_native
+    , total_supply_native - foundation_owned_supply_native - burned_fee_allocation_native - unvested_tokens_native as circulating_supply_native
+
+    -- Turnover Data
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
+
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from fundamental_data
-left join price_data on fundamental_data.date = price_data.date
-left join defillama_data on fundamental_data.date = defillama_data.date
-left join stablecoin_data on fundamental_data.date = stablecoin_data.date
-left join github_data on fundamental_data.date = github_data.date
-left join supply_data on fundamental_data.date = supply_data.date
-where true
-{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
-and fundamental_data.date < to_date(sysdate())
-group by all
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
+FROM date_spine
+LEFT JOIN fundamental_data USING (date)
+LEFT JOIN market_data USING (date)
+LEFT JOIN defillama_data USING (date)
+LEFT JOIN stablecoin_data USING (date)
+LEFT JOIN github_data USING (date)
+LEFT JOIN supply_data USING (date)
+WHERE true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+AND date_spine.date < to_date(sysdate())
+GROUP BY ALL
