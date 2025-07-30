@@ -8,46 +8,46 @@
     )
 }}
 
-with deposits as (
+with morpho_data as (
     select
         date
-        , dau
-        , txns
-        , borrow_amount_usd
-        , supply_amount_usd
-        , supply_amount_usd + collat_amount_usd as deposit_amount_usd
-        , fees_usd
+        , coalesce(dau, 0) as dau
+        , coalesce(txns, 0) as txns
+        , coalesce(borrow_amount_usd, 0) as borrow_amount_usd
+        , coalesce(supply_amount_usd, 0) as supply_amount_usd
+        , coalesce(supply_amount_usd, 0) + coalesce(collat_amount_usd, 0) as deposit_amount_usd
+        , coalesce(fees_usd, 0) as fees_usd
         , chain
     from {{ ref("fact_morpho_data") }}
 )
 
-, cumulative_metrics as (
+, morpho_fundamental_metrics as (
     select
-        d.date
-        , d.dau
-        , d.txns
-        , sum(d.borrow_amount_usd) over (partition by d.chain order by d.date rows between unbounded preceding and current row) as borrows
-        , sum(d.supply_amount_usd) over (partition by d.chain order by d.date rows between unbounded preceding and current row) as supplies
-        , sum(d.deposit_amount_usd) over (partition by d.chain order by d.date rows between unbounded preceding and current row) as deposits
-        , d.fees_usd as fees
-        , sum(d.fees_usd) over (partition by d.chain order by d.date rows between unbounded preceding and current row) as fees_cumulative
-        , sum(d.deposit_amount_usd - d.borrow_amount_usd) over (partition by d.chain order by d.date rows between unbounded preceding and current row) as tvl
+        date
+        , coalesce(dau, 0) as dau
+        , coalesce(txns, 0) as txns
+        , sum(coalesce(borrow_amount_usd, 0)) over (partition by chain order by date rows between unbounded preceding and current row) as borrows
+        , sum(coalesce(supply_amount_usd, 0)) over (partition by chain order by date rows between unbounded preceding and current row) as supplies
+        , sum(coalesce(deposit_amount_usd, 0)) over (partition by chain order by date rows between unbounded preceding and current row) as deposits
+        , coalesce(fees_usd, 0) as fees
+        , sum(coalesce(fees_usd, 0)) over (partition by chain order by date rows between unbounded preceding and current row) as fees_cumulative
+        , sum(coalesce(deposit_amount_usd, 0) - coalesce(borrow_amount_usd, 0)) over (partition by chain order by date rows between unbounded preceding and current row) as tvl
         , d.chain
-    from deposits d
+    from morpho_data
 )
 
 , all_token_incentives as (
-    select date, chain, amount_native, amount_usd from {{ ref('fact_morpho_base_token_incentives') }}
+    select date, chain, coalesce(amount_native, 0) as amount_native, coalesce(amount_usd, 0) as amount_usd from {{ ref('fact_morpho_base_token_incentives') }}
     union all
-    select date, chain, amount_native, amount_usd from {{ ref('fact_morpho_ethereum_token_incentives') }}
+    select date, chain, coalesce(amount_native, 0) as amount_native, coalesce(amount_usd, 0) as amount_usd from {{ ref('fact_morpho_ethereum_token_incentives') }}
 )
 
 , morpho_token_incentives as (
     select
         date
         , chain
-        , sum(amount_native) as token_incentives_native
-        , sum(amount_usd) as token_incentives
+        , sum(coalesce(amount_native, 0)) as token_incentives_native
+        , sum(coalesce(amount_usd, 0)) as token_incentives
     from all_token_incentives
     group by 1, 2
 )
@@ -60,28 +60,31 @@ with deposits as (
 )
 
 select
-    ds.date
-    , coalesce(mti.chain, cm.chain) as chain
-    , dau
-    , txns
-    , borrows
-    , supplies as total_available_supply
-    , deposits
+    date_spine.date
+    , 'morpho' as artemis_id
+    , morpho_fundamental_metrics.chain
 
-    -- Standardized metrics
-    , borrows as lending_loans
-    , supplies as lending_loan_capacity
-    , deposits as lending_deposits
-    , tvl
-    
-    -- Cash Flow Metrics (Interest goes to Liquidity Suppliers (Lenders) + Vaults Performance Fees)
-    , fees as lending_interest_fees
-    , fees as fees
+    -- Standardized Metrics
 
-    , token_incentives_native
-    , token_incentives
+    -- Usage Data
+    , morpho_fundamental_metrics.dau as lending_dau
+    , morpho_fundamental_metrics.txns as lending_txns
+    , morpho_fundamental_metrics.borrows as lending_loans
+    , morpho_fundamental_metrics.supplies as lending_loan_capacity
+    , morpho_fundamental_metrics.deposits as lending_deposits
+    , morpho_fundamental_metrics.tvl
     
-from date_spine ds 
-left join morpho_token_incentives mti on ds.date = mti.date 
-left join cumulative_metrics cm on mti.date = cm.date
-                                    and mti.chain = cm.chain
+    -- Financial Statements (Interest goes to Liquidity Suppliers (Lenders) + Vaults Performance Fees)
+    , morpho_fundamental_metrics.fees as lending_interest_fees
+    , 0 as revenue
+    , morpho_token_incentives.token_incentives_native
+    , morpho_token_incentives.token_incentives
+    , revenue - morpho_token_incentives.token_incentives as earnings
+    
+    -- Supply Data
+    , morpho_supply_data.premine_unlocks_native
+    , morpho_supply_data.circulating_supply_native
+    
+from date_spine 
+left join morpho_token_incentives using (date, chain)
+left join morpho_fundamental_metrics using (date, chain)
