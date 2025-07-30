@@ -156,10 +156,10 @@ models:
       - *treasury_native
       - *tvl
       - *tvl_net_change
-
   - name: ez_convex_metrics_by_token
     description: "This table stores metrics for the CONVEX protocol"
     columns:
+      - *earnings
       - *fees
       - *net_treasury
       - *net_treasury_native
@@ -174,7 +174,6 @@ models:
       - *treasury_native
       - *tvl
       - *tvl_net_change
-
   - name: ez_convex_metrics
     description: "This table stores metrics for the CONVEX protocol"
     columns:
@@ -199,4 +198,3 @@ models:
       - *treasury_native
       - *tvl
       - *tvl_net_change
-
