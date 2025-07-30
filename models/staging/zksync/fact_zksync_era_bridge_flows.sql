@@ -10,6 +10,7 @@ with
             source_chain,
             destination_chain,
             coalesce(c.category, 'Not Categorized') as category,
+            p.symbol,
             coalesce((amount / power(10, p.decimals)) * price, 0) as amount_usd
         from {{ ref("fact_zksync_era_bridge_transfers") }} t
         left join
@@ -25,8 +26,9 @@ select
     source_chain,
     destination_chain,
     category,
+    symbol,
     sum(amount_usd) as amount_usd,
     null as fee_usd
 from volume_and_fees_by_chain_and_symbol
-group by 1, 2, 3, 4, 5
+group by 1, 2, 3, 4, 5, 6
 order by date asc, source_chain asc
