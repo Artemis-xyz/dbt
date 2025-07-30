@@ -17,29 +17,45 @@
 
 {% set backfill_date = var("backfill_date", None) %}
 
-with
-    trading_volume_data as (
-        select date, sum(trading_volume) as trading_volume
-        from {{ ref("fact_avantis_trading_volume_silver") }}
-        group by date
+WITH
+    date_spine AS (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date >= '2024-01-27'
+        AND date < to_date(sysdate())
     )
-    , unique_traders_data as (
-        select date, sum(unique_traders) as unique_traders
-        from {{ ref("fact_avantis_unique_traders_silver") }}
-        group by date
+    , trading_volume_data AS (
+        SELECT 
+            date
+            , SUM(trading_volume) AS trading_volume
+        FROM {{ ref("fact_avantis_trading_volume_silver") }}
+        GROUP BY date
     )
-select
-    date
-    , 'avantis' as app
-    , 'DeFi' as category
-    -- standardize metrics
-    , trading_volume as perp_volume
-    , unique_traders as perp_dau
+    , unique_traders_data AS (
+        SELECT 
+            date
+            , SUM(unique_traders) AS unique_traders
+        FROM {{ ref("fact_avantis_unique_traders_silver") }}
+        GROUP BY date
+    )
+    
+SELECT
+    date_spine.date
+    , 'avantis' as artemis_id
+
+    -- Standardized Metrics
+
+    -- Usage Data
+    , unique_traders_data.unique_traders as perp_dau
+    , unique_traders_data.unique_traders as dau
+    , trading_volume_data.trading_volume as perp_volume
+
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from trading_volume_data
-left join unique_traders_data using(date)
-where true
-{{ ez_metrics_incremental("date", backfill_date) }}
-and date < to_date(sysdate())
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
+FROM date_spine
+LEFT JOIN trading_volume_data USING (date)
+LEFT JOIN unique_traders_data USING (date)
+WHERE true
+{{ ez_metrics_incremental("date_spine.date", backfill_date) }}
+AND date_spine.date < to_date(sysdate())
