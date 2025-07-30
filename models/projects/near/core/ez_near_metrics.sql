@@ -11,7 +11,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -20,7 +20,7 @@
 
 with
     fundamental_data as ({{ get_fundamental_data_for_chain("near", "v2") }}),
-    price_data as ({{ get_coingecko_metrics("near") }}),
+    market_metrics as ({{ get_coingecko_metrics("near") }}),
     defillama_data as ({{ get_defillama_metrics("near") }}),
     revenue_data as (
         select date, revenue_native, revenue from {{ ref("fact_near_revenue") }}
@@ -48,66 +48,73 @@ with
 
 select
     fundamental_data.date
-    , fundamental_data.chain
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees_native
-    , fees
-    , avg_txn_fee
-    , median_txn_fee
-    , revenue_native
-    , revenue
-    , coalesce(near_dex_volumes.dex_volumes, 0) as dex_volumes
+    , 'near' as artemis_id
+    , 'near' as chain
+    
     -- Standardized Metrics
-    -- Market Data Metrics
-    , price
-    , market_cap
-    , fdmc
-    , tvl
-    -- Chain Usage Metrics
-    , dau as chain_dau
-    , wau as chain_wau
-    , mau as chain_mau
-    , txns as chain_txns
-    , avg_txn_fee AS chain_avg_txn_fee
-    , returning_users
-    , new_users
-    , low_sleep_users
-    , high_sleep_users
-    -- Cashflow Metrics
-    , case when fees is null then fees_native * price else fees end as chain_fees
-    , fees_native as ecosystem_revenue_native
-    , case when fees is null then fees_native * price else fees end as ecosystem_revenue
-    , median_txn_fee AS chain_median_txn_fee
-    , revenue_native AS burned_fee_allocation_native
-    , revenue AS burned_fee_allocation
+
+    -- Market Data
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
+
+    -- Usage Data
+    , fundamental_data.dau as chain_dau
+    , fundamental_data.dau as dau
+    , fundamental_data.wau as chain_wau
+    , fundamental_data.mau as chain_mau
+    , fundamental_data.txns as chain_txns
+    , fundamental_data.txns as txns
+    , fundamental_data.avg_txn_fee AS chain_avg_txn_fee
+    , fundamental_data.returning_users
+    , fundamental_data.new_users
+    , fundamental_data.low_sleep_users
+    , fundamental_data.high_sleep_users
+    , near_dex_volumes.dex_volumes as chain_spot_volume
+
+    -- Fee Data
+    , fundamental_data.fees_native as fees_native
+    , fundamental_data.fees as fees
+    , fundamental_data.fees as chain_fees
+    , fundamental_data.median_txn_fee as chain_median_txn_fee
+
+    -- Financial Statements
+    , revenue_data.revenue_native as burned_fee_allocation_native
+    , revenue_data.revenue as burned_fee_allocation
+
     -- Developer Metrics
-    , weekly_commits_core_ecosystem
-    , weekly_commits_sub_ecosystem
-    , weekly_developers_core_ecosystem
-    , weekly_developers_sub_ecosystem
-    , weekly_contracts_deployed
-    , weekly_contract_deployers
-    , p2p_native_transfer_volume
-    , p2p_token_transfer_volume
-    , p2p_stablecoin_transfer_volume
-    , p2p_transfer_volume
-    , blob_fees_native
-    , blob_fees
-    , blob_size_mib
-    , avg_mib_per_second
-    , avg_cost_per_mib_native
-    , avg_cost_per_mib
+    , github_data.weekly_commits_core_ecosystem
+    , github_data.weekly_commits_sub_ecosystem
+    , github_data.weekly_developers_core_ecosystem
+    , github_data.weekly_developers_sub_ecosystem
+    , contract_data.weekly_contracts_deployed
+    , contract_data.weekly_contract_deployers
+
+    -- Bespoke Metrics
+    , p2p_metrics.p2p_native_transfer_volume
+    , p2p_metrics.p2p_token_transfer_volume
+    , p2p_metrics.p2p_stablecoin_transfer_volume
+    , p2p_metrics.p2p_transfer_volume
+    , da_metrics.blob_fees_native
+    , da_metrics.blob_fees
+    , da_metrics.blob_size_mib
+    , da_metrics.avg_mib_per_second
+    , da_metrics.avg_cost_per_mib_native
+    , da_metrics.avg_cost_per_mib
     , submitters
-    , coalesce(near_dex_volumes.dex_volumes, 0) as chain_spot_volume
-    , coalesce(chain_fees, 0) + coalesce(blob_fees, 0) + coalesce(p2p_transfer_volume, 0) + coalesce(near_dex_volumes.dex_volumes, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
+    , chain_fees + blob_fees + p2p_transfer_volume + near_dex_volumes.dex_volumes + application_fees.application_fees as total_economic_activity
+
+    -- Other Data
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
 from fundamental_data
-left join price_data on fundamental_data.date = price_data.date
+left join market_metrics on fundamental_data.date = market_metrics.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join revenue_data on fundamental_data.date = revenue_data.date
 left join github_data on fundamental_data.date = github_data.date
