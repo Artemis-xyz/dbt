@@ -26,6 +26,8 @@ build-models:
 	@dbt build -s $(foreach model,$(filter-out $@,$(MAKECMDGOALS)),$(model)+) --exclude "*iceberg*"
 
 compare_dev_schema_target:
+	git stash
+
 	# Save current branch name
 	git branch --show-current > branch_name.txt
 
@@ -36,6 +38,7 @@ compare_dev_schema_target:
 
 	# Checkout branch
 	git checkout $(cat branch_name.txt)
+	git stash pop
 
 	# Compare prod manifest on feature branch with prod manifest on main
 	dbt ls --select state:modified.body --state ./manifests/ --target prod
