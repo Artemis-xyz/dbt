@@ -17,23 +17,36 @@
 
 {% set backfill_date = var("backfill_date", None) %}
 
-select
-    date
-    , txns
+WITH 
+    date_spine AS (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date >= '2024-12-02'
+        AND date < to_date(sysdate())
+    )
+    , fundamental_metrics AS (SELECT * FROM {{ ref("fact_soneium_fundamental_metrics") }})
+
+SELECT
+    date_spine.date
+    , 'soneium' AS artemis_id
+
+    -- Standardized Metrics
+
+    -- Usage Data
+    , dau as chain_dau
     , daa as dau
+    , txns as chain_txns
+    , txns
+
+    -- Fee Data
     , fees_native
     , fees
-    -- Standardized metrics
-    -- Chain Usage Metrics
-    , dau as chain_dau
-    , txns as chain_txns
-    -- Cashflow metrics
-    , fees_native AS ecosystem_revenue_native
-    , fees AS ecosystem_revenue
+
     -- timestamp columns    
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from {{ ref("fact_soneium_fundamental_metrics") }}
-where true
-{{ ez_metrics_incremental('date', backfill_date) }}
-and date < to_date(sysdate())
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
+FROM date_spine
+LEFT JOIN fundamental_metrics USING (date)
+WHERE true
+{{ ez_metrics_incremental("date", backfill_date) }}
+AND date < to_date(sysdate())
