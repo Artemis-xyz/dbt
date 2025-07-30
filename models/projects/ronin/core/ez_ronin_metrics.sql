@@ -17,31 +17,47 @@
 
 {% set backfill_date = var("backfill_date", None) %}
 
-with 
-    ronin_dex_volumes as (
-        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
-        from {{ ref("fact_ronin_daily_dex_volumes") }}
-    ),
-    price_data as ({{ get_coingecko_metrics("ronin") }})
+WITH 
+    date_spine AS (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date >= '2021-11-01'
+        AND date < to_date(sysdate())
+    )
+    , ronin_dex_volumes AS (
+        SELECT 
+            date
+            , daily_volume AS dex_volumes
+            , daily_volume_adjusted AS adjusted_dex_volumes
+        FROM {{ ref("fact_ronin_daily_dex_volumes") }}
+    )
+    , market_data AS ({{ get_coingecko_metrics("ronin") }})
 select
-    ronin_dex_volumes.date
-    , dex_volumes
-    , adjusted_dex_volumes
+    date_spine.date
+    , 'ronin' AS artemis_id
+
     -- Standardized Metrics
-    -- Market Data Metrics
-    , price
-    , market_cap
-    , fdmc
-    , token_volume
-    , token_turnover_circulating
-    -- Chain Usage Metrics
+
+    -- Market Data
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
+
+    -- Usage Data
     , dex_volumes AS chain_spot_volume
+    , adjusted_dex_volumes AS chain_spot_volume_adjusted
+
+    -- Turnover Data
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from ronin_dex_volumes   
-left join price_data on ronin_dex_volumes.date = price_data.date
-where true
-{{ ez_metrics_incremental('ronin_dex_volumes.date', backfill_date) }}
-and ronin_dex_volumes.date < to_date(sysdate())
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
+FROM date_spine
+LEFT JOIN ronin_dex_volumes USING (date)
+LEFT JOIN market_data USING (date)
+WHERE true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+AND date_spine.date < to_date(sysdate())
