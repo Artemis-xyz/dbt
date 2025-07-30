@@ -8,19 +8,20 @@
     )
 }}
 with corn_dex_volumes as (
-    select date, daily_volume as dex_volumes
+    select date, chain, coalesce(daily_volume, 0) as dex_volumes
         from {{ ref("fact_corn_daily_dex_volumes") }}
-)
-, corn_market_data as (
-    {{ get_coingecko_metrics('corn-3') }}
 )
 
 select
-    date
-    , 'corn' as chain
-    , dex_volumes
+    corn_dex_volumes.date
+    , 'corn' as artemis_id
+    , corn_dex_volumes.chain
+    
     -- Standardized Metrics
-    , dex_volumes as spot_volume
+
+    -- Usage Data
+    , corn_dex_volumes.dex_volumes as spot_volume
+    , corn_dex_volumes.adjusted_dex_volumes
 
 from corn_dex_volumes
 left join corn_market_data cmd using (date)

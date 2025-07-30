@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -21,29 +21,36 @@ with corn_dex_volumes as (
     select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
         from {{ ref("fact_corn_daily_dex_volumes") }}
 )
-, corn_market_data as (
+, market_metrics as (
     {{ get_coingecko_metrics('corn-3') }}
 )
 
 select
     date
-    , dex_volumes
-    , adjusted_dex_volumes
+    , 'corn' as artemis_id
+    
     -- Standardized Metrics
-    , dex_volumes as chain_spot_volume
 
-    -- Market Metrics
-    , cmd.price
-    , cmd.market_cap
-    , cmd.fdmc
-    , cmd.token_turnover_circulating
-    , cmd.token_turnover_fdv
-    , cmd.token_volume
+    -- Market Data
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_turnover_circulating
+
+    -- Usage Data
+    , dex_volumes as chain_spot_volume
+    , adjusted_dex_volumes
+
+    -- Token Turnover/Other Data
+    , market_metrics.token_turnover_fdv
+    , market_metrics.token_volume
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
 from corn_dex_volumes
-left join corn_market_data cmd using (date)
+left join market_metrics using (date)
 where true
 {{ ez_metrics_incremental("date", backfill_date) }}
 and date < to_date(sysdate())
