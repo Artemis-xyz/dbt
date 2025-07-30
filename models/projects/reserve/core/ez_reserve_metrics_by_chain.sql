@@ -9,14 +9,20 @@
 }}
 
 select
-    date
+    reserve_metrics.date
+    , 'reserve' as artemis_id
     , 'ethereum' as chain
-    , dau
+    
     -- Standardized Metrics
 
-    -- Stablecoin Metrics
-    , stablecoin_dau
+    -- Usage Data
+    , reserve_metrics.dau
+    , reserve_metrics.tvl
 
-    -- Crypto Metrics
-    , tvl 
-from {{ ref("ez_reserve_metrics") }}
+    -- Financial Statements
+    , reserve_metrics.revenue
+
+    -- Bespoke Metrics
+    , reserve_metrics.rtokens_mc
+
+from {{ ref("ez_reserve_metrics") }} reserve_metrics

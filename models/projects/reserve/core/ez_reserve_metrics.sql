@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"]
     )
 }}
@@ -25,16 +25,16 @@ with date_spine as (
 , dau as (
     select
         date
-        , dau
+        , coalesce(dau, 0) as dau
     from {{ ref("fact_reserve_dau") }}
 )
 , tvl as (
     select
         date
-        , tvl
+        , tvl as tvl
     from {{ ref("fact_reserve_tvl") }}
 )
-, market_data as (
+, market_metrics as (
     {{ get_coingecko_metrics('reserve-rights-token') }}
 )
 , rtoken_market_cap as (
@@ -43,19 +43,12 @@ with date_spine as (
         , rtokens_mc
     from {{ ref("fact_reserve_rtoken_market_cap") }}
 )
-, forward_filled_data as (
+, reserve_fundamental_data as (
     select
         ds.date
-        , dau
-        , tvl
-        , rtokens_mc
-        , price
-        , market_cap
-        , fdmc
-        , token_volume
-        
-        , token_turnover_circulating
-        , token_turnover_fdv
+        , coalesce(dau, 0) as dau
+        , coalesce(tvl, 0) as tvl
+        , coalesce(rtokens_mc, 0) as rtokens_mc
 
         -- Fill forward market cap and price
         , last_value(market_data.market_cap ignore nulls) over (order by ds.date) as market_cap_filled
@@ -64,14 +57,13 @@ with date_spine as (
     from date_spine ds
     left join tvl using (date)
     left join dau using (date)
-    left join market_data using (date)
     left join rtoken_market_cap using (date)
 )
 
 , protocol_revenue as (
     select
         date
-        , sum(ecosystem_revenue) as ecosystem_revenue
+        , coalesce(sum(ecosystem_revenue), 0) as revenue
     from {{ ref("fact_reserve_protocol_revenue") }}
     group by date
 )
@@ -79,50 +71,55 @@ with date_spine as (
 , supply_data as (
     select
         date
-        , premine_unlocks_native
-        , gross_emissions_native
-        , burns_native
-        , net_supply_change_native
-        , circulating_supply_native
+        , coalesce(premine_unlocks_native, 0) as premine_unlocks_native
+        , coalesce(gross_emissions_native, 0) as gross_emissions_native
+        , coalesce(burns_native, 0) as burns_native
+        , coalesce(net_supply_change_native, 0) as net_supply_change_native
+        , coalesce(circulating_supply_native, 0) as circulating_supply_native
     from {{ ref("fact_reserve_supply_data") }}
 )
 
 select
-    date
-    , dau
+    reserve_fundamental_data.date
+    , 'reserve' as artemis_id
 
     -- Standardized Metrics
-    , coalesce(ecosystem_revenue, 0) as fees
 
-    -- Token Metrics
-    , coalesce(price, 0) as price
-    , coalesce(market_cap, 0) as market_cap
-    , coalesce(fdmc, 0) as fdmc
-    , coalesce(token_volume, 0) as token_volume
+    -- Market Data
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
 
-    -- Stablecoin Metrics
-    , coalesce(dau, 0) as stablecoin_dau
+    -- Usage Data
+    , reserve_fundamental_data.dau as dau
+    , reserve_fundamental_data.tvl as tvl
 
-    -- Crypto Metrics
-    , coalesce(tvl, 0) as tvl
-    , coalesce(rtokens_mc, 0) as rtokens_mc
+    -- Financial Statements
+    , protocol_revenue.revenue as revenue
+    
     -- Turnover Metrics
-    , coalesce(token_turnover_circulating, 0) as token_turnover_circulating
-    , coalesce(token_turnover_fdv, 0) as token_turnover_fdv
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
 
     -- Supply Metrics
-    , premine_unlocks_native
-    , gross_emissions_native
-    , burns_native
-    , net_supply_change_native
+    , supply_data.premine_unlocks_native
+    , supply_data.gross_emissions_native
+    , supply_data.burns_native
+    , supply_data.net_supply_change_native
     , circulating_supply_native
+
+    -- Bespoke Metrics
+    , reserve_fundamental_data.rtokens_mc as rtokens_mc
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from forward_filled_data
+
+from reserve_fundamental_data
 left join protocol_revenue using (date)
 left join supply_data using (date)
+left join market_metrics using (date)
 where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())
