@@ -9,18 +9,19 @@
 }}
 
 with nova_dex_volumes as (
-    select date, daily_volume as dex_volumes
+    select date, coalesce(daily_volume, 0) as dex_volumes
     from {{ ref("fact_nova_daily_dex_volumes") }}
 )
 
 select
-    date
+    nova_dex_volumes.date
+    , 'nova' as artemis_id
     , 'solana' as chain
-    , dex_volumes
 
     -- Standardized Metrics
-    , dex_volumes as spot_volume
 
+    -- Usage Data
+    , nova_dex_volumes.dex_volumes as spot_volume
 
 from nova_dex_volumes   
-where date < to_date(sysdate())
+where nova_dex_volumes.date < to_date(sysdate())
