@@ -18,22 +18,27 @@
 
 {% set backfill_date = var("backfill_date", None) %}
 
-with
-    contract_data as ({{ get_contract_metrics("solana") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("solana") }}),
-    defillama_data as ({{ get_defillama_metrics("solana") }}),
-    github_data as ({{ get_github_metrics("solana") }}),
-    price as ({{ get_coingecko_metrics("solana") }}),
-    staking_data as ({{ get_staking_metrics("solana") }}),
-    issuance_data as (
-        select date, chain, issuance 
-        from {{ ref("fact_solana_issuance_silver") }}
-    ),
-    nft_metrics as ({{ get_nft_metrics("solana") }}),
-    p2p_metrics as ({{ get_p2p_metrics("solana") }}),
-    rolling_metrics as ({{ get_rolling_active_address_metrics("solana") }}),
-    fundamental_usage as (
-        select
+WITH
+    date_spine AS (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date >= '2020-10-07' AND date < TO_DATE(SYSDATE())
+    )
+    , contract_data AS ({{ get_contract_metrics("solana") }})
+    , stablecoin_data AS ({{ get_stablecoin_metrics("solana") }})
+    , defillama_data AS ({{ get_defillama_metrics("solana") }})
+    , github_data AS ({{ get_github_metrics("solana") }})
+    , market_data AS ({{ get_coingecko_metrics("solana") }})
+    , staking_data AS ({{ get_staking_metrics("solana") }})
+    , issuance_data AS (
+        SELECT date, chain, issuance 
+        FROM {{ ref("fact_solana_issuance_silver") }}
+    )
+    , nft_metrics AS ({{ get_nft_metrics("solana") }})
+    , p2p_metrics AS ({{ get_p2p_metrics("solana") }})
+    , rolling_metrics AS ({{ get_rolling_active_address_metrics("solana") }})
+    , fundamental_usage AS (
+        SELECT
             date,
             gas,
             gas_usd,
@@ -44,21 +49,21 @@ with
             returning_users,
             new_users,
             vote_tx_fee_native
-        from {{ ref('fact_solana_fundamental_data') }}
-    ), 
-    solana_dex_volumes as (
-        select date, daily_volume_usd as dex_volumes
-        from {{ ref("fact_solana_dex_volumes") }}
+        FROM {{ ref('fact_solana_fundamental_data') }}
     )
-    , jito_tips as (
+    , solana_dex_volumes AS (
+        SELECT date, daily_volume_usd AS dex_volumes
+        FROM {{ ref("fact_solana_dex_volumes") }}
+    )
+    , jito_tips AS (
         SELECT
             day as date,
             tip_fees
-        FROM {{ ref('fact_jito_dau_txns_fees')}}
+        FROM {{ ref('fact_jito_dau_txns_fees') }}
     )
-    , supply_data as (
-        select date, issued_supply, circulating_supply
-        from {{ ref('fact_solana_supply_data') }}
+    , supply_data AS (
+        SELECT date, issued_supply, circulating_supply
+        FROM {{ ref('fact_solana_supply_data') }}
     )
     , application_fees AS (
         SELECT 
@@ -71,86 +76,74 @@ with
             AND artemis_id NOT IN ('raydium', 'jupiter', 'saber', 'pumpfun')
         GROUP BY 1
     )
-select
-    coalesce(fundamental_usage.date, supply_data.date) as date
-    , 'solana' as chain
-    , txns
-    , dau
-    , wau
-    , mau
-    , gas_usd / txns as avg_txn_fee
-    , median_txn_fee
-    , issuance
-    , nft_trading_volume
-    , solana_dex_volumes.dex_volumes as dex_volumes
-    -- Standardzed metrics
-    -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , tvl
 
-    -- Chain Usage Metrics
-    , txns AS chain_txns
+SELECT
+    date_spine.date
+    , 'solana' AS artemis_id
+
+    -- Standardized Metrics
+
+    -- Market Data
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
+
+    -- Usage Data
+    , dau
     , dau AS chain_dau
     , wau AS chain_wau
     , mau AS chain_mau
+    , txns
+    , txns AS chain_txns
+    , tvl
+    , tvl AS chain_tvl
     , returning_users
     , new_users
-    , gas_usd / txns as chain_avg_txn_fee
+    , gas_usd / txns AS chain_avg_txn_fee
     , median_txn_fee AS chain_median_txn_fee
     , total_staked_native
-    , total_staked_usd as total_staked
+    , total_staked_usd AS total_staked
     , nft_trading_volume AS chain_nft_trading_volume
     , p2p_native_transfer_volume
     , p2p_token_transfer_volume
     , p2p_transfer_volume
     , coalesce(solana_dex_volumes.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
     , solana_dex_volumes.dex_volumes as chain_spot_volume
-    , case
-        when (gas - base_fee_native) < 0.00001 then 0 else (gas - base_fee_native)
-    end as priority_fees_native
-    , case
-        when (gas_usd - base_fee_native * price ) < 0.001 then 0 else (gas_usd - base_fee_native * price )
-    end as priority_fees
-
-    -- Cashflow Metrics
-    , gas_usd + vote_tx_fee_native * price as chain_fees
-    , gas + vote_tx_fee_native as fees_native
-    , vote_tx_fee_native * price + gas_usd as fees
-    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, ((base_fee_native + vote_tx_fee_native) * .5) + priority_fees_native) as validator_fee_allocation_native
-    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, ((base_fee_native * price  + vote_tx_fee_native * price) * .5) + priority_fees) as validator_fee_allocation
-    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as burned_fee_allocation_native
-    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee_native * price  + vote_tx_fee_native * price) * .5) as burned_fee_allocation
-    , base_fee_native
-    , base_fee_native * price AS base_fee
-    , vote_tx_fee_native
-    , vote_tx_fee_native * price AS vote_tx_fee
-    , chain_fees + COALESCE(jito_tips.tip_fees, 0) as rev -- Blockworks' REV
-    
-    -- TEA 
+        -- Blockworks' REV
+    , chain_fees + COALESCE(jito_tips.tip_fees, 0) AS rev 
+        -- TEA 
     , coalesce(rev, 0) + coalesce(settlement_volume, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
 
-    -- Financial Statement Metrics
-    , IFF(fundamental_usage.date < '2025-02-13', fees_native * .5, (base_fee_native + vote_tx_fee_native) * .5) as revenue_native
+    -- Fee Data
+    , CASE
+        WHEN (gas - base_fee_native) < 0.00001 THEN 0 ELSE (gas - base_fee_native)
+    END AS priority_fees_native
+    , gas + vote_tx_fee_native as fees_native
+    , CASE
+        WHEN (gas_usd - base_fee_native * price ) < 0.001 THEN 0 ELSE (gas_usd - base_fee_native * price )
+    END AS priority_fees
+    , base_fee_native * price AS base_fee
+    , vote_tx_fee_native * price AS vote_tx_fee
+    , gas_usd + vote_tx_fee_native * price AS chain_fees
+    , gas_usd + vote_tx_fee_native * price AS fees
+    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, ((base_fee_native * price  + vote_tx_fee_native * price) * .5) + priority_fees) as validator_fee_allocation
+    , IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee_native * price  + vote_tx_fee_native * price) * .5) as burned_fee_allocation
+
+    -- Financial Statements
     , IFF(fundamental_usage.date < '2025-02-13', fees * .5, (base_fee_native * price  + vote_tx_fee_native * price) * .5) as revenue
     , issuance * price as token_incentives
     , revenue - token_incentives as earnings
-    
-    -- Supply Metrics
-    , issuance AS gross_emissions_native
-    , issuance * price AS gross_emissions
-    , issued_supply as issued_supply_native
-    , circulating_supply as circulating_supply_native
 
-    -- Developer Metrics
+    -- Developer Data
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
-    -- Stablecoin metrics
+
+    -- Stablecoin Data
     , stablecoin_total_supply
     , stablecoin_txns
     , stablecoin_dau
@@ -166,24 +159,36 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
+
+    -- Supply Data
+    , issuance AS gross_emissions_native
+    , issuance * price AS gross_emissions
+    , issued_supply as issued_supply_native
+    , circulating_supply as circulating_supply_native
+
+    -- Turnover Data
+    , market_data.token_turnover_circulating 
+    , market_data.token_turnover_fdv
+
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from fundamental_usage 
-left join defillama_data on fundamental_usage.date = defillama_data.date
-left join stablecoin_data on fundamental_usage.date = stablecoin_data.date
-left join price on fundamental_usage.date = price.date
-left join github_data on fundamental_usage.date = github_data.date
-left join contract_data on fundamental_usage.date = contract_data.date
-left join staking_data on fundamental_usage.date = staking_data.date
-left join issuance_data on fundamental_usage.date = issuance_data.date
-left join nft_metrics on fundamental_usage.date = nft_metrics.date
-left join p2p_metrics on fundamental_usage.date = p2p_metrics.date
-left join rolling_metrics on fundamental_usage.date = rolling_metrics.date
-left join solana_dex_volumes on fundamental_usage.date = solana_dex_volumes.date
-left join jito_tips on fundamental_usage.date = jito_tips.date
-left join supply_data on fundamental_usage.date = supply_data.date
-left join application_fees on fundamental_usage.date = application_fees.date
-where true
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
+FROM date_spine
+LEFT JOIN fundamental_usage USING (date)
+LEFT JOIN defillama_data USING (date)
+LEFT JOIN stablecoin_data USING (date)
+LEFT JOIN market_data USING (date)
+LEFT JOIN github_data USING (date)
+LEFT JOIN contract_data USING (date)
+LEFT JOIN staking_data USING (date)
+LEFT JOIN issuance_data USING (date)
+LEFT JOIN nft_metrics USING (date)
+LEFT JOIN p2p_metrics USING (date)
+LEFT JOIN rolling_metrics USING (date)
+LEFT JOIN solana_dex_volumes USING (date)
+LEFT JOIN jito_tips USING (date)
+LEFT JOIN supply_data USING (date)
+LEFT JOIN application_fees USING (date)
+WHERE true
 {{ ez_metrics_incremental('fundamental_usage.date', backfill_date) }}
-and fundamental_usage.date < to_date(sysdate())
+AND fundamental_usage.date < TO_DATE(SYSDATE())
