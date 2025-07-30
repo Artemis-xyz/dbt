@@ -17,65 +17,77 @@
 
 {% set backfill_date = var("backfill_date", None) %}
 
-with
-    fundamental_data as (
-        select
+WITH
+    date_spine AS (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date >= '2023-06-13'
+        AND date < to_date(sysdate())
+    )
+    , fundamental_data AS (
+        SELECT
             date
             , txns
-            , daa as dau
-            , gas_usd as fees
-            , gas as fees_native
-            , median_gas as median_txn_fee
+            , daa AS dau
+            , gas_usd AS fees
+            , gas AS fees_native
+            , median_gas AS median_txn_fee
             , revenue
             , revenue_native
             , l1_data_cost
             , l1_data_cost_native
-        from {{ ref("fact_zora_txns") }}
-        left join {{ ref("fact_zora_daa") }} using (date)
-        left join {{ ref("fact_zora_gas_gas_usd_revenue") }} using (date)
+        FROM {{ ref("fact_zora_txns") }}
+        LEFT JOIN {{ ref("fact_zora_daa") }} USING (date)
+        LEFT JOIN {{ ref("fact_zora_gas_gas_usd_revenue") }} USING (date)
     )
-    , github_data as ({{ get_github_metrics("zora") }})
-    , contract_data as ({{ get_contract_metrics("zora") }})
-    , defillama_data as ({{ get_defillama_metrics("zora") }})
-    , rolling_metrics as ({{ get_rolling_active_address_metrics("zora") }})
+    , github_data AS ({{ get_github_metrics("zora") }})
+    , contract_data AS ({{ get_contract_metrics("zora") }})
+    , defillama_data AS ({{ get_defillama_metrics("zora") }})
+    , rolling_metrics AS ({{ get_rolling_active_address_metrics("zora") }})
     , zora_dex_volumes as (
-        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
-        from {{ ref("fact_zora_daily_dex_volumes") }}
+        SELECT
+            date
+            , daily_volume AS dex_volumes
+            , daily_volume_adjusted AS adjusted_dex_volumes
+        FROM {{ ref("fact_zora_daily_dex_volumes") }}
     )
+    , market_data AS ({{get_coinmarketcap_metrics("zora")}})
 select
-    fundamental_data.date
-    , dune_dex_volumes_zora.dex_volumes
-    , dune_dex_volumes_zora.adjusted_dex_volumes
-    , 'zora' as chain
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees
-    , fees_native
-    , median_txn_fee
-    , fees / txns as avg_txn_fee
-    , revenue
-    , revenue_native
-    , l1_data_cost
-    , l1_data_cost_native
+    date_spine.date
+    , 'zora' AS artemis_id
+
     -- Standardized Metrics
-    -- Chain Metrics
-    , txns as chain_txns
-    , dau as chain_dau
-    , wau as chain_wau
-    , mau as chain_mau
-    , median_txn_fee as chain_median_txn_fee
-    , avg_txn_fee as chain_avg_txn_fee
-    -- Cash Flow Metrics
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
-    , l1_data_cost as l1_fee_allocation
-    , l1_data_cost_native as l1_fee_allocation_native
-    , revenue as treasury_fee_allocation
-    , revenue_native as treasury_fee_allocation_native
-    -- Crypto Metrics
+
+    -- Market Data
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
+
+    -- Usage Data
+    , dau AS chain_dau
+    , dau 
+    , wau AS chain_wau
+    , mau AS chain_mau
+    , txns AS chain_txns
+    , txns
     , tvl
+    , tvl AS chain_tvl
+    , median_txn_fee AS chain_median_txn_fee
+    , avg_txn_fee AS chain_avg_txn_fee
+    , dune_dex_volumes_zora.dex_volumes AS chain_spot_volume
+    , dune_dex_volumes_zora.adjusted_dex_volumes AS chain_spot_volume_adjusted
+
+    -- Cash Flow Metrics
+    , fees_native
+    , fees
+    , l1_data_cost AS l1_fee_allocation
+    , revenue AS treasury_fee_allocation
+
+    -- Financial Statements
+    , revenue
+    , revenue AS earnings
+
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -83,15 +95,21 @@ select
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
+
+    -- Turnover Data
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
+
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from fundamental_data
-left join github_data using (date)
-left join contract_data using (date)
-left join defillama_data using (date)
-left join rolling_metrics using (date)
-left join zora_dex_volumes as dune_dex_volumes_zora on fundamental_data.date = dune_dex_volumes_zora.date
-where true
-{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
-and fundamental_data.date < to_date(sysdate())
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
+FROM date_spine
+LEFT JOIN fundamental_data USING (date)
+LEFT JOIN github_data USING (date)
+LEFT JOIN contract_data USING (date)
+LEFT JOIN defillama_data USING (date)
+LEFT JOIN rolling_metrics USING (date)
+LEFT JOIN zora_dex_volumes AS dune_dex_volumes_zora ON fundamental_data.date = dune_dex_volumes_zora.date
+WHERE true
+{{ ez_metrics_incremental("fundamental_data.date", backfill_date) }}
+AND fundamental_data.date < to_date(sysdate())
