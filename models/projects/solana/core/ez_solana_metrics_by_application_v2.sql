@@ -65,7 +65,7 @@ with
         from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         where not equal_null(category, 'EOA') and app is not null
         group by month_date, app
-    )
+    ),
 select
     agg_data.raw_date as date,
     agg_data.app,
@@ -94,7 +94,8 @@ select
     low_sleep_users,
     (dau - low_sleep_users) as high_sleep_users,
     sybil_users,
-    (dau - sybil_users) as non_sybil_users
+    (dau - sybil_users) as non_sybil_users,
+    NULL AS tvl
 from agg_data
 left join
     new_users
@@ -110,3 +111,4 @@ left join
     monthly_users
     on equal_null(agg_data.app, monthly_users.app)
     and date_trunc('month', agg_data.raw_date) = monthly_users.month_date
+

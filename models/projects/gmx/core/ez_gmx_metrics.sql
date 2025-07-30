@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="GMX",
         database="gmx",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     --Old data needed for backward compatibility
@@ -145,44 +154,35 @@ select
     date_spine.date as date
     , 'gmx' as app
     , 'DeFi' as category
-
     --Old Metrics needed for backward compatibility
     , coalesce(combined_data.trading_volume, 0) as trading_volume
     , coalesce(combined_data.unique_traders, 0) as unique_traders
     , coalesce(fees_data.fees, 0) as fees
     , coalesce(fees_data.revenue, 0) as revenue
     , coalesce(treasury_native.own_token_treasury_native, 0) as treasury_value_native    
-
-
     --Standardized Metrics
     , coalesce(spot_data.spot_fees, 0) as spot_fees
     , coalesce(perp_data.perp_liquidation_fees, 0) as perp_liquidation_fees
     , coalesce(perp_data.perp_trading_fees, 0) as perp_trading_fees
     , coalesce(perp_data.perp_fees, 0) as perp_fees
-
     , coalesce(spot_data.spot_lp_fee_allocation, 0) + coalesce(perp_data.perp_lp_fee_allocation, 0) as service_fee_allocation
     , coalesce(spot_data.spot_stakers_fee_allocation, 0) + coalesce(perp_data.perp_stakers_fee_allocation, 0) as staking_fee_allocation
     , coalesce(spot_data.spot_oracle_fee_allocation, 0) + coalesce(perp_data.perp_oracle_fee_allocation, 0) as other_fee_allocation
     , coalesce(spot_data.spot_treasury_fee_allocation, 0) + coalesce(perp_data.perp_treasury_fee_allocation, 0) as treasury_fee_allocation
-
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
     , coalesce(fees_data.revenue, 0) - coalesce(token_incentives.token_incentives, 0) as earnings
-
     , coalesce(spot_data.spot_volume, 0) as spot_volume
     , coalesce(perp_data.perp_volume, 0) as perp_volume
-
     , coalesce(txns_and_dau_data.spot_txns, 0) as spot_txns
     , coalesce(txns_and_dau_data.perp_txns, 0) as perp_txns
     , coalesce(txns_and_dau_data.gmx_txns, 0) as gmx_txns
     , coalesce(txns_and_dau_data.spot_dau, 0) as spot_dau
     , coalesce(txns_and_dau_data.perp_dau, 0) as perp_dau
     , coalesce(txns_and_dau_data.gmx_dau, 0) as gmx_dau
-    
     , coalesce(tvl_metrics_grouped.tvl, 0) as tvl
     , coalesce(treasury.treasury_usd, 0) as treasury
     , coalesce(treasury.own_token_treasury, 0) as own_token_treasury
     , coalesce(treasury.net_treasury_usd, 0) as net_treasury
-    
     -- Market Data
     , market_metrics.price as price
     , market_metrics.market_cap as market_cap
@@ -190,6 +190,9 @@ select
     , market_metrics.token_turnover_circulating as token_turnover_circulating
     , market_metrics.token_turnover_fdv as token_turnover_fdv
     , market_metrics.token_volume as token_volume
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
 left join tvl_metrics_grouped using(date)
 left join perp_data using(date)
@@ -201,4 +204,6 @@ left join treasury_native using(date)
 left join combined_data using(date)
 left join fees_data using(date)
 left join market_metrics using(date)
-where date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

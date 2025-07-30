@@ -15,11 +15,12 @@ sources:
       - name: raw_hyperliquid_assistance_fund_holdings
       - name: raw_hyperliquid_hype_staked
       - name: raw_hyperliquid_spot_trading_volume
-      - name: raw_hyperevm_transactions_parquet
-      - name: raw_hyperevm_logs_parquet
       - name: raw_hyperliquid_hlp_tvl
       - name: raw_hyperliquid_perps_trading_volume
       - name: raw_hyperliquid_new_users
+      - name: raw_hyperliquid_supply_data
+      - name: raw_hyperliquid_open_interest
+
   - name: MANUAL_STATIC_TABLES
     schema: PROD
     database: pc_dbt_db

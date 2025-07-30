@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="HYPERLIQUID",
         database="hyperliquid",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with trading_volume_data as (
     select date, trading_volume as perp_volume, chain
@@ -30,7 +39,7 @@ with trading_volume_data as (
     group by 1, 2
 )
 , hypercore_spot_burns_data as (
-    select date, hypercore_burns_native, chain
+    select date, coalesce(hypercore_burns_native, 0) as hypercore_burns_native, chain
     from {{ ref("fact_hyperliquid_hypercore_burns") }}
 )
 , daily_assistance_fund_data as (
@@ -56,18 +65,19 @@ with trading_volume_data as (
 , hyperliquid_api_supply_data as (
     select 
         date
-        , max_supply
-        , uncreated_tokens
-        , total_supply
-        , burn_tokens
-        , foundation_owned
-        , issued_supply
-        , unvested_tokens
-        , circulating_supply
+        , coalesce(max_supply_native, 0) as max_supply_native
+        , coalesce(uncreated_tokens, 0) as uncreated_tokens
+        , coalesce(total_supply_native, 0) as total_supply_native
+        , coalesce(burn_tokens, 0) as burn_tokens
+        , coalesce(foundation_owned_balances, 0) as foundation_owned_balances
+        , coalesce(issued_supply_native, 0) as issued_supply_native
+        , coalesce(unvested_tokens, 0) as unvested_tokens
+        , coalesce(net_supply_change_native, 0) as net_supply_change_native
+        , coalesce(circulating_supply_native, 0) as circulating_supply_native
     from {{ref('fact_hyperliquid_supply_data')}}
 )
 , perps_tvl_data as (
-    select date, tvl
+    select date, coalesce(tvl, 0) as tvl
     from {{ ref("fact_hyperliquid_perps_tvl") }}
 )
 , market_metrics as (
@@ -77,11 +87,11 @@ with trading_volume_data as (
     SELECT
         date,
         'hyperliquid' as chain
-    FROM {{ref("dim_date_spine")}}
-    WHERE date between '2024-11-29' and to_date(sysdate())
+    FROM {{ref("dim_date_spine")}}  
+    WHERE date between '2023-06-13' and to_date(sysdate())
 )
 , hyperevm_fundamental_metrics_data as (
-    select date, chain, daa, txns, hyperevm_burns, hyperevm_burns_native
+    select date, chain, daa, txns, hyperevm_burns, coalesce(hyperevm_burns_native, 0) as hyperevm_burns_native
     from {{ ref("fact_hyperliquid_hyperevm_fundamental_metrics") }}
 )
 
@@ -116,70 +126,74 @@ with trading_volume_data as (
     select date, new_users
     from {{ ref("fact_hyperliquid_new_users") }}
 )
-
+, open_interest_data as (
+    select date, sum(open_interest) as open_interest
+    from {{ ref("fact_hyperliquid_open_interest") }}
+    group by 1
+)
     
 select
     date_spine.date
-    , 'hyperliquid' as app
-    , 'DeFi' as category
-
-    --Old metrics needed for compatibility
-    , coalesce(perp_volume, 0) + coalesce(spot_trading_volume, 0) as trading_volume
-    , unique_traders::string as unique_traders
-    , trades as txns
-    , trading_fees as fees
-    , auction_fees
-    -- all l1 fees are burned (HyperEVM) + Hypercore (Spot Token Fees Burned)
-    , coalesce(hypercore_burns_native, 0) + coalesce(hyperevm_burns_native, 0) as daily_burns_native
-    , trading_fees * 0.03 as primary_supply_side_revenue
-    -- add daily burn back to the revenue
-     , (daily_buybacks_native * mm.price) + (daily_burns_native * mm.price) as revenue
-     , daily_buybacks_native
-     , num_stakers
-     , staked_hype
+    , 'hyperliquid' as artemis_id
 
     -- Standardized Metrics
 
-    -- Market Metrics
-    , price
-    , token_volume
-    , market_cap
-    , fdmc
-    , token_turnover_circulating
-    , token_turnover_fdv
+    -- Market Data
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
 
-    -- Usage Metrics
-    , unique_traders::string + hyperevm_data.daa as perp_dau
-    , perp_volume as perp_volume
-    , spot_trading_volume as spot_volume
-    , trades + hyperevm_data.txns as perp_txns
+    -- Usage Data
+    -- , unique_traders_data.unique_traders::string + hyperevm_data.daa as perp_dau (this is not an accurate DAU metric)
+    , daily_transactions_data.trades as perp_txns
+    , perp_txns as txns
+    , trading_volume_data.perp_volume
+    , spot_trading_volume_data.spot_trading_volume as spot_volume
+    , coalesce(trading_volume_data.perp_volume, 0) + coalesce(spot_trading_volume_data.spot_trading_volume, 0) as volume
+    , perps_tvl_data.tvl as perps_tvl
     , chain_tvl.tvl as chain_tvl
-    , coalesce(perps_tvl_data.tvl, 0) as tvl
-    , new_users
+    , perps_tvl_data.tvl + chain_tvl.tvl as tvl
+    , hype_staked_data.num_stakers
+    , hype_staked_data.staked_hype as total_staked_native
+    , hype_staked_data.staked_hype * market_metrics.price as total_staked
     
-    -- Cash Flow Metrics
+    -- Fee Data
     , perp_fees
     , spot_fees
-    -- all l1 fees are burned (HyperEVM)
-     , coalesce(hyperevm_burns_native, 0) * mm.price as chain_fees
-     , trading_fees + (daily_burns_native * mm.price) as ecosystem_revenue
-     , trading_fees * 0.03 as service_fee_allocation
-     , (daily_buybacks_native * mm.price) as buyback_fee_allocation
-     , daily_buybacks_native as buybacks_native
-     , daily_burns_native as burned_fee_allocation_native
-     , daily_burns_native * mm.price as burned_fee_allocation
+    , auction_fees
+    , hyperevm_data.hyperevm_burns_native * market_metrics.price as chain_fees -- A portion of HyperEVM fees are burned
+    , trading_fees + chain_fees as fees -- trading fees = (spot + perp) + auction fees
+    , trading_fees * 0.03 as service_fee_allocation
+    , (daily_buybacks_native * market_metrics.price) as buyback_fee_allocation -- 97% of trading fees are bought back to the Assistance Fund
 
-    --HYPE Token Supply Data
-    , coalesce(emissions_native, 0) as emissions_native
-    , coalesce(premine_unlocks_native, 0) as premine_unlocks_native
-    , coalesce(daily_burns_native, 0) as burns_native
-    , coalesce(emissions_native, 0) + coalesce(premine_unlocks_native, 0) - coalesce(burns_native, 0) as net_supply_change_native
-    , coalesce(hyperliquid_api_supply_data.total_supply, 0) as issued_supply_native
-    , coalesce(hyperliquid_api_supply_data.circulating_supply, 0) as circulating_supply_native
-    --, sum(coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(burns_native, 0)) over (order by daily_supply_data.date) as circulating_supply_native
+    -- Financial Statements
+    , (daily_buybacks_native) as buybacks_native
+    , (daily_buybacks_native * market_metrics.price) as buybacks
+    , (daily_buybacks_native * market_metrics.price) + ((hypercore_spot_burns_data.hypercore_burns_native + hyperevm_data.hyperevm_burns_native) * market_metrics.price) as revenue -- burns + buybacks
 
+    -- Supply Data
+    , first_principles_supply_data.emissions_native as gross_emissions_native
+    , hyperliquid_api_supply_data.max_supply_native
+    , hypercore_spot_burns_data.hypercore_burns_native + hyperevm_data.hyperevm_burns_native as burns_native
+    , hyperliquid_api_supply_data.total_supply_native
+    , hyperliquid_api_supply_data.issued_supply_native
+    , first_principles_supply_data.premine_unlocks_native
+    , hyperliquid_api_supply_data.circulating_supply_native
+
+    -- Token Turnover
+    , market_metrics.token_turnover_fdv
+    , market_metrics.token_turnover_circulating
+
+    -- Bespoke Metrics
+    , open_interest_data.open_interest
+    , new_users_data.new_users as new_users
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
-left join market_metrics mm using(date)
+left join market_metrics using(date)
 left join unique_traders_data using(date)
 left join trading_volume_data using(date)
 left join daily_transactions_data using(date)
@@ -195,4 +209,7 @@ left join daily_assistance_fund_data using(date)
 left join perps_tvl_data using(date)
 left join chain_tvl using(date)
 left join new_users_data using(date)
-where date < to_date(sysdate())
+left join open_interest_data using(date)
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

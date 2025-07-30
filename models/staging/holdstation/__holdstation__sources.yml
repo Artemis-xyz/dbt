@@ -5,3 +5,4 @@ sources:
     tables:
       - name: raw_holdstation_trading_volume
       - name: raw_holdstation_unique_traders
+      - name: raw_holdstation_bera_trading_volume

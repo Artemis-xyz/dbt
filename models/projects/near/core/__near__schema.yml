@@ -142,6 +142,10 @@ column_definitions:
     name: sybil_users
     description: "The number of sybil users on a chain"
 
+  total_economic_activity: &total_economic_activity
+    name: total_economic_activity
+    description: "The total value of all economic activity on a chain"
+
   tvl: &tvl
     name: tvl
     description: "The total value locked in a protocol"
@@ -215,6 +219,7 @@ models:
       - *returning_users
       - *revenue
       - *submitters
+      - *total_economic_activity
       - *tvl
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem
@@ -222,7 +227,6 @@ models:
       - *weekly_contracts_deployed
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-
   - name: ez_near_metrics_by_application_v2
     description: "This table stores metrics for the NEAR protocol"
     columns:
@@ -232,7 +236,6 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
   - name: ez_near_metrics_by_subcategory
     description: "This table stores metrics for the NEAR protocol"
     columns:
@@ -242,7 +245,6 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
   - name: ez_near_metrics_by_category_v2
     description: "This table stores metrics for the NEAR protocol"
     columns:
@@ -252,4 +254,3 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-

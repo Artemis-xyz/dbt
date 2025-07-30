@@ -1,17 +1,40 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="HOLDSTATION",
         database="holdstation",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
 
+{% set backfill_date = var("backfill_date", None) %}
+
 with
-    trading_volume_data as (
+    zk_sync_volume_data as (
         select date, sum(trading_volume) as trading_volume
         from {{ ref("fact_holdstation_trading_volume") }}
+        group by date
+    )
+    , bera_trading_volume_data as (
+        select date, sum(perp_volume) as perp_volume
+        from {{ ref("fact_holdstation_bera_perp_volume") }}
+        group by date
+    )
+    , agg_volume_data as (
+        select date, sum(trading_volume) as perp_volume
+        from zk_sync_volume_data
+        group by date
+        union all
+        select date, sum(perp_volume) as perp_volume
+        from bera_trading_volume_data
         group by date
     )
     , unique_traders_data as (
@@ -25,7 +48,7 @@ select
     , 'holdstation' as app
     , 'DeFi' as category
     -- standardize metrics
-    , trading_volume as perp_volume
+    , perp_volume
     , unique_traders as perp_dau
     -- Market Data
     , price
@@ -34,7 +57,12 @@ select
     , token_turnover_circulating
     , token_turnover_fdv
     , token_volume
-from trading_volume_data
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+from agg_volume_data
 left join unique_traders_data using(date)
 left join price using(date)
-where date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())

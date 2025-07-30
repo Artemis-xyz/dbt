@@ -1,0 +1,62 @@
+rules:
+  - name: not_null_date
+    when:
+      columns:
+        - name: date
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+    severity: error
+
+  - name: recency_test
+    when:
+      columns:
+        - name: date
+    tests:
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+    severity: error
+
+  - name: date_format_test
+    when:
+      columns:
+        - name: date
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "date = cast(date as date)"
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+    severity: error
+
+  - name: not_null_chain_for_by_chain
+    when:
+      table_type: ez
+      ez_subtype: ez_by_chain
+    tests:
+      - not_null:
+          column_name: chain
+          description: "Ensures that the chain column is not null for by_chain tables"
+    severity: error
+
+  - name: not_null_token_for_by_token
+    when:
+      table_type: ez
+      ez_subtype: ez_by_token
+    tests:
+      - not_null:
+          column_name: token
+          description: "Ensures that the token column is not null for by_token tables"
+    severity: error
+
+  - name: not_null_app_for_by_app
+    when:
+      table_type: ez
+      ez_subtype: ez_by_app
+    tests:
+      - not_null:
+          column_name: app
+          description: "Ensures that the app column is not null for by_app tables"
+    severity: error

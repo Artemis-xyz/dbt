@@ -24,10 +24,10 @@ with
             , cl_rewards_eth
             , el_rewards_eth
             , deposit_fee_eth as deposit_fees_native
-            , cl_rewards_eth + el_rewards_eth + deposit_fee_eth as fees_native
-            , cl_rewards_eth + el_rewards_eth as primary_supply_side_revenue_native
+            , total_node_rewards_eth + deposit_fee_eth as fees_native
+            , total_node_rewards_eth as primary_supply_side_revenue_native
             , deposit_fee_eth as secondary_supply_side_revenue_native
-            , fees_native as total_supply_side_revenue_native
+            , total_node_rewards_eth + deposit_fee_eth as total_supply_side_revenue_native
         from {{ ref('fact_rocketpool_fees_revs') }}
         left join {{ ref('fact_rocketpool_deposit_fees') }} using(date)
     )

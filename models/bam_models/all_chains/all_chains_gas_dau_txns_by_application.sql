@@ -48,7 +48,8 @@ with
             sum(low_sleep_users) as low_sleep_users,
             sum(high_sleep_users) as high_sleep_users,
             sum(sybil_users) as sybil_users,
-            sum(non_sybil_users) as non_sybil_users
+            sum(non_sybil_users) as non_sybil_users,
+            sum(tvl) as tvl
         from metrics_by_chain
         group by date, app
     ), app_data as (
@@ -75,7 +76,8 @@ with
             low_sleep_users,
             high_sleep_users,
             sybil_users,
-            non_sybil_users
+            non_sybil_users,
+            tvl
         from combined_sum
         union
         select
@@ -101,7 +103,8 @@ with
             low_sleep_users,
             high_sleep_users,
             sybil_users,
-            non_sybil_users
+            non_sybil_users,
+            tvl
         from metrics_by_chain
     ), namespace_data as (
         select
@@ -127,7 +130,8 @@ with
             low_sleep_users,
             high_sleep_users,
             sybil_users,
-            non_sybil_users
+            non_sybil_users,
+            tvl
         from app_data
         where app is not null and txns is not null
     ),
@@ -168,6 +172,7 @@ select
     high_sleep_users,
     low_sleep_users,
     sybil_users,
-    non_sybil_users
+    non_sybil_users,
+    tvl
 from namespace_data ns
 left join namespace_coingecko cg on ns.namespace = cg.namespace

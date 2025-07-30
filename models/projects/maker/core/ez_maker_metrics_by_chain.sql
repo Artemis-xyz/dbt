@@ -61,24 +61,28 @@ WITH
 
 select
     date
+    , 'maker' as artemis_id
     , 'ethereum' as chain
-    , COALESCE(primary_revenue, 0) AS primary_revenue
-    , COALESCE(other_revenue, 0) AS other_revenue
-    
-    , COALESCE(treasury_usd, 0) AS treasury_usd
-    , COALESCE(net_treasury_usd, 0) AS net_treasury_usd
-    , COALESCE(net_deposit, 0) AS net_deposits
-    , COALESCE(outstanding_supply, 0) AS outstanding_supply
-    , COALESCE(tokenholder_count, 0) AS tokenholder_count
 
     -- Standardized metrics
-    , 'Maker' as app
-    , 'DeFi' as category
+    -- Market Metrics
+    , COALESCE(price, 0) AS price
+    , COALESCE(fdmc, 0) AS fdmc
+    , COALESCE(market_cap, 0) AS market_cap
+    , COALESCE(token_volume, 0) AS token_volume
+
+    -- Usage Metrics
+    , COALESCE(tvl, 0) AS lending_deposits
+    , COALESCE(outstanding_supply, 0) AS lending_loans
+    , COALESCE(tvl, 0) AS tvl
+
+    -- Fees Metrics
     , COALESCE(stability_fees,0) as stability_fees
     , COALESCE(trading_fees, 0) AS trading_fees
     , COALESCE(fees, 0) AS fees
     , COALESCE(protocol_revenue, 0) AS treasury_fee_allocation
 
+    -- Financial Metrics
     , COALESCE(protocol_revenue, 0) AS revenue
     , COALESCE(token_incentives, 0) AS token_incentives
     , COALESCE(operating_expenses, 0) AS operating_expenses
@@ -86,21 +90,15 @@ select
     , COALESCE(total_expenses, 0) AS total_expenses
     , COALESCE(revenue - total_expenses, 0) AS earnings
 
+    -- Treasury Metrics
     , COALESCE(treasury_usd, 0) AS treasury
     , COALESCE(treasury_native, 0) AS treasury_native
 
-    , COALESCE(net_deposit, 0) AS lending_deposits
-    , COALESCE(outstanding_supply, 0) AS lending_loans
-
-    , COALESCE(tvl, 0) AS tvl
-    , COALESCE(price, 0) AS price
-    , COALESCE(fdmc, 0) AS fdmc
-    , COALESCE(market_cap, 0) AS market_cap
-    , COALESCE(token_volume, 0) AS token_volume
+    -- Other Metrics
     , COALESCE(token_turnover_fdv, 0) AS token_turnover_fdv
     , COALESCE(token_turnover_circulating, 0) AS token_turnover_circulating
 
-   
+    , COALESCE(tokenholder_count, 0) AS tokenholder_count
 FROM token_holder_data
 left join treasury_usd using (date)
 left join treasury_native using (date)

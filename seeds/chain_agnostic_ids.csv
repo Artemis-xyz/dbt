@@ -19,3 +19,5 @@ near:mainnet,near
 eip155:8217,kaia
 aptos:mainnet,aptos
 xrpl:0,ripple
+eip155:146,sonic
+eip155:999,hyperevm

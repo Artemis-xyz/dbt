@@ -17,6 +17,10 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  burns_native: &burns_native
+    name: burns_native
+    description: "The amount of native tokens burned"
+
   chain_avg_txn_fee: &chain_avg_txn_fee
     name: chain_avg_txn_fee
     description: "The average transaction fee on ICP."
@@ -89,6 +93,7 @@ models:
     columns:
       - *burned_fee_allocation
       - *burned_fee_allocation_native
+      - *burns_native
       - *chain_avg_txn_fee
       - *chain_dau
       - *chain_fees
@@ -101,3 +106,18 @@ models:
       - *revenue
       - *tvl
 
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error

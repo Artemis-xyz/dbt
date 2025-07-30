@@ -18,5 +18,3 @@ select
     , symbol 
 from {{ source("STAGING", "core_ecosystemrepositories") }} as er
 left join {{ source("STAGING", "core_ecosystems") }} as ecosystems  on er.ecosystem_id = ecosystems.id
-where
-    last_updated <= {{ latest_developer_data_date() }}

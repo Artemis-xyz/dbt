@@ -53,4 +53,6 @@ from flattened_data fd
 left join flattened_categories fc using (date, coingecko_token_id)
 left join flattened_homepage fh using (date, coingecko_token_id)
 left join flattened_chat_url fcu using (date, coingecko_token_id)
+where
+    coingecko_token_id is not null
 order by token_market_cap_rank asc

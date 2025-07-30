@@ -40,6 +40,10 @@ def extract_sql_columns(sql_file_path):
     # Take the last SELECT statement
     select_clause = select_matches[-1]
 
+    # If the last select clause is from the incremental macro, use the second to last
+    if 'max(this.date)' in select_clause.lower() and len(select_matches) > 1:
+        select_clause = select_matches[-2]
+
     print("Processing SELECT clause:", select_clause)
 
     # Extract column names (handling various alias patterns)
@@ -193,12 +197,18 @@ def generate_project_schema(project_name, global_schema_path, sql_files):
                 f.write("    columns:\n")
                 for col_name in sorted(matching_columns):
                     f.write(f"      - *{col_name}\n")
-                f.write("\n")
+                # NOTE: Removing generated tests because they caused a ton of dimension-related jobs to break
+                # Needs fixing before we can uncomment this
+
+                # Add tests block using abstracted test generation
+                # from generate_tests import generate_all_tests
+                # f.write(generate_all_tests(table_name=model_name))
+                # f.write("\n")
 
     print(f"Generated schema file: {output_path}")
     if existing_overrides:
         print(f"Preserved {len(existing_overrides)} column overrides")
-
+    
 def get_dbt_root():
     """Find the dbt project root directory by looking for dbt_project.yml"""
     current_dir = os.getcwd()

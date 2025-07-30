@@ -3,6 +3,7 @@ sources:
     schema: PROD_LANDING
     database: LANDING_DATABASE
     tables:
+      - name: raw_story_blocks_parquet
       - name: raw_story_transactions_parquet
       - name: raw_story_logs_parquet
 

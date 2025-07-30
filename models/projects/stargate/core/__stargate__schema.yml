@@ -34,7 +34,14 @@ column_definitions:
 
   circulating_supply_native: &circulating_supply_native
     name: circulating_supply_native
-    description: "The circulating supply of a token in native tokens"
+    description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+    tags:
+      - artemis_gaap
+
+  date: &date
+    name: date
+    description: "date"
+
 
   fdmc: &fdmc
     name: fdmc
@@ -84,6 +91,11 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  token: &token
+    name: token
+    description: "token"
+
+
   token_fee_allocation: &token_fee_allocation
     name: token_fee_allocation
     description: "The share of protocol revenue accrued to token holders of the protocol."
@@ -132,6 +144,7 @@ models:
       - *bridge_wau
       - *burns_native
       - *circulating_supply_native
+      - *date
       - *fdmc
       - *fees
       - *gross_emissions_native
@@ -147,19 +160,75 @@ models:
       - *treasury
       - *tvl
 
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_stargate_metrics_by_token
     description: "This table stores metrics for the STARGATE protocol"
     columns:
+      - *date
+      - *token
       - *treasury
       - *treasury_native
 
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
+      - not_null:
+          column_name: token
+          description: "Ensures that the token column is not null for by_token tables"
+          severity: error
   - name: ez_stargate_metrics_by_chain
     description: "This table stores metrics for the STARGATE protocol"
     columns:
       - *bridge_dau
       - *bridge_txns
+      - *date
       - *inflow
       - *outflow
       - *treasury
       - *tvl
 
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
+      - not_null:
+          column_name: chain
+          description: "Ensures that the chain column is not null for by_chain tables"
+          severity: error

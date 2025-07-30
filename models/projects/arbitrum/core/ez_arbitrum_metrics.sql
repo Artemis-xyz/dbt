@@ -1,13 +1,22 @@
 -- depends_on {{ ref("fact_arbitrum_transactions_v2") }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="ARBITRUM",
         database="arbitrum",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as ({{ get_fundamental_data_for_chain("arbitrum", "v2") }}),
@@ -26,7 +35,7 @@ with
     bridge_volume_metrics as (
         select date, bridge_volume
         from {{ ref("fact_arbitrum_one_bridge_bridge_volume") }}
-        where chain is null
+            where chain is null
     ),
     bridge_daa_metrics as (
         select date, bridge_daa
@@ -59,6 +68,15 @@ with
         WHERE LOWER(contract_address) = LOWER('0x912ce59144191c1204e64559fe8253a0e49e6548')
         QUALIFY ROW_NUMBER() OVER (PARTITION BY date ORDER BY native_balance DESC) = 1
     )
+    , application_fees AS (
+        SELECT 
+            DATE_TRUNC(DAY, date) AS date 
+            , SUM(COALESCE(fees, 0)) AS application_fees
+        FROM {{ ref("ez_protocol_datahub_by_chain") }}
+        WHERE chain = 'arbitrum'
+        GROUP BY 1
+    )
+
 select
     fundamental_data.date
     , fundamental_data.chain
@@ -107,6 +125,7 @@ select
     , p2p_transfer_volume
     , coalesce(artemis_stablecoin_transfer_volume, 0) - coalesce(stablecoin_data.p2p_stablecoin_transfer_volume, 0) as non_p2p_stablecoin_transfer_volume
     , coalesce(dune_dex_volumes_arbitrum.dex_volumes, 0) + coalesce(nft_trading_volume, 0) + coalesce(p2p_transfer_volume, 0) as settlement_volume
+    , coalesce(revenue, 0) + coalesce(settlement_volume, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
     -- Cashflow Metrics
     , coalesce(fees_native, 0) + coalesce(timeboost_fees_native, 0) AS chain_fees
     , coalesce(fees_native, 0) + coalesce(timeboost_fees_native, 0) AS ecosystem_revenue_native -- Total gas fees paid on L2 by users (L2 Fees)
@@ -158,6 +177,10 @@ select
     END AS total_supply_native
     , COALESCE(total_supply_native, 0) - COALESCE(foundation_owned_supply_native, 0) - COALESCE(cumulative_burns_native, 0) AS issued_supply_native
     , COALESCE(total_supply_native, 0) - COALESCE(foundation_owned_supply_native, 0) - COALESCE(cumulative_burns_native, 0) - COALESCE(unvested_supply_native, 0) AS circulating_supply_native
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -176,4 +199,7 @@ left join timeboost_fees on fundamental_data.date = timeboost_fees.date
 left join unvested_supply on fundamental_data.date = unvested_supply.date
 left join burns_mints on fundamental_data.date = burns_mints.date
 left join foundation_owned_supply on fundamental_data.date = foundation_owned_supply.date
-where fundamental_data.date < to_date(sysdate())
+left join application_fees on fundamental_data.date = application_fees.date
+where true
+{{ ez_metrics_incremental("fundamental_data.date", backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

@@ -1,22 +1,33 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="STELLAR",
         database="stellar",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
+
 with fundamental_data as (
     select 
         * EXCLUDE date,
         TO_TIMESTAMP_NTZ(date) AS date 
     from {{ source('PROD_LANDING', 'ez_stellar_metrics') }}
-),
-rwa_tvl as (
-    select * from {{ ref('fact_stellar_rwa_tvl') }}
-),
-stablecoin_tvl as (
+)
+, rwa_tvl as (
+    select * 
+    from {{ ref('fact_stellar_rwa_tvl') }}
+)
+, stablecoin_tvl as (
     -- Sum mktcap in USD across all stablecoins 
     select 
         date,
@@ -24,7 +35,17 @@ stablecoin_tvl as (
     from {{ ref ('fact_stellar_stablecoin_tvl') }} 
     group by 
         date 
-), prices as ({{ get_coingecko_price_with_latest("stellar") }})
+)
+, issued_supply_metrics as (
+    select 
+        date,
+        max_supply as max_supply_native,
+        total_supply as total_supply_native,
+        issued_supply as issued_supply_native,
+        circulating_supply_native as circulating_supply_native
+    from {{ ref('fact_stellar_issued_supply_and_float_dbt') }}
+)
+, prices as ({{ get_coingecko_price_with_latest("stellar") }})
 , price_data as ( {{ get_coingecko_metrics("stellar") }} )
 select
     fundamental_data.date
@@ -67,6 +88,12 @@ select
     , fees as ecosystem_revenue
     , fees_native as ecosystem_revenue_native
 
+    -- Issued Supply Metrics
+    , issued_supply_metrics.max_supply_native
+    , issued_supply_metrics.total_supply_native
+    , issued_supply_metrics.issued_supply_native
+    , issued_supply_metrics.circulating_supply_native
+
     -- Financial Statement Metrics
     , fees as revenue
 
@@ -78,8 +105,15 @@ select
     , price_data.token_turnover_circulating
     , price_data.token_turnover_fdv
 
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fundamental_data
 left join prices using(date)
 left join price_data on fundamental_data.date = price_data.date
 left join rwa_tvl on fundamental_data.date = rwa_tvl.date
 left join stablecoin_tvl on fundamental_data.date = stablecoin_tvl.date
+left join issued_supply_metrics on fundamental_data.date = issued_supply_metrics.date
+where true
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

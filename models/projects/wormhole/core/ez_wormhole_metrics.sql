@@ -1,10 +1,19 @@
 {{ config(
-    materialized="table",
+    materialized="incremental",
     warehouse="WORMHOLE",
     database="WORMHOLE",
     schema="core",
-    alias="ez_metrics"
+    alias="ez_metrics",
+    incremental_strategy="merge",
+    unique_key="date",
+    on_schema_change="append_new_columns",
+    merge_update_columns=var("backfill_columns", []),
+    merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+    full_refresh=false,
+    tags=["ez_metrics"]
 ) }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with txns_data as (
     select
@@ -55,9 +64,15 @@ select
     , premine_unlocks_native
     , net_supply_change_native
     , circulating_supply_native
+
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from txns_data
 left join daa on txns_data.date = daa.date
 left join bridge_volume on txns_data.date = bridge_volume.date
 left join price_data on txns_data.date = price_data.date
 left join supply_data on txns_data.date = supply_data.date
-where coalesce(txns_data.date, daa.date) < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('txns_data.date', backfill_date) }}
+and coalesce(txns_data.date, daa.date) < to_date(sysdate())
