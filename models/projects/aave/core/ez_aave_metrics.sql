@@ -196,8 +196,26 @@ WITH
         FROM {{ ref("fact_aave_gho_treasury_revenue")}}
         GROUP BY 1
     )
-    , aave_token_holders AS (
-        SELECT
+
+    , flashloan_fees_to_protocol as (
+        select
+             date,
+            protocol_revenue
+        from {{ ref('fact_aave_flashloan_fees') }}
+    )
+
+    , issued_supply_metrics as (
+        select 
+            date,
+            max_supply as max_supply_native,
+            total_supply_to_date as total_supply_native,
+            issued_supply as issued_supply_native,
+            circulating_supply as circulating_supply_native
+        from {{ ref('fact_aave_issued_supply_and_float') }}
+    )
+
+    , aave_token_holders as (
+        select
             date
             , token_holder_count
         FROM {{ ref("fact_aave_token_holders")}}
