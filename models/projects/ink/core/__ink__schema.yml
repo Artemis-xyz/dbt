@@ -28,7 +28,6 @@ models:
       - *chain_spot_volume
       - *chain_txns
       - *fees
-
     tests:
       - not_null:
           column_name: date
