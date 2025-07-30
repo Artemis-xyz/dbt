@@ -14,10 +14,13 @@ with veax_tvl as (
 
 select
     veax_tvl.date
-    , 'Defillama' as source
+    , 'veax' as artemis_id
     , 'near' as chain
 
-    -- Standardized Metrics
-    , veax_tvl.tvl
+    -- Standardized Metrics    
+    
+    -- Usage Data
+    , veax_tvl.tvl as tvl
+
 from veax_tvl
 where veax_tvl.date < to_date(sysdate())
