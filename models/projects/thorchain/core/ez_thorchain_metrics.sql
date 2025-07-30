@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"]
     )
 }}
@@ -26,26 +26,30 @@ with thorchain_tvl as (
 )
 
 select
-    tt.date
-    , 'Defillama' as source
+    thorchain_tvl.date
+    , 'thorchain' as artemis_id
 
     -- Standardized Metrics
-    , tt.tvl
 
-    -- Market Metrics
-    , mm.price as price
-    , mm.token_volume as token_volume
-    , mm.market_cap as market_cap
-    , mm.fdmc as fdmc
-    , mm.token_turnover_circulating as token_turnover_circulating
-    , mm.token_turnover_fdv as token_turnover_fdv
+    -- Market Data
+    , market_metrics.price as price
+    , market_metrics.token_volume as token_volume
+    , market_metrics.market_cap as market_cap
+    , market_metrics.fdmc as fdmc
+
+    -- Usage Data
+    , thorchain_tvl.tvl as tvl
+
+    -- Token Turnover/Other Data
+    , market_metrics.token_turnover_circulating as token_turnover_circulating
+    , market_metrics.token_turnover_fdv as token_turnover_fdv
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from thorchain_tvl tt
-left join market_metrics mm using (date)
+from thorchain_tvl
+left join market_metrics using (date)
 where true
 {{ ez_metrics_incremental('tt.date', backfill_date) }}
-and tt.date < to_date(sysdate())
-and tt.name = 'thorchain' -- macro above returns data for 'Thorchain Lending' too, so we filter by name
+and thorchain_tvl.date < to_date(sysdate())
+and thorchain_tvl.name = 'thorchain' -- macro above returns data for 'Thorchain Lending' too, so we filter by name
