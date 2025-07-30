@@ -112,18 +112,29 @@ WITH
     )
 
 SELECT 
-    date
-    , chain
-    , new_addresses
-    , returning_addresses
+    chain_metrics.date
+    , 'stargate' as artemis_id
+    , chain_metrics.chain
+
     --Standardized Metrics
-    , txns as bridge_txns
-    , dau as bridge_dau
-    , inflow
-    , outflow
-    , tvl
-    , treasury
-    , hydra_tvl
+
+    -- Usage Data
+    , chain_metrics.txns as bridge_txns
+    , chain_metrics.dau as bridge_dau
+    , tvl_metrics.tvl as bridge_tvl
+    , tvl_metrics.tvl as tvl
+    , hydra_metrics.hydra_tvl
+    , chain_metrics.new_addresses
+    , chain_metrics.returning_addresses
+    
+
+    -- Treasury Data
+    , treasury_metrics.treasury
+
+    -- Bespoke Metrics
+    , flows.inflow
+    , flows.outflow
+
 FROM chain_metrics
 left join flows using (date, chain)
 full outer join treasury_metrics using (date, chain)

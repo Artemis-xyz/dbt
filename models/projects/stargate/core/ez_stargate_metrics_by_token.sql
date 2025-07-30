@@ -39,11 +39,16 @@ treasury_models as (
 )
 
 select 
-    date
-    , token
+    treasury_metrics.date
+    , 'stargate' as artemis_id
+    , treasury_metrics.token
+
     --Standardized Metrics
-    , treasury_native
-    , treasury
+
+    -- Treasury Data
+    , treasury_metrics.treasury_native as treasury
+    , treasury_metrics.treasury
+    
 from treasury_metrics
 where treasury > 1000
 and date < to_date(sysdate())
