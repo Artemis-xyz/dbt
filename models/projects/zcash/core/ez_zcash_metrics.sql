@@ -18,44 +18,61 @@
 
 {% set backfill_date = var("backfill_date", None) %}
 
-with
-    fundamental_data as (
-        select
+WITH
+    date_spine AS (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date >= '2016-10-28'
+        AND date < to_date(sysdate())
+    )
+    , fundamental_data AS (
+        SELECT
             date
             , txns
             , gas_usd as fees
             , gas as fees_native
-        from {{ ref("fact_zcash_gas_gas_usd_txns") }}
+        FROM {{ ref("fact_zcash_gas_gas_usd_txns") }}
     )
-    , github_data as ({{ get_github_metrics("zcash") }})
-    , price_data as ({{ get_coingecko_metrics('zcash') }})
+    , github_data AS ({{ get_github_metrics("zcash") }})
+    , market_data AS ({{ get_coingecko_metrics('zcash') }})
 
 select
-    f.date
+    date_spine.date
+    , 'zcash' AS artemis_id
 
     -- Standardized Metrics
+
     -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_volume
-    --chain metrics
-    , txns as chain_txns
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
+
+    --Usage Data
+    , fundamental_data.txns AS chain_txns
+    , fundamental_data.txns 
+
+    -- Fee Data
+    , fundamental_data.fees_native 
+    , fundamental_data.fees 
+
     -- Developer Metrics
-    , weekly_commits_core_ecosystem
-    , weekly_commits_sub_ecosystem
-    , weekly_developers_core_ecosystem
-    , weekly_developers_sub_ecosystem
-    , token_turnover_circulating
-    , token_turnover_fdv
+    , github_data.weekly_commits_core_ecosystem
+    , github_data.weekly_commits_sub_ecosystem
+    , github_data.weekly_developers_core_ecosystem
+    , github_data.weekly_developers_sub_ecosystem
+
+    -- Turnover Data
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
+
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from fundamental_data f
-left join github_data using (date)
-left join price_data on f.date = price_data.date
-where true
-{{ ez_metrics_incremental('f.date', backfill_date) }}
-and f.date < to_date(sysdate())
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
+FROM date_spine
+LEFT JOIN fundamental_data USING (date)
+LEFT JOIN github_data USING (date)
+LEFT JOIN market_data USING (date)
+WHERE true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+AND date_spine.date < to_date(sysdate())
