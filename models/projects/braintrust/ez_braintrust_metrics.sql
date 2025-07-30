@@ -50,3 +50,4 @@ LEFT JOIN revenue USING(date)
 LEFT JOIN market_metrics USING(date)
 WHERE TRUE
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+AND date_spine.date < to_date(sysdate())
