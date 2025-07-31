@@ -21,7 +21,8 @@ select
     relayer_fee_pct,
     null as destination_token_symbol,
     null as input_amount,
-    null as input_token
+    null as input_token,
+    null as input_symbol
 from {{ ref("fact_across_v1_transfers") }}
 where origin_chain_id != 1919191  -- a bug
 union all
@@ -42,5 +43,6 @@ SELECT
     , dst_symbol as destination_token_symbol
     , amount_sent_native as input_amount
     , origin_token as input_token
+    , src_symbol as input_symbol
 from {{ref('fact_across_complete_transfers')}}
 where coalesce(src_block_timestamp, dst_block_timestamp) is not null
