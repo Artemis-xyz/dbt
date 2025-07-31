@@ -17,20 +17,20 @@
 
 {% set backfill_date = var("backfill_date", None) %}
 
-with trading_volume_data as (
-    select date, trading_volume as perp_volume, chain
+with perp_volume_data as (
+    select date, coalesce(trading_volume, 0) as perp_volume, chain
     from {{ ref("fact_hyperliquid_trading_volume") }}
 )
 , unique_traders_data as (
-    select date, unique_traders, chain
+    select date, coalesce(unique_traders, 0) as unique_traders, chain
     from {{ ref("fact_hyperliquid_unique_traders") }}
 )
 , daily_transactions_data as (
-    select date, trades, chain
+    select date, coalesce(trades, 0) as trades, chain
     from {{ ref("fact_hyperliquid_daily_transactions") }}
 )
 , fees_data as (
-    select date, chain, trading_fees, spot_fees, perp_fees
+    select date, chain, coalesce(trading_fees, 0) as trading_fees, coalesce(spot_fees, 0) as spot_fees, coalesce(perp_fees, 0) as perp_fees
     from {{ ref("fact_hyperliquid_fees") }}
 )
 , auction_fees_data as (
@@ -43,16 +43,16 @@ with trading_volume_data as (
     from {{ ref("fact_hyperliquid_hypercore_burns") }}
 )
 , daily_assistance_fund_data as (
-    select date, daily_balance as daily_buybacks_native, balance as assistance_fund_balance, chain
+    select date, coalesce(daily_balance, 0) as daily_buybacks_native, coalesce(balance, 0) as assistance_fund_balance, chain
     from {{ ref("fact_hyperliquid_assistance_fund_balance") }}
 )
 , hype_staked_data as (
     -- snapshot data only starts as early as 2024-01-06
-    select date, chain, staked_hype, num_stakers
+    select date, chain, coalesce(staked_hype, 0) as staked_hype, coalesce(num_stakers, 0) as num_stakers
     from {{ ref("fact_hyperliquid_hype_staked") }}
 )
 , spot_trading_volume_data as (
-    select date, spot_trading_volume, chain
+    select date, coalesce(spot_trading_volume, 0) as spot_trading_volume, chain
     from {{ ref("fact_hyperliquid_spot_trading_volume") }}
 )
 , first_principles_supply_data as (
@@ -91,7 +91,7 @@ with trading_volume_data as (
     WHERE date between '2023-06-13' and to_date(sysdate())
 )
 , hyperevm_fundamental_metrics_data as (
-    select date, chain, daa, txns, hyperevm_burns, coalesce(hyperevm_burns_native, 0) as hyperevm_burns_native
+    select date, chain, coalesce(daa, 0) as daa, coalesce(txns, 0) as txns, coalesce(hyperevm_burns, 0) as hyperevm_burns, coalesce(hyperevm_burns_native, 0) as hyperevm_burns_native
     from {{ ref("fact_hyperliquid_hyperevm_fundamental_metrics") }}
 )
 
@@ -145,12 +145,13 @@ select
     , market_metrics.token_volume
 
     -- Usage Data
-    -- , unique_traders_data.unique_traders::string + hyperevm_data.daa as perp_dau (this is not an accurate DAU metric)
+    , unique_traders_data.unique_traders::string + hyperevm_data.daa as perp_dau
+    , unique_traders_data.unique_traders::string + hyperevm_data.daa as dau
     , daily_transactions_data.trades as perp_txns
-    , perp_txns as txns
-    , trading_volume_data.perp_volume
+    , daily_transactions_data.trades as txns
+    , perp_volume_data.perp_volume
     , spot_trading_volume_data.spot_trading_volume as spot_volume
-    , coalesce(trading_volume_data.perp_volume, 0) + coalesce(spot_trading_volume_data.spot_trading_volume, 0) as volume
+    , perp_volume_data.perp_volume + spot_trading_volume_data.spot_trading_volume as volume
     , perps_tvl_data.tvl as perps_tvl
     , chain_tvl.tvl as chain_tvl
     , perps_tvl_data.tvl + chain_tvl.tvl as tvl
@@ -159,18 +160,18 @@ select
     , hype_staked_data.staked_hype * market_metrics.price as total_staked
     
     -- Fee Data
-    , perp_fees
-    , spot_fees
-    , auction_fees
+    , fees_data.perp_fees
+    , fees_data.spot_fees
+    , auction_fees_data.auction_fees
     , hyperevm_data.hyperevm_burns_native * market_metrics.price as chain_fees -- A portion of HyperEVM fees are burned
-    , trading_fees + chain_fees as fees -- trading fees = (spot + perp) + auction fees
-    , trading_fees * 0.03 as service_fee_allocation
-    , (daily_buybacks_native * market_metrics.price) as buyback_fee_allocation -- 97% of trading fees are bought back to the Assistance Fund
+    , fees_data.trading_fees + chain_fees as fees -- trading fees = (spot + perp) + auction fees
+    , fees_data.trading_fees * 0.03 as service_fee_allocation
+    , (daily_assistance_fund_data.daily_buybacks_native * market_metrics.price) as buyback_fee_allocation -- 97% of trading fees are bought back to the Assistance Fund
 
     -- Financial Statements
-    , (daily_buybacks_native) as buybacks_native
-    , (daily_buybacks_native * market_metrics.price) as buybacks
-    , (daily_buybacks_native * market_metrics.price) + ((hypercore_spot_burns_data.hypercore_burns_native + hyperevm_data.hyperevm_burns_native) * market_metrics.price) as revenue -- burns + buybacks
+    , (daily_assistance_fund_data.daily_buybacks_native) as buybacks_native
+    , (daily_assistance_fund_data.daily_buybacks_native * market_metrics.price) as buybacks
+    , (daily_assistance_fund_data.daily_buybacks_native * market_metrics.price) + ((hypercore_spot_burns_data.hypercore_burns_native + hyperevm_data.hyperevm_burns_native) * market_metrics.price) as revenue -- burns + buybacks
 
     -- Supply Data
     , first_principles_supply_data.emissions_native as gross_emissions_native
