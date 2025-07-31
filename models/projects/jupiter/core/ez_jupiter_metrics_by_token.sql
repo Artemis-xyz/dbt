@@ -16,9 +16,6 @@ SELECT
     app,
     symbol as token,
     mint as token_address,
-    sum(fee_usd) as trading_fees,
-    sum(size_usd) as trading_volume,
-    count(distinct owner) as unique_traders
 
     -- Standardized Metrics
     , trading_fees as perp_fees
