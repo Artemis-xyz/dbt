@@ -11,7 +11,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=var("full_refresh", false),
+        full_refresh=false,
         tags=["ez_metrics"]
     )
 }}
@@ -34,7 +34,7 @@ with
     ),
     github_data as ({{ get_github_metrics("Polygon Hermez") }}),
     polygon_zk_dex_volumes as (
-        select date, DAILY_VOLUME_ADJUSTED_WITH_NULLS as dex_volumes
+        select date, daily_volume as dex_volumes
         from {{ ref("fact_polygon_zk_daily_dex_volumes") }}
     )
 select

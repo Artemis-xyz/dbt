@@ -43,9 +43,8 @@ select
     source_chain,
     destination_chain,
     category,
-    symbol,
     sum(amount_usd) as amount_usd,
     null as fee_usd
 from filtered_volume_and_fees_by_chain_and_symbol
-group by 1, 2, 3, 4, 5, 6
+group by 1, 2, 3, 4, 5
 order by date asc, source_chain asc

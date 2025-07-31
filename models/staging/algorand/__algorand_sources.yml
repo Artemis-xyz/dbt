@@ -3,10 +3,7 @@ sources:
     schema: PROD_LANDING
     database: LANDING_DATABASE
     tables:
-      - name: raw_algorand_ez_algorand_metrics_parquet
-        meta:
-          dagster:
-            asset_key: ["PROD_LANDING", "bulk_load_ez_algorand_metrics"]
+      - name: ez_algorand_metrics
       - name: raw_algorand_fact_algorand_foundation_address_flow_parquet
         meta:
           dagster:

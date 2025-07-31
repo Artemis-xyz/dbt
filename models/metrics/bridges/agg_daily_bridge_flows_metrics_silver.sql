@@ -36,7 +36,6 @@ with
             'injective' AS source_chain,
             'cosmos_ecosystem' AS destination_chain,
             category,
-            null as symbol, -- don't have symbol upstream
             SUM(amount_usd) AS amount_usd,
             NULL AS fee_usd
         FROM {{ ref("fact_injective_bridge_flows") }}
@@ -55,7 +54,6 @@ with
             'cosmos_ecosystem' AS source_chain,
             'injective' AS destination_chain,
             category,
-            null as symbol, -- don't have symbol upstream
             SUM(amount_usd) AS amount_usd,
             NULL AS fee_usd
         FROM {{ ref("fact_injective_bridge_flows") }}
@@ -74,7 +72,6 @@ with
             source_chain,
             destination_chain,
             category,
-            null as symbol, -- don't have symbol upstream
             amount_usd,
             NULL AS fee_usd
         FROM {{ ref("fact_injective_bridge_flows") }}
@@ -87,14 +84,7 @@ with
         SELECT * FROM cosmos_ecosystem
     )
 select
-    date,
-    app,
-    source_chain,
-    destination_chain,
-    category,
-    lower(symbol) as symbol,
-    amount_usd,
-    fee_usd,
+    *,
     date::string
     || '-'
     || app

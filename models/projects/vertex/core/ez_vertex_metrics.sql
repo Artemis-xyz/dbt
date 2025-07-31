@@ -10,7 +10,7 @@
         tags=["ez_metrics"],
         backfill_date=var("backfill_date", None),
         backfill_columns=var("backfill_columns", []),
-        full_refresh=var("full_refresh", false),
+        full_refresh=false,
         incremental_strategy="merge",
         unique_key="date",
         on_schema_change="append_new_columns",

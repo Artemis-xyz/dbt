@@ -65,7 +65,7 @@ with
         from {{ ref('fact_solana_transactions_v2') }}, lateral flatten(input => signers)
         where not equal_null(category, 'EOA') and app is not null
         group by month_date, app
-    )
+    ),
 select
     agg_data.raw_date as date,
     agg_data.app,

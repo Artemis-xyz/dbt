@@ -94,5 +94,3 @@ LEFT JOIN yield_fees yf USING (date, chain)
 LEFT JOIN daus_txns d USING (date, chain)
 LEFT JOIN token_incentives_cte ti USING (date, chain)
 LEFT JOIN tvl t USING (date, chain)
-WHERE TRUE
-    AND f.date < to_date(sysdate())

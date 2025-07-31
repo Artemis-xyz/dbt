@@ -11,8 +11,8 @@
 select 
     DATE(TO_TIMESTAMP(parquet_raw:time::BIGINT/1000)) AS date,
     TO_TIMESTAMP(parquet_raw:time::BIGINT/1000) as trade_timestamp,
-    parquet_raw:from_address::VARCHAR as from_address,
-    parquet_raw:hash::VARCHAR as transaction_hash,
+    parquet_raw:transaction_hash::VARCHAR as transaction_hash,
+    parquet_raw:hash::VARCHAR as hash,
     parquet_raw:coin::VARCHAR as coin,
     parquet_raw:feeToken::VARCHAR as fee_token,
     parquet_raw:fee::FLOAT as fee,

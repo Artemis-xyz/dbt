@@ -2,7 +2,9 @@
     config(
         materialized='table',
         snowflake_warehouse='PUMPFUN',
-        alias='fact_pump_feeaccounts',
+        database='PUMPFUN',
+        schema='raw',
+        alias='fact_pumpfun_feeaccounts',
     )
  }}
 
@@ -10,15 +12,14 @@
 WITH accounts_expanded AS (
   SELECT 
     decoded_instruction,
-    block_timestamp,
     f.value as account,
     f.index as account_index
   FROM 
-    {{ source('SOLANA_FLIPSIDE', 'fact_decoded_instructions') }},
+    SOLANA_FLIPSIDE.CORE.FACT_DECODED_INSTRUCTIONS,
     LATERAL FLATTEN(input => decoded_instruction:accounts) f
   WHERE 
     program_id = '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P'
-    AND event_type in ('sell', 'buy')
+    AND (event_type = 'sell' OR event_type = 'buy')
 )
 SELECT 
   account:pubkey::STRING AS fee_recipient,

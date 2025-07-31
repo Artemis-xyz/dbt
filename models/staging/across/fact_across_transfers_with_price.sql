@@ -27,8 +27,6 @@ with
             destination_token,
             origin_chain_id,
             destination_token_symbol,
-            input_token,
-            input_symbol,
             t2.chain as destination_chain, 
             t3.chain as source_chain, 
             null as destination_category
@@ -65,8 +63,6 @@ with
         destination_token_symbol,
         destination_chain, 
         source_chain, 
-        input_token as source_token,
-        input_symbol as source_token_symbol,
         case
             when contains(lower(destination_token_symbol), 'usd') then 'Stablecoin'
             when contains(lower(destination_token_symbol), 'eth') then 'Token'

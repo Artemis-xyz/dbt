@@ -50,9 +50,7 @@ column_definitions:
 
   circulating_supply_native: &circulating_supply_native
     name: circulating_supply_native
-    description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
-    tags:
-      - artemis_gaap
+    description: "The circulating supply of a token in native tokens"
 
   fdmc: &fdmc
     name: fdmc
@@ -72,12 +70,6 @@ column_definitions:
     name: high_sleep_users
     description: "The number of high sleep users on a chain"
 
-  issued_supply_native: &issued_supply_native
-    name: issued_supply_native
-    description: "The issued supply of a token, equal to the total supply minus foundation or DAO held tokens."
-    tags:
-      - artemis_gaap
-
   low_sleep_users: &low_sleep_users
     name: low_sleep_users
     description: "The number of low sleep users on a chain"
@@ -85,12 +77,6 @@ column_definitions:
   market_cap: &market_cap
     name: market_cap
     description: "The market cap of a token in USD"
-    tags:
-      - artemis_gaap
-
-  max_supply_native: &max_supply_native
-    name: max_supply_native
-    description: "The maximum supply of a token, including any uncreated tokens, unvested tokens, foundation or DAO held tokens, and burned tokens."
     tags:
       - artemis_gaap
 
@@ -134,12 +120,6 @@ column_definitions:
     name: sybil_users
     description: "The number of sybil users on a chain"
 
-  total_supply_native: &total_supply_native
-    name: total_supply_native
-    description: "The total supply of a token, equal to the sum of all tokens created minus the sum of all tokens destroyed."
-    tags:
-      - artemis_gaap
-
   tvl: &tvl
     name: tvl
     description: "The total value locked in a protocol"
@@ -169,10 +149,8 @@ models:
       - *fees
       - *gross_emissions_native
       - *high_sleep_users
-      - *issued_supply_native
       - *low_sleep_users
       - *market_cap
-      - *max_supply_native
       - *net_supply_change_native
       - *new_users
       - *non_sybil_users
@@ -182,7 +160,6 @@ models:
       - *revenue
       - *spot_fees
       - *sybil_users
-      - *total_supply_native
       - *tvl
       - *validator_fee_allocation
 

@@ -17,67 +17,50 @@
 
 {% set backfill_date = var("backfill_date", None) %}
 
-WITH 
-    date_spine AS (
-        SELECT date
-        FROM {{ ref("dim_date_spine") }}
-        WHERE date >= '2025-03-25'
-        AND date < to_date(sysdate())
-    )
+WITH market_data as ({{ get_coingecko_metrics("walrus-2") }})
 
-    -- Have to filter out parquet rows where tvl_net_change is not null because it caused duplicates
-    , clean_parquet AS (
-        SELECT
-            parquet_raw:date::date AS date
-            , MODE(parquet_raw:active_blobs::int) AS active_blobs
-            , MODE(parquet_raw:dau::int) AS dau
-            , MODE(parquet_raw:txns::int) AS txns
-            , MODE(parquet_raw:fees::float) AS fees
-            , MODE(parquet_raw:tvl::float) AS tvl
-        FROM {{source('PROD_LANDING', 'raw_sui_ez_walrus_metrics_parquet')}}
-        WHERE parquet_raw:tvl_net_change::float IS NULL
-        GROUP BY 1
-    )
-
-    , market_data AS ({{ get_coingecko_metrics("walrus-2") }})
+-- Have to filter out parquet rows where tvl_net_change is not null because it caused duplicates
+, clean_parquet AS (
+    SELECT
+        parquet_raw:date::date AS date
+        , MODE(parquet_raw:active_blobs::int) AS active_blobs
+        , MODE(parquet_raw:dau::int) AS dau
+        , MODE(parquet_raw:txns::int) AS txns
+        , MODE(parquet_raw:fees::float) AS fees
+        , MODE(parquet_raw:tvl::float) AS tvl
+    FROM {{source('PROD_LANDING', 'raw_sui_ez_walrus_metrics_parquet')}}
+    WHERE parquet_raw:tvl_net_change::float IS NULL
+    GROUP BY 1
+)
 
 SELECT DISTINCT
-    date_spine.date
-    , 'walrus' AS artemis_id
+    clean_parquet.date
+    , clean_parquet.active_blobs
+    , clean_parquet.dau
+    , clean_parquet.txns
 
     -- Standardized Metrics
+    , (COALESCE(clean_parquet.fees, 0) / 1e9) * COALESCE(market_data.price, 0) AS fees
 
-    -- Market Data
-    , market_data.price
-    , market_data.market_cap
-    , market_data.fdmc
-    , market_data.token_volume
+    -- Token Metrics
+    , COALESCE(market_data.price, 0) AS price
+    , COALESCE(market_data.market_cap, 0) AS market_cap
+    , COALESCE(market_data.fdmc, 0) AS fdmc
+    , COALESCE(market_data.token_volume, 0) AS token_volume
 
-    -- Usage Data
-    , clean_parquet.dau AS da_dau
-    , clean_parquet.dau
-    , clean_parquet.txns AS da_txns
-    , clean_parquet.txns
-    , clean_parquet.tvl AS total_staked_native
-    , clean_parquet.tvl * COALESCE(market_data.price, 0) AS total_staked
-
-    -- Fee Data
-    , clean_parquet.fees AS fees_native
-    , clean_parquet.fees * COALESCE(market_data.price, 0) AS fees
+    -- Chain Metrics
+    , (COALESCE(clean_parquet.tvl, 0) / 1e9) AS total_staked_native
+    , (COALESCE(clean_parquet.tvl, 0) / 1e9) * COALESCE(market_data.price, 0) AS total_staked
     
     --Turnover Metrics
-    , market_data.token_turnover_circulating
-    , market_data.token_turnover_fdv
-
-    -- Bespoke Metrics
-    , clean_parquet.active_blobs
+    , COALESCE(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
+    , COALESCE(market_data.token_turnover_fdv, 0) AS token_turnover_fdv
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
-FROM date_spine
-LEFT JOIN clean_parquet USING (date)
-LEFT JOIN market_data USING (date)
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+FROM clean_parquet
+LEFT JOIN market_data ON clean_parquet.date = market_data.date
 WHERE true
-{{ ez_metrics_incremental("date_spine.date", backfill_date) }}
-AND date_spine.date < to_date(sysdate())
+{{ ez_metrics_incremental('clean_parquet.date', backfill_date) }}
+and clean_parquet.date < to_date(sysdate())

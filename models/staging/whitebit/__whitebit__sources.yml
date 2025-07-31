@@ -1,6 +1,0 @@
-sources:
-  - name: MANUAL_STATIC_TABLES
-    schema: prod
-    database: pc_dbt_db
-    tables:
-      - name: whitebit_supply_data

@@ -23,7 +23,6 @@ with
             destination_chain,
             coalesce(c.category, 'Not Categorized') as category,
             coalesce((amount / power(10, p.decimals)) * price, 0) as amount_usd,
-            p.symbol,
             coalesce((fee / power(10, p.decimals)) * price, 0) as fee_usd
         from {{ ref("fact_avalanche_bridge_transfers") }} t
         left join
@@ -39,8 +38,7 @@ select
     source_chain,
     destination_chain,
     category,
-    symbol,
     sum(amount_usd) as amount_usd,
     sum(fee_usd) as fee_usd
 from hourly_volume
-group by 1, 2, 3, 4, 5, 6
+group by 1, 2, 3, 4, 5

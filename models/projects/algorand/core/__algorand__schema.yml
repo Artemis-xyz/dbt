@@ -56,18 +56,6 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  token_turnover_circulating: &token_turnover_circulating
-    name: token_turnover_circulating
-    description: "The turnover of a token in USD, based on the token's circulating supply."
-    tags:
-      - artemis_gaap
-
-  token_turnover_fdv: &token_turnover_fdv
-    name: token_turnover_fdv
-    description: "The turnover of a token in USD, based on the token's fully diluted supply."
-    tags:
-      - artemis_gaap
-
   token_volume: &token_volume
     name: token_volume
     description: "The volume of a token in USD"
@@ -109,7 +97,5 @@ models:
       - *market_cap
       - *price
       - *revenue
-      - *token_turnover_circulating
-      - *token_turnover_fdv
       - *token_volume
       - *validator_fee_allocation

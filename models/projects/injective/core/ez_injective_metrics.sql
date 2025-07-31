@@ -47,15 +47,6 @@ with fundamental_data as (
         outflows
     from {{ ref("fact_injective_unlocks") }}
 )
-, issued_supply_metrics as (
-    select 
-        date,
-        0 as max_supply_native,
-        total_supply as total_supply_native,
-        issued_supply as issued_supply_native,
-        circulating_supply as circulating_supply_native
-    from {{ ref('fact_injective_issued_supply_and_float') }}
-)
 , defillama_metrics as (
     with dfl as (
         {{ get_defillama_metrics("injective") }}
@@ -125,10 +116,7 @@ select
     , coalesce(unlocks.outflows, 0) as premine_unlocks_native
     , coalesce(revenue.revenue_native, 0) as burns_native
     , coalesce(mints.mints, 0) + coalesce(unlocks.outflows, 0) - coalesce(revenue.revenue_native, 0) as net_supply_change_native
-    , issued_supply_metrics.max_supply_native
-    , issued_supply_metrics.total_supply_native
-    , issued_supply_metrics.issued_supply_native
-    , issued_supply_metrics.circulating_supply_native
+    , sum(coalesce(mints.mints, 0) + coalesce(unlocks.outflows, 0) - coalesce(revenue.revenue_native, 0)) over (order by date_spine.date) as circulating_supply_native
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
@@ -139,7 +127,6 @@ left join defillama_metrics using (date)
 left join revenue using (date)
 left join mints using (date)
 left join unlocks using (date)
-left join issued_supply_metrics using (date)
 where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())
