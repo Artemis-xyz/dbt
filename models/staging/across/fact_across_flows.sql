@@ -11,9 +11,10 @@ select
     source_chain,
     destination_chain,
     coalesce(destination_category, 'Not Categorized') as category,
+    coalesce(source_token_symbol, destination_token_symbol) as symbol,
     sum(amount_usd) as amount_usd,
     null as fee_usd
 from
     {{ ref("fact_across_transfers_with_price") }}
 WHERE amount_usd < 100000000 and amount_usd is not null
-group by date, source_chain, destination_chain, category
+group by date, source_chain, destination_chain, category, symbol

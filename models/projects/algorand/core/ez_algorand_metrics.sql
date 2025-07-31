@@ -18,16 +18,13 @@
 {% set backfill_date = var("backfill_date", None) %}
 
 WITH
-    -- Alternative fundamental source from BigQuery, preferred when possible over Snowflake data
-    fundamental_data AS (
-        SELECT * EXCLUDE date, TO_TIMESTAMP_NTZ(date) AS date 
-        FROM {{ source('PROD_LANDING', 'ez_algorand_metrics') }}
-    )
-    , date_spine AS (
+    date_spine AS (
         SELECT date
         FROM {{ ref('dim_date_spine') }}
         WHERE date >= '2019-06-01' AND date < TO_DATE(SYSDATE())
     )
+    -- Alternative fundamental source from BigQuery, preferred when possible over Snowflake data
+    , fundamental_data AS (SELECT * FROM {{ ref('fact_algorand_fundamental_data') }})
     , cumulative_burns AS (
         WITH revenue AS (
             SELECT
