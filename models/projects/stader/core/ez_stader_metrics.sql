@@ -45,14 +45,7 @@ with
     )
 select
     date_spine.date,
-    'stader' as app,
-    'DeFi' as category,
-
-    --Old metrics needed for compatibility
-    staked_eth_metrics.num_staked_eth,
-    staked_eth_metrics.amount_staked_usd,
-    staked_eth_metrics.num_staked_eth_net_change,
-    staked_eth_metrics.amount_staked_usd_net_change
+    'stader' as artemis_id,
 
     --Market Metrics
     , market_metrics.price as price

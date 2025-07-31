@@ -26,12 +26,6 @@ select
     'DeFi' as category,
     staked_eth_metrics.chain,
 
-    --Old metrics needed for compatibility
-    staked_eth_metrics.num_staked_eth,
-    staked_eth_metrics.amount_staked_usd,
-    staked_eth_metrics.num_staked_eth_net_change,
-    staked_eth_metrics.amount_staked_usd_net_change,
-
     --Standardized Metrics
     staked_eth_metrics.num_staked_eth as tvl_native
     , staked_eth_metrics.amount_staked_usd as tvl

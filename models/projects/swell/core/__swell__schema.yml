@@ -77,8 +77,6 @@ models:
       - *token_volume
       - *tvl
       - *tvl_native
-      - *tvl_native_net_change
-      - *tvl_net_change
 
     tests:
       - not_null:
