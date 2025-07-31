@@ -30,29 +30,35 @@ with
         }}
     )
 select
-    tvl_by_pool.date,
-    'trader_joe' as app,
-    'DeFi' as category,
-    tvl_by_pool.chain,
-    tvl_by_pool.version,
-    tvl_by_pool.pool,
-    tvl_by_pool.token_0,
-    tvl_by_pool.token_0_symbol,
-    tvl_by_pool.token_1,
-    tvl_by_pool.token_1_symbol,
-    trading_volume_pool.trading_volume,
-    trading_volume_pool.trading_fees,
-    trading_volume_pool.unique_traders,
-    trading_volume_pool.gas_cost_usd
+    tvl_by_pool.date
+    , 'trader_joe' as artemis_id
+    , tvl_by_pool.chain
+    , tvl_by_pool.version
+    , tvl_by_pool.pool
+    , tvl_by_pool.token_0
+    , tvl_by_pool.token_0_symbol
+    , tvl_by_pool.token_1
+    , tvl_by_pool.token_1_symbol
+    , trading_volume_pool.trading_volume
+    , trading_volume_pool.trading_fees
+    , trading_volume_pool.unique_traders
+    , trading_volume_pool.gas_cost_usd
 
     -- Standardized Metrics
+
+    -- Usage Data
     , trading_volume_pool.unique_traders as spot_dau
-    , trading_volume_pool.trading_fees as spot_fees
+    , trading_volume_pool.unique_traders as dau
     , trading_volume_pool.trading_volume as spot_volume
-    , tvl_by_pool.tvl as tvl
+
+    -- Fee Data
+    , trading_volume_pool.trading_fees as spot_fees
     , trading_volume_pool.trading_fees as fees
+    , tvl_by_pool.tvl as tvl
+
+    -- Bespoke Metrics
     , trading_volume_pool.gas_cost_native
-    , trading_volume_pool.gas_cost_usd as gas_cost
+    , trading_volume_pool.gas_cost_usd
 
 from tvl_by_pool
 left join trading_volume_pool using(date, chain, version, pool)
