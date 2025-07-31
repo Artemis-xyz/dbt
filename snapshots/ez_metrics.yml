@@ -1,0 +1,2841 @@
+snapshots:
+  - name: ez_ethereum_metrics_snapshot
+    relation: ref('ez_ethereum_metrics')
+    config:
+      schema: snapshot
+      database: ethereum
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_base_metrics_snapshot
+    relation: ref('ez_base_metrics')
+    config:
+      schema: snapshot
+      database: base
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_arbitrum_metrics_snapshot
+    relation: ref('ez_arbitrum_metrics')
+    config:
+      schema: snapshot
+      database: arbitrum
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_optimism_metrics_snapshot
+    relation: ref('ez_optimism_metrics')
+    config:
+      schema: snapshot
+      database: optimism
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_polygon_metrics_snapshot
+    relation: ref('ez_polygon_metrics')
+    config:
+      schema: snapshot
+      database: polygon
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_solana_metrics_snapshot
+    relation: ref('ez_solana_metrics')
+    config:
+      schema: snapshot
+      database: solana
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_bsc_metrics_snapshot
+    relation: ref('ez_bsc_metrics')
+    config:
+      schema: snapshot
+      database: bsc
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_avalanche_metrics_snapshot
+    relation: ref('ez_avalanche_metrics')
+    config:
+      schema: snapshot
+      database: avalanche
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usdc_metrics_snapshot
+    relation: ref('ez_usdc_metrics')
+    config:
+      schema: snapshot
+      database: usdc
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usdt_metrics_snapshot
+    relation: ref('ez_usdt_metrics')
+    config:
+      schema: snapshot
+      database: usdt
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_aave_metrics_snapshot
+    relation: ref('ez_aave_metrics')
+    config:
+      schema: snapshot
+      database: aave
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_abstract_metrics_snapshot
+    relation: ref('ez_abstract_metrics')
+    config:
+      schema: snapshot
+      database: abstract
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_acala_metrics_snapshot
+    relation: ref('ez_acala_metrics')
+    config:
+      schema: snapshot
+      database: acala
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_across_metrics_snapshot
+    relation: ref('ez_across_metrics')
+    config:
+      schema: snapshot
+      database: across
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_aerodrome_metrics_snapshot
+    relation: ref('ez_aerodrome_metrics')
+    config:
+      schema: snapshot
+      database: aerodrome
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_aeur_metrics_snapshot
+    relation: ref('ez_aeur_metrics')
+    config:
+      schema: snapshot
+      database: aeur
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_aevo_metrics_snapshot
+    relation: ref('ez_aevo_metrics')
+    config:
+      schema: snapshot
+      database: aevo
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_akash_metrics_snapshot
+    relation: ref('ez_akash_metrics')
+    config:
+      schema: snapshot
+      database: akash
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_alex_metrics_snapshot
+    relation: ref('ez_alex_metrics')
+    config:
+      schema: snapshot
+      database: alex
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_algorand_metrics_snapshot
+    relation: ref('ez_algorand_metrics')
+    config:
+      schema: snapshot
+      database: algorand
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_alphafi_metrics_snapshot
+    relation: ref('ez_alphafi_metrics')
+    config:
+      schema: snapshot
+      database: alphafi
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_angle_usd_metrics_snapshot
+    relation: ref('ez_angle_usd_metrics')
+    config:
+      schema: snapshot
+      database: angle_usd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_apex_metrics_snapshot
+    relation: ref('ez_apex_metrics')
+    config:
+      schema: snapshot
+      database: apex
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_aptos_metrics_snapshot
+    relation: ref('ez_aptos_metrics')
+    config:
+      schema: snapshot
+      database: aptos
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_astar_metrics_snapshot
+    relation: ref('ez_astar_metrics')
+    config:
+      schema: snapshot
+      database: astar
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_ausd_metrics_snapshot
+    relation: ref('ez_ausd_metrics')
+    config:
+      schema: snapshot
+      database: ausd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_avantis_metrics_snapshot
+    relation: ref('ez_avantis_metrics')
+    config:
+      schema: snapshot
+      database: avantis
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_axelar_metrics_snapshot
+    relation: ref('ez_axelar_metrics')
+    config:
+      schema: snapshot
+      database: axelar
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_babylon_metrics_snapshot
+    relation: ref('ez_babylon_metrics')
+    config:
+      schema: snapshot
+      database: babylon
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_balancer_metrics_snapshot
+    relation: ref('ez_balancer_metrics')
+    config:
+      schema: snapshot
+      database: balancer
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_bananagun_metrics_snapshot
+    relation: ref('ez_bananagun_metrics')
+    config:
+      schema: snapshot
+      database: bananagun
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_beam_metrics_snapshot
+    relation: ref('ez_beam_metrics')
+    config:
+      schema: snapshot
+      database: beam
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_bedrock_metrics_snapshot
+    relation: ref('ez_bedrock_metrics')
+    config:
+      schema: snapshot
+      database: bedrock
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_believe_metrics_snapshot
+    relation: ref('ez_believe_metrics')
+    config:
+      schema: snapshot
+      database: believe
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_benqi_metrics_snapshot
+    relation: ref('ez_benqi_metrics')
+    config:
+      schema: snapshot
+      database: benqi
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_berachain_metrics_snapshot
+    relation: ref('ez_berachain_metrics')
+    config:
+      schema: snapshot
+      database: berachain
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_bifrost_metrics_snapshot
+    relation: ref('ez_bifrost_metrics')
+    config:
+      schema: snapshot
+      database: bifrost
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_bitcoin_metrics_snapshot
+    relation: ref('ez_bitcoin_metrics')
+    config:
+      schema: snapshot
+      database: bitcoin
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_bitflow_metrics_snapshot
+    relation: ref('ez_bitflow_metrics')
+    config:
+      schema: snapshot
+      database: bitflow
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_bitget_metrics_snapshot
+    relation: ref('ez_bitget_metrics')
+    config:
+      schema: snapshot
+      database: bitget
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_blackrock_metrics_snapshot
+    relation: ref('ez_blackrock_metrics')
+    config:
+      schema: snapshot
+      database: blackrock
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_blast_metrics_snapshot
+    relation: ref('ez_blast_metrics')
+    config:
+      schema: snapshot
+      database: blast
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_bluefin_metrics_snapshot
+    relation: ref('ez_bluefin_metrics')
+    config:
+      schema: snapshot
+      database: bluefin
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_blur_metrics_snapshot
+    relation: ref('ez_blur_metrics')
+    config:
+      schema: snapshot
+      database: blur
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_bob_metrics_snapshot
+    relation: ref('ez_bob_metrics')
+    config:
+      schema: snapshot
+      database: bob
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_boba_metrics_snapshot
+    relation: ref('ez_boba_metrics')
+    config:
+      schema: snapshot
+      database: boba
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_bold_metrics_snapshot
+    relation: ref('ez_bold_metrics')
+    config:
+      schema: snapshot
+      database: bold
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_brla_metrics_snapshot
+    relation: ref('ez_brla_metrics')
+    config:
+      schema: snapshot
+      database: brla
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_bucket_metrics_snapshot
+    relation: ref('ez_bucket_metrics')
+    config:
+      schema: snapshot
+      database: bucket
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_buidl_metrics_snapshot
+    relation: ref('ez_buidl_metrics')
+    config:
+      schema: snapshot
+      database: buidl
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_busd_metrics_snapshot
+    relation: ref('ez_busd_metrics')
+    config:
+      schema: snapshot
+      database: busd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_cardano_metrics_snapshot
+    relation: ref('ez_cardano_metrics')
+    config:
+      schema: snapshot
+      database: cardano
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_cctp_metrics_snapshot
+    relation: ref('ez_cctp_metrics')
+    config:
+      schema: snapshot
+      database: cctp
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_celestia_metrics_snapshot
+    relation: ref('ez_celestia_metrics')
+    config:
+      schema: snapshot
+      database: celestia
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_cellana_metrics_snapshot
+    relation: ref('ez_cellana_metrics')
+    config:
+      schema: snapshot
+      database: cellana
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_celo_metrics_snapshot
+    relation: ref('ez_celo_metrics')
+    config:
+      schema: snapshot
+      database: celo
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_centrifuge_metrics_snapshot
+    relation: ref('ez_centrifuge_metrics')
+    config:
+      schema: snapshot
+      database: centrifuge
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_cetus_metrics_snapshot
+    relation: ref('ez_cetus_metrics')
+    config:
+      schema: snapshot
+      database: cetus
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_ceur_metrics_snapshot
+    relation: ref('ez_ceur_metrics')
+    config:
+      schema: snapshot
+      database: ceur
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_cgusd_metrics_snapshot
+    relation: ref('ez_cgusd_metrics')
+    config:
+      schema: snapshot
+      database: cgusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_chainlink_metrics_snapshot
+    relation: ref('ez_chainlink_metrics')
+    config:
+      schema: snapshot
+      database: chainlink
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_chiliz_metrics_snapshot
+    relation: ref('ez_chiliz_metrics')
+    config:
+      schema: snapshot
+      database: chiliz
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_ckes_metrics_snapshot
+    relation: ref('ez_ckes_metrics')
+    config:
+      schema: snapshot
+      database: ckes
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_coinbase_metrics_snapshot
+    relation: ref('ez_coinbase_metrics')
+    config:
+      schema: snapshot
+      database: coinbase
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_coindesk20_metrics_snapshot
+    relation: ref('ez_coindesk20_metrics')
+    config:
+      schema: snapshot
+      database: coindesk20
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_compound_metrics_snapshot
+    relation: ref('ez_compound_metrics')
+    config:
+      schema: snapshot
+      database: compound
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_convex_metrics_snapshot
+    relation: ref('ez_convex_metrics')
+    config:
+      schema: snapshot
+      database: convex
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_corn_metrics_snapshot
+    relation: ref('ez_corn_metrics')
+    config:
+      schema: snapshot
+      database: corn
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_cosmoshub_metrics_snapshot
+    relation: ref('ez_cosmoshub_metrics')
+    config:
+      schema: snapshot
+      database: cosmoshub
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_creal_metrics_snapshot
+    relation: ref('ez_creal_metrics')
+    config:
+      schema: snapshot
+      database: creal
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_crvusd_metrics_snapshot
+    relation: ref('ez_crvusd_metrics')
+    config:
+      schema: snapshot
+      database: crvusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_curve_metrics_snapshot
+    relation: ref('ez_curve_metrics')
+    config:
+      schema: snapshot
+      database: curve
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_cusd_metrics_snapshot
+    relation: ref('ez_cusd_metrics')
+    config:
+      schema: snapshot
+      database: cusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_cypher_metrics_snapshot
+    relation: ref('ez_cypher_metrics')
+    config:
+      schema: snapshot
+      database: cypher
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_dai_metrics_snapshot
+    relation: ref('ez_dai_metrics')
+    config:
+      schema: snapshot
+      database: dai
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_debridge_metrics_snapshot
+    relation: ref('ez_debridge_metrics')
+    config:
+      schema: snapshot
+      database: debridge
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_deepbook_metrics_snapshot
+    relation: ref('ez_deepbook_metrics')
+    config:
+      schema: snapshot
+      database: deepbook
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_deusd_metrics_snapshot
+    relation: ref('ez_deusd_metrics')
+    config:
+      schema: snapshot
+      database: deusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_dexalot_metrics_snapshot
+    relation: ref('ez_dexalot_metrics')
+    config:
+      schema: snapshot
+      database: dexalot
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_dfk_metrics_snapshot
+    relation: ref('ez_dfk_metrics')
+    config:
+      schema: snapshot
+      database: dfk
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_dimo_metrics_snapshot
+    relation: ref('ez_dimo_metrics')
+    config:
+      schema: snapshot
+      database: dimo
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_dodo_metrics_snapshot
+    relation: ref('ez_dodo_metrics')
+    config:
+      schema: snapshot
+      database: dodo
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_dola_metrics_snapshot
+    relation: ref('ez_dola_metrics')
+    config:
+      schema: snapshot
+      database: dola
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_drift_metrics_snapshot
+    relation: ref('ez_drift_metrics')
+    config:
+      schema: snapshot
+      database: drift
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_dydx_metrics_snapshot
+    relation: ref('ez_dydx_metrics')
+    config:
+      schema: snapshot
+      database: dydx
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_dydx_v4_metrics_snapshot
+    relation: ref('ez_dydx_v4_metrics')
+    config:
+      schema: snapshot
+      database: dydx_v4
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_econia_metrics_snapshot
+    relation: ref('ez_econia_metrics')
+    config:
+      schema: snapshot
+      database: econia
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_eigenlayer_metrics_snapshot
+    relation: ref('ez_eigenlayer_metrics')
+    config:
+      schema: snapshot
+      database: eigenlayer
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_eigenpie_metrics_snapshot
+    relation: ref('ez_eigenpie_metrics')
+    config:
+      schema: snapshot
+      database: eigenpie
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_enzyme_metrics_snapshot
+    relation: ref('ez_enzyme_metrics')
+    config:
+      schema: snapshot
+      database: enzyme
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_ethena_metrics_snapshot
+    relation: ref('ez_ethena_metrics')
+    config:
+      schema: snapshot
+      database: ethena
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_etherfi_metrics_snapshot
+    relation: ref('ez_etherfi_metrics')
+    config:
+      schema: snapshot
+      database: etherfi
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_euler_metrics_snapshot
+    relation: ref('ez_euler_metrics')
+    config:
+      schema: snapshot
+      database: euler
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_eura_metrics_snapshot
+    relation: ref('ez_eura_metrics')
+    config:
+      schema: snapshot
+      database: eura
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_eurc_metrics_snapshot
+    relation: ref('ez_eurc_metrics')
+    config:
+      schema: snapshot
+      database: eurc
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_eurs_metrics_snapshot
+    relation: ref('ez_eurs_metrics')
+    config:
+      schema: snapshot
+      database: eurs
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_eurt_metrics_snapshot
+    relation: ref('ez_eurt_metrics')
+    config:
+      schema: snapshot
+      database: eurt
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_exactly_metrics_snapshot
+    relation: ref('ez_exactly_metrics')
+    config:
+      schema: snapshot
+      database: exactly
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_fantom_metrics_snapshot
+    relation: ref('ez_fantom_metrics')
+    config:
+      schema: snapshot
+      database: fantom
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_fdusd_metrics_snapshot
+    relation: ref('ez_fdusd_metrics')
+    config:
+      schema: snapshot
+      database: fdusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_fedwire_metrics_snapshot
+    relation: ref('ez_fedwire_metrics')
+    config:
+      schema: snapshot
+      database: fedwire
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_flare_metrics_snapshot
+    relation: ref('ez_flare_metrics')
+    config:
+      schema: snapshot
+      database: flare
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_flexusd_metrics_snapshot
+    relation: ref('ez_flexusd_metrics')
+    config:
+      schema: snapshot
+      database: flexusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_flow_metrics_snapshot
+    relation: ref('ez_flow_metrics')
+    config:
+      schema: snapshot
+      database: flow
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_franklin_templeton_metrics_snapshot
+    relation: ref('ez_franklin_templeton_metrics')
+    config:
+      schema: snapshot
+      database: franklin_templeton
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_frax_metrics_snapshot
+    relation: ref('ez_frax_metrics')
+    config:
+      schema: snapshot
+      database: frax
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_frax_usd_metrics_snapshot
+    relation: ref('ez_frax_usd_metrics')
+    config:
+      schema: snapshot
+      database: frax_usd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_frequency_metrics_snapshot
+    relation: ref('ez_frequency_metrics')
+    config:
+      schema: snapshot
+      database: frequency
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_frxusd_metrics_snapshot
+    relation: ref('ez_frxusd_metrics')
+    config:
+      schema: snapshot
+      database: frxusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_fuse_metrics_snapshot
+    relation: ref('ez_fuse_metrics')
+    config:
+      schema: snapshot
+      database: fuse
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_fxusd_metrics_snapshot
+    relation: ref('ez_fxusd_metrics')
+    config:
+      schema: snapshot
+      database: fxusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_gains_network_metrics_snapshot
+    relation: ref('ez_gains_network_metrics')
+    config:
+      schema: snapshot
+      database: gains_network
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_geodnet_metrics_snapshot
+    relation: ref('ez_geodnet_metrics')
+    config:
+      schema: snapshot
+      database: geodnet
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_gho_metrics_snapshot
+    relation: ref('ez_gho_metrics')
+    config:
+      schema: snapshot
+      database: gho
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_glow_metrics_snapshot
+    relation: ref('ez_glow_metrics')
+    config:
+      schema: snapshot
+      database: glow
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_gmx_metrics_snapshot
+    relation: ref('ez_gmx_metrics')
+    config:
+      schema: snapshot
+      database: gmx
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_gnosis_metrics_snapshot
+    relation: ref('ez_gnosis_metrics')
+    config:
+      schema: snapshot
+      database: gnosis
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_gnosispay_metrics_snapshot
+    relation: ref('ez_gnosispay_metrics')
+    config:
+      schema: snapshot
+      database: gnosispay
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_goldfinch_metrics_snapshot
+    relation: ref('ez_goldfinch_metrics')
+    config:
+      schema: snapshot
+      database: goldfinch
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_grass_metrics_snapshot
+    relation: ref('ez_grass_metrics')
+    config:
+      schema: snapshot
+      database: grass
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_gusd_metrics_snapshot
+    relation: ref('ez_gusd_metrics')
+    config:
+      schema: snapshot
+      database: gusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_haedal_metrics_snapshot
+    relation: ref('ez_haedal_metrics')
+    config:
+      schema: snapshot
+      database: haedal
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_hashnote_metrics_snapshot
+    relation: ref('ez_hashnote_metrics')
+    config:
+      schema: snapshot
+      database: hashnote
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_hedera_metrics_snapshot
+    relation: ref('ez_hedera_metrics')
+    config:
+      schema: snapshot
+      database: hedera
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_helium_metrics_snapshot
+    relation: ref('ez_helium_metrics')
+    config:
+      schema: snapshot
+      database: helium
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_hivemapper_metrics_snapshot
+    relation: ref('ez_hivemapper_metrics')
+    config:
+      schema: snapshot
+      database: hivemapper
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_holdstation_metrics_snapshot
+    relation: ref('ez_holdstation_metrics')
+    config:
+      schema: snapshot
+      database: holdstation
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_holyheld_metrics_snapshot
+    relation: ref('ez_holyheld_metrics')
+    config:
+      schema: snapshot
+      database: holyheld
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_hydration_metrics_snapshot
+    relation: ref('ez_hydration_metrics')
+    config:
+      schema: snapshot
+      database: hydration
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_hyperliquid_metrics_snapshot
+    relation: ref('ez_hyperliquid_metrics')
+    config:
+      schema: snapshot
+      database: hyperliquid
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_idrt_metrics_snapshot
+    relation: ref('ez_idrt_metrics')
+    config:
+      schema: snapshot
+      database: idrt
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_idrx_metrics_snapshot
+    relation: ref('ez_idrx_metrics')
+    config:
+      schema: snapshot
+      database: idrx
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_immutable_x_metrics_snapshot
+    relation: ref('ez_immutable_x_metrics')
+    config:
+      schema: snapshot
+      database: immutable_x
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_injective_metrics_snapshot
+    relation: ref('ez_injective_metrics')
+    config:
+      schema: snapshot
+      database: injective
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_ink_metrics_snapshot
+    relation: ref('ez_ink_metrics')
+    config:
+      schema: snapshot
+      database: ink
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_internet_computer_metrics_snapshot
+    relation: ref('ez_internet_computer_metrics')
+    config:
+      schema: snapshot
+      database: internet_computer
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_iotex_metrics_snapshot
+    relation: ref('ez_iotex_metrics')
+    config:
+      schema: snapshot
+      database: iotex
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_jito_metrics_snapshot
+    relation: ref('ez_jito_metrics')
+    config:
+      schema: snapshot
+      database: jito
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_jupiter_metrics_snapshot
+    relation: ref('ez_jupiter_metrics')
+    config:
+      schema: snapshot
+      database: jupiter
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_kai_metrics_snapshot
+    relation: ref('ez_kai_metrics')
+    config:
+      schema: snapshot
+      database: kai
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_kaia_metrics_snapshot
+    relation: ref('ez_kaia_metrics')
+    config:
+      schema: snapshot
+      database: kaia
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_kaiching_metrics_snapshot
+    relation: ref('ez_kaiching_metrics')
+    config:
+      schema: snapshot
+      database: kaiching
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_kamino_metrics_snapshot
+    relation: ref('ez_kamino_metrics')
+    config:
+      schema: snapshot
+      database: kamino
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_kelp_dao_metrics_snapshot
+    relation: ref('ez_kelp_dao_metrics')
+    config:
+      schema: snapshot
+      database: kelp_dao
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_ktx_finance_metrics_snapshot
+    relation: ref('ez_ktx_finance_metrics')
+    config:
+      schema: snapshot
+      database: ktx_finance
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_layerzero_metrics_snapshot
+    relation: ref('ez_layerzero_metrics')
+    config:
+      schema: snapshot
+      database: layerzero
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_leo_metrics_snapshot
+    relation: ref('ez_leo_metrics')
+    config:
+      schema: snapshot
+      database: leo
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_level_finance_metrics_snapshot
+    relation: ref('ez_level_finance_metrics')
+    config:
+      schema: snapshot
+      database: level_finance
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_lido_metrics_snapshot
+    relation: ref('ez_lido_metrics')
+    config:
+      schema: snapshot
+      database: lido
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_lifinity_metrics_snapshot
+    relation: ref('ez_lifinity_metrics')
+    config:
+      schema: snapshot
+      database: lifinity
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_linea_metrics_snapshot
+    relation: ref('ez_linea_metrics')
+    config:
+      schema: snapshot
+      database: linea
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_liquidswap_metrics_snapshot
+    relation: ref('ez_liquidswap_metrics')
+    config:
+      schema: snapshot
+      database: liquidswap
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_liquity_metrics_snapshot
+    relation: ref('ez_liquity_metrics')
+    config:
+      schema: snapshot
+      database: liquity
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_lisusd_metrics_snapshot
+    relation: ref('ez_lisusd_metrics')
+    config:
+      schema: snapshot
+      database: lisusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_litecoin_metrics_snapshot
+    relation: ref('ez_litecoin_metrics')
+    config:
+      schema: snapshot
+      database: litecoin
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_livepeer_metrics_snapshot
+    relation: ref('ez_livepeer_metrics')
+    config:
+      schema: snapshot
+      database: livepeer
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_lusd_metrics_snapshot
+    relation: ref('ez_lusd_metrics')
+    config:
+      schema: snapshot
+      database: lusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_lvlusd_metrics_snapshot
+    relation: ref('ez_lvlusd_metrics')
+    config:
+      schema: snapshot
+      database: lvlusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_magiceden_metrics_snapshot
+    relation: ref('ez_magiceden_metrics')
+    config:
+      schema: snapshot
+      database: magiceden
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_maker_metrics_snapshot
+    relation: ref('ez_maker_metrics')
+    config:
+      schema: snapshot
+      database: maker
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_manta_metrics_snapshot
+    relation: ref('ez_manta_metrics')
+    config:
+      schema: snapshot
+      database: manta
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_mantle_metrics_snapshot
+    relation: ref('ez_mantle_metrics')
+    config:
+      schema: snapshot
+      database: mantle
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_maple_metrics_snapshot
+    relation: ref('ez_maple_metrics')
+    config:
+      schema: snapshot
+      database: maple
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_marinade_metrics_snapshot
+    relation: ref('ez_marinade_metrics')
+    config:
+      schema: snapshot
+      database: marinade
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_metaplex_metrics_snapshot
+    relation: ref('ez_metaplex_metrics')
+    config:
+      schema: snapshot
+      database: metaplex
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_meteora_metrics_snapshot
+    relation: ref('ez_meteora_metrics')
+    config:
+      schema: snapshot
+      database: meteora
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_metis_metrics_snapshot
+    relation: ref('ez_metis_metrics')
+    config:
+      schema: snapshot
+      database: metis
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_mim_metrics_snapshot
+    relation: ref('ez_mim_metrics')
+    config:
+      schema: snapshot
+      database: mim
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_momentum_metrics_snapshot
+    relation: ref('ez_momentum_metrics')
+    config:
+      schema: snapshot
+      database: momentum
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_moonbeam_metrics_snapshot
+    relation: ref('ez_moonbeam_metrics')
+    config:
+      schema: snapshot
+      database: moonbeam
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_moonwell_metrics_snapshot
+    relation: ref('ez_moonwell_metrics')
+    config:
+      schema: snapshot
+      database: moonwell
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_morpho_metrics_snapshot
+    relation: ref('ez_morpho_metrics')
+    config:
+      schema: snapshot
+      database: morpho
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_movement_metrics_snapshot
+    relation: ref('ez_movement_metrics')
+    config:
+      schema: snapshot
+      database: movement
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_multiversx_metrics_snapshot
+    relation: ref('ez_multiversx_metrics')
+    config:
+      schema: snapshot
+      database: multiversx
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_mux_metrics_snapshot
+    relation: ref('ez_mux_metrics')
+    config:
+      schema: snapshot
+      database: mux
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_mythos_metrics_snapshot
+    relation: ref('ez_mythos_metrics')
+    config:
+      schema: snapshot
+      database: mythos
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_navi_metrics_snapshot
+    relation: ref('ez_navi_metrics')
+    config:
+      schema: snapshot
+      database: navi
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_near_metrics_snapshot
+    relation: ref('ez_near_metrics')
+    config:
+      schema: snapshot
+      database: near
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_neuroweb_metrics_snapshot
+    relation: ref('ez_neuroweb_metrics')
+    config:
+      schema: snapshot
+      database: neuroweb
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_nova_metrics_snapshot
+    relation: ref('ez_nova_metrics')
+    config:
+      schema: snapshot
+      database: nova
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_ondo_metrics_snapshot
+    relation: ref('ez_ondo_metrics')
+    config:
+      schema: snapshot
+      database: ondo
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_openeden_metrics_snapshot
+    relation: ref('ez_openeden_metrics')
+    config:
+      schema: snapshot
+      database: openeden
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_orca_metrics_snapshot
+    relation: ref('ez_orca_metrics')
+    config:
+      schema: snapshot
+      database: orca
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_osmosis_metrics_snapshot
+    relation: ref('ez_osmosis_metrics')
+    config:
+      schema: snapshot
+      database: osmosis
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_ostium_metrics_snapshot
+    relation: ref('ez_ostium_metrics')
+    config:
+      schema: snapshot
+      database: ostium
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_outerlands_metrics_snapshot
+    relation: ref('ez_outerlands_metrics')
+    config:
+      schema: snapshot
+      database: outerlands
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_pancakeswap_metrics_snapshot
+    relation: ref('ez_pancakeswap_metrics')
+    config:
+      schema: snapshot
+      database: pancakeswap
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_paxos_metrics_snapshot
+    relation: ref('ez_paxos_metrics')
+    config:
+      schema: snapshot
+      database: paxos
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_paypal_metrics_snapshot
+    relation: ref('ez_paypal_metrics')
+    config:
+      schema: snapshot
+      database: paypal
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_pendle_metrics_snapshot
+    relation: ref('ez_pendle_metrics')
+    config:
+      schema: snapshot
+      database: pendle
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_perpetual_protocol_metrics_snapshot
+    relation: ref('ez_perpetual_protocol_metrics')
+    config:
+      schema: snapshot
+      database: perpetual_protocol
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_pharaoh_metrics_snapshot
+    relation: ref('ez_pharaoh_metrics')
+    config:
+      schema: snapshot
+      database: pharaoh
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_plume_metrics_snapshot
+    relation: ref('ez_plume_metrics')
+    config:
+      schema: snapshot
+      database: plume
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_polkadot_metrics_snapshot
+    relation: ref('ez_polkadot_metrics')
+    config:
+      schema: snapshot
+      database: polkadot
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_polymarket_metrics_snapshot
+    relation: ref('ez_polymarket_metrics')
+    config:
+      schema: snapshot
+      database: polymarket
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_puffer_finance_metrics_snapshot
+    relation: ref('ez_puffer_finance_metrics')
+    config:
+      schema: snapshot
+      database: puffer_finance
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_pumpfun_metrics_snapshot
+    relation: ref('ez_pumpfun_metrics')
+    config:
+      schema: snapshot
+      database: pumpfun
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_pyth_metrics_snapshot
+    relation: ref('ez_pyth_metrics')
+    config:
+      schema: snapshot
+      database: pyth
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_pyusd_metrics_snapshot
+    relation: ref('ez_pyusd_metrics')
+    config:
+      schema: snapshot
+      database: pyusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_quickswap_metrics_snapshot
+    relation: ref('ez_quickswap_metrics')
+    config:
+      schema: snapshot
+      database: quickswap
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_rabbit_x_metrics_snapshot
+    relation: ref('ez_rabbit_x_metrics')
+    config:
+      schema: snapshot
+      database: rabbit_x
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_radiant_metrics_snapshot
+    relation: ref('ez_radiant_metrics')
+    config:
+      schema: snapshot
+      database: radiant
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_rainbow_bridge_metrics_snapshot
+    relation: ref('ez_rainbow_bridge_metrics')
+    config:
+      schema: snapshot
+      database: rainbow_bridge
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_raydium_metrics_snapshot
+    relation: ref('ez_raydium_metrics')
+    config:
+      schema: snapshot
+      database: raydium
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_ref_finance_metrics_snapshot
+    relation: ref('ez_ref_finance_metrics')
+    config:
+      schema: snapshot
+      database: ref_finance
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_remittance_metrics_snapshot
+    relation: ref('ez_remittance_metrics')
+    config:
+      schema: snapshot
+      database: remittance
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_render_metrics_snapshot
+    relation: ref('ez_render_metrics')
+    config:
+      schema: snapshot
+      database: render
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_renzo_protocol_metrics_snapshot
+    relation: ref('ez_renzo_protocol_metrics')
+    config:
+      schema: snapshot
+      database: renzo_protocol
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_reserve_metrics_snapshot
+    relation: ref('ez_reserve_metrics')
+    config:
+      schema: snapshot
+      database: reserve
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_ripple_metrics_snapshot
+    relation: ref('ez_ripple_metrics')
+    config:
+      schema: snapshot
+      database: ripple
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_rlusd_metrics_snapshot
+    relation: ref('ez_rlusd_metrics')
+    config:
+      schema: snapshot
+      database: rlusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_rocketpool_metrics_snapshot
+    relation: ref('ez_rocketpool_metrics')
+    config:
+      schema: snapshot
+      database: rocketpool
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_ronin_metrics_snapshot
+    relation: ref('ez_ronin_metrics')
+    config:
+      schema: snapshot
+      database: ronin
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_s_usd_metrics_snapshot
+    relation: ref('ez_s_usd_metrics')
+    config:
+      schema: snapshot
+      database: s_usd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_saber_metrics_snapshot
+    relation: ref('ez_saber_metrics')
+    config:
+      schema: snapshot
+      database: saber
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_safe_metrics_snapshot
+    relation: ref('ez_safe_metrics')
+    config:
+      schema: snapshot
+      database: safe
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_scallop_metrics_snapshot
+    relation: ref('ez_scallop_metrics')
+    config:
+      schema: snapshot
+      database: scallop
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_scroll_metrics_snapshot
+    relation: ref('ez_scroll_metrics')
+    config:
+      schema: snapshot
+      database: scroll
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_seamless_metrics_snapshot
+    relation: ref('ez_seamless_metrics')
+    config:
+      schema: snapshot
+      database: seamless
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_sei_metrics_snapshot
+    relation: ref('ez_sei_metrics')
+    config:
+      schema: snapshot
+      database: sei
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_soneium_metrics_snapshot
+    relation: ref('ez_soneium_metrics')
+    config:
+      schema: snapshot
+      database: soneium
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_sonic_metrics_snapshot
+    relation: ref('ez_sonic_metrics')
+    config:
+      schema: snapshot
+      database: sonic
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_sonne_metrics_snapshot
+    relation: ref('ez_sonne_metrics')
+    config:
+      schema: snapshot
+      database: sonne
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_spark_metrics_snapshot
+    relation: ref('ez_spark_metrics')
+    config:
+      schema: snapshot
+      database: spark
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_spiko_metrics_snapshot
+    relation: ref('ez_spiko_metrics')
+    config:
+      schema: snapshot
+      database: spiko
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_stacks_metrics_snapshot
+    relation: ref('ez_stacks_metrics')
+    config:
+      schema: snapshot
+      database: stacks
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_stader_metrics_snapshot
+    relation: ref('ez_stader_metrics')
+    config:
+      schema: snapshot
+      database: stader
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_stakewise_metrics_snapshot
+    relation: ref('ez_stakewise_metrics')
+    config:
+      schema: snapshot
+      database: stakewise
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_stargate_metrics_snapshot
+    relation: ref('ez_stargate_metrics')
+    config:
+      schema: snapshot
+      database: stargate
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_starknet_metrics_snapshot
+    relation: ref('ez_starknet_metrics')
+    config:
+      schema: snapshot
+      database: starknet
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_stellar_metrics_snapshot
+    relation: ref('ez_stellar_metrics')
+    config:
+      schema: snapshot
+      database: stellar
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_stellaswap_metrics_snapshot
+    relation: ref('ez_stellaswap_metrics')
+    config:
+      schema: snapshot
+      database: stellaswap
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_story_metrics_snapshot
+    relation: ref('ez_story_metrics')
+    config:
+      schema: snapshot
+      database: story
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_stride_metrics_snapshot
+    relation: ref('ez_stride_metrics')
+    config:
+      schema: snapshot
+      database: stride
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_sui_metrics_snapshot
+    relation: ref('ez_sui_metrics')
+    config:
+      schema: snapshot
+      database: sui
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_suilend_metrics_snapshot
+    relation: ref('ez_suilend_metrics')
+    config:
+      schema: snapshot
+      database: suilend
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_superstate_metrics_snapshot
+    relation: ref('ez_superstate_metrics')
+    config:
+      schema: snapshot
+      database: superstate
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_susd_metrics_snapshot
+    relation: ref('ez_susd_metrics')
+    config:
+      schema: snapshot
+      database: susd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_sushiswap_metrics_snapshot
+    relation: ref('ez_sushiswap_metrics')
+    config:
+      schema: snapshot
+      database: sushiswap
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_swell_metrics_snapshot
+    relation: ref('ez_swell_metrics')
+    config:
+      schema: snapshot
+      database: swell
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_synapse_metrics_snapshot
+    relation: ref('ez_synapse_metrics')
+    config:
+      schema: snapshot
+      database: synapse
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_synthetix_metrics_snapshot
+    relation: ref('ez_synthetix_metrics')
+    config:
+      schema: snapshot
+      database: synthetix
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_syrup_metrics_snapshot
+    relation: ref('ez_syrup_metrics')
+    config:
+      schema: snapshot
+      database: syrup
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_tether_metrics_snapshot
+    relation: ref('ez_tether_metrics')
+    config:
+      schema: snapshot
+      database: tether
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_thorchain_metrics_snapshot
+    relation: ref('ez_thorchain_metrics')
+    config:
+      schema: snapshot
+      database: thorchain
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_ton_metrics_snapshot
+    relation: ref('ez_ton_metrics')
+    config:
+      schema: snapshot
+      database: ton
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_trader_joe_metrics_snapshot
+    relation: ref('ez_trader_joe_metrics')
+    config:
+      schema: snapshot
+      database: trader_joe
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_tron_metrics_snapshot
+    relation: ref('ez_tron_metrics')
+    config:
+      schema: snapshot
+      database: tron
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_tryb_metrics_snapshot
+    relation: ref('ez_tryb_metrics')
+    config:
+      schema: snapshot
+      database: tryb
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_tusd_metrics_snapshot
+    relation: ref('ez_tusd_metrics')
+    config:
+      schema: snapshot
+      database: tusd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_unichain_metrics_snapshot
+    relation: ref('ez_unichain_metrics')
+    config:
+      schema: snapshot
+      database: unichain
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_uniswap_metrics_snapshot
+    relation: ref('ez_uniswap_metrics')
+    config:
+      schema: snapshot
+      database: uniswap
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usd0_metrics_snapshot
+    relation: ref('ez_usd0_metrics')
+    config:
+      schema: snapshot
+      database: usd0
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usd1_metrics_snapshot
+    relation: ref('ez_usd1_metrics')
+    config:
+      schema: snapshot
+      database: usd1
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usd3_metrics_snapshot
+    relation: ref('ez_usd3_metrics')
+    config:
+      schema: snapshot
+      database: usd3
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usd_star_metrics_snapshot
+    relation: ref('ez_usd_star_metrics')
+    config:
+      schema: snapshot
+      database: usd_star
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usda_metrics_snapshot
+    relation: ref('ez_usda_metrics')
+    config:
+      schema: snapshot
+      database: usda
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usdd_metrics_snapshot
+    relation: ref('ez_usdd_metrics')
+    config:
+      schema: snapshot
+      database: usdd
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usde_metrics_snapshot
+    relation: ref('ez_usde_metrics')
+    config:
+      schema: snapshot
+      database: usde
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usdf_metrics_snapshot
+    relation: ref('ez_usdf_metrics')
+    config:
+      schema: snapshot
+      database: usdf
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usdfalcon_metrics_snapshot
+    relation: ref('ez_usdfalcon_metrics')
+    config:
+      schema: snapshot
+      database: usdfalcon
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usdg_metrics_snapshot
+    relation: ref('ez_usdg_metrics')
+    config:
+      schema: snapshot
+      database: usdg
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usdglo_metrics_snapshot
+    relation: ref('ez_usdglo_metrics')
+    config:
+      schema: snapshot
+      database: usdglo
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usdp_metrics_snapshot
+    relation: ref('ez_usdp_metrics')
+    config:
+      schema: snapshot
+      database: usdp
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usds_metrics_snapshot
+    relation: ref('ez_usds_metrics')
+    config:
+      schema: snapshot
+      database: usds
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usdt0_metrics_snapshot
+    relation: ref('ez_usdt0_metrics')
+    config:
+      schema: snapshot
+      database: usdt0
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usdtb_metrics_snapshot
+    relation: ref('ez_usdtb_metrics')
+    config:
+      schema: snapshot
+      database: usdtb
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usdx_metrics_snapshot
+    relation: ref('ez_usdx_metrics')
+    config:
+      schema: snapshot
+      database: usdx
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usdy_metrics_snapshot
+    relation: ref('ez_usdy_metrics')
+    config:
+      schema: snapshot
+      database: usdy
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usdz_metrics_snapshot
+    relation: ref('ez_usdz_metrics')
+    config:
+      schema: snapshot
+      database: usdz
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usn_metrics_snapshot
+    relation: ref('ez_usn_metrics')
+    config:
+      schema: snapshot
+      database: usn
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usr_metrics_snapshot
+    relation: ref('ez_usr_metrics')
+    config:
+      schema: snapshot
+      database: usr
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_usual_metrics_snapshot
+    relation: ref('ez_usual_metrics')
+    config:
+      schema: snapshot
+      database: usual
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_veax_metrics_snapshot
+    relation: ref('ez_veax_metrics')
+    config:
+      schema: snapshot
+      database: veax
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_velodrome_metrics_snapshot
+    relation: ref('ez_velodrome_metrics')
+    config:
+      schema: snapshot
+      database: velodrome
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_venus_metrics_snapshot
+    relation: ref('ez_venus_metrics')
+    config:
+      schema: snapshot
+      database: venus
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_virtuals_metrics_snapshot
+    relation: ref('ez_virtuals_metrics')
+    config:
+      schema: snapshot
+      database: virtuals
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_visa_metrics_snapshot
+    relation: ref('ez_visa_metrics')
+    config:
+      schema: snapshot
+      database: visa
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_walrus_metrics_snapshot
+    relation: ref('ez_walrus_metrics')
+    config:
+      schema: snapshot
+      database: walrus
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_wisdomtree_metrics_snapshot
+    relation: ref('ez_wisdomtree_metrics')
+    config:
+      schema: snapshot
+      database: wisdomtree
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_worldchain_metrics_snapshot
+    relation: ref('ez_worldchain_metrics')
+    config:
+      schema: snapshot
+      database: worldchain
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_wormhole_metrics_snapshot
+    relation: ref('ez_wormhole_metrics')
+    config:
+      schema: snapshot
+      database: wormhole
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_zksync_metrics_snapshot
+    relation: ref('ez_zksync_metrics')
+    config:
+      schema: snapshot
+      database: zksync
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
+  - name: ez_zora_metrics_snapshot
+    relation: ref('ez_zora_metrics')
+    config:
+      schema: snapshot
+      database: zora
+      unique_key: date
+      strategy: timestamp
+      updated_at: modified_on
+      tags: [ez_metrics]
+      hard_deletes: new_record
