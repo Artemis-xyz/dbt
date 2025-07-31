@@ -18,7 +18,7 @@
 {% set backfill_date = var("backfill_date", None) %}
 
 WITH
-    date_spine AS(
+    date_spine AS (
         SELECT
             date
         FROM {{ ref("dim_date_spine") }}
@@ -53,31 +53,36 @@ WITH
     , market_data AS ({{ get_coingecko_metrics("bluefin") }})
 select
     date
-    , 'bluefin' AS app
-    , 'DeFi' AS category
+    , 'bluefin' AS artemis_id
+
     -- Standardized Metrics
-    --Token Metrics
-    , COALESCE(market_data.price, 0) AS price
-    , COALESCE(market_data.market_cap, 0) AS market_cap
-    , COALESCE(market_data.fdmc, 0) AS fdmc
-    , COALESCE(market_data.token_volume, 0) AS token_volume
-    --Cashflow Metrics
-    , COALESCE(spot_fees_revenue.fees, 0) AS fees
-    , COALESCE(spot_fees_revenue.foundation_fee_allocation, 0) AS foundation_fee_allocation
-    , COALESCE(spot_fees_revenue.service_fee_allocation, 0) AS service_fee_allocation
-    -- Perpetual Metrics
-    , COALESCE(perp_trading_volume.trading_volume, 0) AS perp_volume
-    -- Spot DEX Metrics
-    , COALESCE(spot_dau_txns.dau, 0) AS spot_dau
-    , COALESCE(spot_dau_txns.txns, 0) AS spot_txns
-    , COALESCE(spot_fees_revenue.fees, 0) AS spot_fees
-    , COALESCE(spot_trading_volume.spot_dex_volumes, 0) AS spot_volume
-    -- Crypto Metrics
-    , COALESCE(tvl.tvl, 0) AS tvl
-    , COALESCE(tvl.tvl, 0) - COALESCE(LAG(tvl.tvl) OVER (ORDER BY date), 0) AS tvl_net_change
+    
+    -- Market Data
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
+
+    -- Usage Data
+    , spot_dau_txns.dau AS spot_dau
+    , spot_dau_txns.dau
+    , spot_dau_txns.txns AS spot_txns
+    , spot_dau_txns.txns 
+    , perp_trading_volume.trading_volume AS perp_volume 
+    , spot_trading_volume.spot_dex_volumes AS spot_volume
+    , tvl.tvl AS spot_tvl 
+    , tvl.tvl
+    
+    -- Fee Data
+    , spot_fees_revenue.fees AS spot_fees
+    , spot_fees_revenue.fees
+    , spot_fees_revenue.foundation_fee_allocation
+    , spot_fees_revenue.lp_fee_allocation
+    
     -- Turnover Metrics
-    , COALESCE(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
-    , COALESCE(market_data.token_turnover_fdv, 0) AS token_turnover_fdv
+    , market_data.token_turnover_circulating
+    , market_data.token_turnover_fdv
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
