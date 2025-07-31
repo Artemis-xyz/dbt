@@ -54,34 +54,36 @@ with usd0_metrics as (
 )
 
 select 
-    usd0.date
-    , usd0.usd0_tvl
-    , usd0pp.usd0pp_tvl
-    , usual.collateral_yield
-    , ubm.daily_treasury
-    -- revenue is the sum of treasury revenue, daily burned, and fees
-    , usual.fees + (usual.collateral_yield * mm.price) + (ubm.burns_native * mm.price) as revenue
-
-    -- Standardized Metrics
-    , usd0.usd0_tvl + usd0pp.usd0pp_tvl as tvl
-    , usd0.stablecoin_txns
-    , usd0.stablecoin_dau
-
-    -- Revenue Metrics
-    , (usual.collateral_yield * mm.price) as yield_generated
-    , (ubm.burns_native * mm.price) as burned_fee_allocation
-    , ubm.burns_native as burned_fee_allocation_native
-    -- Gross Protocol Revenue
-    , (usual.usualx_unstake_fees_daily) + (usual.treasury_fee) + (yield_generated) + (burned_fee_allocation) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as fees
-    -- Cash Flow Buckets
-    , (usual.collateral_yield * mm.price) + (usual.treasury_fee) as treasury_fee_allocation
-    , (usual.usualx_unstake_fees_daily) + (ubm.daily_treasury_usualstar * mm.price) + (ubm.daily_treasury_usualx * mm.price) as staking_fee_allocation
-
-    , ubm.circulating_supply_native
+    usd0_metrics.date
+    , 'usual' as artemis_id
     , 'ethereum' as chain
+   
+   -- Standardized Metrics
 
-from usd0_metrics usd0 
-left join usd0pp_metrics usd0pp on usd0.date = usd0pp.date
-left join usual_fees usual on usd0.date = usual.date
-left join usual_burn_mint ubm on usd0.date = ubm.date
-left join market_metrics mm on usd0.date = mm.date
+    -- Usage Data
+    , usd0_metrics.stablecoin_txns
+    , usd0_metrics.stablecoin_dau
+    , usd0_metrics.usd0_tvl
+    , usd0pp_metrics.usd0pp_tvl
+    , usual_fees.collateral_yield
+    , usd0_metrics.usd0_tvl + usd0pp_metrics.usd0pp_tvl as tvl
+
+    -- Fee Data
+    , (usual_fees.usualx_unstake_fees_daily) + (usual_fees.treasury_fee) + (yield_generated) + (burned_fee_allocation) + (usual_burn_mint.daily_treasury_usualstar * market_metrics.price) + (usual_burn_mint.daily_treasury_usualx * market_metrics.price) as fees
+    , (usual_fees.collateral_yield * market_metrics.price) + (usual_fees.treasury_fee) as treasury_fee_allocation
+    , usual_burn_mint.burns_native as burned_fee_allocation_native
+    , (usual_burn_mint.burns_native * market_metrics.price) as burned_fee_allocation
+    , (usual_fees.collateral_yield * market_metrics.price) as yield_generated
+    , (usual_fees.usualx_unstake_fees_daily) + (usual_burn_mint.daily_treasury_usualstar * market_metrics.price) + (usual_burn_mint.daily_treasury_usualx * market_metrics.price) as staking_fee_allocation
+
+    -- Financial Statement
+    , usual_fees.fees + (usual_fees.collateral_yield * market_metrics.price) + (usual_burn_mint.burns_native * market_metrics.price) as revenue -- revenue is the sum of fees, collateral yield, and burns
+
+    -- Treasury Data
+    , usual_burn_mint.daily_treasury as treasury
+
+from usd0_metrics 
+left join usd0pp_metrics on usd0_metrics.date = usd0pp_metrics.date
+left join usual_fees on usd0_metrics.date = usual_fees.date
+left join usual_burn_mint on usd0_metrics.date = usual_burn_mint.date
+left join market_metrics on usd0_metrics.date = market_metrics.date

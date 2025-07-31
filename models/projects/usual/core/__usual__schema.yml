@@ -22,7 +22,9 @@ column_definitions:
 
   circulating_supply_native: &circulating_supply_native
     name: circulating_supply_native
-    description: "The circulating supply of a token in native tokens"
+    description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+    tags:
+      - artemis_gaap
 
   fdmc: &fdmc
     name: fdmc
@@ -43,10 +45,6 @@ column_definitions:
     description: "The market cap of a token in USD"
     tags:
       - artemis_gaap
-
-  net_supply_change_native: &net_supply_change_native
-    name: net_supply_change_native
-    description: "The net change in the circulating supply of a token in native tokens"
 
   price: &price
     name: price
@@ -96,6 +94,10 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  treasury: &treasury
+    name: treasury
+    description: "The USD value in the protocol treasury"
+
   treasury_fee_allocation: &treasury_fee_allocation
     name: treasury_fee_allocation
     description: "Revenue allocated to the protocol's treasury for future use, including development, growth, or governance."
@@ -116,16 +118,15 @@ models:
     columns:
       - *burned_fee_allocation
       - *burned_fee_allocation_native
-      - *circulating_supply_native
       - *fees
       - *revenue
       - *stablecoin_dau
       - *stablecoin_txns
       - *staking_fee_allocation
+      - *treasury
       - *treasury_fee_allocation
       - *tvl
       - *yield_generated
-
   - name: ez_usual_metrics
     description: "This table stores metrics for the USUAL protocol"
     columns:
@@ -137,7 +138,6 @@ models:
       - *fees
       - *gross_emissions_native
       - *market_cap
-      - *net_supply_change_native
       - *price
       - *revenue
       - *stablecoin_dau
@@ -146,7 +146,7 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
+      - *treasury
       - *treasury_fee_allocation
       - *tvl
       - *yield_generated
-
