@@ -19,7 +19,7 @@ with data as (
     from solana_flipside.core.fact_transfers 
     where (tx_from = 'WLHv2UAZm6z4KyaaELi5pjdbJh6RESMva1Rnn8pJVVh' or tx_to = 'WLHv2UAZm6z4KyaaELi5pjdbJh6RESMva1Rnn8pJVVh')
     {% if is_incremental() %}
-        and block_timestamp > (select dateadd(day, -3, to_date(sysdate())) from {{ this }})
+        and block_timestamp >= dateadd(day, -3, to_date(sysdate()))
     {% else %}
         and block_timestamp >= '2025-04-20'
     {% endif %}
