@@ -26,7 +26,7 @@ with
     fundamental_data as ({{ get_fundamental_data_for_chain("ethereum", "v2") }}),
     price_data as ({{ get_coingecko_metrics("ethereum") }}),
     defillama_data as ({{ get_defillama_metrics("ethereum") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("ethereum") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("ethereum", backfill_date="2015-08-07") }}),
     staking_data as ({{ get_staking_metrics("ethereum") }}),
     censored_block_metrics as ({{ get_censored_block_metrics("ethereum") }}),
     revenue_data as (

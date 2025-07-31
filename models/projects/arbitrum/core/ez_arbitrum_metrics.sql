@@ -22,7 +22,7 @@ with
     fundamental_data as ({{ get_fundamental_data_for_chain("arbitrum", "v2") }}),
     price_data as ({{ get_coingecko_metrics("arbitrum") }}),
     defillama_data as ({{ get_defillama_metrics("arbitrum") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("arbitrum") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("arbitrum", backfill_date="2021-05-29") }}),
     expenses_data as (
         select date, chain, l1_data_cost_native, l1_data_cost
         from {{ ref("fact_arbitrum_l1_data_cost") }}
