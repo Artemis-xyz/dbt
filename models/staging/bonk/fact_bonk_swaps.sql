@@ -35,6 +35,10 @@ with data as (
     select dateadd('day', -1, to_date(sysdate())) as date, token_current_price as price
     from pc_dbt_db.prod.fact_coingecko_token_realtime_data
     where token_id = 'solana'
+    union 
+    select to_date(sysdate()) as date, token_current_price as price
+    from pc_dbt_db.prod.fact_coingecko_token_realtime_data
+    where token_id = 'solana'
 )
 select 
     data.date
