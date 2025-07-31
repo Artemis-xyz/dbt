@@ -44,18 +44,32 @@ with swap_metrics as (
 
 select
     date_spine.date
+    , 'dodo' as artemis_id
+
     -- Standardized Metrics
-    -- Market Metrics
+
+    -- Market Data
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
     , market_metrics.token_volume
-    -- Usage Metrics
+
+    -- Usage Data
     , swap_metrics.txns as spot_txns
     , swap_metrics.dau as spot_dau
-    -- , swap_metrics.volume_usd as spot_volume
-    -- Cashflow Metrics
+
+    -- Fee Data
+    , swap_metrics.fees_native
+    , swap_metrics.fees as chain_fees
+    , swap_metrics.fees
+
+    -- Financial Statements
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
+
+    -- Turnover Data
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
