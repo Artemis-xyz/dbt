@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        unique_key=["date", "source_chain", "destination_chain", "category"],
+        unique_key=["date", "source_chain", "destination_chain", "category", "symbol"],
         snowflake_warehouse="SONIC",
     )
 }}
@@ -13,7 +13,7 @@ select
     destination_chain,
     category,
     symbol,
-    sum(amount) as amount_usd,
+    coalesce(sum(amount), 0) as amount_usd,
     null as fee_usd
 from {{ ref("fact_sonic_bridge_transfers") }} t
 {% if is_incremental() %}

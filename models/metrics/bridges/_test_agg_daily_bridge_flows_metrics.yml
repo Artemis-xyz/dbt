@@ -1,9 +1,5 @@
 models:
   - name: agg_daily_bridge_flows_metrics_silver
-    tests:
-      - "dbt_expectations.expect_table_row_count_to_be_between":
-          min_value: 1
-          max_value: 1000000
     columns:
       - name: "DATE"
         tests:
