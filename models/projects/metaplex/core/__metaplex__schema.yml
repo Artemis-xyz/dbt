@@ -16,18 +16,13 @@ column_definitions:
 
   circulating_supply_native: &circulating_supply_native
     name: circulating_supply_native
-    description: "The circulating supply of a token in native tokens"
+    description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+    tags:
+      - artemis_gaap
 
   fdmc: &fdmc
     name: fdmc
     description: "The fully diluted market cap of $MPLX in USD"
-    tags:
-      - artemis_gaap
-      - override
-
-  fees: &fees
-    name: fees
-    description: "Total fees (USD) paid by NFT minters and individuals who swap tokens and NFTs leveraging Metaplex."
     tags:
       - artemis_gaap
       - override
@@ -118,13 +113,15 @@ models:
     columns:
       - *buyback_fee_allocation
       - *buybacks
-      - *fees
+      - *circulating_supply_native
+      - *gross_emissions_native
+      - *net_supply_change_native
       - *nft_dau
       - *nft_fees
       - *nft_txns
+      - *premine_unlocks_native
       - *revenue
       - *treasury_fee_allocation
-
     tests:
       - not_null:
           column_name: date
@@ -151,7 +148,6 @@ models:
       - *buybacks
       - *circulating_supply_native
       - *fdmc
-      - *fees
       - *gross_emissions_native
       - *market_cap
       - *net_supply_change_native
@@ -165,7 +161,6 @@ models:
       - *token_turnover_fdv
       - *token_volume
       - *treasury_fee_allocation
-
     tests:
       - not_null:
           column_name: date

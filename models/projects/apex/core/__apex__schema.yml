@@ -55,7 +55,6 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-
     tests:
       - not_null:
           column_name: date
@@ -74,8 +73,13 @@ models:
   - name: ez_apex_metrics_by_chain
     description: "This table stores metrics for the APEX protocol"
     columns:
+      - *fdmc
+      - *market_cap
       - *perp_volume
-
+      - *price
+      - *token_turnover_circulating
+      - *token_turnover_fdv
+      - *token_volume
     tests:
       - not_null:
           column_name: date

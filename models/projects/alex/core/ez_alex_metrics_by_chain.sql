@@ -15,11 +15,13 @@ with alex_tvl as (
 
 select
     alex_tvl.date
+    , 'alex' as artemis_id
     , 'Defillama' as source
     , 'stacks' as chain
 
     -- Standardized Metrics
-    , alex_tvl.tvl
+    , alex_tvl.tvl as spot_tvl
+    , alex_tvl.tvl as tvl
 
 from alex_tvl
 where alex_tvl.date < to_date(sysdate())

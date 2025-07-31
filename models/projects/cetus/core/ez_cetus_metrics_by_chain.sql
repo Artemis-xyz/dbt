@@ -18,57 +18,51 @@ WITH
             AND date >= (SELECT MIN(date) FROM {{ ref("fact_raw_cetus_spot_swaps") }})
     )
     , spot_trading_volume AS (
-        SELECT date, 'sui' AS chain, SUM(volume_usd) AS spot_dex_volumes
+        SELECT date, 'sui' AS chain, coalesce(SUM(volume_usd), 0) AS spot_dex_volumes
         FROM {{ ref("fact_cetus_spot_volume") }}
         GROUP BY 1, 2
     )
     , spot_dau_txns AS (
-        SELECT date, 'sui' AS chain, daily_dau AS dau, daily_txns AS txns
+        SELECT date, 'sui' AS chain, coalesce(daily_dau, 0) AS dau, coalesce(daily_txns, 0) AS txns
         FROM {{ ref("fact_cetus_spot_dau_txns") }}
         QUALIFY ROW_NUMBER() OVER (PARTITION BY date ORDER BY date DESC) = 1
     )
     , spot_fees_revenue AS (
-        SELECT date, 'sui' AS chain, SUM(fees) AS fees, SUM(service_fee_allocation) AS service_fee_allocation, SUM(foundation_fee_allocation) AS foundation_fee_allocation
+        SELECT date, 'sui' AS chain, coalesce(SUM(fees), 0) AS fees, coalesce(SUM(service_fee_allocation), 0) AS service_fee_allocation, coalesce(SUM(foundation_fee_allocation), 0) AS foundation_fee_allocation
         FROM {{ ref("fact_cetus_spot_fees_revenue") }}
         GROUP BY 1, 2
     )
     , tvl AS (
-        SELECT date, 'sui' AS chain, SUM(tvl) AS tvl
+        SELECT date, 'sui' AS chain, coalesce(SUM(tvl), 0) AS tvl
         FROM {{ ref("fact_cetus_spot_tvl") }}
         GROUP BY 1, 2
     )
     , market_data AS ({{ get_coingecko_metrics("cetus-protocol") }})
 select
     date
-    , 'cetus' as app
-    , 'DeFi' as category
+    , 'cetus' as artemis_id
     , date_spine.chain 
 
     -- Standardized Metrics
-
-    --Token Metrics
-    , COALESCE(market_data.price, 0) AS price
-    , COALESCE(market_data.market_cap, 0) AS market_cap
-    , COALESCE(market_data.fdmc, 0) AS fdmc
-    , COALESCE(market_data.token_volume, 0) AS token_volume
-
-    --Cashflow Metrics
-    , COALESCE(spot_fees_revenue.fees, 0) AS fees
-    , COALESCE(spot_fees_revenue.foundation_fee_allocation, 0) AS foundation_fee_allocation
-    , COALESCE(spot_fees_revenue.service_fee_allocation, 0) AS service_fee_allocation
     
-    -- Spot DEX Metrics
-    , COALESCE(spot_dau_txns.dau, 0) AS spot_dau
-    , COALESCE(spot_dau_txns.txns, 0) AS spot_txns
-    , COALESCE(spot_fees_revenue.fees, 0) AS spot_fees
-    , COALESCE(spot_trading_volume.spot_dex_volumes, 0) AS spot_volume
+    -- Usage Data
+    , spot_dau_txns.dau as spot_dau
+    , spot_dau_txns.dau as dau
+    , spot_dau_txns.txns as spot_txns
+    , spot_dau_txns.txns as txns
+    , tvl.tvl as tvl
+    , tvl.tvl - LAG(tvl.tvl) OVER (ORDER BY date) as tvl_net_change
+    , spot_trading_volume.spot_dex_volumes as spot_volume
 
-    -- Crypto Metrics
-    , COALESCE(tvl.tvl, 0) AS tvl
-    , COALESCE(tvl.tvl, 0) - COALESCE(LAG(tvl.tvl) OVER (ORDER BY date), 0) AS tvl_net_change
-
-    -- Turnover Metrics
-    , COALESCE(market_data.token_turnover_circulating, 0) AS token_turnover_circul
+    -- Fee Data
+    , spot_fees_revenue.fees as fees
+    , spot_fees_revenue.foundation_fee_allocation as foundation_fee_allocation
+    , spot_fees_revenue.service_fee_allocation as service_fee_allocation
+    
+    -- timestamp columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as updated_on
+    
 FROM date_spine
 LEFT JOIN spot_trading_volume USING(date, chain)
 LEFT JOIN spot_dau_txns USING(date, chain)

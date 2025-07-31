@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -18,30 +18,38 @@
 {% set backfill_date = var("backfill_date", None) %}
 
 with lifinity_dex_volumes as (
-    select date, daily_volume as dex_volumes
+    select date, coalesce(daily_volume, 0) as dex_volumes
     from {{ ref("fact_lifinity_dex_volumes") }}
 )
-, lifinity_market_data as (
+, market_metrics as (
     {{ get_coingecko_metrics('lifinity') }}
 )
 
 select
     date
-    , dex_volumes
+    , 'lifinity' as artemis_id
+    
     -- Standardized Metrics
-    , dex_volumes as spot_volume
+    
     -- Market Metrics
-    , lmd.price
-    , lmd.market_cap
-    , lmd.fdmc
-    , lmd.token_turnover_circulating
-    , lmd.token_turnover_fdv
-    , lmd.token_volume
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
+
+    -- Usage Data
+    , dex_volumes as spot_volume
+
+    -- Token Turnover/Other Data
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
+    
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
 from lifinity_dex_volumes   
-left join lifinity_market_data lmd using (date)
+left join market_metrics using (date)
 where true
 {{ ez_metrics_incremental('date', backfill_date) }}
 and date < to_date(sysdate())

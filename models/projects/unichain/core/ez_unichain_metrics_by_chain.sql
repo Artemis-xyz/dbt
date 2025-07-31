@@ -1,43 +1,51 @@
 {{
     config(
-        materialized="table",
-        snowflake_warehouse="UNICHAIN",
-        database="unichain",
-        schema="core",
-        alias="ez_metrics_by_chain",
+        materialized='incremental',
+        snowflake_warehouse='UNICHAIN',
+        database='UNICHAIN',
+        schema='core',
+        alias='ez_metrics_by_chain',
+        incremental_strategy='merge',
+        unique_key='date',
+        on_schema_change='append_new_columns',
+        merge_update_columns=var('backfill_columns', []),
+        merge_exclude_columns=['created_on'] if not var('backfill_columns', []) else none,
+        full_refresh=var("full_refresh", false),
+        tags=['ez_metrics']
     )
 }}
 
+{% set backfill_date = var("backfill_date", None) %}
+
 with 
-     price_data as ({{ get_coingecko_metrics('uniswap') }})
-     , unichain_dex_volumes as (
-        select date, daily_volume as dex_volumes
+    unichain_dex_volumes as (
+        select date, coalesce(daily_volume, 0) as dex_volumes, coalesce(daily_volume_adjusted, 0) as adjusted_dex_volumes
         from {{ ref("fact_unichain_daily_dex_volumes") }}
     )
 select
-    f.date
+    fundamental_metrics.date
     , 'unichain' as chain
-    , dune_dex_volumes_unichain.dex_volumes
+
     -- Standardized Metrics
-    -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_volume
-    -- Chain Metrics
-    , txns as chain_txns
-    , daa as chain_dau
-    , dune_dex_volumes_unichain.dex_volumes as chain_spot_volume
-    -- Cash Flow Metrics
-    , fees as fees
-    , fees_native as fees_native
-    , cost as l1_fee_allocation
-    , cost_native as l1_fee_allocation_native
-    , revenue as foundation_fee_allocation
-    , revenue_native as foundation_fee_allocation_native
-    , token_turnover_circulating
-    , token_turnover_fdv
-from {{ ref("fact_unichain_fundamental_metrics") }} as f
-left join price_data on f.date = price_data.date
-left join unichain_dex_volumes as dune_dex_volumes_unichain on f.date = dune_dex_volumes_unichain.date
-where f.date < to_date(sysdate())
+
+    -- Usage Data
+    , fundamental_metrics.daa as chain_dau
+    , fundamental_metrics.daa as dau
+    , fundamental_metrics.txns as chain_txns
+    , fundamental_metrics.txns as txns
+    , unichain_dex_volumes.dex_volumes as chain_spot_volume
+    , unichain_dex_volumes.adjusted_dex_volumes
+
+    -- Fee Data
+    , fundamental_metrics.fees as fees
+    , fundamental_metrics.fees_native as fees_native
+    , fundamental_metrics.cost as l1_fee_allocation
+    , fundamental_metrics.cost_native as l1_fee_allocation_native
+    , fundamental_metrics.revenue as foundation_fee_allocation
+    , fundamental_metrics.revenue_native as foundation_fee_allocation_native
+
+from {{ ref("fact_unichain_fundamental_metrics") }} as fundamental_metrics
+left join unichain_dex_volumes on fundamental_metrics.date = unichain_dex_volumes.date
+where true
+{{ ez_metrics_incremental('fundamental_metrics.date', backfill_date) }}
+and fundamental_metrics.date < to_date(sysdate())

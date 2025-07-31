@@ -10,15 +10,18 @@
 
 with 
     lifinity_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, coalesce(daily_volume, 0) as dex_volumes
         from {{ ref("fact_lifinity_dex_volumes") }}
     )
 select
     date
+    , 'lifinity' as artemis_id
     , 'solana' as chain
-    , dex_volumes
 
     -- Standardized Metrics
+
+    -- Usage Data
     , dex_volumes as spot_volume
+
 from lifinity_dex_volumes   
 where date < to_date(sysdate())

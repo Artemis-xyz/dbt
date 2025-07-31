@@ -15,11 +15,15 @@ with
         where chain is not null
     )
 select
-    date,
-    'starknet' as app,
-    'Bridge' as category,
-    chain,
-    inflow,
-    outflow
+    bridge_volume_metrics.date
+    , 'starknet' as artemis_id
+    , bridge_volume_metrics.chain
+
+    -- Standardized Metrics
+
+    -- Usage Data
+    , bridge_volume_metrics.inflow
+    , bridge_volume_metrics.outflow
+
 from bridge_volume_metrics
-where date < to_date(sysdate())
+where bridge_volume_metrics.date < to_date(sysdate())

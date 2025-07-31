@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -20,27 +20,35 @@
 with liquidswap_tvl as (
     {{ get_defillama_protocol_tvl('liquidswap') }}
 )
-, liquidswap_market_data as (
+, market_metrics as (
     {{ get_coingecko_metrics('pontem-liquidswap') }}
 )
 
 select
     liquidswap_tvl.date
-    , 'Defillama' as source
+    , 'liquidswap' as artemis_id
+
     -- Standardized Metrics
-    , liquidswap_tvl.tvl
-    -- Market Metrics
-    , lmd.price
-    , lmd.market_cap
-    , lmd.fdmc
-    , lmd.token_turnover_circulating
-    , lmd.token_turnover_fdv
-    , lmd.token_volume
+    
+    -- Market Data
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
+
+    -- Usage Data
+    , liquidswap_tvl.tvl as tvl
+    , dex_volumes as spot_volume
+    
+    -- Token Turnover/Other Data
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from liquidswap_tvl
-left join liquidswap_market_data lmd using (date)
+left join market_metrics using (date)
 where true
 {{ ez_metrics_incremental('liquidswap_tvl.date', backfill_date) }}
 and liquidswap_tvl.date < to_date(sysdate())

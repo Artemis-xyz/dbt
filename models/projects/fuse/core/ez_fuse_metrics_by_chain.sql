@@ -20,35 +20,35 @@ with
     )
     , github_data as ({{ get_github_metrics("fuse") }})
     , defillama_data as ({{ get_defillama_metrics("fuse") }})
-    , price_data as ({{ get_coingecko_metrics("fuse-network-token") }})
 select
     fundamental_data.date
+    , 'fuse' as artemis_id
     , 'fuse' as chain
+    
     -- Standardized Metrics
-    -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_volume
-    -- Chain Metrics
-    , txns as chain_txns
-    , dau as chain_dau
-    , case when txns > 0 then fees / txns end as chain_avg_txn_fee
-    , dex_volumes as chain_spot_volume
+    
+    -- Usage Metrics
+    , fundamental_data.dau as chain_dau
+    , fundamental_data.dau as dau
+    , fundamental_data.txns as chain_txns
+    , fundamental_data.txns as txns
+    , fundamental_data.avg_txn_fee as chain_avg_txn_fee
+    , fundamental_data.dex_volumes as chain_spot_volume
+    , defillama_data.tvl as chain_tvl
+    , defillama_data.tvl as tvl
+
     -- Cash Flow Metrics
-    , fees as fees
-    , fees_native as fees_native
-    -- Crypto Metrics
-    , tvl
+    , fundamental_data.fees_native as fees_native
+    , fundamental_data.fees as chain_fees
+    , fundamental_data.fees as fees
+    
     -- Developer Metrics
-    , weekly_commits_core_ecosystem
-    , weekly_commits_sub_ecosystem
-    , weekly_developers_core_ecosystem
-    , weekly_developers_sub_ecosystem
-    , token_turnover_circulating
-    , token_turnover_fdv
+    , github_data.weekly_commits_core_ecosystem
+    , github_data.weekly_commits_sub_ecosystem
+    , github_data.weekly_developers_core_ecosystem
+    , github_data.weekly_developers_sub_ecosystem
+
 from fundamental_data
 left join github_data using (date)
 left join defillama_data using (date)
-left join price_data using (date)
 where fundamental_data.date < to_date(sysdate())

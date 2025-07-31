@@ -10,7 +10,7 @@
         on_schema_change='append_new_columns',
         merge_update_columns=var('backfill_columns', []),
         merge_exclude_columns=['created_on'] if not var('backfill_columns', []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=['ez_metrics']
     )
 }}
@@ -23,13 +23,17 @@ with veax_tvl as (
 
 select
     veax_tvl.date
-    , 'Defillama' as source
+    , 'veax' as artemis_id
 
     -- Standardized Metrics
-    , veax_tvl.tvl    
+
+    -- Usage Data
+    , veax_tvl.tvl as tvl
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    
 from veax_tvl
 where true
 {{ ez_metrics_incremental('veax_tvl.date', backfill_date) }}

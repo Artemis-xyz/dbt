@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"]
     )
 }}
@@ -46,23 +46,11 @@ with fundamental_data as (
     from {{ ref('fact_stellar_issued_supply_and_float_dbt') }}
 )
 , prices as ({{ get_coingecko_price_with_latest("stellar") }})
-, price_data as ( {{ get_coingecko_metrics("stellar") }} )
+, market_metrics as ( {{ get_coingecko_metrics("stellar") }} )
 select
     fundamental_data.date
+    , 'stellar' as artemis_id
     , fundamental_data.chain
-    , fundamental_data.classic_txns AS txns
-    , fundamental_data.soroban_txns AS soroban_txns
-    , fundamental_data.daily_fees as fees_native
-    , fundamental_data.daily_fees * prices.price as fees
-    , fundamental_data.assets_deployed as assets_deployed
-    , fundamental_data.operations as operations
-    , fundamental_data.active_contracts as active_contracts
-    , fundamental_data.dau as dau
-    , fundamental_data.wau as wau
-    , fundamental_data.mau as mau
-    , fundamental_data.ledgers_closed as ledgers_closed
-    , stablecoin_tvl.stablecoin_mc
-    , rwa_tvl.rwa_tvl
 
     -- Standardized Metrics
 
@@ -72,21 +60,19 @@ select
     , price_data.fdmc
     , price_data.token_volume
 
-    -- Chain Metrics
-    , txns as chain_txns
-    , dau as chain_dau
-    , wau as chain_wau
-    , mau as chain_mau
+    -- Usage Data
+    , fundamental_data.dau as chain_dau
+    , fundamental_data.dau as dau
+    , fundamental_data.wau as chain_wau
+    , fundamental_data.mau as chain_mau
+    , fundamental_data.txns as chain_txns
+    , fundamental_data.txns as txns
     , fundamental_data.returning_users as returning_users
     , fundamental_data.new_users as new_users
-    , null as low_sleep_users
-    , null as high_sleep_users
-    , null as sybil_users
-    , null as non_sybil_users
-
-    -- Cash Flow Metrics
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
+    
+    -- Fee Data
+    , fees_data.fees_native as fees_native
+    , fees_data.fees as fees
 
     -- Issued Supply Metrics
     , issued_supply_metrics.max_supply_native
@@ -95,22 +81,37 @@ select
     , issued_supply_metrics.circulating_supply_native
 
     -- Financial Statement Metrics
-    , fees as revenue
-
-    -- Real World Asset Metrics
-    , rwa_tvl as tokenized_market_cap
-
+    , fees_data.fees_native as revenue_native
+    , fees_data.fees as revenue
+    
     -- Stablecoin Metrics
     , stablecoin_mc as stablecoin_total_supply
-    , price_data.token_turnover_circulating
-    , price_data.token_turnover_fdv
+    , stablecoin_tvl.stablecoin_mc
+
+    -- Token Turnover/Other Data
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
+
+    -- Bespoke Metrics
+    , rwa_tvl.rwa_tvl as tokenized_market_cap
+    , null as low_sleep_users
+    , null as high_sleep_users
+    , null as sybil_users
+    , null as non_sybil_users
+    , fundamental_data.soroban_txns AS soroban_txns
+    , fundamental_data.daily_fees as fees_native
+    , fundamental_data.assets_deployed as assets_deployed
+    , fundamental_data.operations as operations
+    , fundamental_data.active_contracts as active_contracts
+    , fundamental_data.ledgers_closed as ledgers_closed
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
 from fundamental_data
 left join prices using(date)
-left join price_data on fundamental_data.date = price_data.date
+left join market_metrics on fundamental_data.date = market_metrics.date
 left join rwa_tvl on fundamental_data.date = rwa_tvl.date
 left join stablecoin_tvl on fundamental_data.date = stablecoin_tvl.date
 left join issued_supply_metrics on fundamental_data.date = issued_supply_metrics.date

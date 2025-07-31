@@ -20,6 +20,10 @@ column_definitions:
     name: chain_spot_volume
     description: "Total spot dex volume on a chain"
 
+  chain_tvl: &chain_tvl
+    name: chain_tvl
+    description: "The total value locked in a chain"
+
   chain_txns: &chain_txns
     name: chain_txns
     description: "Daily transactions on a chain"
@@ -100,6 +104,7 @@ models:
       - *chain_dau
       - *chain_fees
       - *chain_spot_volume
+      - *chain_tvl
       - *chain_txns
       - *fdmc
       - *fees
@@ -113,24 +118,18 @@ models:
       - *weekly_commits_sub_ecosystem
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-
   - name: ez_fuse_metrics_by_chain
     description: "This table stores metrics for the FUSE protocol"
     columns:
       - *chain_avg_txn_fee
       - *chain_dau
+      - *chain_fees
       - *chain_spot_volume
+      - *chain_tvl
       - *chain_txns
-      - *fdmc
       - *fees
-      - *market_cap
-      - *price
-      - *token_turnover_circulating
-      - *token_turnover_fdv
-      - *token_volume
       - *tvl
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-

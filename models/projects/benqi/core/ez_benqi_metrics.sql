@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -30,26 +30,40 @@ with
     , benqi_metrics as (
         select
             date
-            , sum(daily_borrows_usd) as daily_borrows_usd
-            , sum(daily_supply_usd) as daily_supply_usd
+            , coalesce(sum(daily_borrows_usd), 0) as daily_borrows_usd
+            , coalesce(sum(daily_supply_usd), 0) as daily_supply_usd
         from benqi_by_chain
         group by 1
     )
-    , price_data as ({{ get_coingecko_metrics("benqi") }})
+    , market_metrics as ({{ get_coingecko_metrics("benqi") }})
 
 select
     benqi_metrics.date
-    , 'benqi' as app
-    , 'DeFi' as category
-    -- Standardized metrics
+    , 'benqi_finance' as artemis_id
+
+    -- Standardized Metrics
+
+    -- Market Data
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
+
+    -- Usage Data
     , benqi_metrics.daily_borrows_usd as lending_loans
     , benqi_metrics.daily_supply_usd as lending_deposits
+
+    -- Token Turnover/Other Data
+    , market_metrics.token_turnover_fdv
+    , market_metrics.token_turnover_circulating
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    
 from benqi_metrics
-left join price_data
-    on benqi_metrics.date = price_data.date
+left join market_metrics
+    on benqi_metrics.date = market_metrics.date
 where true
 {{ ez_metrics_incremental('benqi_metrics.date', backfill_date) }}
 and benqi_metrics.date < to_date(sysdate())

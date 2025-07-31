@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"]
     )
 }}
@@ -20,26 +20,26 @@
 with
     fundamental_data as (
         select 
-            date,
-            txns as transaction_nodes
+            date
+            , coalesce(txns, 0) as transaction_nodes
         from {{ ref("fact_ton_daa_txns_gas_gas_usd_revenue_revenue_native") }}
     ), 
     ton_apps_fundamental_data as (
         select 
             date
-            , dau
-            , fees_native
-            , txns
-            , avg_txn_fee_native
+            , coalesce(dau, 0) as dau
+            , coalesce(fees_native, 0) as fees_native
+            , coalesce(txns, 0) as txns
+            , coalesce(avg_txn_fee_native, 0) as avg_txn_fee_native
         from {{ ref("fact_ton_fundamental_metrics") }}
-    ),
-    price_data as ({{ get_coingecko_metrics("the-open-network") }}),
-    defillama_data as ({{ get_defillama_metrics("ton") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("ton") }}),
-    github_data as ({{ get_github_metrics("ton") }}),
-    rolling_metrics as ({{ get_rolling_active_address_metrics("ton") }})
+    )
+    , market_metrics as ({{ get_coingecko_metrics("the-open-network") }})
+    , defillama_data as ({{ get_defillama_metrics("ton") }})
+    , stablecoin_data as ({{ get_stablecoin_metrics("ton") }})
+    , github_data as ({{ get_github_metrics("ton") }})
+    , rolling_metrics as ({{ get_rolling_active_address_metrics("ton") }})
     , block_rewards_data as (
-        select date, block_rewards_native
+        select date, coalesce(block_rewards_native, 0) as block_rewards_native
         from {{ ref("fact_ton_minted") }}
     )
     , supply_data as (
@@ -59,77 +59,87 @@ with
     )
 select
     supply.date
+    , 'ton' as artemis_id
     , 'ton' as chain
-    , coalesce(dau, 0) as dau
-    , coalesce(wau, 0) as wau
-    , coalesce(mau, 0) as mau
-    , coalesce(txns, 0) as txns
-    , coalesce(fees_native, 0) as fees_native
-    , coalesce(fees_native, 0) * price AS fees
-    , coalesce(fees_native, 0) / 2 AS revenue_native
-    , (coalesce(fees_native, 0) / 2) * price AS revenue
-    , coalesce(avg_txn_fee_native, 0) * price AS avg_txn_fee
-    -- Bespoke Metrics
-    , coalesce(transaction_nodes, 0) as transaction_nodes
+    
     -- Standardized Metrics
-    -- Market Data Metrics
-    , price
-    , market_cap
-    , fdmc
-    , tvl
-    -- Chain Usage Metrics
-    , coalesce(dau, 0) AS chain_dau
-    , coalesce(wau, 0) AS chain_wau
-    , coalesce(mau, 0) AS chain_mau
-    , coalesce(txns, 0) AS chain_txns
-    , coalesce(avg_txn_fee_native, 0) * price AS chain_avg_txn_fee
-    -- Cash Flow Metrics
-    , coalesce(fees, 0) * price as chain_fees
-    , coalesce(fees_native, 0) AS ecosystem_revenue_native
-    , coalesce(fees, 0) * price AS ecosystem_revenue
-    , coalesce(fees_native, 0) / 2 AS burned_fee_allocation_native
-    , (coalesce(fees_native, 0) / 2) * price AS burned_fee_allocation
-    , coalesce(fees_native, 0) / 2 AS validator_fee_allocation_native
-    , (coalesce(fees_native, 0) / 2) * price AS validator_fee_allocation
+
+    -- Market Data
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
+    
+
+    -- Usage Data
+    , ton_apps_fundamental_data.dau as chain_dau
+    , ton_apps_fundamental_data.dau as dau
+    , ton_apps_fundamental_data.wau as wau
+    , ton_apps_fundamental_data.mau as mau
+    , ton_apps_fundamental_data.txns as chain_txns
+    , ton_apps_fundamental_data.txns as txns
+    , ton_apps_fundamental_data.avg_txn_fee_native * price AS chain_avg_txn_fee
+
+    -- Fee Data
+    , ton_apps_fundamental_data.fees_native as fees_native
+    , ton_apps_fundamental_data.fees as fees
+    , ton_apps_fundamental_data.fees_native / 2 as burned_fee_allocation_native
+    , ton_apps_fundamental_data.fees_native / 2 * market_metrics.price as burned_fee_allocation
+    , ton_apps_fundamental_data.fees_native / 2 as validator_fee_allocation_native
+    , ton_apps_fundamental_data.fees_native / 2 * market_metrics.price as validator_fee_allocation
+
+    -- Financial Statement Metrics
+    , ton_apps_fundamental_data.fees_native / 2 as revenue_native
+    , ton_apps_fundamental_data.fees / 2 as revenue
+    
     -- Developer Metrics
-    , weekly_commits_core_ecosystem
-    , weekly_commits_sub_ecosystem
-    , weekly_developers_core_ecosystem
-    , weekly_developers_sub_ecosystem
+    , github_data.weekly_commits_core_ecosystem
+    , github_data.weekly_commits_sub_ecosystem
+    , github_data.weekly_developers_core_ecosystem
+    , github_data.weekly_developers_sub_ecosystem
+    
     -- Supply Metrics
-    , premine_unlocks_native
-    , gross_emissions_native
-    , block_rewards_native * price AS gross_emissions
-    , burns_native
-    , net_supply_change_native
-    , max_supply_native
-    , total_supply_native
-    , foundation_owned
-    , issued_supply_native
-    , unvested_tokens
-    , circulating_supply_native
+    , block_rewards_data.block_rewards_native * market_metrics.price as gross_emissions
+    , block_rewards_data.block_rewards_native as gross_emissions_native
+    , supply_data.max_supply_native
+    , supply_data.burns_native
+    , supply_data.burns_native * market_metrics.price as burns
+    , supply_data.total_supply_native
+    , supply_data.issued_supply_native
+    , supply_data.premine_unlocks_native
+    , supply_data.circulating_supply_native
+
     -- Stablecoin Metrics
-    , stablecoin_total_supply
-    , stablecoin_txns
-    , stablecoin_dau
-    , stablecoin_mau
-    , stablecoin_transfer_volume
-    , stablecoin_tokenholder_count
-    , artemis_stablecoin_txns
-    , artemis_stablecoin_dau
-    , artemis_stablecoin_mau
-    , artemis_stablecoin_transfer_volume
-    , p2p_stablecoin_txns
-    , p2p_stablecoin_dau
-    , p2p_stablecoin_mau
-    , p2p_stablecoin_transfer_volume
-    , p2p_stablecoin_tokenholder_count
+    , stablecoin_data.stablecoin_total_supply
+    , stablecoin_data.stablecoin_txns
+    , stablecoin_data.stablecoin_dau
+    , stablecoin_data.stablecoin_mau
+    , stablecoin_data.stablecoin_transfer_volume
+    , stablecoin_data.stablecoin_tokenholder_count
+    , stablecoin_data.artemis_stablecoin_txns
+    , stablecoin_data.artemis_stablecoin_dau
+    , stablecoin_data.artemis_stablecoin_mau
+    , stablecoin_data.artemis_stablecoin_transfer_volume
+    , stablecoin_data.p2p_stablecoin_txns
+    , stablecoin_data.p2p_stablecoin_dau
+    , stablecoin_data.p2p_stablecoin_mau
+    , stablecoin_data.p2p_stablecoin_transfer_volume
+    , stablecoin_data.p2p_stablecoin_tokenholder_count
+
+    -- Token Turnover/Other Data
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
+
+    -- Bespoke Metrics
+    , fundamental_data.transaction_nodes
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
 from supply_data as supply
 left join ton_apps_fundamental_data as ton on supply.date = ton.date
-left join price_data on supply.date = price_data.date
+left join market_metrics on supply.date = market_metrics.date
 left join defillama_data on supply.date = defillama_data.date
 left join github_data on supply.date = github_data.date
 left join fundamental_data on supply.date = fundamental_data.date

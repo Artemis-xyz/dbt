@@ -21,13 +21,16 @@ with
 
 select
     benqi_by_chain.date
-    , 'benqi' as app
-    , 'DeFi' as category
+    , 'benqi_finance' as artemis_id
     , benqi_by_chain.chain
-    , benqi_by_chain.daily_borrows_usd
-    , benqi_by_chain.daily_supply_usd
-    -- Standardized metrics
+
+    -- Standardized Metrics
     , benqi_by_chain.daily_borrows_usd as lending_loans
     , benqi_by_chain.daily_supply_usd as lending_deposits
+
+    -- Usage Data
+    , benqi_by_chain.daily_borrows_usd
+    , benqi_by_chain.daily_supply_usd
+
 from benqi_by_chain
 where benqi_by_chain.date < to_date(sysdate())

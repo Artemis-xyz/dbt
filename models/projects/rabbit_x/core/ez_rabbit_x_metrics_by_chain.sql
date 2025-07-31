@@ -21,14 +21,16 @@ with
     )
 select 
     date
-    , 'rabbit-x' as app
-    , 'DeFi' as category
+    , 'rabbit_x' as artemis_id
     , chain
-    , trading_volume
-    , unique_traders
-    -- standardize metrics
-    , trading_volume as perp_volume
-    , unique_traders as perp_dau
+
+    -- Standardized Metrics
+
+    -- Usage Data
+    , unique_traders_data.unique_traders as perp_dau
+    , unique_traders_data.unique_traders as dau
+    , trading_volume_data.trading_volume as perp_volume
+
 from trading_volume_data
 left join unique_traders_data using(date, chain)
 where date < to_date(sysdate())

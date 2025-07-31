@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"]
     )
 }}
@@ -22,21 +22,21 @@ with protocol_data as (
         date
         , app
         , category
-        , sum(trading_volume) as trading_volume
-        , sum(unique_traders) as unique_traders
-        , sum(number_of_swaps) as number_of_swaps
-        , sum(gas_cost_usd) as gas_cost_usd
+        
+        , sum(coalesce(unique_traders, 0)) as unique_traders
+        , sum(coalesce(number_of_swaps, 0)) as number_of_swaps
+        , sum(coalesce(gas_cost_usd, 0)) as gas_cost_usd
 
         -- Standardized Metrics
-        , sum(spot_dau) as spot_dau
-        , sum(spot_fees) as spot_fees
-        , sum(spot_txns) as spot_txns
-        , sum(spot_volume) as spot_volume
-        , sum(tvl) as tvl
-        , sum(trading_fees) as trading_fees
-        , sum(fees) as fees
-        , sum(gas_cost_native) as gas_cost_native
-        , sum(gas_cost) as gas_cost
+        , sum(coalesce(spot_dau, 0)) as spot_dau
+        , sum(coalesce(spot_fees, 0)) as spot_fees
+        , sum(coalesce(spot_txns, 0)) as spot_txns
+        , sum(coalesce(spot_volume, 0)) as spot_volume
+        , sum(coalesce(tvl, 0)) as tvl
+        , sum(coalesce(trading_fees, 0)) as trading_fees
+        , sum(coalesce(fees, 0)) as fees
+        , sum(coalesce(gas_cost_native, 0)) as gas_cost_native
+        , sum(coalesce(gas_cost, 0)) as gas_cost
 
     from {{ ref("ez_trader_joe_metrics_by_chain") }}
     group by 1, 2, 3
@@ -54,7 +54,7 @@ with protocol_data as (
 , token_incentives as (
     select
         date
-        , sum(amount_usd) as token_incentives
+        , sum(coalesce(amount_usd, 0)) as token_incentives
     from {{ ref("fact_trader_joe_token_incentives") }}
     group by date
 )
@@ -70,53 +70,52 @@ with protocol_data as (
 
 select
     date_spine.date
-    , protocol_data.app
-    , protocol_data.category
-
-    -- Old Metrics needed for compatibility
-    , protocol_data.trading_volume
-    , protocol_data.trading_fees
-    , protocol_data.unique_traders
-    , protocol_data.number_of_swaps
-    , protocol_data.gas_cost_usd
+    , 'trader_joe' as artemis_id
 
     -- Standardized Metrics
 
-    -- Market Metrics
+    -- Market Data
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
     , market_metrics.token_volume
 
-    -- Usage Metrics
+    -- Usage Data
     , protocol_data.spot_dau
+    , protocol_data.spot_dau as dau
     , protocol_data.spot_txns
+    , protocol_data.spot_txns as txns
     , protocol_data.spot_volume
     , protocol_data.tvl
+    , protocol_data.trading_volume as volume
 
-    -- Cashflow Metrics
+    -- Fee Data
     , protocol_data.spot_fees
-    , protocol_data.spot_fees as fees 
+    , protocol_data.spot_fees as fees
+
+    -- Financial Statement
     , supply_data.burns_native as revenue
-    , revenue - token_incentives.token_incentives as earnings
     , token_incentives.token_incentives
-    , protocol_data.gas_cost_native
-    , protocol_data.gas_cost
+    , revenue - token_incentives.token_incentives as earnings
 
     -- LFJ Token Supply Data
     , supply_data.premine_unlocks_native
     , supply_data.gross_emissions_native
     , supply_data.burns_native
-    , supply_data.net_supply_change_native
     , supply_data.circulating_supply_native
 
-    -- Other Metrics
+    -- Token Turnover/Other Metrics
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
+
+    -- Bespoke Metrics
+    , protocol_data.gas_cost_native
+    , protocol_data.gas_cost
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
 from date_spine
 left join protocol_data using(date)
 left join market_metrics using(date)

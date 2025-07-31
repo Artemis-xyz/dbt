@@ -60,10 +60,8 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-
   - name: ez_rabbit_x_metrics_by_chain
     description: "This table stores metrics for the RABBIT_X protocol"
     columns:
       - *perp_dau
       - *perp_volume
-

@@ -13,27 +13,28 @@ column_definitions:
     description: ""
     tests:
       - dbt_expectations.expect_column_to_exist
-      
     tags:
       - override
 
   circulating_supply_native: &circulating_supply_native
     name: circulating_supply_native
-    description: "The circulating supply of a token in native tokens"
+    description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+    tags:
+      - artemis_gaap
+
+  date: &date
+    name: date
+    description: ""
+    tests:
+      - dbt_expectations.expect_column_to_exist
+    tags:
+      - override
 
   earnings: &earnings
     name: earnings
     description: "The total earnings generated to tokenholders defined as revenue less expenses"
     tags:
       - artemis_gaap
-  date: &date
-    name: date
-    description: ""
-    tests:
-      - dbt_expectations.expect_column_to_exist
-      
-    tags:
-      - override
 
   fdmc: &fdmc
     name: fdmc
@@ -54,10 +55,6 @@ column_definitions:
     description: "The market cap of a token in USD"
     tags:
       - artemis_gaap
-
-  net_supply_change_native: &net_supply_change_native
-    name: net_supply_change_native
-    description: "The net change in the circulating supply of a token in native tokens"
 
   pool: &pool
     name: pool
@@ -100,11 +97,6 @@ column_definitions:
     name: spot_volume
     description: "The total volume on a spot dex"
 
-  token_incentives: &token_incentives
-    name: token_incentives
-    description: "The total token incentives paid by a protocol in its native token"
-    tags:
-      - artemis_gaap
   token_0: &token_0
     name: token_0
     description: ""
@@ -139,6 +131,12 @@ column_definitions:
     tags:
       - override
 
+  token_incentives: &token_incentives
+    name: token_incentives
+    description: "The total token incentives paid by a protocol in its native token"
+    tags:
+      - artemis_gaap
+
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
     description: "The turnover of a token in USD, based on the token's circulating supply."
@@ -165,16 +163,15 @@ models:
   - name: ez_trader_joe_metrics_by_chain
     description: "This table stores metrics for the TRADER_JOE protocol"
     columns:
-      - *fees
       - *chain
       - *date
+      - *fees
       - *spot_dau
       - *spot_fees
       - *spot_txns
       - *spot_volume
       - *token_incentives
       - *tvl
-
     tests:
       - not_null:
           column_name: date
@@ -197,9 +194,9 @@ models:
   - name: ez_trader_joe_metrics_by_pool
     description: "This table stores metrics for the TRADER_JOE protocol"
     columns:
-      - *fees
       - *chain
       - *date
+      - *fees
       - *pool
       - *spot_dau
       - *spot_fees
@@ -209,7 +206,6 @@ models:
       - *token_1
       - *token_1_symbol
       - *tvl
-
     tests:
       - not_null:
           column_name: date
@@ -230,13 +226,12 @@ models:
     columns:
       - *burns_native
       - *circulating_supply_native
-      - *earnings
       - *date
+      - *earnings
       - *fdmc
       - *fees
       - *gross_emissions_native
       - *market_cap
-      - *net_supply_change_native
       - *premine_unlocks_native
       - *price
       - *revenue
@@ -249,7 +244,6 @@ models:
       - *token_turnover_fdv
       - *token_volume
       - *tvl
-
     tests:
       - not_null:
           column_name: date

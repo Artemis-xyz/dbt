@@ -15,11 +15,11 @@ with
         where chain is not null
     )
 select
-    date,
-    'arbitrum' as app,
-    'Bridge' as category,
-    chain,
-    inflow,
-    outflow
+    date
+    , 'arbitrum' as artemis_id
+    , 'Bridge' as category
+    , chain
+    , inflow
+    , outflow
 from bridge_volume_metrics
 where date < to_date(sysdate())

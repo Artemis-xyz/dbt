@@ -4,6 +4,12 @@
 version: 2
 
 column_definitions:
+  artemis_stablecoin_transfer_volume: &artemis_stablecoin_transfer_volume
+    name: artemis_stablecoin_transfer_volume
+    description: "The total volume of stablecoin transfers on a chain"
+    tags:
+      - artemis_gaap
+
   burns_native: &burns_native
     name: burns_native
     description: "The amount of native tokens burned"
@@ -15,10 +21,6 @@ column_definitions:
   chain_avg_tps: &chain_avg_tps
     name: chain_avg_tps
     description: "The average number of transactions per second on a chain"
-
-  chain_avg_txn_fee: &chain_avg_txn_fee
-    name: chain_avg_txn_fee
-    description: "The average transaction fee on a chain"
 
   chain_dau: &chain_dau
     name: chain_dau
@@ -46,7 +48,9 @@ column_definitions:
 
   circulating_supply_native: &circulating_supply_native
     name: circulating_supply_native
-    description: "The circulating supply of a token in native tokens"
+    description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+    tags:
+      - artemis_gaap
 
   fdmc: &fdmc
     name: fdmc
@@ -66,6 +70,18 @@ column_definitions:
     name: high_sleep_users
     description: "The number of high sleep users on a chain"
 
+  l1_fee_allocation: &l1_fee_allocation
+    name: l1_fee_allocation
+    description: "The total USD value of L1 cash flow on a chain"
+    tags:
+      - artemis_gaap
+
+  l1_fee_allocation_native: &l1_fee_allocation_native
+    name: l1_fee_allocation_native
+    description: "The total native value of L1 cash flow on a chain"
+    tags:
+      - artemis_gaap
+
   low_sleep_users: &low_sleep_users
     name: low_sleep_users
     description: "The number of low sleep users on a chain"
@@ -76,10 +92,6 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  net_supply_change_native: &net_supply_change_native
-    name: net_supply_change_native
-    description: "The net change in the circulating supply of a token in native tokens"
-
   new_users: &new_users
     name: new_users
     description: "The number of new users on a chain"
@@ -87,6 +99,12 @@ column_definitions:
   non_sybil_users: &non_sybil_users
     name: non_sybil_users
     description: "The number of non-sybil users on a chain"
+
+  p2p_stablecoin_transfer_volume: &p2p_stablecoin_transfer_volume
+    name: p2p_stablecoin_transfer_volume
+    description: "The total volume of stablecoin transfers on a chain"
+    tags:
+      - artemis_gaap
 
   premine_unlocks_native: &premine_unlocks_native
     name: premine_unlocks_native
@@ -108,9 +126,33 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  stablecoin_transfer_volume: &stablecoin_transfer_volume
+    name: stablecoin_transfer_volume
+    description: "The total volume of stablecoin transfers on a chain"
+    tags:
+      - artemis_gaap
+
   sybil_users: &sybil_users
     name: sybil_users
     description: "The number of sybil users on a chain"
+
+  token_turnover_circulating: &token_turnover_circulating
+    name: token_turnover_circulating
+    description: "The turnover of a token in USD, based on the token's circulating supply."
+    tags:
+      - artemis_gaap
+
+  token_turnover_fdv: &token_turnover_fdv
+    name: token_turnover_fdv
+    description: "The turnover of a token in USD, based on the token's fully diluted supply."
+    tags:
+      - artemis_gaap
+
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of a token in USD"
+    tags:
+      - artemis_gaap
 
   tvl: &tvl
     name: tvl
@@ -138,7 +180,6 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
     tests:
       - not_null:
           column_name: date
@@ -163,7 +204,6 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
     tests:
       - not_null:
           column_name: date
@@ -185,7 +225,6 @@ models:
       - *burns_native
       - *chain_avg_block_time
       - *chain_avg_tps
-      - *chain_avg_txn_fee
       - *chain_dau
       - *chain_fees
       - *chain_mau
@@ -196,17 +235,18 @@ models:
       - *fdmc
       - *fees
       - *gross_emissions_native
+      - *l1_fee_allocation
+      - *l1_fee_allocation_native
       - *market_cap
-      - *net_supply_change_native
-      - *new_users
       - *premine_unlocks_native
       - *price
-      - *returning_users
       - *revenue
+      - *token_turnover_circulating
+      - *token_turnover_fdv
+      - *token_volume
       - *tvl
       - *weekly_contract_deployers
       - *weekly_contracts_deployed
-
     tests:
       - not_null:
           column_name: date
@@ -222,6 +262,12 @@ models:
           expression: date = cast(date as date)
           description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
           severity: error
+  - name: ez_sei_stablecoin_metrics_by_address_with_labels
+    description: "This table stores metrics for the SEI protocol"
+    columns:
+      - *artemis_stablecoin_transfer_volume
+      - *p2p_stablecoin_transfer_volume
+      - *stablecoin_transfer_volume
   - name: ez_sei_metrics_by_subcategory
     description: "This table stores metrics for the SEI protocol"
     columns:
@@ -231,23 +277,6 @@ models:
       - *non_sybil_users
       - *returning_users
       - *sybil_users
-
-    tests:
-      - not_null:
-          column_name: date
-          description: "Ensures that the date column is not null"
-          severity: error
-      - dbt_utils.recency:
-          datepart: day
-          interval: 2
-          field: date
-          description: "Ensures that the date column contains at least one record from the last 2 days"
-          severity: error
-      - dbt_utils.expression_is_true:
-          expression: date = cast(date as date)
-          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
-          severity: error
-  - name: ez_sei_metrics_by_contract_v2
     tests:
       - not_null:
           column_name: date

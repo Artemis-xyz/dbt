@@ -55,9 +55,7 @@ models:
       - *token_turnover_fdv
       - *token_volume
       - *tvl
-
   - name: ez_deepbook_metrics_by_chain
     description: "This table stores metrics for the DEEPBOOK protocol"
     columns:
       - *tvl
-

@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -26,60 +26,72 @@ WITH
             AND date >= (SELECT MIN(date) FROM {{ ref("fact_raw_cetus_spot_swaps") }})
     )
     , spot_trading_volume AS (
-        SELECT date, SUM(volume_usd) AS spot_dex_volumes
+        SELECT date, coalesce(SUM(volume_usd), 0) AS spot_dex_volumes
         FROM {{ ref("fact_cetus_spot_volume") }}
         GROUP BY 1
     )
     , spot_dau_txns AS (
-        SELECT date, daily_dau AS dau, daily_txns AS txns
+        SELECT date, coalesce(daily_dau, 0) AS dau, coalesce(daily_txns, 0) AS txns
         FROM {{ ref("fact_cetus_spot_dau_txns") }}
         QUALIFY ROW_NUMBER() OVER (PARTITION BY date ORDER BY date DESC) = 1
     )
     , spot_fees_revenue AS (
-        SELECT date, SUM(fees) AS fees, SUM(service_fee_allocation) AS service_fee_allocation, SUM(foundation_fee_allocation) AS foundation_fee_allocation
+        SELECT date, coalesce(SUM(fees), 0) AS fees, coalesce(SUM(service_fee_allocation), 0) AS service_fee_allocation, coalesce(SUM(foundation_fee_allocation), 0) AS foundation_fee_allocation
         FROM {{ ref("fact_cetus_spot_fees_revenue") }}
         GROUP BY 1
     )
     , tvl AS (
-        SELECT date, SUM(tvl) AS tvl
+        SELECT date, coalesce(SUM(tvl), 0) AS tvl
         FROM {{ ref("fact_cetus_spot_tvl") }}
         GROUP BY 1
     )
-    , market_data AS ({{ get_coingecko_metrics("cetus-protocol") }})
+    , market_metrics AS ({{ get_coingecko_metrics("cetus-protocol") }})
 select
-    date
-    , 'cetus' AS app
-    , 'DeFi' AS category
+    date_spine.date
+    , 'cetus' AS artemis_id
+
     -- Standardized Metrics
-    --Token Metrics
-    , COALESCE(market_data.price, 0) AS price
-    , COALESCE(market_data.market_cap, 0) AS market_cap
-    , COALESCE(market_data.fdmc, 0) AS fdmc
-    , COALESCE(market_data.token_volume, 0) AS token_volume
-    --Cashflow Metrics
-    , COALESCE(spot_fees_revenue.fees, 0) AS fees
-    , COALESCE(spot_fees_revenue.foundation_fee_allocation, 0) AS foundation_fee_allocation
-    , COALESCE(spot_fees_revenue.service_fee_allocation, 0) AS service_fee_allocation
-    -- Spot DEX Metrics
-    , COALESCE(spot_dau_txns.dau, 0) AS spot_dau
-    , COALESCE(spot_dau_txns.txns, 0) AS spot_txns
-    , COALESCE(spot_fees_revenue.fees, 0) AS spot_fees
-    , COALESCE(spot_trading_volume.spot_dex_volumes, 0) AS spot_volume
+
+    -- Market Data
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
+
+    -- Usage Data
+    , spot_dau_txns.dau as spot_dau
+    , spot_dau_txns.dau as dau
+    , spot_dau_txns.txns as spot_txns
+    , spot_dau_txns.txns as txns
+    , spot_trading_volume.spot_dex_volumes as spot_volume
+
+    -- Fee Data
+    , spot_fees_revenue.fees as fees
+    , spot_fees_revenue.foundation_fee_allocation as foundation_fee_allocation
+    , spot_fees_revenue.service_fee_allocation as service_fee_allocation
+
+    -- Token Turnover/Other Data
+    , market_metrics.token_turnover_circulating as token_turnover_circulating
+    , market_metrics.token_turnover_fdv as token_turnover_fdv
+    
     -- Crypto Metrics
-    , COALESCE(tvl.tvl, 0) AS tvl
-    , COALESCE(tvl.tvl, 0) - COALESCE(LAG(tvl.tvl) OVER (ORDER BY date), 0) AS tvl_net_change
+    , tvl.tvl as tvl
+    , tvl.tvl - LAG(tvl.tvl) OVER (ORDER BY date) as tvl_net_change
+
     -- Turnover Metrics
-    , COALESCE(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
-    , COALESCE(market_data.token_turnover_fdv, 0) AS token_turnover_fdv
+    , market_metrics.token_turnover_fdv
+    , market_metrics.token_turnover_circulating
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
 FROM date_spine
 LEFT JOIN spot_trading_volume USING(date)
 LEFT JOIN spot_dau_txns USING(date)
 LEFT JOIN spot_fees_revenue USING(date)
 LEFT JOIN tvl USING(date)
-LEFT JOIN market_data USING(date)
+LEFT JOIN market_metrics USING(date)
 where true
 {{ ez_metrics_incremental('date_spine.date', backfill_date) }}
 and date_spine.date < to_date(sysdate())

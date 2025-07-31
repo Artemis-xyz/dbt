@@ -17,13 +17,24 @@ def extract_sql_columns(sql_file_path: str) -> list[str]:
     if not matches:
         return []
 
-    # Check if the last SELECT contains incremental logic
+    # Check if the last SELECT contains incremental logic in the SELECT clause itself
     last_select = matches[-1]
-    # Use regex to detect any MAX() function pattern (more flexible than hardcoded strings)
-    incremental_pattern = r"\bmax\s*\(\s*\w+\s*\)"
-    is_incremental = re.search(incremental_pattern, last_select, re.IGNORECASE) is not None
     
-    # Use second-to-last SELECT if incremental logic is detected, otherwise use last SELECT
+    # Look for specific incremental patterns that indicate this is an incremental model
+    # Common patterns: max(this.date), max(date), etc.
+    incremental_patterns = [
+        r"\bmax\s*\(\s*this\.\w+\s*\)",  # max(this.column)
+        r"\bmax\s*\(\s*\w+\.\w+\s*\)",   # max(table.column)
+        r"\bmax\s*\(\s*\w+\s*\)\s*from\s+\w+",  # max(column) from table
+    ]
+    
+    is_incremental = False
+    for pattern in incremental_patterns:
+        if re.search(pattern, last_select, re.IGNORECASE):
+            is_incremental = True
+            break
+    
+    # Use second-to-last SELECT if incremental logic is detected in the SELECT clause, otherwise use last SELECT
     if is_incremental and len(matches) > 1:
         select_clause = matches[-2]  # Use second-to-last SELECT
     else:

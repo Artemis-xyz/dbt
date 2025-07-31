@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -20,37 +20,50 @@
 with bridge_volume_fees as (
     select 
         date
-        , bridge_volume
-        , ecosystem_revenue
-        , bridge_txns
-        , bridge_txns as txns
-        , bridge_dau
-        , ecosystem_revenue as fees
+        , coalesce(bridge_volume, 0) as bridge_volume
+        , coalesce(ecosystem_revenue, 0) as ecosystem_revenue
+        , coalesce(bridge_txns, 0) as bridge_txns
+        , coalesce(bridge_txns, 0) as txns
+        , coalesce(bridge_dau, 0) as bridge_dau
+        , coalesce(ecosystem_revenue, 0) as fees
     from {{ ref("fact_debridge_fundamental_metrics") }}
 )
 
-, price_data as ({{ get_coingecko_metrics("debridge") }})
+, market_metrics as ({{ get_coingecko_metrics("debridge") }})
 
 select
     bridge_volume_fees.date
-    , ecosystem_revenue
-    , txns
-    , fees
+    , 'debridge' as artemis_id
+
     -- Standardized Metrics
+
+    -- Market Data
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_turnover_circulating
+
+    -- Usage Data
+    , bridge_volume_fees.bridge_dau as bridge_dau
+    , bridge_volume_fees.bridge_dau as dau
+    , bridge_volume_fees.bridge_txns as bridge_txns
+    , bridge_volume_fees.bridge_txns as txns
     , bridge_volume
-    , bridge_dau
-    , bridge_txns
-    , price_data.price as price
-    , price_data.market_cap as market_cap
-    , price_data.fdmc as fdmc
-    , price_data.token_turnover_circulating as token_turnover_circulating
-    , price_data.token_turnover_fdv as token_turnover_fdv
-    , price_data.token_volume as token_volume
+
+    -- Fee Data
+    , bridge_volume_fees.fees as bridge_fees
+    , bridge_volume_fees.fees as fees
+    
+    -- Token Turnover/Other Data
+    , market_metrics.token_turnover_fdv as token_turnover_fdv
+    , market_metrics.token_volume as token_volume
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
 from bridge_volume_fees
-left join price_data on bridge_volume_fees.date = price_data.date
+left join market_metrics using (date)
 where true
 {{ ez_metrics_incremental('bridge_volume_fees.date', backfill_date) }}
 and bridge_volume_fees.date < to_date(sysdate())

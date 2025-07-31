@@ -14,7 +14,7 @@ with deepbook_tvl as (
 
 select
     deepbook_tvl.date
-    , 'Defillama' as source
+    , 'deepbook' as artemis_id
     , 'sui' as chain
 
     -- Standardized Metrics

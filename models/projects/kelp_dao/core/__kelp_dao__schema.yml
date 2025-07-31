@@ -4,6 +4,10 @@
 version: 2
 
 column_definitions:
+  lrt_tvl: &lrt_tvl
+    name: lrt_tvl
+    description: "The total value locked in a liquid restaking protocol"
+
   tvl: &tvl
     name: tvl
     description: "The total value restaked in USD using the KelpDAO liquid restaking protocol"
@@ -20,12 +24,12 @@ models:
   - name: ez_kelp_dao_metrics_by_chain
     description: "This table stores metrics for the KELP_DAO protocol"
     columns:
+      - *lrt_tvl
       - *tvl
       - *tvl_native
-
   - name: ez_kelp_dao_metrics
     description: "This table stores metrics for the KELP_DAO protocol"
     columns:
+      - *lrt_tvl
       - *tvl
       - *tvl_native
-

@@ -58,14 +58,7 @@ models:
     columns:
       - *chain_dau
       - *chain_txns
-      - *fdmc
       - *fees
-      - *market_cap
-      - *price
-      - *token_turnover_circulating
-      - *token_turnover_fdv
-      - *token_volume
-
   - name: ez_hydration_metrics
     description: "This table stores metrics for the HYDRATION protocol"
     columns:
@@ -78,4 +71,3 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-

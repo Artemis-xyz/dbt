@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -23,26 +23,27 @@ with
         from {{ ref("fact_ink_daily_dex_volumes") }}
     )
 select
-    date
-    , txns
-    , daa as dau
-    , fees_native
-    , fees
-    , ink_dex_volumes.dex_volumes
-    , ink_dex_volumes.adjusted_dex_volumes
-    -- Standardized Metrics
-    -- Chain Usage Metrics
-    , txns AS chain_txns
-    , dau AS chain_dau
-    , ink_dex_volumes.dex_volumes AS chain_spot_volume
+    fundamental_data.date
+    , 'ink' as artemis_id
+
+    -- Usage Data
+    , fundamental_data.dau as chain_dau
+    , fundamental_data.dau as dau
+    , fundamental_data.txns as chain_txns
+    , fundamental_data.txns as txns
+    , ink_dex_volumes.dex_volumes as chain_spot_volume
+    , ink_dex_volumes.adjusted_dex_volumes as adjusted_dex_volumes
+
     -- Cashflow Metrics
-    , fees AS ecosystem_revenue
-    , fees_native AS ecosystem_revenue_native
+    , fundamental_data.fees_native as fees_native
+    , fundamental_data.fees as fees
+    
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from {{ ref("fact_ink_fundamental_metrics") }}
+
+from {{ ref("fact_ink_fundamental_metrics") }} fundamental_data
 left join ink_dex_volumes using (date)
 where true
-{{ ez_metrics_incremental('date', backfill_date) }}
-and date < to_date(sysdate())
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"]
     )
 }}
@@ -18,50 +18,48 @@
 {% set backfill_date = var("backfill_date", None) %}
 
 with 
-     price_data as ({{ get_coingecko_metrics('uniswap') }})
+     market_metrics as ({{ get_coingecko_metrics('uniswap') }})
      , unichain_dex_volumes as (
-        select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
+        select date, coalesce(daily_volume, 0) as dex_volumes, coalesce(daily_volume_adjusted, 0) as adjusted_dex_volumes
         from {{ ref("fact_unichain_daily_dex_volumes") }}
     )
 select
-    f.date
-    , dune_dex_volumes_unichain.dex_volumes
-    , dune_dex_volumes_unichain.adjusted_dex_volumes
-    -- Old Metrics Needed For Compatibility
-    , txns
-    , daa as dau
-    , fees
-    , fees_native
-    , cost
-    , cost_native
-    , revenue
-    , revenue_native
+    fundamental_metrics.date
+    , unichain_dex_volumes.dex_volumes
 
     -- Standardized Metrics
+
     -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_volume
-    -- Chain Metrics
-    , txns as chain_txns
-    , daa as chain_dau
-    , dune_dex_volumes_unichain.dex_volumes as chain_spot_volume
-    -- Cash Flow Metrics
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
-    , cost as l1_fee_allocation
-    , cost_native as l1_fee_allocation_native
-    , revenue as foundation_fee_allocation
-    , revenue_native as foundation_fee_allocation_native
-    , token_turnover_circulating
-    , token_turnover_fdv
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
+
+    -- Usage Data
+    , fundamental_metrics.txns as chain_txns
+    , fundamental_metrics.daa as chain_dau
+    , unichain_dex_volumes.dex_volumes as chain_spot_volume
+    , unichain_dex_volumes.adjusted_dex_volumes
+
+    -- Fee Data
+    , fundamental_metrics.fees_native as fees_native
+    , fundamental_metrics.fees as fees
+    , fundamental_metrics.cost as l1_fee_allocation
+    , fundamental_metrics.cost_native as l1_fee_allocation_native
+    , fundamental_metrics.revenue as foundation_fee_allocation
+    , fundamental_metrics.revenue_native as foundation_fee_allocation_native
+
+    -- Token Turnover/Other Data
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from {{ ref("fact_unichain_fundamental_metrics") }} as f
-left join price_data on f.date = price_data.date
-left join unichain_dex_volumes as dune_dex_volumes_unichain on f.date = dune_dex_volumes_unichain.date
+
+from {{ ref("fact_unichain_fundamental_metrics") }} as fundamental_metrics
+left join market_metrics on fundamental_metrics.date = market_metrics.date
+left join unichain_dex_volumes on fundamental_metrics.date = unichain_dex_volumes.date
 where true
-{{ ez_metrics_incremental('f.date', backfill_date) }}
-and f.date < to_date(sysdate())
+{{ ez_metrics_incremental('fundamental_metrics.date', backfill_date) }}
+and fundamental_metrics.date < to_date(sysdate())

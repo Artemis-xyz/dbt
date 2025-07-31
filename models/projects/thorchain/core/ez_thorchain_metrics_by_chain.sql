@@ -13,13 +13,15 @@ with thorchain_tvl as (
 )
 
 select
-    tt.date
-    , 'Defillama' as source
+    thorchain_tvl.date
+    , 'thorchain' as artemis_id
     , 'thorchain' as chain
 
     -- Standardized Metrics
-    , tt.tvl
 
-from thorchain_tvl tt
-where tt.date < to_date(sysdate())
-and tt.name = 'thorchain' -- macro above returns data for 'Thorchain Lending' too, so we filter by name
+    -- Usage Data
+    , thorchain_tvl.tvl
+
+from thorchain_tvl
+where thorchain_tvl.date < to_date(sysdate())
+and thorchain_tvl.name = 'thorchain' -- macro above returns data for 'Thorchain Lending' too, so we filter by name

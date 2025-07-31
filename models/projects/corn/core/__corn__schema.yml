@@ -59,9 +59,7 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-
   - name: ez_corn_metrics_by_chain
     description: "This table stores metrics for the CORN protocol"
     columns:
       - *spot_volume
-

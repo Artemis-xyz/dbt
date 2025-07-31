@@ -55,7 +55,6 @@ models:
       - *token_turnover_fdv
       - *token_volume
       - *tvl
-
     tests:
       - not_null:
           column_name: date
@@ -75,7 +74,6 @@ models:
     description: "This table stores metrics for the THORCHAIN protocol"
     columns:
       - *tvl
-
     tests:
       - not_null:
           column_name: date

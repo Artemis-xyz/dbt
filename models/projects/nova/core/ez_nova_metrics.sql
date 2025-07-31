@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -21,26 +21,34 @@ with nova_dex_volumes as (
     select date, daily_volume as dex_volumes
     from {{ ref("fact_nova_daily_dex_volumes") }}
 )
-, nova_market_data as (
+, market_metrics as (
     {{ get_coingecko_metrics('novadex') }}
 )
 select
-    date
-    , dex_volumes
+    nova_dex_volumes.date
+    , 'nova' as artemis_id
+    
     -- Standardized Metrics
-    , dex_volumes as spot_volume
+    
     -- Market Metrics
-    , nmd.price
-    , nmd.market_cap
-    , nmd.fdmc
-    , nmd.token_turnover_circulating
-    , nmd.token_turnover_fdv
-    , nmd.token_volume
+    , market_metrics.price
+    , market_metrics.market_cap
+    , market_metrics.fdmc
+    , market_metrics.token_volume
+
+    -- Usage Data
+    , nova_dex_volumes.dex_volumes as spot_volume
+
+    -- Token Turnover/Other Data
+    , market_metrics.token_turnover_circulating
+    , market_metrics.token_turnover_fdv
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+
 from nova_dex_volumes   
-left join nova_market_data nmd using (date)
+left join market_metrics using (date)
 where true
-{{ ez_metrics_incremental('date', backfill_date) }}
-and date < to_date(sysdate())
+{{ ez_metrics_incremental('nova_dex_volumes.date', backfill_date) }}
+and nova_dex_volumes.date < to_date(sysdate())

@@ -8,6 +8,10 @@ column_definitions:
     name: bridge_dau
     description: "The number of daily active addresses on a bridge"
 
+  bridge_fees: &bridge_fees
+    name: bridge_fees
+    description: "The total fees on a bridge"
+
   bridge_txns: &bridge_txns
     name: bridge_txns
     description: "The number of transactions on a bridge"
@@ -69,6 +73,7 @@ models:
     description: "This table stores metrics for the DEBRIDGE protocol"
     columns:
       - *bridge_dau
+      - *bridge_fees
       - *bridge_txns
       - *bridge_volume
       - *fdmc
@@ -78,7 +83,6 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-
     tests:
       - not_null:
           column_name: date
@@ -100,7 +104,6 @@ models:
       - *fees
       - *inflow
       - *outflow
-
     tests:
       - not_null:
           column_name: date

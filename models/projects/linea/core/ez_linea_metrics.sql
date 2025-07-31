@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -21,14 +21,14 @@ with
     fundamental_data as (
         select
             date
-            , txns
-            , daa as dau
-            , gas_usd as fees
-            , gas as fees_native
-            , revenue
-            , revenue_native
-            , l1_data_cost
-            , l1_data_cost_native
+            , coalesce(txns, 0) as txns
+            , coalesce(daa, 0) as dau
+            , coalesce(gas_usd, 0) as fees
+            , coalesce(gas, 0) as fees_native
+            , coalesce(revenue, 0) as revenue
+            , coalesce(revenue_native, 0) as revenue_native
+            , coalesce(l1_data_cost, 0) as l1_data_cost
+            , coalesce(l1_data_cost_native, 0) as l1_data_cost_native
         from {{ ref("fact_linea_txns") }}
         left join {{ ref("fact_linea_daa") }} using (date)
         left join {{ ref("fact_linea_gas_gas_usd_revenue") }} using (date)
@@ -44,47 +44,41 @@ with
     
 select 
    fundamental_data.date
-    , 'linea' as chain
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees
-    , fees_native
-    , fees / txns as avg_txn_fee
-    , revenue
-    , revenue_native
-    , l1_data_cost
-    , l1_data_cost_native
-    , dune_dex_volumes_linea.dex_volumes
-    , dune_dex_volumes_linea.adjusted_dex_volumes
+    , 'linea' as artemis_id
+
     -- Standardized Metrics
-    -- Market Data Metrics
-    , tvl
-    -- Chain Usage Metrics
-    , txns AS chain_txns
-    , dau AS chain_dau
-    , wau AS chain_wau
-    , mau AS chain_mau
-    , dune_dex_volumes_linea.dex_volumes AS chain_spot_volume
-    , fees / txns as chain_avg_txn_fee
+    
+    -- Usage Data
+    , fundamental_data.dau as chain_dau
+    , fundamental_data.dau as dau
+    , wau as chain_wau
+    , mau as chain_mau
+    , fundamental_data.txns as chain_txns
+    , fundamental_data.txns as txns
+    , fundamental_data.fees / fundamental_data.txns as chain_avg_txn_fee
+    , defillama_data.tvl as chain_tvl
+    , defillama_data.tvl as tvl
+    , dune_dex_volumes_linea.dex_volumes as chain_spot_volume
+    , dune_dex_volumes_linea.adjusted_dex_volumes
+    
     -- Cashflow Metrics
-    , fees AS ecosystem_revenue
-    , fees_native AS ecosystem_revenue_native
-    , revenue AS treasury_fee_allocation
-    , revenue_native AS treasury_fee_allocation_native
-    , l1_data_cost_native AS l1_fee_allocation_native
-    , l1_data_cost AS l1_fee_allocation
+    , fundamental_data.fees_native as fees_native
+    , fundamental_data.fees as fees
+    , fundamental_data.revenue as treasury_fee_allocation
+    , fundamental_data.l1_data_cost as l1_fee_allocation
+    
     -- Developer Metrics
-    , weekly_commits_core_ecosystem
-    , weekly_commits_sub_ecosystem
-    , weekly_developers_core_ecosystem
-    , weekly_developers_sub_ecosystem
-    , weekly_contracts_deployed
-    , weekly_contract_deployers
+    , github_data.weekly_commits_core_ecosystem
+    , github_data.weekly_commits_sub_ecosystem
+    , github_data.weekly_developers_core_ecosystem
+    , github_data.weekly_developers_sub_ecosystem
+    , contract_data.weekly_contracts_deployed
+    , contract_data.weekly_contract_deployers
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    
 from fundamental_data
 left join github_data using (date)
 left join contract_data using (date)
