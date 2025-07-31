@@ -1,7 +1,7 @@
 {{
     config(
         materialized="table",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="QUICKSWAP",
         database="quickswap",
         schema="core",
         alias="ez_metrics_by_chain",

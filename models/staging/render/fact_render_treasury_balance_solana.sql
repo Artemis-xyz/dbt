@@ -1,7 +1,7 @@
 {{
     config(
         materialized="incremental",
-        snowflake_warehouse="ANALYTICS_XL",
+        snowflake_warehouse="RENDER",
         unique_key=["address", "contract_address", "address"]
     )
 }}
