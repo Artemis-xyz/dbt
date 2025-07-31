@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         snowflake_warehouse="RENDER",
-        unique_key=["address", "contract_address", "address"]
+        unique_key=["date", "contract_address", "address"]
     )
 }}
 
