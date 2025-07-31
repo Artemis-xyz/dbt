@@ -4,6 +4,12 @@
 version: 2
 
 column_definitions:
+  artemis_stablecoin_transfer_volume: &artemis_stablecoin_transfer_volume
+    name: artemis_stablecoin_transfer_volume
+    description: "The total volume of stablecoin transfers on a chain"
+    tags:
+      - artemis_gaap
+
   chain_dau: &chain_dau
     name: chain_dau
     description: "Daily unique users on a chain"
@@ -70,6 +76,12 @@ column_definitions:
     name: non_sybil_users
     description: "The number of non-sybil users on a chain"
 
+  p2p_stablecoin_transfer_volume: &p2p_stablecoin_transfer_volume
+    name: p2p_stablecoin_transfer_volume
+    description: "The total volume of stablecoin transfers on a chain"
+    tags:
+      - artemis_gaap
+
   price: &price
     name: price
     description: "The price of a token in USD"
@@ -89,6 +101,12 @@ column_definitions:
   stablecoin_total_supply: &stablecoin_total_supply
     name: stablecoin_total_supply
     description: "The total supply of a stablecoin on a chain"
+    tags:
+      - artemis_gaap
+
+  stablecoin_transfer_volume: &stablecoin_transfer_volume
+    name: stablecoin_transfer_volume
+    description: "The total volume of stablecoin transfers on a chain"
     tags:
       - artemis_gaap
 
@@ -125,6 +143,27 @@ column_definitions:
       - artemis_gaap
 
 models:
+  - name: ez_stellar_stablecoin_metrics_by_address_with_labels
+    description: "This table stores metrics for the STELLAR protocol"
+    columns:
+      - *artemis_stablecoin_transfer_volume
+      - *p2p_stablecoin_transfer_volume
+      - *stablecoin_transfer_volume
+    tests:
+      - not_null:
+          column_name: date
+          description: "Ensures that the date column is not null"
+          severity: error
+      - dbt_utils.recency:
+          datepart: day
+          interval: 2
+          field: date
+          description: "Ensures that the date column contains at least one record from the last 2 days"
+          severity: error
+      - dbt_utils.expression_is_true:
+          expression: date = cast(date as date)
+          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
+          severity: error
   - name: ez_stellar_metrics
     description: "This table stores metrics for the STELLAR protocol"
     columns:
@@ -152,7 +191,6 @@ models:
       - *token_volume
       - *tokenized_market_cap
       - *total_supply_native
-
     tests:
       - not_null:
           column_name: date
@@ -181,7 +219,6 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-
     tests:
       - not_null:
           column_name: date
@@ -210,7 +247,6 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-
     tests:
       - not_null:
           column_name: date
@@ -239,7 +275,6 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-
     tests:
       - not_null:
           column_name: date
@@ -266,23 +301,6 @@ models:
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-
-    tests:
-      - not_null:
-          column_name: date
-          description: "Ensures that the date column is not null"
-          severity: error
-      - dbt_utils.recency:
-          datepart: day
-          interval: 2
-          field: date
-          description: "Ensures that the date column contains at least one record from the last 2 days"
-          severity: error
-      - dbt_utils.expression_is_true:
-          expression: date = cast(date as date)
-          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
-          severity: error
-  - name: ez_stellar_stablecoin_metrics_by_address_with_labels
     tests:
       - not_null:
           column_name: date
