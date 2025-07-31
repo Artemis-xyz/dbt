@@ -14,7 +14,7 @@ with data as (
     from solana_flipside.core.fact_decoded_instructions 
     where lower(program_id) = lower('LanMV9sAd7wArD4vJFi2qDdfnVhFxYSUg6eADduJ3uj')
     {% if is_incremental() %}
-        and block_timestamp > (select dateadd(day, -3, to_date(sysdate())) from {{ this }})
+        and block_timestamp >= dateadd(day, -3, to_date(sysdate()))
     {% else %}
         and block_timestamp >= '2025-04-20'
     {% endif %}

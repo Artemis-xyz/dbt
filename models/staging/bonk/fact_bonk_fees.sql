@@ -9,7 +9,7 @@ with data as (
         value:"bonk_revenue_usd"::float as bonk_fees
         ,  date_trunc('day', TO_TIMESTAMP(REPLACE(value:"day"::string, ' UTC', '')))  as date
         ,  extraction_date
-    from landing_database.prod_landing.raw_bonk_revenue
+    from {{ source('PROD_LANDING', 'raw_bonk_revenue') }}
     , lateral flatten(source_json)
 )
 select 
