@@ -41,36 +41,36 @@ select
     , 'berachain' as artemis_id
 
     --Market Data
-    , price
-    , market_cap as mc
-    , fdmc
-    , token_volume
+    , price_data.price
+    , price_data.market_cap as mc
+    , price_data.fdmc
+    , price_data.token_volume
 
     --Usage Data
-    , daa
-    , txns
-    , dex_volumes as spot_volume
-    , adjusted_dex_volumes as adjusted_spot_volume
+    , fundamental_metrics.daa as dau
+    , fundamental_metrics.txns
+    , dex_volumes.dex_volumes as spot_volume
+    , dex_volumes.adjusted_dex_volumes as adjusted_spot_volume
 
     --Fee Data
-    , fees_native
-    , fees
+    , fundamental_metrics.fees_native
+    , fundamental_metrics.fees
 
     --Fee Allocation
-    , burns_native as burned_fee_allocation_native
+    , supply_data.burns_native as burned_fee_allocation_native
 
     --Financial Statements
-    , burns_native as revenue_native
-    , burns_native * price as revenue
+    , supply_data.burns_native as revenue_native
+    , supply_data.burns_native * price_data.price as revenue
 
     --Supply Data
-    , premine_unlocks_native
-    , emission_native as gross_emissions_native
-    , circulating_supply_native
+    , supply_data.premine_unlocks_native
+    , supply_data.emission_native as gross_emissions_native
+    , supply_data.circulating_supply_native
 
     --TOKEN TURNOVER/OTHER DATA
-    , token_turnover_circulating
-    , token_turnover_fdv
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on

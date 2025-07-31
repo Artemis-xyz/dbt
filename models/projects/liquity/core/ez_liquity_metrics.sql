@@ -95,22 +95,19 @@ select
     , fr.revenue_usd as fees
 
     --Fee Allocation
-    , ti.token_incentives as staking_fee_allocation
+    , coalesce(ti.token_incentives, 0) as staking_fee_allocation
 
     --Financial Statements
     , fr.revenue_usd / price as revenue_native
     , fr.revenue_usd as revenue
-    , ti.token_incentives
-    , ti.token_incentives as expenses
-    , fr.revenue_usd - ti.token_incentives as earnings
+    , coalesce(ti.token_incentives, 0)
+    , coalesce(ti.token_incentives, 0) as expenses
+    , coalesce(fr.revenue_usd, 0) - coalesce(ti.token_incentives, 0) as earnings
 
     --Treasury Data
-    , coalesce(t.treasury_native, 0) as treasury_native
-    , coalesce(t.treasury, 0) as treasury
-    , coalesce(t.net_treasury_native, 0) as net_treasury_native
-    , coalesce(t.net_treasury, 0) as net_treasury
-    , coalesce(t.own_token_treasury_native, 0) as own_token_treasury_native
-    , coalesce(t.own_token_treasury, 0) as own_token_treasury  
+    , t.treasury as treasury
+    , t.net_treasury as net_treasury
+    , t.own_token_treasury as own_token_treasury  
 
     --Token Turnover/Other Data
     , md.token_turnover_fdv

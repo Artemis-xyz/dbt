@@ -85,21 +85,20 @@ select
     , dcs.chain
 
     --Usage Data
-    , coalesce(tvl.tvl, 0) as tvl
+    , tvl.tvl as tvl
     , coalesce(tvl.tvl, 0) as lending_deposits
     , coalesce(os.outstanding_supply, 0) as lending_loans
 
     --Fee Data
-    , coalesce(fr.revenue_usd, 0) as lending_fees
-    , coalesce(fr.revenue_usd, 0) as fees
+    , fr.revenue_usd as lending_fees
+    , fr.revenue_usd as fees
 
     --Fee Allocation
     , coalesce(ti.token_incentives, 0) as staking_fee_allocation
 
     --Treasury Data
-    , coalesce(treasury_native.own_token_treasury, 0) as treasury_native
-    , coalesce(treasury.treasury, 0) as treasury
-    , coalesce(net_treasury.net_treasury, 0) as net_treasury
+    , treasury.treasury as treasury
+    , net_treasury.net_treasury as net_treasury
 
 from date_chain_spine dcs
 left join tvl using (date, chain)

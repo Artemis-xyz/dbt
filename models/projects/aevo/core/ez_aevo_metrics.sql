@@ -29,17 +29,17 @@ select
     , 'aevo' as artemis_id
 
     --Market Data
-    , price
-    , market_cap as mc
-    , fdmc
-    , token_volume
+    , price_data.price
+    , price_data.market_cap as mc
+    , price_data.fdmc
+    , price_data.token_volume
 
     --Usage Data
-    , trading_volume as perp_volume
+    , trading_volume_data.trading_volume as perp_volume
 
     --Token Turnover/Other Data
-    , token_turnover_circulating
-    , token_turnover_fdv
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on

@@ -35,7 +35,7 @@ select
     
      --Market Data
     , market_data.price
-    , market_data.market_cap
+    , market_data.market_cap as mc
     , market_data.fdmc
     , market_data.token_volume
 
@@ -43,7 +43,7 @@ select
     , staked_eth_metrics.num_staked_eth as tvl_native
     , staked_eth_metrics.amount_staked_usd as tvl
 
-    --Other Data
+    --Token Turnover/Other Data
     , market_data.token_turnover_fdv
     , market_data.token_turnover_circulating
     

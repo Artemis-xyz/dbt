@@ -126,7 +126,7 @@ select
 
     --Financial Statements
     , fees_revenue.burned_fee_allocation + fees_revenue.treasury_fee_allocation as revenue
-    , token_incentives.token_incentives_usd as token_incentives
+    , coalesce(token_incentives.token_incentives_usd, 0) as token_incentives
     
 
 from tvl_by_chain

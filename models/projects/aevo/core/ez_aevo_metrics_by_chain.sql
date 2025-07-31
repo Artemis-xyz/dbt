@@ -20,7 +20,7 @@ select
     chain,
 
     --Usage Data
-    trading_volume as perp_volume
+    trading_volume_data.trading_volume as perp_volume
 
 from trading_volume_data
 where date < to_date(sysdate())

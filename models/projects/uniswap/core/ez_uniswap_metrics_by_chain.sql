@@ -123,9 +123,9 @@ select
     --Financial Statements
     , 0 as revenue_native
     , 0 as revenue
-    , token_incentives_usd as token_incentives
+    , coalesce(token_incentives_usd, 0) as token_incentives
     , 0 as operating_expenses
-    , revenue - token_incentives as earnings
+    , coalesce(revenue, 0) - coalesce(token_incentives_usd, 0) as earnings
 
     --Treasury Data
     , treasury_value as treasury

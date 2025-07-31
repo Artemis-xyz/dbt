@@ -102,8 +102,8 @@ select
     --Financial Statement
     , fees_native as revenue_native
     , fees as revenue
-    , token_incentives.token_incentives as token_incentives
-    , revenue - token_incentives as earnings
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
+    , coalesce(revenue, 0) - coalesce(token_incentives.token_incentives, 0) as earnings
 
      --Supply Data
     , issued_supply_metrics.max_supply_native

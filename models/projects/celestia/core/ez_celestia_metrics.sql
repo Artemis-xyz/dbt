@@ -58,46 +58,46 @@ select
     ,'celestia' as artemis_id
 
     --Market Data
-    , coalesce(price, 0) as price
-    , coalesce(market_cap, 0) as mc
-    , coalesce(fdmc, 0) as fdmc
-    , coalesce(token_volume, 0) as token_volume
+    , price_data.price
+    , price_data.market_cap as mc
+    , price_data.fdmc
+    , price_data.token_volume
 
     --Usage Data
-    , coalesce(unique_namespaces, 0) as da_dau
-    , coalesce(unique_namespaces, 0) as dau
-    , coalesce(txns, 0) as da_txns
-    , coalesce(txns, 0) as txns
-    , coalesce(fees, 0) / coalesce(txns, 1) as da_avg_txn_fee
-    , coalesce(fees, 0) / coalesce(txns, 1) as avg_txn_fee
+    , fundamental_data.unique_namespaces as da_dau
+    , fundamental_data.unique_namespaces as dau
+    , fundamental_data.txns as da_txns
+    , fundamental_data.txns as txns
+    , fundamental_data.fees / fundamental_data.txns as da_avg_txn_fee
+    , fundamental_data.fees / fundamental_data.txns as avg_txn_fee
 
     --Fee Data
-    , coalesce(fees_native, 0) as chain_fees_native
-    , coalesce(fees_for_blobs_native, 0) as blob_fees_native
-    , coalesce(blob_fees_native, 0) + coalesce(chain_fees_native, 0) as fees_native
-    , coalesce(fees_for_blobs_native, 0) * coalesce(price, 0) as blob_fees
-    , coalesce(fees, 0) as chain_fees
-    , coalesce(fees, 0) + coalesce(blob_fees, 0) as fees
+    , fundamental_data.fees_native as chain_fees_native
+    , fundamental_data.fees_for_blobs_native as blob_fees_native
+    , fundamental_data.fees_for_blobs_native + fundamental_data.fees_native as fees_native
+    , fundamental_data.fees_for_blobs_native * price_data.price as blob_fees
+    , fundamental_data.fees as chain_fees
+    , fundamental_data.fees + blob_fees as fees
 
     --Fee Allocation
-    , coalesce(blob_fees_native, 0) + coalesce(chain_fees_native, 0) as validator_fee_allocation_native
-    , coalesce(fees, 0) + coalesce(blob_fees, 0) as validator_fee_allocation
+    , fundamental_data.fees_for_blobs_native + fundamental_data.fees_native as validator_fee_allocation_native
+    , fundamental_data.fees + blob_fees as validator_fee_allocation
 
     -- Supply Data
-    , coalesce(premine_unlocks_native, 0) as premine_unlocks_native
-    , coalesce(mints, 0) as gross_emissions_native
-    , coalesce(circulating_supply_native, 0) as circulating_supply_native
+    , coalesce(supply_data.premine_unlocks_native, 0) as premine_unlocks_native
+    , coalesce(supply_data.mints_usd, 0) as gross_emissions_native
+    , supply_data.circulating_supply_native as circulating_supply_native
 
     --Token Turnover/Other Data
-    , coalesce(token_turnover_circulating, 0) as token_turnover_circulating
-    , coalesce(token_turnover_fdv, 0) as token_turnover_fdv
+    , price_data.token_turnover_circulating as token_turnover_circulating
+    , price_data.token_turnover_fdv as token_turnover_fdv
 
      --Bespoke Data
-    , coalesce(blob_size_mib, 0) as blob_size_mib
-    , coalesce(blob_size_mib / 86400, 0) as avg_mib_per_second
-    , coalesce(fees_for_blobs_native / blob_size_mib, 0) as avg_cost_per_mib_native
-    , coalesce(fees_for_blobs_native * price / blob_size_mib, 0) as avg_cost_per_mib
-    , coalesce(unique_namespaces, 0) as submitters
+    , fundamental_data.blob_size_mib as blob_size_mib
+    , fundamental_data.blob_size_mib / 86400 as avg_mib_per_second
+    , fundamental_data.fees_for_blobs_native / fundamental_data.blob_size_mib as avg_cost_per_mib_native
+    , fundamental_data.fees_for_blobs_native * price_data.price / fundamental_data.blob_size_mib as avg_cost_per_mib
+    , fundamental_data.unique_namespaces as submitters
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on

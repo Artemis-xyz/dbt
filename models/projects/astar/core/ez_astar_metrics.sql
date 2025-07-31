@@ -45,8 +45,8 @@ select
     , txns
 
     --Fee Data
-    , coalesce(fees_native, 0) as fees_native
-    , coalesce(fees_usd, 0) as fees
+    , fees_native as fees_native
+    , fees_usd as fees
     
     --Token Turnover/Other Data
     , price_data.token_turnover_circulating

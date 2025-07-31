@@ -94,8 +94,8 @@ select
     
     --Financial Statements
     , revenue
-    , gross_emissions AS token_incentives
-    , revenue - token_incentives AS earnings
+    , coalesce(gross_emissions, 0) AS token_incentives
+    , coalesce(revenue, 0) - coalesce(gross_emissions, 0) AS earnings
 
     --Supply Data
     , issuance * price AS gross_emissions

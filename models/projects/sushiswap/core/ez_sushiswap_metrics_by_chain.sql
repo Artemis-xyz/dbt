@@ -115,8 +115,8 @@ select
     --Financial Statement
     , 0 as revenue_native
     , 0 as revenue
-    , token_incentives.token_incentives as token_incentives
-    , revenue - token_incentives as earnings
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
+    , coalesce(revenue, 0) - coalesce(token_incentives.token_incentives, 0) as earnings
 
 from sushiswap_metric_dates
 left join tvl_by_chain using(date, chain)

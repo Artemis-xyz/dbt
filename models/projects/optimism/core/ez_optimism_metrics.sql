@@ -155,8 +155,8 @@ select
     --Financial Statements
     , coalesce(fees_native, 0) + coalesce(revenue_share_native, 0) - l1_data_cost_native as revenue_native  -- supply side: fees paid to squencer - fees paied to l1 (L2 Revenue)
     , coalesce(fees, 0) + (coalesce(revenue_share, 0)) - l1_data_cost as revenue
-    , token_incentives.token_incentives
-    , revenue - token_incentives.token_incentives as earnings    
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
+    , coalesce(revenue, 0) - coalesce(token_incentives.token_incentives, 0) as earnings    
 
     -- Supply Metrics
     , cumulative_mints_native AS max_supply_native

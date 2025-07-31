@@ -83,23 +83,22 @@ SELECT
     , price_data.token_volume
 
     --Usage Data
-    , coalesce(unique_traders_data.unique_traders, 0) + coalesce(unique_traders_data_v4.unique_traders, 0) as perp_dau
-    , coalesce(unique_traders_data.unique_traders, 0) + coalesce(unique_traders_data_v4.unique_traders, 0) as dau
-    , coalesce(trading_volume_data.trading_volume, 0) + coalesce(trading_volume_data_v4.trading_volume, 0) as perp_volume
+    , unique_traders_data.unique_traders + unique_traders_data_v4.unique_traders as perp_dau
+    , unique_traders_data.unique_traders + unique_traders_data_v4.unique_traders as dau
+    , trading_volume_data.trading_volume + trading_volume_data_v4.trading_volume as perp_volume
 
     --Fee Data
     , fees as trading_fees
     , txn_fees as chain_fees
-    , coalesce(txn_fees, 0) + coalesce(fees, 0) as fees
+    , txn_fees + fees as fees
 
     , case when date_spine.date >= '2022-03-25' then fees * 0.25 else 0 end as buybacks
 
     --Financial Statements
-    , (coalesce(txn_fees, 0) + coalesce(fees, 0)) / price as revenue_native
-    , (coalesce(txn_fees, 0) + coalesce(fees, 0)) as revenue
-    , token_incentives.token_incentives as token_incentives
-    , (coalesce(txn_fees, 0) + coalesce(fees, 0))
-            - COALESCE(token_incentives.token_incentives, 0) AS earnings     
+    , (txn_fees + fees) / price as revenue_native
+    , txn_fees + fees as revenue
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
+    , (txn_fees + fees) - coalesce(token_incentives.token_incentives, 0) AS earnings     
             
     -- Supply Metrics
     , dydx_supply_data.premine_unlocks_native as premine_unlocks_native

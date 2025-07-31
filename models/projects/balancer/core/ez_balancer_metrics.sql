@@ -89,44 +89,44 @@ select
     , 'balancer' as artemis_id
 
     --Market Data
-    , coalesce(market_data.price, 0) as price
-    , coalesce(market_data.market_cap, 0) as mc
-    , coalesce(market_data.fdmc, 0) as fdmc
-    , coalesce(market_data.token_volume, 0) as token_volume
+    , market_data.price as price
+    , market_data.market_cap as mc
+    , market_data.fdmc as fdmc
+    , market_data.token_volume as token_volume
 
     --Usage Data
-    , coalesce(swap_metrics.unique_traders, 0) as spot_dau
-    , coalesce(swap_metrics.unique_traders, 0) as dau
-    , coalesce(swap_metrics.number_of_swaps, 0) as spot_txns
-    , coalesce(swap_metrics.number_of_swaps, 0) as txns
-    , coalesce(all_tvl.tvl_usd, 0) as tvl
-    , coalesce(swap_metrics.trading_volume, 0) as spot_volume
+    , swap_metrics.unique_traders as spot_dau
+    , swap_metrics.unique_traders as dau
+    , swap_metrics.number_of_swaps as spot_txns
+    , swap_metrics.number_of_swaps as txns
+    , all_tvl.tvl_usd as tvl
+    , swap_metrics.trading_volume as spot_volume
 
     --Fee Data
-    , coalesce(swap_metrics.trading_fees, 0) / price as fees_native
-    , coalesce(swap_metrics.trading_fees, 0) as spot_fees
-    , coalesce(swap_metrics.trading_fees, 0) as fees
+    , swap_metrics.trading_fees / price as fees_native
+    , swap_metrics.trading_fees as spot_fees
+    , swap_metrics.trading_fees as fees
 
     --Fee Allocation
-    , coalesce(swap_metrics.service_fee_allocation, 0) as lp_fee_allocation
-    , coalesce(swap_metrics.treasury_fee_allocation, 0) as foundation_fee_allocation
-    , coalesce(swap_metrics.vebal_fee_allocation, 0) as staking_fee_allocation
+    , swap_metrics.service_fee_allocation as lp_fee_allocation
+    , swap_metrics.treasury_fee_allocation as foundation_fee_allocation
+    , swap_metrics.vebal_fee_allocation as staking_fee_allocation
 
     --Financial Statements
-    , coalesce(swap_metrics.revenue, 0) / price as revenue_native
-    , coalesce(swap_metrics.revenue, 0) as revenue
+    , swap_metrics.revenue / price as revenue_native
+    , swap_metrics.revenue as revenue
     , coalesce(token_incentives.token_incentives_usd, 0) as token_incentives
     , coalesce(swap_metrics.revenue, 0) - coalesce(token_incentives.token_incentives_usd, 0) as earnings
 
     --Treasury Data
-    , coalesce(treasury.net_treasury_usd, 0) as treasury
-    , coalesce(net_treasury.net_treasury_usd, 0) as net_treasury
-    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
+    , treasury.net_treasury_usd as treasury
+    , net_treasury.net_treasury_usd as net_treasury
+    , treasury_native.own_token_treasury as own_token_treasury
 
     --Token Turnover/Other Data
-    , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
-    , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
-    , coalesce(token_holders.token_holder_count, 0) as tokenholder_count
+    , market_data.token_turnover_circulating as token_turnover_circulating
+    , market_data.token_turnover_fdv as token_turnover_fdv
+    , token_holders.token_holder_count as tokenholder_count
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on

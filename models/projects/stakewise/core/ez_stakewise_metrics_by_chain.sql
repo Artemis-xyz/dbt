@@ -24,7 +24,7 @@ select
     , 'stakewise' as artemis_id
     , staked_eth_metrics.chain
 
-    --Usage Metrics
+    --Usage Data
     , staked_eth_metrics.num_staked_eth as tvl_native
     , staked_eth_metrics.amount_staked_usd as tvl
     

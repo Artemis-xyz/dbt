@@ -89,7 +89,7 @@ select
     , 0 as revenue_native
     , 0 as revenue
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
-    , revenue - token_incentives as earnings
+    , coalesce(revenue, 0) - coalesce(token_incentives.token_incentives, 0) as earnings
    
 
 from tvl_by_chain

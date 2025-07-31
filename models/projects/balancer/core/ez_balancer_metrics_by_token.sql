@@ -107,33 +107,33 @@ select
     , date_token_spine.token
 
     --Usage Data
-    , coalesce(swap_metrics.unique_traders, 0) as spot_dau
-    , coalesce(swap_metrics.unique_traders, 0) as dau
-    , coalesce(swap_metrics.number_of_swaps, 0) as spot_txns
-    , coalesce(swap_metrics.number_of_swaps, 0) as txns
-    , coalesce(tvl.tvl_usd, 0) as tvl
-    , coalesce(swap_metrics.trading_volume, 0) as spot_volume
+    , swap_metrics.unique_traders as spot_dau
+    , swap_metrics.unique_traders as dau
+    , swap_metrics.number_of_swaps as spot_txns
+    , swap_metrics.number_of_swaps as txns
+    , tvl.tvl_usd as tvl
+    , swap_metrics.trading_volume as spot_volume
 
     --Fee Data
-    , coalesce(swap_metrics.trading_fees_native, 0) as fees_native
-    , coalesce(swap_metrics.trading_fees, 0) as spot_fees
-    , coalesce(swap_metrics.trading_fees, 0) as fees
+    , swap_metrics.trading_fees_native as fees_native
+    , swap_metrics.trading_fees as spot_fees
+    , swap_metrics.trading_fees as fees
 
     --Fee Allocation
-    , coalesce(swap_metrics.service_fee_allocation, 0) as lp_fee_allocation
-    , coalesce(swap_metrics.treasury_fee_allocation, 0) as foundation_fee_allocation
-    , coalesce(swap_metrics.staking_fee_allocation, 0) as staking_fee_allocation
+    , swap_metrics.service_fee_allocation as lp_fee_allocation
+    , swap_metrics.treasury_fee_allocation as foundation_fee_allocation
+    , swap_metrics.staking_fee_allocation as staking_fee_allocation
 
     --Financial Statements
-    , coalesce(swap_metrics.revenue_native, 0) as revenue_native
-    , coalesce(swap_metrics.revenue, 0) as revenue
+    , swap_metrics.revenue_native as revenue_native
+    , swap_metrics.revenue as revenue
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
-    , coalesce(swap_metrics.revenue, 0) - coalesce(token_incentives.token_incentives_usd, 0) as earnings
+    , coalesce(swap_metrics.revenue, 0) - coalesce(token_incentives.token_incentives, 0) as earnings
 
     -- Treasury Metrics
-    , coalesce(treasury_by_token.treasury_value, 0) as treasury
-    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
-    , coalesce(net_treasury.net_treasury_usd, 0) as net_treasury
+    , treasury_by_token.treasury_value as treasury
+    , treasury_native.own_token_treasury as own_token_treasury
+    , net_treasury.net_treasury_usd as net_treasury
 
 
 from date_token_spine

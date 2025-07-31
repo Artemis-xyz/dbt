@@ -31,31 +31,31 @@ select
     fundamental_data.date
     , 'acala' as artemis_id
 
+    --Market Data
+    , price_data.price
+    , price_data.market_cap as mc
+    , price_data.fdmc
+
     --Usage Data
-    , daa as dau
-    , txns
-
-    -- Market Data
-    , price
-    , market_cap
-    , fdmc
-
-    -- Chain Data
-    , dau AS dau
-    , wau AS wau
-    , mau AS mau
-    , txns AS txns
+    , fundamental_data.daa AS chain_dau
+    , fundamental_data.daa AS dau
+    , rolling_metrics.wau AS chain_wau
+    , rolling_metrics.wau AS wau
+    , rolling_metrics.mau AS chain_mau
+    , rolling_metrics.mau AS mau
+    , fundamental_data.txns AS chain_txns
+    , fundamental_data.txns AS txns
 
     --Fee Data
-    , fees_native
-    , fees
+    , fundamental_data.fees_native
+    , fundamental_data.fees
 
     --Fee Allocation
-    , fees_native AS burned_fee_allocation
+    , fundamental_data.fees_native AS burned_fee_allocation
 
     --Financial Statements
-    , fees_native AS revenue_native 
-    , fees AS revenue
+    , fundamental_data.fees_native AS revenue_native 
+    , fundamental_data.fees AS revenue
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on

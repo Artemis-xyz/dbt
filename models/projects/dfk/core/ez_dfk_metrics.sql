@@ -29,26 +29,26 @@ select
     , 'dfk' as artemis_id
 
     --Market Data
-    , price
-    , market_cap as mc
-    , fdmc
-    , token_volume
+    , price_data.price
+    , price_data.market_cap as mc
+    , price_data.fdmc
+    , price_data.token_volume
 
     --Usage Data  
-    , dau as chain_dau
-    , dau
-    , txns as chain_txns
-    , txns
-    , fees / txns as chain_avg_txn_fee
-    , fees / txns as avg_txn_fee
+    , fundamental_data.dau as chain_dau
+    , fundamental_data.dau
+    , fundamental_data.txns as chain_txns
+    , fundamental_data.txns
+    , fundamental_data.fees / fundamental_data.txns as chain_avg_txn_fee
+    , fundamental_data.fees / fundamental_data.txns as avg_txn_fee
 
     --Fee Data
-    , fees_native
-    , fees_native * price as fees
+    , fundamental_data.fees_native
+    , fundamental_data.fees_native * price_data.price as fees
 
     --Token Turnover/Other Data
-    , token_turnover_circulating
-    , token_turnover_fdv
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on

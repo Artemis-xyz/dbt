@@ -97,21 +97,11 @@ select
     dts.date
     , 'liquity' as artemis_id
     , dts.token
-    , fr.revenue_usd as fees
-    , fr.revenue_native as fees_native
-    , fr.revenue_usd as revenue
-    , fr.revenue_native as revenue_native
-    , ti.token_incentives_native as token_incentives_native
-    , ti.token_incentives_native as expenses_native
-    , treasury_by_token.treasury as treasury_value
-    , treasury_by_token.treasury_native as treasury_native_value
-    , net_treasury.net_treasury as net_treasury_value
-    , os.outstanding_supply
 
     --Usage Data
     , tvl.tvl
     , tvl.tvl as lending_deposits
-    , os.outstanding_supply as lending_loans
+    , coalesce(os.outstanding_supply, 0) as lending_loans
 
     --Fee Data
     , fr.revenue_native as fee_native
@@ -119,15 +109,12 @@ select
     , fr.revenue_usd as fees
 
     --Fee Allocation
-    , ti.token_incentives_native as staking_fee_allocation_native
+    , coalesce(ti.token_incentives_native, 0) as staking_fee_allocation_native
 
     --Treasury Data
-    , coalesce(treasury_by_token.treasury_native, 0) as treasury_native
-    , coalesce(treasury_by_token.treasury, 0) as treasury
-    , coalesce(net_treasury.net_treasury_native, 0) as net_treasury_native
-    , coalesce(net_treasury.net_treasury, 0) as net_treasury
-    , coalesce(treasury_native.own_token_treasury_native, 0) as own_token_treasury_native
-    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
+    , t.treasury as treasury
+    , t.net_treasury as net_treasury
+    , t.own_token_treasury as own_token_treasury  
 
 
 from date_token_spine dts
