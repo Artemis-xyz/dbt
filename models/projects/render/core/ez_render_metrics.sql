@@ -37,11 +37,15 @@ with
     , price_data as (
         {{ get_coingecko_metrics("render") }}
     )
+    , date_spine as (
+        SELECT date
+        FROM {{ ref("dim_date_spine") }}
+        WHERE date between '2019-02-12' and to_date(sysdate())
+    )
 
 select
-    burn_data.date,
+    date_spine.date,
     price_data.price,
-    burn_data.total_burns as burns_native,
 
 
     -- Financial Data
@@ -55,9 +59,10 @@ select
     -- Timestamp Columns
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
-from burn_data
+from date_spine
+left join burn_data using(date)
 left join price_data using(date)
 left join supply_data using(date)
 where true
-{{ ez_metrics_incremental('burn_data.date', backfill_date) }}
-and burn_data.date < to_date(sysdate())
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())
