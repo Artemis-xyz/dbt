@@ -92,34 +92,38 @@ with
     rolling_metrics as ({{ get_rolling_active_address_metrics("polkadot") }})
 select
     fundamental_data.date
-    , fundamental_data.chain
-    , coalesce(fundamental_data.txns,0) + coalesce(collectives_fundamental_data.txns,0) + coalesce(people_fundamental_data.txns, 0) + coalesce(coretime_fundamental_data.txns, 0) + coalesce(bridgehub_fundamental_data.txns, 0) + coalesce(asset_hub_fundamental_data.txns, 0) as txns
-    , coalesce(fundamental_data.dau,0) + coalesce(collectives_fundamental_data.dau,0) + coalesce(people_fundamental_data.dau,0) + coalesce(coretime_fundamental_data.dau,0) + coalesce(bridgehub_fundamental_data.dau,0) + coalesce(asset_hub_fundamental_data.dau,0) as dau
-    , wau
-    , mau
-    , coalesce(fundamental_data.fees_native,0) + coalesce(collectives_fundamental_data.fees_native,0) + coalesce(people_fundamental_data.fees_native,0) + coalesce(coretime_fundamental_data.fees_native,0) + coalesce(bridgehub_fundamental_data.fees_native,0) + coalesce(asset_hub_fundamental_data.fees_native,0) as fees_native
-    , coalesce(fundamental_data.fees,0) + coalesce(collectives_fundamental_data.fees,0) + coalesce(people_fundamental_data.fees,0) + coalesce(coretime_fundamental_data.fees,0) + coalesce(bridgehub_fundamental_data.fees,0) + coalesce(asset_hub_fundamental_data.fees,0) as fees
-    , revenue_native
-    , revenue
-    , (coalesce(fundamental_data.fees,0) + coalesce(collectives_fundamental_data.fees,0) + coalesce(people_fundamental_data.fees,0) + coalesce(coretime_fundamental_data.fees,0) + coalesce(bridgehub_fundamental_data.fees,0) + coalesce(asset_hub_fundamental_data.fees,0)) / (coalesce(fundamental_data.txns,0) + coalesce(collectives_fundamental_data.txns,0) + coalesce(people_fundamental_data.txns, 0) + coalesce(coretime_fundamental_data.txns, 0) + coalesce(bridgehub_fundamental_data.txns, 0) + coalesce(asset_hub_fundamental_data.txns, 0)) as avg_txn_fee
-    -- Standardized Metrics
-    -- Market Data Metrics
-    , price
-    , market_cap
-    , fdmc
-    , tvl
-    -- Chain Usage Metrics
-    ,coalesce(fundamental_data.dau,0) + coalesce(collectives_fundamental_data.dau,0) + coalesce(people_fundamental_data.dau,0) + coalesce(coretime_fundamental_data.dau,0) + coalesce(bridgehub_fundamental_data.dau,0) + coalesce(asset_hub_fundamental_data.dau,0) as chain_dau
+    , 'polkadot' as artemis_id
+
+    --Market Data 
+    , price_data.price
+    , price_data.market_cap as mc
+    , price_data.fdmc
+
+    --Chain Data
+    , fundamental_data.dau + collectives_fundamental_data.dau + people_fundamental_data.dau + coretime_fundamental_data.dau + bridgehub_fundamental_data.dau + asset_hub_fundamental_data.dau as chain_dau
+    , fundamental_data.dau + collectives_fundamental_data.dau + people_fundamental_data.dau + coretime_fundamental_data.dau + bridgehub_fundamental_data.dau + asset_hub_fundamental_data.dau as dau
     , wau AS chain_wau
+    , wau
     , mau AS chain_mau
-    , coalesce(fundamental_data.txns,0) + coalesce(collectives_fundamental_data.txns,0) + coalesce(people_fundamental_data.txns, 0) + coalesce(coretime_fundamental_data.txns, 0) + coalesce(bridgehub_fundamental_data.txns, 0) + coalesce(asset_hub_fundamental_data.txns, 0) as chain_txns
-    , (coalesce(fundamental_data.fees,0) + coalesce(collectives_fundamental_data.fees,0) + coalesce(people_fundamental_data.fees,0) + coalesce(coretime_fundamental_data.fees,0) + coalesce(bridgehub_fundamental_data.fees,0) + coalesce(asset_hub_fundamental_data.fees,0)) / (coalesce(fundamental_data.txns,0) + coalesce(collectives_fundamental_data.txns,0) + coalesce(people_fundamental_data.txns, 0) + coalesce(coretime_fundamental_data.txns, 0) + coalesce(bridgehub_fundamental_data.txns, 0) + coalesce(asset_hub_fundamental_data.txns, 0)) as chain_avg_txn_fee 
-    -- Cash Flow Metrics
-    , coalesce(fundamental_data.fees,0) + coalesce(collectives_fundamental_data.fees,0) + coalesce(people_fundamental_data.fees,0) + coalesce(coretime_fundamental_data.fees,0) + coalesce(bridgehub_fundamental_data.fees,0) + coalesce(asset_hub_fundamental_data.fees,0) as chain_fees
-    , coalesce(fundamental_data.fees_native,0) + coalesce(collectives_fundamental_data.fees_native,0) + coalesce(people_fundamental_data.fees_native,0) + coalesce(coretime_fundamental_data.fees_native,0) + coalesce(bridgehub_fundamental_data.fees_native,0) + coalesce(asset_hub_fundamental_data.fees_native,0) as ecosystem_revenue_native
-    , chain_fees as ecosystem_revenue
-    , revenue_native AS treasury_fee_allocation_native
-    , revenue AS treasury_fee_allocation
+    , mau
+    , fundamental_data.txns + collectives_fundamental_data.txns + people_fundamental_data.txns + coretime_fundamental_data.txns + bridgehub_fundamental_data.txns + asset_hub_fundamental_data.txns as chain_txns
+    , fundamental_data.txns + collectives_fundamental_data.txns + people_fundamental_data.txns + coretime_fundamental_data.txns + bridgehub_fundamental_data.txns + asset_hub_fundamental_data.txns as txns
+    , (fundamental_data.fees + collectives_fundamental_data.fees + people_fundamental_data.fees + coretime_fundamental_data.fees + bridgehub_fundamental_data.fees + asset_hub_fundamental_data.fees) / (fundamental_data.txns + collectives_fundamental_data.txns + people_fundamental_data.txns + coretime_fundamental_data.txns + bridgehub_fundamental_data.txns + asset_hub_fundamental_data.txns) as chain_avg_txn_fee 
+    , (fundamental_data.fees + collectives_fundamental_data.fees + people_fundamental_data.fees + coretime_fundamental_data.fees + bridgehub_fundamental_data.fees + asset_hub_fundamental_data.fees) / (fundamental_data.txns + collectives_fundamental_data.txns + people_fundamental_data.txns + coretime_fundamental_data.txns + bridgehub_fundamental_data.txns + asset_hub_fundamental_data.txns) as avg_txn_fee
+    , tvl
+   
+    --Fee Data
+    , fundamental_data.fees_native + collectives_fundamental_data.fees_native + people_fundamental_data.fees_native + coretime_fundamental_data.fees_native + bridgehub_fundamental_data.fees_native + asset_hub_fundamental_data.fees_native as fees_native
+    , fundamental_data.fees + collectives_fundamental_data.fees + people_fundamental_data.fees + coretime_fundamental_data.fees + bridgehub_fundamental_data.fees + asset_hub_fundamental_data.fees as chain_fees
+    , fundamental_data.fees + collectives_fundamental_data.fees + people_fundamental_data.fees + coretime_fundamental_data.fees + bridgehub_fundamental_data.fees + asset_hub_fundamental_data.fees as fees
+
+    --Fee Allocation
+    , fundamental_data.fees_native + collectives_fundamental_data.fees_native + people_fundamental_data.fees_native + coretime_fundamental_data.fees_native + bridgehub_fundamental_data.fees_native + asset_hub_fundamental_data.fees_native as treasury_fee_allocation_native
+    , fundamental_data.fees + collectives_fundamental_data.fees + people_fundamental_data.fees + coretime_fundamental_data.fees + bridgehub_fundamental_data.fees + asset_hub_fundamental_data.fees as treasury_fee_allocation
+
+    --Financial Statements
+    , fundamental_data.fees_native + collectives_fundamental_data.fees_native + people_fundamental_data.fees_native + coretime_fundamental_data.fees_native + bridgehub_fundamental_data.fees_native + asset_hub_fundamental_data.fees_native as revenue_native
+    , fundamental_data.fees + collectives_fundamental_data.fees + people_fundamental_data.fees + coretime_fundamental_data.fees + bridgehub_fundamental_data.fees + asset_hub_fundamental_data.fees as revenue
 
     -- Issued Supply Metrics
     , issued_supply_metrics.max_supply_native

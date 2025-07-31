@@ -48,25 +48,23 @@ with trading_volume_data as (
 
 select
     date_spine.date
-    , 'vertex' as app
-    , 'DeFi' as category
+    , 'vertex' as artemis_id
 
-    -- Standardized Metrics
-
-    -- Market Metrics
+    --Market Data
     , market_metrics.price
-    , market_metrics.market_cap
+    , market_metrics.market_cap as mc
     , market_metrics.fdmc
     , market_metrics.token_volume
 
-    --Usage Metrics
-    , trading_volume_data.trading_volume as perp_volume
+    --Usage Data
     , unique_traders_data.unique_traders as perp_dau
+    , unique_traders_data.unique_traders as dau
+    , trading_volume_data.trading_volume as perp_volume
 
-    -- Cashflow Incentives
+    --Financial Statements
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
 
-    -- Turnover Metrics
+    --Token Turnover/Other Data
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
 

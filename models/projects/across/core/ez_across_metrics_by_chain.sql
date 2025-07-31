@@ -16,9 +16,10 @@ with
     )
 select
     date,
-    'across' as app,
-    'Bridge' as category,
+    'across' as artemis_id,
     chain,
+
+    --Bridge Data
     inflow,
     outflow
 from bridge_volume

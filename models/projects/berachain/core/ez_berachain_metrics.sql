@@ -38,35 +38,39 @@ with
      )
 select
     f.date
-    , txns
-    , daa as dau
-    , fees_native
-    , fees
-    , dex_volumes
-    , adjusted_dex_volumes
-    , emission_native
-    , burns_native
-    -- Standardized Metrics
-    -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_volume
-    -- Chain Metrics
-    , txns as chain_txns
-    , daa as chain_dau
-    -- Cash Flow Metrics
-    , fees as chain_fees
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
-    , burns_native as burned_fee_allocation_native
-    -- Supply Metrics
-    , premine_unlocks_native
-    , emission_native as emissions_native
-    , net_supply_change_native
-    , circulating_supply_native
-    , token_turnover_circulating
-    , token_turnover_fdv
+    , 'berachain' as artemis_id
+
+    --Market Data
+    , price_data.price
+    , price_data.market_cap as mc
+    , price_data.fdmc
+    , price_data.token_volume
+
+    --Usage Data
+    , fundamental_metrics.daa as dau
+    , fundamental_metrics.txns
+    , dex_volumes.dex_volumes as spot_volume
+    , dex_volumes.adjusted_dex_volumes as adjusted_spot_volume
+
+    --Fee Data
+    , fundamental_metrics.fees_native
+    , fundamental_metrics.fees
+
+    --Fee Allocation
+    , supply_data.burns_native as burned_fee_allocation_native
+
+    --Financial Statements
+    , supply_data.burns_native as revenue_native
+    , supply_data.burns_native * price_data.price as revenue
+
+    --Supply Data
+    , supply_data.premine_unlocks_native
+    , supply_data.emission_native as gross_emissions_native
+    , supply_data.circulating_supply_native
+
+    --TOKEN TURNOVER/OTHER DATA
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on

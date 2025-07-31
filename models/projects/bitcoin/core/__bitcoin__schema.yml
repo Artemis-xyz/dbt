@@ -20,10 +20,6 @@ column_definitions:
     name: chain_mau
     description: "Monthly unique users on a chain"
 
-  chain_nft_trading_volume: &chain_nft_trading_volume
-    name: chain_nft_trading_volume
-    description: "The total volume of NFT trading on a chain"
-
   chain_spot_volume: &chain_spot_volume
     name: chain_spot_volume
     description: "Total spot dex volume on a chain"
@@ -38,7 +34,9 @@ column_definitions:
 
   circulating_supply_native: &circulating_supply_native
     name: circulating_supply_native
-    description: "The circulating supply of a token in native tokens"
+    description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+    tags:
+      - artemis_gaap
 
   cumulative_etf_flow: &cumulative_etf_flow
     name: cumulative_etf_flow
@@ -69,18 +67,6 @@ column_definitions:
     description: "The amount of block rewards in USD value"
     tags:
       - override
-
-  gross_emissions_native: &gross_emissions_native
-    name: gross_emissions_native
-    description: "The amount of block rewards in native tokens"
-    tags:
-      - override
-
-  market_cap: &market_cap
-    name: market_cap
-    description: "The market cap of a token in USD"
-    tags:
-      - artemis_gaap
 
   net_etf_flow: &net_etf_flow
     name: net_etf_flow
@@ -144,7 +130,6 @@ models:
       - *chain_dau
       - *chain_fees
       - *chain_mau
-      - *chain_nft_trading_volume
       - *chain_spot_volume
       - *chain_txns
       - *chain_wau
@@ -155,8 +140,6 @@ models:
       - *fdmc
       - *fees
       - *gross_emissions
-      - *gross_emissions_native
-      - *market_cap
       - *net_etf_flow
       - *net_etf_flow_native
       - *price
@@ -167,4 +150,3 @@ models:
       - *weekly_commits_sub_ecosystem
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-

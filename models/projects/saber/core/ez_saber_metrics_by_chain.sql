@@ -13,10 +13,12 @@ with saber_tvl as (
 )
 select
     saber_tvl.date
+    , 'saber' as artemis_id
     , 'Defillama' as source
     , 'solana' as chain
 
-    -- Standardized Metrics
+    --Usage Data
     , saber_tvl.tvl
+
 from saber_tvl
 where saber_tvl.date < to_date(sysdate())

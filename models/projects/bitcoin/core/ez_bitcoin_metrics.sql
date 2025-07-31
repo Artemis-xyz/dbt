@@ -66,50 +66,53 @@ with
     )
 select
     fundamental_data.date
-    , fundamental_data.chain
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees_native
-    , fees
-    , avg_txn_fee
-    , revenue
-    , issuance
-    , circulating_supply
-    , bitcoin_dex_volumes.dex_volumes
-    -- Standardized Metrics
+    , 'bitcoin' as artemis_id
+
     -- Market Data Metrics
     , price
-    , market_cap
+    , market_cap as mc
     , fdmc
     , tvl
-    -- Chain Usage Metrics
+
+    --Usage Data
     , dau AS chain_dau
+    , dau
     , wau AS chain_wau
+    , wau
     , mau AS chain_mau
+    , mau
     , txns AS chain_txns
+    , txns
     , avg_txn_fee AS chain_avg_txn_fee
+    , avg_txn_fee
     , bitcoin_dex_volumes.dex_volumes AS chain_spot_volume
-    -- Cashflow metrics
+
+    --Fee Data
+    , fees_native
     , fees as chain_fees
+    , fees
     
-    -- Supply Metrics
-    , issuance AS gross_emissions_native
+    --Financial Statements
+    , revenue
+    , coalesce(gross_emissions, 0) AS token_incentives
+    , coalesce(revenue, 0) - coalesce(gross_emissions, 0) AS earnings
+
+    --Supply Data
     , issuance * price AS gross_emissions
     , circulating_supply AS circulating_supply_native
-    , gross_emissions AS token_incentives
-    , revenue - token_incentives AS earnings
-    -- Developer metrics
+    
+    --Developer Data
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
-    -- ETF Metrics
+    
+    --ETF Data
     , net_etf_flow_native
     , net_etf_flow
     , cumulative_etf_flow_native
     , cumulative_etf_flow
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

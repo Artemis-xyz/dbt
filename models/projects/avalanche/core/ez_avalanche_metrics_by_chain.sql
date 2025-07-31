@@ -16,9 +16,10 @@ with
     )
 select
     date,
-    'avalanche' as app,
-    'Bridge' as category,
+    'avalanche' as artemis_id,
     chain,
+
+    --Bridge Data
     inflow,
     outflow
 from bridge_volume_metrics

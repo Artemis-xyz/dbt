@@ -43,40 +43,47 @@ with
     price_data as ({{ get_coingecko_metrics("fantom") }})
 select
     d.date
-    , d.chain
-    , daa as dau
-    , txns
-    , gas as fees_native
-    , fees
-    , fees / txns as avg_txn_fee
-    , revenue
-    , wau
-    , mau
-    , dex_volumes
-    -- Standardized Metrics
+    , 'fantom' as artemis_id
+
     -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_volume
-    -- Chain Metrics
-    , txns as chain_txns
-    , dau as chain_dau
-    , wau as chain_wau
-    , mau as chain_mau
-    , avg_txn_fee as chain_avg_txn_fee
-    , dex_volumes as chain_spot_volume
-    , adjusted_dex_volumes as chain_spot_volume_adjusted
-    -- Cash Flow Metrics
-    , fees as chain_fees
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
-    , revenue as foundation_fee_allocation
+    , price_data.price
+    , price_data.market_cap as mc
+    , price_data.fdmc
+    , price_data.token_volume
+
+    --Usage Data
+    , daa_gold.daa as chain_dau
+    , daa_gold.daa as dau
+    , rolling_metrics.wau as chain_wau
+    , rolling_metrics.wau as wau
+    , rolling_metrics.mau as chain_mau
+    , rolling_metrics.mau as mau
+    , txns_gold.txns as chain_txns
+    , txns_gold.txns
+    , gas_gold.avg_txn_fee as chain_avg_txn_fee
+    , gas_gold.avg_txn_fee
+    , fantom_dex_volumes.dex_volumes as spot_volume
+    , fantom_dex_volumes.adjusted_dex_volumes as spot_volume_adjusted
+
+    --Fee Data
+    , gas_gold.fees_native as fees_native
+    , gas_gold.fees as fees
+
+    --Fee Allocation
+    , gas_gold.fees as foundation_fee_allocation
+
+    --Financial Statements
+    , gas_gold.fees_native as revenue_native
+    , gas_gold.fees as revenue
+
     -- Developer Metrics
-    , weekly_contracts_deployed
-    , weekly_contract_deployers
-    , token_turnover_circulating
-    , token_turnover_fdv
+    , contract_data.weekly_contracts_deployed
+    , contract_data.weekly_contract_deployers
+
+    --TOKEN TURNOVER/OTHER DATA
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

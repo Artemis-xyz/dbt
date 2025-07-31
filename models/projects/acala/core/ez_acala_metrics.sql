@@ -29,32 +29,34 @@ with
     price_data as ({{ get_coingecko_metrics("acala") }})
 select
     fundamental_data.date
-    , fundamental_data.chain
-    , daa as dau
-    , txns
-    , fees_native
-    , fees
-    , fees / txns as avg_txn_fee
-    , revenue
-    , wau
-    , mau
-    -- Standardized Metrics
-    -- Market Data Metrics
-    , price
-    , market_cap
-    , fdmc
-    -- Chain Usage Metrics
-    , dau AS chain_dau
-    , wau AS chain_wau
-    , mau AS chain_mau
-    , txns AS chain_txns
-    , avg_txn_fee AS chain_avg_txn_fee
-    -- Cashflow metrics
-    , fees as chain_fees
-    , fees_native AS ecosystem_revenue_native
-    , fees AS ecosystem_revenue
-    , revenue_native AS burned_fee_allocation_native
-    , revenue AS burned_fee_allocation
+    , 'acala' as artemis_id
+
+    --Market Data
+    , price_data.price
+    , price_data.market_cap as mc
+    , price_data.fdmc
+
+    --Usage Data
+    , fundamental_data.daa AS chain_dau
+    , fundamental_data.daa AS dau
+    , rolling_metrics.wau AS chain_wau
+    , rolling_metrics.wau AS wau
+    , rolling_metrics.mau AS chain_mau
+    , rolling_metrics.mau AS mau
+    , fundamental_data.txns AS chain_txns
+    , fundamental_data.txns AS txns
+
+    --Fee Data
+    , fundamental_data.fees_native
+    , fundamental_data.fees
+
+    --Fee Allocation
+    , fundamental_data.fees_native AS burned_fee_allocation
+
+    --Financial Statements
+    , fundamental_data.fees_native AS revenue_native 
+    , fundamental_data.fees AS revenue
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

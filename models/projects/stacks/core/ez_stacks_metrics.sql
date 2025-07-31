@@ -45,45 +45,44 @@ with
     rolling_metrics as ({{ get_rolling_active_address_metrics("stacks") }})
 select
     fundamental_data.date
-    , fundamental_data.chain
-    , txns
-    , dau
-    , wau
-    , mau
-    , fees_native
-    , fees
-    , fees / txns as avg_txn_fee
+    , 'stacks' as artemis_id
 
-    -- Standardized Metrics
-    -- Market Data Metrics
+    --Market Data Metrics
     , price
-    , market_cap
+    , market_cap as mc
     , fdmc
     , token_volume
-    , token_turnover_circulating
 
-    -- Usage Metrics
+    --Usage Data
+    , dau as chain_dau
+    , dau
+    , wau as chain_wau
+    , wau
+    , mau as chain_mau
+    , mau
+    , txns as chain_txns
+    , txns
     , dd.tvl as tvl
     , dd.dex_volumes as chain_spot_volume
+    , fees / txns chain_avg_txn_fee
+    , fees / txns as avg_txn_fee
 
-    -- Chain Metrics
-    , dau as chain_dau
-    , wau as chain_wau
-    , mau as chain_mau
-    , txns as chain_txns
-    
-    -- Cashflow Metrics
+    --Fee Data
+    , fees_native
     , fees as chain_fees
-    , fees_native as ecosystem_revenue_native
-    , fees as ecosystem_revenue
-    , avg_txn_fee as chain_avg_txn_fee
-    , ecosystem_revenue as validator_fee_allocation
+    , fees
+
+    --Fee Allocation
+    , fees as validator_fee_allocation
     
     -- Developer Metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
+
+    --Token Turnover/Other Data
+    , token_turnover_circulating
 
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on

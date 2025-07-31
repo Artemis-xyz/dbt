@@ -34,12 +34,6 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  burned_fee_allocation_native: &burned_fee_allocation_native
-    name: burned_fee_allocation_native
-    description: "The amount of native tokens burned"
-    tags:
-      - artemis_gaap
-
   chain_avg_txn_fee: &chain_avg_txn_fee
     name: chain_avg_txn_fee
     description: "The average transaction fee on a chain"
@@ -107,12 +101,6 @@ column_definitions:
   low_sleep_users: &low_sleep_users
     name: low_sleep_users
     description: "The number of low sleep users on a chain"
-
-  market_cap: &market_cap
-    name: market_cap
-    description: "The market cap of a token in USD"
-    tags:
-      - artemis_gaap
 
   max_supply_native: &max_supply_native
     name: max_supply_native
@@ -302,7 +290,6 @@ models:
       - *artemis_stablecoin_transfer_volume
       - *artemis_stablecoin_txns
       - *burned_fee_allocation
-      - *burned_fee_allocation_native
       - *chain_avg_txn_fee
       - *chain_dau
       - *chain_fees
@@ -316,7 +303,6 @@ models:
       - *fdmc
       - *fees
       - *issued_supply_native
-      - *market_cap
       - *max_supply_native
       - *new_users
       - *non_p2p_stablecoin_transfer_volume

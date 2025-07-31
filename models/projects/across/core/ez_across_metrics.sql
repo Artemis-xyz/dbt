@@ -31,18 +31,23 @@ with
     , price_data as ({{ get_coingecko_metrics("across") }})
 select
     bridge_volume.date as date
-    , 'across' as app
-    , 'Bridge' as category
+    , 'across' as artemis_id
+
+    --Market Data
+    , price_data.price as price
+    , price_data.market_cap as mc
+    , price_data.fdmc as fdmc
+    , price_data.token_volume as token_volume
+
+    --Bridge Data
     , bridge_daa.bridge_daa
-    -- Standardized Metrics
     , bridge_volume.bridge_volume as bridge_volume
     , bridge_daa.bridge_daa as bridge_dau
-    , price_data.price as price
-    , price_data.market_cap as market_cap
-    , price_data.fdmc as fdmc
+
+    --Token Turnover/Other Data
     , price_data.token_turnover_circulating as token_turnover_circulating
     , price_data.token_turnover_fdv as token_turnover_fdv
-    , price_data.token_volume as token_volume
+    
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

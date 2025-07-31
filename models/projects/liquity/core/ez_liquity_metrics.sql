@@ -75,43 +75,44 @@ with tvl as (
 
 select
     ds.date
-    , th.token_holder_count
-    , tvl.tvl as net_deposits
-    , os.outstanding_supply
-    , fr.revenue_usd as fees
-    , fr.revenue_usd as revenue
-    , ti.token_incentives
-    , ti.token_incentives as expenses
-    , fr.revenue_usd - ti.token_incentives as earnings
-    , t.treasury as treasury_value
-    , t.own_token_treasury as treasury_value_native
-    , t.net_treasury as net_treasury_value
-    -- Standardized Metrics
-    -- Token Metrics
+    ,'liquity' as artemis_id
+
+    --Market Data
     , md.price
-    , md.market_cap
+    , md.market_cap as mc
     , md.fdmc
     , md.token_volume
-    -- Lending Metrics
-    , tvl.tvl as lending_deposits
-    , fr.revenue_usd as lending_fees
-    , os.outstanding_supply as lending_loans
-    -- Crypto Metrics
+
+    --Usage Data
+    , th.token_holder_count
     , tvl.tvl
-    , tvl.tvl - lag(tvl.tvl) over (order by date) as tvl_net_change
-    -- Cash Flow Metrics
-    , fr.revenue_usd as ecosystem_revenue
-    , ti.token_incentives as staking_fee_allocation
-    -- Protocol Metrics
-    , coalesce(t.treasury, 0) as treasury
-    , coalesce(t.treasury_native, 0) as treasury_native
-    , coalesce(t.net_treasury, 0) as net_treasury
-    , coalesce(t.net_treasury_native, 0) as net_treasury_native
-    , coalesce(t.own_token_treasury, 0) as own_token_treasury  
-    , coalesce(t.own_token_treasury_native, 0) as own_token_treasury_native
-    -- Turnover Metrics
-    , md.token_turnover_circulating
+    , tvl.tvl as lending_deposits
+    , os.outstanding_supply as lending_loans
+
+    --Fee Data
+    , fr.revenue_usd / price as fees_native
+    , fr.revenue_usd as lending_fees
+    , fr.revenue_usd as fees
+
+    --Fee Allocation
+    , coalesce(ti.token_incentives, 0) as staking_fee_allocation
+
+    --Financial Statements
+    , fr.revenue_usd / price as revenue_native
+    , fr.revenue_usd as revenue
+    , coalesce(ti.token_incentives, 0)
+    , coalesce(ti.token_incentives, 0) as expenses
+    , coalesce(fr.revenue_usd, 0) - coalesce(ti.token_incentives, 0) as earnings
+
+    --Treasury Data
+    , t.treasury as treasury
+    , t.net_treasury as net_treasury
+    , t.own_token_treasury as own_token_treasury  
+
+    --Token Turnover/Other Data
     , md.token_turnover_fdv
+    , md.token_turnover_circulating
+    
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

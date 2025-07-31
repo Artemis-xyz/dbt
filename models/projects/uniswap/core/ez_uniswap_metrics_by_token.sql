@@ -104,30 +104,32 @@ WITH
     )
 SELECT
     date
+    , 'uniswap' as artemis_id
     , token
-    , chain
-    , fees_native as trading_fees
-    , treasury_value
-    , treasury_native_value
-    , net_treasury_value
 
-    -- Standardized Metrics
-
-    -- Usage/Sector Metrics
+    --Usage Data
     , tvl
 
-    -- Money Metrics
+    --Fee Data
+    , fees_native
     , spot_fees
-    , spot_fees as ecosystem_revenue
-    , fees_native as spot_fees_native
-    , fees_native as ecosystem_revenue_native
-    , token_incentives_native
-    , token_incentives_usd as token_incentives
+    , spot_fees as fees
 
-    -- Treasury Metrics
+    --Fee Allocation 
+    , fees as lp_fee_allocation
+
+    --Financial Statements
+    , 0 as revenue_native
+    , 0 as revenue
+    , coalesce(token_incentives_usd, 0) as token_incentives
+    , 0 as operating_expenses
+    , coalesce(revenue, 0) - coalesce(token_incentives_usd, 0) as earnings
+
+    --Treasury Data
     , treasury_native_value as treasury
     , net_treasury_value as net_treasury
     , treasury_native_value as own_token_treasury_native
+    
 FROM
     fees_agg
 LEFT JOIN token_incentives_cte using(date, chain, token)

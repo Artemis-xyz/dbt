@@ -14,10 +14,12 @@ with pharaoh_tvl as (
 
 select
     pharaoh_tvl.date
+    , 'pharaoh' as artemis_id
     , 'Defillama' as source
     , 'avalanche' as chain
 
-    -- Standardized Metrics
+    --Usage Data
     , pharaoh_tvl.tvl
+    
 from pharaoh_tvl
 where pharaoh_tvl.date < to_date(sysdate())

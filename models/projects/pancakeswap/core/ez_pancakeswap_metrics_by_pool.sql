@@ -78,33 +78,36 @@ with
 )
 select
     tvl_by_pool.date
-    , 'pancakeswap' as app
-    , 'DeFi' as category
-    , tvl_by_pool.chain
-    , tvl_by_pool.version
+    , 'pancakeswap' as artemis_id
     , tvl_by_pool.pool
+
     , tvl_by_pool.token_0
     , tvl_by_pool.token_0_symbol
     , tvl_by_pool.token_1
     , tvl_by_pool.token_1_symbol
-    , trading_volume_pool.trading_volume
-    , fees_revenue.fees
-    , trading_volume_pool.unique_traders
-    , trading_volume_pool.gas_cost_usd
 
-    -- Standardized Metrics
-    , tvl_by_pool.tvl
+    --Usage Data
     , trading_volume_pool.unique_traders as spot_dau
+    , trading_volume_pool.unique_traders as dau
+    , tvl_by_pool.tvl
     , trading_volume_pool.trading_volume as spot_volume
-    , fees_revenue.fees as spot_fees
-    , fees_revenue.service_fee_allocation
-    , fees_revenue.burned_fee_allocation
-    , fees_revenue.treasury_fee_allocation
-    , fees_revenue.burned_fee_allocation + fees_revenue.treasury_fee_allocation as revenue
-    -- TODO: see comment in ez_pancakeswap_metrics re: remaining fees
-
     , trading_volume_pool.gas_cost_native
     , trading_volume_pool.gas_cost_usd as gas_cost
+
+    --Fee Data
+    , fees_revenue.fees as spot_fees
+    , fees_revenue.fees as fees
+
+    --Fee Allocation
+    , fees_revenue.service_fee_allocation as lp_fee_allocation
+    , fees_revenue.burned_fee_allocation
+    , fees_revenue.treasury_fee_allocation as foundation_fee_allocation
+
+    --Financial Statement
+    , fees_revenue.burned_fee_allocation + fees_revenue.treasury_fee_allocation as revenue
+
+
+
 
 from tvl_by_pool
 left join trading_volume_pool using(date, chain, version, pool)

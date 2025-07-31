@@ -30,16 +30,18 @@ with
 
 select
     uwulend_metrics.date
-    , 'uwulend' as app
-    , 'DeFi' as category
-    , uwulend_metrics.daily_borrows_usd
-    , uwulend_metrics.daily_supply_usd
-    -- Standardized metrics
+    , 'uwulend' as artemis_id
+
+    --Market Data
+    , price_data.price
+    , price_data.market_cap as mc
+    , price_data.fdmc
+
+    --Usage Data
     , uwulend_metrics.daily_borrows_usd as lending_loans
     , uwulend_metrics.daily_supply_usd as lending_deposits
-    , price_data.price
-    , price_data.market_cap
-    , price_data.fdmc
+    
+
 from uwulend_metrics
 left join price_data
     on uwulend_metrics.date = price_data.date

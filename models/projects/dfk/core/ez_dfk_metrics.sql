@@ -26,27 +26,30 @@ with
     price_data as ({{ get_coingecko_metrics("defi-kingdoms") }})
 select
     f.date
-    , chain
-    , dau
-    , txns
-    , fees_native
-    , fees_native * price as fees
-    , fees / txns as avg_txn_fee
-    -- Standardized Metrics
-    -- Market Data
-    , price
-    , market_cap
-    , fdmc
-    , token_volume
-    -- Chain Metrics
-    , txns as chain_txns
-    , dau as chain_dau
-    , avg_txn_fee as chain_avg_txn_fee
-    -- Cash Flow Metrics
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
-    , token_turnover_circulating
-    , token_turnover_fdv
+    , 'dfk' as artemis_id
+
+    --Market Data
+    , price_data.price
+    , price_data.market_cap as mc
+    , price_data.fdmc
+    , price_data.token_volume
+
+    --Usage Data  
+    , fundamental_data.dau as chain_dau
+    , fundamental_data.dau
+    , fundamental_data.txns as chain_txns
+    , fundamental_data.txns
+    , fundamental_data.fees / fundamental_data.txns as chain_avg_txn_fee
+    , fundamental_data.fees / fundamental_data.txns as avg_txn_fee
+
+    --Fee Data
+    , fundamental_data.fees_native
+    , fundamental_data.fees_native * price_data.price as fees
+
+    --Token Turnover/Other Data
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
+
     -- timestamp columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on

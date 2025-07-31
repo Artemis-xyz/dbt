@@ -93,30 +93,30 @@ with trading_volume_by_pool as (
 
 select
     sushiswap_metric_dates.date
+    , 'sushiswap' as artemis_id
     , sushiswap_metric_dates.chain
-    , 'sushiswap' as app
-    , 'DeFi' as category
-    
-    -- Old metrics needed for compatibility
-    , trading_volume_by_chain.trading_volume
-    , trading_volume_by_chain.trading_fees
-    , trading_volume_by_chain.unique_traders
+
+    --Usage Data
+    , trading_volume_by_chain.unique_traders as spot_dau
+    , trading_volume_by_chain.unique_traders as dau
+    , tvl_by_chain.tvl
+    , trading_volume_by_chain.trading_volume as spot_volume
     , trading_volume_by_chain.gas_cost_native
     , trading_volume_by_chain.gas_cost_usd
 
-    -- Standardized Metrics
-
-    -- Usage Metrics
-    , trading_volume_by_chain.unique_traders as spot_dau
-    , trading_volume_by_chain.trading_volume as spot_volume
-    , tvl_by_chain.tvl
-
-    -- Cashflow Metrics
+    --Fee Data
     , trading_volume_by_chain.trading_fees as spot_fees
     , cashflow_metrics.fees as fees
-    , cashflow_metrics.service_fee_allocation as service_fee_allocation
+
+    --Fee Allocation
+    , cashflow_metrics.service_fee_allocation as lp_fee_allocation
     , cashflow_metrics.staking_fee_allocation as staking_fee_allocation
-    , token_incentives.token_incentives
+    
+    --Financial Statement
+    , 0 as revenue_native
+    , 0 as revenue
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
+    , coalesce(revenue, 0) - coalesce(token_incentives.token_incentives, 0) as earnings
 
 from sushiswap_metric_dates
 left join tvl_by_chain using(date, chain)

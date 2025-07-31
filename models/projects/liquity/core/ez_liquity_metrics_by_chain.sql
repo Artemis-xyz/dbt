@@ -81,36 +81,25 @@ with fees_and_revs as (
 
 select
     dcs.date
+    , 'liquity' as artemis_id
     , dcs.chain
-    , coalesce(fr.revenue_usd, 0) as revenue
-    , coalesce(ti.token_incentives, 0) as token_incentives
-    , coalesce(ti.token_incentives, 0) as expenses
-    , coalesce(fr.revenue_usd, 0) - coalesce(ti.token_incentives, 0) as earnings
-    , coalesce(treasury.treasury, 0) as treasury_value
-    , coalesce(treasury_native.own_token_treasury, 0) as treasury_value_native
-    , coalesce(net_treasury.net_treasury, 0) as net_treasury_value
-    , coalesce(os.outstanding_supply, 0) as outstanding_supply
-    , coalesce(tvl.tvl, 0) as net_deposits
 
-    -- Standardized Metrics
-
-    -- Lending Metrics
+    --Usage Data
+    , tvl.tvl as tvl
     , coalesce(tvl.tvl, 0) as lending_deposits
-    , coalesce(fr.revenue_usd, 0) as lending_fees
     , coalesce(os.outstanding_supply, 0) as lending_loans
 
-    -- Crypto Metrics
-    , coalesce(tvl.tvl, 0) as tvl
-    , coalesce(tvl.tvl, 0) - lag(coalesce(tvl.tvl, 0)) over (order by date) as tvl_net_change
+    --Fee Data
+    , fr.revenue_usd as lending_fees
+    , fr.revenue_usd as fees
 
-    -- Cash Flow Metrics
-    , coalesce(fr.revenue_usd, 0) as fees
+    --Fee Allocation
     , coalesce(ti.token_incentives, 0) as staking_fee_allocation
 
-    -- Protocol Metrics
-    , coalesce(treasury.treasury, 0) as treasury
-    , coalesce(treasury_native.own_token_treasury, 0) as treasury_native
-    , coalesce(net_treasury.net_treasury, 0) as net_treasury
+    --Treasury Data
+    , treasury.treasury as treasury
+    , net_treasury.net_treasury as net_treasury
+
 from date_chain_spine dcs
 left join tvl using (date, chain)
 left join outstanding_supply os using (date, chain)

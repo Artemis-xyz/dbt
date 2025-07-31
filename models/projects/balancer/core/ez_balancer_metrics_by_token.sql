@@ -103,53 +103,39 @@ with swap_metrics as (
 )
 select
     date_token_spine.date
+    , 'balancer' as artemis_id
     , date_token_spine.token
-    , swap_metrics.number_of_swaps
-    , swap_metrics.unique_traders
-    , swap_metrics.trading_volume
-    , swap_metrics.trading_volume_native
-    , swap_metrics.trading_fees
-    , swap_metrics.trading_fees_native
-    , swap_metrics.trading_fees as fees
+
+    --Usage Data
+    , swap_metrics.unique_traders as spot_dau
+    , swap_metrics.unique_traders as dau
+    , swap_metrics.number_of_swaps as spot_txns
+    , swap_metrics.number_of_swaps as txns
+    , tvl.tvl_usd as tvl
+    , swap_metrics.trading_volume as spot_volume
+
+    --Fee Data
     , swap_metrics.trading_fees_native as fees_native
-    , swap_metrics.primary_supply_side_revenue
-    , swap_metrics.primary_supply_side_revenue_native
-    , swap_metrics.revenue
-    , swap_metrics.revenue_native
-    , tvl.tvl_usd
-    , tvl.tvl_usd as net_deposits
-    , tvl.tvl_native
-    , tvl.tvl_native as net_deposits_native
-    , treasury_by_token.treasury_value
-    , treasury_by_token.treasury_value_native
-    , net_treasury.net_treasury_usd as net_treasury_value_native
+    , swap_metrics.trading_fees as spot_fees
+    , swap_metrics.trading_fees as fees
 
-    -- Standardized Metrics
-    -- Usage/Sector Metrics
-    , coalesce(swap_metrics.unique_traders, 0) as spot_dau
-    , coalesce(swap_metrics.number_of_swaps, 0) as spot_txns
-    , coalesce(swap_metrics.trading_volume, 0) as spot_volume
-    , coalesce(tvl.tvl_usd, 0) as tvl
+    --Fee Allocation
+    , swap_metrics.service_fee_allocation as lp_fee_allocation
+    , swap_metrics.treasury_fee_allocation as foundation_fee_allocation
+    , swap_metrics.staking_fee_allocation as staking_fee_allocation
 
-    -- Money Metrics
-    , coalesce(swap_metrics.trading_fees, 0) as spot_fees
-    , coalesce(swap_metrics.trading_fees, 0) as ecosystem_revenue
-    , coalesce(swap_metrics.service_fee_allocation, 0) as service_fee_allocation
-    , coalesce(swap_metrics.service_fee_allocation_native, 0) as service_fee_allocation_native
-    , coalesce(swap_metrics.treasury_fee_allocation, 0) as treasury_fee_allocation
-    , coalesce(swap_metrics.treasury_fee_allocation_native, 0) as treasury_fee_allocation_native
-    , coalesce(swap_metrics.staking_fee_allocation, 0) as staking_fee_allocation
-    , coalesce(swap_metrics.staking_fee_allocation_native, 0) as staking_fee_allocation_native
+    --Financial Statements
+    , swap_metrics.revenue_native as revenue_native
+    , swap_metrics.revenue as revenue
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
-    , coalesce(token_incentives.token_incentives_native, 0) as token_incentives_native
+    , coalesce(swap_metrics.revenue, 0) - coalesce(token_incentives.token_incentives, 0) as earnings
 
     -- Treasury Metrics
-    , coalesce(treasury_by_token.treasury_value, 0) as treasury
-    , coalesce(treasury_by_token.treasury_value_native, 0) as treasury_native
-    , coalesce(net_treasury.net_treasury_usd, 0) as net_treasury
-    , coalesce(net_treasury.net_treasury_native, 0) as net_treasury_native
-    , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
-    , coalesce(treasury_native.treasury_native, 0) as own_token_treasury_native
+    , treasury_by_token.treasury_value as treasury
+    , treasury_native.own_token_treasury as own_token_treasury
+    , net_treasury.net_treasury_usd as net_treasury
+
+
 from date_token_spine
 full outer join treasury_by_token using (date, token)
 full outer join net_treasury using (date, token)

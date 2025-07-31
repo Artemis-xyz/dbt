@@ -41,31 +41,37 @@ with
 
 select 
     unique_traders_data.date as date
-    , 'dydx' as app
-    , 'DeFi' as category
+    , 'dydx' as artemis_id
     , 'starkware' as chain
-    , trading_volume_data.trading_volume
-    , unique_traders_data.unique_traders
-    , NULL as txn_fees
-    , NULL as trading_fees
-    -- standardize metrics
-    , trading_volume_data.trading_volume as perp_volume
+
+    --Usage Data
     , unique_traders_data.unique_traders as perp_dau
+    , unique_traders_data.unique_traders as dau
+    , trading_volume_data.trading_volume as perp_volume
+    
+     --Fee Data
+    , NULL as trading_fees
+    , NULL as chain_fees
+    , chain_fees + trading_fees as fees
+
 from unique_traders_data
 left join trading_volume_data on unique_traders_data.date = trading_volume_data.date
 union all 
 select 
     unique_traders_data_v4.date as date
-    , 'dydx' as app
-    , 'DeFi' as category
+    , 'dydx' as artemis_id
     , 'dydx' as chain
-    , trading_volume
-    , unique_traders
+
+    --Usage Data
+    , unique_traders as perp_dau
+    , unique_traders as dau
+    , trading_volume as perp_volume
+
+    --Fee Data
     , txn_fees
     , total_fees as trading_fees
-    -- standardize metrics
-    , trading_volume as perp_volume
-    , unique_traders as perp_dau
+    , chain_fees + trading_fees as fees
+
 from trading_volume_data_v4
 left join fees_data_v4 on trading_volume_data_v4.date = fees_data_v4.date
 left join chain_data_v4 on trading_volume_data_v4.date = chain_data_v4.date

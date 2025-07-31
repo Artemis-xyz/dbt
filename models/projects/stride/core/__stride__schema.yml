@@ -69,6 +69,10 @@ column_definitions:
     tags:
       - override
 
+  lst_tvl: &lst_tvl
+    name: lst_tvl
+    description: "The total value locked in a liquid staking protocol"
+
   market_cap: &market_cap
     name: market_cap
     description: "The market cap of a token in USD"
@@ -182,6 +186,7 @@ models:
       - *fees
       - *high_sleep_users
       - *low_sleep_users
+      - *lst_tvl
       - *market_cap
       - *new_users
       - *non_sybil_users
@@ -198,7 +203,6 @@ models:
       - *tvl_net_change
       - *validator_fee_allocation
       - *yield_generated
-
   - name: ez_stride_metrics_by_chain
     description: "This table stores metrics for the STRIDE protocol"
     columns:
@@ -212,6 +216,7 @@ models:
       - *fees
       - *high_sleep_users
       - *low_sleep_users
+      - *lst_tvl
       - *new_users
       - *non_sybil_users
       - *returning_users
@@ -223,4 +228,3 @@ models:
       - *tvl_net_change
       - *validator_fee_allocation
       - *yield_generated
-
