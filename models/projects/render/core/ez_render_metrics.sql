@@ -26,6 +26,14 @@ with
         from {{ ref("fact_render_burns") }}
         group by 1
     )
+    , supply_data as (
+        select
+            date,
+            total_supply_native,
+            issued_supply_native,
+            circulating_supply_native
+        from {{ ref("fact_render_supply") }}
+    )
     , price_data as (
         {{ get_coingecko_metrics("render") }}
     )
@@ -34,12 +42,22 @@ select
     burn_data.date,
     price_data.price,
     burn_data.total_burns as burns_native,
+
+
+    -- Financial Data
     burn_data.revenue,
-    -- timestamp columns
+
+    -- Supply Data
+    supply_data.total_supply_native,
+    supply_data.issued_supply_native,
+    supply_data.circulating_supply_native,
+
+    -- Timestamp Columns
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
     TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from burn_data
 left join price_data using(date)
+left join supply_data using(date)
 where true
 {{ ez_metrics_incremental('burn_data.date', backfill_date) }}
 and burn_data.date < to_date(sysdate())
