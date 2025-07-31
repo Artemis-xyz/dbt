@@ -50,12 +50,6 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  market_cap: &market_cap
-    name: market_cap
-    description: "The market cap of a token in USD"
-    tags:
-      - artemis_gaap
-
   max_supply_native: &max_supply_native
     name: max_supply_native
     description: "The maximum supply of a token, including any uncreated tokens, unvested tokens, foundation or DAO held tokens, and burned tokens."
@@ -128,7 +122,6 @@ models:
       - *fdmc
       - *fees
       - *issued_supply_native
-      - *market_cap
       - *max_supply_native
       - *price
       - *revenue
@@ -139,4 +132,3 @@ models:
       - *weekly_commits_sub_ecosystem
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-

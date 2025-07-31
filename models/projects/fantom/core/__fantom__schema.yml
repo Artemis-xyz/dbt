@@ -12,17 +12,9 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
-  chain_fees: &chain_fees
-    name: chain_fees
-    description: "The total transaction fees paid on a chain"
-
   chain_mau: &chain_mau
     name: chain_mau
     description: "Monthly unique users on a chain"
-
-  chain_spot_volume: &chain_spot_volume
-    name: chain_spot_volume
-    description: "Total spot dex volume on a chain"
 
   chain_txns: &chain_txns
     name: chain_txns
@@ -66,6 +58,10 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  spot_volume: &spot_volume
+    name: spot_volume
+    description: "The total volume on a spot dex"
+
   token_turnover_circulating: &token_turnover_circulating
     name: token_turnover_circulating
     description: "The turnover of a token in USD, based on the token's circulating supply."
@@ -102,9 +98,7 @@ models:
     columns:
       - *chain_avg_txn_fee
       - *chain_dau
-      - *chain_fees
       - *chain_mau
-      - *chain_spot_volume
       - *chain_txns
       - *chain_wau
       - *fdmc
@@ -113,9 +107,9 @@ models:
       - *market_cap
       - *price
       - *revenue
+      - *spot_volume
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
       - *weekly_contract_deployers
       - *weekly_contracts_deployed
-

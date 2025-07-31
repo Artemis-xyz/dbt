@@ -10,12 +10,6 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  market_cap: &market_cap
-    name: market_cap
-    description: "The market cap of a token in USD"
-    tags:
-      - artemis_gaap
-
   perp_volume: &perp_volume
     name: perp_volume
     description: "The total trading volume on a perpetuals exchange"
@@ -49,49 +43,12 @@ models:
     description: "This table stores metrics for the AEVO protocol"
     columns:
       - *fdmc
-      - *market_cap
       - *perp_volume
       - *price
       - *token_turnover_circulating
       - *token_turnover_fdv
       - *token_volume
-
-    tests:
-      - not_null:
-          column_name: date
-          description: "Ensures that the date column is not null"
-          severity: error
-      - dbt_utils.recency:
-          datepart: day
-          interval: 2
-          field: date
-          description: "Ensures that the date column contains at least one record from the last 2 days"
-          severity: error
-      - dbt_utils.expression_is_true:
-          expression: date = cast(date as date)
-          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
-          severity: error
   - name: ez_aevo_metrics_by_chain
     description: "This table stores metrics for the AEVO protocol"
     columns:
       - *perp_volume
-
-    tests:
-      - not_null:
-          column_name: date
-          description: "Ensures that the date column is not null"
-          severity: error
-      - dbt_utils.recency:
-          datepart: day
-          interval: 2
-          field: date
-          description: "Ensures that the date column contains at least one record from the last 2 days"
-          severity: error
-      - dbt_utils.expression_is_true:
-          expression: date = cast(date as date)
-          description: "Ensures that the date column is properly typed as DATE with yyyy-mm-dd format"
-          severity: error
-      - not_null:
-          column_name: chain
-          description: "Ensures that the chain column is not null for by_chain tables"
-          severity: error
