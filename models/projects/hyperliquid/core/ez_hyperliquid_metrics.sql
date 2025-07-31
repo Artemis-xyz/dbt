@@ -166,6 +166,8 @@ select
     , hyperevm_data.hyperevm_burns_native * market_metrics.price as chain_fees -- A portion of HyperEVM fees are burned
     , fees_data.trading_fees + chain_fees as fees -- trading fees = (spot + perp) + auction fees
     , fees_data.trading_fees * 0.03 as service_fee_allocation
+    , hypercore_spot_burns_data.hypercore_burns_native + hyperevm_data.hyperevm_burns_native as burned_fees_allocation_native
+    , (hypercore_spot_burns_data.hypercore_burns_native + hyperevm_data.hyperevm_burns_native) * market_metrics.price as burned_fees_allocation
     , (daily_assistance_fund_data.daily_buybacks_native * market_metrics.price) as buyback_fee_allocation -- 97% of trading fees are bought back to the Assistance Fund
 
     -- Financial Statements
