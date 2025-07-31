@@ -7,7 +7,6 @@
 }}
 
 SELECT 
-   
     tr.block_timestamp,
     tr.tx_id,
     tr.index,
