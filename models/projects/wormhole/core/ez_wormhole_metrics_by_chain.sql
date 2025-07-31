@@ -13,11 +13,15 @@ with
         where chain is not null
     )
 select
-    date,
-    'wormhole' as app,
-    'Bridge' as category,
-    chain,
-    inflow,
-    outflow
+    bridge_volume.date
+    , 'wormhole' as artemis_id
+    , bridge_volume.chain
+
+    -- Standardized Metrics
+
+    -- Usage Data
+    , bridge_volume.inflow
+    , bridge_volume.outflow
+
 from bridge_volume
 where date < to_date(sysdate())
