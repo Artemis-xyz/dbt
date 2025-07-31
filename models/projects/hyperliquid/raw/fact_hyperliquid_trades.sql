@@ -1,14 +1,11 @@
-{{ 
+{{
     config(
         materialized="incremental",
         snowflake_warehouse="HYPERLIQUID",
-        database="hyperliquid",
-        schema="raw",
-        alias="fact_hyperliquid_trades",
         unique_key=["transaction_hash", "trade_id", "order_id"],
     )
 }}
-select 
+select
     DATE(TO_TIMESTAMP(parquet_raw:time::BIGINT/1000)) AS date,
     TO_TIMESTAMP(parquet_raw:time::BIGINT/1000) as trade_timestamp,
     parquet_raw:from_address::VARCHAR as from_address,
@@ -30,7 +27,7 @@ select
     _load_timestamp_utc as _load_timestamp_utc
 from {{ source('SNOWPIPE_DB', 'FACT_HYPERLIQUID_TRADES') }}
 where
-    1=1 
+    1=1
     {% if is_incremental() %}
     AND trade_timestamp > (SELECT MAX(trade_timestamp) FROM {{ this }})
     {% endif %}
