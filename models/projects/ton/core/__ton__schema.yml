@@ -52,25 +52,15 @@ column_definitions:
     name: chain_dau
     description: "Daily unique users on a chain"
 
-  chain_fees: &chain_fees
-    name: chain_fees
-    description: "The total transaction fees paid on a chain"
-
-  chain_mau: &chain_mau
-    name: chain_mau
-    description: "Monthly unique users on a chain"
-
   chain_txns: &chain_txns
     name: chain_txns
     description: "Daily transactions on a chain"
 
-  chain_wau: &chain_wau
-    name: chain_wau
-    description: "Weekly unique users on a chain"
-
   circulating_supply_native: &circulating_supply_native
     name: circulating_supply_native
-    description: "The circulating supply of a token in native tokens"
+    description: "The circulating supply of a token, equal to the issued supply minus unvested tokens."
+    tags:
+      - artemis_gaap
 
   fdmc: &fdmc
     name: fdmc
@@ -94,15 +84,23 @@ column_definitions:
     tags:
       - override
 
+  issued_supply_native: &issued_supply_native
+    name: issued_supply_native
+    description: "The issued supply of a token, equal to the total supply minus foundation or DAO held tokens."
+    tags:
+      - artemis_gaap
+
   market_cap: &market_cap
     name: market_cap
     description: "The market cap of a token in USD"
     tags:
       - artemis_gaap
 
-  net_supply_change_native: &net_supply_change_native
-    name: net_supply_change_native
-    description: "The net change in the circulating supply of a token in native tokens"
+  max_supply_native: &max_supply_native
+    name: max_supply_native
+    description: "The maximum supply of a token, including any uncreated tokens, unvested tokens, foundation or DAO held tokens, and burned tokens."
+    tags:
+      - artemis_gaap
 
   p2p_stablecoin_dau: &p2p_stablecoin_dau
     name: p2p_stablecoin_dau
@@ -186,15 +184,29 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  token_incentives: &token_incentives
-    name: token_incentives
-    description: "The total token incentives paid by a protocol in its native token"
+  token_turnover_circulating: &token_turnover_circulating
+    name: token_turnover_circulating
+    description: "The turnover of a token in USD, based on the token's circulating supply."
     tags:
       - artemis_gaap
 
-  tvl: &tvl
-    name: tvl
-    description: "The total value locked in a protocol"
+  token_turnover_fdv: &token_turnover_fdv
+    name: token_turnover_fdv
+    description: "The turnover of a token in USD, based on the token's fully diluted supply."
+    tags:
+      - artemis_gaap
+
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of a token in USD"
+    tags:
+      - artemis_gaap
+
+  total_supply_native: &total_supply_native
+    name: total_supply_native
+    description: "The total supply of a token, equal to the sum of all tokens created minus the sum of all tokens destroyed."
+    tags:
+      - artemis_gaap
 
   validator_fee_allocation: &validator_fee_allocation
     name: validator_fee_allocation
@@ -239,49 +251,6 @@ models:
       - *artemis_stablecoin_transfer_volume
       - *p2p_stablecoin_transfer_volume
       - *stablecoin_transfer_volume
-
-  - name: ez_ton_metrics_by_chain
-    description: "This table stores metrics for the TON protocol"
-    columns:
-      - *artemis_stablecoin_dau
-      - *artemis_stablecoin_mau
-      - *artemis_stablecoin_transfer_volume
-      - *artemis_stablecoin_txns
-      - *burns_native
-      - *chain_avg_txn_fee
-      - *chain_dau
-      - *chain_fees
-      - *chain_mau
-      - *chain_txns
-      - *chain_wau
-      - *circulating_supply_native
-      - *fdmc
-      - *fees
-      - *gross_emissions
-      - *gross_emissions_native
-      - *market_cap
-      - *net_supply_change_native
-      - *p2p_stablecoin_dau
-      - *p2p_stablecoin_mau
-      - *p2p_stablecoin_tokenholder_count
-      - *p2p_stablecoin_transfer_volume
-      - *p2p_stablecoin_txns
-      - *premine_unlocks_native
-      - *price
-      - *revenue
-      - *stablecoin_dau
-      - *stablecoin_mau
-      - *stablecoin_tokenholder_count
-      - *stablecoin_total_supply
-      - *stablecoin_transfer_volume
-      - *stablecoin_txns
-      - *token_incentives
-      - *tvl
-      - *weekly_commits_core_ecosystem
-      - *weekly_commits_sub_ecosystem
-      - *weekly_developers_core_ecosystem
-      - *weekly_developers_sub_ecosystem
-
   - name: ez_ton_metrics
     description: "This table stores metrics for the TON protocol"
     columns:
@@ -294,17 +263,15 @@ models:
       - *burns_native
       - *chain_avg_txn_fee
       - *chain_dau
-      - *chain_fees
-      - *chain_mau
       - *chain_txns
-      - *chain_wau
       - *circulating_supply_native
       - *fdmc
       - *fees
       - *gross_emissions
       - *gross_emissions_native
+      - *issued_supply_native
       - *market_cap
-      - *net_supply_change_native
+      - *max_supply_native
       - *p2p_stablecoin_dau
       - *p2p_stablecoin_mau
       - *p2p_stablecoin_tokenholder_count
@@ -319,11 +286,13 @@ models:
       - *stablecoin_total_supply
       - *stablecoin_transfer_volume
       - *stablecoin_txns
-      - *tvl
+      - *token_turnover_circulating
+      - *token_turnover_fdv
+      - *token_volume
+      - *total_supply_native
       - *validator_fee_allocation
       - *validator_fee_allocation_native
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-
