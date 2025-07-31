@@ -38,8 +38,8 @@ select
     , dex_volumes AS chain_spot_volume
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from ronin_dex_volumes   
 left join price_data on ronin_dex_volumes.date = price_data.date
 where true

@@ -125,8 +125,8 @@ select
     , p2p_stablecoin_transfer_volume
     , p2p_stablecoin_tokenholder_count
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from supply_data as supply
 left join ton_apps_fundamental_data as ton on supply.date = ton.date
 left join price_data on supply.date = price_data.date

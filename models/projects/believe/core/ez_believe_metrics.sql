@@ -65,8 +65,8 @@ select
     , bf.ecosystem_revenue * 0.5 as foundation_fee_allocation
     , bf.ecosystem_revenue * 0.5 as service_fee_allocation
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from believe_swap_trades bst
 left join believe_coins_minted bcm
     on bst.date = bcm.date

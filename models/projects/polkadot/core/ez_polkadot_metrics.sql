@@ -134,8 +134,8 @@ select
     , weekly_developers_sub_ecosystem
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join collectives_fundamental_data on fundamental_data.date = collectives_fundamental_data.date
 left join people_fundamental_data on fundamental_data.date = people_fundamental_data.date

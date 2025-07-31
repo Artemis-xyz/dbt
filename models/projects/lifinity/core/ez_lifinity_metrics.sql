@@ -38,8 +38,8 @@ select
     , lmd.token_turnover_fdv
     , lmd.token_volume
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from lifinity_dex_volumes   
 left join lifinity_market_data lmd using (date)
 where true

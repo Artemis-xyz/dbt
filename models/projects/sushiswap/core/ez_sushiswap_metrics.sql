@@ -136,8 +136,8 @@ select
     , revenue - token_incentives as earnings
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join tvl_data tvl using(date)
 left join cashflow_metrics using(date)

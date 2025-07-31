@@ -41,8 +41,8 @@ select
     , mm.token_turnover_fdv as token_turnover_fdv
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from thorchain_tvl tt
 left join market_metrics mm using (date)
 where true

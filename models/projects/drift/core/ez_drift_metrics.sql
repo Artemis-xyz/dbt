@@ -81,8 +81,8 @@ SELECT
     , latest_excess_pnl as daily_latest_excess_pnl
 
     -- Timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM date_spine ds
 LEFT JOIN price_data USING(date)
 LEFT JOIN {{ ref("fact_drift_amm_revenue") }} as fact_drift_amm_revenue USING(date)

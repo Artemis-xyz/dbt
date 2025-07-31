@@ -84,8 +84,8 @@ select
     , weekly_contracts_deployed
     , weekly_contract_deployers
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join github_data using (date)
 left join contract_data using (date)

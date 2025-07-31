@@ -48,8 +48,8 @@ select
     , md.token_turnover_fdv
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from dim_date_spine ds
 left join token_holders th using (date)
 left join market_data md using (date)

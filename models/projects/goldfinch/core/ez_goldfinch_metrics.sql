@@ -107,8 +107,8 @@ SELECT
     , coalesce(pd.token_turnover_circulating,0) as token_turnover_circulating
     , coalesce(pd.token_turnover_fdv,0) as token_turnover_fdv
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM fees_tvl_metrics m
 LEFT JOIN token_incentives_cte ti using (date)
 LEFT JOIN treasury t using (date)

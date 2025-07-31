@@ -58,8 +58,8 @@ SELECT
     m.token_turnover_fdv,
     d.tvl,
     -- timestamp columns
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    sysdate() as created_on,
+    sysdate() as modified_on
 FROM defillama_tvl_forwardfill d
 LEFT JOIN market_data m USING (date)
 where true

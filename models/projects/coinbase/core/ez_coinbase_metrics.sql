@@ -42,8 +42,8 @@ select
     , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
     , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from staked_eth_metrics
 where true 
 {{ ez_metrics_incremental('staked_eth_metrics.date', backfill_date) }}

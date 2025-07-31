@@ -63,8 +63,8 @@ select
     , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from blur_daus
 left join blur_daily_txns using (date)
 left join blur_fees using (date)

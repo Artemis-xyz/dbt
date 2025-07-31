@@ -39,8 +39,8 @@ select
     , fees AS ecosystem_revenue
     , fees_native AS ecosystem_revenue_native
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from {{ ref("fact_ink_fundamental_metrics") }}
 left join ink_dex_volumes using (date)
 where true

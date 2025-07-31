@@ -52,8 +52,8 @@ select
     , moonwell_metrics.daily_supply_usd as lending_deposits
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from moonwell_metrics
 left join market_data
     on moonwell_metrics.date = market_data.date

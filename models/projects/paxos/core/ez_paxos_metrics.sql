@@ -26,8 +26,8 @@ SELECT
     , sum(tokenized_mcap) as tokenized_mcap
 
     -- Timestamp columns
-    , to_timestamp_ntz(current_timestamp()) as created_on
-    , to_timestamp_ntz(current_timestamp()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM {{ ref('ez_paxos_metrics_by_chain') }}
 where true
 {{ ez_metrics_incremental('date', backfill_date) }}

@@ -36,8 +36,8 @@ select
     , trading_volume as perp_volume
     , unique_traders as perp_dau
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from trading_volume_data
 left join unique_traders_data using(date)
 where true

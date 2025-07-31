@@ -124,8 +124,8 @@ select
     , p2p_stablecoin_tokenholder_count
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data f
 left join github_data using (date)
 left join defillama_data using (date)

@@ -171,8 +171,8 @@ select
     , bridge_daa
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 
 from staking_data
 left join fundamental_data on staking_data.date = fundamental_data.date

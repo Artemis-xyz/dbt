@@ -62,8 +62,8 @@ SELECT
     i.circulating_supply_native,
 
     
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on,
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
+    sysdate() as created_on,
+    sysdate() as modified_on
 FROM {{ ref("fact_story_fundamental_metrics") }} f
 LEFT JOIN issued_supply_metrics i
     ON DATE(f.date) = DATE(i.date)

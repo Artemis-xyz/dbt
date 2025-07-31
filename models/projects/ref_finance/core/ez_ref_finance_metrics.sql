@@ -44,8 +44,8 @@ select
     p.token_volume,
 
     -- timestamp columns
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    sysdate() as created_on,
+    sysdate() as modified_on
 from dau_txns_volume d
 left join price p on d.date = p.date   
 where true     

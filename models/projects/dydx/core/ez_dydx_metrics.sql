@@ -102,8 +102,8 @@ SELECT
     , dydx_supply_data.circulating_supply_native as circulating_supply_native
     , token_incentives.token_incentives as token_incentives
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join trading_volume_data on date_spine.date = trading_volume_data.date
 left join unique_traders_data on date_spine.date = unique_traders_data.date
