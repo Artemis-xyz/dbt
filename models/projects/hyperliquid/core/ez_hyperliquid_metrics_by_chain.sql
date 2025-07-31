@@ -76,13 +76,13 @@ select
     -- Standardized Metrics
 
     -- Usage Data
-    , unique_traders_data.unique_traders::string + hyperevm_data.daa as perp_dau
-    , unique_traders_data.unique_traders::string + hyperevm_data.daa as dau
+    , coalesce(unique_traders_data.unique_traders, 0)::string + coalesce(hyperevm_data.daa, 0) as perp_dau
+    , coalesce(unique_traders_data.unique_traders, 0)::string + coalesce(hyperevm_data.daa, 0) as dau
     , daily_transactions_data.trades as perp_txns
     , daily_transactions_data.trades as txns
     , perp_volume_data.perp_volume
     , spot_trading_volume_data.spot_trading_volume as spot_volume
-    , perp_volume_data.perp_volume + spot_trading_volume_data.spot_trading_volume as volume
+    , coalesce(perp_volume_data.perp_volume, 0) + coalesce(spot_trading_volume_data.spot_trading_volume, 0) as volume
     , hype_staked_data.num_stakers
     , hype_staked_data.staked_hype as total_staked_native
     , hype_staked_data.staked_hype * market_metrics.price as total_staked
@@ -92,17 +92,17 @@ select
     , fees_data.spot_fees
     , auction_fees_data.auction_fees
     , hyperevm_data.hyperevm_burns_native * market_metrics.price as chain_fees -- A portion of HyperEVM fees are burned
-    , fees_data.trading_fees + chain_fees as fees -- trading fees = (spot + perp) + auction fees
+    , coalesce(fees_data.trading_fees, 0) + coalesce(chain_fees, 0) as fees -- trading fees = (spot + perp) + auction fees
     , fees_data.trading_fees * 0.03 as service_fee_allocation
     , (daily_assistance_fund_data.daily_buybacks_native * market_metrics.price) as buyback_fee_allocation -- 97% of trading fees are bought back to the Assistance Fund
 
     -- Financial Statements
-    , (daily_assistance_fund_data.daily_buybacks_native) as buybacks_native
-    , (daily_assistance_fund_data.daily_buybacks_native * market_metrics.price) as buybacks
-    , (daily_assistance_fund_data.daily_buybacks_native * market_metrics.price) + ((hypercore_spot_burns_data.hypercore_burns_native + hyperevm_data.hyperevm_burns_native) * market_metrics.price) as revenue -- burns + buybacks
+    , daily_assistance_fund_data.daily_buybacks_native as buybacks_native
+    , daily_assistance_fund_data.daily_buybacks_native * market_metrics.price as buybacks
+    , daily_assistance_fund_data.daily_buybacks_native * market_metrics.price + coalesce(hypercore_spot_burns_data.hypercore_burns_native, 0) + coalesce(hyperevm_data.hyperevm_burns_native, 0) * market_metrics.price as revenue -- burns + buybacks
 
     -- Supply Data
-    , hypercore_spot_burns_data.hypercore_burns_native + hyperevm_data.hyperevm_burns_native as burns_native
+    , coalesce(hypercore_spot_burns_data.hypercore_burns_native, 0) + coalesce(hyperevm_data.hyperevm_burns_native, 0) as burns_native
 
 from date_spine
 left join unique_traders_data using(date, chain)
