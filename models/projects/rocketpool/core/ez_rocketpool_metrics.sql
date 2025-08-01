@@ -122,7 +122,7 @@ select
     , ti.token_incentives_usd as token_incentives
     , 0 as operating_expenses
     , ti.token_incentives_usd as total_expenses
-    , coalesce(f.revenue, 0) - coalesce(ti.token_incentives_usd, 0) as earnings
+    , 0 - coalesce(ti.token_incentives_usd, 0) as earnings
 
     --Treasury Metrics
     , t.treasury_value as treasury

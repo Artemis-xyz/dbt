@@ -132,8 +132,8 @@ SELECT
     , dex_data.spot_dau as spot_dau
     , dex_data.spot_volume as spot_volume
     , fractal_l2_txns.l2_txns as chain_txns
-    , spot_txns + chain_txns as txns
-    , spot_dau + chain_dau as dau
+    , dex_data.spot_txns + fractal_l2_txns.l2_txns as txns
+    , dex_data.spot_dau as dau
     , staked_eth_metrics.num_staked_eth as lst_tvl_native
     , staked_eth_metrics.amount_staked_usd as lst_tvl
     , tvl_data.tvl as spot_tvl

@@ -26,9 +26,9 @@ date_spine as (
 )
 
 select
-    date_spine.date,
-    'eigenpie' as artemis_id,
-    restaked_eth_metrics.chain,
+    date_spine.date
+    , 'eigenpie' as artemis_id
+    , restaked_eth_metrics.chain
 
     -- Standardized Metrics
     , restaked_eth_metrics.num_restaked_eth as lrt_tvl_native

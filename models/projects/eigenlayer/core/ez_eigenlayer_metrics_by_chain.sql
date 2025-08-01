@@ -59,11 +59,6 @@ SELECT
     , chain
 
     -- Standardized Metrics
-    -- Market Data Metrics
-    , market_data.price
-    , market_data.market_cap
-    , market_data.fdmc
-    , market_data.token_volume
 
     -- Usage Metrics
     , avs_rewards_submitted.avs_rewards_submitted as avs_rewards_submitted

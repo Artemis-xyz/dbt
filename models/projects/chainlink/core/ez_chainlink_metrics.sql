@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -247,8 +247,7 @@ select
     -- Financial Metrics
     , 0 as revenue
     , token_incentives
-    , primary_supply_side_revenue as operating_expenses
-    , revenue - token_incentives - operating_expenses as earnings -- TODO: add in treasury revenue
+    , 0 - token_incentives as earnings -- TODO: add in treasury revenue
 
     -- Treasury Metrics
     , treasury_usd as treasury

@@ -26,9 +26,9 @@ with restaked_eth_metrics as (
 )
 
 select
-    date_spine.date,
-    'bedrock' as artemis_id,
-    restaked_eth_metrics.chain,
+    date_spine.date
+    , 'bedrock' as artemis_id
+    , restaked_eth_metrics.chain
 
     -- Standardized Metrics
     -- Usage Metrics

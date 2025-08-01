@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -75,7 +75,7 @@ select
     select
         date
     from {{ ref("dim_date_spine") }}
-    where date between (select min(date) from all_trade_metrics) and (to_date(sysdate()))
+    where date between (select min(date) from fundamentals) and (to_date(sysdate()))
 )
 , perps_tvl as (
     select
@@ -131,16 +131,16 @@ select
     , f.limit_order_txns
     , f.txns
 
-    , f.unique_traders as perp_dau -- perps specific metric
-    , f.aggregator_unique_traders as aggregator_dau -- aggregator specific metric
-    , aggregator_dau + perp_dau as dau -- necessary for OL index pipeline
+    , f.unique_traders as perp_dau
+    , f.aggregator_unique_traders as aggregator_dau
+    , aggregator_dau + perp_dau as dau
 
     , tvl.perp_tvl
     , tvl.lst_tvl
     , tvl.tvl
 
     -- Fees Metrics
-    , fundamentals.perp_fees
+    , f.perp_fees
     , f.aggregator_fees
     , f.dca_fees
     , f.limit_order_fees
@@ -154,9 +154,9 @@ select
     , f.limit_order_revenue as limit_order_treasury_fee_allocation
 
     -- Financial Metrics
-    , fundamentals.revenue
+    , f.revenue
 
-    , fundamentals.buyback as buybacks
+    , f.buyback as buybacks
     -- Token Turnover Metrics
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv

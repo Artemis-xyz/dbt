@@ -37,8 +37,8 @@ with restaked_eth_metrics as (
     where ds.date between (select min(date) from restaked_eth_metrics) and to_date(sysdate())
 )
 select
-    date_spine.date,
-    'bedrock' as artemis_id,
+    date_spine.date
+    ,'bedrock' as artemis_id
 
     -- Standardized Metrics
     -- Market Metrics

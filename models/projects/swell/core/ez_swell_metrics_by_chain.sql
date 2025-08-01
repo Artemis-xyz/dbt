@@ -36,9 +36,9 @@ with
         where ds.date between (select min(date) from restaked_eth_metrics) and to_date(sysdate())
     )
 select
-    date_spine.date,
-    restaked_eth_metrics.chain,
-    'swell' as artemis_id,
+    date_spine.date
+    , restaked_eth_metrics.chain
+    , 'swell' as artemis_id
 
     --Standardized Metrics
 

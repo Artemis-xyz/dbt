@@ -9,9 +9,9 @@
 }}
 
 SELECT
-    date,
-    'solana' as chain,
-    'jito' as artemis_id,
+    date
+    , 'solana' as chain
+    , 'jito' as artemis_id
 
     --Standardized Metrics
     --Market Metrics
@@ -30,9 +30,9 @@ SELECT
     , lst_fees
     , block_infra_fees
     , fees
-    , equity_fee_allocation
+    , foundation_fee_allocation
     , treasury_fee_allocation
-    , strategy_fee_allocation
+    , other_fee_allocation
     , validator_fee_allocation
 
     -- Financial Metrics

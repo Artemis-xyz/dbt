@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"]
     )
 }}
@@ -44,8 +44,8 @@ with
             ) and to_date(sysdate())
     )
 select
-    date_spine.date,
-    'stader' as artemis_id,
+    date_spine.date
+    , 'stader' as artemis_id
 
     --Market Metrics
     , market_metrics.price as price

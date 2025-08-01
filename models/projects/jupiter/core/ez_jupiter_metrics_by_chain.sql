@@ -41,7 +41,6 @@ select
     , fees
     , service_fee_allocation
     , treasury_fee_allocation
-    , aggregator_revenue
 
     -- Revenue Metrics
     , revenue

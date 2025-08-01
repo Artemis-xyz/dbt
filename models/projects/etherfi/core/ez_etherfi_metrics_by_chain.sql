@@ -20,9 +20,9 @@ with
         from {{ ref('fact_etherfi_restaked_eth_count_with_usd_and_change') }}
     )
 select
-    restaked_eth_metrics.date,
-    'etherfi' as artemis_id,
-    restaked_eth_metrics.chain,
+    restaked_eth_metrics.date
+    , 'etherfi' as artemis_id
+    , restaked_eth_metrics.chain
 
     --Standardized Metrics
     , num_restaked_eth as lrt_tvl_native

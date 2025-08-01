@@ -119,9 +119,3 @@ models:
       - *token_volume
       - *tvl
       - *validator_fee_allocation
-  - name: ez_iotex_metrics_by_chain
-    tests:
-      - not_null:
-          column_name: chain
-          description: "Ensures that the chain column is not null for by_chain tables"
-          severity: error

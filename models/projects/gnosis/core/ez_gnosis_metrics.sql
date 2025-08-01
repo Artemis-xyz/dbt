@@ -10,7 +10,7 @@
         , on_schema_change="append_new_columns"
         , merge_update_columns=var("backfill_columns", [])
         , merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none
-        , full_refresh=false
+        , full_refresh=var("full_refresh", false)
         , tags=["ez_metrics"]
     )
 }}
@@ -54,8 +54,8 @@ select
     , f.txns AS chain_txns
     , f.dau AS chain_dau
     , f.dau
-    , f.mau AS chain_mau
-    , f.wau AS chain_wau
+    , r.mau AS chain_mau
+    , r.wau AS chain_wau
     , f.fees / f.txns AS chain_avg_txn_fee
     , gnosis_dex_volumes.dex_volumes AS chain_spot_volume
 
@@ -64,7 +64,6 @@ select
     , f.fees AS fees
     , f.fees_native AS fees_native
     , f.revenue AS burned_fee_allocation
-    , f.revenue_native AS burned_fee_allocation_native
 
     -- Financial Metrics
     , f.revenue
@@ -82,7 +81,7 @@ from fundamental_data f
 left join github_data g using (date)
 left join defillama_data using (date)
 left join market_metrics using (date)
-left join rolling_metrics using (date)
+left join rolling_metrics r using (date)
 left join gnosis_dex_volumes using (date)
 where true
 {{ ez_metrics_incremental('f.date', backfill_date) }}
