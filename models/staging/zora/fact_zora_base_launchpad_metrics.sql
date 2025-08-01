@@ -56,6 +56,20 @@ new_creators_per_day as (
     group by 1
 ),
 
+returning_creators_per_day as (
+    select
+        date,
+        count(distinct caller_address) as returning_creators
+    from daily_creators dc1
+    where exists (
+        select 1 
+        from daily_creators dc2 
+        where dc2.caller_address = dc1.caller_address 
+        and dc2.date < dc1.date
+    )
+    group by 1
+),
+
 cumulative_metrics as (
     select
         da.date,
@@ -65,10 +79,12 @@ cumulative_metrics as (
         da.content_coins_created,
         da.unique_payout_recipients,
         da.unique_platform_referrers,
-
+        coalesce(nc.new_creators, 0) as new_creators_per_day,
+        coalesce(rc.returning_creators, 0) as returning_creators_per_day
         
     from daily_aggregates da
     left join new_creators_per_day nc on da.date = nc.date
+    left join returning_creators_per_day rc on da.date = rc.date
 )
 
 select * from cumulative_metrics
