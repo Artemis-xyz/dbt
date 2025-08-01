@@ -219,54 +219,54 @@ with
 
 select
     date
-    , 'chainlink' as app
-    , 'Oracle' as category
-    --Old Metrics needed for compatibility
-    , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
-    , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue
-    , fees as secondary_supply_side_revenue
-    , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
-    , daily_txns as txns
-    , dau
-    , treasury_usd
-    , treasury_link
+    , 'chainlink' as artemis_id
+
     -- Standardized Metrics
     -- Market Metrics
     , price
     , market_cap
     , fdmc
     , token_volume
+
     -- Usage Metrics
     , dau as oracle_dau
+    , dau
     , daily_txns as oracle_txns
-    -- Cash Flow Metrics
-    , coalesce(automation_fees, 0) as automation_fees
-    , coalesce(ccip_fees, 0) as ccip_fees
-    , coalesce(vrf_fees, 0) as vrf_fees
-    , coalesce(direct_fees, 0) as direct_fees
-    , coalesce(ocr_fees, 0) as ocr_fees
-    , coalesce(fm_fees, 0) as fm_fees
-    , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as oracle_fees
-    , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as ecosystem_revenue
-    , ecosystem_revenue as service_fee_allocation
+    , daily_txns as txns
+
+    -- Fee Metrics
+    , automation_fees
+    , ccip_fees
+    , vrf_fees
+    , direct_fees
+    , ocr_fees
+    , fm_fees
+    , coalesce(automation_fees, 0) + coalesce(ccip_fees,0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) + coalesce(fm_fees, 0) + coalesce(ocr_fees, 0) as fees
+    , coalesce(automation_fees, 0) + coalesce(ccip_fees,0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) + coalesce(fm_fees, 0) + coalesce(ocr_fees, 0) as service_fee_allocation
+    
+    -- Financial Metrics
     , 0 as revenue
     , token_incentives
     , primary_supply_side_revenue as operating_expenses
-    , revenue - token_incentives - operating_expenses as earnings
+    , revenue - token_incentives - operating_expenses as earnings -- TODO: add in treasury revenue
+
     -- Treasury Metrics
     , treasury_usd as treasury
     , treasury_link as treasury_native
+
     -- Supply Metrics
     , premine_unlocks_native
     , issued_supply_metrics.max_supply_native
     , issued_supply_metrics.total_supply_native
     , issued_supply_metrics.issued_supply_native
     , issued_supply_metrics.circulating_supply_native
+
     -- Other Metrics
     , token_turnover_circulating
     , token_turnover_fdv
     , tokenholder_count
-    -- timestamp columns
+
+    -- Timestamp Columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from fm_fees_data
