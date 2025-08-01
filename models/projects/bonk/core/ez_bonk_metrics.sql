@@ -30,6 +30,12 @@ with date_spine as (
         , launchpad_volume
         , launchpad_txns
         , launchpad_fees
+        , unique_tokens_traded
+        , avg_swap_size_usd
+        , fee_to_volume_ratio
+        , total_token_supply
+        , avg_token_supply
+        , unique_symbols_created
     from {{ ref('fact_bonk_fundamental_metrics') }}
 )
 
@@ -41,6 +47,15 @@ select
     , launchpad_dau
     , launchpad_volume
     , launchpad_txns
+    , launchpad_fees
+    -- Additional Trading Metrics
+    , unique_tokens_traded
+    , avg_swap_size_usd
+    , fee_to_volume_ratio
+    -- Token Creation Metrics
+    , total_token_supply
+    , avg_token_supply
+    , unique_symbols_created
     -- Market Data Metrics
     , price
     , market_cap
