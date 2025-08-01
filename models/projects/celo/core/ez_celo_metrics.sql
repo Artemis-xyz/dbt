@@ -26,7 +26,7 @@ with
     price_data as ({{ get_coingecko_metrics("celo") }}),
     defillama_data as ({{ get_defillama_metrics("celo") }}),
     github_data as ({{ get_github_metrics("celo") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("celo") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("celo", backfill_date="2020-05-22") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("celo") }}),
     celo_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
