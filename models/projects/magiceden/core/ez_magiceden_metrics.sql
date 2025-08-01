@@ -81,8 +81,8 @@ select
     , COALESCE(daily_supply_data.emissions_native, 0) + COALESCE(daily_supply_data.premine_unlocks_native, 0) - COALESCE(daily_supply_data.burns_native, 0) as net_supply_change_native
     , sum(net_supply_change_native) over (order by date_spine.date rows between unbounded preceding and current row) as circulating_supply_native
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join market_metrics on date_spine.date = market_metrics.date
 left join magiceden_metrics on date_spine.date = magiceden_metrics.date

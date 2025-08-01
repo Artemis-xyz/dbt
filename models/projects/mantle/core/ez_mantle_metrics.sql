@@ -36,7 +36,7 @@ fundamental_data as ({{ get_fundamental_data_for_chain("mantle", "v2") }})
 , github_data as ({{ get_github_metrics("mantle") }})
 , rolling_metrics as ({{ get_rolling_active_address_metrics("mantle") }})
 , defillama_data as ({{ get_defillama_metrics("mantle") }})
-, stablecoin_data as ({{ get_stablecoin_metrics("mantle") }})
+, stablecoin_data as ({{ get_stablecoin_metrics("mantle", backfill_date="2023-07-02") }})
 , market_data as ({{ get_coingecko_metrics("mantle") }})
 , mantle_dex_volumes as (
     select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
@@ -124,8 +124,8 @@ select
     , p2p_stablecoin_tokenholder_count
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data f
 left join github_data using (date)
 left join defillama_data using (date)

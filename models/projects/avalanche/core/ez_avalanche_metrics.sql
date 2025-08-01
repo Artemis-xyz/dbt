@@ -24,7 +24,7 @@ with fundamental_data as (
 )
 , price_data as ({{ get_coingecko_metrics("avalanche-2") }})
 , defillama_data as ({{ get_defillama_metrics("avalanche") }})
-, stablecoin_data as ({{ get_stablecoin_metrics("avalanche") }})
+, stablecoin_data as ({{ get_stablecoin_metrics("avalanche", backfill_date="2020-09-10") }})
 , staking_data as ({{ get_staking_metrics("avalanche") }})
 , github_data as ({{ get_github_metrics("avalanche") }})
 , contract_data as ({{ get_contract_metrics("avalanche") }})
@@ -171,8 +171,8 @@ select
     , bridge_daa
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 
 from staking_data
 left join fundamental_data on staking_data.date = fundamental_data.date

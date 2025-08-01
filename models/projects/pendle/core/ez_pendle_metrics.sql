@@ -163,8 +163,8 @@ SELECT
     , tc.token_holder_count
 
     -- timestamp columns
-    , to_timestamp_ntz(current_timestamp()) as created_on
-    , to_timestamp_ntz(current_timestamp()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 
 FROM price_data_cte p
 LEFT JOIN swap_fees f using(date)

@@ -56,8 +56,8 @@ select
     , artemis_stablecoin_daily_txns
 
     -- Timetamp Columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from stablecoin_metrics
 left join spot_volume_spot_txn_spot_dau using (date)
 where true

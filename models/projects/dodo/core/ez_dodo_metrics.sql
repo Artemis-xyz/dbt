@@ -57,8 +57,8 @@ select
     -- Cashflow Metrics
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join market_metrics using (date)
 left join swap_metrics using (date)

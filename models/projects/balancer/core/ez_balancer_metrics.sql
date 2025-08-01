@@ -125,8 +125,8 @@ select
     , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
     , coalesce(token_holders.token_holder_count, 0) as tokenholder_count
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join all_tvl using (date)
 left join treasury using (date)

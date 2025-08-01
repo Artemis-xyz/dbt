@@ -73,8 +73,8 @@ SELECT DISTINCT
     , clean_parquet.active_blobs
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) AS modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM date_spine
 LEFT JOIN clean_parquet USING (date)
 LEFT JOIN market_data USING (date)

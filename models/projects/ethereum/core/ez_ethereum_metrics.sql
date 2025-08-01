@@ -26,7 +26,7 @@ with
     fundamental_data as ({{ get_fundamental_data_for_chain("ethereum", "v2") }}),
     price_data as ({{ get_coingecko_metrics("ethereum") }}),
     defillama_data as ({{ get_defillama_metrics("ethereum") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("ethereum") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("ethereum", backfill_date="2015-08-07") }}),
     staking_data as ({{ get_staking_metrics("ethereum") }}),
     censored_block_metrics as ({{ get_censored_block_metrics("ethereum") }}),
     revenue_data as (
@@ -197,8 +197,8 @@ select
     , cumulative_etf_flow_native
     , cumulative_etf_flow
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date

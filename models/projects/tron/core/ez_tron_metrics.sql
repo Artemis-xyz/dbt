@@ -23,7 +23,7 @@ with fundamental_data as (
 )
 , market_metrics as ({{ get_coingecko_metrics("tron") }})
 , defillama_data as ({{ get_defillama_metrics("tron") }})
-, stablecoin_data as ({{ get_stablecoin_metrics("tron") }})
+, stablecoin_data as ({{ get_stablecoin_metrics("tron", backfill_date="2018-06-25") }})
 , github_data as ({{ get_github_metrics("tron") }})
 , p2p_metrics as ({{ get_p2p_metrics("tron") }})
 , rolling_metrics as ({{ get_rolling_active_address_metrics("tron") }})
@@ -140,8 +140,8 @@ select
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join market_metrics on fundamental_data.date = market_metrics.date
 left join defillama_data on fundamental_data.date = defillama_data.date

@@ -302,8 +302,8 @@ select
     , token_turnover_fdv
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from aave_outstanding_supply_net_deposits_deposit_revenue
 left join aave_flashloan_fees using (date)
 left join aave_liquidation_supply_side_revenue using (date)

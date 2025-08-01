@@ -22,8 +22,8 @@ SELECT
     sum(tokenized_mcap_change) as tokenized_mcap_change,
     sum(tokenized_mcap) as tokenized_mcap,
     -- timestamp columns
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    sysdate() as created_on,
+    sysdate() as modified_on
 FROM {{ ref('ez_wisdomtree_metrics_by_chain') }}
 WHERE true
 {{ ez_metrics_incremental('date', backfill_date) }}

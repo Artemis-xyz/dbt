@@ -60,8 +60,8 @@ select
     , token_incentives.amount_usd as gross_emissions
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from token_incentives
 left join price_data
     on token_incentives.date = price_data.date

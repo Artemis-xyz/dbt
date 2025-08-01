@@ -42,8 +42,8 @@ select
     , f.revenue_native
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from {{ ref("fact_abstract_fundamental_metrics") }} as f
 where true
 {{ ez_metrics_incremental("f.date", backfill_date) }}

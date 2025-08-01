@@ -129,8 +129,8 @@ select
     , COALESCE(tokenholder_count, 0) AS tokenholder_count
     
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM token_holder_data
 left join treasury_usd using (date)
 left join treasury_native using (date)

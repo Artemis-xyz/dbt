@@ -34,8 +34,8 @@ select
     bridge_volume.bridge_volume,
     bridge_dau.bridge_dau
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from bridge_volume
 left join bridge_dau on bridge_volume.date = bridge_dau.date
 where true

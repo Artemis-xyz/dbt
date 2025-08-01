@@ -40,8 +40,8 @@ select
     , pmd.token_volume
 
     -- timestamp columns
-    , to_timestamp_ntz(current_timestamp()) as created_on
-    , to_timestamp_ntz(current_timestamp()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from pharaoh_tvl
 left join pharaoh_market_data pmd using (date)
 where true

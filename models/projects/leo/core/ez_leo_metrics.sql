@@ -59,8 +59,8 @@ with
         , token_turnover_circulating
         , token_turnover_fdv
         -- timestamp columns
-        , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-        , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+        , sysdate() as created_on
+        , sysdate() as modified_on
     from date_spine
     left join leo_revenue using (date)
     left join market_data using (date)

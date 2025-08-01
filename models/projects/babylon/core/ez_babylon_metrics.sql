@@ -50,8 +50,8 @@ SELECT
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM date_spine
 LEFT JOIN market_metrics using (date)
 LEFT JOIN tvl_data using (date)

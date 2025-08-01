@@ -141,8 +141,8 @@ SELECT
     , coalesce(supply_data.emissions_native, 0) * coalesce(price.price, 0) as gross_emissions
     , coalesce(supply_data.circulating_supply_native, 0) as circulating_supply_native
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM price
 LEFT JOIN fees USING(date)
 LEFT JOIN revenues USING(date)

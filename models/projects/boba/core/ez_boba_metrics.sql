@@ -38,8 +38,8 @@ select
     , token_turnover_circulating
     , token_turnover_fdv
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from boba_dex_volumes d
 left join price_data using(d.date)
 where true 

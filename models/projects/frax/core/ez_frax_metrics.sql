@@ -61,10 +61,10 @@ with dex_data as (
 )
 , stablecoin_supply_data as (
     with frax_data as (
-        {{ get_stablecoin_metrics("FRAX", breakdown='symbol') }}
+        {{ get_stablecoin_metrics("FRAX", breakdown='symbol', backfill_date="2022-08-19") }}
     )
     , frxusd_data as (
-        {{ get_stablecoin_metrics("FRXUSD", breakdown='symbol') }}
+        {{ get_stablecoin_metrics("FRXUSD", breakdown='symbol', backfill_date="2025-01-08") }}
     )
     , agg as (
         select
@@ -153,8 +153,8 @@ SELECT
     , fxs_daily_supply_data.net_supply_change_native as net_supply_change_native
     , fxs_daily_supply_data.total_circulating_supply as circulating_supply_native   
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 
 from date_spine
 left join market_metrics using (date)

@@ -22,7 +22,7 @@ with
     fundamental_data as ({{ get_fundamental_data_for_chain("optimism", "v2") }}),
     price_data as ({{ get_coingecko_metrics("optimism") }}),
     defillama_data as ({{ get_defillama_metrics("optimism") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("optimism") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("optimism", backfill_date="2021-11-11") }}),
     github_data as ({{ get_github_metrics("optimism") }}),
     contract_data as ({{ get_contract_metrics("optimism") }}),
     expenses_data as (
@@ -196,8 +196,8 @@ select
     , total_unvested_supply
     , foundation_owned_supply_native
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date

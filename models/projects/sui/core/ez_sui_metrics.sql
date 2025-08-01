@@ -26,7 +26,7 @@ with
     ),
     price_data as ({{ get_coingecko_metrics("sui") }}),
     defillama_data as ({{ get_defillama_metrics("sui") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("sui") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("sui", backfill_date="2023-04-12") }}),
     github_data as ({{ get_github_metrics("sui") }})
     , supply_data as (
         select 
@@ -100,8 +100,8 @@ select
     , p2p_stablecoin_mau
     , p2p_stablecoin_transfer_volume
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date

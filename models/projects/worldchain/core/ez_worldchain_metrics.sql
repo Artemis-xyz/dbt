@@ -60,8 +60,8 @@ select
     -- Legacy Metrics
     , dex.adjusted_dex_volumes
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 
 from {{ ref("fact_worldchain_fundamental_metrics") }} as f
 left join market_data on f.date = market_data.date

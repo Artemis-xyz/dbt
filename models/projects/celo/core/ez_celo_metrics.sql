@@ -26,7 +26,7 @@ with
     price_data as ({{ get_coingecko_metrics("celo") }}),
     defillama_data as ({{ get_defillama_metrics("celo") }}),
     github_data as ({{ get_github_metrics("celo") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("celo") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("celo", backfill_date="2020-05-22") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("celo") }}),
     celo_dex_volumes as (
         select date, daily_volume as dex_volumes, daily_volume_adjusted as adjusted_dex_volumes
@@ -87,8 +87,8 @@ select
     , celo_dex_volumes.adjusted_dex_volumes
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date

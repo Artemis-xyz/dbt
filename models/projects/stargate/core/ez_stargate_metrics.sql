@@ -280,8 +280,8 @@ SELECT
     , pd.token_turnover_fdv
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM treasury_metrics t
 full outer join daily_growth d ON d.transaction_date = t.date
 LEFT JOIN new_addresses n ON t.date = n.transaction_date

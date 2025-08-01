@@ -20,7 +20,7 @@
 
 with
     contract_data as ({{ get_contract_metrics("solana") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("solana") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("solana", backfill_date="2020-03-16") }}),
     defillama_data as ({{ get_defillama_metrics("solana") }}),
     github_data as ({{ get_github_metrics("solana") }}),
     price as ({{ get_coingecko_metrics("solana") }}),
@@ -167,8 +167,8 @@ select
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_usage 
 left join defillama_data on fundamental_usage.date = defillama_data.date
 left join stablecoin_data on fundamental_usage.date = stablecoin_data.date

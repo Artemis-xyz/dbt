@@ -102,8 +102,8 @@ select
     price_data.price * supply_metrics.circulating_supply as market_cap,
     price_data.price * supply_metrics.circulating_supply as fdmc,
     -- timestamp columns
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    sysdate() as created_on,
+    sysdate() as modified_on
 from transaction_metrics
 left join block_metrics on transaction_metrics.date = block_metrics.date
 left join supply_metrics on transaction_metrics.date = supply_metrics.date

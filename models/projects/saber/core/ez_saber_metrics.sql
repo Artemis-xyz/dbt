@@ -40,8 +40,8 @@ select
     , smd.token_volume
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on  
+    , sysdate() as created_on
+    , sysdate() as modified_on  
 from saber_tvl
 left join saber_market_data smd using (date)
 where true
