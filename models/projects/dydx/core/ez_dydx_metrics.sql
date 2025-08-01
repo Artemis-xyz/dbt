@@ -1,13 +1,22 @@
 -- buyback started on March 25th. 25% of all trading fees
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="DYDX",
         database="dydx",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 WITH 
     date_spine AS (
@@ -72,15 +81,12 @@ SELECT
     , unique_traders_data.unique_traders as unique_traders
     , fees as trading_fees
     , txn_fees as txn_fees
-    
     -- standardize metrics
-
     -- Market Metrics
     , price_data.price
     , price_data.market_cap
     , price_data.fdmc
     , price_data.token_volume
-
     -- Cash Flow Metrics
     , fees as perp_fees
     , txn_fees as chain_fees
@@ -90,13 +96,14 @@ SELECT
     , case when date_spine.date >= '2022-03-25' then fees * 0.25 else 0 end as buybacks
     , (coalesce(txn_fees, 0) + coalesce(fees, 0))
             - COALESCE(token_incentives.token_incentives, 0) AS earnings     
-
     -- Supply Metrics
     , dydx_supply_data.circulating_supply_native - lag(dydx_supply_data.circulating_supply_native) over (order by date_spine.date) as net_supply_change_native
     , dydx_supply_data.premine_unlocks_native as premine_unlocks_native
     , dydx_supply_data.circulating_supply_native as circulating_supply_native
     , token_incentives.token_incentives as token_incentives
-
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join trading_volume_data on date_spine.date = trading_volume_data.date
 left join unique_traders_data on date_spine.date = unique_traders_data.date
@@ -107,4 +114,6 @@ left join unique_traders_data_v4 on date_spine.date = unique_traders_data_v4.dat
 left join dydx_supply_data on date_spine.date = dydx_supply_data.date
 left join price_data on date_spine.date = price_data.date
 LEFT JOIN token_incentives ON date_spine.date = token_incentives.date
-where date_spine.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

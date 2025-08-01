@@ -1,12 +1,21 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='ENZYME',
         database='ENZYME',
         schema='core',
-        alias='ez_metrics'
+        alias='ez_metrics',
+        incremental_strategy='merge',
+        unique_key='date',
+        on_schema_change='append_new_columns',
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with dim_date_spine as (
     select 
@@ -37,6 +46,13 @@ select
     -- Turnover Metrics
     , md.token_turnover_circulating
     , md.token_turnover_fdv
+
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from dim_date_spine ds
 left join token_holders th using (date)
 left join market_data md using (date)
+where true
+{{ ez_metrics_incremental('ds.date', backfill_date) }}
+and ds.date < to_date(sysdate())

@@ -1,10 +1,16 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="ACH",
         database="ach",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=var("full_refresh", false),
     )
 }}
 
@@ -129,5 +135,11 @@ combined_result as (
 select 
     date, 
     transfer_volume 
+
+    -- Timetamp Columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from combined_result
+WHERE TRUE
+{{ ez_metrics_incremental('date', backfill_date) }}
 order by date

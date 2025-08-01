@@ -7,3 +7,4 @@ sources:
       - name: coinbase_q4_metrics
       - name: artemis_equities_comps
       - name: intrinio_historical_equity_prices
+      - name: raw_publiccomps_data

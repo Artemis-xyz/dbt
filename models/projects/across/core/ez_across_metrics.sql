@@ -1,18 +1,28 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="ACROSS",
         database="across",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     bridge_volume as (
         select date, bridge_volume
         from {{ ref("fact_across_bridge_volume") }}
         where chain is null
+        
     ),
     bridge_daa as (
         select date, bridge_daa
@@ -33,8 +43,12 @@ select
     , price_data.token_turnover_circulating as token_turnover_circulating
     , price_data.token_turnover_fdv as token_turnover_fdv
     , price_data.token_volume as token_volume
-
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from bridge_volume
 left join bridge_daa on bridge_volume.date = bridge_daa.date
 left join price_data on bridge_volume.date = price_data.date
-where bridge_volume.date < to_date(sysdate())
+where true 
+{{ ez_metrics_incremental("bridge_volume.date", backfill_date) }}
+and bridge_volume.date < to_date(sysdate())

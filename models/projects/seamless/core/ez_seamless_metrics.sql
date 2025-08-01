@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="SEAMLESSPROTOCOL",
         database="seamlessprotocol",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     seamless_by_chain as (
@@ -41,7 +50,12 @@ select
     , price_data.price
     , price_data.market_cap
     , price_data.fdmc
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from seamless_metrics
 left join price_data
     on seamless_metrics.date = price_data.date
-where seamless_metrics.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('seamless_metrics.date', backfill_date) }}
+and seamless_metrics.date < to_date(sysdate())

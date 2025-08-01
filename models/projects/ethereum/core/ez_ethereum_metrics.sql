@@ -5,19 +5,28 @@
 
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="ETHEREUM",
         database="ethereum",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as ({{ get_fundamental_data_for_chain("ethereum", "v2") }}),
     price_data as ({{ get_coingecko_metrics("ethereum") }}),
     defillama_data as ({{ get_defillama_metrics("ethereum") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("ethereum") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("ethereum", backfill_date="2015-08-07") }}),
     staking_data as ({{ get_staking_metrics("ethereum") }}),
     censored_block_metrics as ({{ get_censored_block_metrics("ethereum") }}),
     revenue_data as (
@@ -141,23 +150,19 @@ select
     , submitters as da_dau
     , dune_dex_volumes_ethereum.dex_volumes AS chain_spot_volume
     , coalesce(fees, 0) + coalesce(blob_fees, 0) + coalesce(priority_fee_usd, 0) + coalesce(settlement_volume, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
-
     -- Cashflow metrics
     , fees as chain_fees
     , case when fees is null then (coalesce(blob_fees_native, 0) + fees_native) * price else fees + coalesce(blob_fees, 0) end as fees
     , fees_native
     , revenue_native AS burned_fee_allocation_native
     , revenue AS burned_fee_allocation
-
     , fees_native - revenue_native as priority_fees_native
     , priority_fee_usd AS priority_fees
-
     -- Financial Statement Metrics
     , revenue_native + coalesce(blob_fees_native, 0) as revenue_native
     , revenue + coalesce(blob_fees, 0) as revenue
     , block_rewards_native  * price AS token_incentives
     , revenue - token_incentives AS earnings
-    
     -- Developer metrics
     , weekly_commits_core_ecosystem
     , weekly_commits_sub_ecosystem
@@ -165,11 +170,9 @@ select
     , weekly_developers_sub_ecosystem
     , weekly_contracts_deployed
     , weekly_contract_deployers
-
     -- Supply metrics
     , block_rewards_native AS gross_emissions_native
     , block_rewards_native * price AS gross_emissions
-
     -- Stablecoin metrics
     , stablecoin_total_supply
     , stablecoin_txns
@@ -186,7 +189,6 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , stablecoin_data.p2p_stablecoin_transfer_volume
-
     , eth_supply.issued_supply as issued_supply_native
     , eth_supply.circulating_supply as circulating_supply_native
     -- ETF Metrics
@@ -194,6 +196,9 @@ select
     , net_etf_flow
     , cumulative_etf_flow_native
     , cumulative_etf_flow
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -214,4 +219,6 @@ left join block_rewards_data on fundamental_data.date = block_rewards_data.date
 left join eth_supply on fundamental_data.date = eth_supply.date
 left join adjusted_dau_metrics on fundamental_data.date = adjusted_dau_metrics.date
 left join application_fees on fundamental_data.date = application_fees.date
-where fundamental_data.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

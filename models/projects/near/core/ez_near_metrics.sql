@@ -1,13 +1,22 @@
 -- depends_on {{ ref("fact_near_transactions_v2") }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="NEAR",
         database="near",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as ({{ get_fundamental_data_for_chain("near", "v2") }}),
@@ -94,6 +103,9 @@ select
     , submitters
     , coalesce(near_dex_volumes.dex_volumes, 0) as chain_spot_volume
     , coalesce(chain_fees, 0) + coalesce(blob_fees, 0) + coalesce(p2p_transfer_volume, 0) + coalesce(near_dex_volumes.dex_volumes, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -105,4 +117,6 @@ left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join da_metrics on fundamental_data.date = da_metrics.date
 left join near_dex_volumes on fundamental_data.date = near_dex_volumes.date
 left join application_fees on fundamental_data.date = application_fees.date
-where fundamental_data.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

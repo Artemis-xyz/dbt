@@ -1,36 +1,51 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="ABSTRACT",
         database="abstract",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=var("full_refresh", false),
+        tags=["ez_metrics"],
     )
 }}
 
+{% set backfill_date = var("backfill_date", None) %}
+
 select
     f.date
-    , txns
-    , daa as dau
-    , fees_native
-    , fees
-    , cost
-    , cost_native
-    , revenue
-    , revenue_native
+    , 'abstract' as artemis_id
 
     -- Standardized Metrics
 
-    -- Chain Usage Metrics
-    , txns as chain_txns
-    , daa as chain_dau
+    -- Usage Metrics
+    , f.txns as chain_txns
+    , f.txns as txns
+    , f.daa as chain_dau
+    , f.daa as dau
 
     -- Cash Flow Metrics
-    , fees as ecosystem_revenue
-    , fees_native as ecosystem_revenue_native
-    , cost as l1_fee_allocation
-    , cost_native as l1_fee_allocation_native
-    , revenue as foundation_fee_allocation
-    , revenue_native as foundation_fee_allocation_native
+    , f.fees
+    , f.fees_native
+    , f.cost as l1_fee_allocation
+    , f.cost_native as l1_fee_allocation_native
+    , f.revenue as foundation_fee_allocation
+    , f.revenue_native as foundation_fee_allocation_native
+
+    -- Financial Metrics
+    , f.revenue
+    , f.revenue_native
+
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from {{ ref("fact_abstract_fundamental_metrics") }} as f
-where f.date  < to_date(sysdate())
+where true
+{{ ez_metrics_incremental("f.date", backfill_date) }}
+and f.date  < to_date(sysdate())
+

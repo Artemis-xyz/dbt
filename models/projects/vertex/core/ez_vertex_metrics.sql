@@ -1,14 +1,25 @@
 -- Deprecated 7/15/2025
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="VERTEX",
         database="vertex",
         schema="core",
         alias="ez_metrics",
-        enabled=false
+        enabled=false,
+        tags=["ez_metrics"],
+        backfill_date=var("backfill_date", None),
+        backfill_columns=var("backfill_columns", []),
+        full_refresh=var("full_refresh", false),
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with trading_volume_data as (
     select date, sum(trading_volume) as trading_volume
@@ -59,9 +70,14 @@ select
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
 
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join market_metrics using(date)
 left join trading_volume_data using(date)
 left join unique_traders_data using(date)
 left join token_incentives using(date)
-where date_spine.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

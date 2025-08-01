@@ -1,12 +1,22 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="metaplex",
         database="metaplex",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
+
 -- 2020-10-25
 with date_spine as (
     select date
@@ -86,35 +96,32 @@ SELECT
     , coalesce(new_holders.daily_new_holders, 0) as daily_new_holders
     , coalesce(active_wallets.dau, 0) as dau
     , coalesce(transactions.txns, 0) as txns
-
     --Standardized Metrics
-
     -- Token Metrics
     , coalesce(price.price, 0) as price
     , coalesce(price.market_cap, 0) as market_cap
     , coalesce(price.fdmc, 0) as fdmc
     , coalesce(price.token_volume, 0) as token_volume
-
     -- Usage Metrics
     , coalesce(active_wallets.dau, 0) as nft_dau
     , coalesce(transactions.txns, 0) as nft_txns
     , coalesce(mints.daily_mints, 0) as nft_mints
-
     -- Cash Flow Metrics
     , coalesce(revenue.revenue_usd, 0) as nft_fees
     , coalesce(revenue.revenue_usd, 0) as ecosystem_revenue
     , 0.5 * coalesce(revenue.revenue_usd, 0) as treasury_fee_allocation
     , 0.5 * coalesce(revenue.revenue_usd, 0) as buyback_fee_allocation
     , coalesce(buybacks.buyback, 0) as buybacks
-
     -- Supply Metrics
     , supply.premine_unlocks_native
     , supply.net_supply_change_native
     , supply.circulating_supply_native
-
     -- Turnover Metrics
     , coalesce(price.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(price.token_turnover_fdv, 0) as token_turnover_fdv
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM date_spine ds
 LEFT JOIN price USING (date)
 LEFT JOIN revenue USING (date)
@@ -125,4 +132,6 @@ LEFT JOIN transactions USING (date)
 LEFT JOIN unique_signers USING (date)
 LEFT JOIN new_holders USING (date)
 LEFT JOIN supply USING (date)
-where ds.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('ds.date', backfill_date) }}
+and ds.date < to_date(sysdate())

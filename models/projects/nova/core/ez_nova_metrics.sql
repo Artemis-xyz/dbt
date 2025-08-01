@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="NOVA",
         database="nova",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with nova_dex_volumes as (
     select date, daily_volume as dex_volumes
@@ -18,10 +27,8 @@ with nova_dex_volumes as (
 select
     date
     , dex_volumes
-
     -- Standardized Metrics
     , dex_volumes as spot_volume
-
     -- Market Metrics
     , nmd.price
     , nmd.market_cap
@@ -29,6 +36,11 @@ select
     , nmd.token_turnover_circulating
     , nmd.token_turnover_fdv
     , nmd.token_volume
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from nova_dex_volumes   
 left join nova_market_data nmd using (date)
-where date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())

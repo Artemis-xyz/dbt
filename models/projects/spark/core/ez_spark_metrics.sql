@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="SPARK",
         database="spark",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     spark_by_chain as (
@@ -37,5 +46,10 @@ select
     -- Standardized metrics
     , spark_metrics.daily_borrows_usd as lending_loans
     , spark_metrics.daily_supply_usd as lending_deposits
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from spark_metrics
-where spark_metrics.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('spark_metrics.date', backfill_date) }}
+and spark_metrics.date < to_date(sysdate())

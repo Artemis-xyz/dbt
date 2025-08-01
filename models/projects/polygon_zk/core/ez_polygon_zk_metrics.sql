@@ -1,13 +1,22 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="POLYGON_ZK",
         database="polygon_zk",
         schema="core",
         alias="ez_metrics",
         enabled=false,
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=var("full_refresh", false),
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as (
@@ -25,7 +34,7 @@ with
     ),
     github_data as ({{ get_github_metrics("Polygon Hermez") }}),
     polygon_zk_dex_volumes as (
-        select date, daily_volume as dex_volumes
+        select date, DAILY_VOLUME_ADJUSTED_WITH_NULLS as dex_volumes
         from {{ ref("fact_polygon_zk_daily_dex_volumes") }}
     )
 select
@@ -63,10 +72,16 @@ select
     , weekly_commits_sub_ecosystem
     , weekly_developers_core_ecosystem
     , weekly_developers_sub_ecosystem
+
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join l1_data_cost on fundamental_data.date = l1_data_cost.date
 left join github_data on fundamental_data.date = github_data.date
 left join polygon_zk_dex_volumes as dune_dex_volumes_polygon_zk on fundamental_data.date = dune_dex_volumes_polygon_zk.date
-where fundamental_data.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

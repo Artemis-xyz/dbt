@@ -1,12 +1,21 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='VELODROME',
         database='VELODROME',
         schema='core',
-        alias='ez_metrics'
+        alias='ez_metrics',
+        incremental_strategy='merge',
+        unique_key='date',
+        on_schema_change='append_new_columns',
+        merge_update_columns=var('backfill_columns', []),
+        merge_exclude_columns=['created_on'] if not var('backfill_columns', []) else none,
+        full_refresh=var("full_refresh", false),
+        tags=['ez_metrics']
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with velodrome_tvl as (
     {{ get_defillama_protocol_tvl('velodrome') }}
@@ -16,16 +25,29 @@ with velodrome_tvl as (
 )
 
 select
-    velodrome_tvl.date,
-    'Defillama' as source,
+    velodrome_tvl.date
+    , 'velodrome' as artemis_id
+    , 'Defillama' as source
 
     -- Standardized Metrics
-    velodrome_tvl.tvl,
-    velodrome_market_data.price,
-    velodrome_market_data.market_cap,
-    velodrome_market_data.fdmc,
-    velodrome_market_data.token_turnover_circulating,
-    velodrome_market_data.token_turnover_fdv,
-    velodrome_market_data.token_volume
+    -- Market Metrics
+    , velodrome_market_data.price
+    , velodrome_market_data.market_cap
+    , velodrome_market_data.fdmc
+    , velodrome_market_data.token_volume
+    
+    -- Usage Metrics
+    , velodrome_tvl.tvl
+    
+    -- Other Metrics
+    , velodrome_market_data.token_turnover_circulating
+    , velodrome_market_data.token_turnover_fdv
+
+    -- Timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from velodrome_tvl
 left join velodrome_market_data using (date) 
+where true
+{{ ez_metrics_incremental('velodrome_tvl.date', backfill_date) }}
+and velodrome_tvl.date < to_date(sysdate())

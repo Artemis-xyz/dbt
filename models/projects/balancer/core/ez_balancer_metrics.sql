@@ -1,12 +1,21 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='BALANCER',
         database='BALANCER',
         schema='core',
-        alias='ez_metrics'
+        alias='ez_metrics',
+        incremental_strategy='merge',
+        unique_key='date',
+        on_schema_change='append_new_columns',
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with date_spine as (
     select date
@@ -55,7 +64,7 @@ with date_spine as (
         sum(native_balance) as treasury_native,
         sum(usd_balance) as own_token_treasury
     FROM {{ ref('fact_balancer_treasury_by_token') }}
-    where token = 'BAL'
+    WHERE token = 'BAL'
     group by 1
 )
 , net_treasury as (
@@ -63,7 +72,7 @@ with date_spine as (
         date,
         sum(usd_balance) as net_treasury_usd
     FROM {{ ref('fact_balancer_treasury_by_token') }}
-    where token <> 'BAL'
+    WHERE token <> 'BAL'
     group by 1
 )
 , token_holders as (
@@ -90,38 +99,34 @@ select
     coalesce(treasury.net_treasury_usd, 0) as treasury_value,
     coalesce(net_treasury.net_treasury_usd, 0) as net_treasury_value,
     coalesce(treasury_native.treasury_native, 0) as treasury_value_native
-
     -- Standardized Metrics
     -- Market Metrics
     , coalesce(market_data.price, 0) as price
     , coalesce(market_data.market_cap, 0) as market_cap
     , coalesce(market_data.fdmc, 0) as fdmc
     , coalesce(market_data.token_volume, 0) as token_volume
-
     -- Usage/Sector Metrics
     , coalesce(swap_metrics.unique_traders, 0) as spot_dau
     , coalesce(swap_metrics.number_of_swaps, 0) as spot_txns
     , coalesce(swap_metrics.trading_volume, 0) as spot_volume
     , coalesce(all_tvl.tvl_usd, 0) as tvl
-
     -- Money Metrics
     , coalesce(swap_metrics.trading_fees, 0) as spot_fees
     , coalesce(swap_metrics.service_fee_allocation, 0) as service_fee_allocation
     , coalesce(swap_metrics.treasury_fee_allocation, 0) as treasury_fee_allocation
     , coalesce(swap_metrics.vebal_fee_allocation, 0) as staking_fee_allocation
-
     , coalesce(token_incentives.token_incentives_usd, 0) as token_incentives
-
     -- Treasury Metrics
     , coalesce(treasury.net_treasury_usd, 0) as treasury
     , coalesce(treasury_native.own_token_treasury, 0) as own_token_treasury
     , coalesce(net_treasury.net_treasury_usd, 0) as net_treasury
-
     -- Other Metrics
     , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
     , coalesce(token_holders.token_holder_count, 0) as tokenholder_count
-
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join all_tvl using (date)
 left join treasury using (date)
@@ -131,3 +136,6 @@ left join token_holders using (date)
 left join market_data using (date)
 left join swap_metrics using (date)
 left join token_incentives using (date)
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

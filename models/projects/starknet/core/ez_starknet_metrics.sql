@@ -1,13 +1,22 @@
 -- depends_on {{ ref("ez_starknet_transactions") }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="STARKNET",
         database="starknet",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     fundamental_data as ({{ get_fundamental_data_for_chain("starknet") }}),
@@ -93,6 +102,10 @@ select
     , burns_native
     , net_supply_change_native
     , circulating_supply_native
+
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
@@ -103,4 +116,6 @@ left join bridge_volume_metrics on fundamental_data.date = bridge_volume_metrics
 left join bridge_daa_metrics on fundamental_data.date = bridge_daa_metrics.date
 left join fees_data on fundamental_data.date = fees_data.date
 left join supply_data on fundamental_data.date = supply_data.date
-where fundamental_data.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())

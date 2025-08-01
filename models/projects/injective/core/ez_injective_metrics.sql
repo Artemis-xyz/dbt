@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="INJECTIVE",
         database="injective",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with fundamental_data as (
     select
@@ -37,6 +46,15 @@ with fundamental_data as (
         date,
         outflows
     from {{ ref("fact_injective_unlocks") }}
+)
+, issued_supply_metrics as (
+    select 
+        date,
+        0 as max_supply_native,
+        total_supply as total_supply_native,
+        issued_supply as issued_supply_native,
+        circulating_supply as circulating_supply_native
+    from {{ ref('fact_injective_issued_supply_and_float') }}
 )
 , defillama_metrics as (
     with dfl as (
@@ -107,8 +125,13 @@ select
     , coalesce(unlocks.outflows, 0) as premine_unlocks_native
     , coalesce(revenue.revenue_native, 0) as burns_native
     , coalesce(mints.mints, 0) + coalesce(unlocks.outflows, 0) - coalesce(revenue.revenue_native, 0) as net_supply_change_native
-    , sum(coalesce(mints.mints, 0) + coalesce(unlocks.outflows, 0) - coalesce(revenue.revenue_native, 0)) over (order by date_spine.date) as circulating_supply_native
-
+    , issued_supply_metrics.max_supply_native
+    , issued_supply_metrics.total_supply_native
+    , issued_supply_metrics.issued_supply_native
+    , issued_supply_metrics.circulating_supply_native
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join market_metrics using (date)
 left join fundamental_data using (date)
@@ -116,3 +139,7 @@ left join defillama_metrics using (date)
 left join revenue using (date)
 left join mints using (date)
 left join unlocks using (date)
+left join issued_supply_metrics using (date)
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="AAVE",
         database="aave",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     deposits_borrows_lender_revenue as (
@@ -182,6 +191,24 @@ with
         from {{ ref("fact_aave_gho_treasury_revenue")}}
         group by 1
     )
+
+    , flashloan_fees_to_protocol as (
+        select
+             date,
+            protocol_revenue
+        from {{ ref('fact_aave_flashloan_fees') }}
+    )
+
+    , issued_supply_metrics as (
+        select 
+            date,
+            max_supply as max_supply_native,
+            total_supply_to_date as total_supply_native,
+            issued_supply as issued_supply_native,
+            circulating_supply as circulating_supply_native
+        from {{ ref('fact_aave_issued_supply_and_float') }}
+    )
+
     , aave_token_holders as (
         select
             date
@@ -238,7 +265,7 @@ select
     , flashloan_fees
     , gho_revenue as gho_fees
     , coalesce(interest_rate_fees, 0) + coalesce(flashloan_fees, 0) + coalesce(gho_revenue, 0) as fees
-    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) as revenue
+    , coalesce(reserve_factor_revenue, 0) + coalesce(dao_trading_revenue, 0) + coalesce(gho_revenue, 0) + coalesce(protocol_revenue, 0) as revenue
 
 
     , supply_side_deposit_revenue + flashloan_fees as service_fee_allocation
@@ -258,6 +285,11 @@ select
     , net_deposits as lending_deposits
     , tvl
 
+    , max_supply_native
+    , total_supply_native
+    , issued_supply_native
+    , circulating_supply_native
+
     , treasury_value as treasury
     , treasury_value_native as treasury_native
     , net_treasury_value as net_treasury
@@ -268,6 +300,10 @@ select
     , fdmc
     , token_turnover_circulating
     , token_turnover_fdv
+
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from aave_outstanding_supply_net_deposits_deposit_revenue
 left join aave_flashloan_fees using (date)
 left join aave_liquidation_supply_side_revenue using (date)
@@ -278,5 +314,9 @@ left join gho_treasury_revenue using (date)
 left join treasury using (date)
 left join net_treasury_data using (date)
 left join aave_token_holders using (date)
+left join issued_supply_metrics using (date)
+LEFT JOIN flashloan_fees_to_protocol using (date)
 left join coingecko_metrics using (date)
-where aave_outstanding_supply_net_deposits_deposit_revenue.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental("aave_outstanding_supply_net_deposits_deposit_revenue.date", backfill_date) }}
+and aave_outstanding_supply_net_deposits_deposit_revenue.date < to_date(sysdate())

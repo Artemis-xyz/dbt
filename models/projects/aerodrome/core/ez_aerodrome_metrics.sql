@@ -1,12 +1,21 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         snowflake_warehouse='AERODROME',
         database='aerodrome',
         schema='core',
-        alias='ez_metrics'
+        alias='ez_metrics',
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with swap_metrics as (
     SELECT
@@ -47,31 +56,27 @@ with swap_metrics as (
     FROM {{ ref('fact_aerodrome_pools') }}
 )
 , token_incentives as (
-        select
-            day as date,
-            usd_value as token_incentives
-        from {{ref('fact_aerodrome_token_incentives')}}
+    select
+        day as date,
+        usd_value as token_incentives
+    from {{ref('fact_aerodrome_token_incentives')}}
 )
 , date_spine as (
     SELECT
         ds.date
     FROM {{ ref('dim_date_spine') }} ds
-    WHERE ds.date
-        between (
-                    select min(min_date) from (
-                        select min(date) as min_date from swap_metrics
-                        UNION ALL
-                        select min(date) as min_date from tvl_metrics
-                        UNION ALL
-                        select min(date) as min_date from market_metrics
-                        UNION ALL
-                        select min(date) as min_date from supply_metrics
-                        UNION ALL
-                        select min(date) as min_date from pools_metrics
-                    )
-                )
-        and to_date(sysdate())
+    WHERE ds.date >= (
+        select MIN(
+            {% if backfill_date %}
+                '{{ backfill_date }}'
+            {% else %}
+                (SELECT MAX(this.date) FROM {{ this }} as this)
+            {% endif %}
+        )
+    )
+        and ds.date < to_date(sysdate())
 )
+
 SELECT
     ds.date
 
@@ -119,6 +124,9 @@ SELECT
     , coalesce(pm.cumulative_count, 0) as total_pools
     , coalesce(ti.token_incentives, 0) as token_incentives
 
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM date_spine ds
 LEFT JOIN swap_metrics sm using (date)
 LEFT JOIN tvl_metrics tm using (date)
@@ -126,4 +134,6 @@ LEFT JOIN market_metrics mm using (date)
 LEFT JOIN supply_metrics sp using (date)
 LEFT JOIN pools_metrics pm using (date)
 LEFT JOIN token_incentives ti using (date)
-WHERE ds.date < to_date(sysdate())
+WHERE true 
+{{ ez_metrics_incremental("ds.date", backfill_date) }}
+and ds.date < to_date(sysdate())

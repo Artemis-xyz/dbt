@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="IOTEX",
         database="iotex",
         schema="core",
-        alias="ez_metrics"
+        alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with price as (
         select * from ({{ get_coingecko_price_with_latest("iotex") }}) 
@@ -48,14 +57,14 @@ with price as (
         date,
         tvl
     FROM pc_dbt_db.prod.fact_defillama_chain_tvls
-    where defillama_chain_name ILIKE 'iotex'
+    WHERE defillama_chain_name ILIKE 'iotex'
 )
 , defillama_dex_volume as (
     SELECT
         date,
         dex_volumes
     FROM pc_dbt_db.prod.fact_defillama_chain_dex_volumes
-    where defillama_chain_name ILIKE 'iotex'
+    WHERE defillama_chain_name ILIKE 'iotex'
 )
 , date_spine as (
     select
@@ -74,21 +83,17 @@ select
     , supply.mints_usd as gross_emissions
     , supply.mints as gross_emissions_native
     , supply.burn AS burned_fee_allocation_native
-
-
     -- Standardized Metrics
-
     -- Market Metrics
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
-
     -- Usage Metrics
     , metrics.dau as chain_dau
     , metrics.txns as chain_txns
     , defillama_dex_volume.dex_volumes as chain_spot_volume
     , defillama_tvl.tvl as chain_tvl
-
+    , defillama_tvl.tvl as tvl 
     -- Cashflow Metrics
     , metrics.fees
     , metrics.primary_supply_side_revenue AS validator_fee_allocation
@@ -102,11 +107,15 @@ select
     , supply.burn AS burns_native
     , 0 + coalesce(supply.mints, 0) - coalesce(supply.burn, 0) AS net_supply_change_native
     , sum(0 + coalesce(supply.mints, 0) - coalesce(supply.burn, 0)) over (order by supply.date) AS circulating_supply_native
-
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join market_metrics using (date)
 left join defillama_dex_volume using (date)
 left join defillama_tvl using (date)
 left join metrics using (date)
 left join supply using (date)
-where date_spine.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

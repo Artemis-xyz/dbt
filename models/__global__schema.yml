@@ -16,18 +16,6 @@ column_definitions:
     - name: token_incentives
       description: "The total token incentives paid by a protocol in its native token"
       tags: [artemis_gaap]
-    - name: service_fee_allocation
-      description: "The share of protocol revenue accrued to service providers of the protocol."
-      tags: [artemis_gaap]
-    - name: service_fee_allocation_native
-      description: "The share of protocol revenue accrued to service providers of the protocol in native tokens."
-      tags: [artemis_gaap]
-    - name: equity_fee_allocation
-      description: "Revenue distributed to equity holders of an off-chain entity operating the protocol (e.g., dYdX Trading Inc., Uniswap Labs)."
-      tags: [artemis_gaap]
-    - name: equity_fee_allocation_native
-      description: "Revenue distributed to equity holders of an off-chain entity operating the protocol (e.g., dYdX Trading Inc., Uniswap Labs) in native tokens."
-      tags: [artemis_gaap]
     - name: foundation_fee_allocation
       description: "Revenue allocated to a foundation affiliated with the protocol, used for grants, partnerships, operations, or legal."
       tags: [artemis_gaap]
@@ -48,6 +36,9 @@ column_definitions:
       tags: [artemis_gaap]
     - name: other_fee_allocation
       description: "Revenue distributed to other parties of the protocol."
+      tags: [artemis_gaap]
+    - name: lp_fee_allocation
+      description: "Revenue distributed to liquidity providers of the protocol."
       tags: [artemis_gaap]
     - name: buyback_fee_allocation
       description: "Portion of revenue allocated to buy back tokens of the protocol."

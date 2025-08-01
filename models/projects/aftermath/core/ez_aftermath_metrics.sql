@@ -1,10 +1,16 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="AFTERMATH",
         database="aftermath",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
     )
 }}
 
@@ -62,8 +68,13 @@ select
     , COALESCE(tvl.tvl, 0) AS tvl
     , COALESCE(tvl.tvl, 0) - COALESCE(LAG(tvl.tvl) OVER (ORDER BY date), 0) AS tvl_net_change
 
+    -- Timetamp Columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM date_spine
 LEFT JOIN spot_trading_volume USING(date)
 LEFT JOIN spot_dau_txns USING(date)
 LEFT JOIN spot_fees_revenue USING(date)
 LEFT JOIN tvl USING(date)
+WHERE TRUE
+{{ ez_metrics_incremental('date', backfill_date) }}

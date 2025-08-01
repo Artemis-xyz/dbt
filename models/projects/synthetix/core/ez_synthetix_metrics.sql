@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="SYNTHETIX",
         database="synthetix",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     trading_volume_data as (
@@ -160,6 +169,10 @@ select
     -- Turnover Metrics
     , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
+
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from unique_traders_data
 left join trading_volume_data using(date)
 left join tvl using(date)
@@ -173,4 +186,6 @@ left join service_cashflow using(date)
 left join treasury_cashflow using(date)
 left join fee_sharing_cashflow using(date)
 left join mints using(date)
-where date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date', backfill_date) }}
+and date < to_date(sysdate())

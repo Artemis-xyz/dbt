@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="BLUEFIN",
         database="bluefin",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 WITH
     date_spine AS(
@@ -47,34 +56,31 @@ select
     , 'bluefin' AS app
     , 'DeFi' AS category
     -- Standardized Metrics
-
     --Token Metrics
     , COALESCE(market_data.price, 0) AS price
     , COALESCE(market_data.market_cap, 0) AS market_cap
     , COALESCE(market_data.fdmc, 0) AS fdmc
     , COALESCE(market_data.token_volume, 0) AS token_volume
-
     --Cashflow Metrics
     , COALESCE(spot_fees_revenue.fees, 0) AS fees
     , COALESCE(spot_fees_revenue.foundation_fee_allocation, 0) AS foundation_fee_allocation
     , COALESCE(spot_fees_revenue.service_fee_allocation, 0) AS service_fee_allocation
-    
     -- Perpetual Metrics
     , COALESCE(perp_trading_volume.trading_volume, 0) AS perp_volume
-
     -- Spot DEX Metrics
     , COALESCE(spot_dau_txns.dau, 0) AS spot_dau
     , COALESCE(spot_dau_txns.txns, 0) AS spot_txns
     , COALESCE(spot_fees_revenue.fees, 0) AS spot_fees
     , COALESCE(spot_trading_volume.spot_dex_volumes, 0) AS spot_volume
-
     -- Crypto Metrics
     , COALESCE(tvl.tvl, 0) AS tvl
     , COALESCE(tvl.tvl, 0) - COALESCE(LAG(tvl.tvl) OVER (ORDER BY date), 0) AS tvl_net_change
-
     -- Turnover Metrics
     , COALESCE(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
     , COALESCE(market_data.token_turnover_fdv, 0) AS token_turnover_fdv
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM date_spine
 LEFT JOIN perp_trading_volume USING(date)
 LEFT JOIN spot_trading_volume USING(date)
@@ -82,3 +88,6 @@ LEFT JOIN spot_dau_txns USING(date)
 LEFT JOIN spot_fees_revenue USING(date)
 LEFT JOIN tvl USING(date)
 LEFT JOIN market_data USING(date)
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

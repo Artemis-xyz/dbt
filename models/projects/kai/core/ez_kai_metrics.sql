@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="KAI",
         database="kai",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 WITH 
     defillama_tvl AS (
@@ -41,5 +50,11 @@ SELECT
     d.date, 
     'kai' AS app,
     'DeFi' AS category,
-    COALESCE(d.tvl, 0) AS tvl
+    COALESCE(d.tvl, 0) AS tvl,
+    -- timestamp columns
+    sysdate() as created_on,
+    sysdate() as modified_on
 FROM defillama_tvl_forwardfill d
+where true
+{{ ez_metrics_incremental('d.date', backfill_date) }}
+and d.date < to_date(sysdate())

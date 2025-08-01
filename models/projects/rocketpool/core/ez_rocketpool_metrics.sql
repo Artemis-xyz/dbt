@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="ROCKETPOOL",
         database="rocketpool",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     staked_eth_metrics as (
@@ -133,7 +142,10 @@ select
     , COALESCE(p.token_turnover_circulating, 0) as token_turnover_circulating
     , COALESCE(p.token_turnover_fdv, 0) as token_turnover_fdv
     , COALESCE(th.token_holder_count, 0) as token_holder_count
-    
+
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from prices_cte p
 left join fees_revs_cte f using(date)
 left join staked_eth_metrics using(date)
@@ -143,4 +155,6 @@ left join treasury_native_cte tn using(date)
 left join net_treasury_cte nt using(date)
 left join outstanding_supply_cte os using(date)
 left join token_holders_cte th using(date)
-where p.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date', backfill_date) }}
+and p.date < to_date(sysdate())

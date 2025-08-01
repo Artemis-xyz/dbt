@@ -1,18 +1,32 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="SUI",
         database="sui",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
 
+{% set backfill_date = var("backfill_date", None) %}
+
 with
-    fundamental_data as (select * EXCLUDE date, TO_TIMESTAMP_NTZ(date) AS date from {{ source('PROD_LANDING', 'ez_sui_metrics') }}),
+    fundamental_data as (
+        select 
+            * EXCLUDE date, 
+            TO_TIMESTAMP_NTZ(date) AS date 
+        from {{ source('PROD_LANDING', 'ez_sui_metrics') }}
+    ),
     price_data as ({{ get_coingecko_metrics("sui") }}),
     defillama_data as ({{ get_defillama_metrics("sui") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("sui") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("sui", backfill_date="2023-04-12") }}),
     github_data as ({{ get_github_metrics("sui") }})
     , supply_data as (
         select 
@@ -85,10 +99,16 @@ select
     , p2p_stablecoin_dau
     , p2p_stablecoin_mau
     , p2p_stablecoin_transfer_volume
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join stablecoin_data on fundamental_data.date = stablecoin_data.date
 left join github_data on fundamental_data.date = github_data.date
 left join supply_data on fundamental_data.date = supply_data.date
-where fundamental_data.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('fundamental_data.date', backfill_date) }}
+and fundamental_data.date < to_date(sysdate())
+group by all

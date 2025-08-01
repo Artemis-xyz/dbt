@@ -12,7 +12,9 @@ sources:
       - name: raw_drift_borrow_lending_revenue
       - name: raw_drift_parsed_logs
       - name: raw_drift_lending_market_data
- 
+      - name: raw_drift_open_interest
+      - name: raw_drift_market_data
+
   - name: MANUAL_STATIC_TABLES
     schema: prod
     database: pc_dbt_db

@@ -10,9 +10,22 @@
 
 
 with
-    trading_volume_data as (
+    zk_sync_volume_data as (
         select date, trading_volume, chain
         from {{ ref("fact_holdstation_trading_volume") }}
+    ),
+    bera_trading_volume_data as (
+        select date, perp_volume, chain
+        from {{ ref("fact_holdstation_bera_perp_volume") }}
+    ),
+    agg_volume_data as (
+        select date, chain, sum(trading_volume) as perp_volume
+        from zk_sync_volume_data
+        group by date, chain
+        union all
+        select date, chain, sum(perp_volume) as perp_volume
+        from bera_trading_volume_data
+        group by date, chain
     ),
     unique_traders_data as (
         select date, unique_traders, chain
@@ -20,14 +33,11 @@ with
     )
 select
     date
-    , 'holdstation' as app
-    , 'DeFi' as category
+    , 'holdstation' as artemis_id
     , chain
-    , trading_volume
-    , unique_traders
     -- standardize metrics
-    , trading_volume as perp_volume
+    , perp_volume
     , unique_traders as perp_dau
-from unique_traders_data
-left join trading_volume_data using(date, chain)
+from agg_volume_data
+left join unique_traders_data using(date, chain)
 where date < to_date(sysdate())

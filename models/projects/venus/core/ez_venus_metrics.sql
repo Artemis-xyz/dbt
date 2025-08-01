@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="venus",
         database="venus",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with
     venus_by_chain as (
@@ -48,9 +57,14 @@ select
     , price_data.market_cap
     , price_data.fdmc
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from venus_metrics
 left join token_incentives
     on venus_metrics.date = token_incentives.date
 left join price_data
     on venus_metrics.date = price_data.date
-where venus_metrics.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('venus_metrics.date', backfill_date) }}
+and venus_metrics.date < to_date(sysdate())

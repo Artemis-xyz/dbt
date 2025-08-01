@@ -2,20 +2,29 @@
 -- depends_on {{ ref('fact_avalanche_amount_staked_silver') }}
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="AVALANCHE",
         database="avalanche",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with fundamental_data as (
     select * from {{ ref("fact_avalanche_fundamental_data") }}
 )
 , price_data as ({{ get_coingecko_metrics("avalanche-2") }})
 , defillama_data as ({{ get_defillama_metrics("avalanche") }})
-, stablecoin_data as ({{ get_stablecoin_metrics("avalanche") }})
+, stablecoin_data as ({{ get_stablecoin_metrics("avalanche", backfill_date="2020-09-10") }})
 , staking_data as ({{ get_staking_metrics("avalanche") }})
 , github_data as ({{ get_github_metrics("avalanche") }})
 , contract_data as ({{ get_contract_metrics("avalanche") }})
@@ -161,6 +170,10 @@ select
     , bridge_volume
     , bridge_daa
 
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
+
 from staking_data
 left join fundamental_data on staking_data.date = fundamental_data.date
 left join price_data on staking_data.date = price_data.date
@@ -177,4 +190,6 @@ left join bridge_daa_metrics on staking_data.date = bridge_daa_metrics.date
 left join avalanche_c_dex_volumes as dune_dex_volumes_avalanche_c on staking_data.date = dune_dex_volumes_avalanche_c.date
 left join issued_supply_metrics on staking_data.date = issued_supply_metrics.date
 left join application_fees on staking_data.date = application_fees.date
-where staking_data.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental("staking_data.date", backfill_date) }}
+and staking_data.date < to_date(sysdate())

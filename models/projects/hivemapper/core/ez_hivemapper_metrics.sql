@@ -1,12 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         snowflake_warehouse="HIVEMAPPER",
         database="hivemapper",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        unique_key="date",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=false,
+        tags=["ez_metrics"],
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with bme_reward_types_cte as (
     SELECT
@@ -77,7 +86,6 @@ with bme_reward_types_cte as (
 
 SELECT
     date_spine.date
-
     --Old metrics needed for backwards compatibility
     , coalesce(stats.fees, 0) as fees
     , coalesce(stats.supply_side_fees, 0) as primary_supply_side_revenue
@@ -85,40 +93,38 @@ SELECT
     , coalesce(stats.contributors, 0) as dau
     , coalesce(stats.mints_native, 0) as gross_emissions_native
     , coalesce(stats.mints_native, 0) * coalesce(market_metrics.price, 0) as gross_emissions
-
     -- Standardized Metrics
-
     -- Market Metrics
     , coalesce(market_metrics.price, 0) as price
     , coalesce(market_metrics.market_cap, 0) as market_cap
     , coalesce(market_metrics.fdmc, 0) as fdmc
     , coalesce(market_metrics.token_volume, 0) as token_volume
-
     -- Usage Metrics
     , coalesce(stats.contributors, 0) as chain_dau
     , coalesce(km_data.total_unique_km, 0) as unique_km_mapped
     , coalesce(km_data.total_km, 0) as total_km
-
     -- Cash Flow Metrics
     , coalesce(stats.fees, 0) as ecosystem_revenue
     , coalesce(stats.supply_side_fees, 0) as service_fee_allocation
     , coalesce(stats.fees, 0) as burned_fee_allocation
     , coalesce(stats.burn_native, 0) as burned_fee_allocation_native
-
     -- Turnover Metrics
     , coalesce(market_metrics.token_turnover_circulating, 0) as token_turnover_circulating
     , coalesce(market_metrics.token_turnover_fdv, 0) as token_turnover_fdv
-
     --HONEY Token Supply Data
     , coalesce(stats.mints_native, 0) as emissions_native
     , coalesce(daily_supply_data.premine_unlocks_native, 0) as premine_unlocks_native
     , coalesce(stats.burn_native, 0) as burns_native
     , coalesce(stats.mints_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(stats.burn_native, 0) as net_supply_change_native
     , sum(coalesce(stats.mints_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(stats.burn_native, 0)) over (order by daily_supply_data.date) as circulating_supply_native
-
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join market_metrics on date_spine.date = market_metrics.date
 left join stats on date_spine.date = stats.date
 left join km_data on date_spine.date = km_data.date
 left join daily_supply_data on date_spine.date = daily_supply_data.date
-where date_spine.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())

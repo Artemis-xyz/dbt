@@ -236,7 +236,8 @@ with
                 when destination_value is null
                 then origin_value
                 else (origin_value + destination_value) / 2
-            end as usd_value
+            end as usd_value,
+            coalesce(t1.origin_token_symbol, t1.destination_token_symbol) as symbol
         from synapse_transfers t1
         left join destination_values t2 using (synapse_tx_hash)
         left join origin_values t3 using (synapse_tx_hash)
@@ -293,7 +294,8 @@ with
             t2.chain as source_chain,
             t3.chain as destination_chain,
             coalesce(t4.category, 'Not Categorized') as category,
-            final_usd_value as amount_usd
+            final_usd_value as amount_usd,
+            symbol
         from final_combined t1
         left join {{ ref("dim_chain_ids")}} t2 on t1.origin_chain_id = t2.id
         left join {{ ref("dim_chain_ids")}} t3 on t1.destination_chain_id = t3.id
@@ -308,8 +310,9 @@ select
     source_chain,
     destination_chain,
     category,
+    symbol,
     sum(amount_usd) as amount_usd,
     null as fee_usd
 from flows_by_chain_id
-group by 1, 2, 3, 4, 5
+group by 1, 2, 3, 4, 5, 6
 order by date desc, source_chain asc

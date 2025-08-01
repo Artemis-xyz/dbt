@@ -1,13 +1,21 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         unique_key="date",
         snowflake_warehouse="RAYDIUM",
         database="raydium",
         schema="core",
         alias="ez_metrics",
+        incremental_strategy="merge",
+        on_schema_change="append_new_columns",
+        merge_update_columns=var("backfill_columns", []),
+        merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
+        full_refresh=var("full_refresh", false),
+        tags=["ez_metrics"]
     )
 }}
+
+{% set backfill_date = var("backfill_date", None) %}
 
 with buyback_from_pair as (
     select 
@@ -136,6 +144,10 @@ select
     -- Other Metrics
     , price_data.token_turnover_circulating
     , price_data.token_turnover_fdv 
+
+    -- timestamp columns
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine ds
 left join trading_volume v using(date)
 left join price_data using (date)
@@ -151,5 +163,7 @@ left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pt on pt.token_address = t.toke
 left join SOLANA_FLIPSIDE.PRICE.EZ_PRICES_HOURLY pc on pc.token_address = c.token_mint_address
         and pc.hour = c.date and pc.blockchain = 'solana'
 left join supply_data using (date)
-where ds.date < to_date(sysdate())
+where true
+{{ ez_metrics_incremental('ds.date', backfill_date) }}
+and ds.date < to_date(sysdate())
 order by 1 desc 
