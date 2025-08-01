@@ -58,6 +58,8 @@ sources:
     database: SOLANA_FLIPSIDE
     tables:
       - name: ez_dex_swaps
+      - name: fact_token_mint_actions
+      - name: fact_token_burn_actions
 
 # ETHEREUM
   - name: ETHEREUM_FLIPSIDE

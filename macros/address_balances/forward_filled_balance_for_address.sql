@@ -20,7 +20,7 @@ with
                 else contract_address 
             end as contract_address
             , block_timestamp
-            , balance_token as balance_raw
+            , {% if chain == 'solana' %}amount{% else %}balance_token{% endif %} as balance_raw
         from {{ ref("fact_" ~ chain ~ "_address_balances_by_token") }}
         where lower(address) = lower('{{ address }}')
     )
