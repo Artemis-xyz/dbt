@@ -217,10 +217,10 @@ select
     , supply_data.burn as burn_native
     , supply_data.cumulative_burn as total_burn_native
     , supply_data.buyback as total_buybacks_native
-    , supply_data.max_supply 
-    , supply_data.total_supply
-    , supply_data.issued_supply
-    , supply_data.circulating_supply
+    , supply_data.max_supply as max_supply_native
+    , supply_data.total_supply as total_supply_native
+    , supply_data.issued_supply as issued_supply_native
+    , supply_data.circulating_supply as circulating_supply_native
 
 FROM date_spine
 left join market_metrics using (date)
