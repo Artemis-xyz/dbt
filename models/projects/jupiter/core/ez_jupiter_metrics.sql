@@ -231,3 +231,6 @@ left join tvl using (date)
 left join solana_price sp using (date)
 left join other_revenue using (date)
 left join supply_data using (date)
+where true
+{{ ez_metrics_incremental('date_spine.date', backfill_date) }}
+and date_spine.date < to_date(sysdate())
