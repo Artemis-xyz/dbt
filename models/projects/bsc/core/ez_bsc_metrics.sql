@@ -22,7 +22,7 @@ with
     fundamental_data as ({{ get_fundamental_data_for_chain("bsc", "v2") }}),
     price_data as ({{ get_coingecko_metrics("binancecoin") }}),
     defillama_data as ({{ get_defillama_metrics("bsc") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("bsc") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("bsc", backfill_date="2020-08-29") }}),
     github_data as ({{ get_github_metrics("Binance Smart Chain") }}),
     contract_data as ({{ get_contract_metrics("bsc") }}),
     nft_metrics as ({{ get_nft_metrics("bsc") }}),

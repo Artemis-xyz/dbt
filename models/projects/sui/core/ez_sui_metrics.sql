@@ -26,7 +26,7 @@ with
     ),
     price_data as ({{ get_coingecko_metrics("sui") }}),
     defillama_data as ({{ get_defillama_metrics("sui") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("sui") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("sui", backfill_date="2023-04-12") }}),
     github_data as ({{ get_github_metrics("sui") }})
     , supply_data as (
         select 

@@ -61,10 +61,10 @@ with dex_data as (
 )
 , stablecoin_supply_data as (
     with frax_data as (
-        {{ get_stablecoin_metrics("FRAX", breakdown='symbol') }}
+        {{ get_stablecoin_metrics("FRAX", breakdown='symbol', backfill_date="2022-08-19") }}
     )
     , frxusd_data as (
-        {{ get_stablecoin_metrics("FRXUSD", breakdown='symbol') }}
+        {{ get_stablecoin_metrics("FRXUSD", breakdown='symbol', backfill_date="2025-01-08") }}
     )
     , agg as (
         select

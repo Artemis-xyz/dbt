@@ -35,7 +35,7 @@ with
     ),
     price_data as ({{ get_coingecko_metrics("the-open-network") }}),
     defillama_data as ({{ get_defillama_metrics("ton") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("ton") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("ton", backfill_date="2019-11-15") }}),
     github_data as ({{ get_github_metrics("ton") }}),
     rolling_metrics as ({{ get_rolling_active_address_metrics("ton") }})
     , block_rewards_data as (

@@ -22,7 +22,7 @@ with
     fundamental_data as ({{ get_fundamental_data_for_chain("optimism", "v2") }}),
     price_data as ({{ get_coingecko_metrics("optimism") }}),
     defillama_data as ({{ get_defillama_metrics("optimism") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("optimism") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("optimism", backfill_date="2021-11-11") }}),
     github_data as ({{ get_github_metrics("optimism") }}),
     contract_data as ({{ get_contract_metrics("optimism") }}),
     expenses_data as (

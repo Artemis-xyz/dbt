@@ -24,7 +24,7 @@ with fundamental_data as (
 )
 , price_data as ({{ get_coingecko_metrics("avalanche-2") }})
 , defillama_data as ({{ get_defillama_metrics("avalanche") }})
-, stablecoin_data as ({{ get_stablecoin_metrics("avalanche") }})
+, stablecoin_data as ({{ get_stablecoin_metrics("avalanche", backfill_date="2020-09-10") }})
 , staking_data as ({{ get_staking_metrics("avalanche") }})
 , github_data as ({{ get_github_metrics("avalanche") }})
 , contract_data as ({{ get_contract_metrics("avalanche") }})

@@ -20,7 +20,7 @@
 
 with
     contract_data as ({{ get_contract_metrics("solana") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("solana") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("solana", backfill_date="2020-03-16") }}),
     defillama_data as ({{ get_defillama_metrics("solana") }}),
     github_data as ({{ get_github_metrics("solana") }}),
     price as ({{ get_coingecko_metrics("solana") }}),

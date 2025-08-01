@@ -21,7 +21,7 @@
 with
     fundamental_data as ({{ get_fundamental_data_for_chain("base", "v2") }}),
     defillama_data as ({{ get_defillama_metrics("base") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("base") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("base", backfill_date="2023-06-15") }}),
     contract_data as ({{ get_contract_metrics("base") }}),
     expenses_data as (
         select date, chain, l1_data_cost_native, l1_data_cost
