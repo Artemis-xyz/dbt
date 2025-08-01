@@ -11,28 +11,30 @@
 SELECT
     date,
     'solana' as chain,
-
-    --Old metrics needed for compatibility
-    withdraw_management_fees,
-    revenue,
-    supply_side_fees,
-    txns,
-    dau,
-    amount_staked_usd,
-    amount_staked_usd_net_change
+    'jito' as artemis_id,
 
     --Standardized Metrics
-    , coalesce(withdraw_management_fees, 0) as lst_fees
-    , coalesce(tip_fees, 0) as tip_fees
-    , coalesce(withdraw_management_fees, 0) + coalesce(tip_fees, 0) as fees
-    , coalesce(equity_fee_allocation, 0) as equity_fee_allocation
-    , coalesce(treasury_fee_allocation, 0) as treasury_fee_allocation
-    , coalesce(strategy_fee_allocation, 0) as strategy_fee_allocation
-    , coalesce(validator_fee_allocation, 0) as validator_fee_allocation
-    , coalesce(block_infra_txns, 0) as block_infra_txns
-    , coalesce(block_infra_dau, 0) as block_infra_dau
-    , coalesce(tvl, 0) as lst_tvl
-    , coalesce(tvl, 0) as tvl
-    , coalesce(tvl - lag(tvl) over (partition by chain order by date), 0) as lst_tvl_net_change
+    --Market Metrics
+    , price
+    , token_volume
+    , market_cap
+    , fdmc
+    
+    --Usage Metrics
+    , block_infra_txns
+    , block_infra_dau
+    , lst_tvl as lst_tvl
+    , tvl as tvl
 
+    --Fee Metrics
+    , lst_fees
+    , block_infra_fees
+    , fees
+    , equity_fee_allocation
+    , treasury_fee_allocation
+    , strategy_fee_allocation
+    , validator_fee_allocation
+
+    -- Financial Metrics
+    , revenue
 FROM {{ ref('ez_jito_metrics') }}
