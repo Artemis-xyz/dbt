@@ -25,7 +25,7 @@ with date_spine as (
 , bonk_metrics as (
     select 
         date
-        , coins_minted
+        , unique_tokens_created_per_day
         , launchpad_dau
         , launchpad_volume
         , launchpad_txns
@@ -33,9 +33,6 @@ with date_spine as (
         , unique_tokens_traded
         , avg_swap_size_usd
         , fee_to_volume_ratio
-        , total_token_supply
-        , avg_token_supply
-        , unique_symbols_created
     from {{ ref('fact_bonk_fundamental_metrics') }}
 )
 
