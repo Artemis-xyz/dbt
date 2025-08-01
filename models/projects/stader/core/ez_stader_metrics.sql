@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"]
     )
 }}
@@ -44,15 +44,8 @@ with
             ) and to_date(sysdate())
     )
 select
-    date_spine.date,
-    'stader' as app,
-    'DeFi' as category,
-
-    --Old metrics needed for compatibility
-    staked_eth_metrics.num_staked_eth,
-    staked_eth_metrics.amount_staked_usd,
-    staked_eth_metrics.num_staked_eth_net_change,
-    staked_eth_metrics.amount_staked_usd_net_change
+    date_spine.date
+    , 'stader' as artemis_id
 
     --Market Metrics
     , market_metrics.price as price

@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -69,27 +69,28 @@ with restaked_eth_metrics as (
 
 SELECT
     date_spine.date
-    , 'etherfi' as app
-    , 'DeFi' as category
+    , 'etherfi' as artemis_id
+
     --Standardized Metrics
     --Market Metrics
     , market_metrics.price as price
     , market_metrics.token_volume as token_volume
     , market_metrics.market_cap as market_cap
     , market_metrics.fdmc as fdmc
+
     --Usage Metrics
-    , restaked_eth_metrics.num_restaked_eth as tvl_native
     , restaked_eth_metrics.num_restaked_eth as lrt_tvl_native
-    , restaked_eth_metrics.amount_restaked_usd as tvl
     , restaked_eth_metrics.amount_restaked_usd as lrt_tvl
-    , restaked_eth_metrics.num_restaked_eth_net_change as lrt_tvl_native_net_change
-    , restaked_eth_metrics.amount_restaked_usd_net_change as lrt_tvl_net_change
+    , restaked_eth_metrics.num_restaked_eth as tvl_native
+    , restaked_eth_metrics.amount_restaked_usd as tvl
+
     --Cash Flow Metrics
     , coalesce(liquidity_pool_fees.fees_usd, 0) as liquidity_pool_fees
     , coalesce(auction_fees.fees_usd, 0) as auction_fees
     , coalesce(defillama_tvl.liquid_fees_usd, 0) as strategy_fees
-    , coalesce(liquidity_pool_fees.fees_usd, 0) + coalesce(auction_fees.fees_usd, 0) + coalesce(defillama_tvl.liquid_fees_usd, 0) as ecosystem_revenue
-    , strategy_fees as equity_fee_allocation
+    , coalesce(liquidity_pool_fees.fees_usd, 0) + coalesce(auction_fees.fees_usd, 0) + coalesce(defillama_tvl.liquid_fees_usd, 0) as fees
+    , coalesce(defillama_tvl.liquid_fees_usd, 0)  as equity_fee_allocation
+
     --Token Turnover Metrics
     , market_metrics.token_turnover_circulating as token_turnover_circulating
     , market_metrics.token_turnover_fdv as token_turnover_fdv

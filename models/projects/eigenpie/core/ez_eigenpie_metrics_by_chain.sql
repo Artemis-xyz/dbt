@@ -26,24 +26,16 @@ date_spine as (
 )
 
 select
-    date_spine.date,
-    restaked_eth_metrics.chain,
-    'eigenpie' as app,
-    'DeFi' as category,
-
-    -- Old metrics needed for compatibility
-    restaked_eth_metrics.num_restaked_eth,
-    restaked_eth_metrics.amount_restaked_usd,
-    restaked_eth_metrics.num_restaked_eth_net_change,
-    restaked_eth_metrics.amount_restaked_usd_net_change
+    date_spine.date
+    , 'eigenpie' as artemis_id
+    , restaked_eth_metrics.chain
 
     -- Standardized Metrics
-    , restaked_eth_metrics.num_restaked_eth as tvl_native
     , restaked_eth_metrics.num_restaked_eth as lrt_tvl_native
-    , restaked_eth_metrics.amount_restaked_usd as tvl
     , restaked_eth_metrics.amount_restaked_usd as lrt_tvl
-    , restaked_eth_metrics.num_restaked_eth_net_change as lrt_tvl_native_net_change
-    , restaked_eth_metrics.amount_restaked_usd_net_change as lrt_tvl_net_change
+    , restaked_eth_metrics.amount_restaked_usd as tvl
+    , restaked_eth_metrics.num_restaked_eth as tvl_native
+
 
 from date_spine
 left join restaked_eth_metrics using(date)

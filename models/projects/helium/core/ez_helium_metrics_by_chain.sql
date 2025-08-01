@@ -35,35 +35,39 @@ with
         from {{ ref("fact_helium_mints") }}
     ),
     price_data as ({{ get_coingecko_metrics("helium") }})
+
 select
+
     date_spine.date
+    , 'helium' as artemis_id
     , revenue_data.chain
-    , revenue_data.protocol
-    , coalesce(revenue_data.revenue, 0) as revenue
-    , coalesce(revenue_data.hnt_burned, 0) as burns_native
-    , coalesce(new_mobile_subscribers_data.new_subscribers, 0) as new_subscribers
-    , coalesce(new_hotspot_onboards_data.device_onboards, 0) as device_onboards
 
     -- Standardized Metrics)
+    -- Market Metrics
+    , price_data.price
+    , price_data.market_cap
+    , price_data.fdmc
+    , price_data.token_volume
 
-    -- Token Metrics
-    , coalesce(price_data.price, 0) as price
-    , coalesce(price_data.market_cap, 0) as market_cap
-    , coalesce(price_data.fdmc, 0) as fdmc
-    , coalesce(price_data.token_volume, 0) as token_volume
+    -- Usage Metrics
+    , new_mobile_subscribers_data.new_subscribers
+    , new_hotspot_onboards_data.device_onboards
 
-    -- Cash Flow Metrics
-    , coalesce(fees_data.fees, 0) as fees
-    , coalesce(revenue_data.revenue, 0) as service_fee_allocation
+    -- Fee Metrics
+    , fees_data.fees
+    , revenue_data.revenue as service_fee_allocation
     , coalesce(revenue_data.hnt_burned, 0) * coalesce(price_data.price, 0) as burned_fee_allocation
-    , coalesce(revenue_data.hnt_burned, 0) as burned_fee_allocation_native
+
+    -- Financial Metrics
+    , revenue_data.revenue
 
     -- Supply Metrics
-    , coalesce(mints_data.mints_native, 0) as gross_emissions_native
+    , mints_data.mints_native
 
-    -- Turnover Metrics
-    , coalesce(price_data.token_turnover_circulating, 0) as token_turnover_circulating
-    , coalesce(price_data.token_turnover_fdv, 0) as token_turnover_fdv
+    -- Other Metrics
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
+
 from date_spine
 left join revenue_data using (date)
 left join price_data using (date)

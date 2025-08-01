@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -49,33 +49,39 @@ with
     price_data as ({{ get_coingecko_metrics("helium") }})
 select
     date_spine.date
-    --Old metrics needed for backwards compatibility
-    , coalesce(revenue_data.revenue, 0) as revenue
-    , coalesce(fees_data.fees, 0) as fees
     -- Standardized Metrics)
-    -- Token Metrics
-    , coalesce(price_data.price, 0) as price
-    , coalesce(price_data.market_cap, 0) as market_cap
-    , coalesce(price_data.fdmc, 0) as fdmc
-    , coalesce(price_data.token_volume, 0) as token_volume
-    -- Cash Flow Metrics
-    , coalesce(fees_data.fees, 0) as ecosystem_revenue
-    , coalesce(revenue_data.revenue, 0) as service_fee_allocation
+    -- Market Metrics
+    , price_data.price
+    , price_data.market_cap
+    , price_data.fdmc
+    , price_data.token_volume
+    
+    -- Usage Metrics
+    , new_mobile_subscribers_data.new_subscribers
+    , new_hotspot_onboards_data.device_onboards
+
+    -- Fee Metrics
+    , fees_data.fees
+    , revenue_data.revenue as service_fee_allocation
     , coalesce(revenue_data.hnt_burned, 0) * coalesce(price_data.price, 0) as burned_fee_allocation
-    , coalesce(revenue_data.hnt_burned, 0) as burned_fee_allocation_native
-    -- Turnover Metrics
-    , coalesce(price_data.token_turnover_circulating, 0) as token_turnover_circulating
-    , coalesce(price_data.token_turnover_fdv, 0) as token_turnover_fdv
-    -- Other Metrics
-    , coalesce(new_mobile_subscribers_data.new_subscribers, 0) as new_subscribers
-    , coalesce(new_hotspot_onboards_data.device_onboards, 0) as device_onboards
-    --HNT Token Supply Data
-    , coalesce(daily_supply_data.emissions_native, 0) as gross_emissions_native
-    , coalesce(daily_supply_data.premine_unlocks_native, 0) as premine_unlocks_native
-    , coalesce(daily_supply_data.burns_native, 0) as burns_native
+    , revenue_data.hnt_burned as burned_fee_allocation_native
+
+    -- Financial Metrics
+    , revenue_data.revenue
+
+
+    -- Supply Metrics
+    , daily_supply_data.emissions_native
+    , daily_supply_data.premine_unlocks_native
+    , daily_supply_data.burns_native
     , coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(daily_supply_data.burns_native, 0) as net_supply_change_native
     , sum(coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(daily_supply_data.burns_native, 0)) over (order by daily_supply_data.date) as circulating_supply_native
-    -- timestamp columns
+
+    -- Other Metrics
+    , price_data.token_turnover_circulating
+    , price_data.token_turnover_fdv
+
+    -- Timestamp Columns
     , sysdate() as created_on
     , sysdate() as modified_on
 from date_spine

@@ -31,16 +31,16 @@ with
     )
 select
     compound_by_chain.date
-    , 'compound' as app
-    , 'DeFi' as category
+    , 'compound' as artemis_id
     , compound_by_chain.chain
-    , compound_by_chain.daily_borrows_usd
-    , compound_by_chain.daily_supply_usd
+
     -- Standardized metrics
+    -- Usage Metrics
     , compound_by_chain.daily_borrows_usd as lending_loans
     , compound_by_chain.daily_supply_usd as lending_deposits
-    , coalesce(token_incentives.token_incentives, 0) as token_incentives
 
+    -- Financial Metrics
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
 from compound_by_chain
 left join token_incentives
     on compound_by_chain.date = token_incentives.date

@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -118,41 +118,50 @@ with dex_data as (
 
 SELECT
     date_spine.date
+    , 'frax' as artemis_id
+
     -- Standardized Metrics
-    -- Price Metrics
+    -- Market Metrics
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
     , market_metrics.token_volume
+
     -- Usage Metrics
     , dex_data.spot_txns as spot_txns
     , dex_data.spot_dau as spot_dau
     , dex_data.spot_volume as spot_volume
     , fractal_l2_txns.l2_txns as chain_txns
+    , dex_data.spot_txns + fractal_l2_txns.l2_txns as txns
+    , dex_data.spot_dau as dau
     , staked_eth_metrics.num_staked_eth as lst_tvl_native
     , staked_eth_metrics.amount_staked_usd as lst_tvl
-    , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
-    , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
     , tvl_data.tvl as spot_tvl
+    , tvl_data.tvl as tvl
+
     , stablecoin_supply_data.stablecoin_total_supply as stablecoin_total_supply
     , veFXS_daily_supply_data.circulating_supply as veFXS_total_supply
+
     , yield_data.yield_generated as yield_generated
 
-    --Cashflow Metrics
+    --Fee Metrics
     , dex_data.spot_fees as spot_fees
     , yield_data.lst_fees as lst_fees
     , spot_fees + lst_fees as fees
+
     -- Other Metrics
     , dex_data.gas_cost_native
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
-    --FXS Token Supply Data
-    , fxs_daily_supply_data.emissions_native as emissions_native
+
+    --Supply Metrics
+    , fxs_daily_supply_data.emissions_native as gross_emissions_native
     , fxs_daily_supply_data.total_premine_unlocks as premine_unlocks_native
     , fxs_daily_supply_data.burns_native as burns_native
     , fxs_daily_supply_data.net_supply_change_native as net_supply_change_native
     , fxs_daily_supply_data.total_circulating_supply as circulating_supply_native   
-    -- timestamp columns
+
+    -- Timestamp Columns
     , sysdate() as created_on
     , sysdate() as modified_on
 

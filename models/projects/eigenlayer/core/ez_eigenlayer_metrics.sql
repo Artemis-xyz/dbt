@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -83,41 +83,43 @@ WITH date_spine AS (
 
 SELECT 
     d.date
-    , app
-    , category
+    , 'eigenlayer' as artemis_id
+
     -- Standarized Metrics
-    -- Token Metrics
-    , coalesce(market_data.price, 0) as price
-    , coalesce(market_data.market_cap, 0) as market_cap
-    , coalesce(market_data.fdmc, 0) as fdmc
-    , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
-    -- Crypto Metrics
-    , coalesce(avs_rewards_submitted.avs_rewards_submitted, 0) as avs_rewards_submitted
-    , coalesce(avs_rewards_claimed.avs_rewards_claimed, 0) as avs_rewards_claimed
-    , coalesce(avs_and_operator_counts.active_operators, 0) as active_operators
-    , coalesce(avs_and_operator_counts.active_avs, 0) as active_avs
-    , coalesce(token_incentives.token_incentives, 0) as token_incentives
-    , coalesce(token_incentives.token_incentives_native, 0) as token_incentives_native
+    -- Market Data Metrics
+    , market_data.price
+    , market_data.market_cap
+    , market_data.fdmc
+    , market_data.token_volume
+
+    -- Usage Metrics
+    , avs_rewards_submitted.avs_rewards_submitted
+    , avs_rewards_claimed.avs_rewards_claimed
+    , avs_and_operator_counts.active_operators
+    , avs_and_operator_counts.active_avs
     , amount_restaked_usd as tvl
-    , amount_restaked_usd - LAG(amount_restaked_usd) 
-        OVER (ORDER BY date) AS tvl_net_change
     , num_restaked_eth as tvl_native
-    , num_restaked_eth - LAG(num_restaked_eth) 
-        OVER (ORDER BY date) AS tvl_native_net_change
+
+    -- Financial Metrics
+    , token_incentives.token_incentives
+    , token_incentives.token_incentives_native
+
     -- Supply Metrics
-    , circulating_supply as circulating_supply_native
-    , emissions_native as emissions_native
-    , net_supply_change_native
-    , premine_unlocks_native as premine_unlocks_native_native
+    , supply.circulating_supply as circulating_supply_native
+    , supply.emissions_native as emissions_native
+    , supply.net_supply_change_native
+    , supply.premine_unlocks_native as premine_unlocks_native_native
+
     -- Turnover Metrics
     , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
-    , coalesce(market_data.token_volume, 0) as token_volume
-    -- timestamp columns
+    , coalesce(market_data.token_turnover_circulating, 0) as token_turnover_circulating
+
+    -- Timestamp Columns
     , sysdate() as created_on
     , sysdate() as modified_on
 FROM date_spine d
 LEFT JOIN eigenlayer_aggregated using (date)
-LEFT JOIN eigenlayer_supply_data using (date)
+LEFT JOIN eigenlayer_supply_data supply using (date)
 LEFT JOIN token_incentives using (date)
 LEFT JOIN avs_rewards_claimed using (date)
 LEFT JOIN avs_and_operator_counts using (date)

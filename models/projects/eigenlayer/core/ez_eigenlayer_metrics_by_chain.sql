@@ -55,29 +55,22 @@ WITH chain_aggregates AS (
 
 SELECT 
     date
-    , protocol
-    , category
+    , 'eigenlayer' as artemis_id
     , chain
-    , num_restaked_eth
-    , amount_restaked_usd
-    , num_restaked_eth - LAG(num_restaked_eth) 
-        OVER (ORDER BY date) AS num_restaked_eth_net_change
-    , amount_restaked_usd - LAG(amount_restaked_usd) 
-        OVER (ORDER BY date) AS amount_restaked_usd_net_change
 
-    -- Crypto Metrics
+    -- Standardized Metrics
+
+    -- Usage Metrics
     , avs_rewards_submitted.avs_rewards_submitted as avs_rewards_submitted
     , avs_rewards_claimed.avs_rewards_claimed as avs_rewards_claimed
     , coalesce(avs_and_operator_counts.active_operators, 0) as active_operators
     , coalesce(avs_and_operator_counts.active_avs, 0) as active_avs
-    , coalesce(token_incentives.token_incentives, 0) as token_incentives
-    , coalesce(token_incentives.token_incentives_native, 0) as token_incentives_native
-    , amount_restaked_usd as tvl
-    , amount_restaked_usd - LAG(amount_restaked_usd) 
-        OVER (ORDER BY date) AS tvl_net_change
     , num_restaked_eth as tvl_native
-    , num_restaked_eth - LAG(num_restaked_eth) 
-        OVER (ORDER BY date) AS tvl_native_net_change
+    , amount_restaked_usd as tvl
+
+    -- Financial Metrics
+    , token_incentives.token_incentives as token_incentives
+    , token_incentives.token_incentives_native as token_incentives_native
 FROM chain_aggregates
 LEFT JOIN avs_rewards_submitted using (date)
 LEFT JOIN avs_rewards_claimed using (date)

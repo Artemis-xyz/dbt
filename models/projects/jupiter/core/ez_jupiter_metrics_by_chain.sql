@@ -9,29 +9,44 @@
 }}
 
 select
-    date,
-    'solana' as chain,
-    aggregator_dau,
-    aggregator_fees,
-    aggregator_txns,
-    aggregator_volume,
-    buyback_fee_allocation,
-    fdmc,
-    trading_volume,
-    txns,
-    fees,
-    market_cap,
-    perp_dau,
-    perp_fees,
-    perp_txns,
-    perp_volume,
-    price,
-    service_fee_allocation,
-    token_turnover_circulating,
-    token_turnover_fdv,
-    token_volume,
-    treasury_fee_allocation,
-    unique_traders,
-    aggregator_unique_traders,
-    aggregator_revenue
+    date
+    , 'solana' as chain
+    , 'jupiter' as artemis_id
+
+    -- Market Metrics
+    , price
+    , market_cap
+    , fdmc
+    , token_volume
+
+    -- Usage Metrics
+    , aggregator_volume
+    , perp_volume
+
+    , aggregator_txns
+    , perp_txns
+    , txns
+
+    , aggregator_dau
+    , perp_dau
+    , dau
+
+    -- TVL Metrics
+    , lst_tvl
+    , perp_tvl
+    , tvl
+    
+    , aggregator_fees
+    , perp_fees
+    , fees
+    , service_fee_allocation
+    , treasury_fee_allocation
+
+    -- Revenue Metrics
+    , revenue
+    , buybacks
+
+    -- Other Metrics
+    , token_turnover_circulating
+    , token_turnover_fdv
 from {{ref("ez_jupiter_metrics")}}

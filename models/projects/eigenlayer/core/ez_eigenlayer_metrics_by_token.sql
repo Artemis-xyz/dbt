@@ -11,16 +11,14 @@
 -- Simplified ez metrics table that presents data by token from the fact table
 SELECT 
     date
-    , protocol
-    , category
+    , 'eigenlayer' as artemis_id
     , chain
+    , category
     , restaking_type
     , token_symbol
 
-    -- Crypto Metrics
+    -- Usage Metrics
     , num_restaked_tokens as tvl_native
     , amount_restaked_usd as tvl
-    , num_restaked_tokens_net_change as tvl_native_net_change
-    , amount_restaked_usd_net_change as tvl_net_change
 FROM {{ref('fact_eigenlayer_restaked_assets')}}
 ORDER BY date, token_symbol

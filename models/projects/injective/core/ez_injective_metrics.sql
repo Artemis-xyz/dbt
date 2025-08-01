@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -76,30 +76,20 @@ with fundamental_data as (
 select
 
     date_spine.date
-    -- Old metrics needed for compatibility
-    , fundamental_data.dau
-    , fundamental_data.wau
-    , fundamental_data.mau
-    , fundamental_data.txns
-    , fundamental_data.fees
-    , fundamental_data.fees_native
-    , fundamental_data.avg_txn_fee
-    , unlocks.outflows as unlocks
-    , mints.mints as gross_emissions_native
-    , COALESCE(revenue.revenue, 0) AS revenue
-    , fundamental_data.fees_native as ecosystem_revenue_native
-    , coalesce(revenue.revenue_native, 0) as burned_fee_allocation_native
-    
-    -- Standardized Metrics
+    , 'injective' as artemis_id
 
+    -- Standardized Metrics
     -- Market Data Metrics
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
+    , market_metrics.token_volume
 
     -- Chain Usage Metrics
     , fundamental_data.txns as chain_txns
+    , fundamental_data.txns
     , fundamental_data.dau as chain_dau
+    , fundamental_data.dau
     , fundamental_data.mau as chain_mau
     , fundamental_data.wau as chain_wau
     , fundamental_data.returning_users
@@ -113,17 +103,22 @@ select
     , null as non_sybil_users
 
     -- Cashflow Metrics
-    , coalesce(fundamental_data.fees, 0) as chain_fees
-    , coalesce(revenue.spot_fees, 0) as spot_fees
-    , (coalesce(revenue.spot_fees, 0) + coalesce(fundamental_data.fees, 0)) as ecosystem_revenue
-    , coalesce(revenue.auction_fees, 0) as burned_fee_allocation
-    , coalesce(fundamental_data.fees, 0) as validator_fee_allocation
-    , coalesce(revenue.dapp_fees, 0) as dapp_fee_allocation
+    , fundamental_data.fees as chain_fees
+    , revenue.spot_fees as spot_fees
+    , coalesce(revenue.spot_fees, 0) + coalesce(fundamental_data.fees, 0) as fees
+    , fundamental_data.fees_native
+    , revenue.auction_fees as burned_fee_allocation
+    , fundamental_data.fees as validator_fee_allocation
+    , revenue.dapp_fees as other_fee_allocation
+    
+    -- Financial Metrics
+    , revenue.revenue as revenue
+    , revenue.revenue_native as revenue_native
 
-    -- INJ Token Supply Data
-    , coalesce(mints.mints, 0) as emissions_native
-    , coalesce(unlocks.outflows, 0) as premine_unlocks_native
-    , coalesce(revenue.revenue_native, 0) as burns_native
+    -- Supply Metrics
+    , mints.mints as gross_emissions_native
+    , unlocks.outflows as premine_unlocks_native
+    , revenue.revenue_native as burns_native
     , coalesce(mints.mints, 0) + coalesce(unlocks.outflows, 0) - coalesce(revenue.revenue_native, 0) as net_supply_change_native
     , issued_supply_metrics.max_supply_native
     , issued_supply_metrics.total_supply_native

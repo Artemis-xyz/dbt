@@ -165,29 +165,25 @@ with
 
 select
     date
+    , 'chainlink' as artemis_id
     , chain
-    --Old Metrics needed for compatibility
-    , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue
-    , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as secondary_supply_side_revenue
-    , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
     
 
     -- Standardized Metrics
     -- Cash Flow Metrics
-    , coalesce(automation_fees, 0) as automation_fees
-    , coalesce(ccip_fees, 0) as ccip_fees
-    , coalesce(vrf_fees, 0) as vrf_fees
-    , coalesce(direct_fees, 0) as direct_fees
-    , coalesce(ocr_fees, 0) as ocr_fees
-    , coalesce(fm_fees, 0) as fm_fees
-    , automation_fees + ccip_fees + vrf_fees + direct_fees + fm_fees + ocr_fees as oracle_fees
+    , automation_fees
+    , ccip_fees
+    , vrf_fees
+    , direct_fees
+    , ocr_fees
+    , fm_fees
 
     , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as service_fee_allocation
 
     , 0 as revenue
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as operating_expenses
-    , coalesce(token_incentives, 0) as token_incentives
+    , token_incentives
     , revenue - token_incentives - operating_expenses as earnings
 
 from fm_fees_data

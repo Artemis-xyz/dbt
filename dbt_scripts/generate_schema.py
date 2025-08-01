@@ -3,6 +3,7 @@ import re
 import os
 import subprocess
 import requests
+from generate_tests import generate_tests_for_project
 
 def load_global_schema(global_schema_path):
     """ Load and flatten the global schema into a set of metric names. """
@@ -270,7 +271,6 @@ def exec_main_script(project_name):
     generate_project_schema(project_name, global_schema_path, sql_files)
 
 
-
 if __name__ == "__main__":
     # Get comma-separated input and split into list
     project_names = input("Enter project names, separated by commas: ").split(',')
@@ -278,3 +278,16 @@ if __name__ == "__main__":
     # Trim whitespace and run script
     for name in [n.strip() for n in project_names if n.strip()]:
         exec_main_script(name)
+        
+        # Generate tests using the clean API
+        print(f"\n🔧 Generating tests for project: {name}")
+        results = generate_tests_for_project(name)
+        
+        if results['errors']:
+            print(f"❌ Test generation completed with {len(results['errors'])} errors:")
+            for error in results['errors']:
+                print(f"  - {error}")
+        else:
+            print(f"✅ Test generation completed successfully!")
+            print(f"   Processed {results['models_processed']} models")
+            print(f"   Generated tests for {results['models_with_tests']} models")

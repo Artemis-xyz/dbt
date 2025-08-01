@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
@@ -48,16 +48,23 @@ with
 
 select
     compound_metrics.date
-    , 'compound' as app
-    , 'DeFi' as category
+    , 'compound' as artemis_id
+
     -- Standardized metrics
+    -- Market Metrics
+    , price_data.price as price
+    , price_data.market_cap as market_cap
+    , price_data.fdmc as fdmc
+    , price_data.token_volume as token_volume
+
+    -- Usage Metrics
     , compound_metrics.daily_borrows_usd as lending_loans
     , compound_metrics.daily_supply_usd as lending_deposits
-    , price_data.price
-    , price_data.market_cap
-    , price_data.fdmc
+
+    -- Financial Metrics
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
-    -- timestamp columns
+
+    -- Timestamp Columns
     , sysdate() as created_on
     , sysdate() as modified_on
 from compound_metrics

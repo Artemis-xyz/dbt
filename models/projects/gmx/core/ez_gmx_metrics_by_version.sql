@@ -74,22 +74,27 @@ with
 select 
     date_spine.date as date
     , date_spine.version
-    , 'gmx' as app
-    , 'DeFi' as category
+    , 'gmx' as artemis_id
 
-    --Standardized Metrics
+    -- Standardized Metrics
+    -- Usage Metrics
+    , coalesce(spot_data.spot_volume, 0) as spot_volume
+    , coalesce(perp_data.perp_volume, 0) as perp_volume
+    , coalesce(tvl_metrics_grouped.tvl, 0) as tvl
+
+    -- Fee Metrics
     , coalesce(spot_data.spot_fees, 0) as spot_fees
     , coalesce(perp_data.perp_liquidation_fees, 0) as perp_liquidation_fees
     , coalesce(perp_data.perp_trading_fees, 0) as perp_trading_fees
     , coalesce(perp_data.perp_fees, 0) as perp_fees
     , coalesce(spot_data.spot_fees, 0) + coalesce(perp_data.perp_fees, 0) as ecosystem_revenue
-    , coalesce(spot_data.spot_lp_fee_allocation, 0) + coalesce(perp_data.perp_lp_fee_allocation, 0) as service_fee_allocation
+    , coalesce(spot_data.spot_lp_fee_allocation, 0) + coalesce(perp_data.perp_lp_fee_allocation, 0) as lp_fee_allocation
     , coalesce(spot_data.spot_stakers_fee_allocation, 0) + coalesce(perp_data.perp_stakers_fee_allocation, 0) as staking_fee_allocation
     , coalesce(spot_data.spot_oracle_fee_allocation, 0) + coalesce(perp_data.perp_oracle_fee_allocation, 0) as other_fee_allocation
     , coalesce(spot_data.spot_treasury_fee_allocation, 0) + coalesce(perp_data.perp_treasury_fee_allocation, 0) as treasury_fee_allocation
-    , coalesce(spot_data.spot_volume, 0) as spot_volume
-    , coalesce(perp_data.perp_volume, 0) as perp_volume
-    , coalesce(tvl_metrics_grouped.tvl, 0) as tvl
+
+    -- Financial Metrics
+    , coalesce(token_incentives.token_incentives, 0) as token_incentives
 from date_spine
 left join tvl_metrics_grouped using(date, version)
 left join spot_data using(date, version)

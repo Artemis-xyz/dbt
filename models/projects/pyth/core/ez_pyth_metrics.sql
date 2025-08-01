@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"]
     )
 }}
@@ -48,11 +48,6 @@ with
 SELECT
     date_spine.date
 
-    --Old Metrics needed for compatibility
-    , dau_txns.dau
-    , dau_txns.txns
-    , '0' as fees
-
     --Standardized Metrics
 
     --Market Metrics
@@ -63,12 +58,14 @@ SELECT
 
     --Usage Metrics
     , dau_txns.txns as oracle_txns
+    , dau_txns.txns
     , dau_txns.dau as oracle_dau
+    , dau_txns.dau
     , dfl_tvs.dfl_tvs as tvs
 
-    --Cash Flow Metrics
+    --Fee Metrics
     , 0 as oracle_fees
-    , 0 as ecosystem_revenue
+    , 0 as fees
 
     --Supply Metrics
     , supply_data.premine_unlocks_native as premine_unlocks_native
@@ -79,7 +76,7 @@ SELECT
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
 
-    -- timestamp columns
+    -- Timestamp Columns
     , sysdate() as created_on
     , sysdate() as modified_on
 FROM date_spine

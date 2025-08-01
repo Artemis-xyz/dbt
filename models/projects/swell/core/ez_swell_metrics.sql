@@ -10,7 +10,7 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"]
     )
 }}
@@ -47,19 +47,8 @@ date_spine as (
     where ds.date between (select min(date) from restaked_eth_metrics) and to_date(sysdate())
 )
 select
-    date_spine.date,
-    'swell' as app,
-    'DeFi' as category,
-
-    --Old metrics needed for compatibility
-    restaked_eth_metrics.num_restaked_eth,
-    restaked_eth_metrics.amount_restaked_usd,
-    restaked_eth_metrics.num_restaked_eth_net_change,
-    restaked_eth_metrics.amount_restaked_usd_net_change,
-    staked_eth_metrics.num_staked_eth,
-    staked_eth_metrics.amount_staked_usd,
-    staked_eth_metrics.num_staked_eth_net_change,
-    staked_eth_metrics.amount_staked_usd_net_change
+    date_spine.date
+    , 'swell' as artemis_id
 
     --Standardized Metrics
 
@@ -72,20 +61,14 @@ select
     -- LRT Usage Metrics
     , restaked_eth_metrics.num_restaked_eth as lrt_tvl_native
     , restaked_eth_metrics.amount_restaked_usd as lrt_tvl
-    , restaked_eth_metrics.num_restaked_eth_net_change as lrt_tvl_native_net_change
-    , restaked_eth_metrics.amount_restaked_usd_net_change as lrt_tvl_net_change
     
     -- LST Usage Metrics
     , staked_eth_metrics.num_staked_eth as lst_tvl_native
     , staked_eth_metrics.amount_staked_usd as lst_tvl
-    , staked_eth_metrics.num_staked_eth_net_change as lst_tvl_native_net_change
-    , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
     
     -- TVL Metrics
-    , lst_tvl_native + lrt_tvl_native as tvl_native
-    , lst_tvl + lrt_tvl as tvl
-    , lst_tvl_native_net_change + lrt_tvl_native_net_change as tvl_native_net_change
-    , lst_tvl_net_change + lrt_tvl_net_change as tvl_net_change
+    , coalesce(lst_tvl_native, 0) + coalesce(lrt_tvl_native, 0) as tvl_native
+    , coalesce(lst_tvl, 0) + coalesce(lrt_tvl, 0) as tvl
 
     -- Market Metrics
     , market_metrics.token_turnover_circulating as token_turnover_circulating

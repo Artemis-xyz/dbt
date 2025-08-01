@@ -18,21 +18,15 @@ with
        from {{ ref("fact_fraxswap_ethereum_tvl_by_pool") }}
     )
 select
-    tvl_by_pool.date,
-    'frax' as app,
-    'DeFi' as category,
-    tvl_by_pool.chain,
-    tvl_by_pool.version,
-    tvl_by_pool.pool,
-    tvl_by_pool.token_0,
-    tvl_by_pool.token_0_symbol,
-    tvl_by_pool.token_1,
-    tvl_by_pool.token_1_symbol,
-    tvl_by_pool.tvl,
-    trading_volume_pool.trading_volume,
-    trading_volume_pool.trading_fees,
-    trading_volume_pool.unique_traders,
-    trading_volume_pool.gas_cost_usd
+    tvl_by_pool.date
+    , 'frax' as artemis_id
+    , tvl_by_pool.chain
+    , tvl_by_pool.version
+    , tvl_by_pool.pool
+    , tvl_by_pool.token_0
+    , tvl_by_pool.token_0_symbol
+    , tvl_by_pool.token_1
+    , tvl_by_pool.token_1_symbol
 
     -- Standardized Metrics
     
@@ -40,10 +34,11 @@ select
     , trading_volume_pool.unique_traders as spot_dau
     , trading_volume_pool.trading_volume as spot_volume
     , tvl_by_pool.tvl as spot_tvl
+    , tvl_by_pool.tvl
 
     -- Money Metrics
     , trading_volume_pool.trading_fees as spot_fees
-    , trading_volume_pool.trading_fees as ecosystem_revenue
+    , trading_volume_pool.trading_fees as fees
 
     -- Other Metrics
     , trading_volume_pool.gas_cost_native

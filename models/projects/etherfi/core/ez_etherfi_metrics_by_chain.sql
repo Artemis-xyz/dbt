@@ -20,21 +20,14 @@ with
         from {{ ref('fact_etherfi_restaked_eth_count_with_usd_and_change') }}
     )
 select
-    restaked_eth_metrics.date,
-    'etherfi' as app,
-    'DeFi' as category,
-    restaked_eth_metrics.chain,
-    restaked_eth_metrics.num_restaked_eth,
-    restaked_eth_metrics.amount_restaked_usd,
-    restaked_eth_metrics.num_restaked_eth_net_change,
-    restaked_eth_metrics.amount_restaked_usd_net_change
-    
+    restaked_eth_metrics.date
+    , 'etherfi' as artemis_id
+    , restaked_eth_metrics.chain
+
     --Standardized Metrics
-    , num_restaked_eth as tvl_native
     , num_restaked_eth as lrt_tvl_native
-    , amount_restaked_usd as tvl
     , amount_restaked_usd as lrt_tvl
-    , num_restaked_eth_net_change as lrt_tvl_native_net_change
-    , amount_restaked_usd_net_change as lrt_tvl_net_change
+    , num_restaked_eth as tvl_native
+    , amount_restaked_usd as tvl
 from restaked_eth_metrics
 where restaked_eth_metrics.date < to_date(sysdate())

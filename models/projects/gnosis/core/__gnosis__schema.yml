@@ -72,6 +72,12 @@ column_definitions:
     tags:
       - artemis_gaap
 
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of a token in USD"
+    tags:
+      - artemis_gaap
+
   weekly_commits_core_ecosystem: &weekly_commits_core_ecosystem
     name: weekly_commits_core_ecosystem
     description: "The number of commits to the core ecosystem on a chain"
@@ -114,8 +120,8 @@ models:
       - *market_cap
       - *price
       - *revenue
+      - *token_volume
       - *weekly_commits_core_ecosystem
       - *weekly_commits_sub_ecosystem
       - *weekly_developers_core_ecosystem
       - *weekly_developers_sub_ecosystem
-

@@ -10,12 +10,6 @@ column_definitions:
     tags:
       - artemis_gaap
 
-  burned_fee_allocation_native: &burned_fee_allocation_native
-    name: burned_fee_allocation_native
-    description: "The amount of native tokens burned"
-    tags:
-      - artemis_gaap
-
   burns_native: &burns_native
     name: burns_native
     description: "The amount of native tokens burned"
@@ -106,6 +100,12 @@ column_definitions:
     name: non_sybil_users
     description: "The number of non-sybil users on a chain"
 
+  other_fee_allocation: &other_fee_allocation
+    name: other_fee_allocation
+    description: "Revenue distributed to other parties of the protocol."
+    tags:
+      - artemis_gaap
+
   premine_unlocks_native: &premine_unlocks_native
     name: premine_unlocks_native
     description: "The amount of native tokens unlocked from premine"
@@ -134,6 +134,12 @@ column_definitions:
     name: sybil_users
     description: "The number of sybil users on a chain"
 
+  token_volume: &token_volume
+    name: token_volume
+    description: "The volume of a token in USD"
+    tags:
+      - artemis_gaap
+
   total_supply_native: &total_supply_native
     name: total_supply_native
     description: "The total supply of a token, equal to the sum of all tokens created minus the sum of all tokens destroyed."
@@ -155,7 +161,6 @@ models:
     description: "This table stores metrics for the INJECTIVE protocol"
     columns:
       - *burned_fee_allocation
-      - *burned_fee_allocation_native
       - *burns_native
       - *chain_avg_txn_fee
       - *chain_dau
@@ -176,12 +181,14 @@ models:
       - *net_supply_change_native
       - *new_users
       - *non_sybil_users
+      - *other_fee_allocation
       - *premine_unlocks_native
       - *price
       - *returning_users
       - *revenue
       - *spot_fees
       - *sybil_users
+      - *token_volume
       - *total_supply_native
       - *tvl
       - *validator_fee_allocation

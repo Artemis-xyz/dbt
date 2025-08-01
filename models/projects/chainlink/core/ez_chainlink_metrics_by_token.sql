@@ -179,32 +179,24 @@ with
 
 select
     date
+    , 'chainlink' as artemis_id
     , chain
     , token
 
-    --Old Metrics needed for compatibility
-    , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as primary_supply_side_revenue
-    , coalesce(ocr_fees_native, 0) + coalesce(fm_fees_native, 0) as primary_supply_side_revenue_native
-    , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as secondary_supply_side_revenue
-    , coalesce(automation_fees_native, 0) + coalesce(ccip_fees_native, 0) + coalesce(vrf_fees_native, 0) + coalesce(direct_fees_native, 0) as secondary_supply_side_revenue_native
-    , primary_supply_side_revenue + secondary_supply_side_revenue as total_supply_side_revenue
-    , primary_supply_side_revenue_native + secondary_supply_side_revenue_native as total_supply_side_revenue_native
-
-
     -- Standardized Metrics
-    -- Cash Flow Metrics
-    , coalesce(automation_fees, 0) as automation_fees
-    , coalesce(automation_fees_native, 0) as automation_fees_native
-    , coalesce(ccip_fees, 0) as ccip_fees
-    , coalesce(ccip_fees_native, 0) as ccip_fees_native
-    , coalesce(vrf_fees, 0) as vrf_fees
-    , coalesce(vrf_fees_native, 0) as vrf_fees_native
-    , coalesce(direct_fees, 0) as direct_fees
-    , coalesce(direct_fees_native, 0) as direct_fees_native
-    , coalesce(ocr_fees, 0) as ocr_fees
-    , coalesce(ocr_fees_native, 0) as ocr_fees_native
-    , coalesce(fm_fees, 0) as fm_fees
-    , coalesce(fm_fees_native, 0) as fm_fees_native
+    -- Fee Metrics
+    , automation_fees
+    , automation_fees_native
+    , ccip_fees
+    , ccip_fees_native
+    , vrf_fees
+    , vrf_fees_native
+    , direct_fees
+    , direct_fees_native
+    , ocr_fees
+    , ocr_fees_native
+    , fm_fees
+    , fm_fees_native
 
     , coalesce(automation_fees, 0) + coalesce(ccip_fees, 0) + coalesce(vrf_fees, 0) + coalesce(direct_fees, 0) as fees
     , coalesce(automation_fees_native, 0) + coalesce(ccip_fees_native, 0) + coalesce(vrf_fees_native, 0) + coalesce(direct_fees_native, 0) as fees_native
@@ -214,8 +206,8 @@ select
     , 0 as revenue
     , 0 as revenue_native
 
-    , coalesce(token_incentives, 0) as token_incentives
-    , coalesce(token_incentives_native, 0) as token_incentives_native
+    , token_incentives
+    , token_incentives_native
 
     , coalesce(ocr_fees, 0) + coalesce(fm_fees, 0) as operating_expenses
     , coalesce(ocr_fees_native, 0) + coalesce(fm_fees_native, 0) as operating_expenses_native

@@ -10,14 +10,14 @@
         on_schema_change="append_new_columns",
         merge_update_columns=var("backfill_columns", []),
         merge_exclude_columns=["created_on"] if not var("backfill_columns", []) else none,
-        full_refresh=false,
+        full_refresh=var("full_refresh", false),
         tags=["ez_metrics"],
     )
 }}
 
 {% set backfill_date = var("backfill_date", None) %}
 
-with all_trade_metrics as (
+with fundamentals as (
     select
         date,
         -- Fees
@@ -75,7 +75,7 @@ select
     select
         date
     from {{ ref("dim_date_spine") }}
-    where date between (select min(date) from all_trade_metrics) and (to_date(sysdate()))
+    where date between (select min(date) from fundamentals) and (to_date(sysdate()))
 )
 , perps_tvl as (
     select
@@ -110,21 +110,7 @@ select
 )
 select
     date_spine.date
-    , 'solana' as chain
-    , 'jupiter' as protocol
-    -- Old metrics needed for compatibility
-    -- Fees
-    , all_trade_metrics.fees
-    -- Revenue
-    , all_trade_metrics.perp_revenue
-    , all_trade_metrics.aggregator_revenue
-    , all_trade_metrics.revenue
-    -- Volume
-    , all_trade_metrics.trading_volume
-    -- DAU
-    , all_trade_metrics.unique_traders -- perps specific metric
-    , all_trade_metrics.aggregator_unique_traders -- aggregator specific metric
-    , all_trade_metrics.txns
+    , 'jupiter' as artemis_id
     -- Standardized Metrics
     --Market Metrics
     , market_metrics.price
@@ -134,35 +120,43 @@ select
     -- Usage Metrics
     , aggregator_volume_data.single as aggregator_volume_single
     , aggregator_volume_data.overall as aggregator_volume_overall
-    , all_trade_metrics.aggregator_volume as aggregator_volume
-    , all_trade_metrics.trading_volume as perp_volume
-    , all_trade_metrics.dca_volume
-    , all_trade_metrics.limit_order_volume
-    , all_trade_metrics.aggregator_txns
-    , all_trade_metrics.perp_txns
-    , all_trade_metrics.dca_txns
-    , all_trade_metrics.limit_order_txns
-    , all_trade_metrics.unique_traders as perp_dau -- perps specific metric
-    , all_trade_metrics.aggregator_unique_traders as aggregator_dau -- aggregator specific metric
-    , aggregator_dau + perp_dau as dau -- necessary for OL index pipeline
+    , f.aggregator_volume as aggregator_volume
+    , f.trading_volume as perp_volume
+    , f.dca_volume
+    , f.limit_order_volume
+
+    , f.aggregator_txns
+    , f.perp_txns
+    , f.dca_txns
+    , f.limit_order_txns
+    , f.txns
+
+    , f.unique_traders as perp_dau
+    , f.aggregator_unique_traders as aggregator_dau
+    , aggregator_dau + perp_dau as dau
+
     , tvl.perp_tvl
     , tvl.lst_tvl
     , tvl.tvl
 
-    -- Cashflow Metrics
-    , all_trade_metrics.perp_fees
-    , all_trade_metrics.aggregator_fees
-    , all_trade_metrics.dca_fees
-    , all_trade_metrics.limit_order_fees
-    , all_trade_metrics.fees as ecosystem_revenue
-    , all_trade_metrics.aggregator_fees - all_trade_metrics.aggregator_revenue as integrator_fee_allocation
+    -- Fees Metrics
+    , f.perp_fees
+    , f.aggregator_fees
+    , f.dca_fees
+    , f.limit_order_fees
+    , f.fees
+    , f.aggregator_fees - f.aggregator_revenue as integrator_fee_allocation
     , perp_supply_side_revenue as service_fee_allocation
-    , all_trade_metrics.revenue as treasury_fee_allocation
-    , all_trade_metrics.perp_revenue as perp_treasury_fee_allocation
-    , all_trade_metrics.aggregator_revenue as aggregator_treasury_fee_allocation
-    , all_trade_metrics.dca_revenue as dca_treasury_fee_allocation
-    , all_trade_metrics.limit_order_revenue as limit_order_treasury_fee_allocation
-    , all_trade_metrics.buyback as buyback_fee_allocation
+    , f.revenue as treasury_fee_allocation
+    , f.perp_revenue as perp_treasury_fee_allocation
+    , f.aggregator_revenue as aggregator_treasury_fee_allocation
+    , f.dca_revenue as dca_treasury_fee_allocation
+    , f.limit_order_revenue as limit_order_treasury_fee_allocation
+
+    -- Financial Metrics
+    , f.revenue
+
+    , f.buyback as buybacks
     -- Token Turnover Metrics
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
@@ -178,7 +172,7 @@ select
 FROM date_spine
 left join market_metrics using (date)
 left join aggregator_volume_data using (date)
-left join all_trade_metrics using (date)
+left join fundamentals f using (date)
 left join daily_supply_data using (date)
 left join tvl using (date)
 left join solana_price sp using (date)
