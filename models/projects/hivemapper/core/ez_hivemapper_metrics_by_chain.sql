@@ -11,24 +11,27 @@
 select
     date
     , 'solana' as chain
-    , primary_supply_side_revenue
-    , revenue
-    , burns_native
-    , dau
+    , 'hivemapper' as artemis_id
 
     -- Standardized Metrics
+    -- Market Metrics
+    , price
+    , token_volume
+    , market_cap
+    , fdmc
 
-    -- Chain Metrics
-    , chain_dau
-    
-    -- Cash Flow Metrics
+    -- Usage Metrics
+    , dau
+
+    -- Fees Metrics
     , fees
     , service_fee_allocation
     , burned_fee_allocation
-    , burned_fee_allocation_native
 
-    -- Supply Metrics
-    , gross_emissions_native
-    , gross_emissions
-    , net_supply_change_native
+    -- Financial Metrics
+    , revenue
+
+    -- Timestamp Columns
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
+    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from {{ ref('ez_hivemapper_metrics') }}
