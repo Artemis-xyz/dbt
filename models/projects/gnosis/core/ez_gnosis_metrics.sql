@@ -77,7 +77,7 @@ select
     -- Timestamp Columns
     , sysdate() as created_on
     , sysdate() as modified_on
-from fundamental_data
+from fundamental_data f
 left join github_data g using (date)
 left join defillama_data using (date)
 left join market_metrics using (date)
