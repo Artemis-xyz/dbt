@@ -66,8 +66,8 @@ select
     , circulating_supply_native
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from txns_data
 left join daa on txns_data.date = daa.date
 left join bridge_volume on txns_data.date = bridge_volume.date

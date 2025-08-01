@@ -26,8 +26,8 @@ select
     -- Standardized Metrics
     , econia_tvl.tvl
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from econia_tvl
 where true
 {{ ez_metrics_incremental('econia_tvl.date', backfill_date) }}

@@ -65,8 +65,8 @@ select
     supply_data.circulating_supply_native as circulating_supply_native,
     supply_data.circulating_supply_native - lag(supply_data.circulating_supply_native) over (order by date) as net_supply_change_native,
     -- timestamp columns
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    sysdate() as created_on,
+    sysdate() as modified_on
 from usde_metrics
 left join ena_metrics using(date)
 left join ena_cashflow using(date)

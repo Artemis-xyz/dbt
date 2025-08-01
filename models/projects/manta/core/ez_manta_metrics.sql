@@ -66,8 +66,8 @@ SELECT
     , supply_data.net_supply_change_native
     , supply_data.circulating_supply_native
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM fundamentals f
 LEFT JOIN market_data using (date)
 LEFT JOIN defillama_data using (date)

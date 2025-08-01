@@ -37,8 +37,8 @@ select
     , nmd.token_turnover_fdv
     , nmd.token_volume
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from nova_dex_volumes   
 left join nova_market_data nmd using (date)
 where true

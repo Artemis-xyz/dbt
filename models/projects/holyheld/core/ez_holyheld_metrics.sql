@@ -21,8 +21,8 @@ select
     date::date as date,
     sum(transfer_volume) as transfer_volume,
     -- timestamp columns
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    sysdate() as created_on,
+    sysdate() as modified_on
 from {{ ref("fact_holyheld_transfers") }}
 where true
 {{ ez_metrics_incremental('date::date', backfill_date) }}

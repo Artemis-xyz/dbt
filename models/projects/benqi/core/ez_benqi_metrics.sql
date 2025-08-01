@@ -45,8 +45,8 @@ select
     , benqi_metrics.daily_borrows_usd as lending_loans
     , benqi_metrics.daily_supply_usd as lending_deposits
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from benqi_metrics
 left join price_data
     on benqi_metrics.date = price_data.date

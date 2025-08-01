@@ -54,8 +54,8 @@ select
     , coalesce(market_metrics.token_turnover_fdv, 0) as token_turnover_fdv
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine ds
 left join lending_metrics using (date)
 left join market_metrics using (date)

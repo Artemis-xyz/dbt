@@ -123,8 +123,8 @@ select
     , token_incentives.token_incentives_usd as token_incentives
     , trading_volume.gas_cost_native as gas_cost_native
     , trading_volume.gas_cost_usd as gas_cost
-    , to_timestamp_ntz(current_timestamp()) as created_on
-    , to_timestamp_ntz(current_timestamp()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from tvl
 left join trading_volume using(date)
 left join token_incentives using(date)

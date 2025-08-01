@@ -99,8 +99,8 @@ select
     , daily_supply_data.circulating_supply as circulating_supply_native
 
     -- Timestamp Columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join dau_txn_data on date_spine.date = dau_txn_data.date
 left join fees_revenue_data on date_spine.date = fees_revenue_data.date

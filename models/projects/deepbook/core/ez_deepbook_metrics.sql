@@ -40,8 +40,8 @@ select
     , dmd.token_volume
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from deepbook_tvl
 left join deepbook_market_data dmd using (date)
 where true

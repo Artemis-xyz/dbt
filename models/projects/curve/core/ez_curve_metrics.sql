@@ -136,8 +136,8 @@ select
     , market_metrics.token_turnover_circulating
     , market_metrics.token_turnover_fdv
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join market_metrics using(date)
 left join ez_dex_swaps using(date)

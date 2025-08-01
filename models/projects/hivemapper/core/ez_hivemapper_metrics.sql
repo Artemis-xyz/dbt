@@ -122,8 +122,8 @@ SELECT
     , sum(stats.mints_native + daily_supply_data.premine_unlocks_native - stats.burn_native) over (order by daily_supply_data.date) as circulating_supply_native
 
     -- Timestamp Columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join market_metrics on date_spine.date = market_metrics.date
 left join stats on date_spine.date = stats.date

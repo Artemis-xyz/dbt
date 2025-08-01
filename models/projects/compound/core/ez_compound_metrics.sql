@@ -65,8 +65,8 @@ select
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
 
     -- Timestamp Columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from compound_metrics
 left join price_data
     on compound_metrics.date = price_data.date

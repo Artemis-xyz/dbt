@@ -54,8 +54,8 @@ select
     restaked_eth_metrics.num_restaked_eth_net_change as lrt_tvl_native_net_change,
     restaked_eth_metrics.amount_restaked_usd_net_change as lrt_tvl_net_change,
     -- timestamp columns
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on,
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    sysdate() as created_on,
+    sysdate() as modified_on
 from date_spine
 left join restaked_eth_metrics using(date)
 left join market_metrics using(date)

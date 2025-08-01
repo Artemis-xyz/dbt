@@ -40,8 +40,8 @@ select
     , cmd.token_turnover_fdv
     , cmd.token_volume
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from corn_dex_volumes
 left join corn_market_data cmd using (date)
 where true

@@ -40,8 +40,8 @@ select
     , coalesce(fees_native, 0) as fees_native
     , fees_native as ecosystem_revenue_native
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 where true
 {{ ez_metrics_incremental('date', backfill_date) }}

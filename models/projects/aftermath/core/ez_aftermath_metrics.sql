@@ -69,8 +69,8 @@ select
     , COALESCE(tvl.tvl, 0) - COALESCE(LAG(tvl.tvl) OVER (ORDER BY date), 0) AS tvl_net_change
 
     -- Timetamp Columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM date_spine
 LEFT JOIN spot_trading_volume USING(date)
 LEFT JOIN spot_dau_txns USING(date)

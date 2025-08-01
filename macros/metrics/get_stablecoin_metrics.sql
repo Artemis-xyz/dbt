@@ -69,8 +69,8 @@ select
     , p2p_stablecoin_total_supply
     , stablecoin_total_supply
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from daily_metrics
 left join mau on daily_metrics.date = mau.date
 where true

@@ -113,8 +113,8 @@ select
     , g.weekly_developers_sub_ecosystem
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join fundamental_data f using (date)
 left join market_data m using (date)
