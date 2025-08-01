@@ -52,8 +52,6 @@ select
     , unique_tokens_traded
     , avg_swap_size_usd
     , fee_to_volume_ratio
-    -- Token Creation Metrics
-    , unique_symbols_created
     -- Market Data Metrics
     , price
     , market_cap
