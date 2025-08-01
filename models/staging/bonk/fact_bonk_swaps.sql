@@ -19,7 +19,7 @@ with data as (
     from solana_flipside.core.fact_transfers 
     where (tx_from = 'WLHv2UAZm6z4KyaaELi5pjdbJh6RESMva1Rnn8pJVVh' or tx_to = 'WLHv2UAZm6z4KyaaELi5pjdbJh6RESMva1Rnn8pJVVh')
     {% if is_incremental() %}
-        and block_timestamp > (select dateadd(day, -3, to_date(sysdate())) from {{ this }})
+        and block_timestamp >= dateadd(day, -3, to_date(sysdate()))
     {% else %}
         and block_timestamp >= '2025-04-20'
     {% endif %}
@@ -33,6 +33,10 @@ with data as (
         and date < dateadd(day, -1, to_date(sysdate()))
     union
     select dateadd('day', -1, to_date(sysdate())) as date, token_current_price as price
+    from pc_dbt_db.prod.fact_coingecko_token_realtime_data
+    where token_id = 'solana'
+    union 
+    select to_date(sysdate()) as date, token_current_price as price
     from pc_dbt_db.prod.fact_coingecko_token_realtime_data
     where token_id = 'solana'
 )
