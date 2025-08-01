@@ -27,3 +27,9 @@ sources:
     tables:
       - name: hyperliquid_daily_supply_data
       - name: hyperliquid_spot_trading_volume
+
+  - name: SNOWPIPE_DB
+    schema: PUBLIC
+    database: SNOWPIPE_DB
+    tables:
+      - name: FACT_HYPERLIQUID_TRADES

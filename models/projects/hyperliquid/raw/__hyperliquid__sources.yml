@@ -1,6 +1,0 @@
-sources:
-  - name: SNOWPIPE_DB
-    schema: PUBLIC
-    database: SNOWPIPE_DB
-    tables:
-      - name: FACT_HYPERLIQUID_TRADES
