@@ -22,7 +22,7 @@ with
     fundamental_data as ({{ get_fundamental_data_for_chain("polygon", "v2") }}),
     price_data as ({{ get_coingecko_metrics("matic-network") }}),
     defillama_data as ({{ get_defillama_metrics("polygon") }}),
-    stablecoin_data as ({{ get_stablecoin_metrics("polygon") }}),
+    stablecoin_data as ({{ get_stablecoin_metrics("polygon", backfill_date="2020-05-30") }}),
     github_data as ({{ get_github_metrics("polygon") }}),
     contract_data as ({{ get_contract_metrics("polygon") }}),
     revenue_data as (

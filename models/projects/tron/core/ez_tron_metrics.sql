@@ -23,7 +23,7 @@ with fundamental_data as (
 )
 , market_metrics as ({{ get_coingecko_metrics("tron") }})
 , defillama_data as ({{ get_defillama_metrics("tron") }})
-, stablecoin_data as ({{ get_stablecoin_metrics("tron") }})
+, stablecoin_data as ({{ get_stablecoin_metrics("tron", backfill_date="2018-06-25") }})
 , github_data as ({{ get_github_metrics("tron") }})
 , p2p_metrics as ({{ get_p2p_metrics("tron") }})
 , rolling_metrics as ({{ get_rolling_active_address_metrics("tron") }})
