@@ -110,14 +110,16 @@ with
 select 
     date_spine.date as date
     , date_spine.chain
-    , 'gmx' as app
-    , 'DeFi' as category
-
-    --Old Metrics needed for backward compatibility
-    , coalesce(combined_data.trading_volume, 0) as trading_volume
-    , coalesce(combined_data.unique_traders, 0) as unique_traders
+    , 'gmx' as artemis_id
 
     --Standardized Metrics
+    
+    -- Usage Metrics
+    , coalesce(spot_data.spot_volume, 0) as spot_volume
+    , coalesce(perp_data.perp_volume, 0) as perp_volume
+    , coalesce(tvl_metrics_grouped.tvl, 0) as tvl
+
+    -- Fee Metrics
     , coalesce(spot_data.spot_fees, 0) as spot_fees
     , coalesce(perp_data.perp_liquidation_fees, 0) as perp_liquidation_fees
     , coalesce(perp_data.perp_trading_fees, 0) as perp_trading_fees
@@ -127,11 +129,9 @@ select
     , coalesce(spot_data.spot_stakers_fee_allocation, 0) + coalesce(perp_data.perp_stakers_fee_allocation, 0) as staking_fee_allocation
     , coalesce(spot_data.spot_oracle_fee_allocation, 0) + coalesce(perp_data.perp_oracle_fee_allocation, 0) as other_fee_allocation
     , coalesce(spot_data.spot_treasury_fee_allocation, 0) + coalesce(perp_data.perp_treasury_fee_allocation, 0) as treasury_fee_allocation
-    , coalesce(spot_data.spot_volume, 0) as spot_volume
-    , coalesce(perp_data.perp_volume, 0) as perp_volume
+    
+    -- Financial Metrics
     , coalesce(token_incentives.token_incentives, 0) as token_incentives
-    , coalesce(tvl_metrics_grouped.tvl, 0) as tvl
-
 from date_spine
 left join tvl_metrics_grouped using(date, chain)
 left join token_incentives using(date, chain)
