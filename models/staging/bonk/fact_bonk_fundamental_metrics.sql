@@ -29,15 +29,6 @@ bonk_fees as (
         , bonk_fees as launchpad_fees
     from {{ ref('fact_bonk_fees') }}
 ),
-token_supply_metrics as (
-    select 
-        date_trunc('day', launch_date) as date
-        , sum(total_supply) as total_token_supply
-        , avg(total_supply) as avg_token_supply
-        , count(distinct symbol) as unique_symbols_created
-    from {{ ref('fact_bonk_coins_minted') }}
-    group by 1
-)
 select 
     coalesce(cm.date, lm.date, bf.date, tsm.date) as date
     , coins_minted
