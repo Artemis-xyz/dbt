@@ -23,18 +23,18 @@ SELECT
     date_spine.date
     , 'solana' as chain
 
-    --Old Metrics needed for compatibility
-    , dau_txns.dau
-    , dau_txns.txns
 
     --Standardized Metrics
 
     --Usage Metrics
     , dau_txns.txns as oracle_txns
+    , dau_txns.dau
     , dau_txns.dau as oracle_dau
+    , dau_txns.txns
 
-    --Cash Flow Metrics
+    --Fee Metrics
     , 0 as oracle_fees
     , 0 as fees
+
 FROM date_spine
 LEFT JOIN dau_txns USING (date)
