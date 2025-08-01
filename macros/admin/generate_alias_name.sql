@@ -4,7 +4,7 @@
         'If using the dev target, use the name of the model file as its alias.
         Otherwise, use the default behavior of dbt'
     #}
-    {%- if target.name == "dev" -%}
+    {%- if target.name == "dev" and not node.version -%}
         {{ return(node.name) }}
     {%- endif -%}
 
