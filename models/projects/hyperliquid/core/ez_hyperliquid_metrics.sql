@@ -36,7 +36,6 @@ with perp_volume_data as (
 , auction_fees_data as (
     select date, chain, auction_fees
     from {{ ref("fact_hyperliquid_auction_fees") }}
-    group by 1, 2
 )
 , hypercore_spot_burns_data as (
     select date, chain, hypercore_burns_native
@@ -199,7 +198,6 @@ select
 from date_spine
 left join market_metrics using(date)
 left join unique_traders_data using(date)
-left join trading_volume_data using(date)
 left join daily_transactions_data using(date)
 left join fees_data using(date)
 left join hypercore_spot_burns_data using(date)
@@ -208,6 +206,7 @@ left join first_principles_supply_data using(date)
 left join hyperliquid_api_supply_data using(date)
 left join auction_fees_data using(date)
 left join hype_staked_data using(date)
+left join perp_volume_data using(date)
 left join spot_trading_volume_data using(date)
 left join daily_assistance_fund_data using(date)
 left join perps_tvl_data using(date)
