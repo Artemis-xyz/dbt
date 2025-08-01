@@ -85,41 +85,30 @@ with
     )
 select
     coalesce(staked_eth_metrics.date, f.date, ti.date, t.date, nt.date, tn.date, os.date, th.date) as date
+    , 'rocketpool' as artemis_id
     , token
 
-    --Old metrics needed for compatibility
-    , COALESCE(f.cl_rewards_eth, 0) as cl_rewards_eth
-    , COALESCE(f.el_rewards_eth, 0) as el_rewards_eth
-    , COALESCE(f.deposit_fees_native, 0) as deposit_fees_native
-    , COALESCE(f.fees_native, 0) as fees_native
-    , COALESCE(f.primary_supply_side_revenue_native, 0) as primary_supply_side_revenue_native
-    , COALESCE(f.secondary_supply_side_revenue_native, 0) as secondary_supply_side_revenue_native
-    , COALESCE(f.total_supply_side_revenue_native, 0) as total_supply_side_revenue_native
-    , coalesce(staked_eth_metrics.num_staked_eth, 0) as net_deposits
-    , coalesce(os.reth_supply, 0) as outstanding_supply
-    , COALESCE(t.treasury_value, 0) as treasury_value
-
     --Standardized Metrics
-
     --Usage Metrics
-    , staked_eth_metrics.num_staked_eth as tvl_native
     , staked_eth_metrics.num_staked_eth as lst_tvl_native
-    , staked_eth_metrics.amount_staked_usd as tvl
     , staked_eth_metrics.amount_staked_usd as lst_tvl
+    , staked_eth_metrics.num_staked_eth as tvl_native
+    , staked_eth_metrics.amount_staked_usd as tvl
 
-    , COALESCE(f.cl_rewards_eth, 0) as block_rewards_native
-    , COALESCE(f.el_rewards_eth, 0) as mev_priority_fees_native
-    , COALESCE(f.deposit_fees_native, 0) as lst_deposit_fees_native
-    , COALESCE(f.cl_rewards_eth, 0) + COALESCE(f.el_rewards_eth, 0) as yield_generated_native
-    , COALESCE(f.fees_native, 0) as ecosystem_revenue_native
-    , ecosystem_revenue_native * 0.14 as validator_fee_allocation_native
-    , ecosystem_revenue_native * 0.86 as service_fee_allocation_native
+    --Fee Metrics
+    , f.cl_rewards_eth as block_rewards_native
+    , f.el_rewards_eth as mev_priority_fees_native
+    , f.deposit_fees_native as lst_deposit_fees_native
+    , coalesce(f.cl_rewards_eth, 0) + coalesce(f.el_rewards_eth, 0) as yield_generated_native
+    , f.fees_native as fees_native
+    , coalesce(f.fees_native, 0) * 0.14 as validator_fee_allocation_native
+    , coalesce(f.fees_native, 0) * 0.86 as service_fee_allocation_native
 
     --Financial Statement Metrics
     , 0 as revenue
-    , COALESCE(ti.token_incentives, 0) as token_incentives
+    , ti.token_incentives as token_incentives
     , 0 as operating_expenses
-    , COALESCE(token_incentives, 0) as total_expenses
+    , ti.token_incentives as total_expenses
     , coalesce(revenue,0) - coalesce(token_incentives,0) as earnings
     
 

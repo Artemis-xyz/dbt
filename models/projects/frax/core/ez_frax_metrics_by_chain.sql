@@ -41,18 +41,9 @@ with
         group by date, chain
     )
 select
-    coalesce(tvl_by_chain.date, staked_eth_metrics.date) as date,
-    'frax' as app,
-    'DeFi' as category,
-    tvl_by_chain.chain,
-    staked_eth_metrics.num_staked_eth,
-    staked_eth_metrics.amount_staked_usd,
-    staked_eth_metrics.num_staked_eth_net_change,
-    staked_eth_metrics.amount_staked_usd_net_change,
-    trading_volume_by_chain.trading_volume,
-    trading_volume_by_chain.trading_fees,
-    trading_volume_by_chain.unique_traders,
-    trading_volume_by_chain.gas_cost_usd
+    coalesce(tvl_by_chain.date, staked_eth_metrics.date) as date
+    , 'frax' as artemis_id
+    , tvl_by_chain.chain
 
     -- Standardized Metrics
     
@@ -61,7 +52,6 @@ select
     , trading_volume_by_chain.trading_volume as spot_volume
     , tvl_by_chain.tvl as spot_tvl
     , staked_eth_metrics.amount_staked_usd as lst_tvl
-    , staked_eth_metrics.amount_staked_usd_net_change as lst_tvl_net_change
     , tvl_by_chain.tvl + staked_eth_metrics.amount_staked_usd as tvl
     
 

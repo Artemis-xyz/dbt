@@ -76,33 +76,33 @@ with price as (
 
 select
     metrics.date,
-    'iotex' as chain
-    , metrics.dau
-    , metrics.txns
-    
-    , supply.mints_usd as gross_emissions
-    , supply.mints as gross_emissions_native
-    , supply.burn AS burned_fee_allocation_native
+    'iotex' as artemis_id
+
     -- Standardized Metrics
     -- Market Metrics
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
+    , market_metrics.token_volume
     -- Usage Metrics
     , metrics.dau as chain_dau
+    , metrics.dau
     , metrics.txns as chain_txns
+    , metrics.txns
     , defillama_dex_volume.dex_volumes as chain_spot_volume
     , defillama_tvl.tvl as chain_tvl
     , defillama_tvl.tvl as tvl 
     -- Cashflow Metrics
+    , metrics.fees as chain_fees
     , metrics.fees
+    , metrics.fees_native
     , metrics.primary_supply_side_revenue AS validator_fee_allocation
     , metrics.secondary_supply_side_revenue AS service_fee_allocation
     , supply.burn_usd AS burned_fee_allocation
     , supply.burn_usd as revenue
 
     -- IOTX Token Supply Data
-    , 0 as emissions_native
+    , 0 as gross_emissions_native
     , supply.mints as premine_unlocks_native
     , supply.burn AS burns_native
     , 0 + coalesce(supply.mints, 0) - coalesce(supply.burn, 0) AS net_supply_change_native

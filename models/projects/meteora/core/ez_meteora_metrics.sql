@@ -53,31 +53,33 @@ with dlmm_metrics as (
 
 select
     date_spine.date
-    --Old Metrics needed for backwards compatibility
-    , coalesce(dlmm_metrics.unique_traders, 0) as unique_traders
-    , coalesce(dlmm_metrics.number_of_swaps, 0) as number_of_swaps
-    , coalesce(dlmm_metrics.trading_volume, 0) as trading_volume
+    , 'meteora' as artemis_id
+
     -- Standardized Metrics
     -- Usage Metrics
     , coalesce(dlmm_metrics.unique_traders, 0) as dlmm_spot_dau
     , coalesce(amm_metrics.unique_traders, 0) as amm_spot_dau
     , coalesce(spot_metrics.unique_traders, 0) as spot_dau
+    , coalesce(spot_metrics.unique_traders, 0) as dau
     , coalesce(dlmm_metrics.number_of_swaps, 0) as dlmm_spot_txns
     , coalesce(amm_metrics.number_of_swaps, 0) as amm_spot_txns
     , coalesce(spot_metrics.number_of_swaps, 0) as spot_txns
+    , coalesce(spot_metrics.number_of_swaps, 0) as txns
     , coalesce(dlmm_metrics.trading_volume, 0) as dlmm_spot_volume
     , coalesce(amm_metrics.trading_volume, 0) as amm_spot_volume
     , coalesce(dlmm_metrics.trading_volume, 0) + coalesce(amm_metrics.trading_volume, 0) as spot_volume
     , coalesce(dlmm_metrics.tvl, 0) as dlmm_tvl
     , coalesce(dlmm_metrics.tvl, 0) as tvl
-    -- Cash Flow Metrics
+
+    -- Fee Metrics
     , coalesce(amm_metrics.fees, 0) as amm_spot_fees
     , coalesce(dlmm_metrics.dlmm_spot_fees, 0) as dlmm_spot_fees
     , coalesce(amm_metrics.fees, 0) + coalesce(dlmm_metrics.dlmm_spot_fees, 0) as spot_fees
-    , coalesce(amm_metrics.fees, 0) + coalesce(dlmm_metrics.dlmm_spot_fees, 0) as ecosystem_revenue
+    , coalesce(amm_metrics.fees, 0) + coalesce(dlmm_metrics.dlmm_spot_fees, 0) as fees
     , (coalesce(dlmm_metrics.dlmm_spot_fees, 0) * .05) + coalesce(amm_metrics.fees, 0) * .20 as treasury_fee_allocation
     , (coalesce(dlmm_metrics.dlmm_spot_fees, 0) * .95) + coalesce(amm_metrics.fees, 0) * .80 as service_fee_allocation
-    -- timestamp columns
+
+    -- Timestamp Columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine

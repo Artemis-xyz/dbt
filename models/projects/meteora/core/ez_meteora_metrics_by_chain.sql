@@ -44,28 +44,26 @@ with dlmm_metrics as (
 
 select
     date_spine.date
+    , 'meteora' as artemis_id
     , 'solana' as chain
 
-    --Old Metrics needed for backwards compatibility
-    , coalesce(dlmm_metrics.unique_traders, 0) as unique_traders
-    , coalesce(dlmm_metrics.number_of_swaps, 0) as number_of_swaps
-    , coalesce(dlmm_metrics.trading_volume, 0) as trading_volume
-
     -- Standardized Metrics
-
     -- Usage Metrics
     , coalesce(dlmm_metrics.unique_traders, 0) as dlmm_spot_dau
     , coalesce(amm_metrics.unique_traders, 0) as amm_spot_dau
     , coalesce(spot_metrics.unique_traders, 0) as spot_dau
+    , coalesce(spot_metrics.unique_traders, 0) as dau
     , coalesce(dlmm_metrics.number_of_swaps, 0) as dlmm_spot_txns
     , coalesce(amm_metrics.number_of_swaps, 0) as amm_spot_txns
     , coalesce(spot_metrics.number_of_swaps, 0) as spot_txns
+    , coalesce(spot_metrics.number_of_swaps, 0) as txns
     , coalesce(dlmm_metrics.trading_volume, 0) as dlmm_spot_volume
     , coalesce(amm_metrics.trading_volume, 0) as amm_spot_volume
     , coalesce(dlmm_metrics.trading_volume, 0) + coalesce(amm_metrics.trading_volume, 0) as spot_volume
     , coalesce(dlmm_metrics.tvl, 0) as dlmm_tvl
-    
-    -- Cash Flow Metrics
+    , coalesce(dlmm_metrics.tvl, 0) as tvl
+
+    -- Fee Metrics
     , coalesce(amm_metrics.fees, 0) as amm_spot_fees
     , coalesce(dlmm_metrics.dlmm_spot_fees, 0) as dlmm_spot_fees
     , coalesce(amm_metrics.fees, 0) + coalesce(dlmm_metrics.dlmm_spot_fees, 0) as spot_fees
