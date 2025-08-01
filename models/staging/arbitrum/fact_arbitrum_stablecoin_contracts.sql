@@ -24,5 +24,6 @@ from
             ('USDD', '0x680447595e8b7b3Aa1B43beB9f6098C79ac2Ab3f', 18, 'usdd', 0),
             ('S_USD', '0xa970af1a584579b618be4d69ad6f73459d112f95', 18, 'nusd', 0),
             ('MIM', '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a', 18, 'magic-internet-money-arbitrum', 0),
-            ('BUIDL', '0xA6525Ae43eDCd03dC08E775774dCAbd3bb925872', 6, 'blackrock-usd-institutional-digital-liquidity-fund', 0)
+            ('BUIDL', '0xA6525Ae43eDCd03dC08E775774dCAbd3bb925872', 6, 'blackrock-usd-institutional-digital-liquidity-fund', 0),
+            ('PYUSD', '0x46850aD61C2B7d64d08c9C754F45254596696984', 6, 'paypal-usd', 0)
     ) as results(symbol, contract_address, num_decimals, coingecko_id, initial_supply)
