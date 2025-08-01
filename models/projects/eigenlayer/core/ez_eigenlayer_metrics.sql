@@ -113,8 +113,8 @@ SELECT
     , coalesce(market_data.token_turnover_fdv, 0) as token_turnover_fdv
     , coalesce(market_data.token_volume, 0) as token_volume
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM date_spine d
 LEFT JOIN eigenlayer_aggregated using (date)
 LEFT JOIN eigenlayer_supply_data using (date)

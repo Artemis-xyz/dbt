@@ -97,8 +97,8 @@ select
     , premine_unlocks_native as net_supply_change_native
     , circulating_supply_native
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join defillama_data on fundamental_data.date = defillama_data.date
 left join contract_data on fundamental_data.date = contract_data.date

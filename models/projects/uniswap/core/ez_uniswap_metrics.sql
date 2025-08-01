@@ -161,8 +161,8 @@ SELECT
     , tokenholder_cte.token_holder_count
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 
 FROM fees_agg
 LEFT JOIN dau_txns_volume using(date)

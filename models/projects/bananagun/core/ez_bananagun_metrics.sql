@@ -77,8 +77,8 @@ SELECT
     , coalesce(market_data.token_turnover_circulating, 0) AS token_turnover_circulating
     , coalesce(market_data.token_turnover_fdv, 0) AS token_turnover_fdv
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM metrics
 LEFT JOIN coin_metrics using (date)
 LEFT JOIN market_data using (date)

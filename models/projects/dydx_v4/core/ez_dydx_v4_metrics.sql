@@ -56,8 +56,8 @@ select
     , trading_fees + txn_fees as ecosystem_revenue
     , case when unique_traders_data.date > '2025-03-25' then ecosystem_revenue * 0.25 else 0 end as buybacks
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from trading_volume_data
 left join fees_data on trading_volume_data.date = fees_data.date
 left join chain_data on trading_volume_data.date = chain_data.date

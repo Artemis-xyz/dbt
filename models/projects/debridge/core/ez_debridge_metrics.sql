@@ -47,8 +47,8 @@ select
     , price_data.token_turnover_fdv as token_turnover_fdv
     , price_data.token_volume as token_volume
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from bridge_volume_fees
 left join price_data on bridge_volume_fees.date = price_data.date
 where true

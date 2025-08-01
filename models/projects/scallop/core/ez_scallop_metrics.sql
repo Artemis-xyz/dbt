@@ -62,8 +62,8 @@ SELECT
     COALESCE(m.token_turnover_fdv, 0) AS token_turnover_fdv,
     COALESCE(d.tvl, 0) AS tvl
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM defillama_tvl_forwardfill d
 LEFT JOIN market_data m USING (date)
 where true

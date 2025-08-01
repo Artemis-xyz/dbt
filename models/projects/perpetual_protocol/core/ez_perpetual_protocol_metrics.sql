@@ -80,8 +80,8 @@ SELECT
     , token_volume
 
     -- timestamp columns
-    , to_timestamp_ntz(current_timestamp()) as created_on
-    , to_timestamp_ntz(current_timestamp()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM perp_data
 LEFT JOIN market_data USING(date)
 LEFT JOIN token_incentives USING(date)

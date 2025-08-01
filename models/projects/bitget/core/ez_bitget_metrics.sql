@@ -52,8 +52,8 @@ select
     , supply_data.issued_supply as issued_supply_native
     , supply_data.float_supply as circulating_supply_native
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from price
 left join revenue_data using(date)
 left join supply_data using(date)

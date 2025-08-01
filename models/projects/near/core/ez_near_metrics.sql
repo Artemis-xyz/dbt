@@ -104,8 +104,8 @@ select
     , coalesce(near_dex_volumes.dex_volumes, 0) as chain_spot_volume
     , coalesce(chain_fees, 0) + coalesce(blob_fees, 0) + coalesce(p2p_transfer_volume, 0) + coalesce(near_dex_volumes.dex_volumes, 0) + coalesce(application_fees.application_fees, 0) as total_economic_activity
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join price_data on fundamental_data.date = price_data.date
 left join defillama_data on fundamental_data.date = defillama_data.date

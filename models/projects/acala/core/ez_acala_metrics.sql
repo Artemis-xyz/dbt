@@ -56,8 +56,8 @@ select
     , revenue_native AS burned_fee_allocation_native
     , revenue AS burned_fee_allocation
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from fundamental_data
 left join rolling_metrics on fundamental_data.date = rolling_metrics.date
 left join price_data on fundamental_data.date = price_data.date

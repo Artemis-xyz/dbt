@@ -112,8 +112,8 @@ select
     , token_incentives_native
     , token_incentives
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from date_spine
 left join cumulative_metrics using (date)
 left join morpho_market_data mdd using (date)

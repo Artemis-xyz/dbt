@@ -144,8 +144,8 @@ select
     , COALESCE(th.token_holder_count, 0) as token_holder_count
 
     -- timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 from prices_cte p
 left join fees_revs_cte f using(date)
 left join staked_eth_metrics using(date)

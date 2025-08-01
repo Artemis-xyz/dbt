@@ -27,8 +27,8 @@ SELECT
     , sum(tokenized_mcap) as tokenized_mcap
 
     -- Timestamp columns
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
-    , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
+    , sysdate() as created_on
+    , sysdate() as modified_on
 FROM {{ ref('ez_blackrock_metrics_by_chain') }}
 where true
 {{ ez_metrics_incremental('date', backfill_date) }}
