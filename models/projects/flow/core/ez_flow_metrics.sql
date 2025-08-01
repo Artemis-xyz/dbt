@@ -56,47 +56,49 @@ with fees_revenue_data as (
 
 select
     date_spine.date
-    --Old metrics needed for compatibility
-    , dau_txn_data.txns
-    , dau_txn_data.dau
-    , fees_revenue_data.fees
-    , fees_revenue_data.fees / dau_txn_data.txns as avg_txn_fee
-    , fees_revenue_data.revenue
-    , dau_txn_data.chain
-    , defillama_data.dex_volumes as dex_volumes
-    , defillama_data.tvl as tvl
-    , nft_metrics.nft_trading_volume
+    , 'flow' as artemis_id
+
     -- Standardized Metrics
+
     -- Market Metrics
     , market_metrics.price
     , market_metrics.market_cap
     , market_metrics.fdmc
     , market_metrics.token_volume
+
     -- Usage Metrics
     , dau_txn_data.txns as chain_txns
+    , dau_txn_data.txns
     , dau_txn_data.dau as chain_dau
+    , dau_txn_data.dau
     , fees_revenue_data.fees / dau_txn_data.txns as chain_avg_txn_fee
     , defillama_data.dex_volumes as chain_spot_volume
-    , defillama_data.tvl as chain_tvl
+    , defillama_data.tvl as tvl
     , nft_metrics.nft_trading_volume as chain_nft_trading_volume
-    -- Cashflow metrics
+
+    -- Fee Metrics
     , fees_revenue_data.fees AS chain_fees
-    , fees_revenue_data.fees AS ecosystem_revenue
+    , fees_revenue_data.fees
     , fees_revenue_data.fees AS validator_fee_allocation
     , fees_revenue_data.revenue AS burned_fee_allocation
+
+    -- Financial Metrics
+    , fees_revenue_data.revenue
+
     -- Developer Metrics
     , github_data.weekly_commits_core_ecosystem
     , github_data.weekly_commits_sub_ecosystem
     , github_data.weekly_developers_core_ecosystem
     , github_data.weekly_developers_sub_ecosystem
-    --FLOW Token Supply Data
+
+    -- Supply Metrics
     , daily_supply_data.emissions_native
     , daily_supply_data.premine_unlocks_native
     , daily_supply_data.burns_native
     , daily_supply_data.net_supply_change_native
     , daily_supply_data.circulating_supply as circulating_supply_native
 
-    -- timestamp columns
+    -- Timestamp Columns
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as created_on
     , TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as modified_on
 from date_spine
