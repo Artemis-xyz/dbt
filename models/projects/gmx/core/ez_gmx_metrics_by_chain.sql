@@ -125,7 +125,7 @@ select
     , coalesce(perp_data.perp_trading_fees, 0) as perp_trading_fees
     , coalesce(perp_data.perp_fees, 0) as perp_fees
     , coalesce(spot_data.spot_fees, 0) + coalesce(perp_data.perp_fees, 0) as fees
-    , coalesce(spot_data.spot_lp_fee_allocation, 0) + coalesce(perp_data.perp_lp_fee_allocation, 0) as service_fee_allocation
+    , coalesce(spot_data.spot_lp_fee_allocation, 0) + coalesce(perp_data.perp_lp_fee_allocation, 0) as lp_fee_allocation
     , coalesce(spot_data.spot_stakers_fee_allocation, 0) + coalesce(perp_data.perp_stakers_fee_allocation, 0) as staking_fee_allocation
     , coalesce(spot_data.spot_oracle_fee_allocation, 0) + coalesce(perp_data.perp_oracle_fee_allocation, 0) as other_fee_allocation
     , coalesce(spot_data.spot_treasury_fee_allocation, 0) + coalesce(perp_data.perp_treasury_fee_allocation, 0) as treasury_fee_allocation
