@@ -44,6 +44,7 @@ sources:
       - name: fact_token_balances
       - name: fact_decoded_instructions
       - name: fact_events_inner
+      - name: fact_sol_balances
       - name: fact_token_account_owners
 
   - name: SOLANA_FLIPSIDE_PRICE

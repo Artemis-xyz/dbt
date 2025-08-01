@@ -106,6 +106,31 @@ select
 )
 , solana_price as ({{ get_coingecko_metrics("solana") }}
 )
+, other_revenue AS (
+    select
+        s.date,
+        s.total_jup_studio_revenue_usd as studio_revenue,
+        s.total_fees                   as studio_fees,
+        a.usd_revenue                  as ape_revenue,
+        st.usd_revenue                 as staking_revenue
+    from {{ ref("fact_jupiter_studio_fee") }} s
+    left join {{ ref("fact_jupiter_staking_fee") }} st
+        on s.date = st.date
+    left join {{ ref("fact_jupiter_ape_pro_fee") }} a
+        on s.date = a.date
+), supply_data AS (
+    SELECT
+        date,
+        burn,
+        cumulative_burn,
+        buyback,
+        max_supply,
+        total_supply,
+        issued_supply,
+        circulating_supply
+    FROM {{ ref('fact_jupiter_supply') }}
+)
+
 select
     date_spine.date
     , 'solana' as chain
@@ -113,12 +138,21 @@ select
 
     -- Old metrics needed for compatibility
     -- Fees
-    , all_trade_metrics.fees
+    , (all_trade_metrics.fees
+        + coalesce(other_revenue.studio_fees,0)
+        + coalesce(other_revenue.ape_revenue,0)
+        + coalesce(other_revenue.staking_revenue,0)
+      ) as total_fees
+
 
     -- Revenue
     , all_trade_metrics.perp_revenue
     , all_trade_metrics.aggregator_revenue
-    , all_trade_metrics.revenue
+    , (all_trade_metrics.revenue
+       + coalesce(other_revenue.studio_revenue,0)
+       + coalesce(other_revenue.ape_revenue,0) -- Fees = Revenue for ape pro
+       + coalesce(other_revenue.staking_revenue,0) -- Fees = Revenue for staking
+      ) as protocol_revenue
 
     -- Volume
     , all_trade_metrics.trading_volume
@@ -176,9 +210,22 @@ select
     -- JUP Token Supply Data
     , coalesce(daily_supply_data.emissions_native, 0) as emissions_native
     , coalesce(daily_supply_data.premine_unlocks_native, 0) as premine_unlocks_native
-    , coalesce(daily_supply_data.burns_native, 0) as burns_native
     , coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(daily_supply_data.burns_native, 0) as net_supply_change_native
-    , sum(coalesce(daily_supply_data.emissions_native, 0) + coalesce(daily_supply_data.premine_unlocks_native, 0) - coalesce(daily_supply_data.burns_native, 0)) over (order by daily_supply_data.date) as circulating_supply_native
+
+    -- New Revenue Metrics
+    , other_revenue.studio_revenue as launchpad_revenue
+    , other_revenue.studio_fees as launchpad_fee
+    , other_revenue.ape_revenue as spot_revenue
+    , other_revenue.staking_revenue as lst_revenue
+
+    -- Supply Data
+    , supply_data.burn as burn_native
+    , supply_data.cumulative_burn as total_burn_native
+    , supply_data.buyback as total_buybacks_native
+    , supply_data.max_supply 
+    , supply_data.total_supply
+    , supply_data.issued_supply
+    , supply_data.circulating_supply
 
 FROM date_spine
 left join market_metrics using (date)
@@ -187,3 +234,5 @@ left join all_trade_metrics using (date)
 left join daily_supply_data using (date)
 left join tvl using (date)
 left join solana_price sp using (date)
+left join other_revenue using (date)
+left join supply_data using (date)
