@@ -5,11 +5,10 @@
         snowflake_warehouse='BONK',
     )
 }}
--- Still need to add fees. 
 with coins_minted as (
     select 
         date_trunc('day', block_timestamp) as date,
-        count (distinct mint_address) as coins_minted
+        count (distinct mint_address) as unique_tokens_created_per_day
     from {{ ref('fact_bonk_coins_minted') }}
     group by 1
 ),
@@ -31,7 +30,7 @@ bonk_fees as (
 ),
 select 
     coalesce(cm.date, lm.date, bf.date, tsm.date) as date
-    , coins_minted
+    , unique_tokens_created_per_day
     , launchpad_dau
     , launchpad_volume
     , launchpad_txns

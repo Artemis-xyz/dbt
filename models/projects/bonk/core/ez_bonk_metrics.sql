@@ -43,11 +43,13 @@ with date_spine as (
 select
     date_spine.date
     --Standardized Metrics
-    , coins_minted
+    , unique_tokens_created_per_day as coins_minted
     , launchpad_dau
     , launchpad_volume
     , launchpad_txns
     , launchpad_fees
+    -- Token Creation Metrics
+    , unique_tokens_created_per_day
     -- Additional Trading Metrics
     , unique_tokens_traded
     , avg_swap_size_usd
