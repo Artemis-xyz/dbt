@@ -53,8 +53,6 @@ select
     , avg_swap_size_usd
     , fee_to_volume_ratio
     -- Token Creation Metrics
-    , total_token_supply
-    , avg_token_supply
     , unique_symbols_created
     -- Market Data Metrics
     , price
