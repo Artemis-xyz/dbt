@@ -25,11 +25,14 @@ with date_spine as (
 , bonk_metrics as (
     select 
         date
-        , coins_minted
+        , unique_tokens_created_per_day
         , launchpad_dau
         , launchpad_volume
         , launchpad_txns
         , launchpad_fees
+        , unique_tokens_traded
+        , avg_swap_size_usd
+        , fee_to_volume_ratio
     from {{ ref('fact_bonk_fundamental_metrics') }}
 )
 
@@ -37,10 +40,17 @@ with date_spine as (
 select
     date_spine.date
     --Standardized Metrics
-    , coins_minted
+    , unique_tokens_created_per_day as coins_minted
     , launchpad_dau
     , launchpad_volume
     , launchpad_txns
+    , launchpad_fees
+    -- Token Creation Metrics
+    , unique_tokens_created_per_day
+    -- Additional Trading Metrics
+    , unique_tokens_traded
+    , avg_swap_size_usd
+    , fee_to_volume_ratio
     -- Market Data Metrics
     , price
     , market_cap
