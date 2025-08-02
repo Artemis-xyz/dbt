@@ -4,3 +4,11 @@ sources:
     database: LANDING_DATABASE
     tables:
       - name: raw_zora_receipt_transactions_parquet
+      
+  - name: PC_DBT_DB
+    schema: prod
+    database: PC_DBT_DB
+    tables:
+      - name: fact_base_decoded_events
+      - name: fact_zora_base_launchpad_events
+
