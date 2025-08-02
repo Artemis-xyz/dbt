@@ -28,11 +28,13 @@ clean-targets: # directories to be removed by `dbt clean`
 
 # In this example config, we tell dbt to build all models in the example/ directory
 # as tables. These settings can be overridden in the individual model files
-# using the `{{ config(...) }}` macro.
+# using the `{{ config(...) }}` macro.  
 models:
   +persist_docs:
     relation: true
     columns: true
+  post-hook:
+    - "{{ create_latest_ez_metrics_version_view() }}"
   artemis_dbt:
     metrics:
       contracts:
