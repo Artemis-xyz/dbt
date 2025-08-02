@@ -4,3 +4,4 @@ sources:
     database: pc_dbt_db
     tables:
       - name: jito_unlock_supply_schedule
+      - name: jito_daily_supply_data
